@@ -29,6 +29,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtStringTemplateEntry
+import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
@@ -47,41 +48,78 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
         object : UElementHandler() {
             override fun visitCallExpression(node: UCallExpression) {
                 checkForConfigurationToConfigurableFileCollection(node)
-                val methodName = node.methodName
-                val potentialReplacements = REPLACEMENTS[methodName] ?: return
-                val containingClass = (node.receiverType as? PsiClassType)?.resolve() ?: return
-                // Check that the called method is from the expected class (or a child class) and
-                // not an unrelated method with the same name).
-                potentialReplacements.forEach { (containingClassName, replacement) ->
-                    if (!containingClass.isInstanceOf(containingClassName)) return@forEach
 
-                    val fix =
-                        replacement.recommendedReplacement?.let {
-                            fix()
-                                .replace()
-                                .with(it)
-                                .reformat(true)
-                                // Don't auto-fix from the command line because the replacement
-                                // methods
-                                // don't
-                                // have the same return types, so the fixed code likely won't
-                                // compile.
-                                .autoFix(robot = false, independent = false)
-                                .build()
+                if (node.methodName !in RELEVANT_METHOD_NAMES) return
+
+                val method = node.resolve() ?: return
+                val containingClass =
+                    (node.receiver?.getExpressionType() as? PsiClassType)?.resolve()
+                        ?: method.containingClass
+                        ?: return
+                val methodName = method.name
+                val paramSig =
+                    method.parameterList.parameters.joinToString(",") { it.type.canonicalText }
+                val keyExact = if (paramSig.isEmpty()) "$methodName()" else "$methodName($paramSig)"
+
+                val replacement = findReplacement(containingClass, keyExact, methodName) ?: return
+
+                // Optional fix
+                val fix =
+                    replacement.recommendedReplacement?.let { replacementMethod ->
+                        fix()
+                            .replace()
+                            .with(replacementMethod)
+                            .reformat(true)
+                            .autoFix(robot = false, independent = false)
+                            .build()
+                    }
+
+                val message =
+                    replacement.recommendedReplacement?.let { "Use $it instead of $methodName" }
+                        ?: "Avoid using method $methodName"
+
+                val incident =
+                    Incident(context)
+                        .issue(replacement.issue)
+                        .location(context.getNameLocation(node))
+                        .message(message)
+                        .fix(fix)
+                        .scope(node)
+
+                context.report(incident)
+            }
+
+            /** Iteratively search the REPLACEMENTS map through the class hierarchy */
+            private fun findReplacement(
+                psiClass: PsiClass,
+                keyExact: String,
+                keyWildcard: String,
+            ): Replacement? {
+                val queue = ArrayDeque<PsiClass>()
+                queue.add(psiClass)
+                val visited = mutableSetOf<PsiClass>()
+                visited.add(psiClass)
+
+                while (queue.isNotEmpty()) {
+                    val current = queue.removeFirst()
+
+                    val fqn = current.qualifiedName
+                    if (fqn != null) {
+                        REPLACEMENTS["$fqn#$keyExact"]?.let {
+                            return it
                         }
-                    val message =
-                        replacement.recommendedReplacement?.let { "Use $it instead of $methodName" }
-                            ?: "Avoid using method $methodName"
+                        REPLACEMENTS["$fqn#$keyWildcard"]?.let {
+                            return it
+                        }
+                    }
 
-                    val incident =
-                        Incident(context)
-                            .issue(replacement.issue)
-                            .location(context.getNameLocation(node))
-                            .message(message)
-                            .fix(fix)
-                            .scope(node)
-                    context.report(incident)
+                    current.supers.forEach { superClass ->
+                        if (visited.add(superClass)) {
+                            queue.add(superClass)
+                        }
+                    }
                 }
+                return null
             }
 
             private fun checkForConfigurationToConfigurableFileCollection(node: UCallExpression) {
@@ -159,25 +197,28 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
         }
 
     /** Checks if the class is [qualifiedName] or has [qualifiedName] as a super type. */
-    fun PsiClass.isInstanceOf(qualifiedName: String): Boolean =
-        // Recursion will stop when this hits Object, which has no [supers]
-        qualifiedName == this.qualifiedName || supers.any { it.isInstanceOf(qualifiedName) }
+    fun PsiClass.isInstanceOf(qualifiedName: String): Boolean {
+        val queue = ArrayDeque<PsiClass>(listOf(this))
+        val visited = mutableSetOf<PsiClass>(this)
+
+        while (queue.isNotEmpty()) {
+            val current = queue.removeFirst()
+            if (current.qualifiedName == qualifiedName) {
+                return true
+            }
+            current.supers.forEach { superClass ->
+                if (visited.add(superClass)) {
+                    queue.add(superClass)
+                }
+            }
+        }
+        return false
+    }
 
     companion object {
         private const val CONFIGURATION = "org.gradle.api.artifacts.Configuration"
-        private const val CONFIGURATION_CONTAINER =
-            "org.gradle.api.artifacts.ConfigurationContainer"
         private const val CONFIGURABLE_FILE_COLLECTION =
             "org.gradle.api.file.ConfigurableFileCollection"
-        private const val PROJECT = "org.gradle.api.Project"
-        private const val TASK = "org.gradle.api.Task"
-        private const val TASK_CONTAINER = "org.gradle.api.tasks.TaskContainer"
-        private const val TASK_PROVIDER = "org.gradle.api.tasks.TaskProvider"
-        private const val DOMAIN_OBJECT_COLLECTION = "org.gradle.api.DomainObjectCollection"
-        private const val TASK_COLLECTION = "org.gradle.api.tasks.TaskCollection"
-        private const val NAMED_DOMAIN_OBJECT_COLLECTION =
-            "org.gradle.api.NamedDomainObjectCollection"
-        private const val PROVIDER = "org.gradle.api.provider.Provider"
 
         val EAGER_CONFIGURATION_ISSUE =
             Issue.create(
@@ -204,6 +245,21 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 isolation.
                 See https://docs.gradle.org/nightly/userguide/isolated_projects.html for
                 more details.
+            """,
+                Category.CORRECTNESS,
+                5,
+                Severity.ERROR,
+                Implementation(DiscouragedGradleMethodDetector::class.java, Scope.JAVA_FILE_SCOPE),
+            )
+
+        val CONFIGURATION_CACHE_BROAD_INPUTS =
+            Issue.create(
+                "GradleConfigurationCacheInputs",
+                "Avoid using APIs that capture too much of the environment in the" +
+                    "configuration cache",
+                """
+                See https://docs.gradle.org/current/userguide/configuration_cache_requirements.html
+                for more details.
             """,
                 Category.CORRECTNESS,
                 5,
@@ -242,90 +298,99 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
 
         // A map from eager method name to the containing class of the method and the name of the
         // replacement method, if there is a direct equivalent.
-        private val REPLACEMENTS =
+        private val REPLACEMENTS: Map<String, Replacement> =
             mapOf(
-                "all" to
-                    mapOf(
-                        DOMAIN_OBJECT_COLLECTION to
-                            Replacement("configureEach", EAGER_CONFIGURATION_ISSUE)
-                    ),
-                "any" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "create" to
-                    mapOf(
-                        TASK_CONTAINER to Replacement("register", EAGER_CONFIGURATION_ISSUE),
-                        CONFIGURATION_CONTAINER to
-                            Replacement("register", EAGER_CONFIGURATION_ISSUE),
-                    ),
-                "evaluationDependsOn" to
-                    mapOf(PROJECT to Replacement(null, PROJECT_ISOLATION_ISSUE)),
-                "evaluationDependsOnChildren" to
-                    mapOf(PROJECT to Replacement(null, PROJECT_ISOLATION_ISSUE)),
-                "findAll" to
-                    mapOf(
-                        NAMED_DOMAIN_OBJECT_COLLECTION to
-                            Replacement(null, EAGER_CONFIGURATION_ISSUE)
-                    ),
-                "findByName" to
-                    mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "findByPath" to
-                    mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "findProject" to mapOf(PROJECT to Replacement(null, PROJECT_ISOLATION_ISSUE)),
-                "findProperty" to
-                    mapOf(
-                        PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
-                    ),
-                "forEach" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "hasProperty" to
-                    mapOf(
-                        PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
-                    ),
-                "property" to
-                    mapOf(
-                        PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
-                    ),
-                "iterator" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "get" to mapOf(TASK_PROVIDER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "getAt" to
-                    mapOf(TASK_COLLECTION to Replacement("named", EAGER_CONFIGURATION_ISSUE)),
-                "getByPath" to
-                    mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "getByName" to
-                    mapOf(TASK_CONTAINER to Replacement("named", EAGER_CONFIGURATION_ISSUE)),
-                "getParent" to mapOf(PROJECT to Replacement(null, PROJECT_ISOLATION_ISSUE)),
-                "getProperties" to
-                    mapOf(
-                        PROJECT to Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE)
-                    ),
-                "getRootProject" to
-                    mapOf(PROJECT to Replacement("isolated.rootProject", PROJECT_ISOLATION_ISSUE)),
-                "groupBy" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "matching" to
-                    mapOf(TASK_COLLECTION to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "map" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "mapNotNull" to
-                    mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "maybeCreate" to
-                    mapOf(
-                        CONFIGURATION_CONTAINER to
-                            Replacement("register", EAGER_CONFIGURATION_ISSUE)
-                    ),
-                "mustRunAfter" to mapOf(TASK to Replacement(null, PERFORMANCE_ISSUE)),
-                "replace" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "remove" to mapOf(TASK_CONTAINER to Replacement(null, EAGER_CONFIGURATION_ISSUE)),
-                "setMustRunAfter" to mapOf(TASK to Replacement(null, PERFORMANCE_ISSUE)),
-                "setShouldRunAfter" to mapOf(TASK to Replacement(null, PERFORMANCE_ISSUE)),
-                "shouldRunAfter" to mapOf(TASK to Replacement(null, PERFORMANCE_ISSUE)),
-                "toString" to mapOf(PROVIDER to Replacement("get", TO_STRING_ON_PROVIDER_ISSUE)),
-                "whenTaskAdded" to
-                    mapOf(
-                        TASK_CONTAINER to Replacement("configureEach", EAGER_CONFIGURATION_ISSUE)
-                    ),
-                "whenObjectAdded" to
-                    mapOf(
-                        DOMAIN_OBJECT_COLLECTION to
-                            Replacement("configureEach", EAGER_CONFIGURATION_ISSUE)
-                    ),
+                // DomainObjectCollection
+                "org.gradle.api.DomainObjectCollection#all" to
+                    Replacement("configureEach", EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.DomainObjectCollection#whenObjectAdded" to
+                    Replacement("configureEach", EAGER_CONFIGURATION_ISSUE),
+
+                // TaskContainer
+                "org.gradle.api.tasks.TaskContainer#any" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#create" to
+                    Replacement("register", EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#findByName" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#findByPath" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#forEach" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#iterator" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#getByPath" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#getByName" to
+                    Replacement("named", EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#groupBy" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#map" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#mapNotNull" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#replace" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#remove" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskContainer#whenTaskAdded" to
+                    Replacement("configureEach", EAGER_CONFIGURATION_ISSUE),
+
+                // ConfigurationContainer
+                "org.gradle.api.artifacts.ConfigurationContainer#create" to
+                    Replacement("register", EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.artifacts.ConfigurationContainer#maybeCreate" to
+                    Replacement("register", EAGER_CONFIGURATION_ISSUE),
+
+                // Project
+                "org.gradle.api.Project#evaluationDependsOn" to
+                    Replacement(null, PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#evaluationDependsOnChildren" to
+                    Replacement(null, PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#findProject" to Replacement(null, PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#findProperty" to
+                    Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#hasProperty" to
+                    Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#property" to
+                    Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#getParent" to Replacement(null, PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#getProperties" to
+                    Replacement("providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "org.gradle.api.Project#getRootProject" to
+                    Replacement("isolated.rootProject", PROJECT_ISOLATION_ISSUE),
+
+                // Task
+                "org.gradle.api.Task#mustRunAfter" to Replacement(null, PERFORMANCE_ISSUE),
+                "org.gradle.api.Task#setMustRunAfter" to Replacement(null, PERFORMANCE_ISSUE),
+                "org.gradle.api.Task#setShouldRunAfter" to Replacement(null, PERFORMANCE_ISSUE),
+                "org.gradle.api.Task#shouldRunAfter" to Replacement(null, PERFORMANCE_ISSUE),
+
+                // TaskCollection
+                "org.gradle.api.tasks.TaskCollection#getAt" to
+                    Replacement("named", EAGER_CONFIGURATION_ISSUE),
+                "org.gradle.api.tasks.TaskCollection#matching" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+
+                // TaskProvider
+                "org.gradle.api.tasks.TaskProvider#get" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+
+                // NamedDomainObjectCollection
+                "org.gradle.api.NamedDomainObjectCollection#findAll" to
+                    Replacement(null, EAGER_CONFIGURATION_ISSUE),
+
+                // Provider
+                "org.gradle.api.provider.Provider#toString" to
+                    Replacement("get", TO_STRING_ON_PROVIDER_ISSUE),
+
+                // java.lang.System
+                "java.lang.System#getenv()" to Replacement(null, CONFIGURATION_CACHE_BROAD_INPUTS),
+                "java.lang.System#getProperties" to
+                    Replacement("getProperty", CONFIGURATION_CACHE_BROAD_INPUTS),
             )
+        private val RELEVANT_METHOD_NAMES =
+            REPLACEMENTS.keys.map { it.substringAfter('#').substringBefore('(') }.toSet()
     }
 }
 
