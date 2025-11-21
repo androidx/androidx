@@ -29,6 +29,7 @@ import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import org.jetbrains.kotlin.psi.KtSimpleNameStringTemplateEntry
 import org.jetbrains.kotlin.psi.KtStringTemplateEntry
+import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
@@ -118,43 +119,57 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 val parent = node.sourcePsi?.parent ?: return
                 // Check if the node is part of a Kotlin formatted string.
                 if (parent is KtStringTemplateEntry) {
-                    val type = node.getExpressionType() ?: return
-                    // Check if type is Provider
-                    if (
-                        type is PsiClassType &&
-                            type.resolve()?.isInstanceOf("org.gradle.api.provider.Provider") == true
-                    ) {
-                        // Use `Provider.get()` to not call `toString()` directly on the Provider.
-                        val nodeWithGet = node.asSourceString() + ".get()"
-                        // Curly braces are required for string templates more complex than a simple
-                        // reference, which the replacement will be. Check if the original template
-                        // already has braces, and add them if not.
-                        val replacement =
-                            if (parent is KtSimpleNameStringTemplateEntry) {
-                                "{$nodeWithGet}"
-                            } else {
-                                nodeWithGet
-                            }
-                        val fix =
-                            fix()
-                                .replace()
-                                .with(replacement)
-                                .reformat(true)
-                                // Allow applying the fix from the command line
-                                .autoFix(robot = true, independent = true)
-                                .build()
+                    checkImplicitToString(node, parent)
+                    return
+                }
 
-                        val incident =
-                            Incident(context)
-                                .issue(TO_STRING_ON_PROVIDER_ISSUE)
-                                .location(context.getNameLocation(node))
-                                .message("Implicit usage of toString on a Provider")
-                                .scope(node)
-                                .fix(fix)
+                // Binary expression for string concatenation
+                if ((node is UBinaryExpression) && (node.operator.text == "+")) {
+                    val leftType = node.leftOperand.getExpressionType()
+                    val rightType = node.rightOperand.getExpressionType()
 
-                        context.report(incident)
+                    // If one operand is a String, check if the other is a Provider
+                    if (leftType?.equalsToText("java.lang.String") == true) {
+                        checkImplicitToString(node.rightOperand)
+                    } else if (rightType?.equalsToText("java.lang.String") == true) {
+                        checkImplicitToString(node.leftOperand)
                     }
                 }
+            }
+
+            private fun checkImplicitToString(
+                node: UExpression,
+                stringTemplateParent: KtStringTemplateEntry? = null,
+            ) {
+                val type = node.getExpressionType() as? PsiClassType ?: return
+                val clazz = type.resolve() ?: return
+
+                if (!clazz.isInstanceOf("org.gradle.api.provider.Provider")) return
+
+                val replacementText =
+                    if (stringTemplateParent is KtSimpleNameStringTemplateEntry) {
+                        "{${node.asSourceString()}.get()}"
+                    } else {
+                        "${node.asSourceString()}.get()"
+                    }
+
+                val fix =
+                    fix()
+                        .replace()
+                        .with(replacementText)
+                        .reformat(true)
+                        .autoFix(robot = true, independent = true)
+                        .build()
+
+                val incident =
+                    Incident(context)
+                        .issue(TO_STRING_ON_PROVIDER_ISSUE)
+                        .location(context.getNameLocation(node))
+                        .message("Implicit usage of toString on a Provider")
+                        .fix(fix)
+                        .scope(node)
+
+                context.report(incident)
             }
         }
 

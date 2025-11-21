@@ -137,4 +137,50 @@ class GradleLikelyBugIssueTest :
 
         check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
     }
+
+    @Test
+    fun `Test implicit usage of Provider#toString in concatenation`() {
+        val input =
+            kotlin(
+                """
+                import org.gradle.api.provider.Property
+                import org.gradle.api.provider.Provider
+
+                fun configureProvider(provider: Provider<Any>) {
+                    val s = "hello" + provider
+                }
+
+                fun configureProperty(property: Property<Any>) {
+                    val s = "hello" + property
+                }
+                """
+                    .trimIndent()
+            )
+
+        val expected =
+            """
+                src/test.kt:5: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                    val s = "hello" + provider
+                                      ~~~~~~~~
+                src/test.kt:9: Error: Implicit usage of toString on a Provider [GradleLikelyBug]
+                    val s = "hello" + property
+                                      ~~~~~~~~
+                2 errors, 0 warnings
+        """
+                .trimIndent()
+        val expectedFixDiffs =
+            """
+                Fix for src/test.kt line 5: Replace with provider.get():
+                @@ -5 +5
+                -     val s = "hello" + provider
+                +     val s = "hello" + provider.get()
+                Fix for src/test.kt line 9: Replace with property.get():
+                @@ -9 +9
+                -     val s = "hello" + property
+                +     val s = "hello" + property.get()
+            """
+                .trimIndent()
+
+        check(input).expect(expected).expectFixDiffs(expectedFixDiffs)
+    }
 }
