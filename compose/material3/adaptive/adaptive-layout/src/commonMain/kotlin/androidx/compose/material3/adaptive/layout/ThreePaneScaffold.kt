@@ -1003,10 +1003,10 @@ private class PaneMeasurable(
     val isAnimatedPane = data.isAnimatedPane
 
     val measuredWidth
-        get() = measuredBounds?.width ?: 0
+        get() = max(measuredBounds?.width ?: 0, 0)
 
     val measuredHeight
-        get() = measuredBounds?.height ?: 0
+        get() = max(measuredBounds?.height ?: 0, 0)
 
     val placedPositionX
         get() = measuredBounds?.left ?: 0
