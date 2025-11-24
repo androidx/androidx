@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.semantics.awtRole
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.isContainer
@@ -465,6 +466,23 @@ class AccessibilityTest {
         assertNodeWithTagIndexInParentIs("item1", 0)
         assertNodeWithTagIndexInParentIs("item2", 2)
         assertNodeWithTagIndexInParentIs("item3", 1)
+    }
+
+    @Test
+    fun awtRoleIsCorrect() = runDesktopA11yTest {
+        test.setContent {
+            Box(
+                Modifier
+                    .testTag("button")
+                    .size(100.dp)
+                    .semantics {
+                        awtRole = AccessibleRole.PUSH_BUTTON
+                    }
+            )
+        }
+
+        assertThat(test.onNodeWithTag("button").fetchAccessible().accessibleContext?.accessibleRole)
+            .isEqualTo(AccessibleRole.PUSH_BUTTON)
     }
 }
 

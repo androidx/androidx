@@ -21,6 +21,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.semantics.AccessibilityAction
+import androidx.compose.ui.semantics.DesktopSemanticsProperties
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -311,12 +312,11 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleValue(): AccessibleValue? {
-            val role = semanticsConfig.getOrNull(SemanticsProperties.Role)
             // On macOS/VoiceOver, the a11y system appears to inspect the value we return here for
             // checkboxes and radio buttons. On Windows, it looks at getAccessibleStateSet instead.
             return when {
                 toggleableState != null -> ToggleableAccessibleValue(this)
-                role == Role.RadioButton -> RadioButtonAccessibleValue(this)
+                computeAccessibleRole() == AccessibleRole.RADIO_BUTTON -> RadioButtonAccessibleValue(this)
                 progressBarRangeInfo != null -> ProgressBarAccessibleValue(this)
                 else -> null
             }
@@ -420,9 +420,15 @@ internal class ComposeAccessible(
 
         // -----------------------------------
 
-        override fun getAccessibleRole(): AccessibleRole {
-            AccessibilityController.AccessibilityUsage.notifyInUse()
-            val fromSemanticRole = when (semanticsConfig.getOrNull(SemanticsProperties.Role)) {
+        private fun computeAccessibleRole(): AccessibleRole {
+            // AWT role takes precedence
+            semanticsConfig.getOrNull(DesktopSemanticsProperties.AwtRole)?.let {
+                return it
+            }
+
+            // Check semantics role
+            val role = semanticsConfig.getOrNull(SemanticsProperties.Role)
+            val accessibleRole = when (role) {
                 Role.Button -> AccessibleRole.PUSH_BUTTON
                 Role.Checkbox, Role.Switch -> AccessibleRole.CHECK_BOX
                 Role.RadioButton -> AccessibleRole.RADIO_BUTTON
@@ -430,9 +436,10 @@ internal class ComposeAccessible(
                 Role.DropdownList -> AccessibleRole.COMBO_BOX
                 else -> null
             }
+            if (accessibleRole != null) return accessibleRole
 
+            // Guess role from other semantics properties
             return when {
-                fromSemanticRole != null -> fromSemanticRole
                 isPassword -> AccessibleRole.PASSWORD_TEXT
                 setText != null -> AccessibleRole.TEXT
                 scrollBy != null -> AccessibleRole.SCROLL_PANE
@@ -447,6 +454,11 @@ internal class ComposeAccessible(
                 isTraversalGroup != null -> AccessibleRole.GROUP_BOX
                 else -> AccessibleRole.UNKNOWN
             }
+        }
+
+        override fun getAccessibleRole(): AccessibleRole {
+            AccessibilityController.AccessibilityUsage.notifyInUse()
+            return computeAccessibleRole()
         }
 
         override fun getAccessibleStateSet(): AccessibleStateSet {
@@ -480,12 +492,12 @@ internal class ComposeAccessible(
                 if (canCollapse)
                     add(AccessibleState.EXPANDED)
 
-                when (semanticsConfig.getOrNull(SemanticsProperties.Role)) {
+                when (computeAccessibleRole()) {
                     // Note that this is not executed on macOS (for checkboxes or radio buttons),
                     // where the system inspects the value returned by getAccessibleValue instead.
-                    Role.Checkbox, Role.Switch -> addCheckedStateForCheckboxOrSwitch()
-                    Role.RadioButton -> addCheckedStateForRadioButton()
-                    else -> {  // Default case, for other (possibly null) roles
+                    AccessibleRole.CHECK_BOX -> addCheckedStateForCheckboxOrSwitch()
+                    AccessibleRole.RADIO_BUTTON -> addCheckedStateForRadioButton()
+                    else -> {  // Default case for other roles
                         addDefaultStateForToggleableState()
 
                         if (selected != null)
