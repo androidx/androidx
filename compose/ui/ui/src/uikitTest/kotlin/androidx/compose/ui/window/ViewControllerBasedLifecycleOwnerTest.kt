@@ -32,7 +32,7 @@ class ViewControllerBasedLifecycleOwnerTest {
     fun allEvents() {
         val notificationCenter = NSNotificationCenter()
         val lifecycleOwner = DefaultArchitectureComponentsOwner()
-        val lifecycleDelegate = ViewControllerLifecycleDelegate(notificationCenter)
+        val lifecycleDelegate = ComposeContainerLifecycleDelegate(notificationCenter)
         lifecycleDelegate.onLifecycleStateUpdated = lifecycleOwner::setLifecycleState
         val scene = UIWindowScene()
         lifecycleDelegate.windowScene = scene
@@ -41,7 +41,7 @@ class ViewControllerBasedLifecycleOwnerTest {
         notificationCenter.postNotificationName(UISceneWillEnterForegroundNotification, scene)
         assertEquals(Lifecycle.State.CREATED, lifecycleOwner.lifecycle.currentState)
 
-        lifecycleDelegate.viewControllerWillAppear()
+        lifecycleDelegate.composeContainerWillAppear()
         assertEquals(Lifecycle.State.STARTED, lifecycleOwner.lifecycle.currentState)
 
         notificationCenter.postNotificationName(UISceneDidActivateNotification, scene)
@@ -61,10 +61,10 @@ class ViewControllerBasedLifecycleOwnerTest {
         notificationCenter.postNotificationName(UISceneWillEnterForegroundNotification, scene)
         assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)
 
-        lifecycleDelegate.viewControllerDidDisappear()
+        lifecycleDelegate.composeContainerDidDisappear()
         assertEquals(Lifecycle.State.CREATED, lifecycleOwner.lifecycle.currentState)
 
-        lifecycleDelegate.viewControllerWillDealloc()
+        lifecycleDelegate.composeContainerWillDealloc()
         assertEquals(Lifecycle.State.DESTROYED, lifecycleOwner.lifecycle.currentState)
     }
 
@@ -72,7 +72,7 @@ class ViewControllerBasedLifecycleOwnerTest {
     fun foregroundThenViewWillAppear() {
         val notificationCenter = NSNotificationCenter()
         val lifecycleOwner = DefaultArchitectureComponentsOwner()
-        val lifecycleDelegate = ViewControllerLifecycleDelegate(notificationCenter)
+        val lifecycleDelegate = ComposeContainerLifecycleDelegate(notificationCenter)
         lifecycleDelegate.onLifecycleStateUpdated = lifecycleOwner::setLifecycleState
         val scene = UIWindowScene()
         lifecycleDelegate.windowScene = scene
@@ -81,7 +81,7 @@ class ViewControllerBasedLifecycleOwnerTest {
         notificationCenter.postNotificationName(UISceneWillEnterForegroundNotification, scene)
         assertEquals(Lifecycle.State.CREATED, lifecycleOwner.lifecycle.currentState)
 
-        lifecycleDelegate.viewControllerWillAppear()
+        lifecycleDelegate.composeContainerWillAppear()
         assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)
     }
 
@@ -89,17 +89,17 @@ class ViewControllerBasedLifecycleOwnerTest {
     fun viewDidDisappearThenBackground() {
         val notificationCenter = NSNotificationCenter()
         val lifecycleOwner = DefaultArchitectureComponentsOwner()
-        val lifecycleDelegate = ViewControllerLifecycleDelegate(notificationCenter)
+        val lifecycleDelegate = ComposeContainerLifecycleDelegate(notificationCenter)
         lifecycleDelegate.onLifecycleStateUpdated = lifecycleOwner::setLifecycleState
         val scene = UIWindowScene()
         lifecycleDelegate.windowScene = scene
-        lifecycleDelegate.viewControllerWillAppear()
+        lifecycleDelegate.composeContainerWillAppear()
 
         notificationCenter.postNotificationName(UISceneWillEnterForegroundNotification, scene)
         notificationCenter.postNotificationName(UISceneDidActivateNotification, scene)
         assertEquals(Lifecycle.State.RESUMED, lifecycleOwner.lifecycle.currentState)
 
-        lifecycleDelegate.viewControllerDidDisappear()
+        lifecycleDelegate.composeContainerDidDisappear()
         assertEquals(Lifecycle.State.CREATED, lifecycleOwner.lifecycle.currentState)
 
         // this should not happen, but let's protect against it anyway

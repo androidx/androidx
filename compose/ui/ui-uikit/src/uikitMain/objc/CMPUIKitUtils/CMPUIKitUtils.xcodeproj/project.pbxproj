@@ -19,6 +19,10 @@
 		997DFCF32B18DE59000B56B5 /* MockAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCF22B18DE59000B56B5 /* MockAppDelegate.swift */; };
 		997DFCF52B18E276000B56B5 /* XCTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCF42B18E276000B56B5 /* XCTestCase.swift */; };
 		997DFCFD2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 997DFCFC2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.swift */; };
+		99CC4B2E2ECE0838007C5C44 /* CMPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99CC4B2D2ECE0838007C5C44 /* CMPView.m */; };
+		99CC4B2F2ECE0838007C5C44 /* CMPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99CC4B2D2ECE0838007C5C44 /* CMPView.m */; };
+		99CC4B302ECE0838007C5C44 /* CMPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99CC4B2D2ECE0838007C5C44 /* CMPView.m */; };
+		99CC4B322ECE16C8007C5C44 /* CMPViewTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99CC4B312ECE16C8007C5C44 /* CMPViewTests.swift */; };
 		99D97A882BF73A9B0035552B /* CMPEditMenuView.m in Sources */ = {isa = PBXBuildFile; fileRef = 99D97A872BF73A9B0035552B /* CMPEditMenuView.m */; };
 		99DCAB0E2BD00F5C002E6AC7 /* CMPTextLoupeSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 99DCAB0D2BD00F5C002E6AC7 /* CMPTextLoupeSession.m */; };
 		EA4B52962C2EDEF200FBB55C /* CMPGestureRecognizer.m in Sources */ = {isa = PBXBuildFile; fileRef = EA4B52952C2EDEF200FBB55C /* CMPGestureRecognizer.m */; };
@@ -87,6 +91,11 @@
 		997DFCFA2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CMPUIKitUtilsTestApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		997DFCFC2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMPUIKitUtilsTestApp.swift; sourceTree = "<group>"; };
 		99BE84D22C3467B100E43826 /* CMPUIKitUtilsTestApp.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMPUIKitUtilsTestApp.xctestplan; sourceTree = "<group>"; };
+		99CC4B282ECE04AC007C5C44 /* CMPComposeContainerLifecycleDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPComposeContainerLifecycleDelegate.h; sourceTree = "<group>"; };
+		99CC4B2B2ECE07EA007C5C44 /* CMPComposeContainerLifecycleState.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPComposeContainerLifecycleState.h; sourceTree = "<group>"; };
+		99CC4B2C2ECE0838007C5C44 /* CMPView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPView.h; sourceTree = "<group>"; };
+		99CC4B2D2ECE0838007C5C44 /* CMPView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPView.m; sourceTree = "<group>"; };
+		99CC4B312ECE16C8007C5C44 /* CMPViewTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CMPViewTests.swift; sourceTree = "<group>"; };
 		99D97A862BF73A9B0035552B /* CMPEditMenuView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPEditMenuView.h; sourceTree = "<group>"; };
 		99D97A872BF73A9B0035552B /* CMPEditMenuView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CMPEditMenuView.m; sourceTree = "<group>"; };
 		99DCAB0C2BD00F5C002E6AC7 /* CMPTextLoupeSession.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CMPTextLoupeSession.h; sourceTree = "<group>"; };
@@ -140,6 +149,8 @@
 		996EFEEB2B02CE5D0000FE0F /* CMPUIKitUtils */ = {
 			isa = PBXGroup;
 			children = (
+				99CC4B282ECE04AC007C5C44 /* CMPComposeContainerLifecycleDelegate.h */,
+				99CC4B2B2ECE07EA007C5C44 /* CMPComposeContainerLifecycleState.h */,
 				EA70A7E62B27106100300068 /* CMPAccessibilityElement.h */,
 				EA70A7E82B27106100300068 /* CMPAccessibilityElement.m */,
 				EADD028E2C9846D9003F66E8 /* CMPDragInteractionProxy.h */,
@@ -174,6 +185,8 @@
 				996EFEF52B02CE8A0000FE0F /* CMPUIKitUtils.h */,
 				997DFCDC2B18D135000B56B5 /* CMPViewController.h */,
 				997DFCDD2B18D135000B56B5 /* CMPViewController.m */,
+				99CC4B2C2ECE0838007C5C44 /* CMPView.h */,
+				99CC4B2D2ECE0838007C5C44 /* CMPView.m */,
 			);
 			path = CMPUIKitUtils;
 			sourceTree = "<group>";
@@ -204,6 +217,7 @@
 			children = (
 				997DFCF02B18DBF2000B56B5 /* CMPUIKitUtilsTests-Bridging-Header.h */,
 				997DFCE52B18D99E000B56B5 /* CMPViewControllerTests.swift */,
+				99CC4B312ECE16C8007C5C44 /* CMPViewTests.swift */,
 				997DFCF12B18DE47000B56B5 /* Utils */,
 			);
 			path = CMPUIKitUtilsTests;
@@ -354,6 +368,7 @@
 				9968C35B2D76FE16005E8DE4 /* CMPPanGestureRecognizer.m in Sources */,
 				991A97F72E1FB99300B47130 /* CMPScrollView.m in Sources */,
 				99D97A882BF73A9B0035552B /* CMPEditMenuView.m in Sources */,
+				99CC4B2E2ECE0838007C5C44 /* CMPView.m in Sources */,
 				EABD912B2BC02B5F00455279 /* CMPInteropWrappingView.m in Sources */,
 				EADD02902C9846D9003F66E8 /* CMPDragInteractionProxy.m in Sources */,
 				992EDDFB2E55EC8400FB44C5 /* CMPKeyValueObserver.m in Sources */,
@@ -371,6 +386,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99CC4B2F2ECE0838007C5C44 /* CMPView.m in Sources */,
+				99CC4B322ECE16C8007C5C44 /* CMPViewTests.swift in Sources */,
 				997DFCF52B18E276000B56B5 /* XCTestCase.swift in Sources */,
 				997DFCE62B18D99E000B56B5 /* CMPViewControllerTests.swift in Sources */,
 				997DFCEE2B18DB7B000B56B5 /* CMPViewController.m in Sources */,
@@ -387,6 +404,7 @@
 				EAC703E52B8C826E001ECDA6 /* CMPOSLogger.m in Sources */,
 				997DFCFD2B18E5D3000B56B5 /* CMPUIKitUtilsTestApp.swift in Sources */,
 				EAC703E62B8C826E001ECDA6 /* CMPOSLoggerInterval.m in Sources */,
+				99CC4B302ECE0838007C5C44 /* CMPView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

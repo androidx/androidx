@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface CMPViewController : UIViewController
+@interface CMPView : UIView
 
 - (id)initWithLifecycleDelegate:(id<CMPComposeContainerLifecycleDelegate> _Nullable)delegate;
 
-/// Indicates that view controller is considered alive in terms of structural containment
-- (void)viewControllerDidEnterWindowHierarchy;
+/// Notifies the view is added to a view hierarchy
+- (void)viewDidAppear;
 
-/// Indicates that view controller is considered closed in terms of structural containment
-- (void)viewControllerDidLeaveWindowHierarchy;
+/// Notifies the view was removed from a view hierarchy
+- (void)viewDidDisappear;
+
+/// Indicates that view is considered alive in terms of structural containment
+- (void)viewDidEnterWindowHierarchy;
+
+/// Indicates that view is considered as closed in terms of structural containment
+- (void)viewDidLeaveWindowHierarchy;
 
 /// Indicates that trait interface style trait changed
 - (void)userInterfaceStyleDidChange;

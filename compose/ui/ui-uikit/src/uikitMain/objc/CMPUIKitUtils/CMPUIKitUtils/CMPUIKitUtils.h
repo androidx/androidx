@@ -23,6 +23,7 @@ FOUNDATION_EXPORT double CMPUIKitUtilsVersionNumber;
 FOUNDATION_EXPORT const unsigned char CMPUIKitUtilsVersionString[];
 
 #import "CMPViewController.h"
+#import "CMPView.h"
 #import "CMPAccessibilityElement.h"
 #import "CMPOSLogger.h"
 #import "CMPTextLoupeSession.h"
@@ -34,3 +35,4 @@ FOUNDATION_EXPORT const unsigned char CMPUIKitUtilsVersionString[];
 #import "CMPHoverGestureHandler.h"
 #import "CMPScreenEdgePanGestureRecognizer.h"
 #import "CMPScrollView.h"
+#import "CMPComposeContainerLifecycleDelegate.h"

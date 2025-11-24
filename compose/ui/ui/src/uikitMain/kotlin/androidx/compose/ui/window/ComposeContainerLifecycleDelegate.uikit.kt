@@ -16,15 +16,15 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.uikit.utils.CMPViewControllerLifecycleDelegateProtocol
+import androidx.compose.ui.uikit.utils.CMPComposeContainerLifecycleDelegateProtocol
 import androidx.lifecycle.Lifecycle
 import platform.Foundation.NSNotificationCenter
 import platform.UIKit.UIWindowScene
 import platform.darwin.NSObject
 
-internal class ViewControllerLifecycleDelegate(
+internal class ComposeContainerLifecycleDelegate(
     private val notificationCenter: NSNotificationCenter = NSNotificationCenter.defaultCenter
-): NSObject(), CMPViewControllerLifecycleDelegateProtocol {
+): NSObject(), CMPComposeContainerLifecycleDelegateProtocol {
     private var isViewAppeared = false
         set(value) {
             field = value
@@ -73,18 +73,18 @@ internal class ViewControllerLifecycleDelegate(
             this.isSceneActive = activeStateListener.isSceneActive
         }
 
-    override fun viewControllerWillDealloc() {
+    override fun composeContainerWillDealloc() {
         this.isDisposed = true
         activeStateListener.dispose()
         foregroundStateListener.dispose()
         windowScene = null
     }
 
-    override fun viewControllerWillAppear() {
+    override fun composeContainerWillAppear() {
         this.isViewAppeared = true
     }
 
-    override fun viewControllerDidDisappear() {
+    override fun composeContainerDidDisappear() {
         this.isViewAppeared = false
     }
 
