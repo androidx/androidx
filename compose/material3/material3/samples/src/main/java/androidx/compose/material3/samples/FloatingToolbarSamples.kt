@@ -40,6 +40,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AppBarColumn
 import androidx.compose.material3.AppBarRow
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FabPosition
 import androidx.compose.material3.FilledIconButton
@@ -52,9 +53,14 @@ import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.VerticalFloatingToolbar
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,7 +76,7 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -88,11 +94,20 @@ fun ExpandableHorizontalFloatingToolbarSample() {
                     leadingContent = { LeadingContent() },
                     trailingContent = { TrailingContent() },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.width(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Localized description") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.width(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                 )
@@ -123,7 +138,7 @@ fun ExpandableHorizontalFloatingToolbarSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -193,11 +208,20 @@ fun OverflowingHorizontalFloatingToolbarSample() {
                         }
                     },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.width(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Localized description") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.width(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                 )
@@ -220,7 +244,7 @@ fun OverflowingHorizontalFloatingToolbarSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -240,11 +264,20 @@ fun ScrollableHorizontalFloatingToolbarSample() {
                     leadingContent = { LeadingContent() },
                     trailingContent = { TrailingContent() },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.width(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Localized description") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.width(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                     scrollBehavior = exitAlwaysScrollBehavior,
@@ -268,7 +301,7 @@ fun ScrollableHorizontalFloatingToolbarSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -286,11 +319,20 @@ fun ExpandableVerticalFloatingToolbarSample() {
                     leadingContent = { LeadingContent() },
                     trailingContent = { TrailingContent() },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.height(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Localized description") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.height(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                 )
@@ -321,7 +363,7 @@ fun ExpandableVerticalFloatingToolbarSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -391,11 +433,20 @@ fun OverflowingVerticalFloatingToolbarSample() {
                         }
                     },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.height(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Localized description") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.height(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                 )
@@ -418,7 +469,7 @@ fun OverflowingVerticalFloatingToolbarSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -438,11 +489,20 @@ fun ScrollableVerticalFloatingToolbarSample() {
                     leadingContent = { LeadingContent() },
                     trailingContent = { TrailingContent() },
                     content = {
-                        FilledIconButton(
-                            modifier = Modifier.height(64.dp),
-                            onClick = { /* doSomething() */ },
+                        TooltipBox(
+                            positionProvider =
+                                TooltipDefaults.rememberTooltipPositionProvider(
+                                    TooltipAnchorPosition.Above
+                                ),
+                            tooltip = { PlainTooltip { Text("Localized description") } },
+                            state = rememberTooltipState(),
                         ) {
-                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            FilledIconButton(
+                                modifier = Modifier.height(64.dp),
+                                onClick = { /* doSomething() */ },
+                            ) {
+                                Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                            }
                         }
                     },
                     scrollBehavior = exitAlwaysScrollBehavior,
@@ -466,7 +526,7 @@ fun ScrollableVerticalFloatingToolbarSample() {
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -480,11 +540,21 @@ fun HorizontalFloatingToolbarWithFabSample() {
             HorizontalFloatingToolbar(
                 expanded = expanded,
                 floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { expanded = !expanded }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Add, "Localized description")
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { expanded = !expanded }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
                     }
                 },
                 modifier =
@@ -495,29 +565,71 @@ fun HorizontalFloatingToolbarWithFabSample() {
                 content = {
                     // Make sure the buttons are not focusable if they are not visible, so that
                     // keyboard focus doesn't go to an invisible element on the screen.
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
                 },
             )
@@ -539,7 +651,7 @@ fun HorizontalFloatingToolbarWithFabSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -556,11 +668,21 @@ fun CenteredHorizontalFloatingToolbarWithFabSample() {
                 // FloatingToolbarScrollBehavior to hide both the toolbar and its FAB on scroll.
                 expanded = true,
                 floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { /* doSomething() */ }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Add, "Localized description")
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
                     }
                 },
                 modifier =
@@ -568,17 +690,59 @@ fun CenteredHorizontalFloatingToolbarWithFabSample() {
                 colors = vibrantColors,
                 scrollBehavior = exitAlwaysScrollBehavior,
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
                 },
             )
@@ -593,7 +757,7 @@ fun CenteredHorizontalFloatingToolbarWithFabSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -607,11 +771,21 @@ fun VerticalFloatingToolbarWithFabSample() {
             VerticalFloatingToolbar(
                 expanded = expanded,
                 floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { expanded = !expanded }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Add, "Localized description")
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { expanded = !expanded }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
                     }
                 },
                 modifier =
@@ -622,29 +796,71 @@ fun VerticalFloatingToolbarWithFabSample() {
                 content = {
                     // Make sure the buttons are not focusable if they are not visible, so that
                     // keyboard focus doesn't go to an invisible element on the screen.
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
                 },
             )
@@ -668,7 +884,7 @@ fun VerticalFloatingToolbarWithFabSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -685,28 +901,68 @@ fun CenteredVerticalFloatingToolbarWithFabSample() {
                 // FloatingToolbarScrollBehavior to hide both the toolbar and its FAB on scroll.
                 expanded = true,
                 floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { /* doSomething() */ }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Add, "Localized description")
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
                     }
                 },
                 modifier = Modifier.align(Alignment.CenterEnd).offset(x = -ScreenOffset).zIndex(1f),
                 colors = vibrantColors,
                 scrollBehavior = exitAlwaysScrollBehavior,
                 content = {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
                     }
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                     }
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
+                    ) {
+                        IconButton(onClick = { /* doSomething() */ }) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
                 },
             )
@@ -721,7 +977,7 @@ fun CenteredVerticalFloatingToolbarWithFabSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -733,40 +989,92 @@ fun HorizontalFloatingToolbarAsScaffoldFabSample() {
             HorizontalFloatingToolbar(
                 expanded = expanded,
                 floatingActionButton = {
-                    // Match the FAB to the vibrantColors. See also StandardFloatingActionButton.
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = { expanded = !expanded }
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Add, "Localized description")
+                        // Match the FAB to the vibrantColors. See also
+                        // StandardFloatingActionButton.
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = { expanded = !expanded }
+                        ) {
+                            Icon(Icons.Filled.Add, "Localized description")
+                        }
                     }
                 },
                 colors = vibrantColors,
                 content = {
                     // Make sure the buttons are not focusable if they are not visible, so that
                     // keyboard focus doesn't go to an invisible element on the screen.
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Person, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.Favorite,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
-                    IconButton(
-                        onClick = { /* doSomething() */ },
-                        Modifier.focusProperties { canFocus = expanded },
+                    TooltipBox(
+                        positionProvider =
+                            TooltipDefaults.rememberTooltipPositionProvider(
+                                TooltipAnchorPosition.Above
+                            ),
+                        tooltip = { PlainTooltip { Text("Localized description") } },
+                        state = rememberTooltipState(),
                     ) {
-                        Icon(Icons.Filled.MoreVert, contentDescription = "Localized description")
+                        IconButton(
+                            onClick = { /* doSomething() */ },
+                            Modifier.focusProperties { canFocus = expanded },
+                        ) {
+                            Icon(
+                                Icons.Filled.MoreVert,
+                                contentDescription = "Localized description",
+                            )
+                        }
                     }
                 },
             )
@@ -797,22 +1105,52 @@ fun HorizontalFloatingToolbarAsScaffoldFabSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LeadingContent() {
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Check, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Check, contentDescription = "Localized description")
+        }
     }
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TrailingContent() {
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Download, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Download, contentDescription = "Localized description")
+        }
     }
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+        }
     }
 }

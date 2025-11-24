@@ -39,6 +39,7 @@ import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Ignore
@@ -102,6 +103,7 @@ class BottomSheetBenchmark {
         benchmarkRule.benchmarkFirstDraw(modalBottomSheetTestCaseFactory)
     }
 
+    @SdkSuppress(minSdkVersion = 24) // fails in API 23 emulator
     @Test
     fun bottomSheetScaffold_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(bottomSheetScaffoldTestCaseFactory)

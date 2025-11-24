@@ -105,7 +105,9 @@ fun MaterialTheme(
         LocalTextSelectionColors provides selectionColors,
         LocalTypography provides typography,
     ) {
-        ProvideTextStyle(value = typography.bodyLarge, content = content)
+        EnsurePrecisionPointerListenersRegistered {
+            ProvideTextStyle(value = typography.bodyLarge, content = content)
+        }
     }
 }
 

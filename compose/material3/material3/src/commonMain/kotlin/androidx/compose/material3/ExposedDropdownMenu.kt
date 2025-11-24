@@ -845,11 +845,6 @@ object ExposedDropdownMenuDefaults {
         PaddingValues(horizontal = ExposedDropdownMenuItemHorizontalPadding, vertical = 0.dp)
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-    @ExperimentalMaterial3Api
-    @Composable
-    fun TrailingIcon(expanded: Boolean) = TrailingIcon(expanded, Modifier)
-
-    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
     fun textFieldColors(
         focusedTextColor: Color = FilledAutocompleteTokens.FieldFocusInputTextColor.value,

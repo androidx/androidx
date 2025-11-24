@@ -714,29 +714,6 @@ object TextFieldDefaults {
     }
 
     @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message = "Maintained for binary compatibility. Use overload with `textFieldShape`.",
-    )
-    @ExperimentalMaterial3Api
-    fun Modifier.indicatorLine(
-        enabled: Boolean,
-        isError: Boolean,
-        interactionSource: InteractionSource,
-        colors: TextFieldColors,
-        focusedIndicatorLineThickness: Dp = FocusedIndicatorThickness,
-        unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
-    ) =
-        indicatorLine(
-            enabled = enabled,
-            isError = isError,
-            interactionSource = interactionSource,
-            colors = colors,
-            textFieldShape = null,
-            focusedIndicatorLineThickness = focusedIndicatorLineThickness,
-            unfocusedIndicatorLineThickness = unfocusedIndicatorLineThickness,
-        )
-
-    @Deprecated(
         message = "Renamed to TextFieldDefaults.Container",
         replaceWith =
             ReplaceWith(

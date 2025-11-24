@@ -40,6 +40,7 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -52,6 +53,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -72,10 +74,11 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -131,6 +134,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
@@ -297,7 +301,7 @@ fun SearchBar(
     message = "Renamed to `AppBarWithSearch`",
     replaceWith =
         ReplaceWith(
-            "AppBarWithSearch(state, inputField, modifier, navigationIcon, actions, shape " +
+            "AppBarWithSearch(state, inputField, modifier, navigationIcon, actions, shape, " +
                 "colors, tonalElevation, windowInsets, scrollBehavior)"
         ),
 )
@@ -448,21 +452,23 @@ fun AppBarWithSearch(
                     )
                 }
             }
-            SearchBar(
-                state = state,
-                inputField = inputField,
-                modifier =
-                    Modifier.padding(
-                            horizontal = SearchBarAsTopBarPadding,
-                            vertical = AppBarWithSearchVerticalPadding,
-                        )
-                        .wrapContentWidth()
-                        .weight(1f),
-                shape = shape,
-                colors = searchBarColors,
-                tonalElevation = if (isContainerTransparent) tonalElevation else 0.dp,
-                shadowElevation = if (isContainerTransparent) shadowElevation else 0.dp,
-            )
+            Box(modifier = Modifier.weight(1f)) {
+                SearchBar(
+                    state = state,
+                    inputField = inputField,
+                    modifier =
+                        Modifier.padding(
+                                horizontal = SearchBarAsTopBarPadding,
+                                vertical = AppBarWithSearchVerticalPadding,
+                            )
+                            .width(IntrinsicSize.Max)
+                            .align(Alignment.Center),
+                    shape = shape,
+                    colors = searchBarColors,
+                    tonalElevation = if (isContainerTransparent) tonalElevation else 0.dp,
+                    shadowElevation = if (isContainerTransparent) shadowElevation else 0.dp,
+                )
+            }
             actions?.let {
                 // Wrap the given action icons in a Row.
                 val actionsRow =
@@ -577,6 +583,71 @@ fun ExpandedFullScreenSearchBar(
 }
 
 /**
+ * [ExpandedDockedSearchBarWithGap] represents a search bar that is currently expanding or in the
+ * expanded state, showing search results. This component is displayed in a popup under (with a gap)
+ * the collapsed search bar. It is recommended to use [ExpandedDockedSearchBarWithGap] on medium and
+ * large screens such as tablets, and to instead use [ExpandedFullScreenSearchBar] on compact screen
+ * such as phones.
+ *
+ * @sample androidx.compose.material3.samples.DockedSearchBarScaffoldSample
+ * @param state the state of the search bar. This state should also be passed to the [inputField]
+ *   and the collapsed search bar.
+ * @param inputField the input field of this search bar that allows entering a query, typically a
+ *   [SearchBarDefaults.InputField].
+ * @param modifier the [Modifier] to be applied to this expanded search bar.
+ * @param dropdownShape the shape of the drop-down containing search results.
+ * @param dropdownGapSize the size of the gap between the drop-down containing search results and
+ *   the search bar.
+ * @param colors [SearchBarColors] that will be used to resolve the colors used for this search bar
+ *   in different states. See [SearchBarDefaults.colors].
+ * @param tonalElevation when [SearchBarColors.containerColor] is [ColorScheme.surface], a
+ *   translucent primary color overlay is applied on top of the container. A higher tonal elevation
+ *   value will result in a darker color in light theme and lighter color in dark theme. See also:
+ *   [Surface].
+ * @param shadowElevation the elevation for the shadow below this search bar.
+ * @param properties the platform-specific properties to configure the dialog's behavior. Any
+ *   properties which limit the dialog's size (e.g. [DialogProperties.usePlatformDefaultWidth]) are
+ *   ignored.
+ * @param content the content of this search bar to display search results below the [inputField].
+ */
+@OptIn(ExperimentalMaterial3Api::class)
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun ExpandedDockedSearchBarWithGap(
+    state: SearchBarState,
+    inputField: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    dropdownShape: Shape = SearchBarDefaults.dockedDropdownShape,
+    dropdownGapSize: Dp = SearchBarDefaults.dockedDropdownGapSize,
+    colors: SearchBarColors = SearchBarDefaults.colors(),
+    tonalElevation: Dp = SearchBarDefaults.TonalElevation,
+    shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
+    properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
+    content: @Composable ColumnScope.() -> Unit,
+) =
+    ExpandedDockedSearchBarImpl(state = state, properties = properties) { focusRequester ->
+        DockedSearchBarLayout(
+            state = state,
+            inputField = {
+                Box(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    propagateMinConstraints = true,
+                ) {
+                    inputField()
+                }
+            },
+            modifier = modifier,
+            searchBarShape = RectangleShape,
+            dropdownShape = dropdownShape,
+            dropdownGapSize = dropdownGapSize,
+            colors = colors,
+            tonalElevation = tonalElevation,
+            shadowElevation = shadowElevation,
+            content = content,
+        )
+    }
+
+/**
  * [ExpandedDockedSearchBar] represents a search bar that is currently expanding or in the expanded
  * state, showing search results. This component is displayed in a popup over the collapsed search
  * bar. It is recommended to use [ExpandedDockedSearchBar] on medium and large screens such as
@@ -588,7 +659,7 @@ fun ExpandedFullScreenSearchBar(
  * @param inputField the input field of this search bar that allows entering a query, typically a
  *   [SearchBarDefaults.InputField].
  * @param modifier the [Modifier] to be applied to this expanded search bar.
- * @param shape the shape of this search bar.
+ * @param shape the shape of the container wrapping both the [inputField] and [content].
  * @param colors [SearchBarColors] that will be used to resolve the colors used for this search bar
  *   in different states. See [SearchBarDefaults.colors].
  * @param tonalElevation when [SearchBarColors.containerColor] is [ColorScheme.surface], a
@@ -613,6 +684,35 @@ fun ExpandedDockedSearchBar(
     shadowElevation: Dp = SearchBarDefaults.ShadowElevation,
     properties: PopupProperties = PopupProperties(focusable = true, clippingEnabled = false),
     content: @Composable ColumnScope.() -> Unit,
+) =
+    ExpandedDockedSearchBarImpl(state = state, properties = properties) { focusRequester ->
+        DockedSearchBarLayout(
+            state = state,
+            inputField = {
+                Box(
+                    modifier = Modifier.focusRequester(focusRequester),
+                    propagateMinConstraints = true,
+                ) {
+                    inputField()
+                }
+            },
+            modifier = modifier,
+            searchBarShape = shape,
+            dropdownShape = null,
+            dropdownGapSize = null,
+            colors = colors,
+            tonalElevation = tonalElevation,
+            shadowElevation = shadowElevation,
+            content = content,
+        )
+    }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun ExpandedDockedSearchBarImpl(
+    state: SearchBarState,
+    properties: PopupProperties,
+    content: @Composable (FocusRequester) -> Unit,
 ) {
     if (
         !state.isExpanded
@@ -644,23 +744,7 @@ fun ExpandedDockedSearchBar(
     ) {
         val focusRequester = remember { FocusRequester() }
 
-        DockedSearchBarLayout(
-            state = state,
-            inputField = {
-                Box(
-                    modifier = Modifier.focusRequester(focusRequester),
-                    propagateMinConstraints = true,
-                ) {
-                    inputField()
-                }
-            },
-            modifier = modifier,
-            shape = shape,
-            colors = colors,
-            tonalElevation = tonalElevation,
-            shadowElevation = shadowElevation,
-            content = content,
-        )
+        content(focusRequester)
 
         // Focus the input field on the first expansion,
         // but no need to re-focus if the focus gets cleared.
@@ -1290,6 +1374,13 @@ object SearchBarDefaults {
     /** Default shape for a [DockedSearchBar]. */
     val dockedShape: Shape
         @Composable get() = SearchViewTokens.DockedContainerShape.value
+
+    /** Default shape for a drop-down containing search results attached to a [DockedSearchBar]. */
+    val dockedDropdownShape: Shape
+        get() = RoundedCornerShape(corner = CornerSize(12.dp)) // TODO: replace with token.
+
+    /** Default gap size for a drop-down attached to a [DockedSearchBar]. */
+    val dockedDropdownGapSize: Dp = 2.dp // TODO: replace with token.
 
     /** Default padding used for [AppBarWithSearch] content */
     val AppBarContentPadding = PaddingValues(all = 0.dp)
@@ -2810,11 +2901,52 @@ private fun DockedSearchBarLayout(
     state: SearchBarState,
     inputField: @Composable () -> Unit,
     modifier: Modifier,
-    shape: Shape,
+    searchBarShape: Shape,
+    dropdownShape: Shape?,
+    dropdownGapSize: Dp?,
     colors: SearchBarColors,
     tonalElevation: Dp,
     shadowElevation: Dp,
     content: @Composable ColumnScope.() -> Unit,
+) =
+    DockedSearchBarLayoutImpl(
+        shape = searchBarShape,
+        state = state,
+        inputField = inputField,
+        modifier = modifier,
+        colors =
+            if (dropdownShape != null) colors.copy(containerColor = Color.Transparent) else colors,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        content = {
+            if (dropdownShape != null) {
+                Column(
+                    modifier =
+                        Modifier.padding(top = dropdownGapSize ?: 0.dp)
+                            .background(color = colors.containerColor, shape = dropdownShape)
+                            .clip(dropdownShape),
+                    content = content,
+                )
+            } else {
+                Column {
+                    HorizontalDivider(color = colors.dividerColor)
+                    content()
+                }
+            }
+        },
+    )
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DockedSearchBarLayoutImpl(
+    shape: Shape,
+    state: SearchBarState,
+    inputField: @Composable () -> Unit,
+    modifier: Modifier,
+    colors: SearchBarColors,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    content: @Composable () -> Unit,
 ) {
     val scope = rememberCoroutineScope()
     BackHandler(enabled = state.isExpanded) { scope.launch { state.animateToCollapsed() } }
@@ -2831,24 +2963,14 @@ private fun DockedSearchBarLayout(
         val maxHeight = windowContainerHeight * DockedExpandedTableMaxHeightScreenRatio
         val minHeight = DockedExpandedTableMinHeight.coerceAtMost(maxHeight)
 
-        Layout(
-            contents =
-                listOf(
-                    inputField,
-                    {
-                        Column {
-                            HorizontalDivider(color = colors.dividerColor)
-                            content()
-                        }
-                    },
-                )
-        ) { measurables, baseConstraints ->
+        Layout(contents = listOf(inputField, content)) { measurables, baseConstraints ->
             val (inputFieldMeasurables, contentMeasurables) = measurables
             val constraintMaxHeight =
                 lerp(state.collapsedBounds.height, maxHeight.roundToPx(), state.progress)
             val constraints =
                 baseConstraints.constrain(
                     Constraints(
+                        maxWidth = state.collapsedCoords?.size?.width ?: baseConstraints.maxWidth,
                         minHeight = minHeight.roundToPx().coerceAtMost(constraintMaxHeight),
                         maxHeight = constraintMaxHeight,
                     )

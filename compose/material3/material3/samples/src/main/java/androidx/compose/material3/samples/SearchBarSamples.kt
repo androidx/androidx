@@ -38,9 +38,10 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AppBarWithSearch
-import androidx.compose.material3.ExpandedDockedSearchBar
+import androidx.compose.material3.ExpandedDockedSearchBarWithGap
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -57,16 +58,10 @@ import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -257,6 +252,7 @@ fun FullScreenSearchBarScaffoldSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -267,11 +263,9 @@ fun DockedSearchBarScaffoldSample() {
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
     val appBarWithSearchColors = SearchBarDefaults.appBarWithSearchColors()
 
-    var inputFieldWidth by remember { mutableIntStateOf(0) }
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
-                modifier = Modifier.onSizeChanged { inputFieldWidth = it.width },
                 searchBarState = searchBarState,
                 textFieldState = textFieldState,
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
@@ -327,16 +321,7 @@ fun DockedSearchBarScaffoldSample() {
                 },
                 colors = appBarWithSearchColors,
             )
-            ExpandedDockedSearchBar(
-                modifier =
-                    Modifier.layout { measurable, constraints ->
-                        val placeable =
-                            measurable.measure(constraints.copy(maxWidth = inputFieldWidth))
-                        layout(placeable.width, placeable.height) { placeable.place(0, 0) }
-                    },
-                state = searchBarState,
-                inputField = inputField,
-            ) {
+            ExpandedDockedSearchBarWithGap(state = searchBarState, inputField = inputField) {
                 SampleSearchResults(
                     onResultClick = { result ->
                         textFieldState.setTextAndPlaceCursorAtEnd(result)

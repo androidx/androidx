@@ -209,7 +209,7 @@ class TextFieldTest {
                 .height
                 .assertIsEqualTo(ExpectedDefaultTextFieldHeight)
 
-            rule.mainClock.advanceTimeBy(tick.toLong())
+            rule.mainClock.advanceTimeBy(tick)
         }
     }
 
@@ -251,7 +251,7 @@ class TextFieldTest {
                     .assertIsEqualTo(tfHeight.value!!)
             }
 
-            rule.mainClock.advanceTimeBy(tick.toLong())
+            rule.mainClock.advanceTimeBy(tick)
         }
     }
 
@@ -284,7 +284,7 @@ class TextFieldTest {
                         MinSupportingTextLineHeight
                 )
 
-            rule.mainClock.advanceTimeBy(tick.toLong())
+            rule.mainClock.advanceTimeBy(tick)
         }
     }
 

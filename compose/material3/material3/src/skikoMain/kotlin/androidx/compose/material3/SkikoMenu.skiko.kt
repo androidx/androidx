@@ -17,6 +17,8 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
@@ -24,9 +26,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.internal.DropdownMenuPositionProvider
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,6 +44,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
@@ -49,6 +55,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -168,14 +175,14 @@ actual fun DropdownMenu(
     if (expandedState.currentState || expandedState.targetState) {
         val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
         val density = LocalDensity.current
-        val popupPositionProvider = remember(offset, density) {
-            DropdownMenuPositionProvider(
-                offset,
-                density
-            ) { parentBounds, menuBounds ->
-                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+        val popupPositionProvider =
+            remember(offset, density) {
+                DropdownMenuPositionProvider(offset, density, horizontalMargin = 0) {
+                        parentBounds,
+                        menuBounds ->
+                    transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+                }
             }
-        }
 
         var focusManager: FocusManager? by mutableStateOf(null)
         var inputModeManager: InputModeManager? by mutableStateOf(null)
@@ -200,6 +207,81 @@ actual fun DropdownMenu(
                 shadowElevation = shadowElevation,
                 border = border,
                 modifier = modifier,
+                content = content,
+            )
+        }
+    }
+}
+
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+actual fun DropdownMenuPopup(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    offset: DpOffset,
+    properties: PopupProperties,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val expandedState = remember { MutableTransitionState(false) }
+    expandedState.targetState = expanded
+
+    if (expandedState.currentState || expandedState.targetState) {
+        val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
+        val density = LocalDensity.current
+        val popupPositionProvider =
+            remember(offset, density) {
+                DropdownMenuPositionProvider(offset, density) { parentBounds, menuBounds ->
+                    transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+                }
+            }
+
+        // Menu open/close animation.
+        @Suppress("DEPRECATION") val transition = updateTransition(expandedState, "DropDownMenu")
+        // TODO Load the motionScheme tokens from the component tokens file
+        val scaleAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
+        val alphaAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
+        val scale by
+        transition.animateFloat(transitionSpec = { scaleAnimationSpec }) { expanded ->
+            if (expanded) ExpandedScaleTarget else ClosedScaleTarget
+        }
+
+        val alpha by
+        transition.animateFloat(transitionSpec = { alphaAnimationSpec }) { expanded ->
+            if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
+        }
+
+        val isInspecting = LocalInspectionMode.current
+        var focusManager: FocusManager? by mutableStateOf(null)
+        var inputModeManager: InputModeManager? by mutableStateOf(null)
+        Popup(
+            onDismissRequest = onDismissRequest,
+            popupPositionProvider = popupPositionProvider,
+            properties = properties,
+            onKeyEvent = {
+                handleDropdownOnKeyEvent(it, focusManager, inputModeManager)
+            },
+        ) {
+            focusManager = LocalFocusManager.current
+            inputModeManager = LocalInputModeManager.current
+
+            Column(
+                modifier =
+                    modifier.width(IntrinsicSize.Max).graphicsLayer {
+                        scaleX =
+                            if (!isInspecting) scale
+                            else if (expandedState.targetState) ExpandedScaleTarget
+                            else ClosedScaleTarget
+                        scaleY =
+                            if (!isInspecting) scale
+                            else if (expandedState.targetState) ExpandedScaleTarget
+                            else ClosedScaleTarget
+                        this.alpha =
+                            if (!isInspecting) alpha
+                            else if (expandedState.targetState) ExpandedAlphaTarget
+                            else ClosedAlphaTarget
+                        transformOrigin = transformOriginState.value
+                    },
                 content = content,
             )
         }

@@ -26,12 +26,17 @@ import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExposedDropdownMenuAnchorType
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MenuDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -50,6 +55,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -57,6 +63,7 @@ fun ExposedDropdownMenuSample() {
     val options: List<String> = SampleData.take(5)
     var expanded by remember { mutableStateOf(false) }
     val textFieldState = rememberTextFieldState(options[0])
+    var checkedIndex: Int? by remember { mutableStateOf(null) }
 
     ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
         TextField(
@@ -71,14 +78,23 @@ fun ExposedDropdownMenuSample() {
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             colors = ExposedDropdownMenuDefaults.textFieldColors(),
         )
-        ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            options.forEach { option ->
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            containerColor = MenuDefaults.groupStandardContainerColor,
+            shape = MenuDefaults.standaloneGroupShape,
+        ) {
+            val optionCount = options.size
+            options.forEachIndexed { index, option ->
                 DropdownMenuItem(
+                    shapes = MenuDefaults.itemShape(index, optionCount),
                     text = { Text(option, style = MaterialTheme.typography.bodyLarge) },
+                    selected = index == checkedIndex,
                     onClick = {
                         textFieldState.setTextAndPlaceCursorAtEnd(option)
-                        expanded = false
+                        checkedIndex = index
                     },
+                    checkedLeadingIcon = { Icon(Icons.Filled.Check, contentDescription = null) },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )
             }

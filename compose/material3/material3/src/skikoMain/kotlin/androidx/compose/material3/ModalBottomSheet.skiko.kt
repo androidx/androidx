@@ -32,12 +32,6 @@ actual constructor(
     actual val shouldDismissOnBackPress: Boolean,
     actual val shouldDismissOnClickOutside: Boolean,
 ) {
-    @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message = "Replaced with additional shouldDismissOnScrimClick param constructor.",
-    )
-    actual constructor(shouldDismissOnBackPress: Boolean) : this(shouldDismissOnBackPress, true)
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ModalBottomSheetProperties) return false

@@ -16,6 +16,7 @@
 
 package androidx.compose.material3.internal
 
+import androidx.compose.material3.MenuHorizontalMargin
 import androidx.compose.material3.MenuVerticalMargin
 import androidx.compose.material3.internal.MenuPosition.Horizontal
 import androidx.compose.material3.internal.MenuPosition.Vertical
@@ -290,6 +291,7 @@ internal data class DropdownMenuPositionProvider(
     val contentOffset: DpOffset,
     val density: Density,
     val verticalMargin: Int = with(density) { MenuVerticalMargin.roundToPx() },
+    val horizontalMargin: Int = with(density) { MenuHorizontalMargin.roundToPx() },
     val onPositionCalculated: (anchorBounds: IntRect, menuBounds: IntRect) -> Unit = { _, _ -> },
 ) : PopupPositionProvider {
     // Horizontal position
@@ -309,8 +311,8 @@ internal data class DropdownMenuPositionProvider(
         val contentOffsetX = with(density) { contentOffset.x.roundToPx() }
         startToAnchorStart = MenuPosition.startToAnchorStart(offset = contentOffsetX)
         endToAnchorEnd = MenuPosition.endToAnchorEnd(offset = contentOffsetX)
-        leftToWindowLeft = MenuPosition.leftToWindowLeft(margin = 0)
-        rightToWindowRight = MenuPosition.rightToWindowRight(margin = 0)
+        leftToWindowLeft = MenuPosition.leftToWindowLeft(margin = horizontalMargin)
+        rightToWindowRight = MenuPosition.rightToWindowRight(margin = horizontalMargin)
         // Vertical position
         val contentOffsetY = with(density) { contentOffset.y.roundToPx() }
         topToAnchorBottom = MenuPosition.topToAnchorBottom(offset = contentOffsetY)
@@ -347,7 +349,8 @@ internal data class DropdownMenuPositionProvider(
                 )
             if (
                 index == xCandidates.lastIndex ||
-                    (xCandidate >= 0 && xCandidate + popupContentSize.width <= windowSize.width)
+                    (xCandidate >= horizontalMargin &&
+                        xCandidate + popupContentSize.width <= windowSize.width - horizontalMargin)
             ) {
                 x = xCandidate
                 break

@@ -1635,47 +1635,6 @@ object SliderDefaults {
      *
      * @param sliderState [SliderState] which is used to obtain the current active track.
      * @param modifier the [Modifier] to be applied to the track.
-     * @param colors [SliderColors] that will be used to resolve the colors used for this track in
-     *   different states. See [SliderDefaults.colors].
-     * @param enabled controls the enabled state of this slider. When `false`, this component will
-     *   not respond to user input, and it will appear visually disabled and disabled to
-     *   accessibility services.
-     */
-    @Deprecated(
-        message =
-            "Use the overload that takes `drawStopIndicator`, `drawTick`, " +
-                "`thumbTrackGapSize` and `trackInsideCornerSize`, see `LegacySliderSample` " +
-                "on how to restore the previous behavior",
-        replaceWith =
-            ReplaceWith(
-                "Track(sliderState, modifier, enabled, colors, drawStopIndicator, " +
-                    "drawTick, thumbTrackGapSize, trackInsideCornerSize)"
-            ),
-        level = DeprecationLevel.HIDDEN,
-    )
-    @Composable
-    @ExperimentalMaterial3Api
-    fun Track(
-        sliderState: SliderState,
-        modifier: Modifier = Modifier,
-        colors: SliderColors = colors(),
-        enabled: Boolean = true,
-    ) {
-        Track(
-            sliderState,
-            modifier,
-            enabled,
-            colors,
-            thumbTrackGapSize = ThumbTrackGapSize,
-            trackInsideCornerSize = TrackInsideCornerSize,
-        )
-    }
-
-    /**
-     * The Default track for [Slider]
-     *
-     * @param sliderState [SliderState] which is used to obtain the current active track.
-     * @param modifier the [Modifier] to be applied to the track.
      * @param enabled controls the enabled state of this slider. When `false`, this component will
      *   not respond to user input, and it will appear visually disabled and disabled to
      *   accessibility services.
@@ -2721,18 +2680,24 @@ private fun Modifier.sliderTapModifier(
             coroutineScope {
                 detectTapGestures(
                     onPress = { offset ->
-                        val press = PressInteraction.Press(offset)
-                        interactionSource.tryEmit(press)
-                        state.onPress(offset)
-                        val success = tryAwaitRelease()
-                        val release =
-                            if (success) {
-                                PressInteraction.Release(press)
-                            } else {
-                                PressInteraction.Cancel(press)
-                            }
-                        // Emit the release or cancel interaction
-                        interactionSource.tryEmit(release)
+                        var press: PressInteraction.Press? = null
+                        try {
+                            press = PressInteraction.Press(offset)
+                            interactionSource.tryEmit(press)
+                            state.onPress(offset)
+                            val success = tryAwaitRelease()
+                            val release =
+                                if (success) {
+                                    PressInteraction.Release(press)
+                                } else {
+                                    PressInteraction.Cancel(press)
+                                }
+                            // Emit the release or cancel interaction
+                            interactionSource.tryEmit(release)
+                            press = null
+                        } finally {
+                            press?.let { interactionSource.emit(PressInteraction.Cancel(it)) }
+                        }
                     },
                     onTap = {
                         state.dispatchRawDelta(0f)
@@ -2759,79 +2724,123 @@ private fun Modifier.rangeSliderPressDragModifier(
                 RangeSliderLogic(state, startInteractionSource, endInteractionSource)
             coroutineScope {
                 awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = false)
+                    var activeDragInteraction: DragInteraction.Start? = null
+                    var draggingStart = false
+                    var press: PressInteraction.Press? = null
 
-                    val posX =
-                        if (state.isRtl) state.totalWidth - down.position.x else down.position.x
-                    val compare = rangeSliderLogic.compareOffsets(posX)
-                    val draggingStart =
-                        if (compare != 0) compare < 0 else state.rawOffsetStart > posX
+                    try {
+                        val down = awaitFirstDown(requireUnconsumed = false)
 
-                    val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
-                    val press = PressInteraction.Press(down.position)
-                    launch { interactionSource.emit(press) }
+                        val posX =
+                            if (state.isRtl) state.totalWidth - down.position.x else down.position.x
+                        val compare = rangeSliderLogic.compareOffsets(posX)
 
-                    var drag: PointerInputChange?
-                    var overSlop = Offset.Zero
-                    val pointerSlop = viewConfiguration.pointerSlop(down.type)
+                        draggingStart =
+                            if (compare != 0) compare < 0 else state.rawOffsetStart > posX
 
-                    do {
-                        drag = awaitPointerEvent().changes.firstOrNull()
-                        if (drag != null) {
-                            overSlop += drag.positionChange()
+                        val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
+                        press = PressInteraction.Press(down.position)
+                        press?.let { launch { interactionSource.emit(it) } }
+
+                        var drag: PointerInputChange?
+                        var overSlop = Offset.Zero
+                        val pointerSlop = viewConfiguration.pointerSlop(down.type)
+
+                        do {
+                            drag = awaitPointerEvent().changes.firstOrNull()
+                            if (drag != null) {
+                                overSlop += drag.positionChange()
+                            }
+                        } while (
+                            drag != null &&
+                                drag.pressed &&
+                                overSlop.getDistanceSquared() < pointerSlop * pointerSlop
+                        )
+
+                        if (drag != null && abs(overSlop.x) > abs(overSlop.y)) {
+                            // The press is converted to a drag, so we cancel the press interaction
+                            press?.let {
+                                launch { interactionSource.emit(PressInteraction.Cancel(it)) }
+                            }
+
+                            press = null
+
+                            val interaction = DragInteraction.Start()
+                            activeDragInteraction = interaction
+                            launch { interactionSource.emit(interaction) }
+
+                            // Apply the slop from the initial drag detection
+                            val initialOffset =
+                                posX -
+                                    (if (draggingStart) state.rawOffsetStart
+                                    else state.rawOffsetEnd)
+                            val totalDragOffset =
+                                initialOffset + (if (state.isRtl) -overSlop.x else overSlop.x)
+                            state.onDrag(draggingStart, totalDragOffset)
+
+                            // The main drag block now handles all subsequent movement.
+                            state.isDragging = true
+                            val success =
+                                horizontalDrag(down.id) { change ->
+                                    val deltaX = change.positionChange().x
+                                    state.onDrag(
+                                        draggingStart,
+                                        if (state.isRtl) -deltaX else deltaX,
+                                    )
+                                    change.consume()
+                                }
+
+                            state.isDragging = false
+
+                            val finishInteraction =
+                                if (success) {
+                                    DragInteraction.Stop(interaction)
+                                } else {
+                                    DragInteraction.Cancel(interaction)
+                                }
+                            state.gestureEndAction(draggingStart)
+                            launch { interactionSource.emit(finishInteraction) }
+                            activeDragInteraction = null
+                        } else if (drag?.pressed == false) {
+                            // The press is completed, so emit a release.
+                            press?.let {
+                                launch { interactionSource.emit(PressInteraction.Release(it)) }
+                            }
+
+                            press = null
+
+                            // Perform the tap action to update the slider value
+                            val offset =
+                                posX -
+                                    if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd
+                            state.onDrag(draggingStart, offset)
+                            state.gestureEndAction(draggingStart)
+                        } else { // Gesture is not a horizontal drag and pointer is still down
+                            // (e.g.,
+                            // vertical scroll)
+                            // Cancel the press to dismiss the ripple and allow scrolling
+                            press?.let {
+                                launch { interactionSource.emit(PressInteraction.Cancel(it)) }
+                            }
+                            press = null
                         }
-                    } while (
-                        drag != null &&
-                            drag.pressed &&
-                            overSlop.getDistanceSquared() < pointerSlop * pointerSlop
-                    )
-
-                    if (drag != null && abs(overSlop.x) > abs(overSlop.y)) {
-                        // The press is converted to a drag, so we cancel the press interaction
-                        launch { interactionSource.emit(PressInteraction.Cancel(press)) }
-
-                        val interaction = DragInteraction.Start()
-                        launch { interactionSource.emit(interaction) }
-
-                        // Apply the slop from the initial drag detection
-                        val initialOffset =
-                            posX - (if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd)
-                        val totalDragOffset =
-                            initialOffset + (if (state.isRtl) -overSlop.x else overSlop.x)
-                        state.onDrag(draggingStart, totalDragOffset)
-
-                        // The main drag block now handles all subsequent movement.
-                        state.isDragging = true
-                        val success =
-                            horizontalDrag(down.id) { change ->
-                                val deltaX = change.positionChange().x
-                                state.onDrag(draggingStart, if (state.isRtl) -deltaX else deltaX)
-                                change.consume()
+                    } finally {
+                        if (state.isDragging) {
+                            // If we were dragging, clean up the state
+                            activeDragInteraction?.let {
+                                val interactionSource =
+                                    rangeSliderLogic.activeInteraction(draggingStart)
+                                launch { interactionSource.emit(DragInteraction.Cancel(it)) }
                             }
-                        state.isDragging = false
+                            state.gestureEndAction(draggingStart)
+                            state.isDragging = false
+                        }
 
-                        val finishInteraction =
-                            if (success) {
-                                DragInteraction.Stop(interaction)
-                            } else {
-                                DragInteraction.Cancel(interaction)
-                            }
-
-                        state.gestureEndAction(draggingStart)
-                        launch { interactionSource.emit(finishInteraction) }
-                    } else if (drag?.pressed == false) { // Tap detected
-                        // The press is completed, so emit a release.
-                        launch { interactionSource.emit(PressInteraction.Release(press)) }
-
-                        // Perform the tap action to update the slider value
-                        val offset =
-                            posX - if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd
-                        state.onDrag(draggingStart, offset)
-                        state.gestureEndAction(draggingStart)
-                    } else { // Gesture is not a horizontal drag and pointer is still down (e.g.,
-                        // vertical scroll)
-                        // Cancel the press to dismiss the ripple and allow scrolling
-                        launch { interactionSource.emit(PressInteraction.Cancel(press)) }
+                        press?.let {
+                            val interactionSource =
+                                rangeSliderLogic.activeInteraction(draggingStart)
+                            launch { interactionSource.emit(PressInteraction.Cancel(it)) }
+                        }
                     }
                 }
             }
@@ -2839,25 +2848,6 @@ private fun Modifier.rangeSliderPressDragModifier(
     } else {
         this
     }
-
-@OptIn(ExperimentalMaterial3Api::class)
-private fun CoroutineScope.rangeSliderTapLogic(
-    posX: Float,
-    draggingStart: Boolean,
-    state: RangeSliderState,
-    rangeSliderLogic: RangeSliderLogic,
-    startInteraction: Interaction,
-    endInteraction: Interaction,
-) {
-    val interactionSource = rangeSliderLogic.activeInteraction(draggingStart)
-    launch { interactionSource.emit(startInteraction) }
-
-    val offset = posX - if (draggingStart) state.rawOffsetStart else state.rawOffsetEnd
-    state.onDrag(draggingStart, offset)
-
-    state.gestureEndAction(draggingStart)
-    launch { interactionSource.emit(endInteraction) }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 private class RangeSliderLogic(
@@ -3123,8 +3113,11 @@ class SliderState(
         block: suspend DragScope.() -> Unit,
     ): Unit = coroutineScope {
         isDragging = true
-        scrollMutex.mutateWith(dragScope, dragPriority, block)
-        isDragging = false
+        try {
+            scrollMutex.mutateWith(dragScope, dragPriority, block)
+        } finally {
+            isDragging = false
+        }
     }
 
     override fun dispatchRawDelta(delta: Float) {
