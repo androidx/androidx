@@ -18,8 +18,13 @@ package androidx.compose.ui.window
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -37,13 +42,17 @@ import androidx.compose.ui.background
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.sendKeyEvent
+import androidx.compose.ui.sendMousePress
+import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.drawText
@@ -64,6 +73,7 @@ import java.awt.Window
 import java.awt.event.KeyEvent
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
+import javax.swing.JFrame
 import kotlin.concurrent.thread
 import kotlin.test.assertEquals
 import kotlinx.coroutines.delay
@@ -773,6 +783,61 @@ class DialogWindowTest {
 
         assertThat(nonBlackPixelDetected).isNull()
     }
+
+    @Test
+    fun testComposeDialogClearFocusOnMouseDownEnabled() =
+        testComposeDialogClearFocusOnMouseDownEnabledFlag(true)
+
+    @Test
+    fun testComposeDialogClearFocusOnMouseDownDisabled() =
+        testComposeDialogClearFocusOnMouseDownEnabledFlag(false)
+
+    fun testComposeDialogClearFocusOnMouseDownEnabledFlag(enabled: Boolean) = runApplicationTest {
+        val focusRequester = FocusRequester()
+        var textFieldIsFocused = false
+
+        val window = JFrame()
+        val dialog = ComposeDialog(window)
+        try {
+            window.size = Dimension(800, 600)
+            dialog.isClearFocusOnMouseDownEnabled = enabled
+            dialog.setContent {
+                Column(Modifier.size(300.dp, 400.dp)) {
+                    BasicTextField(
+                        state = rememberTextFieldState(),
+                        modifier = Modifier
+                            .testTag("textField")
+                            .fillMaxWidth()
+                            .height(100.dp)
+                            .focusRequester(focusRequester)
+                            .onFocusChanged {
+                                textFieldIsFocused = it.isFocused
+                            }
+                    )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
+                    Box(Modifier.testTag("box").fillMaxWidth().weight(1f))
+                }
+            }
+
+            dialog.size = Dimension(300, 400)
+            dialog.isVisible = true
+
+            awaitIdle()
+
+            assertThat(textFieldIsFocused).isTrue()
+            dialog.sendMousePress(x = 100, y = 300)
+            dialog.sendMouseRelease(x = 100, y = 300)
+            awaitIdle()
+
+            assertThat(textFieldIsFocused).isEqualTo(!enabled)
+        } finally {
+            dialog.dispose()
+            window.dispose()
+        }
+    }
+
 }
 
 private fun assertDialogStateEquals(expected: DialogState, actual: DialogState) {

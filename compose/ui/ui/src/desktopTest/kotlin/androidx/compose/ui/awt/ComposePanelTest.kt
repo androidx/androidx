@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
@@ -52,9 +53,12 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.sendCharTypedEvents
 import androidx.compose.ui.sendKeyEvent
 import androidx.compose.ui.sendMouseEvent
+import androidx.compose.ui.sendMousePress
+import androidx.compose.ui.sendMouseRelease
 import androidx.compose.ui.sendMouseWheelEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -809,4 +813,56 @@ class ComposePanelTest {
                 }
             }
         }
+
+    @Test
+    fun testComposePanelClearFocusOnMouseDownEnabled() =
+        testComposePanelClearFocusOnMouseDownEnabledFlag(true)
+
+    @Test
+    fun testComposePanelClearFocusOnMouseDownDisabled() =
+        testComposePanelClearFocusOnMouseDownEnabledFlag(false)
+
+    fun testComposePanelClearFocusOnMouseDownEnabledFlag(enabled: Boolean) = runApplicationTest {
+        val focusRequester = FocusRequester()
+        var textFieldIsFocused = false
+
+        val window = JFrame()
+        try {
+            window.contentPane.add(ComposePanel().apply {
+                isClearFocusOnMouseDownEnabled = enabled
+                setContent {
+                    Column(Modifier.size(300.dp, 400.dp)) {
+                        BasicTextField(
+                            state = rememberTextFieldState(),
+                            modifier = Modifier
+                                .testTag("textField")
+                                .fillMaxWidth()
+                                .height(100.dp)
+                                .focusRequester(focusRequester)
+                                .onFocusChanged {
+                                    textFieldIsFocused = it.isFocused
+                                }
+                        )
+                        LaunchedEffect(Unit) {
+                            focusRequester.requestFocus()
+                        }
+                        Box(Modifier.testTag("box").fillMaxWidth().weight(1f))
+                    }
+                }
+            })
+            window.size = Dimension(300, 400)
+            window.isVisible = true
+
+            awaitIdle()
+
+            assertThat(textFieldIsFocused).isTrue()
+            window.sendMousePress(x = 100, y = 300)
+            window.sendMouseRelease(x = 100, y = 300)
+            awaitIdle()
+
+            assertThat(textFieldIsFocused).isEqualTo(!enabled)
+        } finally {
+            window.dispose()
+        }
+    }
 }

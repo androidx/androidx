@@ -81,6 +81,8 @@ internal class ComposeWindowPanel(
     val renderApi by composeContainer::renderApi
     val semanticsOwners by composeContainer::semanticsOwners
 
+    var isClearFocusOnMouseDownEnabled: Boolean by composeContainer::isClearFocusOnMouseDownEnabled
+
     var isWindowTransparent: Boolean = false
         set(value) {
             if (field != value) {

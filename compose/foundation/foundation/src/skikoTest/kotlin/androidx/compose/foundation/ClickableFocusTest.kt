@@ -20,17 +20,23 @@ import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.RecomposeScope
 import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.key.Key
@@ -39,10 +45,14 @@ import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.runComposeUiTest
@@ -259,5 +269,29 @@ class ClickableFocusTest {
         // these overrides are required by [IndicationNodeFactory]
         override fun hashCode() = super.hashCode()
         override fun equals(other: Any?) = super.equals(other)
+    }
+
+    @Test
+    fun mouseClickOutsideClearsFocus() = runComposeUiTest {
+        val focusRequester = FocusRequester()
+        setContent {
+            Column(Modifier.size(300.dp, 400.dp)) {
+                BasicTextField(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier
+                        .testTag("textField")
+                        .focusRequester(focusRequester)
+                )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+                Box(Modifier.testTag("box").fillMaxWidth().weight(1f))
+            }
+        }
+
+        onNodeWithTag("textField").assertIsFocused()
+        onNodeWithTag("box").performMouseInput { click() }
+        onNodeWithTag("textField").assertIsNotFocused()
+        onNode(isFocused()).assertDoesNotExist()
     }
 }

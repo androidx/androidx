@@ -18,11 +18,13 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ComposeFeatureFlags
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LayerType
 import androidx.compose.ui.awt.RenderSettings.SkiaSurface
 import androidx.compose.ui.awt.RenderSettings.SwingGraphics
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.isClearFocusOnMouseDownEnabled
 import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -119,6 +121,16 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
 
     private var _composeContainer: ComposeContainer? = null
     private var _composeContent: (@Composable () -> Unit)? = null
+
+    /**
+     * Controls whether mouse-down on an unfocusable element clears focus.
+     */
+    @ExperimentalComposeUiApi
+    var isClearFocusOnMouseDownEnabled: Boolean = ComposeUiFlags.isClearFocusOnMouseDownEnabled
+        set(value) {
+            field = value
+            _composeContainer?.isClearFocusOnMouseDownEnabled = value
+        }
 
     /**
      * Determines whether the Compose state in [ComposePanel] should be disposed
@@ -279,6 +291,8 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
 
                 override fun focusLost(e: FocusEvent) = Unit
             })
+
+            isClearFocusOnMouseDownEnabled = this@ComposePanel.isClearFocusOnMouseDownEnabled
         }
     }
 

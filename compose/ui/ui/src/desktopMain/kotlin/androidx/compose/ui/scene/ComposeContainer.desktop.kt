@@ -181,6 +181,8 @@ internal class ComposeContainer(
     private var isMinimized = false
     private var isFocused = false
 
+    var isClearFocusOnMouseDownEnabled by mediator::isClearFocusOnMouseDownEnabled
+
     init {
         architectureComponentsOwner.enableSavedStateHandles()
         setWindow(window)

@@ -93,6 +93,12 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     val semanticsOwners: Collection<SemanticsOwner>
         get() = composePanel.semanticsOwners
 
+    /**
+     * Controls whether mouse-down on an unfocusable element clears focus.
+     */
+    @ExperimentalComposeUiApi
+    var isClearFocusOnMouseDownEnabled: Boolean by composePanel::isClearFocusOnMouseDownEnabled
+
     init {
         contentPane.add(composePanel)
     }

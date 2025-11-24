@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,8 +39,6 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.GlobalSnapshotManager
-import androidx.compose.ui.platform.LocalPlatformScreenReader
-import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.ProvidePlatformCompositionLocals
 import androidx.compose.ui.util.trace
 import kotlin.concurrent.Volatile
@@ -64,9 +61,9 @@ internal abstract class BaseComposeScene(
     protected val inputHandler: ComposeSceneInputHandler =
         ComposeSceneInputHandler(
             prepareForPointerInputEvent = ::doMeasureAndLayout,
-            processPointerInputEvent = ::processPointerInputEvent,
+            processPointerInputEvent = ::onPointerInputEvent,
             cancelPointerInput = ::processCancelPointerInput,
-            processKeyEvent = ::processKeyEvent
+            processKeyEvent = ::processKeyEvent,
         )
 
     // Store this to avoid creating a lambda every frame
@@ -296,6 +293,18 @@ internal abstract class BaseComposeScene(
     }
 
     protected abstract fun createComposition(content: @Composable () -> Unit): Composition
+
+    private fun onPointerInputEvent(event: PointerInputEvent) = processPointerInputEvent(event)
+        .also {
+            if (composeSceneContext.platformContext.isClearFocusOnMouseDownEnabled) {
+                val isDown = event.eventType == PointerEventType.Press
+                val pointer = event.pointers.singleOrNull()
+                val isFromMouse = pointer?.type == PointerType.Mouse
+                if (isDown && isFromMouse) {
+                    focusManager.clearFocusIfOutsideOfActiveFocusTargetNode(pointer.position)
+                }
+            }
+        }
 
     protected abstract fun processPointerInputEvent(event: PointerInputEvent): PointerEventResult
 

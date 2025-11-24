@@ -152,6 +152,14 @@ class ComposeDialog : JDialog {
         get() = composePanel.rootForTestListener
         set(value) { composePanel.rootForTestListener = value }
 
+    /**
+     * Controls whether mouse-down on an unfocusable element clears focus.
+     */
+    @ExperimentalComposeUiApi
+    var isClearFocusOnMouseDownEnabled: Boolean
+        get() = composePanel.isClearFocusOnMouseDownEnabled
+        set(value) { composePanel.isClearFocusOnMouseDownEnabled = value }
+
     private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
     override fun add(component: Component) = composePanel.add(component)

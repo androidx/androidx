@@ -18,6 +18,7 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.InternalComposeUiApi
@@ -28,6 +29,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.isClearFocusOnMouseDownEnabled
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
@@ -179,6 +181,12 @@ interface PlatformContext {
      * @see SemanticsOwnerListener
      */
     val semanticsOwnerListener: SemanticsOwnerListener? get() = null
+
+    /**
+     * Returns whether mouse-down on an unfocusable element clears focus.
+     */
+    val isClearFocusOnMouseDownEnabled: Boolean
+        get() = ComposeUiFlags.isClearFocusOnMouseDownEnabled
 
     interface RootForTestListener {
         fun onRootForTestCreated(root: PlatformRootForTest)

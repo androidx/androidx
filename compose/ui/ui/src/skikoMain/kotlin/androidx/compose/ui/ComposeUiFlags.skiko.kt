@@ -17,12 +17,15 @@
 package androidx.compose.ui
 
 import kotlin.jvm.JvmField
-import kotlin.jvm.JvmName
 
 internal object SkikoComposeUiFlags {
     @Suppress("MutableBareField")
     @JvmField
     var useLegacyRenderNodeLayers: Boolean = false
+
+    @Suppress("MutableBareField")
+    @JvmField
+    var isClearFocusOnMouseDownEnabled: Boolean = true
 }
 
 /**
@@ -33,3 +36,11 @@ internal object SkikoComposeUiFlags {
  */
 @ExperimentalComposeUiApi
 var ComposeUiFlags.useLegacyRenderNodeLayers by SkikoComposeUiFlags::useLegacyRenderNodeLayers
+
+/**
+ * This flag enables clearing focus on mouse down by default.
+ *
+ * More granular control is available in the various platform-specific entry points.
+ */
+@ExperimentalComposeUiApi
+var ComposeUiFlags.isClearFocusOnMouseDownEnabled by SkikoComposeUiFlags::isClearFocusOnMouseDownEnabled
