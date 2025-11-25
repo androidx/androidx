@@ -64,7 +64,7 @@ class DesktopMenuTest {
     fun menu_positioning_vertical_underAnchor() {
         val windowSize = IntSize(200, 200)
         val anchorBounds = IntRect(
-            offset = IntOffset(10, 100),
+            offset = IntOffset(50, 100),
             size = IntSize(80, 20)
         )
         val popupSize = IntSize(80, 50)

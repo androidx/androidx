@@ -19,9 +19,9 @@ package androidx.compose.material3
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animate
-import androidx.compose.material3.internal.AnchoredDraggableState
-import androidx.compose.material3.internal.snapTo
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -32,8 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 
 /** Possible values of [WideNavigationRailState]. */
 enum class WideNavigationRailValue {
@@ -167,16 +165,10 @@ internal class WideNavigationRailStateImpl(
 
 internal class ModalWideNavigationRailState(
     state: WideNavigationRailState,
-    density: Density,
     val animationSpec: AnimationSpec<Float>,
 ) : WideNavigationRailState by state {
     internal val anchoredDraggableState: AnchoredDraggableState<WideNavigationRailValue> =
-        AnchoredDraggableState(
-            initialValue = state.targetValue,
-            positionalThreshold = { distance -> distance * 0.5f },
-            velocityThreshold = { with(density) { 400.dp.toPx() } },
-            animationSpec = { animationSpec },
-        )
+        AnchoredDraggableState(initialValue = state.targetValue)
 
     /**
      * The current value of the state.
@@ -186,7 +178,10 @@ internal class ModalWideNavigationRailState(
      * corresponds to the value the rail was in before the swipe or animation started.
      */
     override val currentValue: WideNavigationRailValue
-        get() = anchoredDraggableState.currentValue
+        // Note: Current Value is mapping to the newly introduced settled value for roughly
+        // analogous behavior to internal fork. anchoredDraggableState.currentValue now maps to the
+        // value the touch target is closest to, regardless of release/settling.
+        get() = anchoredDraggableState.settledValue
 
     /**
      * The target value of the dismissible modal wide navigation rail state.
@@ -214,13 +209,6 @@ internal class ModalWideNavigationRailState(
     }
 
     /**
-     * Find the closest anchor taking into account the velocity and settle at it with an animation.
-     */
-    internal suspend fun settle(velocity: Float) {
-        anchoredDraggableState.settle(velocity)
-    }
-
-    /**
      * The current position (in pixels) of the rail, or Float.NaN before the offset is initialized.
      *
      * @see [AnchoredDraggableState.offset] for more information.
@@ -231,22 +219,8 @@ internal class ModalWideNavigationRailState(
     private suspend fun animateTo(
         targetValue: WideNavigationRailValue,
         animationSpec: AnimationSpec<Float> = this.animationSpec,
-        velocity: Float = anchoredDraggableState.lastVelocity,
     ) {
-        anchoredDraggableState.anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
-            val targetOffset = anchors.positionOf(latestTarget)
-            if (!targetOffset.isNaN()) {
-                var prev = if (currentOffset.isNaN()) 0f else currentOffset
-                animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
-                    // Our onDrag coerces the value within the bounds, but an animation may
-                    // overshoot, for example a spring animation or an overshooting interpolator.
-                    // We respect the user's intention and allow the overshoot, but still use
-                    // DraggableState's drag for its mutex.
-                    dragTo(value, velocity)
-                    prev = value
-                }
-            }
-        }
+        anchoredDraggableState.animateTo(targetValue, animationSpec)
     }
 }
 

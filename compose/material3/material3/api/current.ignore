@@ -11,14 +11,10 @@ BecameUnchecked: androidx.compose.material3.LabelKt:
     Removed class androidx.compose.material3.LabelKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.ModalBottomSheetKt:
     Removed class androidx.compose.material3.ModalBottomSheetKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.ModalBottomSheet_androidKt:
-    Removed class androidx.compose.material3.ModalBottomSheet_androidKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.SearchBarKt:
     Removed class androidx.compose.material3.SearchBarKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.TooltipKt:
     Removed class androidx.compose.material3.TooltipKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.Tooltip_androidKt:
-    Removed class androidx.compose.material3.Tooltip_androidKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.carousel.CarouselKt:
     Removed class androidx.compose.material3.carousel.CarouselKt from compatibility checked API surface
 BecameUnchecked: androidx.compose.material3.carousel.CarouselStateKt:
@@ -31,6 +27,12 @@ ChangedType: androidx.compose.material3.NavigationItemColors#textColor(boolean, 
     Source breaking change: Method androidx.compose.material3.NavigationItemColors.textColor has changed return type from long to androidx.compose.ui.graphics.Color
 ChangedType: androidx.compose.material3.WideNavigationRailItemDefaults#iconPositionFor(boolean):
     Source breaking change: Method androidx.compose.material3.WideNavigationRailItemDefaults.iconPositionFor has changed return type from int to androidx.compose.material3.NavigationItemIconPosition
+
+
+RemovedClass: androidx.compose.material3.ModalBottomSheet_androidKt:
+    Binary breaking change: Removed class androidx.compose.material3.ModalBottomSheet_androidKt
+RemovedClass: androidx.compose.material3.Tooltip_androidKt:
+    Binary breaking change: Removed class androidx.compose.material3.Tooltip_androidKt
 
 
 RemovedDeprecatedMethod: androidx.compose.material3.AndroidMenu_androidKt#DropdownMenu(boolean, kotlin.jvm.functions.Function0<kotlin.Unit>, androidx.compose.ui.Modifier, long, androidx.compose.foundation.ScrollState, androidx.compose.ui.window.PopupProperties, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>):

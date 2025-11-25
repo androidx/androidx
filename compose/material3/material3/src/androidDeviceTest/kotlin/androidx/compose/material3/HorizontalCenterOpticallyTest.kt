@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +32,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -57,8 +59,8 @@ class HorizontalCenterOpticallyTest {
                 bottomEnd = 0.dp,
             )
         val baseContentPadding = PaddingValues(horizontal = 20.dp)
-        val expectedStartPadding = 20.dp + (0.11f * 20f).dp
-        val expectedEndPadding = 20.dp - (0.11f * 20f).dp
+        val expectedStartPadding = 20.dp + (CenterOpticallyCoefficient * 20f).dp
+        val expectedEndPadding = 20.dp - (CenterOpticallyCoefficient * 20f).dp
         rule.setContent {
             val layoutDirection = LocalLayoutDirection.current
             Box(modifier = Modifier.clip(shape).testTag(ContainerTag)) {
@@ -115,5 +117,47 @@ class HorizontalCenterOpticallyTest {
 
         (textBounds.left - containerBounds.left).assertIsEqualTo(expectedPadding)
         (containerBounds.right - textBounds.right).assertIsEqualTo(expectedPadding)
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun horizontalCenterOptically_contentPadding_asymmetricShape_rtl() {
+        val shape =
+            RoundedCornerShape(
+                topStart = 20.dp,
+                bottomStart = 20.dp,
+                topEnd = 0.dp,
+                bottomEnd = 0.dp,
+            )
+        val baseContentPadding = PaddingValues(horizontal = 20.dp)
+        val expectedStartPadding = 20.dp + (CenterOpticallyCoefficient * 20f).dp
+        val expectedEndPadding = 20.dp - (CenterOpticallyCoefficient * 20f).dp
+        rule.setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
+                Box(modifier = Modifier.clip(shape).testTag(ContainerTag)) {
+                    Row(
+                        modifier =
+                            Modifier.horizontalCenterOptically(
+                                    shape = shape,
+                                    maxStartOffset =
+                                        baseContentPadding.calculateStartPadding(
+                                            LayoutDirection.Rtl
+                                        ),
+                                    maxEndOffset =
+                                        baseContentPadding.calculateEndPadding(LayoutDirection.Rtl),
+                                )
+                                .padding(baseContentPadding)
+                    ) {
+                        Text(text = "Test", modifier = Modifier.testTag(TextTag))
+                    }
+                }
+            }
+        }
+
+        val containerBounds = rule.onNodeWithTag(ContainerTag).getUnclippedBoundsInRoot()
+        val textBounds = rule.onNodeWithTag(TextTag).getUnclippedBoundsInRoot()
+
+        (textBounds.left - containerBounds.left).assertIsEqualTo(expectedEndPadding)
+        (containerBounds.right - textBounds.right).assertIsEqualTo(expectedStartPadding)
     }
 }

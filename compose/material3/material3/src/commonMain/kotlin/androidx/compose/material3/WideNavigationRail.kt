@@ -21,9 +21,13 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -38,9 +42,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material3.internal.DraggableAnchors
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.draggableAnchors
+import androidx.compose.material3.internal.draggableAnchorsV2
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -86,7 +89,6 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -317,9 +319,12 @@ private fun WideNavigationRailLayout(
 
                         val itemsPlaceables =
                             if (itemsCount > 0) mutableListOf<Placeable>() else null
+                        val itemExpandedMaxWidth =
+                            looseConstraints.maxWidth - ItemHorizontalPadding.roundToPx()
                         val itemMaxWidthConstraint =
-                            (if (expanded) looseConstraints.maxWidth else actualMinWidth)
-                                .coerceAtLeast(minimumA11ySize.roundToPx())
+                            (if (expanded) itemExpandedMaxWidth else actualMinWidth).coerceAtLeast(
+                                minimumA11ySize.roundToPx()
+                            )
                         val itemMaxHeightConstraint =
                             looseConstraints.maxHeight.coerceAtLeast(itemMinHeight.roundToPx())
                         var expandedItemMaxWidth = 0
@@ -517,16 +522,11 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
                 content
             } else remember(content) { movableContentOf(content) }
 
-        val density = LocalDensity.current
         // TODO: Load the motionScheme tokens from the component tokens file.
         val modalStateAnimationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
         val modalState =
             remember(state) {
-                ModalWideNavigationRailState(
-                    state = state,
-                    density = density,
-                    animationSpec = modalStateAnimationSpec,
-                )
+                ModalWideNavigationRailState(state = state, animationSpec = modalStateAnimationSpec)
             }
         val positionProgress =
             animateFloatAsState(
@@ -542,10 +542,8 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
             }
             state.collapse()
         }
-
-        val settleToDismiss: suspend (velocity: Float) -> Unit = {
+        val modalAnimateToDismiss: suspend () -> Unit = {
             if (shouldHideOnCollapse) {
-                modalState.settle(it)
                 if (!modalState.targetValue.isExpanded) state.collapse()
             }
         }
@@ -635,7 +633,7 @@ object DefaultModalWideNavigationRailOverride : ModalWideNavigationRailOverride 
                         isStandaloneModal = shouldHideOnCollapse,
                         predictiveBackProgress = predictiveBackProgress,
                         predictiveBackState = predictiveBackState,
-                        settleToDismiss = settleToDismiss,
+                        modalAnimateToDismiss = modalAnimateToDismiss,
                         modifier = modifier,
                         railState = modalState,
                         colors = colors,
@@ -1173,7 +1171,7 @@ private fun ModalWideNavigationRailContent(
     isStandaloneModal: Boolean,
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     predictiveBackState: RailPredictiveBackState,
-    settleToDismiss: suspend (velocity: Float) -> Unit,
+    modalAnimateToDismiss: suspend () -> Unit,
     modifier: Modifier,
     railState: ModalWideNavigationRailState,
     colors: WideNavigationRailColors,
@@ -1187,6 +1185,28 @@ private fun ModalWideNavigationRailContent(
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val railPaneTitle = getString(string = Strings.WideNavigationRailPaneTitle)
+    val anchoredDraggableFlingBehavior =
+        AnchoredDraggableDefaults.flingBehavior(
+            state = railState.anchoredDraggableState,
+            positionalThreshold = { distance -> distance * 0.5f },
+            animationSpec = railState.animationSpec,
+        )
+
+    val railFlingBehavior =
+        remember(anchoredDraggableFlingBehavior) {
+            object : FlingBehavior {
+                override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                    var remainingVelocity = 0f
+                    try {
+                        remainingVelocity =
+                            with(anchoredDraggableFlingBehavior) { performFling(initialVelocity) }
+                    } finally {
+                        modalAnimateToDismiss()
+                    }
+                    return remainingVelocity
+                }
+            }
+        }
 
     Surface(
         shape = shape,
@@ -1216,7 +1236,7 @@ private fun ModalWideNavigationRailContent(
                             TransformOrigin(if (isRtl) 1f else 0f, PredictiveBackPivotFractionY)
                     }
                 }
-                .draggableAnchors(railState.anchoredDraggableState, Orientation.Horizontal) {
+                .draggableAnchorsV2(railState.anchoredDraggableState, Orientation.Horizontal) {
                     railSize,
                     _ ->
                     val width = railSize.width.toFloat()
@@ -1227,17 +1247,16 @@ private fun ModalWideNavigationRailContent(
                             0f
                         }
                     val maxValue = 0f
-                    return@draggableAnchors DraggableAnchors {
+                    return@draggableAnchorsV2 DraggableAnchors {
                         WideNavigationRailValue.Collapsed at minValue
                         WideNavigationRailValue.Expanded at maxValue
                     } to railState.targetValue
                 }
-                .draggable(
-                    state = railState.anchoredDraggableState.draggableState,
+                .anchoredDraggable(
+                    state = railState.anchoredDraggableState,
                     orientation = Orientation.Horizontal,
                     enabled = gesturesEnabled,
-                    startDragImmediately = railState.anchoredDraggableState.isAnimationRunning,
-                    onDragStopped = { settleToDismiss(it) },
+                    flingBehavior = railFlingBehavior,
                 ),
     ) {
         WideNavigationRailLayout(

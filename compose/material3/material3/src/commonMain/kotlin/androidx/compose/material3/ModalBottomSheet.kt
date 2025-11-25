@@ -214,44 +214,6 @@ fun ModalBottomSheet(
     }
 }
 
-@Deprecated(
-    level = DeprecationLevel.HIDDEN,
-    message = "Maintained for Binary compatibility. Use overload with sheetGesturesEnabled param.",
-)
-@Composable
-@ExperimentalMaterial3Api
-fun ModalBottomSheet(
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberModalBottomSheetState(),
-    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
-    shape: Shape = BottomSheetDefaults.ExpandedShape,
-    containerColor: Color = BottomSheetDefaults.ContainerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = 0.dp,
-    scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
-    contentWindowInsets: @Composable () -> WindowInsets = { BottomSheetDefaults.windowInsets },
-    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
-    content: @Composable ColumnScope.() -> Unit,
-) =
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        sheetState = sheetState,
-        sheetMaxWidth = sheetMaxWidth,
-        sheetGesturesEnabled = true,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        scrimColor = scrimColor,
-        dragHandle = dragHandle,
-        contentWindowInsets = contentWindowInsets,
-        properties = properties,
-        content = content,
-    )
-
 @Composable
 @ExperimentalMaterial3Api
 internal fun BoxScope.ModalBottomSheetContent(
@@ -466,12 +428,6 @@ expect class ModalBottomSheetProperties(
 ) {
     val shouldDismissOnBackPress: Boolean
     val shouldDismissOnClickOutside: Boolean
-
-    @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message = "Replaced with additional shouldDismissOnClickOutside param constructor.",
-    )
-    constructor(shouldDismissOnBackPress: Boolean)
 }
 
 /** Default values for [ModalBottomSheet] */

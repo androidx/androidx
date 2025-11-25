@@ -51,6 +51,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -67,7 +68,8 @@ fun ButtonGroupSample() {
     ButtonGroup(
         overflowIndicator = { menuState ->
             ButtonGroupDefaults.OverflowIndicator(menuState = menuState)
-        }
+        },
+        verticalAlignment = Alignment.Top,
     ) {
         for (i in 0 until numButtons) {
             clickableItem(onClick = {}, label = "$i")

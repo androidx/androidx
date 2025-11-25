@@ -31,10 +31,6 @@ import androidx.activity.OnBackPressedCallback
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.shouldApplySecureFlag
 import androidx.compose.runtime.Composable
@@ -53,7 +49,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -63,7 +58,6 @@ import androidx.compose.ui.platform.ViewRootForInspector
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
@@ -175,38 +169,6 @@ actual class ModalBottomSheetProperties {
         this.isAppearanceLightNavigationBars = isAppearanceLightNavigationBars
     }
 
-    @Deprecated(
-        level = DeprecationLevel.HIDDEN,
-        message = "Replaced with additional shouldDismissOnScrimClick param constructor.",
-    )
-    actual constructor(shouldDismissOnBackPress: Boolean) : this(shouldDismissOnBackPress, true)
-
-    @Deprecated(
-        message = "Use empty constructor or constructor including shouldDismissOnScrimClick param.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    constructor(
-        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
-        shouldDismissOnBackPress: Boolean = true,
-    ) : this(securePolicy, shouldDismissOnBackPress, true)
-
-    @Deprecated(
-        message = "Use empty constructor or constructor including shouldDismissOnScrimClick param.",
-        level = DeprecationLevel.HIDDEN,
-    )
-    constructor(
-        isAppearanceLightStatusBars: Boolean,
-        isAppearanceLightNavigationBars: Boolean,
-        securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
-        shouldDismissOnBackPress: Boolean = true,
-    ) {
-        this.shouldDismissOnBackPress = shouldDismissOnBackPress
-        this.shouldDismissOnClickOutside = true
-        this.securePolicy = securePolicy
-        this.isAppearanceLightStatusBars = isAppearanceLightStatusBars
-        this.isAppearanceLightNavigationBars = isAppearanceLightNavigationBars
-    }
-
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ModalBottomSheetProperties) return false
@@ -264,98 +226,6 @@ actual object ModalBottomSheetDefaults {
             shouldDismissOnBackPress = shouldDismissOnBackPress,
         )
 }
-
-/**
- * [Material Design modal bottom sheet](https://m3.material.io/components/bottom-sheets/overview)
- *
- * Modal bottom sheets are used as an alternative to inline menus or simple dialogs on mobile,
- * especially when offering a long list of action items, or when items require longer descriptions
- * and icons. Like dialogs, modal bottom sheets appear in front of app content, disabling all other
- * app functionality when they appear, and remaining on screen until confirmed, dismissed, or a
- * required action has been taken.
- *
- * ![Bottom sheet
- * image](https://developer.android.com/images/reference/androidx/compose/material3/bottom_sheet.png)
- *
- * A simple example of a modal bottom sheet looks like this:
- *
- * @sample androidx.compose.material3.samples.ModalBottomSheetSample
- * @param onDismissRequest Executes when the user clicks outside of the bottom sheet, after sheet
- *   animates to [Hidden].
- * @param modifier Optional [Modifier] for the bottom sheet.
- * @param sheetState The state of the bottom sheet.
- * @param sheetMaxWidth [Dp] that defines what the maximum width the sheet will take. Pass in
- *   [Dp.Unspecified] for a sheet that spans the entire screen width.
- * @param shape The shape of the bottom sheet.
- * @param containerColor The color used for the background of this bottom sheet
- * @param contentColor The preferred color for content inside this bottom sheet. Defaults to either
- *   the matching content color for [containerColor], or to the current [LocalContentColor] if
- *   [containerColor] is not a color from the theme.
- * @param tonalElevation when [containerColor] is [ColorScheme.surface], a translucent primary color
- *   overlay is applied on top of the container. A higher tonal elevation value will result in a
- *   darker color in light theme and lighter color in dark theme. See also: [Surface].
- * @param scrimColor Color of the scrim that obscures content when the bottom sheet is open.
- * @param dragHandle Optional visual marker to swipe the bottom sheet.
- * @param windowInsets window insets to be passed to the bottom sheet content via [PaddingValues]
- *   params.
- * @param properties [ModalBottomSheetProperties] for further customization of this modal bottom
- *   sheet's window behavior.
- * @param content The content to be displayed inside the bottom sheet.
- */
-@Composable
-@ExperimentalMaterial3Api
-@Deprecated(
-    level = DeprecationLevel.HIDDEN,
-    message = "Use constructor with contentWindowInsets parameter.",
-    replaceWith =
-        ReplaceWith(
-            "ModalBottomSheet(" +
-                "onDismissRequest," +
-                "modifier," +
-                "sheetState," +
-                "sheetMaxWidth," +
-                "shape," +
-                "containerColor," +
-                "contentColor," +
-                "tonalElevation," +
-                "scrimColor," +
-                "dragHandle," +
-                "{ windowInsets }," +
-                "properties," +
-                "content," +
-                ")"
-        ),
-)
-fun ModalBottomSheet(
-    onDismissRequest: () -> Unit,
-    modifier: Modifier = Modifier,
-    sheetState: SheetState = rememberModalBottomSheetState(),
-    sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
-    shape: Shape = BottomSheetDefaults.ExpandedShape,
-    containerColor: Color = BottomSheetDefaults.ContainerColor,
-    contentColor: Color = contentColorFor(containerColor),
-    tonalElevation: Dp = 0.dp,
-    scrimColor: Color = BottomSheetDefaults.ScrimColor,
-    dragHandle: @Composable (() -> Unit)? = { BottomSheetDefaults.DragHandle() },
-    windowInsets: WindowInsets = BottomSheetDefaults.windowInsets,
-    properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
-    content: @Composable ColumnScope.() -> Unit,
-) =
-    ModalBottomSheet(
-        onDismissRequest = onDismissRequest,
-        modifier = modifier,
-        sheetState = sheetState,
-        sheetMaxWidth = sheetMaxWidth,
-        shape = shape,
-        containerColor = containerColor,
-        contentColor = contentColor,
-        tonalElevation = tonalElevation,
-        scrimColor = scrimColor,
-        dragHandle = dragHandle,
-        contentWindowInsets = { windowInsets },
-        properties = properties,
-        content = content,
-    )
 
 // Fork of androidx.compose.ui.window.AndroidDialog_androidKt.Dialog
 // Added predictiveBackProgress param to pass into BottomSheetDialogWrapper.

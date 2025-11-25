@@ -94,6 +94,7 @@ fun ButtonGroupDemos() {
                     }
                 },
                 modifier = Modifier.padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.Top,
             ) {
                 customItem(
                     buttonGroupContent = {

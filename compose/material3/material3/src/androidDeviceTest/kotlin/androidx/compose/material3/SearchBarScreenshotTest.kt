@@ -18,6 +18,8 @@ package androidx.compose.material3
 
 import androidx.activity.BackEventCompat
 import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -690,6 +693,44 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
             )
         }
         assertAgainstGolden("appBarWithSearch_withNavigationIconAndActions_${scheme.name}")
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val searchBarState = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
+            val inputField =
+                @Composable {
+                    SearchBarDefaults.InputField(
+                        searchBarState = searchBarState,
+                        textFieldState = rememberTextFieldState(),
+                        onSearch = {},
+                        placeholder = { Text("Hint") },
+                    )
+                }
+            AppBarWithSearch(state = searchBarState, inputField = inputField)
+            ExpandedDockedSearchBarWithGap(
+                modifier = Modifier.testTag(testTag),
+                state = searchBarState,
+                inputField = inputField,
+            ) {
+                repeat(4) { idx ->
+                    val resultText = "Suggestion $idx"
+                    ListItem(
+                        headlineContent = { Text(resultText) },
+                        supportingContent = { Text("Additional info") },
+                        leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        modifier =
+                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    )
+                }
+            }
+        }
+        assertAgainstGolden(
+            "appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap_${scheme.name}"
+        )
     }
 
     @Test

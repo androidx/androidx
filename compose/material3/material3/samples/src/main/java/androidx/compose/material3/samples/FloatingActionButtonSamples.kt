@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.FabPosition
@@ -34,11 +35,16 @@ import androidx.compose.material3.LargeExtendedFloatingActionButton
 import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MediumExtendedFloatingActionButton
 import androidx.compose.material3.MediumFloatingActionButton
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallExtendedFloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.animateFloatingActionButton
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -48,52 +54,87 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun FloatingActionButtonSample() {
-    FloatingActionButton(onClick = { /* do something */ }) {
-        Icon(Icons.Filled.Add, "Localized description")
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        FloatingActionButton(onClick = { /* do something */ }) {
+            Icon(Icons.Filled.Add, "Localized description")
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun SmallFloatingActionButtonSample() {
-    SmallFloatingActionButton(onClick = { /* do something */ }) {
-        Icon(Icons.Filled.Add, contentDescription = "Localized description")
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        SmallFloatingActionButton(onClick = { /* do something */ }) {
+            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun MediumFloatingActionButtonSample() {
-    MediumFloatingActionButton(onClick = { /* do something */ }) {
-        Icon(
-            Icons.Filled.Add,
-            contentDescription = "Localized description",
-            modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
-        )
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        MediumFloatingActionButton(onClick = { /* do something */ }) {
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = "Localized description",
+                modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
 fun LargeFloatingActionButtonSample() {
-    LargeFloatingActionButton(onClick = { /* do something */ }) {
-        Icon(
-            Icons.Filled.Add,
-            contentDescription = "Localized description",
-            modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
-        )
+    // A FAB should have a tooltip associated with it.
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Localized description") } },
+        state = rememberTooltipState(),
+    ) {
+        LargeFloatingActionButton(onClick = { /* do something */ }) {
+            Icon(
+                Icons.Filled.Add,
+                contentDescription = "Localized description",
+                modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
+            )
+        }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -105,19 +146,27 @@ fun AnimatedFloatingActionButtonSample() {
 
     Scaffold(
         floatingActionButton = {
-            MediumFloatingActionButton(
-                modifier =
-                    Modifier.animateFloatingActionButton(
-                        visible = fabVisible,
-                        alignment = Alignment.BottomEnd,
-                    ),
-                onClick = { /* do something */ },
+            // A FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = { PlainTooltip { Text("Localized description") } },
+                state = rememberTooltipState(),
             ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = "Localized description",
-                    modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
-                )
+                MediumFloatingActionButton(
+                    modifier =
+                        Modifier.animateFloatingActionButton(
+                            visible = fabVisible,
+                            alignment = Alignment.BottomEnd,
+                        ),
+                    onClick = { /* do something */ },
+                ) {
+                    Icon(
+                        Icons.Filled.Add,
+                        contentDescription = "Localized description",
+                        modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                    )
+                }
             }
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -226,6 +275,7 @@ fun LargeExtendedFloatingActionButtonSample() {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -236,12 +286,24 @@ fun AnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = { Icon(Icons.Filled.Add, "Localized Description") },
-                text = { Text(text = "Extended FAB") },
-            )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip { Text("Localized description") }
+                    }
+                },
+                state = rememberTooltipState(),
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = { Icon(Icons.Filled.Add, "Localized Description") },
+                    text = { Text(text = "Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
@@ -253,7 +315,7 @@ fun AnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -264,12 +326,24 @@ fun SmallAnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            SmallExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = { Icon(Icons.Filled.Add, "Localized Description") },
-                text = { Text(text = "Small Extended FAB") },
-            )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip { Text("Localized description") }
+                    }
+                },
+                state = rememberTooltipState(),
+            ) {
+                SmallExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = { Icon(Icons.Filled.Add, "Localized Description") },
+                    text = { Text(text = "Small Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
@@ -281,7 +355,7 @@ fun SmallAnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -292,18 +366,30 @@ fun MediumAnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            MediumExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = {
-                    Icon(
-                        Icons.Filled.Add,
-                        "Localized Description",
-                        modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
-                    )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip { Text("Localized description") }
+                    }
                 },
-                text = { Text(text = "Medium Extended FAB") },
-            )
+                state = rememberTooltipState(),
+            ) {
+                MediumExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = {
+                        Icon(
+                            Icons.Filled.Add,
+                            "Localized Description",
+                            modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                        )
+                    },
+                    text = { Text(text = "Medium Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {
@@ -315,7 +401,7 @@ fun MediumAnimatedExtendedFloatingActionButtonSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -326,18 +412,30 @@ fun LargeAnimatedExtendedFloatingActionButtonSample() {
     val expandedFab by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
     Scaffold(
         floatingActionButton = {
-            LargeExtendedFloatingActionButton(
-                onClick = { /* do something */ },
-                expanded = expandedFab,
-                icon = {
-                    Icon(
-                        Icons.Filled.Add,
-                        "Localized Description",
-                        modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
-                    )
+            // A collapsed FAB should have a tooltip associated with it.
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+                tooltip = {
+                    if (!expandedFab) {
+                        PlainTooltip { Text("Localized description") }
+                    }
                 },
-                text = { Text(text = "Large Extended FAB") },
-            )
+                state = rememberTooltipState(),
+            ) {
+                LargeExtendedFloatingActionButton(
+                    onClick = { /* do something */ },
+                    expanded = expandedFab,
+                    icon = {
+                        Icon(
+                            Icons.Filled.Add,
+                            "Localized Description",
+                            modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
+                        )
+                    },
+                    text = { Text(text = "Large Extended FAB") },
+                )
+            }
         },
         floatingActionButtonPosition = FabPosition.End,
     ) {

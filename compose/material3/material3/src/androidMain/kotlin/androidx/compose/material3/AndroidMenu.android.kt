@@ -18,21 +18,31 @@ package androidx.compose.material3
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.MutableTransitionState
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.internal.DropdownMenuPositionProvider
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -62,7 +72,9 @@ actual fun DropdownMenu(
         val density = LocalDensity.current
         val popupPositionProvider =
             remember(offset, density) {
-                DropdownMenuPositionProvider(offset, density) { parentBounds, menuBounds ->
+                DropdownMenuPositionProvider(offset, density, horizontalMargin = 0) {
+                    parentBounds,
+                    menuBounds ->
                     transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
                 }
             }
@@ -86,6 +98,84 @@ actual fun DropdownMenu(
             )
         }
     }
+}
+
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+actual fun DropdownMenuPopup(
+    expanded: Boolean,
+    onDismissRequest: () -> Unit,
+    modifier: Modifier,
+    offset: DpOffset,
+    properties: PopupProperties,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val transformOriginState = remember { mutableStateOf(TransformOrigin.Center) }
+    val density = LocalDensity.current
+    val popupPositionProvider =
+        remember(offset, density) {
+            DropdownMenuPositionProvider(offset, density) { parentBounds, menuBounds ->
+                transformOriginState.value = calculateTransformOrigin(parentBounds, menuBounds)
+            }
+        }
+    val expandedState = remember { MutableTransitionState(false) }
+    expandedState.targetState = expanded
+    if (expandedState.currentState || expandedState.targetState) {
+        Popup(
+            onDismissRequest = onDismissRequest,
+            popupPositionProvider = popupPositionProvider,
+            properties = properties,
+        ) {
+            DropdownMenuPopupContent(
+                modifier = modifier,
+                expandedState = expandedState,
+                transformOriginState = transformOriginState,
+                content = content,
+            )
+        }
+    }
+}
+
+@Composable
+internal fun DropdownMenuPopupContent(
+    modifier: Modifier,
+    expandedState: MutableTransitionState<Boolean>,
+    transformOriginState: MutableState<TransformOrigin>,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    // Menu open/close animation.
+    @Suppress("DEPRECATION") val transition = updateTransition(expandedState, "DropDownMenu")
+    // TODO Load the motionScheme tokens from the component tokens file
+    val scaleAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
+    val alphaAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
+    val scale by
+        transition.animateFloat(transitionSpec = { scaleAnimationSpec }) { expanded ->
+            if (expanded) ExpandedScaleTarget else ClosedScaleTarget
+        }
+
+    val alpha by
+        transition.animateFloat(transitionSpec = { alphaAnimationSpec }) { expanded ->
+            if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
+        }
+
+    val isInspecting = LocalInspectionMode.current
+
+    Column(
+        modifier =
+            modifier.width(IntrinsicSize.Max).graphicsLayer {
+                scaleX =
+                    if (!isInspecting) scale
+                    else if (expandedState.targetState) ExpandedScaleTarget else ClosedScaleTarget
+                scaleY =
+                    if (!isInspecting) scale
+                    else if (expandedState.targetState) ExpandedScaleTarget else ClosedScaleTarget
+                this.alpha =
+                    if (!isInspecting) alpha
+                    else if (expandedState.targetState) ExpandedAlphaTarget else ClosedAlphaTarget
+                transformOrigin = transformOriginState.value
+            },
+        content = content,
+    )
 }
 
 @Deprecated(

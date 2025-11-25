@@ -64,6 +64,8 @@ import kotlin.math.roundToInt
  * @sample androidx.compose.material3.samples.MinimumInteractiveComponentSizeSample
  * @sample androidx.compose.material3.samples.MinimumInteractiveComponentSizeCheckboxRowSample
  * @see LocalMinimumInteractiveComponentSize
+ * @see MinimumInteractiveTopAlignmentLine
+ * @see MinimumInteractiveLeftAlignmentLine
  */
 @Stable
 fun Modifier.minimumInteractiveComponentSize(): Modifier = this then MinimumInteractiveModifier
@@ -141,7 +143,6 @@ internal class MinimumInteractiveModifierNode :
      * calculates the necessary alignment offsets and adds them to the cache. If the minimum size is
      * not enforced or is smaller than the placeable's dimensions, it sets the alignment lines to 0.
      *
-     * @param enforcement A boolean indicating whether the minimum interactive size is enforced.
      * @param sizePx The minimum size in pixels that should be enforced.
      * @param placeable The [Placeable] object representing the measured component.
      */
@@ -163,8 +164,47 @@ internal class MinimumInteractiveModifierNode :
             ?: LinkedHashMap<AlignmentLine, Int>(2).also { alignmentLinesCache = it }
 }
 
-internal val MinimumInteractiveTopAlignmentLine = HorizontalAlignmentLine(::min)
-internal val MinimumInteractiveLeftAlignmentLine = VerticalAlignmentLine(::min)
+/**
+ * The horizontal [AlignmentLine] that marks the _top_ of the space added by
+ * [Modifier.minimumInteractiveComponentSize] to meet minimum touch target requirements.
+ *
+ * When a component is smaller than the minimum interactive size (e.g., a 24.dp icon),
+ * [Modifier.minimumInteractiveComponentSize] expands its layout space to at least 48.dp. This
+ * alignment line is positioned at the top edge of the original component's visual bounds within
+ * that newly expanded space.
+ *
+ * This allows other layouts to align to the visual top of the component, ignoring the extra
+ * touch-target spacing, which is useful for precise visual alignment.
+ *
+ * Note that only a top alignment line is provided. The `minimumInteractiveComponentSize` centers
+ * its content and the space added to the top is symmetrical to the space added to the bottom, so
+ * its position can be inferred.
+ *
+ * @see minimumInteractiveComponentSize
+ * @see MinimumInteractiveLeftAlignmentLine
+ */
+val MinimumInteractiveTopAlignmentLine = HorizontalAlignmentLine(::min)
+
+/**
+ * The vertical [AlignmentLine] that marks the _left_ of the space added by
+ * [Modifier.minimumInteractiveComponentSize] to meet minimum touch target requirements.
+ *
+ * When a component is smaller than the minimum interactive size (e.g., a 24.dp icon),
+ * [Modifier.minimumInteractiveComponentSize] expands its layout space to at least 48.dp. This
+ * alignment line is positioned at the left edge of the original component's visual bounds within
+ * that newly expanded space.
+ *
+ * This allows other layouts to align to the visual left of the component, ignoring the extra
+ * touch-target spacing, which is useful for precise visual alignment.
+ *
+ * Note that only a left alignment line are provided. The `minimumInteractiveComponentSize` centers
+ * its content and the space added to the left is symmetrical to the space added to the right, so
+ * its position can be inferred.
+ *
+ * @see minimumInteractiveComponentSize
+ * @see MinimumInteractiveTopAlignmentLine
+ */
+val MinimumInteractiveLeftAlignmentLine = VerticalAlignmentLine(::min)
 
 /**
  * CompositionLocal that configures whether Material components that have a visual size that is

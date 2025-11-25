@@ -116,6 +116,7 @@ import androidx.compose.material3.samples.FilterChipWithTrailingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonMenuSample
 import androidx.compose.material3.samples.FloatingActionButtonSample
 import androidx.compose.material3.samples.FullScreenSearchBarScaffoldSample
+import androidx.compose.material3.samples.GroupedMenuSample
 import androidx.compose.material3.samples.HorizontalCenteredHeroCarouselSample
 import androidx.compose.material3.samples.HorizontalFloatingToolbarAsScaffoldFabSample
 import androidx.compose.material3.samples.HorizontalFloatingToolbarWithFabSample
@@ -1546,6 +1547,14 @@ val MenusExamples =
             MenuSample()
         },
         Example(
+            name = "GroupedMenuSample",
+            description = MenusExampleDescription,
+            sourceUrl = MenusExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            GroupedMenuSample()
+        },
+        Example(
             name = "MenuWithScrollStateSample",
             description = MenusExampleDescription,
             sourceUrl = MenusExampleSourceUrl,
@@ -1557,7 +1566,7 @@ val MenusExamples =
             name = "ExposedDropdownMenuSample",
             description = MenusExampleDescription,
             sourceUrl = MenusExampleSourceUrl,
-            isExpressive = false,
+            isExpressive = true,
         ) {
             ExposedDropdownMenuSample()
         },

@@ -148,34 +148,6 @@ fun HorizontalMultiBrowseCarousel(
     )
 }
 
-@ExperimentalMaterial3Api
-@Deprecated(message = "Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-@Composable
-fun HorizontalMultiBrowseCarousel(
-    state: CarouselState,
-    preferredItemWidth: Dp,
-    modifier: Modifier = Modifier,
-    itemSpacing: Dp = 0.dp,
-    flingBehavior: TargetedFlingBehavior =
-        CarouselDefaults.singleAdvanceFlingBehavior(state = state),
-    minSmallItemWidth: Dp = CarouselDefaults.MinSmallItemSize,
-    maxSmallItemWidth: Dp = CarouselDefaults.MaxSmallItemSize,
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    content: @Composable CarouselItemScope.(itemIndex: Int) -> Unit,
-) =
-    HorizontalMultiBrowseCarousel(
-        state = state,
-        preferredItemWidth = preferredItemWidth,
-        modifier = modifier,
-        itemSpacing = itemSpacing,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = true,
-        minSmallItemWidth = minSmallItemWidth,
-        maxSmallItemWidth = maxSmallItemWidth,
-        contentPadding = contentPadding,
-        content = content,
-    )
-
 /**
  * [Material Design Carousel](https://m3.material.io/components/carousel/overview)
  *
@@ -241,29 +213,6 @@ fun HorizontalUncontainedCarousel(
         content = content,
     )
 }
-
-@ExperimentalMaterial3Api
-@Deprecated(message = "Kept for binary compatibility", level = DeprecationLevel.HIDDEN)
-@Composable
-fun HorizontalUncontainedCarousel(
-    state: CarouselState,
-    itemWidth: Dp,
-    modifier: Modifier = Modifier,
-    itemSpacing: Dp = 0.dp,
-    flingBehavior: TargetedFlingBehavior = CarouselDefaults.noSnapFlingBehavior(),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    content: @Composable CarouselItemScope.(itemIndex: Int) -> Unit,
-) =
-    HorizontalUncontainedCarousel(
-        state = state,
-        itemWidth = itemWidth,
-        modifier = modifier,
-        itemSpacing = itemSpacing,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = true,
-        contentPadding = contentPadding,
-        content = content,
-    )
 
 /**
  * [Material Design Carousel](https://m3.material.io/components/carousel/overview)

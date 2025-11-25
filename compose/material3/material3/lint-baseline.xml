@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+<issues format="6" by="lint 9.0.0-alpha13" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha13)" variant="all" version="9.0.0-alpha13">
 
     <issue
         id="BanThreadSleep"
@@ -472,6 +472,15 @@
     <issue
         id="ComposableLambdaParameterPosition"
         message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="    overflowIndicator: @Composable (ButtonGroupMenuState) -> Unit,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/ButtonGroup.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
         errorLine1="        tooltipContent: @Composable () -> Unit = {},"
         errorLine2="        ~~~~~~~~~~~~~~">
         <location
@@ -903,7 +912,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="            LoadingIndicator(modifier = Modifier.testTag(TestTag), progress = { progress.value })"
         errorLine2="                                                                                         ~~~~~">
         <location
@@ -912,7 +921,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="                progress = { progress.value },"
         errorLine2="                                      ~~~~~">
         <location
@@ -921,7 +930,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="            LoadingIndicator(modifier = Modifier.testTag(TestTag), progress = { progress.value })"
         errorLine2="                                                                                         ~~~~~">
         <location
@@ -930,7 +939,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="        rule.runOnUiThread { progress.value = 0.5f }"
         errorLine2="                                      ~~~~~">
         <location
@@ -939,7 +948,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="                progress = { progress.value },"
         errorLine2="                                      ~~~~~">
         <location
@@ -948,7 +957,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="        rule.runOnUiThread { progress.value = 0.5f }"
         errorLine2="                                      ~~~~~">
         <location

@@ -1017,9 +1017,15 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
     val heightStartIcon = constraints.constrainHeight(indicatorRipplePlaceable.height)
     val height = lerp(heightTopIcon, heightStartIcon, iconPositionProgress)
 
-    val rippleX = itemHorizontalPadding.roundToPx()
+    val rippleXTopIcon = itemHorizontalPadding.roundToPx()
+    val rippleXStartIcon =
+        ((itemHorizontalPadding.roundToPx() + width - indicatorRipplePlaceable.width) / 2)
+            .roundToInt()
+    val rippleX = lerp(rippleXTopIcon, rippleXStartIcon, iconPositionProgress)
+
     val indicatorXTopIcon = ((width - indicatorPlaceable.width) / 2).roundToInt()
-    val indicatorXStartIcon = ((rippleX + width - indicatorPlaceable.width) / 2).roundToInt()
+    val indicatorXStartIcon =
+        ((itemHorizontalPadding.roundToPx() + width - indicatorPlaceable.width) / 2).roundToInt()
     val indicatorX =
         if (iconPositionProgress == 0f || iconPositionProgress == 1f) {
             // If not animating, indicator must expand from center.
@@ -1028,8 +1034,10 @@ private fun MeasureScope.placeAnimatedLabelAndIcon(
             itemHorizontalPadding.roundToPx()
         }
 
-    val iconXTopIcon = rippleX + topIconIndicatorHorizontalPadding.roundToPx()
-    val iconXStartIcon = rippleX + startIconIndicatorHorizontalPadding.roundToPx()
+    val iconXTopIcon =
+        itemHorizontalPadding.roundToPx() + topIconIndicatorHorizontalPadding.roundToPx()
+    val iconXStartIcon =
+        itemHorizontalPadding.roundToPx() + startIconIndicatorHorizontalPadding.roundToPx()
 
     val iconYTopIcon = topIconIndicatorVerticalPadding.roundToPx()
     val iconYStartIcon = startIconIndicatorVerticalPadding.roundToPx()
