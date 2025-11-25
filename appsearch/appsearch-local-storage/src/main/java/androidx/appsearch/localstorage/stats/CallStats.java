@@ -62,10 +62,14 @@ public class CallStats extends BaseStats {
     private final long mCallReceivedTimestampMillis;
     private final int mGetUserInstanceLatencyMillis;
     private final int mPvmBinderLatencyMillis;
-    // The request payload object size in byte.
-    private final long mRequestPayloadSize;
-    // The response payload object size in byte.
-    private final long mResponsePayloadSize;
+    // The size in byte of the request send to IcingSearchEngine
+    private final long mIcingSearchEngineRequestBytes;
+    // The size in byte of the response receive from IcingSearchEngine
+    private final long mIcingSearchEngineResponseBytes;
+    // The size in byte of the request send to AppSearchManagerService
+    private final long mAppSearchRequestBytes;
+    // The size in byte of the response receive from AppSearchManagerService
+    private final long mAppSearchResponseBytes;
     @CallType
     int mLastCallTypeHoldExecutor;
     int mExecutorAcquisitionLatencyMillis;
@@ -87,8 +91,10 @@ public class CallStats extends BaseStats {
         mOnExecutorLatencyMillis = builder.mOnExecutorLatencyMillis;
         mGetUserInstanceLatencyMillis = builder.mGetUserInstanceLatencyMillis;
         mPvmBinderLatencyMillis = builder.mPvmBinderLatencyMillis;
-        mRequestPayloadSize = builder.mRequestPayloadSize;
-        mResponsePayloadSize = builder.mResponsePayloadSize;
+        mIcingSearchEngineRequestBytes = builder.mIcingSearchEngineRequestBytes;
+        mIcingSearchEngineResponseBytes = builder.mIcingSearchEngineResponseBytes;
+        mAppSearchRequestBytes = builder.mAppSearchRequestBytes;
+        mAppSearchResponseBytes = builder.mAppSearchResponseBytes;
     }
 
     /** Returns calling package name. */
@@ -188,14 +194,24 @@ public class CallStats extends BaseStats {
         return mPvmBinderLatencyMillis;
     }
 
-    /** Gets the payload size of the given request object. */
-    public long getRequestPayloadSize() {
-        return mRequestPayloadSize;
+    /** Gets the payload size of the given request send to Icing. */
+    public long getIcingSearchEngineRequestBytes() {
+        return mIcingSearchEngineRequestBytes;
     }
 
-    /** Gets the payload size of the returned response object. */
-    public long getResponsePayloadSize() {
-        return mResponsePayloadSize;
+    /** Gets the payload size of the returned response receive from Icing. */
+    public long getIcingSearchEngineResponseBytes() {
+        return mIcingSearchEngineResponseBytes;
+    }
+
+    /** Gets the payload size of the given request send to AppSearch service. */
+    public long getAppSearchRequestBytes() {
+        return mAppSearchRequestBytes;
+    }
+
+    /** Gets the payload size of the returned response receive from AppSearch service. */
+    public long getAppSearchResponseBytes() {
+        return mAppSearchResponseBytes;
     }
 
     @NonNull
@@ -217,8 +233,10 @@ public class CallStats extends BaseStats {
                         + "  onExecutorLatencyMillis=%d,\n"
                         + "  getUserInstanceLatencyMillis=%d,\n"
                         + "  pvmBinderLatencyMillis=%d,\n"
-                        + "  requestPayloadSize=%d,\n"
-                        + "  responsePayloadSize=%d,\n"
+                        + "  icingSearchEngineRequestBytes=%d,\n"
+                        + "  icingSearchEngineResponseBytes=%d,\n"
+                        + "  appsearchRequestBytes=%d,\n"
+                        + "  appsearchResponseBytes=%d,\n"
                         // Include BaseStats fields
                         + super.toString()
                         + "}",
@@ -236,8 +254,10 @@ public class CallStats extends BaseStats {
                 mOnExecutorLatencyMillis,
                 mGetUserInstanceLatencyMillis,
                 mPvmBinderLatencyMillis,
-                mRequestPayloadSize,
-                mResponsePayloadSize);
+                mIcingSearchEngineRequestBytes,
+                mIcingSearchEngineResponseBytes,
+                mAppSearchRequestBytes,
+                mAppSearchResponseBytes);
     }
 
     /** Builder for {@link CallStats}. */
@@ -259,8 +279,10 @@ public class CallStats extends BaseStats {
         int mOnExecutorLatencyMillis;
         int mGetUserInstanceLatencyMillis;
         int mPvmBinderLatencyMillis;
-        long mRequestPayloadSize;
-        long mResponsePayloadSize;
+        long mIcingSearchEngineRequestBytes;
+        long mIcingSearchEngineResponseBytes;
+        long mAppSearchRequestBytes;
+        long mAppSearchResponseBytes;
 
         /** Sets the PackageName used by the session. */
         @CanIgnoreReturnValue
@@ -386,17 +408,31 @@ public class CallStats extends BaseStats {
             return this;
         }
 
-        /** Sets the payload size of the given request object. */
+        /** Adds the payload size of the given request send to Icing. */
         @CanIgnoreReturnValue
-        public @NonNull Builder setRequestPayloadSize(int requestPayloadSize) {
-            mRequestPayloadSize = requestPayloadSize;
+        public @NonNull Builder addIcingSearchEngineRequestBytes(int requestBytes) {
+            mIcingSearchEngineRequestBytes += requestBytes;
             return this;
         }
 
-        /** Sets the payload size of the returned response object. */
+        /** Adds the payload size of the returned response receive from Icing. */
         @CanIgnoreReturnValue
-        public @NonNull Builder setResponsePayloadSize(int responsePayloadSize) {
-            mResponsePayloadSize = responsePayloadSize;
+        public @NonNull Builder addIcingSearchEngineResponseBytes(int responseBytes) {
+            mIcingSearchEngineResponseBytes += responseBytes;
+            return this;
+        }
+
+        /** Adds the payload size of the given request send to AppSearch service. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder addAppSearchRequestBytes(int requestBytes) {
+            mAppSearchRequestBytes += requestBytes;
+            return this;
+        }
+
+        /** Adds the payload size of the returned response receive from AppSearch service. */
+        @CanIgnoreReturnValue
+        public @NonNull Builder addAppSearchResponseBytes(int responseBytes) {
+            mAppSearchResponseBytes += responseBytes;
             return this;
         }
 

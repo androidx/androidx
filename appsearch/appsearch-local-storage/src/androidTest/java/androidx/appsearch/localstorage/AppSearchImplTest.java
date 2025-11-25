@@ -6768,6 +6768,168 @@ public class AppSearchImplTest {
     }
 
     @Test
+    public void testGetCallStatsBytes() throws Exception {
+        CallStats.Builder callStatsBuilder = new CallStats.Builder();
+
+        mAppSearchImpl = AppSearchImpl.create(
+                mAppSearchDir,
+                new AppSearchConfigImpl(new LimitConfig() {
+                    @Override
+                    public int getMaxByteLimitForBatchPut() {
+                        return 80;
+                    }
+
+                    @Override
+                    public int getMaxDocumentSizeBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getPerPackageDocumentCountLimit() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getDocumentCountLimitStartThreshold() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxSuggestionCount() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaxOpenBlobCount() {
+                        return 2;
+                    }
+                }, new LocalStorageIcingOptionsConfig()),
+                new AppSearchUserPlugins.Builder()
+                        .setCallStatsBuilder(callStatsBuilder)
+                        .setRevocableFileDescriptorStore(
+                                new JetpackRevocableFileDescriptorStore(mUnlimitedConfig)).build(),
+                ALWAYS_OPTIMIZE);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Set a schema
+        callStatsBuilder = new CallStats.Builder();
+        List<AppSearchSchema> schemas =
+                Collections.singletonList(new AppSearchSchema.Builder("type").build());
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                /*visibilityConfigs=*/ Collections.emptyList(),
+                /*accountPropertyPaths=*/ ImmutableMap.of(),
+                /*forceOverride=*/ false,
+                /*version=*/ 0,
+                /*setSchemaStatsBuilder=*/ null,
+                callStatsBuilder);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+        assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
+                .isGreaterThan(0);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Put a document
+        AppSearchLogger fakeLogger = new AppSearchLogger() {};
+        callStatsBuilder = new CallStats.Builder();
+        GenericDocument document1 =
+                new GenericDocument.Builder<>("namespace", "id", "type").build();
+        GenericDocument document2 =
+                new GenericDocument.Builder<>("namespace", "id2", "type").build();
+        GenericDocument document3 =
+                new GenericDocument.Builder<>("namespace", "id3", "type").build();
+        mAppSearchImpl.putDocument(
+                "package",
+                "database",
+                document1,
+                /*sendChangeNotifications=*/ false,
+                fakeLogger,
+                callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
+                .isGreaterThan(0);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Batch put 3 documents, the batch size is set to 80 Byte, and each doc will have ~66 Byte
+        // This will have 3 batches
+        callStatsBuilder = new CallStats.Builder();
+        List<GenericDocument> documents = new ArrayList<>();
+        documents.add(document1);
+        documents.add(document2);
+        documents.add(document3);
+        AppSearchBatchResult.Builder<String, InternalPutDocumentResponse> resultBuilder =
+                new AppSearchBatchResult.Builder<>();
+        mAppSearchImpl.batchPutDocuments(
+                "package",
+                "database",
+                documents,
+                resultBuilder,
+                /*sendChangeNotifications=*/ false,
+                fakeLogger,
+                PersistType.Code.LITE,
+                callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
+                .isGreaterThan(0);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Search document
+        callStatsBuilder = new CallStats.Builder();
+        mAppSearchImpl.query(
+                "package", "database", "",
+                new SearchSpec.Builder().build(), fakeLogger,
+                callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
+                .isGreaterThan(0);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Report usage
+        callStatsBuilder = new CallStats.Builder();
+        mAppSearchImpl.reportUsage("package", "database", "namespace",
+                "id", /*usageTimestampMillis=*/ 10, /*systemUsage=*/ false,
+                callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
+                .isGreaterThan(0);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Remove document
+        callStatsBuilder = new CallStats.Builder();
+        mAppSearchImpl.remove("package", "database", "namespace",
+                "id", /*removeStatsBuilder=*/ null, callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // RemoveByQuery
+        callStatsBuilder = new CallStats.Builder();
+        mAppSearchImpl.removeByQuery("package", "database", "",
+                new SearchSpec.Builder().build(), /*deletedIds=*/null, /*removeStatsBuilder=*/ null,
+                callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineRequestBytes())
+                .isGreaterThan(0);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Optimize
+        callStatsBuilder = new CallStats.Builder();
+        mAppSearchImpl.optimize(/*optimizeStatsBuilder=*/ null, callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+
+        // Flush
+        callStatsBuilder = new CallStats.Builder();
+        mAppSearchImpl.persistToDisk("package", BaseStats.CALL_TYPE_PUT_DOCUMENT,
+                PersistType.Code.FULL, /*logger=*/ null,
+                callStatsBuilder);
+        assertThat(callStatsBuilder.build().getIcingSearchEngineResponseBytes())
+                .isGreaterThan(0);
+    }
+
+    @Test
     public void testPersistToDiskStats() throws Exception {
         final List<PersistToDiskStats> loggedStats = new ArrayList<>();
         AppSearchLogger fakeLogger = new AppSearchLogger() {
