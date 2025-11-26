@@ -332,17 +332,18 @@ internal class SkiaParagraph(
         val lineMetrics = if (text.isEmpty()) {
             layouter.emptyLineMetrics(paragraph)
         } else {
-            // This creates a new objects every time
+            // This getter creates a new object every time
             paragraph.lineMetrics
+                // In the case of annotated text where everything is replaced by placeholders,
+                // the line metrics may be empty
+                .ifEmpty { layouter.emptyLineMetrics(paragraph) }
         }
 
         val fontMetrics = defaultFont.metrics
-        if (lineMetrics.isNotEmpty()) {
-            lineMetrics[0] = lineMetrics[0]
-                .trimFirstAscent(fontMetrics, layouter.textStyle)
-            lineMetrics[lineMetrics.size - 1] = lineMetrics[lineMetrics.size - 1]
-                .trimLastDescent(fontMetrics, layouter.textStyle)
-        }
+        lineMetrics[0] = lineMetrics[0]
+            .trimFirstAscent(fontMetrics, layouter.textStyle)
+        lineMetrics[lineMetrics.size - 1] = lineMetrics[lineMetrics.size - 1]
+            .trimLastDescent(fontMetrics, layouter.textStyle)
 
         return lineMetrics
     }
