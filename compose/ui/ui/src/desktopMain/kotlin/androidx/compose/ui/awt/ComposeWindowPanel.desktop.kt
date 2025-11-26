@@ -192,4 +192,12 @@ internal class ComposeWindowPanel(
     override fun removeMouseMotionListener(listener: MouseMotionListener) {
         contentComponent.removeMouseMotionListener(listener)
     }
+
+    var showLayoutBounds: Boolean
+        get() {
+            return _composeContainer?.showLayoutBounds ?: false
+        }
+        set(value) {
+            _composeContainer?.showLayoutBounds = value
+        }
 }

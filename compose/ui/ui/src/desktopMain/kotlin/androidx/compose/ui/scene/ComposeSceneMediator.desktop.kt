@@ -325,6 +325,12 @@ internal class ComposeSceneMediator(
     var compositionLocalContext: CompositionLocalContext?
         get() = scene.compositionLocalContext
         set(value) { scene.compositionLocalContext = value }
+    var showLayoutBounds: Boolean
+        get() = scene.showLayoutBounds
+        set(value) {
+            scene.showLayoutBounds = value
+        }
+
 
     /**
      * Provides the size of ComposeScene content inside infinity constraints

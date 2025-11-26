@@ -176,6 +176,8 @@ internal class ComposeContainer(
     val preferredSize by mediator::preferredSize
     val semanticsOwners by mediator::semanticsOwners
 
+    var showLayoutBounds by mediator::showLayoutBounds
+
     private var isDisposed = false
     private var isDetached = true
     private var isMinimized = false

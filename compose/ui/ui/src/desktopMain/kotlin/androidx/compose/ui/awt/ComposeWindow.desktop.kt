@@ -18,6 +18,7 @@ package androidx.compose.ui.awt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.layoutId
@@ -333,4 +334,16 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
 
     override fun removeMouseWheelListener(listener: MouseWheelListener) =
         composePanel.removeMouseWheelListener(listener)
+
+    /**
+     * Set the visual debug option that shows bounds for all nodes in the hierarchy.
+     */
+    @InternalComposeUiApi
+    var showLayoutBounds: Boolean
+        get() {
+            return composePanel.showLayoutBounds
+        }
+        set(value) {
+            composePanel.showLayoutBounds = value
+        }
 }

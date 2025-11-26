@@ -284,4 +284,9 @@ sealed interface ComposeScene : AutoCloseable {
      * provided by the [androidx.compose.runtime.Recomposer] of the current scene.
      */
     suspend fun withMonotonicFrameClock(block: suspend () -> Unit)
+
+    /**
+     * Set the visual debug option that shows bounds for all nodes in the hierarchy.
+     */
+    var showLayoutBounds: Boolean
 }
