@@ -47,6 +47,7 @@ import platform.UIKit.UIUserInterfaceLayoutDirection.*
 import platform.UIKit.UIView
 import platform.UIKit.UIWindow
 import platform.darwin.NSObject
+import platform.darwin.NSUIntegerMax
 
 internal class UIKitNavigationEventInput(
     private val density: Density,
@@ -190,6 +191,9 @@ internal class UIKitNavigationEventInput(
             val view = recognizer.view ?: return
             when (recognizer.state) {
                 UIGestureRecognizerStateBegan -> {
+                    if (recognizer.numberOfTouches == 0uL || recognizer.numberOfTouches == NSUIntegerMax) {
+                        return
+                    }
                     val touch = recognizer.locationOfTouch(0u, view).asDpOffset()
                     val eventOffset =
                         touch.toOffset(density) - getTopLeftOffsetInWindow().toOffset()
@@ -210,6 +214,9 @@ internal class UIKitNavigationEventInput(
                 }
 
                 UIGestureRecognizerStateChanged -> {
+                    if (recognizer.numberOfTouches == 0uL || recognizer.numberOfTouches == NSUIntegerMax) {
+                        return
+                    }
                     val touch = recognizer.locationOfTouch(0u, view).asDpOffset()
                     val eventOffset =
                         touch.toOffset(density) - getTopLeftOffsetInWindow().toOffset()
