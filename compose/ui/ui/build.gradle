@@ -510,6 +510,23 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     }
 }
 
+tasks.register("desktopHeadlessTest", Test) {
+    testClassesDirs = sourceSets.desktopTest.output.classesDirs
+    classpath = sourceSets.desktopTest.runtimeClasspath
+
+    useJUnit {
+        includeCategories("androidx.compose.ui.HeadlessTest")
+    }
+    systemProperty("java.awt.headless", "true")
+}
+
+tasks.desktopTest {
+    useJUnit {
+        excludeCategories("androidx.compose.ui.HeadlessTest")
+    }
+    finalizedBy("desktopHeadlessTest")
+}
+
 android {
     testOptions.unitTests.includeAndroidResources = true
     buildTypes.all {

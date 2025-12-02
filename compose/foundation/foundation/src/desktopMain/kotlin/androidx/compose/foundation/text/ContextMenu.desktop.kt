@@ -158,7 +158,7 @@ private val TextFieldSelectionManager.textManager: TextManager get() = object : 
         }
 
     override val paste: (() -> Unit)? get() =
-        if (editable && clipboard?.nativeClipboard?.nativeClipboardHasText() == true) {
+        if (editable && clipboard?.nativeClipboardHasText() == true) {
             {
                 paste()
                 focusRequester?.requestFocus()

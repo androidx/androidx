@@ -57,12 +57,16 @@ internal class AwtPlatformClipboard internal constructor() : Clipboard {
      * See [awtClipboard] to access [java.awt.datatransfer.Clipboard].
      */
     override val nativeClipboard: NativeClipboard
-        get() = systemClipboard ?: error("systemClipboard is not available in headless mode")
+        get() = systemClipboard ?: NoClipboard
 }
 
 /**
+ * The object returned as the [NativeClipboard] when [AwtPlatformClipboard.systemClipboard] is null.
+ */
+private data object NoClipboard
+
+/**
  * Returns [java.awt.datatransfer.Clipboard] instance if it's available, or null otherwise.
- * It might throw an exception when accessed in a headless mode.
  */
 @ExperimentalComposeUiApi
 val Clipboard.awtClipboard: java.awt.datatransfer.Clipboard?

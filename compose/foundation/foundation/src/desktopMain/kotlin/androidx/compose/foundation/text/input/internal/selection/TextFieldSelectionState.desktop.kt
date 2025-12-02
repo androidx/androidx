@@ -28,9 +28,11 @@ import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuild
 import androidx.compose.foundation.text.contextmenu.builder.item
 import androidx.compose.foundation.text.contextmenu.modifier.addTextContextMenuComponentsWithLocalization
 import androidx.compose.foundation.text.selection.MouseSelectionObserver
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.awtClipboard
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
@@ -97,9 +99,9 @@ internal actual class ClipboardPasteState actual constructor(private val clipboa
     actual val hasText: Boolean get() = _hasText
     actual val hasClip: Boolean get() = _hasClip
 
+    @OptIn(ExperimentalComposeUiApi::class)
     actual suspend fun update() {
-        val nativeClipboard = (clipboard.nativeClipboard as? java.awt.datatransfer.Clipboard)
-        _hasClip = nativeClipboard?.availableDataFlavors?.isNotEmpty() ?: false
-        _hasText = nativeClipboard?.nativeClipboardHasText() ?: false
+        _hasClip = clipboard.awtClipboard?.availableDataFlavors?.isNotEmpty() ?: false
+        _hasText = clipboard.nativeClipboardHasText()
     }
 }

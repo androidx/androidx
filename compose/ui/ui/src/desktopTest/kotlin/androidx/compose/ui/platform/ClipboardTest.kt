@@ -16,7 +16,10 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.HeadlessTest
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.runHeadlessComposeUiTest
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.window.WindowTestScope
 import androidx.compose.ui.window.runApplicationTest
 import java.awt.Dimension
@@ -28,7 +31,9 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import org.junit.Before
 import org.junit.Test
+import org.junit.experimental.categories.Category
 
+@OptIn(ExperimentalTestApi::class)
 class ClipboardTest {
 
     var clipboard: Clipboard? = null
@@ -91,5 +96,17 @@ class ClipboardTest {
         } finally {
             window.dispose()
         }
+    }
+
+    @Test
+    @Category(HeadlessTest::class)
+    fun nativeClipboardDoesNotCrash() = runHeadlessComposeUiTest {
+        lateinit var clipboard: Clipboard
+        setContent {
+            clipboard = LocalClipboard.current
+        }
+
+        clipboard.nativeClipboard  // Just check it doesn't crash
+        assertEquals(null, clipboard.awtClipboard)
     }
 }

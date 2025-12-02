@@ -21,10 +21,10 @@ package androidx.compose.foundation.internal
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.NativeClipboard
+import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.asAwtTransferable
+import androidx.compose.ui.platform.awtClipboard
 import androidx.compose.ui.text.AnnotatedString
-import java.awt.datatransfer.Clipboard
 import java.awt.datatransfer.ClipboardOwner
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.Transferable
@@ -88,16 +88,14 @@ internal actual fun ClipEntry?.hasText(): Boolean {
     return transferable.isDataFlavorSupported(DataFlavor.stringFlavor)
 }
 
-internal actual fun androidx.compose.ui.platform.Clipboard.isReadSupported(): Boolean = true
-internal actual fun androidx.compose.ui.platform.Clipboard.isWriteSupported(): Boolean = true
+internal actual fun Clipboard.isReadSupported(): Boolean = true
+internal actual fun Clipboard.isWriteSupported(): Boolean = true
 
 // Here we rely on the NativeClipboard directly instead of using ClipEntry,
 // because getClipEntry is a suspend function, but in ContextMenu.desktop.kt we have older code
 // expecting a synchronous execution.
-// Note: the name can't be just `hasText` because NativeClipboard is a typealias to Any,
-// so it would conflict with ClipEntry?.hasText declaration. Therefore, we need a unique name.
-internal fun NativeClipboard.nativeClipboardHasText(): Boolean {
-    val awtClipboard = this as? Clipboard ?: return false
+internal fun Clipboard.nativeClipboardHasText(): Boolean {
+    val awtClipboard = awtClipboard ?: return false
     return awtClipboard.isDataFlavorAvailable(DataFlavor.stringFlavor)
 }
 
@@ -118,7 +116,7 @@ internal class AnnotatedStringTransferable(
             else -> throw UnsupportedFlavorException(flavor)
         }
 
-    override fun lostOwnership(clipboard: Clipboard?, contents: Transferable?) {
+    override fun lostOwnership(clipboard: java.awt.datatransfer.Clipboard?, contents: Transferable?) {
         // Empty
     }
 
