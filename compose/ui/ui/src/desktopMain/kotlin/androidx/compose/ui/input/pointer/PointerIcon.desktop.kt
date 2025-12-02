@@ -28,12 +28,19 @@ internal class AwtCursor(val cursor: Cursor) : PointerIcon {
         // AwtCursor doesn't implement equals
         if (cursor.type != other.cursor.type) return false
 
+        // All custom cursors have the type CUSTOM_CURSOR, so we can only use the type if it's
+        // not CUSTOM_CURSOR
+        if (cursor.type == Cursor.CUSTOM_CURSOR) return cursor === other.cursor
+
         return true
     }
 
     override fun hashCode(): Int {
         // AwtCursor doesn't implement hashCode
-        return cursor.type
+        // Aso, all custom cursors have the type CUSTOM_CURSOR, so we can only use the type if it's
+        // not CUSTOM_CURSOR
+        val type = cursor.type
+        return if (type == Cursor.CUSTOM_CURSOR) System.identityHashCode(cursor) else type.hashCode()
     }
 
     override fun toString(): String {
