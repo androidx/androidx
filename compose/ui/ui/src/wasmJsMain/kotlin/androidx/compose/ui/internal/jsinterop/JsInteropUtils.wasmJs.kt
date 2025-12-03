@@ -14,25 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window
+package androidx.compose.ui.internal.jsinterop
 
-import kotlin.js.Promise
-import kotlinx.browser.document
-import org.jetbrains.skiko.wasm.onWasmReady
-import org.w3c.dom.DocumentReadyState
-import org.w3c.dom.LOADING
+import org.w3c.dom.events.Event
 
-internal actual fun onSkikoReady(block: () -> Unit) {
-    onWasmReady(block)
-}
-
-internal actual fun onDomReady(block: () -> Unit) {
-    // https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event
-    if (document.readyState == DocumentReadyState.Companion.LOADING) {
-        document.addEventListener("DOMContentLoaded", {
-            block()
-        })
-    } else {
-        block()
-    }
-}
+internal actual fun Event.timestampAsInt(): Int = this.timeStamp.toInt()
+internal actual fun Event.timestampAsDouble(): Double = this.timeStamp.toDouble()

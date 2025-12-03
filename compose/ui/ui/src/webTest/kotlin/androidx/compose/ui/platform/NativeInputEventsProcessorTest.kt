@@ -25,7 +25,6 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.BackspaceCommand
 import androidx.compose.ui.text.input.CommitTextCommand
-import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.EditingBuffer
 import androidx.compose.ui.text.input.SetComposingTextCommand
@@ -35,6 +34,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
 
 // There is a helper for testing:
@@ -174,8 +174,10 @@ class NativeInputEventsProcessorTest {
 
         processor.registerEvent(
             (beforeInput("insertText", "a") as InputEvent).apply {
-                textRangeStart = 3
-                textRangeEnd = 4
+                this.asInputEventExt().apply {
+                    textRangeStart = 3
+                    textRangeEnd = 4
+                }
             }
         )
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
@@ -202,8 +204,10 @@ class NativeInputEventsProcessorTest {
 
         processor.registerEvent(
             (beforeInput("deleteContentBackward", "") as InputEvent).apply {
-                textRangeStart = 3
-                textRangeEnd = 4
+                this.asInputEventExt().apply {
+                    textRangeStart = 3
+                    textRangeEnd = 4
+                }
             }
         )
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
@@ -249,8 +253,10 @@ class NativeInputEventsProcessorTest {
         // Add deleteContentBackward event
         processor.registerEvent(
             (beforeInput("deleteContentBackward", null) as InputEvent).apply {
-                textRangeStart = 3
-                textRangeEnd = 4
+                this.asInputEventExt().apply {
+                    textRangeStart = 3
+                    textRangeEnd = 4
+                }
              }
         )
         processor.manuallyRunCheckpoint(TextFieldValue("test"))
@@ -274,9 +280,10 @@ class NativeInputEventsProcessorTest {
 
         processor.registerEvent(
             (beforeInput("insertReplacementText", "replacement") as InputEvent).apply {
-
-                textRangeStart = 5
-                textRangeEnd = 9
+                this.asInputEventExt().apply {
+                    textRangeStart = 5
+                    textRangeEnd = 9
+                }
              },
         )
 
@@ -335,8 +342,10 @@ class NativeInputEventsProcessorTest {
         // 3. Simulate the input event for the accented character
         processor.registerEvent(
             (beforeInput("insertText", "é") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
             }
         )
 
@@ -403,8 +412,10 @@ class NativeInputEventsProcessorTest {
         processor.registerEvent(
             (beforeInput("insertText", "è") as InputEvent).apply {
                 // to replace `e`
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
              },
         )
 
@@ -469,8 +480,10 @@ class NativeInputEventsProcessorTest {
         processor.registerEvent(compositionStart())
         processor.registerEvent(
             (beforeInput("insertText", "è") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
             }
         )
         processor.manuallyRunCheckpoint(communicator.currentTextFieldValue())
@@ -480,8 +493,10 @@ class NativeInputEventsProcessorTest {
         processor.registerEvent(keyEvent(key = "ArrowRight", code = "ArrowRight", isComposing = true))
         processor.registerEvent(
             (beforeInput("insertCompositionText", "é") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
             }
         )
 
@@ -492,8 +507,10 @@ class NativeInputEventsProcessorTest {
         processor.registerEvent(keyEvent(key = "ArrowRight", code = "ArrowRight", isComposing = true))
         processor.registerEvent(
             (beforeInput("insertCompositionText", "ê") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
             }
         )
 
@@ -511,8 +528,10 @@ class NativeInputEventsProcessorTest {
 
         processor.registerEvent(
             (beforeInput("insertCompositionText", "é") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
             }
         )
 
@@ -526,8 +545,10 @@ class NativeInputEventsProcessorTest {
         // 4. Simulate the input event for the selected accented character
         processor.registerEvent(
             (beforeInput("insertCompositionText", "é") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
              }
         )
 
@@ -582,8 +603,10 @@ class NativeInputEventsProcessorTest {
         // Add deleteContentBackward event
         processor.registerEvent(
             (beforeInput("deleteContentBackward", "") as InputEvent).apply {
-                textRangeStart = 3
-                textRangeEnd = 5
+                this.asInputEventExt().apply {
+                    textRangeStart = 3
+                    textRangeEnd = 5
+                }
              },
         )
 
@@ -615,8 +638,10 @@ class NativeInputEventsProcessorTest {
         // Then add a deleteContentBackward event
         processor.registerEvent(
             (beforeInput("deleteContentBackward", "") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
              },
         )
 
@@ -657,8 +682,10 @@ class NativeInputEventsProcessorTest {
         // Then add a deleteContentBackward event
         processor.registerEvent(
             (beforeInput("deleteContentBackward", "") as InputEvent).apply {
-                textRangeStart = 0
-                textRangeEnd = 1
+                this.asInputEventExt().apply {
+                    textRangeStart = 0
+                    textRangeEnd = 1
+                }
             },
         )
 

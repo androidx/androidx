@@ -40,7 +40,7 @@ private val isFallbackWriteTextApiAvailable: Boolean by lazy {
     isSecureContext && isFallbackWriteTextApiAvailable()
 }
 
-class WasmPlatformClipboard : Clipboard {
+private class WasmPlatformClipboard : Clipboard {
 
     private val browserClipboard by lazy {
         getW3CClipboard()

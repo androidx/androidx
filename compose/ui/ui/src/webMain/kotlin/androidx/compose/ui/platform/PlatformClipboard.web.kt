@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.platform
 
+import kotlin.js.js
+
 // clipboard.read(), clipboard.write(), ClipboardItem are not available in FF < 127 versions
 // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/read#browser_compatibility
 // https://developer.mozilla.org/en-US/docs/Web/API/Clipboard/write#browser_compatibility

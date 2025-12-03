@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.draganddrop.WebDragAndDropManager
 import androidx.compose.ui.events.EventTargetListener
@@ -74,6 +73,7 @@ import androidx.compose.ui.viewinterop.WebInteropContainer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.enableSavedStateHandles
 import kotlin.coroutines.coroutineContext
+import kotlin.js.js
 import kotlin.math.absoluteValue
 import kotlinx.browser.document
 import kotlinx.browser.window
@@ -91,17 +91,15 @@ import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoRenderDelegate
 import org.w3c.dom.AddEventListenerOptions
+import org.w3c.dom.DocumentReadyState
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
-import org.w3c.dom.HTMLStyleElement
-import org.w3c.dom.HTMLTitleElement
+import org.w3c.dom.LOADING
 import org.w3c.dom.MediaQueryListEvent
 import org.w3c.dom.Node
-import org.w3c.dom.OPEN
-import org.w3c.dom.ShadowRootInit
-import org.w3c.dom.ShadowRootMode
+import org.w3c.dom.Touch
 import org.w3c.dom.TouchEvent
 import org.w3c.dom.asList
 import org.w3c.dom.events.Event
@@ -111,10 +109,6 @@ import org.w3c.dom.events.WheelEvent
 
 private val actualDensity
     get() = window.devicePixelRatio
-
-private abstract external class ExtendedTouchEvent : TouchEvent {
-    val force: Double
-}
 
 internal interface ComposeWindowState {
     fun init() {}
@@ -141,8 +135,8 @@ internal interface ComposeWindowState {
 }
 
 private sealed interface KeyboardModeState {
-    object Virtual: KeyboardModeState
-    object Hardware: KeyboardModeState
+    object Virtual : KeyboardModeState
+    object Hardware : KeyboardModeState
 }
 
 internal class DefaultWindowState(private val viewportContainer: Element) : ComposeWindowState {
@@ -214,94 +208,96 @@ internal class ComposeWindow(
     // Used in WebTextInputService. Also see https://youtrack.jetbrains.com/issue/CMP-8611
     private var activeTouchOffset: Offset? = null
 
-    private val platformContext: PlatformContext = object : PlatformContext by PlatformContext.Empty() {
-        override val windowInfo get() = _windowInfo
-        override val architectureComponentsOwner get() = archComponentsOwner
-        override val inputModeManager: InputModeManager = DefaultInputModeManager()
+    private val platformContext: PlatformContext =
+        object : PlatformContext by PlatformContext.Empty() {
+            override val windowInfo get() = _windowInfo
+            override val architectureComponentsOwner get() = archComponentsOwner
+            override val inputModeManager: InputModeManager = DefaultInputModeManager()
 
-        override val dragAndDropManager: PlatformDragAndDropManager = object : WebDragAndDropManager(rootNode, canvasEvents, state.globalEvents, density) {
-            override val rootDragAndDropNode: ComposeSceneDragAndDropNode
-                get() = scene.rootDragAndDropNode
-        }
-
-        @Suppress("RedundantOverride")
-        override fun convertLocalToWindowPosition(localPosition: Offset): Offset {
-            // TODO (o.karpovich): Currently, CfW uses AttachedComposeSceneLayer, so
-            // Window Rect == Canvas Rect, although a canvas might take only a portion of the browser's
-            // viewport: Window Rect > Canvas Rect.
-            // Update this implementation when implementing https://youtrack.jetbrains.com/issue/CMP-8359
-            // The implementation will have to rely on the <canvas> of a particular layer.
-            return super.convertLocalToWindowPosition(localPosition)
-        }
-
-        @Suppress("RedundantOverride")
-        override fun convertWindowToLocalPosition(positionInWindow: Offset): Offset {
-            // TODO (o.karpovich): Currently, CfW uses AttachedComposeSceneLayer, so
-            // Window Rect == Canvas Rect, although a canvas might take only a portion of the browser's
-            // viewport: Window Rect > Canvas Rect.
-            // Update this implementation when implementing https://youtrack.jetbrains.com/issue/CMP-8359
-            return super.convertWindowToLocalPosition(positionInWindow)
-        }
-
-        override val textToolbar: TextToolbar = WebTextToolbar()
-
-        override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener? =
-            if (configuration.isA11YEnabled) {
-                ComposeWebSemanticsListener(
-                    coroutineScope = MainScope(),
-                    webSemanticsRoot = a11yContainerElement?.apply {
-                        setAttribute("aria-label", "")
-                        setAttribute("role", "presentation")
-                        setAttribute("aria-live", "polite")
-                        id = "cmp_a11y_root"
-                        style.opacity = "0"
-                        style.setProperty("pointer-events", "none")
-                    } ?: error("a11yContainerElement must be provided"),
-                )
-            } else {
-                null
+            override val dragAndDropManager: PlatformDragAndDropManager = object :
+                WebDragAndDropManager(rootNode, canvasEvents, state.globalEvents, density) {
+                override val rootDragAndDropNode: ComposeSceneDragAndDropNode
+                    get() = scene.rootDragAndDropNode
             }
 
-        override val textInputService: WebTextInputService = object : WebTextInputService() {
-
-            override val currentTouchOffset: Offset?
-                get() = activeTouchOffset
-
-            override val backingDomInputContainer: HTMLElement
-                get() = interopContainerElement
-
-            override fun getNewGeometryForBackingInput(rect: Rect): DpRect {
-                val dpRect = rect.toDpRect(density)
-                val left = dpRect.left.value
-                val top = dpRect.top.value
-
-                return DpRect(DpOffset(left.dp, top.dp), dpRect.size)
+            @Suppress("RedundantOverride")
+            override fun convertLocalToWindowPosition(localPosition: Offset): Offset {
+                // TODO (o.karpovich): Currently, CfW uses AttachedComposeSceneLayer, so
+                // Window Rect == Canvas Rect, although a canvas might take only a portion of the browser's
+                // viewport: Window Rect > Canvas Rect.
+                // Update this implementation when implementing https://youtrack.jetbrains.com/issue/CMP-8359
+                // The implementation will have to rely on the <canvas> of a particular layer.
+                return super.convertLocalToWindowPosition(localPosition)
             }
 
-            override fun processKeyboardEvent(keyEvent: KeyEvent): Boolean {
-                //this@ComposeWindow.processKeyboardEvent(keyboardEvent)
-                return scene.sendKeyEvent(keyEvent)
+            @Suppress("RedundantOverride")
+            override fun convertWindowToLocalPosition(positionInWindow: Offset): Offset {
+                // TODO (o.karpovich): Currently, CfW uses AttachedComposeSceneLayer, so
+                // Window Rect == Canvas Rect, although a canvas might take only a portion of the browser's
+                // viewport: Window Rect > Canvas Rect.
+                // Update this implementation when implementing https://youtrack.jetbrains.com/issue/CMP-8359
+                return super.convertWindowToLocalPosition(positionInWindow)
+            }
+
+            override val textToolbar: TextToolbar = WebTextToolbar()
+
+            override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener? =
+                if (configuration.isA11YEnabled) {
+                    ComposeWebSemanticsListener(
+                        coroutineScope = MainScope(),
+                        webSemanticsRoot = a11yContainerElement?.apply {
+                            setAttribute("aria-label", "")
+                            setAttribute("role", "presentation")
+                            setAttribute("aria-live", "polite")
+                            id = "cmp_a11y_root"
+                            style.opacity = "0"
+                            style.setProperty("pointer-events", "none")
+                        } ?: error("a11yContainerElement must be provided"),
+                    )
+                } else {
+                    null
+                }
+
+            override val textInputService: WebTextInputService = object : WebTextInputService() {
+
+                override val currentTouchOffset: Offset?
+                    get() = activeTouchOffset
+
+                override val backingDomInputContainer: HTMLElement
+                    get() = interopContainerElement
+
+                override fun getNewGeometryForBackingInput(rect: Rect): DpRect {
+                    val dpRect = rect.toDpRect(density)
+                    val left = dpRect.left.value
+                    val top = dpRect.top.value
+
+                    return DpRect(DpOffset(left.dp, top.dp), dpRect.size)
+                }
+
+                override fun processKeyboardEvent(keyEvent: KeyEvent): Boolean {
+                    //this@ComposeWindow.processKeyboardEvent(keyboardEvent)
+                    return scene.sendKeyEvent(keyEvent)
+                }
+            }
+
+            override val viewConfiguration =
+                object : ViewConfiguration by PlatformContext.DefaultViewConfiguration {
+                    override val touchSlop: Float get() = with(density) { 18.dp.toPx() }
+                }
+
+            override fun setPointerIcon(pointerIcon: PointerIcon) {
+                if (pointerIcon is BrowserCursor) {
+                    canvas.style.cursor = pointerIcon.id
+                }
+            }
+
+            override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
+                coroutineScope {
+                    WebTextInputSession(this, textInputService)
+                        .startInputMethod(request)
+                }
             }
         }
-
-        override val viewConfiguration =
-            object : ViewConfiguration by PlatformContext.DefaultViewConfiguration {
-                override val touchSlop: Float get() = with(density) { 18.dp.toPx() }
-            }
-
-        override fun setPointerIcon(pointerIcon: PointerIcon) {
-            if (pointerIcon is BrowserCursor) {
-                canvas.style.cursor = pointerIcon.id
-            }
-        }
-
-        override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
-            coroutineScope {
-                WebTextInputSession(this, textInputService)
-                    .startInputMethod(request)
-            }
-        }
-    }
 
     private val skiaLayer: SkiaLayer = SkiaLayer().apply {
         renderDelegate = object : SkikoRenderDelegate {
@@ -426,7 +422,8 @@ internal class ComposeWindow(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
                 LocalInteropContainer provides interopContainer,
                 LocalActiveClipEventsTarget provides {
-                    (platformContext.textInputService as WebTextInputService).getBackingInput() ?: canvas
+                    (platformContext.textInputService as WebTextInputService).getBackingInput()
+                        ?: canvas
                 },
                 content = {
                     interopContainer.TrackInteropPlacementContainer {
@@ -520,7 +517,7 @@ internal class ComposeWindow(
          */
         val touches = event.targetTouches.asList().fastMap { it to true }.toMutableList()
         if (eventType == PointerEventType.Release) {
-            touches.addAll(event.changedTouches.asList().fastMap { it to false } )
+            touches.addAll(event.changedTouches.asList().fastMap { it to false })
         }
 
         val pointers = touches.fastMap { (touch, pressed) ->
@@ -532,7 +529,7 @@ internal class ComposeWindow(
                 ) * density.density,
                 pressed = pressed,
                 type = PointerType.Touch,
-                pressure = touch.unsafeCast<ExtendedTouchEvent>().force.toFloat()
+                pressure = touchForce(touch).toFloat()
             )
         }
 
@@ -614,177 +611,32 @@ internal class ComposeWindow(
         if (result.anyChangeConsumed) event.preventDefault()
     }
 
-    private val MouseEvent.offset get() = Offset(
-        x = offsetX.toFloat(),
-        y = offsetY.toFloat()
-    ) * density.density
+    private val MouseEvent.offset
+        get() = Offset(
+            x = offsetX.toFloat(),
+            y = offsetY.toFloat()
+        ) * density.density
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState
 private fun documentIsVisible(): Boolean = js("document.visibilityState === 'visible'")
 
-private const val defaultCanvasElementId = "ComposeTarget"
-
-/**
- * EXPERIMENTAL! Might be deleted or changed in the future!
- *
- * Initializes the composition in HTML canvas identified by [canvasElementId].
- *
- * It can be resized by providing [requestResize].
- * By default, it will listen to the window resize events.
- *
- * By default, styles will be applied to use the entire inner window, disabling scrollbars.
- * This can be turned off by setting [applyDefaultStyles] to false.
- */
-@ExperimentalComposeUiApi
-@Deprecated(
-message = "CanvasBasedWindow doesn't support HTML interop via WebElementView API and it doesn't support A11Y feature. Use ComposeViewport API instead",
-replaceWith = ReplaceWith("ComposeViewport(content = content)"),
-level = DeprecationLevel.ERROR)
-fun CanvasBasedWindow(
-    title: String? = null,
-    canvasElementId: String = defaultCanvasElementId,
-    requestResize: (suspend () -> IntSize)? = null,
-    applyDefaultStyles: Boolean = true,
-    content: @Composable () -> Unit = { }
-) {
-    if (title != null) {
-        val htmlTitleElement = (
-            document.head!!.getElementsByTagName("title").item(0)
-                ?: document.createElement("title").also { document.head!!.appendChild(it) }
-            ) as HTMLTitleElement
-        htmlTitleElement.textContent = title
-    }
-
-    if (applyDefaultStyles) {
-        document.head!!.appendChild(
-            (document.createElement("style") as HTMLStyleElement).apply {
-                type = "text/css"
-                appendChild(
-                    document.createTextNode(
-                        "body { margin: 0; overflow: hidden; } #$canvasElementId { outline: none; }"
-                    )
-                )
-            }
-        )
-    }
-
-    val canvas = document.getElementById(canvasElementId)?.let { it as HTMLCanvasElement }
-        ?: error("failed to find element with id '$canvasElementId'")
-
-    val configuration = ComposeViewportConfiguration().apply {
-        // No a11y support with deprecated CanvasBasedWindow API
-        isA11YEnabled = false
-    }
-
-    ComposeWindow(
-        canvas = canvas,
-        rootNode = canvas.getRootNode(),
-        // a detached container
-        interopContainerElement = document.createElement("div") as HTMLDivElement,
-        a11yContainerElement = document.createElement("div") as HTMLDivElement,
-        content = content,
-        configuration = configuration,
-        state = if (requestResize == null) DefaultWindowState(document.documentElement!!) else ComposeWindowState.createFromLambda(requestResize)
-    )
+// In K/JS target, an application can't start right away. We should wait until skiko.wasm is ready.
+// We'll do it implicitly, rather than asking the app developers to call it.
+internal fun onSkikoReady(block: () -> Unit) {
+    @Suppress("INVISIBLE_REFERENCE")
+    org.jetbrains.skiko.wasm.onWasmReady { block() }
 }
 
-internal actual fun InternalComposeViewport(
-    viewportContainerId: String?,
-    configure: ComposeViewportConfiguration.() -> Unit,
-    content: @Composable () -> Unit
-) {
-    onDomReady {
-        val providedContainer = if (viewportContainerId != null) {
-            document.getElementById(viewportContainerId) ?: error("failed to find element by viewportContainerId: '$viewportContainerId'")
-        } else {
-            document.body ?: error("failed to find <body> element")
-        }
-
-        ComposeViewport(providedContainer, configure, content)
-    }
-}
-
-/**
- * EXPERIMENTAL! Might be deleted or changed in the future!
- *
- * Creates the composition in HTML canvas created in parent container identified by [viewportContainer] Element.
- * This size of canvas is adjusted with the size of the container
- *
- * The current hierarchy:
- * <viewportContainer.shadowDom>
- *     <app root>
- *         <canvas/>
- *         <interop elements container/>
- *         <a11y elements root/>
- *     </app root>
- * </viewportContainer.shadowDom>
- */
-@ExperimentalComposeUiApi
-fun ComposeViewport(
-    viewportContainer: Element,
-    configure: ComposeViewportConfiguration.() -> Unit = {},
-    content: @Composable () -> Unit = { }
-) = onSkikoReady {
-    val canvas = document.createElement("canvas") as HTMLCanvasElement
-    canvas.setAttribute("tabindex", "0")
-    canvas.setAttribute("role", "generic")
-    canvas.style.outline = "none" // Fixes https://youtrack.jetbrains.com/issue/CMP-9040
-
-    // Create a common container (parent html element) for canvas and the interop container
-    // to position at the same place - the interop container is position at 0,0 relative to <canvas>.
-    // It simplifies the positioning of the interop views in the container.
-    val layerRoot = document.createElement("div") as HTMLElement
-    layerRoot.style.apply {
-        position = "relative"
-    }
-
-    val shadowRoot = viewportContainer.attachShadow(ShadowRootInit(ShadowRootMode.OPEN))
-    val shadowRootStyle = document.createElement("style")
-    shadowRootStyle.textContent = """
-        :host {
-            -webkit-touch-callout: none; 
-            -webkit-user-select: none; 
-            user-select: none;
-            
-            position: relative;
-        }
-    """.trimIndent()
-
-    shadowRoot.append(shadowRootStyle, layerRoot)
-    layerRoot.appendChild(canvas)
-
-    val interopContainerElement = document.createElement("div") as HTMLDivElement
-    layerRoot.appendChild(interopContainerElement)
-
-    interopContainerElement.style.apply {
-        position = "absolute"
-        top = "0"
-        left = "0"
-    }
-
-    val configuration = ComposeViewportConfiguration().apply(configure)
-
-    val a11yContainerElement = if (configuration.isA11YEnabled) {
-        (document.createElement("div") as HTMLDivElement).also { a11yContainer ->
-            layerRoot.appendChild(a11yContainer)
-            a11yContainer.style.apply {
-                position = "absolute"
-                top = "0"
-                left = "0"
-            }
-        }
+internal fun onDomReady(block: () -> Unit) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event
+    if (document.readyState == DocumentReadyState.Companion.LOADING) {
+        document.addEventListener("DOMContentLoaded", {
+            block()
+        })
     } else {
-        null
+        block()
     }
-
-    ComposeWindow(
-        canvas = canvas,
-        rootNode = shadowRoot,
-        interopContainerElement = interopContainerElement,
-        a11yContainerElement = a11yContainerElement,
-        content = content,
-        configuration = configuration,
-        state = DefaultWindowState(viewportContainer)
-    )
 }
+
+private fun touchForce(touch: Touch): Double = js("touch.force || 0.0")

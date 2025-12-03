@@ -16,6 +16,7 @@
 
 package androidx.compose.mpp.demo.components.text
 
+import kotlin.js.Promise
 import kotlinx.browser.window
 import kotlinx.coroutines.await
 import org.khronos.webgl.ArrayBuffer
@@ -28,7 +29,9 @@ actual suspend fun loadResource(file: String): ByteArray? {
 }
 
 private suspend fun fetch(url: String): Response =
-    window.fetch(url).await()
+    windowFetch(url).await()
 
 @Suppress("CAST_NEVER_SUCCEEDS")
 fun ArrayBuffer?.asByteArray(): ByteArray? = this?.run { Int8Array(this) as ByteArray }
+
+private fun windowFetch(url: String) = js("window.fetch(url)").unsafeCast<Promise<Response>>()

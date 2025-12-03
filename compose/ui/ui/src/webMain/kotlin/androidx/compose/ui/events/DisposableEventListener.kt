@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.events
 
+import kotlin.js.js
 import org.w3c.dom.AddEventListenerOptions
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventTarget

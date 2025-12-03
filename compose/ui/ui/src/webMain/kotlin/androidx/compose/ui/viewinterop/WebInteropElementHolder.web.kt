@@ -24,6 +24,7 @@ import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
+import kotlin.js.js
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlinx.browser.document

@@ -4727,37 +4727,3 @@ final fun androidx.compose.ui.platform/androidx_compose_ui_platform_MacosTextInp
 
 // Targets: [macos]
 final fun androidx.compose.ui.window/Window(kotlin/String = ..., androidx.compose.ui.unit/DpSize = ..., kotlin/Function3<androidx.compose.ui.window/WindowScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) // androidx.compose.ui.window/Window|Window(kotlin.String;androidx.compose.ui.unit.DpSize;kotlin.Function3<androidx.compose.ui.window.WindowScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]
-
-// Targets: [js]
-final class androidx.compose.ui.platform/JsPlatformClipboard : androidx.compose.ui.platform/Clipboard { // androidx.compose.ui.platform/JsPlatformClipboard|null[0]
-    constructor <init>() // androidx.compose.ui.platform/JsPlatformClipboard.<init>|<init>(){}[0]
-
-    final val nativeClipboard // androidx.compose.ui.platform/JsPlatformClipboard.nativeClipboard|{}nativeClipboard[0]
-        final fun <get-nativeClipboard>(): androidx.compose.ui.platform/W3CTemporaryClipboard // androidx.compose.ui.platform/JsPlatformClipboard.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
-
-    final suspend fun getClipEntry(): androidx.compose.ui.platform/ClipEntry? // androidx.compose.ui.platform/JsPlatformClipboard.getClipEntry|getClipEntry(){}[0]
-    final suspend fun setClipEntry(androidx.compose.ui.platform/ClipEntry?) // androidx.compose.ui.platform/JsPlatformClipboard.setClipEntry|setClipEntry(androidx.compose.ui.platform.ClipEntry?){}[0]
-}
-
-// Targets: [js]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_JsPlatformClipboard$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_JsPlatformClipboard$stableprop|#static{}androidx_compose_ui_platform_JsPlatformClipboard$stableprop[0]
-
-// Targets: [js]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_JsPlatformClipboard$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_JsPlatformClipboard$stableprop_getter|androidx_compose_ui_platform_JsPlatformClipboard$stableprop_getter(){}[0]
-
-// Targets: [wasmJs]
-final class androidx.compose.ui.platform/WasmPlatformClipboard : androidx.compose.ui.platform/Clipboard { // androidx.compose.ui.platform/WasmPlatformClipboard|null[0]
-    constructor <init>() // androidx.compose.ui.platform/WasmPlatformClipboard.<init>|<init>(){}[0]
-
-    final val nativeClipboard // androidx.compose.ui.platform/WasmPlatformClipboard.nativeClipboard|{}nativeClipboard[0]
-        final fun <get-nativeClipboard>(): androidx.compose.ui.platform/W3CTemporaryClipboard // androidx.compose.ui.platform/WasmPlatformClipboard.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
-
-    final suspend fun getClipEntry(): androidx.compose.ui.platform/ClipEntry? // androidx.compose.ui.platform/WasmPlatformClipboard.getClipEntry|getClipEntry(){}[0]
-    final suspend fun setClipEntry(androidx.compose.ui.platform/ClipEntry?) // androidx.compose.ui.platform/WasmPlatformClipboard.setClipEntry|setClipEntry(androidx.compose.ui.platform.ClipEntry?){}[0]
-}
-
-// Targets: [wasmJs]
-final val androidx.compose.ui.platform/androidx_compose_ui_platform_WasmPlatformClipboard$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_WasmPlatformClipboard$stableprop|#static{}androidx_compose_ui_platform_WasmPlatformClipboard$stableprop[0]
-
-// Targets: [wasmJs]
-final fun androidx.compose.ui.platform/androidx_compose_ui_platform_WasmPlatformClipboard$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_WasmPlatformClipboard$stableprop_getter|androidx_compose_ui_platform_WasmPlatformClipboard$stableprop_getter(){}[0]

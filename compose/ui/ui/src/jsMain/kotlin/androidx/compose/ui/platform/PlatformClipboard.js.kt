@@ -38,7 +38,7 @@ private val isFallbackWriteTextApiAvailable: Boolean by lazy {
     isSecureContext && isFallbackWriteTextApiAvailable()
 }
 
-class JsPlatformClipboard : Clipboard {
+private class JsPlatformClipboard : Clipboard {
 
     private val browserClipboard by lazy {
         getW3CClipboard()

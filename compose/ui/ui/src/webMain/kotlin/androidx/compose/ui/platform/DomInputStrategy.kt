@@ -1,3 +1,19 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.input.key.Key
@@ -5,12 +21,16 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import kotlin.js.JsAny
+import kotlin.js.JsName
+import kotlin.js.definedExternally
+import kotlin.js.js
 import kotlinx.browser.document
 import kotlinx.browser.window
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.events.CompositionEvent
+import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
-import org.w3c.dom.events.UIEvent
 
 internal class DomInputStrategy(
     imeOptions: ImeOptions,
@@ -69,8 +89,9 @@ internal class DomInputStrategy(
             if (evt is InputEvent) {
                 htmlInput as HTMLElementWithValue
 
-                evt.textRangeStart = htmlInput.selectionStart
-                evt.textRangeEnd = htmlInput.selectionEnd
+                val inputExt = evt.asInputEventExt()
+                inputExt.textRangeStart = htmlInput.selectionStart
+                inputExt.textRangeEnd = htmlInput.selectionEnd
 
                 nativeInputEventsProcessor.registerEvent(evt)
             }
@@ -86,16 +107,17 @@ internal class DomInputStrategy(
     }
 }
 
-internal external class InputEvent : UIEvent {
+@JsName("InputEvent")
+internal external class InputEventExt : JsAny {
     val inputType: String
-    val data: String?
-    val isComposing: Boolean
     var textRangeStart: Int
     var textRangeEnd: Int
 }
 
 internal val InputEvent.textRangeSize: Int
-    get() = textRangeEnd - textRangeStart
+    get() = this.asInputEventExt().let { it.textRangeEnd - it.textRangeStart }
+
+internal expect inline fun InputEvent.asInputEventExt(): InputEventExt
 
 private fun ImeOptions.createDomElement(): HTMLElement {
     val htmlElement = document.createElement(

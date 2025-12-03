@@ -237,26 +237,28 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             nonJvmMain.dependsOn(skikoMain)
             nativeMain.dependsOn(nonJvmMain)
-            webMain.dependsOn(nonJvmMain)
-            webMain.dependsOn(skikoMain)
             macosMain.dependsOn(skikoMain)
 
-            jsMain {
-                kotlin.srcDir("src/webCommonW3C/kotlin")
-                dependsOn(webMain)
+            webMain {
+                dependsOn(nonJvmMain)
+                dependsOn(skikoMain)
+
                 dependencies {
-                    api(libs.skikoCommon)
+                    implementation(libs.kotlinStdlib)
+                    implementation(libs.skikoCommon)
+                    api(libs.kotlinXw3c)
                 }
             }
 
+            jsMain {
+                dependsOn(webMain)
+            }
+
             wasmJsMain {
-                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(webMain)
                 dependencies {
-                    implementation(libs.kotlinStdlib)
                     implementation(libs.create("skikoWasm"))
                     implementation(libs.create("skikoWasmWasm"))
-                    api(libs.kotlinXw3c)
                 }
             }
 
@@ -331,12 +333,13 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             nativeTest {
                 dependsOn(skikoTest)
             }
+            webTest {}
             jsTest {
-                kotlin.srcDir("src/webTest/kotlin")
+                dependsOn(webTest)
                 dependsOn(skikoTest)
             }
             wasmJsTest {
-                kotlin.srcDir("src/webTest/kotlin")
+                dependsOn(webTest)
                 dependsOn(skikoTest)
             }
             uikitInstrumentedTest.dependencies {

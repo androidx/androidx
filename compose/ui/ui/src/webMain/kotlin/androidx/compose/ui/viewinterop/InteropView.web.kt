@@ -21,6 +21,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import org.w3c.dom.HTMLElement
 
+actual typealias InteropView = Any
+
 /**
  * Compose an [HTMLElement] of class [T] into the UI hierarchy.
  *
@@ -59,5 +61,34 @@ fun <T : HTMLElement> WebElementView(
         update = update,
         onRelease = onRelease,
         onReset = onReset,
+    )
+}
+
+internal actual class InteropViewGroup(val htmlElement: HTMLElement)
+
+@Composable
+internal fun <T : HTMLElement> InternalWebElementView(
+    factory: () -> T,
+    modifier: Modifier,
+    update: (T) -> Unit,
+    onRelease: (T) -> Unit,
+    onReset: ((T) -> Unit)?,
+) {
+    val interopContainer = LocalInteropContainer.current
+
+    InteropView(
+        factory = { compositeKeyHash ->
+            WebInteropViewHolder(
+                factory,
+                interopContainer,
+                compositeKeyHash
+            )
+        },
+        modifier,
+        onReset,
+        onRelease,
+        update = {
+            update(it)
+        }
     )
 }
