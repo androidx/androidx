@@ -508,11 +508,12 @@ private class AccessibilityElement(
 
     val key: AccessibilityElementKey get() = node.key
 
+    private var disposed = false
+
     /**
      * Indicates whether this element is still present in the tree.
      */
-    var isAlive = true
-        private set
+    private val isAlive get() = !disposed && node.semanticsNode.isValid
 
     init {
         setAccessibilityElements(children + nodeSemanticsElements())
@@ -547,11 +548,11 @@ private class AccessibilityElement(
     }
 
     fun dispose() {
-        check(isAlive) {
+        check(!disposed) {
             "AccessibilityElement is already disposed"
         }
 
-        isAlive = false
+        disposed = true
         setAccessibilityContainer(null)
         setAccessibilityElements(emptyList<Any>())
         if (available(OS.Ios to OSVersion(major = 17))) {
@@ -698,6 +699,10 @@ private class AccessibilityElement(
         context: UIFocusUpdateContext,
         withAnimationCoordinator: UIFocusAnimationCoordinator
     ) {
+        if (!isAlive) {
+            return
+        }
+
         if (context.previouslyFocusedItem === this) {
             node.didResignFocused()
         }
