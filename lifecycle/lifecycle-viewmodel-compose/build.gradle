@@ -63,8 +63,20 @@ kotlin {
             }
         }
 
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+                implementation(project(":compose:ui:ui-test"))
+            }
+        }
+
         jvmMain.dependsOn(commonMain)
         androidMain.dependsOn(commonMain)
+        jvmTest.dependsOn(commonTest)
+        androidTest.dependsOn(commonTest)
 
         androidInstrumentedTest {
             dependsOn(commonTest)
@@ -85,10 +97,23 @@ kotlin {
             dependsOn(commonMain)
         }
 
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
         desktopMain {
             dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(nonAndroidTest)
+            dependencies {
+                implementation(libs.skikoCurrentOs)
+            }
+        }
+
         nonJvmMain.dependsOn(nonAndroidMain)
         nativeMain.dependsOn(nonJvmMain)
         webMain.dependsOn(nonJvmMain)

@@ -58,10 +58,7 @@ public fun <T : Any> SavedStateHandle.saveable(
     @Suppress("UNCHECKED_CAST")
     saver as Saver<T, Any>
     // value is restored using the SavedStateHandle or created via [init] lambda
-    @Suppress("DEPRECATION") // Bundle.get has been deprecated in API 31
-    val value = get<SavedState?>(key)?.read {
-        if (contains("value")) getSavedState("value") else null
-    }?.let(saver::restore) ?: init()
+    val value = get<SavedState?>(key)?.read { toMap()["value"] }?.let(saver::restore) ?: init()
 
     // Hook up saving the state to the SavedStateHandle
     setSavedStateProvider(key) {
