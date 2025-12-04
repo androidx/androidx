@@ -43,6 +43,10 @@ public class LayoutComponentContent extends Component {
         super(parent, componentId, animationId, x, y, width, height);
     }
 
+    public LayoutComponentContent(int componentId) {
+        super(null, componentId, 0, -1, 0, 0, 0);
+    }
+
     /**
      * The name of the class
      *

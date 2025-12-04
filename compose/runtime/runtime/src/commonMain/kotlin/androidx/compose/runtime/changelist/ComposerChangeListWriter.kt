@@ -17,10 +17,10 @@
 package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Anchor
-import androidx.compose.runtime.ComposerImpl
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.ControlledComposition
+import androidx.compose.runtime.GapComposer
 import androidx.compose.runtime.IntStack
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MovableContentState
@@ -35,10 +35,10 @@ import androidx.compose.runtime.runtimeCheck
 
 internal class ComposerChangeListWriter(
     /**
-     * The [Composer][ComposerImpl] that is building this ChangeList. The Composer's state may be
+     * The [Composer][GapComposer] that is building this ChangeList. The Composer's state may be
      * used to determine how the ChangeList should be written to.
      */
-    private val composer: ComposerImpl,
+    private val composer: GapComposer,
     /** The ChangeList that will be written to */
     var changeList: ChangeList,
 ) {

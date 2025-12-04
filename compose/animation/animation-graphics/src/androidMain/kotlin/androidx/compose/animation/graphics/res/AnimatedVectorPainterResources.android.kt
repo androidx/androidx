@@ -17,6 +17,7 @@
 package androidx.compose.animation.graphics.res
 
 import androidx.annotation.VisibleForTesting
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.animation.graphics.vector.StateVectorConfig
@@ -66,7 +67,7 @@ internal fun rememberAnimatedVectorPainter(
         autoMirror = true,
     ) { _, _ ->
         val transition = updateTransition(atEnd, label = animatedImageVector.imageVector.name)
-        val map = mutableMapOf<String, StateVectorConfig>()
+        val map = mutableScatterMapOf<String, StateVectorConfig>()
         animatedImageVector.targets.fastForEach { target ->
             val config =
                 target.animator.createVectorConfig(transition, animatedImageVector.totalDuration)
@@ -77,6 +78,6 @@ internal fun rememberAnimatedVectorPainter(
                 map[target.name] = config
             }
         }
-        render(animatedImageVector.imageVector.root, map)
+        @Suppress("AsCollectionCall") render(animatedImageVector.imageVector.root, map.asMap())
     }
 }

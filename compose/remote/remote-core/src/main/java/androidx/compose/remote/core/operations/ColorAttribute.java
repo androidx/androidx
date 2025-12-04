@@ -222,7 +222,7 @@ public class ColorAttribute extends PaintOperation implements VariableSupport, S
      */
     @Override
     public void registerListening(@NonNull RemoteContext context) {
-        context.listensTo(Utils.idFromNan(mColorId), this);
+        context.listensTo(mColorId, this);
     }
 
     /**

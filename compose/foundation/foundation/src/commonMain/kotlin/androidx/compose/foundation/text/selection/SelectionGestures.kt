@@ -30,7 +30,7 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.isPrimaryPressed
@@ -340,7 +340,7 @@ private suspend fun AwaitPointerEventScope.awaitDown(): PointerEvent {
     var event: PointerEvent
     do {
         event = awaitPointerEvent(PointerEventPass.Main)
-    } while (!event.changes.fastAll { it.changedToDownIgnoreConsumed() })
+    } while (!event.changes.fastAll { it.changedToDown() })
     return event
 }
 

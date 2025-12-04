@@ -21,9 +21,13 @@ import static androidx.compose.remote.creation.Rc.FloatExpression.MUL;
 import android.graphics.Color;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.NamedVariable;
+import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression;
+import androidx.compose.remote.creation.CreationDisplayInfo;
 import androidx.compose.remote.creation.Rc;
+import androidx.compose.remote.creation.RemoteComposeWriter;
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid;
 import androidx.compose.remote.creation.modifiers.RecordingModifier;
 
@@ -33,6 +37,40 @@ import org.jspecify.annotations.Nullable;
 /** RemoteComposeWriter for Widgets in Baklava (Api level 6) */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
+
+    public WidgetsProfileWriterV6(@NonNull CreationDisplayInfo creationDisplayInfo,
+            @Nullable String contentDescription, @NonNull Profile profile) {
+        super(creationDisplayInfo, contentDescription, profile);
+        mMaxValidFloatExpressionOperation = AnimatedFloatExpression.getMaxOpForLevel(
+                profile.getApiLevel());
+    }
+
+    /**
+     * Creates a {@link RemoteComposeWriter} for widgets on Baklava (API level 6).
+     *
+     * @param creationDisplayInfo Information about the display where the content will be rendered.
+     * @param contentDescription  A content description for the root composable, used for
+     *                            accessibility.
+     * @param profile             The profile defining the capabilities and API level of the
+     *                            remote environment.
+     * @return A new instance of {@link RemoteComposeWriter} configured for widgets.
+     */
+    public static @NonNull RemoteComposeWriter createWriter(
+            @NonNull CreationDisplayInfo creationDisplayInfo,
+            @Nullable String contentDescription, @NonNull Profile profile) {
+        WidgetsProfileWriterV6 widgetsProfileWriterV6 = new WidgetsProfileWriterV6(
+                creationDisplayInfo, contentDescription, profile);
+
+        if (contentDescription != null) {
+            int contentDescriptionId = widgetsProfileWriterV6.addText(contentDescription);
+            widgetsProfileWriterV6.getBuffer().addRootContentDescription(contentDescriptionId);
+        }
+        widgetsProfileWriterV6.setRootContentBehavior(RootContentBehavior.NONE,
+                RootContentBehavior.ALIGNMENT_CENTER, RootContentBehavior.SIZING_SCALE,
+                RootContentBehavior.SCALE_FILL_BOUNDS);
+
+        return widgetsProfileWriterV6;
+    }
 
     public WidgetsProfileWriterV6(
             int width, int height, @NonNull String contentDescription, @NonNull Profile profile) {
@@ -45,6 +83,11 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
                 profile.getPlatform());
         mMaxValidFloatExpressionOperation =
                 AnimatedFloatExpression.getMaxOpForLevel(profile.getApiLevel());
+    }
+
+    @Override
+    public void setRootContentBehavior(int scroll, int alignment, int sizing, int mode) {
+        mBuffer.setRootContentBehavior(scroll, alignment, sizing, mode);
     }
 
     /**
@@ -157,5 +200,51 @@ public class WidgetsProfileWriterV6 extends RemoteComposeWriterAndroid {
         return super.addNamedColor(name, color);
     }
     // todo DAY of Month. etc.
+
+    /**
+     * Add a light and dark themed color
+     *
+     * @param lightName  the name of the light color
+     * @param lightValue the value of the light color
+     * @param darkName   the name of the dark color
+     * @param darkValue  the value of the dark color
+     * @return the id of the color
+     */
+    public short addThemedColor(@Nullable String lightName, int lightValue,
+            @Nullable String darkName, int darkValue) {
+        int lightId = mState.createNextAvailableId();
+        int darkId = mState.createNextAvailableId();
+        int light_mode;
+        if (Rc.System.sLightMode == 0f) {
+            light_mode = mState.createNextAvailableId();
+            Rc.System.sLightMode = Utils.asNan(light_mode);
+        } else {
+            light_mode = Utils.idFromNan(Rc.System.sLightMode);
+        }
+
+        if (lightName != null) {
+            mBuffer.setNamedVariable(lightId, lightName, NamedVariable.COLOR_TYPE);
+        }
+        if (darkName != null) {
+            mBuffer.setNamedVariable(darkId, darkName, NamedVariable.COLOR_TYPE);
+        }
+
+        int retId = mState.createNextAvailableId();
+        mBuffer.addColor(lightId, lightValue);
+        mBuffer.addColor(darkId, darkValue);
+        mBuffer.addFloat(light_mode, 0);
+
+        setTheme(Rc.Theme.DARK);
+        startLoop(0, 0f, 1f, 1f);
+        mBuffer.addColorExpression(retId, (short) darkId, (short) lightId, 0);
+        endLoop();
+        setTheme(Rc.Theme.LIGHT);
+        startLoop(0, 0f, 1f, 1f);
+        mBuffer.addColorExpression(retId, (short) darkId, (short) lightId, 1);
+        endLoop();
+        setTheme(Rc.Theme.UNSPECIFIED);
+
+        return (short) retId;
+    }
 
 }

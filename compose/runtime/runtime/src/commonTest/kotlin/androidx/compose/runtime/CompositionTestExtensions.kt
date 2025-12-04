@@ -21,4 +21,4 @@ fun Composition.getSlots(): Iterable<Any?> = (this as CompositionImpl).slotTable
 
 @TestOnly
 fun Composer.getInsertTableSlots(): Iterable<Any?> =
-    (this as ComposerImpl).insertTable.slots.asIterable()
+    (this as GapComposer).insertTable.slots.asIterable()

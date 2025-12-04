@@ -40,6 +40,25 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
     public @NonNull Mode mMode = Mode.SET;
     public boolean mClickable = false;
 
+    public CoreSemantics() {}
+
+    public CoreSemantics(
+            int contentDescriptionId,
+            byte role,
+            int textId,
+            int stateDescriptionId,
+            int mode,
+            boolean enabled,
+            boolean clickable) {
+        mContentDescriptionId = contentDescriptionId;
+        mRole = Role.fromInt(role);
+        mTextId = textId;
+        mStateDescriptionId = stateDescriptionId;
+        mEnabled = enabled;
+        mMode = Mode.values()[mode];
+        mClickable = clickable;
+    }
+
     @Override
     public int getOpCode() {
         return Operations.ACCESSIBILITY_SEMANTICS;

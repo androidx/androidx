@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.list
 
+import androidx.compose.foundation.ComposeFoundationFlags.isCacheWindowRefillFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollBy
@@ -45,6 +46,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.junit.Assume
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -185,7 +187,8 @@ class LazyListCacheWindowTest(orientation: Orientation) :
     }
 
     @Test
-    fun datasetChanged_shouldMakeSureNestedItemsChanged() {
+    fun datasetChanged_shouldMakeSureNestedItemsChanged_afterScroll() {
+        Assume.assumeTrue(isCacheWindowRefillFixEnabled)
         val items = mutableStateOf(listOf("a", "b", "c", "d", "e"))
 
         rule.setContent {
@@ -262,6 +265,81 @@ class LazyListCacheWindowTest(orientation: Orientation) :
         rule.onNodeWithTag("e").assertExists() // item e will take place of item d
         rule.onNodeWithTag("first-nested-e").assertExists() // nested prefetched
         rule.onNodeWithTag("second-nested-e").assertExists() // nested prefetched
+    }
+
+    @Test
+    fun datasetChanged_shouldMakeSureNestedItemsChanged_noScroll() {
+        Assume.assumeTrue(isCacheWindowRefillFixEnabled)
+        val items = mutableStateOf(listOf("a", "b", "c", "d"))
+
+        rule.setContent {
+            @OptIn(ExperimentalFoundationApi::class)
+            state = rememberLazyListState(cacheWindow = viewportWindow)
+            LazyColumnOrRow(
+                Modifier.mainAxisSize(itemsSizeDp * 2f)
+                    .then(
+                        object : RemeasurementModifier {
+                            override fun onRemeasurementAvailable(remeasurement: Remeasurement) {
+                                remeasure = remeasurement
+                            }
+                        }
+                    ),
+                state,
+            ) {
+                items(items.value, key = { it }) {
+                    if (it == "e" || it == "f") {
+                        val state = rememberLazyListState(cacheWindow = viewportWindow)
+                        LazyRow(
+                            Modifier.mainAxisSize(itemsSizeDp).fillMaxCrossAxis().testTag(it),
+                            state = state,
+                        ) {
+                            item {
+                                Spacer(
+                                    Modifier.mainAxisSize(itemsSizeDp)
+                                        .fillMaxCrossAxis()
+                                        .testTag("first-nested-$it")
+                                )
+                            }
+
+                            item {
+                                Spacer(
+                                    Modifier.mainAxisSize(itemsSizeDp)
+                                        .fillMaxCrossAxis()
+                                        .testTag("second-nested-$it")
+                                )
+                            }
+                        }
+                    } else {
+                        Spacer(
+                            Modifier.mainAxisSize(itemsSizeDp)
+                                .fillMaxCrossAxis()
+                                .testTag(it)
+                                .layout { measurable, constraints ->
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("a").assertIsDisplayed() // fully visible
+        rule.onNodeWithTag("b").assertIsDisplayed() // fully visible
+        rule.onNodeWithTag("c").assertExists() // part of the window
+        rule.onNodeWithTag("d").assertExists() // part of the window
+
+        rule.runOnIdle { items.value = listOf("a", "b", "e", "f", "g", "h") }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("e").assertExists() // item e will take place of item c
+        rule.onNodeWithTag("first-nested-e").assertExists() // nested prefetched
+        rule.onNodeWithTag("second-nested-e").assertExists() // nested prefetched
+        rule.onNodeWithTag("f").assertExists() // item f will take place of item d
+        rule.onNodeWithTag("first-nested-f").assertExists() // nested prefetched
+        rule.onNodeWithTag("second-nested-f").assertExists() // nested prefetched
     }
 
     @Test

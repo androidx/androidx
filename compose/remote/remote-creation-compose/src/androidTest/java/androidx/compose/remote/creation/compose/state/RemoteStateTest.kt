@@ -121,7 +121,7 @@ class RemoteStateTest {
 
     @RemoteComposable
     @Composable
-    private fun <T : BaseRemoteState> AssertSameSameDifferent(first: T, first2: T, second: T) {
+    private fun <T : BaseRemoteState<*>> AssertSameSameDifferent(first: T, first2: T, second: T) {
         assertSame(first, first2)
         assertNotSame(first, second)
 

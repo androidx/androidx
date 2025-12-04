@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.input.internal
 
 import androidx.collection.MutableLongSet
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.DeadKeyCombiner
 import androidx.compose.foundation.text.KeyCommand
@@ -255,25 +254,18 @@ internal abstract class TextFieldKeyEventHandler {
                         showCharacterPalette()
                     }
                     KeyCommand.CENTER -> {
-                        // Only consume this event if the fix flag is enabled.
-                        if (ComposeFoundationFlags.isTextFieldDpadNavigationEnabled) {
-                            keyboardController.show()
-                        } else {
-                            consumed = false
-                        }
+                        keyboardController.show()
                     }
                 }
-                if (ComposeFoundationFlags.isTextFieldDpadNavigationEnabled) {
-                    // evaluate movement events to check whether they were actually consumed.
-                    if (
-                        command == KeyCommand.UP ||
-                            command == KeyCommand.DOWN ||
-                            command == KeyCommand.LEFT_CHAR ||
-                            command == KeyCommand.RIGHT_CHAR
-                    ) {
-                        // If selection did not change, the movement event was not consumed.
-                        consumed = initialValue.selection != selection
-                    }
+                // evaluate movement events to check whether they were actually consumed.
+                if (
+                    command == KeyCommand.UP ||
+                        command == KeyCommand.DOWN ||
+                        command == KeyCommand.LEFT_CHAR ||
+                        command == KeyCommand.RIGHT_CHAR
+                ) {
+                    // If selection did not change, the movement event was not consumed.
+                    consumed = initialValue.selection != selection
                 }
 
                 // selection changes are applied atomically at the end of context evaluation

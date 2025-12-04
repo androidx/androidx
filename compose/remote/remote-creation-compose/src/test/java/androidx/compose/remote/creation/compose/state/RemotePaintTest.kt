@@ -26,6 +26,7 @@ import org.robolectric.RobolectricTestRunner
 
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemotePaintTest {
     @Test
     fun setColorTest() {

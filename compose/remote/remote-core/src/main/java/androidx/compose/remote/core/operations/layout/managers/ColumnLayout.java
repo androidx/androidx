@@ -129,8 +129,8 @@ public class ColumnLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float maxWidth,
-            float maxHeight,
+            float minWidth, float maxWidth,
+            float minHeight, float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -138,14 +138,65 @@ public class ColumnLayout extends LayoutManager {
         DebugLog.s(() -> "COMPUTE WRAP SIZE in " + this + " (" + mComponentId + ")");
         int visibleChildrens = 0;
         float currentMaxHeight = maxHeight;
-        for (Component c : mChildrenComponents) {
-            c.measure(context, 0f, maxWidth, 0f, currentMaxHeight, measure);
-            ComponentMeasure m = measure.get(c);
-            if (!m.isGone()) {
-                size.setWidth(Math.max(size.getWidth(), m.getW()));
-                size.setHeight(size.getHeight() + m.getH());
-                visibleChildrens++;
-                currentMaxHeight -= m.getH();
+
+        float totalWeights = 0f;
+        boolean hasWeights = false;
+        for (Component child : mChildrenComponents) {
+            ComponentMeasure childMeasure = measure.get(child);
+            if (childMeasure.isGone()) {
+                continue;
+            }
+            if (child instanceof LayoutComponent
+                    && ((LayoutComponent) child).getHeightModifier().hasWeight()) {
+                hasWeights = true;
+                totalWeights += ((LayoutComponent) child).getHeightModifier().getValue();
+            }
+        }
+
+        if (hasWeights) {
+            // we have to measure all children first that do not have weight
+            for (Component c : mChildrenComponents) {
+                if (c instanceof LayoutComponent
+                        && ((LayoutComponent) c).getHeightModifier().hasWeight()) {
+                    continue;
+                }
+                c.measure(context, 0f, maxWidth, 0f, currentMaxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(Math.max(size.getWidth(), m.getW()));
+                    size.setHeight(size.getHeight() + m.getH());
+                    visibleChildrens++;
+                    currentMaxHeight -= m.getH();
+                }
+            }
+            // Then we can measure the children with weight
+            for (Component c : mChildrenComponents) {
+                if (!(c instanceof LayoutComponent
+                        && ((LayoutComponent) c).getHeightModifier().hasWeight())) {
+                    continue;
+                }
+                float childWeight = ((LayoutComponent) c).getHeightModifier().getValue();
+                float childMinHeight = (childWeight * currentMaxHeight) / totalWeights;
+                float childMaxHeight = childMinHeight;
+
+                c.measure(context, 0f, maxWidth, childMinHeight, childMaxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(Math.max(size.getWidth(), m.getW()));
+                    size.setHeight(size.getHeight() + m.getH());
+                    visibleChildrens++;
+                }
+            }
+        } else {
+            for (Component c : mChildrenComponents) {
+                c.measure(context, 0f, maxWidth, 0f, currentMaxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(Math.max(size.getWidth(), m.getW()));
+                    size.setHeight(size.getHeight() + m.getH());
+                    visibleChildrens++;
+                    currentMaxHeight -= m.getH();
+                }
             }
         }
         if (!mChildrenComponents.isEmpty()) {
@@ -175,7 +226,7 @@ public class ColumnLayout extends LayoutManager {
     }
 
     @Override
-    public float minIntrinsicHeight(@NonNull RemoteContext context) {
+    public float minIntrinsicHeight(@Nullable RemoteContext context) {
         float height = computeModifierDefinedHeight(context);
         float componentHeights = 0f;
         for (Component c : mChildrenComponents) {

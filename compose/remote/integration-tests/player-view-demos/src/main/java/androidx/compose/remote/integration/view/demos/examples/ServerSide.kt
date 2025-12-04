@@ -28,6 +28,9 @@ import androidx.compose.remote.creation.cos
 import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.sin
+import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 /** This is a demo of a server side clock that does not depend Android */
 val BLUE: Int = 0xFF0000FFL.toInt()
@@ -133,3 +136,5 @@ fun serverClock(): RemoteComposeWriter {
     }
     return rc
 }
+
+@Preview @Composable fun ServerClockPreview() = RemoteDocPreview(serverClock())

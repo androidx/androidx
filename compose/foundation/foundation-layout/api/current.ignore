@@ -1,5 +1,0 @@
-// Baseline format: 1.0
-BecameUnchecked: androidx.compose.foundation.layout.ContextualFlowLayoutKt:
-    Removed class androidx.compose.foundation.layout.ContextualFlowLayoutKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.foundation.layout.WindowInsetsConnection_androidKt:
-    Removed class androidx.compose.foundation.layout.WindowInsetsConnection_androidKt from compatibility checked API surface

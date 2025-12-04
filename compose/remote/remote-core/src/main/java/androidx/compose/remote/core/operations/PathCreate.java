@@ -49,7 +49,7 @@ public class PathCreate extends PaintOperation implements VariableSupport, Seria
     float[] mFloatPath;
     float[] mOutputPath;
 
-    PathCreate(int instanceId, float startX, float startY) {
+    public PathCreate(int instanceId, float startX, float startY) {
         mInstanceId = instanceId;
         mFloatPath = new float[] {PathData.MOVE_NAN, startX, startY};
         mOutputPath = Arrays.copyOf(mFloatPath, mFloatPath.length);

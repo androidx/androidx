@@ -19,56 +19,22 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthModifier(public val type: Type, public val value: RemoteFloat) :
-    RemoteLayoutModifier {
+    RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.WidthModifier(
             type,
             value.internalAsFloat(),
         )
     }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        return if (type == Type.EXACT) {
-            val valueDp = with(LocalDensity.current) { value.toFloat().toDp() }
-            width(valueDp)
-        } else if (type == Type.EXACT_DP) {
-            width(value.toFloat().dp)
-        } else if (type == Type.FILL) {
-            fillMaxWidth(value.toFloat())
-            //        } else if (type == Type.WEIGHT) {
-            //            @Suppress("INVISIBLE_REFERENCE")
-            //            with(androidx.compose.foundation.layout.RowScopeInstance as RowScope) {
-            //                weight(value.toFloat(), true)
-            //            }
-        } else {
-            System.err.println("Not handled width modifier $type")
-            this
-        }
-    }
 }
-
-@Composable
-public fun RemoteModifier.size(width: Dp, height: Dp): RemoteModifier = width(width).height(height)
-
-@Composable public fun RemoteModifier.size(value: Dp): RemoteModifier = width(value).height(value)
-
-public fun RemoteModifier.fillMaxSize(weight: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
-    fillMaxWidth(weight).fillMaxHeight(weight)
 
 public fun RemoteModifier.width(width: RemoteDp): RemoteModifier =
     then(WidthModifier(Type.EXACT_DP, width.value))
@@ -76,30 +42,20 @@ public fun RemoteModifier.width(width: RemoteDp): RemoteModifier =
 public fun RemoteModifier.width(width: RemoteFloat): RemoteModifier =
     then(WidthModifier(Type.EXACT, width))
 
-public fun RemoteModifier.fillMaxWidth(width: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
-    then(WidthModifier(Type.FILL, width))
+public fun RemoteModifier.fillMaxWidth(fraction: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
+    then(WidthModifier(Type.FILL, fraction))
 
-public fun RemoteModifier.fillMaxWidth(width: Float): RemoteModifier =
-    then(WidthModifier(Type.FILL, RemoteFloat(width)))
+public fun RemoteModifier.fillMaxWidth(fraction: Float): RemoteModifier =
+    then(WidthModifier(Type.FILL, RemoteFloat(fraction)))
 
-public fun RemoteModifier.wrapContentSize(): RemoteModifier =
-    then(WidthModifier(Type.WRAP, RemoteFloat(1f))).then(HeightModifier(Type.WRAP, RemoteFloat(1f)))
-
-@Composable
-public fun RemoteModifier.width(value: Dp): RemoteModifier {
-    val valuePx = with(LocalDensity.current) { value.toPx() }
-
-    return then(WidthModifier(Type.EXACT, RemoteFloat(valuePx)))
-}
-
-public fun RemoteModifier.width(value: Int): RemoteModifier =
-    then(WidthModifier(Type.EXACT, RemoteFloat(value.toFloat())))
+public fun RemoteModifier.width(width: Int): RemoteModifier =
+    then(WidthModifier(Type.EXACT, RemoteFloat(width.toFloat())))
 
 @Composable
-public fun RemoteModifier.width(value: IntrinsicSize): RemoteModifier {
-    if (value == IntrinsicSize.Min) {
-        return then(WidthModifier(Type.INTRINSIC_MIN, RemoteFloat(0f)))
+public fun RemoteModifier.width(width: IntrinsicSize): RemoteModifier {
+    return if (width == IntrinsicSize.Min) {
+        then(WidthModifier(Type.INTRINSIC_MIN, RemoteFloat(0f)))
     } else {
-        return then(WidthModifier(Type.INTRINSIC_MAX, RemoteFloat(0f)))
+        then(WidthModifier(Type.INTRINSIC_MAX, RemoteFloat(0f)))
     }
 }

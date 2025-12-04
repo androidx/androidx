@@ -46,7 +46,8 @@ public class PathData extends Operation implements VariableSupport, Serializable
     int mWinding;
     private boolean mPathChanged = true;
 
-    PathData(int instanceId, float[] floatPath, int winding) {
+    @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
+    public PathData(int instanceId, float[] floatPath, int winding) {
         mInstanceId = instanceId;
         mFloatPath = floatPath;
         mOutputPath = Arrays.copyOf(mFloatPath, mFloatPath.length);

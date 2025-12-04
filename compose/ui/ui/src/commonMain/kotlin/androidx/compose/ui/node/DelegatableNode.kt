@@ -16,8 +16,12 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableScatterSet
+import androidx.collection.ScatterSet
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.GraphicsContext
@@ -84,6 +88,8 @@ internal val DelegatableNode.isDelegationRoot: Boolean
 // Some internal modifiers, such as Focus, PointerInput, etc. will all need to utilize this
 // a bit, but I think we want to avoid giving this power to public API just yet. We can
 // introduce this as valid cases arise
+@Suppress("BanInlineOptIn")
+@OptIn(ExperimentalComposeUiApi::class)
 internal inline fun DelegatableNode.visitAncestors(
     mask: Int,
     includeSelf: Boolean = false,
@@ -249,11 +255,23 @@ internal inline fun <reified T> DelegatableNode.visitLocalAncestors(
     block: (T) -> Unit,
 ) = visitLocalAncestors(type.mask) { it.dispatchForKind(type, block) }
 
+/**
+ * Visits ancestors Modifier.Nodes that implement the type in [type].
+ *
+ * @param type The [NodeKind] to visit.
+ * @param includeSelf If the current node should be included.
+ * @param includeDelegates If the delegates with the same [type] should be included. Normally, a
+ *   delegating node will re-route any callback to its delegates, so visiting only happens at the
+ *   surface level. If includeDelegates is true we will also visit delegates that have the same
+ *   [type].
+ * @param block The block to execute in each node.
+ */
 internal inline fun <reified T> DelegatableNode.visitAncestors(
     type: NodeKind<T>,
     includeSelf: Boolean = false,
+    includeDelegates: Boolean = false,
     block: (T) -> Unit,
-) = visitAncestors(type.mask, includeSelf) { it.dispatchForKind(type, block) }
+) = visitAncestors(type.mask, includeSelf) { it.dispatchForKind(type, includeDelegates, block) }
 
 internal inline fun <reified T> DelegatableNode.visitSelfAndAncestors(
     type: NodeKind<T>,
@@ -269,11 +287,26 @@ internal inline fun <reified T> DelegatableNode.visitSelfAndAncestors(
     }
 }
 
-internal inline fun <reified T> DelegatableNode.ancestors(type: NodeKind<T>): List<T>? {
+internal inline fun <reified T> DelegatableNode.ancestors(
+    type: NodeKind<T>,
+    includeSelf: Boolean = false,
+): List<T>? {
     var result: MutableList<T>? = null
-    visitAncestors(type) {
+    visitAncestors(type, includeSelf) {
         if (result == null) result = mutableListOf()
         result?.add(it)
+    }
+    return result
+}
+
+internal inline fun <reified T> DelegatableNode.setOfAncestors(
+    type: NodeKind<T>,
+    includeSelf: Boolean = false,
+): ScatterSet<T>? {
+    var result: MutableScatterSet<T>? = null
+    visitAncestors(type, includeSelf) {
+        if (result == null) result = mutableScatterSetOf()
+        result.add(it)
     }
     return result
 }
@@ -537,13 +570,31 @@ internal fun Modifier.Node.asLayoutModifierNode(): LayoutModifierNode? {
 internal inline fun <reified T> Modifier.Node.dispatchForKind(
     kind: NodeKind<T>,
     block: (T) -> Unit,
+) = dispatchForKind(kind, false, block)
+
+/**
+ * This overload of [dispatchToDelegates] takes into consideration that the Node and it's delegates
+ * might be of the same type T. In this case, if [dispatchToDelegates] is true this will dispatch
+ * both to the node and its delegates. Otherwise it will behave as [dispatchForKind], where only the
+ * root node will receive the callback.
+ */
+internal inline fun <reified T> Modifier.Node.dispatchForKind(
+    kind: NodeKind<T>,
+    dispatchToDelegates: Boolean,
+    block: (T) -> Unit,
 ) {
     var stack: MutableVector<Modifier.Node>? = null
     var node: Modifier.Node? = this
     while (node != null) {
-        if (node is T) {
-            block(node)
-        } else if (node.isKind(kind) && node is DelegatingNode) {
+        val dispatchAgain =
+            if (node is T) {
+                block(node)
+                false
+            } else {
+                true
+            }
+
+        if ((dispatchAgain || dispatchToDelegates) && node.isKind(kind) && node is DelegatingNode) {
             // We jump through a few extra hoops here to avoid the vector allocation in the
             // case where there is only one delegate node that implements this particular kind.
             // It is very likely that a delegating node will have one or zero delegates of a

@@ -1804,6 +1804,36 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
     }
 
     @Test
+    fun scrollByOnInitiallyNotAttachedState() {
+        var displayList by mutableStateOf(false)
+        rule.setContent {
+            val state = rememberLazyListState()
+            if (displayList) {
+                CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                    LazyColumnOrRow(
+                        state = state,
+                        modifier = Modifier.mainAxisSize(100.dp).fillMaxCrossAxis(),
+                    ) {
+                        items(20) {
+                            val tag = it.toString()
+                            BasicText(
+                                text = tag,
+                                modifier =
+                                    Modifier.mainAxisSize(30.dp).fillMaxCrossAxis().testTag(tag),
+                            )
+                        }
+                    }
+                }
+            }
+            LaunchedEffect(state) { state.scrollBy(30f) }
+        }
+
+        rule.runOnIdle { displayList = true }
+
+        rule.onNodeWithTag("1").assertStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
     fun assertVelocityCalculationIsSimilar_witHistoricalValues() {
         // arrange
         val tracker = VelocityTracker()

@@ -64,7 +64,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.ClipPath;
 import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.Utils;
-import androidx.compose.remote.core.operations.layout.managers.TextLayout;
+import androidx.compose.remote.core.operations.layout.managers.CoreText;
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation;
 import androidx.compose.remote.core.operations.paint.PaintBundle;
 import androidx.compose.remote.core.operations.paint.PaintChanges;
@@ -449,6 +449,14 @@ public class AndroidPaintContext extends PaintContext {
             int overflow,
             int maxLines,
             float maxWidth,
+            float letterSpacing,
+            float lineHeightAdd,
+            float lineHeightMultiplier,
+            int lineBreakStrategy,
+            int hyphenationFrequency,
+            int justificationMode,
+            boolean underline,
+            boolean strikethrough,
             int flags) {
         String str = getText(textId);
         if (str == null) {
@@ -459,28 +467,44 @@ public class AndroidPaintContext extends PaintContext {
         }
 
         TextPaint textPaint = new TextPaint();
+
+        boolean useAdvancedFeatures = (flags & PaintContext.TEXT_MEASURE_AUTOSIZE) != 0;
+
+        if (letterSpacing > 0f) {
+            textPaint.setLetterSpacing(letterSpacing);
+            useAdvancedFeatures = true;
+        }
+        if (underline) {
+            mPaint.setUnderlineText(underline);
+            useAdvancedFeatures = true;
+        }
+        if (strikethrough) {
+            mPaint.setStrikeThruText(strikethrough);
+            useAdvancedFeatures = true;
+        }
+
         textPaint.set(mPaint);
         StaticLayout.Builder staticLayoutBuilder =
                 StaticLayout.Builder.obtain(str, start, end, textPaint, (int) maxWidth);
         switch (alignment) {
-            case TextLayout.TEXT_ALIGN_RIGHT:
-            case TextLayout.TEXT_ALIGN_END:
+            case CoreText.TEXT_ALIGN_RIGHT:
+            case CoreText.TEXT_ALIGN_END:
                 staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_OPPOSITE);
                 break;
-            case TextLayout.TEXT_ALIGN_CENTER:
+            case CoreText.TEXT_ALIGN_CENTER:
                 staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_CENTER);
                 break;
             default:
                 staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_NORMAL);
         }
         switch (overflow) {
-            case TextLayout.OVERFLOW_ELLIPSIS:
+            case CoreText.OVERFLOW_ELLIPSIS:
                 staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.END);
                 break;
-            case TextLayout.OVERFLOW_MIDDLE_ELLIPSIS:
+            case CoreText.OVERFLOW_MIDDLE_ELLIPSIS:
                 staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.MIDDLE);
                 break;
-            case TextLayout.OVERFLOW_START_ELLIPSIS:
+            case CoreText.OVERFLOW_START_ELLIPSIS:
                 staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.START);
                 break;
             default:
@@ -488,9 +512,96 @@ public class AndroidPaintContext extends PaintContext {
         staticLayoutBuilder.setMaxLines(maxLines);
         staticLayoutBuilder.setIncludePad(false);
 
+        if (lineBreakStrategy > 0) {
+            staticLayoutBuilder.setBreakStrategy(lineBreakStrategy);
+            useAdvancedFeatures = true;
+        }
+        if (hyphenationFrequency > 0) {
+            staticLayoutBuilder.setHyphenationFrequency(hyphenationFrequency);
+            useAdvancedFeatures = true;
+        }
+        if (justificationMode > 0) {
+            staticLayoutBuilder.setJustificationMode(justificationMode);
+            useAdvancedFeatures = true;
+        }
+        if (lineHeightAdd > 0f || lineHeightMultiplier != 1f) {
+            staticLayoutBuilder.setLineSpacing(lineHeightAdd, lineHeightMultiplier);
+            useAdvancedFeatures = true;
+        }
+
         StaticLayout staticLayout = staticLayoutBuilder.build();
-        return new AndroidComputedTextLayout(
-                staticLayout, staticLayout.getWidth(), staticLayout.getHeight());
+        if (useAdvancedFeatures) {
+            Rect bounds = new Rect(0, 0, 0, 0);
+            boolean isHyphenatedText = getTightBoundingBox(staticLayout, bounds);
+            return new AndroidComputedTextLayout(
+                    staticLayout, bounds.width(), bounds.height(), isHyphenatedText);
+        } else {
+            return new AndroidComputedTextLayout(
+                    staticLayout, staticLayout.getWidth(), staticLayout.getHeight(), false);
+        }
+    }
+
+    /**
+     * Returns true if a line is hyphenated.
+     * @param layout
+     * @param originalText
+     * @param lineIndex
+     * @return
+     */
+    public boolean isLineHyphenated(@NonNull StaticLayout layout,
+            @NonNull CharSequence originalText, int lineIndex) {
+        if (lineIndex >= layout.getLineCount() - 1) {
+            return false;
+        }
+        int lastCharIndexOnLine = layout.getLineEnd(lineIndex) - 1;
+        char charBeforeBreak = originalText.charAt(lastCharIndexOnLine);
+        char charAfterBreak = originalText.charAt(lastCharIndexOnLine + 1);
+        if (!Character.isWhitespace(charBeforeBreak) && !Character.isWhitespace(charAfterBreak)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns the bounding box of the static layout
+     * @param layout
+     * @param bounds
+     * @return
+     */
+    public boolean getTightBoundingBox(@NonNull StaticLayout layout, @NonNull Rect bounds) {
+        int lineCount = layout.getLineCount();
+        if (lineCount == 0) {
+            return false;
+        }
+
+        boolean isHyphenated = false;
+
+        int top = layout.getLineTop(0);
+        int bottom = layout.getLineBottom(lineCount - 1);
+
+        float maxContentWidth = 0f;
+        for (int i = 0; i < lineCount; i++) {
+            float lineWidth = layout.getLineMax(i);
+            if (lineWidth > maxContentWidth) {
+                maxContentWidth = lineWidth;
+            }
+        }
+
+        float minLeft = 0f;
+        for (int i = 0; i < lineCount; i++) {
+            float lineLeft = layout.getLineLeft(i);
+            if (lineLeft < minLeft) {
+                minLeft = lineLeft;
+            }
+            if (!isHyphenated) {
+                isHyphenated |= isLineHyphenated(layout, layout.getText(), i);
+            }
+        }
+        bounds.left = (int) minLeft;
+        bounds.top = top;
+        bounds.right = (int) maxContentWidth;
+        bounds.bottom = bottom;
+        return isHyphenated;
     }
 
     @Override
@@ -725,6 +836,9 @@ public class AndroidPaintContext extends PaintContext {
                 @Override
                 public void setTypeFace(@NonNull String fontType, int weight, boolean italic) {
                     String path = getFontPath(fontType);
+                    if (path == null) {
+                        return;
+                    }
                     mFontBuilder = new Font.Builder(new File(path));
                     mFontBuilder.setWeight(weight);
                     mFontBuilder.setSlant(
@@ -747,6 +861,9 @@ public class AndroidPaintContext extends PaintContext {
                 }
 
                 private void setAxis(FontVariationAxis[] axis) {
+                    if (mFontBuilder == null) {
+                        return;
+                    }
                     Font font = null;
                     try {
                         if (axis != null) {

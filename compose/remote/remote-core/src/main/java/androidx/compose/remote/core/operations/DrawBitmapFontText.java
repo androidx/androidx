@@ -64,6 +64,7 @@ public class DrawBitmapFontText extends PaintOperation implements VariableSuppor
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextID, this);
         if (Float.isNaN(mX)) {
             context.listensTo(Utils.idFromNan(mX), this);
         }

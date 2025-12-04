@@ -31,13 +31,14 @@ internal actual fun Modifier.textFieldPointer(
     state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     readOnly: Boolean,
-    offsetMapping: OffsetMapping
-): Modifier = defaultTextFieldPointer(
-    manager,
-    enabled,
-    interactionSource,
-    state,
-    focusRequester,
-    readOnly,
-    offsetMapping,
-)
+    offsetMapping: OffsetMapping,
+): Modifier =
+    defaultTextFieldPointer(
+        manager,
+        enabled,
+        interactionSource,
+        state,
+        focusRequester,
+        readOnly,
+        offsetMapping,
+    )

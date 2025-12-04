@@ -33,7 +33,7 @@ public object ComposeRuntimeFlags {
      * updated to ensure they are compatible with the new behavior.
      */
     @JvmField
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     public var isMovingNestedMovableContentEnabled: Boolean = true
 
     /**
@@ -49,6 +49,6 @@ public object ComposeRuntimeFlags {
      * deferring, in this case, is unnecessary.
      */
     @JvmField
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     public var isMovableContentUsageTrackingEnabled: Boolean = false
 }

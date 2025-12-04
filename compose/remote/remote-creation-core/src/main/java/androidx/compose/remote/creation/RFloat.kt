@@ -68,6 +68,7 @@ public class RFloat : Number {
     public var array: FloatArray = floatArrayOf()
     public var id: Float = 0f // if 0 it has not been sent
     public var writer: RemoteComposeWriter? = null
+    public var animation: FloatArray? = null
 
     public constructor(writer: RemoteComposeWriter?, array: FloatArray) {
         this.array = array
@@ -96,9 +97,18 @@ public class RFloat : Number {
 
     override fun toFloat(): Float {
         if (!id.isNaN()) {
-            id = writer?.floatExpression(*array)!!
+            if (animation != null) {
+                id = writer?.floatExpression(array, animation)!!
+            } else {
+                id = writer?.floatExpression(*array)!!
+            }
         }
         return id
+    }
+
+    public fun flush(): RFloat {
+        toFloat()
+        return this
     }
 
     override fun toInt(): Int {
@@ -199,6 +209,30 @@ public class RFloat : Number {
         public operator fun invoke(float: Float, writer: RemoteComposeWriter? = null): RFloat {
             return RFloat(writer, floatArrayOf(float))
         }
+    }
+
+    public fun anim(
+        duration: Float,
+        type: Int = Rc.Animate.CUBIC_STANDARD,
+        spec: FloatArray? = null,
+        initialValue: Float = Float.NaN,
+        wrap: Float = Float.NaN,
+    ): RFloat {
+        animation = writer?.anim(duration, type, spec, initialValue, wrap)
+        this.flush()
+        return this
+    }
+
+    public fun genTextId(
+        before: Int = 2,
+        after: Int = 1,
+        flags: Int = Rc.TextFromFloat.PAD_AFTER_ZERO,
+    ): Int {
+        val w = writer
+        if (w == null) {
+            throw IllegalStateException("writer is null")
+        }
+        return w.createTextFromFloat(this.toFloat(), before, after, flags)
     }
 }
 
@@ -350,9 +384,14 @@ public fun cbrt(a: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, Rc.FloatExpression.CBRT))
 }
 
-/** if (a) b else c */
+/** if (c) b else c */
 public fun ifThenElse(a: RFloat, b: RFloat, c: RFloat): RFloat {
     return RFloat(a.writer, floatArrayOf(*a.array, *b.array, *c.array, Rc.FloatExpression.IFELSE))
+}
+
+/** if (a) b else c */
+public fun ifElse(a: RFloat, b: RFloat, c: RFloat): RFloat {
+    return RFloat(a.writer, floatArrayOf(*c.array, *b.array, *a.array, Rc.FloatExpression.IFELSE))
 }
 
 /** convert radians to degrees */
@@ -509,6 +548,29 @@ public fun clamp(min: Number, max: Number, value: RFloat): RFloat {
     return RFloat(
         value.writer,
         floatArrayOf(*(toArray(min)), *(toArray(max)), *(toArray(value)), Rc.FloatExpression.CLAMP),
+    )
+}
+
+/** clamp a value between min and max */
+public fun cubic(x1: Number, x2: Number, y1: Number, y2: Number, value: Number): RFloat {
+    val writer =
+        if (value is RFloat) value.writer
+        else if (x1 is RFloat) x1.writer
+        else if (x2 is RFloat) x2.writer
+        else if (y1 is RFloat) y1.writer else if (y2 is RFloat) y2.writer else null
+    if (writer == null) {
+        throw IllegalStateException("one of the inputs must be an RFloat")
+    }
+    return RFloat(
+        writer,
+        floatArrayOf(
+            *(toArray(x1)),
+            *(toArray(y1)),
+            *(toArray(x2)),
+            *(toArray(y2)),
+            *(toArray(value)),
+            Rc.FloatExpression.CUBIC,
+        ),
     )
 }
 

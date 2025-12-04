@@ -19,6 +19,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
@@ -50,5 +52,38 @@ class PaddingValuesTest {
             assertThat(width).isEqualTo(100)
             assertThat(height).isEqualTo(100)
         }
+    }
+
+    @Test
+    fun plusPaddingValues() {
+        val innerPadding = PaddingValues(24.dp)
+        val contentPadding = PaddingValues(8.dp)
+        val resultPadding = innerPadding + contentPadding
+        assertThat(resultPadding.calculateLeftPadding(LayoutDirection.Ltr)).isEqualTo(32.dp)
+        assertThat(resultPadding.calculateTopPadding()).isEqualTo(32.dp)
+        assertThat(resultPadding.calculateRightPadding(LayoutDirection.Ltr)).isEqualTo(32.dp)
+        assertThat(resultPadding.calculateBottomPadding()).isEqualTo(32.dp)
+    }
+
+    @Test
+    fun minusPaddingValues() {
+        val innerPadding = PaddingValues(24.dp)
+        val contentPadding = PaddingValues(8.dp)
+        val resultPadding = innerPadding - contentPadding
+        assertThat(resultPadding.calculateLeftPadding(LayoutDirection.Ltr)).isEqualTo(16.dp)
+        assertThat(resultPadding.calculateTopPadding()).isEqualTo(16.dp)
+        assertThat(resultPadding.calculateRightPadding(LayoutDirection.Ltr)).isEqualTo(16.dp)
+        assertThat(resultPadding.calculateBottomPadding()).isEqualTo(16.dp)
+    }
+
+    @Test
+    fun minusPaddingValues_mustBeNonNegative() {
+        val innerPadding = PaddingValues(24.dp)
+        val contentPadding = PaddingValues(8.dp)
+        val resultPadding = contentPadding - innerPadding
+        assertThat(resultPadding.calculateLeftPadding(LayoutDirection.Ltr)).isEqualTo(0.dp)
+        assertThat(resultPadding.calculateTopPadding()).isEqualTo(0.dp)
+        assertThat(resultPadding.calculateRightPadding(LayoutDirection.Ltr)).isEqualTo(0.dp)
+        assertThat(resultPadding.calculateBottomPadding()).isEqualTo(0.dp)
     }
 }

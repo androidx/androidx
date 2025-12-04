@@ -29,20 +29,20 @@ public class RcPlatformProfiles {
     // Platform profile
     public static final @NonNull Profile WIDGETS_V6 =
             new Profile(6, 0, new AndroidxRcPlatformServices(),
-                    WidgetsProfileWriterV6::new);
+                    (creationDisplayInfo, profile, callback) ->
+                            new WidgetsProfileWriterV6(creationDisplayInfo, null, profile));
 
     // Default AndroidX profile
-    public static final @NonNull Profile ANDROIDX =
-            new Profile(
-                    CoreDocument.DOCUMENT_API_LEVEL,
-                    RcProfiles.PROFILE_ANDROIDX,
-                    new AndroidxRcPlatformServices(),
-                    (width, height, contentDescription, profile) ->
-                            new RemoteComposeWriterAndroid(
-                                    width,
-                                    height,
-                                    contentDescription,
-                                    CoreDocument.DOCUMENT_API_LEVEL,
-                                    RcProfiles.PROFILE_ANDROIDX,
-                                    profile.getPlatform()));
+    public static final @NonNull Profile ANDROIDX = new Profile(CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_ANDROIDX, new AndroidxRcPlatformServices(),
+            (creationDisplayInfo, profile, callback) ->
+                    new RemoteComposeWriterAndroid(
+                            creationDisplayInfo, null, profile, callback));
+
+
+    public static final @NonNull Profile WEAR_WIDGETS = new Profile(CoreDocument.DOCUMENT_API_LEVEL,
+            RcProfiles.PROFILE_WEAR_WIDGETS, new AndroidxRcPlatformServices(),
+            (creationDisplayInfo, profile, callback) ->
+                    new RemoteComposeWriterAndroid(
+                            creationDisplayInfo, null, profile, callback));
 }

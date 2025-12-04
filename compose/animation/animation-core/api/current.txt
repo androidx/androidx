@@ -194,7 +194,7 @@ package androidx.compose.animation.core {
     property public static boolean androidx.compose.animation.core.AnimationState<? extends java.lang.Object?,? extends java.lang.Object?>.isFinished;
   }
 
-  public abstract sealed class AnimationVector {
+  public abstract sealed exhaustive class AnimationVector {
   }
 
   public final class AnimationVector1D extends androidx.compose.animation.core.AnimationVector {
@@ -531,7 +531,7 @@ package androidx.compose.animation.core {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is internal to library.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER}) public @interface InternalAnimationApi {
   }
 
-  public abstract sealed class KeyframeBaseEntity<T> {
+  public abstract sealed exhaustive class KeyframeBaseEntity<T> {
   }
 
   @androidx.compose.runtime.Immutable public final class KeyframesSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
@@ -554,7 +554,7 @@ package androidx.compose.animation.core {
     method @Deprecated public infix void with(androidx.compose.animation.core.KeyframesSpec.KeyframeEntity<T>, androidx.compose.animation.core.Easing easing);
   }
 
-  public abstract sealed class KeyframesSpecBaseConfig<T, E extends androidx.compose.animation.core.KeyframeBaseEntity<T>> {
+  public abstract sealed exhaustive class KeyframesSpecBaseConfig<T, E extends androidx.compose.animation.core.KeyframeBaseEntity<T>> {
     method public infix E at(T, @IntRange(from=0L) int timeStamp);
     method public infix E atFraction(T, @FloatRange(from=0.0, to=1.0) float fraction);
     method @InaccessibleFromKotlin @IntRange(from=0L) public final int getDelayMillis();
@@ -802,7 +802,7 @@ package androidx.compose.animation.core {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.animation.core.Transition<T!> updateTransition(T!, String?, androidx.compose.runtime.Composer?, int, int);
   }
 
-  public abstract sealed class TransitionState<S> {
+  public abstract sealed nonexhaustive class TransitionState<S> {
     method @InaccessibleFromKotlin public abstract S getCurrentState();
     method @InaccessibleFromKotlin public abstract S getTargetState();
     property public abstract S currentState;

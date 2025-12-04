@@ -51,7 +51,8 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
     float[] mFloatPath;
     float[] mOutputPath;
 
-    PathAppend(int instanceId, float[] floatPath) {
+    @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
+    public PathAppend(int instanceId, float[] floatPath) {
         mInstanceId = instanceId;
         mFloatPath = floatPath;
         mOutputPath = Arrays.copyOf(mFloatPath, mFloatPath.length);

@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ComposeUiFlags.isTraversableDelegatesFixEnabled
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
@@ -34,6 +36,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -49,6 +52,8 @@ class TraversableModifierNodeTest {
     private lateinit var childA: ClassOneWithSharedKeyTraversalNode
     private lateinit var childB: ClassTwoWithSharedKeyTraversalNode
     private lateinit var childC: ClassThreeWithOtherKeyTraversalNode
+    private lateinit var childE: DelegatingNode
+    private lateinit var childF: DelegatingNode
 
     private lateinit var grandChildNodeA: ClassOneWithSharedKeyTraversalNode
     private lateinit var grandChildNodeB: ClassTwoWithSharedKeyTraversalNode
@@ -58,6 +63,12 @@ class TraversableModifierNodeTest {
     private lateinit var grandChildNodeF: ClassThreeWithOtherKeyTraversalNode
 
     private lateinit var grandChildNodeG: ClassOneWithSharedKeyTraversalNode
+
+    private lateinit var grandChildNodeH: Modifier.Node
+    private lateinit var grandChildNodeI: Modifier.Node
+
+    private val delegatableA = ClassOneDelegatableNode("delegatable_A")
+    private val delegatableB = ClassTwoDelegatableNode("delegatable_B")
 
     /**
      * The UI hierarchy for this test is setup as:
@@ -77,6 +88,10 @@ class TraversableModifierNodeTest {
      *
      * ⤷ ChildD Row (ClassTwoWithSharedKeyTraversalNode) ⤷ GrandchildJ Box
      * (ClassOneWithSharedKeyTraversalNode)
+     *
+     * ⤷ ChildE Row (DelegateRoot) ⤷ GrandchildH Box (ClassOneDelegatableNode) ⤷ ⤷ ⤷ Delegates to
+     * Delegatable B (ClassTwoDelegatableNode) ⤷ ChildF Row (DelegateRoot) ⤷ GrandchildI Box
+     * (ClassTwoDelegatableNode) ⤷ ⤷ Delegates to Delegatable A (ClassOneDelegatableNode)
      */
     @Composable
     private fun createUi() {
@@ -193,6 +208,60 @@ class TraversableModifierNodeTest {
                             .testTraversalNodeClassOneWithSharedKey("Grandchild_J")
                 ) {}
             }
+
+            // Child E - In this case, the traversable root has a different key as its delegate. But
+            // it's the same as its child.
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .background(Color.Green)
+                        .elementOf(
+                            DelegateRoot(
+                                    "Child_E",
+                                    delegatableA.traverseKey as String,
+                                    delegatableB,
+                                )
+                                .also { childE = it }
+                        )
+            ) {
+                Box(
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Black)
+                            .elementOf(
+                                ClassOneDelegatableNode("Grandchild_H").also {
+                                    grandChildNodeH = it
+                                }
+                            )
+                ) {}
+            }
+
+            // Child F - In this case, the traversable root has the same key as its delegate. But
+            // the same has a different key.
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .background(Color.Green)
+                        .elementOf(
+                            DelegateRoot(
+                                    "Child_F",
+                                    delegatableA.traverseKey as String,
+                                    delegatableA,
+                                )
+                                .also { childF = it }
+                        )
+            ) {
+                Box(
+                    modifier =
+                        Modifier.size(30.dp)
+                            .background(Color.Black)
+                            .elementOf(
+                                ClassTwoDelegatableNode("Grandchild_I").also {
+                                    grandChildNodeI = it
+                                }
+                            )
+                ) {}
+            }
         }
     }
 
@@ -226,6 +295,73 @@ class TraversableModifierNodeTest {
         rule.runOnIdle { nearestAncestorNode = grandChildNodeG.findNearestAncestor() }
 
         rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(parentNode) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun findNearestAncestor_delegateWithDifferentKeyAsRootNode_useDelegateKey() {
+        Assume.assumeTrue(isTraversableDelegatesFixEnabled)
+        var nearestAncestorNode: TraversableNode? = null
+
+        // Child E (key=delegatableA) has a delegate to delegatableB. grandChildNodeH has the same
+        // key as the root, but since we're searching using delegatableB's key we will find it.
+        rule.runOnIdle {
+            nearestAncestorNode = grandChildNodeH.findNearestAncestor(delegatableB.traverseKey)
+        }
+
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(delegatableB) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun findNearestAncestor_delegateWithDifferentKeyAsRootNode_useGrandChildDelegateKey() {
+        Assume.assumeTrue(isTraversableDelegatesFixEnabled)
+        var nearestAncestorNode: TraversableNode? = null
+
+        // Child E (key=delegatableA) has a delegate to delegatableB. grandChildNodeH has the same
+        // key as the root, since we're searching using the key from grandChildNodeH we will find
+        // the root.
+        rule.runOnIdle {
+            nearestAncestorNode =
+                grandChildNodeH.findNearestAncestor(
+                    (grandChildNodeH as TraversableNode).traverseKey
+                )
+        }
+
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(childE) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun findNearestAncestor_delegateWithSameKeyAsRootNode_useDelegateKey() {
+        Assume.assumeTrue(isTraversableDelegatesFixEnabled)
+        var nearestAncestorNode: TraversableNode? = null
+
+        // Child F (key=delegatableA) has a delegate to delegatableA. grandChildNodeI has a
+        // different key (delegatableB's key). But since we're searching using delegatableA's key
+        // we will find the root, child F and return it first.
+        rule.runOnIdle {
+            nearestAncestorNode = grandChildNodeI.findNearestAncestor(delegatableA.traverseKey)
+        }
+
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(childF) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun findNearestAncestor_delegateWithSameKeyAsRootNode_useGrandChildDelegateKey() {
+        Assume.assumeTrue(isTraversableDelegatesFixEnabled)
+        var nearestAncestorNode: TraversableNode? = null
+
+        // Starts at grandchild I
+        rule.runOnIdle {
+            nearestAncestorNode =
+                grandChildNodeI.findNearestAncestor(
+                    (grandChildNodeI as TraversableNode).traverseKey
+                )
+        }
+
+        rule.runOnIdle { Truth.assertThat(nearestAncestorNode).isEqualTo(null) }
     }
 
     @Test
@@ -1307,6 +1443,8 @@ class TraversableModifierNodeTest {
 // Keys used across all test classes for testing [TraversalNode].
 private const val SHARED_TRAVERSAL_NODE_KEY = "SHARED_TRAVERSAL_NODE_KEY"
 private const val OTHER_TRAVERSAL_NODE_KEY = "OTHER_TRAVERSAL_NODE_KEY"
+private const val DELEGATABLE_TRAVERSAL_NODE_ONE_KEY = "DELEGATABLE_TRAVERSAL_NODE_ONE_KEY"
+private const val DELEGATABLE_TRAVERSAL_NODE_TWO_KEY = "DELEGATABLE_TRAVERSAL_NODE_TWO_KEY"
 
 // *********** Class One code (uses shared key in tests and contains funs for testing). ***********
 private fun Modifier.testTraversalNodeClassOneWithSharedKey(
@@ -1431,4 +1569,38 @@ private class ClassThreeWithOtherKeyTraversalNode(
 
     override fun toString() =
         "ClassThreeWithOtherKeyTraversalNode($label) of $OTHER_TRAVERSAL_NODE_KEY"
+}
+
+private class DelegateRoot(var label: String, val key: String, delegatableNode: DelegatableNode) :
+    DelegatingNode(), TraversableNode {
+    override val traverseKey: Any
+        get() = key
+
+    init {
+        delegate(delegatableNode)
+    }
+
+    override fun toString(): String {
+        return "DelegateRoot(label=$label key$key)"
+    }
+}
+
+private class ClassOneDelegatableNode(val label: String) :
+    DelegatableNode, TraversableNode, Modifier.Node() {
+    override val traverseKey: Any
+        get() = DELEGATABLE_TRAVERSAL_NODE_ONE_KEY
+
+    override fun toString(): String {
+        return "ClassOneDelegatableNode(label=$label)"
+    }
+}
+
+private class ClassTwoDelegatableNode(val label: String) :
+    DelegatableNode, TraversableNode, Modifier.Node() {
+    override val traverseKey: Any
+        get() = DELEGATABLE_TRAVERSAL_NODE_TWO_KEY
+
+    override fun toString(): String {
+        return "ClassTwoDelegatableNode(label=$label)"
+    }
 }

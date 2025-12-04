@@ -29,7 +29,7 @@ import kotlinx.coroutines.CompletableDeferred
 // Copied the necessary parts from ui-text package to test Async font loading.
 @Suppress("MemberVisibilityCanBePrivate") // visible for testing
 class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
-    private val callbackLock = Object()
+    private val callbackLock = Any()
     @Volatile private var asyncLoadCallback: ((AndroidFont) -> Unit)? = null
     private val requests =
         mutableMapOf<AsyncFauxFont, MutableList<CompletableDeferred<Typeface?>>>()

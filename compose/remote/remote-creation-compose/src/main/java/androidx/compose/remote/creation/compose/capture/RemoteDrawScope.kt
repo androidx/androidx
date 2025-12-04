@@ -20,8 +20,13 @@ package androidx.compose.remote.creation.compose.capture
 import android.graphics.Typeface
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.layout.RemoteCanvasDrawScope.RemoteAccess
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.getFloatIdForCreationState
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -124,9 +129,9 @@ public inline fun RemoteDrawScope.translate(
  */
 public inline fun RemoteDrawScope.rotate(
     degrees: Float,
-    pivot: Offset = center,
+    pivot: RemoteOffset = remoteCenter,
     block: RemoteDrawScope.() -> Unit,
-): Unit = withTransform({ rotate(degrees, pivot) }, block)
+): Unit = withTransform({ rotate(degrees, pivot.asOffset()) }, block)
 
 /**
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point. The
@@ -138,7 +143,7 @@ public inline fun RemoteDrawScope.rotate(
  */
 public inline fun RemoteDrawScope.rotateRad(
     radians: Float,
-    pivot: Offset = center,
+    pivot: RemoteOffset = remoteCenter,
     block: RemoteDrawScope.() -> Unit,
 ) {
     //    withTransform({ rotate(degrees(radians), pivot) }, block)
@@ -158,9 +163,9 @@ public inline fun RemoteDrawScope.rotateRad(
 public inline fun RemoteDrawScope.scale(
     scaleX: Float,
     scaleY: Float,
-    pivot: Offset = center,
+    pivot: RemoteOffset = remoteCenter,
     block: RemoteDrawScope.() -> Unit,
-): Unit = withTransform({ scale(scaleX, scaleY, pivot) }, block)
+): Unit = withTransform({ scale(scaleX, scaleY, pivot.asOffset()) }, block)
 
 /**
  * Add an axis-aligned scale to the current transform, scaling both the horizontal direction and the
@@ -174,9 +179,9 @@ public inline fun RemoteDrawScope.scale(
  */
 public inline fun RemoteDrawScope.scale(
     scale: Float,
-    pivot: Offset = center,
+    pivot: RemoteOffset = remoteCenter,
     block: RemoteDrawScope.() -> Unit,
-): Unit = withTransform({ scale(scale, scale, pivot) }, block)
+): Unit = withTransform({ scale(scale, scale, pivot.asOffset()) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the given rectangle indicated
@@ -193,14 +198,26 @@ public inline fun RemoteDrawScope.scale(
  * @param block Lambda callback with this CanvasScope as a receiver scope to issue drawing commands
  *   within the provided clip
  */
-public inline fun RemoteDrawScope.clipRect(
-    left: Float = 0.0f,
-    top: Float = 0.0f,
-    right: Float = size.width,
-    bottom: Float = size.height,
+public fun RemoteDrawScope.clipRect(
+    left: RemoteFloat = 0.0f.rf,
+    top: RemoteFloat = 0.0f.rf,
+    right: RemoteFloat = remote.component.width,
+    bottom: RemoteFloat = remote.component.height,
     clipOp: ClipOp = ClipOp.Intersect,
     block: RemoteDrawScope.() -> Unit,
-): Unit = withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
+): Unit =
+    withTransform(
+        {
+            clipRect(
+                left.getFloatIdForCreationState(this@clipRect.remote.remoteComposeCreationState),
+                top.getFloatIdForCreationState(this@clipRect.remote.remoteComposeCreationState),
+                right.getFloatIdForCreationState(this@clipRect.remote.remoteComposeCreationState),
+                bottom.getFloatIdForCreationState(this@clipRect.remote.remoteComposeCreationState),
+                clipOp,
+            )
+        },
+        block,
+    )
 
 /**
  * Reduces the clip region to the intersection of the current clip and the given path. This method
@@ -235,7 +252,6 @@ public inline fun RemoteDrawScope.drawIntoCanvas(block: (Canvas) -> Unit): Unit 
  *   operations are issued
  * @param drawBlock Callback invoked to issue drawing operations after the transformations are
  *   applied
- * @sample androidx.compose.ui.graphics.samples.MyDrawScopeBatchedTransformSample
  */
 public inline fun RemoteDrawScope.withTransform(
     transformBlock: DrawTransform.() -> Unit,
@@ -261,13 +277,13 @@ public inline fun RemoteDrawScope.withTransform(
  * coordinates are always the origin and the right and bottom coordinates are always the specified
  * width and height respectively. Drawing content is not clipped, so it is possible to draw outside
  * of the specified bounds.
- *
- * @sample androidx.compose.ui.graphics.samples.DrawScopeSample
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @DrawScopeMarker
 public // @JvmDefaultWithCompatibility
 interface RemoteDrawScope : Density {
+    public val canvas: RecordingCanvas
+        get() = drawContext.canvas.nativeCanvas as RecordingCanvas
 
     /**
      * The current [DrawContext] that contains the dependencies needed to create the drawing
@@ -276,15 +292,25 @@ interface RemoteDrawScope : Density {
     public val drawContext: DrawContext
 
     /** Center of the current bounds of the drawing environment */
+    @Deprecated("use remoteCenter", replaceWith = ReplaceWith("remoteSize"))
     public val center: Offset
         get() = drawContext.size.center
 
     /** Provides the dimensions of the current drawing environment */
+    @Deprecated("use remoteSize", replaceWith = ReplaceWith("remoteSize"))
     public val size: Size
         get() = drawContext.size
 
+    public val remoteCenter: RemoteOffset
+        get() = RemoteOffset(remote.component.width / 2f, remote.component.height / 2f)
+
+    public val remoteSize: RemoteSize
+        get() = RemoteSize(remote.component.width, remote.component.height)
+
     /** The layout direction of the layout being drawn in. */
     public val layoutDirection: LayoutDirection
+
+    public val remote: RemoteAccess
 
     /**
      * Draws a line between the given points using the given paint. The line is stroked.
@@ -302,8 +328,8 @@ interface RemoteDrawScope : Density {
      */
     public fun drawLine(
         brush: Brush,
-        start: Offset,
-        end: Offset,
+        start: RemoteOffset,
+        end: RemoteOffset,
         strokeWidth: Float = Stroke.HairlineWidth,
         cap: StrokeCap = Stroke.DefaultCap,
         pathEffect: PathEffect? = null,
@@ -329,8 +355,8 @@ interface RemoteDrawScope : Density {
      */
     public fun drawLine(
         color: Color,
-        start: Offset,
-        end: Offset,
+        start: RemoteOffset,
+        end: RemoteOffset,
         strokeWidth: Float = Stroke.HairlineWidth,
         cap: StrokeCap = Stroke.DefaultCap,
         pathEffect: PathEffect? = null,
@@ -356,10 +382,35 @@ interface RemoteDrawScope : Density {
      */
     public fun drawRect(
         brush: Brush,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         /*FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
+        style: DrawStyle = Fill,
+        colorFilter: ColorFilter? = null,
+        blendMode: BlendMode = DefaultBlendMode,
+    )
+
+    /**
+     * Draws a rectangle with the given offset and size. If no offset from the top left is provided,
+     * it is drawn starting from the origin of the current translation. If no size is provided, the
+     * size of the current environment is used.
+     *
+     * @param brush The color or fill to be applied to the rectangle
+     * @param topLeft Offset from the local origin of 0, 0 relative to the current translation
+     * @param size Dimensions of the rectangle to draw
+     * @param alpha Opacity to be applied to the [brush] from 0.0f to 1.0f representing fully
+     *   transparent to fully opaque respectively
+     * @param style Whether or not the rectangle is stroked or filled in
+     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
+     * @param blendMode Blending algorithm to apply to destination
+     */
+    public fun drawRect(
+        brush: RemoteBrush,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
+        /*FloatRange(from = 0.0, to = 1.0)*/
+        alpha: RemoteFloat = 1.0f.rf,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode,
@@ -381,8 +432,8 @@ interface RemoteDrawScope : Density {
      */
     public fun drawRect(
         color: Color,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -404,7 +455,7 @@ interface RemoteDrawScope : Density {
      */
     public fun drawImage(
         image: ImageBitmap,
-        topLeft: Offset = Offset.Zero,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -531,8 +582,8 @@ interface RemoteDrawScope : Density {
      */
     public fun drawRoundRect(
         brush: Brush,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         cornerRadius: CornerRadius = CornerRadius.Zero,
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
@@ -558,8 +609,8 @@ interface RemoteDrawScope : Density {
      */
     public fun drawRoundRect(
         color: Color,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         cornerRadius: CornerRadius = CornerRadius.Zero,
         style: DrawStyle = Fill,
         /*@FloatRange(from = 0.0, to = 1.0)*/
@@ -572,30 +623,6 @@ interface RemoteDrawScope : Density {
      * Draws a circle at the provided center coordinate and radius. If no center point is provided
      * the center of the bounds is used.
      *
-     * @param brush The color or fill to be applied to the circle
-     * @param radius The radius of the circle
-     * @param center The center coordinate where the circle is to be drawn
-     * @param alpha Opacity to be applied to the circle from 0.0f to 1.0f representing fully
-     *   transparent to fully opaque respectively
-     * @param style Whether or not the circle is stroked or filled in
-     * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
-     * @param blendMode Blending algorithm to be applied to the brush
-     */
-    public fun drawCircle(
-        brush: Brush,
-        radius: Float = size.minDimension / 2.0f,
-        center: Offset = this.center,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
-        style: DrawStyle = Fill,
-        colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode,
-    )
-
-    /**
-     * Draws a circle at the provided center coordinate and radius. If no center point is provided
-     * the center of the bounds is used.
-     *
      * @param color The color or fill to be applied to the circle
      * @param radius The radius of the circle
      * @param center The center coordinate where the circle is to be drawn
@@ -607,51 +634,14 @@ interface RemoteDrawScope : Density {
      */
     public fun drawCircle(
         color: Color,
-        radius: Float = size.minDimension / 2.0f,
-        center: Offset = this.center,
+        radius: RemoteFloat = remoteSize.minDimension / 2.0f,
+        center: RemoteOffset = remoteCenter,
         /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Float = 1.0f,
+        alpha: RemoteFloat = 1.0f.rf,
         style: DrawStyle = Fill,
         colorFilter: ColorFilter? = null,
         blendMode: BlendMode = DefaultBlendMode,
     )
-
-    /**
-     * Draws a circle at the provided center coordinate and radius. If no center point is provided
-     * the center of the bounds is used.
-     *
-     * @param color The color or fill to be applied to the circle
-     * @param radius The radius of the circle
-     * @param center The center coordinate where the circle is to be drawn
-     * @param alpha Opacity to be applied to the circle from 0.0f to 1.0f representing fully
-     *   transparent to fully opaque respectively
-     * @param style Whether or not the circle is stroked or filled in
-     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode Blending algorithm to be applied to the brush
-     */
-    public fun drawCircle(
-        color: Color,
-        radius: Number = size.minDimension / 2.0f,
-        center: Offset = this.center,
-        /*@FloatRange(from = 0.0, to = 1.0)*/
-        alpha: Number = 1.0f,
-        style: DrawStyle = Fill,
-        colorFilter: ColorFilter? = null,
-        blendMode: BlendMode = DefaultBlendMode,
-    ) {
-        val iRadius: Float =
-            if (radius is RemoteFloat) radius.internalAsFloat() else radius.toFloat()
-        val iAlpha: Float = if (alpha is RemoteFloat) alpha.internalAsFloat() else alpha.toFloat()
-        drawCircle(
-            color = color,
-            radius = iRadius,
-            center = center,
-            alpha = iAlpha,
-            style = style,
-            colorFilter = colorFilter,
-            blendMode = blendMode,
-        )
-    }
 
     /**
      * Draws an oval with the given offset and size. If no offset from the top left is provided, it
@@ -666,12 +656,11 @@ interface RemoteDrawScope : Density {
      * @param style Whether or not the oval is stroked or filled in
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
-     * @sample androidx.compose.ui.graphics.samples.MyDrawScopeOvalBrushSample
      */
     public fun drawOval(
         brush: Brush,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -692,12 +681,11 @@ interface RemoteDrawScope : Density {
      * @param style Whether or not the oval is stroked or filled in
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the brush
-     * @sample androidx.compose.ui.graphics.samples.MyDrawScopeOvalColorSample
      */
     public fun drawOval(
         color: Color,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -730,8 +718,8 @@ interface RemoteDrawScope : Density {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -764,8 +752,8 @@ interface RemoteDrawScope : Density {
         startAngle: Float,
         sweepAngle: Float,
         useCenter: Boolean,
-        topLeft: Offset = Offset.Zero,
-        size: Size = this.size.offsetSize(topLeft),
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize.offsetSize(topLeft),
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -817,10 +805,10 @@ interface RemoteDrawScope : Density {
     public fun drawTweenPath(
         path1: Path,
         path2: Path,
-        tween: Number,
+        tween: RemoteFloat,
         color: Color,
-        start: Number = 0f,
-        stop: Number = 1f,
+        start: RemoteFloat = 0f.rf,
+        stop: RemoteFloat = 1f.rf,
         /*@FloatRange(from = 0.0, to = 1.0)*/
         alpha: Float = 1.0f,
         style: DrawStyle = Fill,
@@ -833,32 +821,20 @@ interface RemoteDrawScope : Density {
      * Whether this shape is filled or stroked (or both) is controlled by [DrawStyle]. If the path
      * is filled, then subpaths within it are implicitly closed (see [Path.close]). path must
      * contain the same pattern and order of path commands (path.xxTo())
-     *
-     * @param path1 Path to draw
-     * @param path2 Path to draw
-     * @param tween defines interpolation (path2-path1) * tween + path1
-     * @param start defines fraction to start def = 0f at Nan means start at beginning
-     * @param stop defines fraction to stop default = 1f, Nan means start at ending
-     * @param color Color to be applied to the path
-     * @param alpha Opacity to be applied to the path from 0.0f to 1.0f representing fully
-     *   transparent to fully opaque respectively
-     * @param style Whether or not the path is stroked or filled in
-     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
     public fun drawAnchoredText(
         text: CharSequence,
         brush: RemoteBrush,
-        anchor: Offset = Offset.Zero,
+        anchor: RemoteOffset = RemoteOffset.Zero,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        panx: Number = 0f,
+        panx: RemoteFloat = 0f.rf,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        pany: Number = 0f,
-        alpha: Number = 1f,
+        pany: RemoteFloat = 0f.rf,
+        alpha: RemoteFloat = 1f.rf,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
         typeface: Typeface? = null,
-        textSize: Number = 32f,
+        textSize: RemoteFloat = 32f.rf,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
 
@@ -867,32 +843,20 @@ interface RemoteDrawScope : Density {
      * Whether this shape is filled or stroked (or both) is controlled by [DrawStyle]. If the path
      * is filled, then subpaths within it are implicitly closed (see [Path.close]). path must
      * contain the same pattern and order of path commands (path.xxTo())
-     *
-     * @param path1 Path to draw
-     * @param path2 Path to draw
-     * @param tween defines interpolation (path2-path1) * tween + path1
-     * @param start defines fraction to start def = 0f at Nan means start at beginning
-     * @param stop defines fraction to stop default = 1f, Nan means start at ending
-     * @param color Color to be applied to the path
-     * @param alpha Opacity to be applied to the path from 0.0f to 1.0f representing fully
-     *   transparent to fully opaque respectively
-     * @param style Whether or not the path is stroked or filled in
-     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
     public fun drawAnchoredText(
         text: RemoteString,
         brush: RemoteBrush,
-        anchor: Offset = Offset.Zero,
+        anchor: RemoteOffset = RemoteOffset.Zero,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        panx: Number = 0f,
+        panx: RemoteFloat = 0f.rf,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        pany: Number = 0f,
-        alpha: Number = 1f,
+        pany: RemoteFloat = 0f.rf,
+        alpha: RemoteFloat = 1f.rf,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
         typeface: Typeface? = null,
-        textSize: Number = 32f,
+        textSize: RemoteFloat = 32f.rf,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
 
@@ -901,48 +865,36 @@ interface RemoteDrawScope : Density {
      * Whether this shape is filled or stroked (or both) is controlled by [DrawStyle]. If the path
      * is filled, then subpaths within it are implicitly closed (see [Path.close]). path must
      * contain the same pattern and order of path commands (path.xxTo())
-     *
-     * @param path1 Path to draw
-     * @param path2 Path to draw
-     * @param tween defines interpolation (path2-path1) * tween + path1
-     * @param start defines fraction to start def = 0f at Nan means start at beginning
-     * @param stop defines fraction to stop default = 1f, Nan means start at ending
-     * @param color Color to be applied to the path
-     * @param alpha Opacity to be applied to the path from 0.0f to 1.0f representing fully
-     *   transparent to fully opaque respectively
-     * @param style Whether or not the path is stroked or filled in
-     * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
-     * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
     public fun drawAnchoredText(
         text: CharSequence,
         color: Color = Color.Unspecified,
-        anchor: Offset = Offset.Zero,
+        anchor: RemoteOffset = RemoteOffset.Zero,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        panx: Number = 0f,
+        panx: RemoteFloat = 0f.rf,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        pany: Number = 0f,
-        alpha: Number = 1f,
+        pany: RemoteFloat = 0f.rf,
+        alpha: RemoteFloat = 1f.rf,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
         typeface: Typeface? = null,
-        textSize: Number = 32f,
+        textSize: RemoteFloat = 32f.rf,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
 
     public fun drawAnchoredText(
         text: RemoteString,
         color: Color = Color.Unspecified,
-        anchor: Offset = Offset.Zero,
+        anchor: RemoteOffset = RemoteOffset.Zero,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        panx: Number = 0f,
+        panx: RemoteFloat = 0f.rf,
         /*@FloatRange(from = -1.0, to = 1.0)*/
-        pany: Number = 0f,
-        alpha: Number = 1f,
+        pany: RemoteFloat = 0f.rf,
+        alpha: RemoteFloat = 1f.rf,
         //    textDecoration: TextDecoration? = null,
         drawStyle: DrawStyle = Fill,
         typeface: Typeface? = null,
-        textSize: Number = 32f,
+        textSize: RemoteFloat = 32f.rf,
         //    blendMode: BlendMode = DrawScope.DefaultBlendMode
     )
 
@@ -1042,13 +994,11 @@ interface RemoteDrawScope : Density {
      * @param textDecoration The decorations to paint on the text (e.g., an underline).
      * @param drawStyle Whether or not the text is stroked or filled in.
      * @param blendMode Blending algorithm to be applied to the text
-     * @sample androidx.compose.ui.text.samples.DrawTextMeasureInLayoutSample
-     * @sample androidx.compose.ui.text.samples.DrawTextDrawWithCacheSample
      */
     public fun drawText(
         textLayoutResult: TextLayoutResult,
         color: Color = Color.Unspecified,
-        topLeft: Offset = Offset.Zero,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
         alpha: Float = Float.NaN,
         shadow: Shadow? = null,
         textDecoration: TextDecoration? = null,
@@ -1075,7 +1025,7 @@ interface RemoteDrawScope : Density {
     public fun drawText(
         textLayoutResult: TextLayoutResult,
         brush: Brush,
-        topLeft: Offset = Offset.Zero,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
         alpha: Float = Float.NaN,
         shadow: Shadow? = null,
         textDecoration: TextDecoration? = null,
@@ -1113,13 +1063,11 @@ interface RemoteDrawScope : Density {
      *   [TextOverflow.Ellipsis]. Otherwise, [Size.height] either defines where the text is clipped
      *   ([TextOverflow.Clip]) or becomes no-op.
      * @param blendMode Blending algorithm to be applied to the text
-     * @sample androidx.compose.ui.text.samples.DrawTextSample
-     * @sample androidx.compose.ui.text.samples.DrawTextStyledSample
      */
     public fun drawText(
         textMeasurer: TextMeasurer,
         text: String,
-        topLeft: Offset = Offset.Zero,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
         style: TextStyle = TextStyle.Default,
         overflow: TextOverflow = TextOverflow.Clip,
         softWrap: Boolean = true,
@@ -1162,12 +1110,11 @@ interface RemoteDrawScope : Density {
      *   [TextOverflow.Ellipsis]. Otherwise, [Size.height] either defines where the text is clipped
      *   ([TextOverflow.Clip]) or becomes no-op.
      * @param blendMode Blending algorithm to be applied to the text
-     * @sample androidx.compose.ui.text.samples.DrawTextAnnotatedStringSample
      */
     public fun drawText(
         textMeasurer: TextMeasurer,
         text: AnnotatedString,
-        topLeft: Offset = Offset.Zero,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
         style: TextStyle = TextStyle.Default,
         overflow: TextOverflow = TextOverflow.Clip,
         softWrap: Boolean = true,
@@ -1176,10 +1123,6 @@ interface RemoteDrawScope : Density {
         size: Size = Size.Unspecified,
         blendMode: BlendMode = DrawScope.DefaultBlendMode,
     )
-
-    /** Helper method to offset the provided size with the offset in box width and height */
-    private fun Size.offsetSize(offset: Offset): Size =
-        Size(this.width - offset.x, this.height - offset.y)
 
     public companion object {
 

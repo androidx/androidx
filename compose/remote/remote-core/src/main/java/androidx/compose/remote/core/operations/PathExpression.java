@@ -67,7 +67,8 @@ public class PathExpression extends Operation implements VariableSupport, Serial
     public static final int POLAR = 8;
     public static final int WINDING_MASK =  0x3000000;
 
-    PathExpression(
+    @SuppressWarnings("UnknownNullness") // Annotations on a primitive array are compile error.
+    public PathExpression(
             int instanceId,
             float[] expressionX,
             float[] expressionY,

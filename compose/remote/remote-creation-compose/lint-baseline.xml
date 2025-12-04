@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha05)" variant="all" version="9.0.0-alpha05">
+<issues format="6" by="lint 9.0.0-alpha13" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha13)" variant="all" version="9.0.0-alpha13">
 
     <issue
         id="NewApi"
@@ -66,15 +66,6 @@
 
     <issue
         id="NewApi"
-        message="Implicit cast from `BlendModeColorFilter` to `ColorFilter` requires API level 29 (current min is 26)"
-        errorLine1="                lastColorFilter = tmpLastColorFilter"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 29 (current min is 26): `android.graphics.BlendModeColorFilter#getColor`"
         errorLine1="                    tmpLastColorFilter.color,"
         errorLine2="                                       ~~~~~">
@@ -98,24 +89,6 @@
         errorLine2="                                   ~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/RecordingCanvas.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 26): `android.graphics.Paint#getTextBounds`"
-        errorLine1="        ap.getTextBounds(text, 0, text.length, rec)"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/layout/RemoteCanvas.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 26): `android.graphics.Paint#getTextBounds`"
-        errorLine1="        ap.getTextBounds(text, 0, text.length, rec)"
-        errorLine2="           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/layout/RemoteCanvas.kt"/>
     </issue>
 
     <issue
@@ -391,15 +364,6 @@
     <issue
         id="ObsoleteSdkInt"
         message="Unnecessary; `SDK_INT` is always >= 26"
-        errorLine1="        @RequiresApi(26)"
-        errorLine2="        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteColor.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 26"
         errorLine1="@RequiresApi(26)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -436,24 +400,6 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
-        errorLine2="                                     ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/ClickActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
-        errorLine2="                                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/ClickActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="        for (op in conditionalOperations.mList) {"
         errorLine2="                ~~">
         <location
@@ -472,15 +418,6 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                colorStops = stops.zip&lt;Float, Color>(colors).toTypedArray&lt;Pair&lt;Float, Color>>(),"
-        errorLine2="                                   ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteLinearGradient.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="    colors.forEachIndexed { index, color ->"
         errorLine2="           ~~~~~~~~~~~~~~">
         <location
@@ -490,44 +427,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                colorStops = stops.zip&lt;Float, Color>(colors).toTypedArray&lt;Pair&lt;Float, Color>>(),"
-        errorLine2="                                   ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteRadialGradient.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                *stops.zip&lt;Float, Color>(colors).toTypedArray&lt;Pair&lt;Float, Color>>(),"
-        errorLine2="                       ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/capture/shaders/RemoteSweepGradient.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="            actions.map { it.toRemoteAction() },"
         errorLine2="                    ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchCancelActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
-        errorLine2="                                     ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchCancelActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
-        errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchCancelActionModifier.kt"/>
     </issue>
@@ -544,44 +445,8 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
-        errorLine2="                                     ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchDownActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
-        errorLine2="                                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchDownActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="            actions.map { it.toRemoteAction() },"
         errorLine2="                    ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchUpActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        val previewActions = actions.map { it.toComposeUiAction() }"
-        errorLine2="                                     ~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchUpActionModifier.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="        return clickable { previewActions.forEach { action -> action.invoke() } }"
-        errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/modifier/TouchUpActionModifier.kt"/>
     </issue>
@@ -589,8 +454,8 @@
     <issue
         id="UnnecessaryLambdaCreation"
         message="Creating an unnecessary lambda to emit a captured lambda"
-        errorLine1="        @Composable { content() },"
-        errorLine2="                      ~~~~~~~">
+        errorLine1="        content = @Composable { content() },"
+        errorLine2="                                ~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/RemoteComposeCapture.kt"/>
     </issue>
@@ -605,18 +470,9 @@
     </issue>
 
     <issue
-        id="AutoboxingStateValueProperty"
-        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
-        errorLine1="    ) : this(content, { creationState -> id ?: content.value.toLong() })"
-        errorLine2="                                                       ~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/state/RemoteInt.kt"/>
-    </issue>
-
-    <issue
         id="PrimitiveInCollection"
         message="field animCache with type HashMap&lt;Integer, AnimatedRemoteFloat>: replace with IntObjectMap"
-        errorLine1="    public val animCache: HashMap&lt;Int, AnimatedRemoteFloat> = HashMap&lt;Int, AnimatedRemoteFloat>()"
+        errorLine1="    public val animCache: HashMap&lt;Int, AnimatedRemoteFloat> = HashMap()"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
@@ -625,7 +481,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type HashMap&lt;Integer, AnimatedRemoteFloat> of getAnimCache: replace with IntObjectMap"
-        errorLine1="    public val animCache: HashMap&lt;Int, AnimatedRemoteFloat> = HashMap&lt;Int, AnimatedRemoteFloat>()"
+        errorLine1="    public val animCache: HashMap&lt;Int, AnimatedRemoteFloat> = HashMap()"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
@@ -634,7 +490,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field expressionCache with type HashMap&lt;Integer, RemoteFloat>: replace with IntObjectMap"
-        errorLine1="    public val expressionCache: HashMap&lt;Int, RemoteFloat> = HashMap&lt;Int, RemoteFloat>()"
+        errorLine1="    public val expressionCache: HashMap&lt;Int, RemoteFloat> = HashMap()"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
@@ -643,7 +499,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type HashMap&lt;Integer, RemoteFloat> of getExpressionCache: replace with IntObjectMap"
-        errorLine1="    public val expressionCache: HashMap&lt;Int, RemoteFloat> = HashMap&lt;Int, RemoteFloat>()"
+        errorLine1="    public val expressionCache: HashMap&lt;Int, RemoteFloat> = HashMap()"
         errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
@@ -652,7 +508,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field intExpressionCache with type HashMap&lt;Integer, RemoteInt>: replace with IntObjectMap"
-        errorLine1="    public val intExpressionCache: HashMap&lt;Int, RemoteInt> = HashMap&lt;Int, RemoteInt>()"
+        errorLine1="    public val intExpressionCache: HashMap&lt;Int, RemoteInt> = HashMap()"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
@@ -661,7 +517,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type HashMap&lt;Integer, RemoteInt> of getIntExpressionCache: replace with IntObjectMap"
-        errorLine1="    public val intExpressionCache: HashMap&lt;Int, RemoteInt> = HashMap&lt;Int, RemoteInt>()"
+        errorLine1="    public val intExpressionCache: HashMap&lt;Int, RemoteInt> = HashMap()"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
@@ -669,18 +525,18 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field remoteVariableToId with type HashMap&lt;BaseRemoteState, Integer>: replace with ObjectIntMap"
-        errorLine1="    public val remoteVariableToId: HashMap&lt;BaseRemoteState, Int> = HashMap&lt;BaseRemoteState, Int>()"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="field remoteVariableToId with type HashMap&lt;RemoteState&lt;?>, Integer>: replace with ObjectIntMap"
+        errorLine1="    public val remoteVariableToId: HashMap&lt;RemoteState&lt;*>, Int> = HashMap()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
     </issue>
 
     <issue
         id="PrimitiveInCollection"
-        message="return type HashMap&lt;BaseRemoteState, Integer> of getRemoteVariableToId: replace with ObjectIntMap"
-        errorLine1="    public val remoteVariableToId: HashMap&lt;BaseRemoteState, Int> = HashMap&lt;BaseRemoteState, Int>()"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="return type HashMap&lt;RemoteState&lt;?>, Integer> of getRemoteVariableToId: replace with ObjectIntMap"
+        errorLine1="    public val remoteVariableToId: HashMap&lt;RemoteState&lt;*>, Int> = HashMap()"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/capture/Capture.kt"/>
     </issue>
@@ -1007,15 +863,6 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/remote/creation/compose/layout/StateLayout.kt"/>
-    </issue>
-
-    <issue
-        id="UseOfNonLambdaOffsetOverload"
-        message="State backed values should use the lambda overload of Modifier.offset"
-        errorLine1="        return with(LocalDensity.current) { offset(x.toFloat().toDp(), y.toFloat().toDp()) }"
-        errorLine2="                                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/remote/creation/compose/modifier/OffsetModifier.kt"/>
     </issue>
 
 </issues>

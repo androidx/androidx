@@ -15,16 +15,48 @@
  */
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Composition
-import androidx.compose.runtime.CompositionContext
-import androidx.compose.runtime.CompositionLocalContext
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ReusableComposition
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.RootNodeOwner
+
+
+// aosp/3732987 removed this from commonMain, so copy a previous version here for now
+// TODO: https://youtrack.jetbrains.com/issue/CMP-9304
+@Suppress("DEPRECATION")
+@Composable
+private fun ProvideCommonCompositionLocals(
+    owner: Owner,
+    uriHandler: UriHandler,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalAccessibilityManager provides owner.accessibilityManager,
+        LocalAutofill provides owner.autofill,
+        LocalAutofillManager provides owner.autofillManager,
+        LocalAutofillTree provides owner.autofillTree,
+        LocalClipboardManager provides owner.clipboardManager,
+        LocalClipboard provides owner.clipboard,
+        LocalDensity provides owner.density,
+        LocalFocusManager provides owner.focusOwner,
+        LocalFontLoader providesDefault owner.fontLoader,
+        LocalFontFamilyResolver providesDefault owner.fontFamilyResolver,
+        LocalHapticFeedback provides owner.hapticFeedBack,
+        LocalInputModeManager provides owner.inputModeManager,
+        LocalLayoutDirection provides owner.layoutDirection,
+        LocalTextInputService provides owner.textInputService,
+        LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
+        LocalTextToolbar provides owner.textToolbar,
+        LocalUriHandler provides uriHandler,
+        LocalViewConfiguration provides owner.viewConfiguration,
+        LocalWindowInfo provides owner.windowInfo,
+        LocalPointerIconService provides owner.pointerIconService,
+        LocalGraphicsContext provides owner.graphicsContext,
+        LocalRetainedValuesStore provides owner.retainedValuesStore,
+        content = content,
+    )
+}
 
 /**
  * Composes the given composable into [RootNodeOwner]

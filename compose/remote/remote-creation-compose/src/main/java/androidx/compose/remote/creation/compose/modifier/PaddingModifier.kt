@@ -23,7 +23,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -34,7 +33,7 @@ public class PaddingModifier(
     public val top: RemoteFloat,
     public val right: RemoteFloat,
     public val bottom: RemoteFloat,
-) : RemoteLayoutModifier {
+) : RemoteModifier.Element {
     init {
         require(
             (!left.hasConstantValue || left.toFloat() >= 0f) and
@@ -53,19 +52,6 @@ public class PaddingModifier(
             right.internalAsFloat(),
             bottom.internalAsFloat(),
         )
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        // TODO LTR
-        return with(LocalDensity.current) {
-            padding(
-                left.toFloat().toDp(),
-                top.toFloat().toDp(),
-                right.toFloat().toDp(),
-                bottom.toFloat().toDp(),
-            )
-        }
     }
 }
 

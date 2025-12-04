@@ -30,8 +30,11 @@ import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.round
 import androidx.compose.remote.creation.sign
+import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.tooling.preview.Preview
 
 /** Use Projection & Matrix to create a 3d cube with back side surface removal */
 @SuppressLint("PrimitiveInCollection")
@@ -227,3 +230,5 @@ fun cube3d(): RemoteComposeContext {
         }
     }
 }
+
+@Preview @Composable fun Cube3dPreview() = RemoteDocPreview(cube3d())

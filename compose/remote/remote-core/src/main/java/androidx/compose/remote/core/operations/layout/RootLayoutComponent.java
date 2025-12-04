@@ -65,6 +65,10 @@ public class RootLayoutComponent extends Component {
         super(parent, componentId, -1, x, y, width, height);
     }
 
+    public RootLayoutComponent(int componentId) {
+        super(null, componentId, 0, -1, 0, 0, 0);
+    }
+
     @NonNull
     @Override
     public String toString() {

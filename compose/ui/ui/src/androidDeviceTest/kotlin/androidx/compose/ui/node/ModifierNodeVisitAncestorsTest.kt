@@ -20,12 +20,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags.isTraversableDelegatesFixEnabled
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -112,6 +115,76 @@ class ModifierNodeVisitAncestorsTest {
         // Assert.
         assertThat(visitedAncestors.trimRootModifierNodes())
             .containsExactly(localParent, ancestor1, ancestor2, ancestor3)
+            .inOrder()
+    }
+
+    @Test
+    fun shallowVisitAncestorsWithDelegate() {
+        class DelegatedNode(delegateNode: DelegatableNode) : DelegatingNode() {
+            init {
+                delegate(delegateNode)
+            }
+        }
+
+        // Arrange.
+        val delegatedAncestor = object : Modifier.Node(), DelegatableNode {}
+        val (ancestor1, ancestor2, ancestor3) =
+            List(3) {
+                if (it == 0) {
+                    DelegatedNode(delegatedAncestor)
+                } else {
+                    object : Modifier.Node() {}
+                }
+            }
+        val childNode = object : Modifier.Node() {}
+        val visitedAncestors = mutableListOf<Modifier.Node>()
+        rule.setContent {
+            Box(Modifier.elementOf(ancestor3)) {
+                Box(Modifier.elementOf(ancestor2).elementOf(ancestor1)) {
+                    Box { Box(Modifier.elementOf(childNode)) }
+                }
+            }
+        }
+
+        // Act.
+        rule.runOnIdle {
+            childNode.visitAncestors(Nodes.Any, includeDelegates = true) {
+                visitedAncestors.add(it)
+            }
+        }
+
+        // Assert.
+        assertThat(visitedAncestors.trimRootModifierNodes())
+            .containsExactly(ancestor1, delegatedAncestor, ancestor2, ancestor3)
+            .inOrder()
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun shallowVisitAncestorsWithoutDelegate() {
+        Assume.assumeTrue(isTraversableDelegatesFixEnabled)
+        // Arrange.
+        val (ancestor1, ancestor2, ancestor3) = List(3) { object : Modifier.Node() {} }
+        val childNode = object : Modifier.Node() {}
+        val visitedAncestors = mutableListOf<Modifier.Node>()
+        rule.setContent {
+            Box(Modifier.elementOf(ancestor3)) {
+                Box(Modifier.elementOf(ancestor2).elementOf(ancestor1)) {
+                    Box { Box(Modifier.elementOf(childNode)) }
+                }
+            }
+        }
+
+        // Act.
+        rule.runOnIdle {
+            childNode.visitAncestors(Nodes.Any, includeDelegates = true) {
+                visitedAncestors.add(it)
+            }
+        }
+
+        // Assert.
+        assertThat(visitedAncestors.trimRootModifierNodes())
+            .containsExactly(ancestor1, ancestor2, ancestor3)
             .inOrder()
     }
 

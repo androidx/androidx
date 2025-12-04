@@ -41,8 +41,8 @@ public class BitmapFontData extends Operation implements Serializable {
     private static final int OP_CODE = Operations.DATA_BITMAP_FONT;
     private static final String CLASS_NAME = "BitmapFontData";
 
-    static final short VERSION_1 = 0;
-    static final short VERSION_2 = 1; // Adds kerning table support.
+    public static final short VERSION_1 = 0;
+    public static final short VERSION_2 = 1; // Adds kerning table support.
     private static final int MAX_GLYPHS = 0xffff;
     private static final int MAX_KERNING_TABLE_SIZE = 0xffff;
 

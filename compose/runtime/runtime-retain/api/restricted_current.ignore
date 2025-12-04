@@ -1,83 +1,11 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.runtime.retain.RetainedValuesStore#onContentEnteredComposition():
-    Binary breaking change: Added method androidx.compose.runtime.retain.RetainedValuesStore.onContentEnteredComposition()
-AddedAbstractMethod: androidx.compose.runtime.retain.RetainedValuesStore#onContentExitComposition():
-    Binary breaking change: Added method androidx.compose.runtime.retain.RetainedValuesStore.onContentExitComposition()
+AddedAbstractMethod: androidx.compose.runtime.retain.RetainedValuesStore#consumeExitedValueOrDefault(Object, Object):
+    Binary breaking change: Added method androidx.compose.runtime.retain.RetainedValuesStore.consumeExitedValueOrDefault(Object,Object)
 
 
-AddedClass: androidx.compose.runtime.retain.ManagedRetainedValuesStore:
-    Added class androidx.compose.runtime.retain.ManagedRetainedValuesStore
-AddedClass: androidx.compose.runtime.retain.ManagedRetainedValuesStoreKt:
-    Added class androidx.compose.runtime.retain.ManagedRetainedValuesStoreKt
-
-
-AddedMethod: androidx.compose.runtime.retain.ForgetfulRetainedValuesStore#onContentEnteredComposition():
-    Added method androidx.compose.runtime.retain.ForgetfulRetainedValuesStore.onContentEnteredComposition()
-AddedMethod: androidx.compose.runtime.retain.ForgetfulRetainedValuesStore#onContentExitComposition():
-    Added method androidx.compose.runtime.retain.ForgetfulRetainedValuesStore.onContentExitComposition()
-AddedMethod: androidx.compose.runtime.retain.LocalRetainedValuesStoreKt#LocalRetainedValuesStoreProvider(androidx.compose.runtime.retain.RetainedValuesStore, kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Added method androidx.compose.runtime.retain.LocalRetainedValuesStoreKt.LocalRetainedValuesStoreProvider(androidx.compose.runtime.retain.RetainedValuesStore,kotlin.jvm.functions.Function0<kotlin.Unit>)
-AddedMethod: androidx.compose.runtime.retain.LocalRetainedValuesStoreKt#LocalRetainedValuesStoreProvider(androidx.compose.runtime.retain.RetainedValuesStore, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
-    Added method androidx.compose.runtime.retain.LocalRetainedValuesStoreKt.LocalRetainedValuesStoreProvider(androidx.compose.runtime.retain.RetainedValuesStore,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
-AddedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#LocalRetainedValuesStoreProvider(Object, kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Added method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(Object,kotlin.jvm.functions.Function0<kotlin.Unit>)
-AddedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#LocalRetainedValuesStoreProvider(Object, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
-    Added method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.LocalRetainedValuesStoreProvider(Object,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
-
-
-ChangedClass: androidx.compose.runtime.retain.RetainedValuesStore:
-    Binary breaking change: Class androidx.compose.runtime.retain.RetainedValuesStore changed class/interface declaration
-
-
-ChangedSuperclass: androidx.compose.runtime.retain.ForgetfulRetainedValuesStore:
-    Binary breaking change: Class androidx.compose.runtime.retain.ForgetfulRetainedValuesStore superclass changed from androidx.compose.runtime.retain.RetainedValuesStore to java.lang.Object
-
-
-RemovedClass: androidx.compose.runtime.retain.ControlledRetainedValuesStore:
-    Binary breaking change: Removed class androidx.compose.runtime.retain.ControlledRetainedValuesStore
-RemovedClass: androidx.compose.runtime.retain.ControlledRetainedValuesStoreKt:
-    Binary breaking change: Removed class androidx.compose.runtime.retain.ControlledRetainedValuesStoreKt
-RemovedClass: androidx.compose.runtime.retain.RetainedContentHostKt:
-    Binary breaking change: Removed class androidx.compose.runtime.retain.RetainedContentHostKt
-
-
-RemovedInterface: androidx.compose.runtime.retain.RetainStateProvider:
-    Binary breaking change: Removed class androidx.compose.runtime.retain.RetainStateProvider
-
-
-RemovedMethod: androidx.compose.runtime.retain.ForgetfulRetainedValuesStore#onStartRetainingExitedValues():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.ForgetfulRetainedValuesStore.onStartRetainingExitedValues()
-RemovedMethod: androidx.compose.runtime.retain.ForgetfulRetainedValuesStore#onStopRetainingExitedValues():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.ForgetfulRetainedValuesStore.onStopRetainingExitedValues()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#RetainedValuesStore():
-    Binary breaking change: Removed constructor androidx.compose.runtime.retain.RetainedValuesStore()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.addRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#getRetainExitedValuesRequests():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.getRetainExitedValuesRequests()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#isRetainingExitedValues():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.isRetainingExitedValues()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#onStartRetainingExitedValues():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.onStartRetainingExitedValues()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#onStopRetainingExitedValues():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.onStopRetainingExitedValues()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.removeRetainStateObserver(androidx.compose.runtime.retain.RetainStateProvider.RetainStateObserver)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#requestRetainExitedValues():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.requestRetainExitedValues()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#unRequestRetainExitedValues():
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.unRequestRetainExitedValues()
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#ProvideChildRetainedValuesStore(Object, kotlin.jvm.functions.Function0<kotlin.Unit>):
-    Source breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.ProvideChildRetainedValuesStore(Object,kotlin.jvm.functions.Function0<kotlin.Unit>)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#ProvideChildRetainedValuesStore(Object, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>, androidx.compose.runtime.Composer, int):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.ProvideChildRetainedValuesStore(Object,kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer,? super java.lang.Integer,kotlin.Unit>,androidx.compose.runtime.Composer,int)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#getOrCreateRetainedValuesStoreForChild(Object):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.getOrCreateRetainedValuesStoreForChild(Object)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#retainExitedValuesRequestsFor(Object):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.retainExitedValuesRequestsFor(Object)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#setParentRetainStateProvider(androidx.compose.runtime.retain.RetainStateProvider):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.setParentRetainStateProvider(androidx.compose.runtime.retain.RetainStateProvider)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#startRetainingExitedValues(Object):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.startRetainingExitedValues(Object)
-RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStoreRegistry#stopRetainingExitedValues(Object):
-    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStoreRegistry.stopRetainingExitedValues(Object)
+RemovedMethod: androidx.compose.runtime.retain.ForgetfulRetainedValuesStore#getExitedValueOrElse(Object, Object):
+    Binary breaking change: Removed method androidx.compose.runtime.retain.ForgetfulRetainedValuesStore.getExitedValueOrElse(Object,Object)
+RemovedMethod: androidx.compose.runtime.retain.ManagedRetainedValuesStore#getExitedValueOrElse(Object, Object):
+    Binary breaking change: Removed method androidx.compose.runtime.retain.ManagedRetainedValuesStore.getExitedValueOrElse(Object,Object)
+RemovedMethod: androidx.compose.runtime.retain.RetainedValuesStore#getExitedValueOrElse(Object, Object):
+    Binary breaking change: Removed method androidx.compose.runtime.retain.RetainedValuesStore.getExitedValueOrElse(Object,Object)

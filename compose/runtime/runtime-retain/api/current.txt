@@ -2,7 +2,7 @@
 package androidx.compose.runtime.retain {
 
   public final class ForgetfulRetainedValuesStore implements androidx.compose.runtime.retain.RetainedValuesStore {
-    method public Object? getExitedValueOrElse(Object key, Object? defaultValue);
+    method public Object? consumeExitedValueOrDefault(Object key, Object? defaultValue);
     method public void onContentEnteredComposition();
     method public void onContentExitComposition();
     method public void saveExitingValue(Object key, Object? value);
@@ -18,10 +18,10 @@ package androidx.compose.runtime.retain {
 
   public final class ManagedRetainedValuesStore implements androidx.compose.runtime.retain.RetainedValuesStore {
     ctor public ManagedRetainedValuesStore();
+    method public Object? consumeExitedValueOrDefault(Object key, Object? defaultValue);
     method public void disableRetainingExitedValues();
     method public void dispose();
     method public void enableRetainingExitedValues();
-    method public Object? getExitedValueOrElse(Object key, Object? defaultValue);
     method @InaccessibleFromKotlin public boolean isRetainingExitedValues();
     method public void onContentEnteredComposition();
     method public void onContentExitComposition();
@@ -70,7 +70,7 @@ package androidx.compose.runtime.retain {
   }
 
   public interface RetainedValuesStore {
-    method public Object? getExitedValueOrElse(Object key, Object? defaultValue);
+    method public Object? consumeExitedValueOrDefault(Object key, Object? defaultValue);
     method public void onContentEnteredComposition();
     method public void onContentExitComposition();
     method public void saveExitingValue(Object key, Object? value);

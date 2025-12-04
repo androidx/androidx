@@ -34,6 +34,10 @@ class StateReadCache(
     var currentStateReads: Int = 0
         private set
 
+    /** The number of state reads that was silently removed in the cache */
+    var purgedStateReads: Long = 0L
+        private set
+
     private data class Key(val anchor: Any, val recomposition: Int)
 
     private val cache = LinkedHashMap<Key, ObservedStateReads>()
@@ -96,6 +100,7 @@ class StateReadCache(
         val data = stateReadsByComposable[entry.key.anchor] ?: return
         data.remove(entry.key.recomposition)
         currentStateReads -= entry.value.reads.size
+        purgedStateReads += entry.value.reads.size
     }
 
     private fun removeEldest(): Map.Entry<Key, ObservedStateReads>? {

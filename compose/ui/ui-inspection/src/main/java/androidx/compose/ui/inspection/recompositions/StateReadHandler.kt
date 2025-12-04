@@ -186,6 +186,9 @@ class StateReadHandler(artTooling: ArtTooling, anchorMap: AnchorMap) :
         }
     }
 
+    /** Return the number of state reads purged from the state read cache. */
+    fun getPurgedStateReadCount(): Long = cache.purgedStateReads
+
     @OptIn(ExperimentalComposeRuntimeApi::class)
     private fun startObservingStateReads() {
         synchronized(lock) {

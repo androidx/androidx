@@ -36,11 +36,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.isLiteral
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.unit.Dp
 
 // TODO fix up types after RemoteType refactor
 /** Update a value on click. */
@@ -82,11 +78,6 @@ public class ValueChangeAction<T>(
             TODO("println unsupported type in ValueChange $remoteValue")
         }
     }
-
-    @Composable
-    public override fun toComposeUiAction(): () -> Unit {
-        return { println("Updating $remoteValue to $updatedValue") }
-    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -98,11 +89,6 @@ public class ValueFloatChangeAction(
         val id = Utils.idFromNan(value.value.internalAsFloat())
         return ValueFloatChange(id, updatedValue)
     }
-
-    @Composable
-    public override fun toComposeUiAction(): () -> Unit {
-        return { println("Updating RemoteFloat $value to $updatedValue") }
-    }
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -111,11 +97,6 @@ public class ValueFloatDpChangeAction(public val value: RemoteDp, public val upd
     public override fun toRemoteAction(): Action {
         val id = Utils.idFromNan(value.value.internalAsFloat())
         return ValueFloatChange(id, updatedValue)
-    }
-
-    @Composable
-    public override fun toComposeUiAction(): () -> Unit {
-        return { println("Updating RemoteFloat $value to $updatedValue") }
     }
 }
 
@@ -147,15 +128,8 @@ public fun ValueChange(
     return ValueFloatDpChangeAction(value, updatedValue.toFloat())
 }
 
-public fun ValueChange(
-    value: RemoteDp,
-    updatedValue: Dp,
-): androidx.compose.remote.creation.compose.action.Action {
-    return ValueFloatDpChangeAction(value, updatedValue.value)
-}
-
 public fun ValueChange(remoteState: MutableRemoteInt, updatedValue: Int): ValueChangeAction<Int> =
-    ValueChangeAction<Int>(remoteState, MutableRemoteInt(mutableIntStateOf(updatedValue)))
+    ValueChangeAction<Int>(remoteState, RemoteInt(v = updatedValue))
 
 public fun ValueChange(
     remoteState: MutableRemoteInt,
@@ -165,5 +139,4 @@ public fun ValueChange(
 public fun ValueChange(
     remoteState: MutableRemoteString,
     updatedValue: String,
-): ValueChangeAction<String> =
-    ValueChangeAction<String>(remoteState, MutableRemoteString(mutableStateOf(updatedValue)))
+): ValueChangeAction<String> = ValueChangeAction<String>(remoteState, RemoteString(updatedValue))

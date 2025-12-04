@@ -238,6 +238,14 @@ internal class ComposePaintContext(
         overflow: Int,
         maxLines: Int,
         maxWidth: Float,
+        letterSpacing: Float,
+        lineHeightAdd: Float,
+        lineHeightMultiplier: Float,
+        lineBreakStrategy: Int,
+        hyphenationFrequency: Int,
+        justificationMode: Int,
+        underline: Boolean,
+        strikethrough: Boolean,
         flags: Int,
     ): RcPlatformServices.ComputedTextLayout? {
         val str = getText(textId)
@@ -279,6 +287,7 @@ internal class ComposePaintContext(
             staticLayout,
             staticLayout.width.toFloat(),
             staticLayout.height.toFloat(),
+            false,
         )
     }
 

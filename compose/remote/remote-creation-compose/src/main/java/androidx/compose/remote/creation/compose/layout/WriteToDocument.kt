@@ -18,41 +18,21 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.LogTodo
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.unit.dp
 
 /** Break glass mechanism to make calls direct to the RecordingCanvas or document. */
 @Composable
 public fun WriteToDocument(message: String? = null, content: RecordingCanvas.() -> Unit) {
-    LogTodo(message ?: "WriteToDocument used")
-
-    RemoteCanvas(modifier = RemoteModifier.size(0.dp)) {
-        val canvas = drawScope.drawContext.canvas.nativeCanvas
-
-        if (canvas is RecordingCanvas) {
-            content(canvas)
-        }
-    }
+    RemoteCanvas(modifier = RemoteModifier.size(0.rdp)) { content(canvas) }
 }
 
 @Composable
 public fun RecordingCanvas(content: RecordingCanvas.() -> Unit) {
-    androidx.compose.foundation.layout.Box(
-        Modifier.drawBehind {
-            drawIntoCanvas {
-                if (it.nativeCanvas is RecordingCanvas) {
-                    val canvas = it.nativeCanvas as RecordingCanvas
-                    content(canvas)
-                }
-            }
-        }
-    )
+    androidx.compose.foundation.layout.Box(Modifier.drawBehind { drawIntoRemoteCanvas(content) })
 }

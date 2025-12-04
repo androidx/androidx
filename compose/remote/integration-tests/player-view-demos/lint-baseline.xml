@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun RcSimpleClock1Preview() = RemotePreview { RcSimpleClock1() }"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/Clock.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun RcSimpleClock1Preview() = RemotePreview { RcSimpleClock1() }"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/Clock.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SimplePathPreview() = RemotePreview { SimplePath() }"
+        errorLine2="                                               ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/PathChecks.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SimplePathPreview() = RemotePreview { SimplePath() }"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/PathChecks.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun CanvasCalendarMonthPreview() = RemotePreview { CanvasCalendarMonth() }"
+        errorLine2="                                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/ScrollView.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun CanvasCalendarMonthPreview() = RemotePreview { CanvasCalendarMonth() }"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/ScrollView.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun ScrollViewDemoPreview() = RemotePreview { ScrollViewDemo() }"
+        errorLine2="                                                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/ScrollView.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun ScrollViewDemoPreview() = RemotePreview { ScrollViewDemo() }"
+        errorLine2="                                                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/ScrollView.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SwitchWidgetOnStatePreview() = RemotePreview { SwitchWidgetOnState() }"
+        errorLine2="                                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/SwitchWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SwitchWidgetOnStatePreview() = RemotePreview { SwitchWidgetOnState() }"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/SwitchWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SwitchWidgetOffStatePreview() = RemotePreview { SwitchWidgetOffState() }"
+        errorLine2="                                                         ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/SwitchWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SwitchWidgetOffStatePreview() = RemotePreview { SwitchWidgetOffState() }"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/SwitchWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SwitchWidgetDemoPreview() = RemotePreview { SwitchWidgetDemo() }"
+        errorLine2="                                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/SwitchWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.compose.remote.integration-tests`)"
+        errorLine1="@Preview @Composable fun SwitchWidgetDemoPreview() = RemotePreview { SwitchWidgetDemo() }"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/remote/integration/view/demos/examples/SwitchWidget.kt"/>
+    </issue>
+
+</issues>

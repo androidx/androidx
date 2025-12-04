@@ -24,8 +24,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -46,38 +44,15 @@ import androidx.compose.ui.unit.dp
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
+import org.junit.runners.JUnit4
 
 @SmallTest
-@RunWith(Parameterized::class)
-class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
+@RunWith(JUnit4::class)
+class SemanticsModifierNodeTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "pre-computed semantics = {0}")
-        fun initParameters() = listOf(false, true)
-    }
-
-    @OptIn(ExperimentalComposeUiApi::class)
-    private val previousFlagValue = ComposeUiFlags.isSemanticAutofillEnabled
-
-    @Before
-    fun enableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = precomputedSemantics
-    }
-
-    @After
-    fun disableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = previousFlagValue
-    }
 
     @Test
     fun applySemantics_firstComposition() {
@@ -86,13 +61,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.setContent { Box(Modifier.elementOf(semanticsModifier)) }
 
         // Assert.
-        rule.runOnIdle {
-            if (precomputedSemantics) {
-                assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(1)
-            } else {
-                assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(0)
-            }
-        }
+        rule.runOnIdle { assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(1) }
     }
 
     @Test
@@ -106,10 +75,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.onNodeWithTag("TestTag").assertExists()
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(semanticsModifier.applySemanticsInvocations)
-                .isEqualTo(if (precomputedSemantics) 0 else 1)
-        }
+        rule.runOnIdle { assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(0) }
     }
 
     // This fixes b/392442163 and fixes a bug in NodeChain.isUpdating().
@@ -166,10 +132,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.onNodeWithTag("TestTag").fetchSemanticsNode()
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(semanticsModifier.applySemanticsInvocations)
-                .isEqualTo(if (precomputedSemantics) 0 else 1)
-        }
+        rule.runOnIdle { assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(0) }
     }
 
     @Test
@@ -185,10 +148,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.onNodeWithTag("TestTag").fetchSemanticsNode()
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(semanticsModifier.applySemanticsInvocations)
-                .isEqualTo(if (precomputedSemantics) 0 else 1)
-        }
+        rule.runOnIdle { assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(0) }
     }
 
     @Test
@@ -202,10 +162,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.runOnIdle { semanticsModifier.invalidateSemantics() }
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(semanticsModifier.applySemanticsInvocations)
-                .isEqualTo(if (precomputedSemantics) 1 else 0)
-        }
+        rule.runOnIdle { assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(1) }
     }
 
     @Test
@@ -221,10 +178,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.onNodeWithTag("TestTag").assertExists()
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(semanticsModifier.applySemanticsInvocations)
-                .isEqualTo(if (precomputedSemantics) 1 else 2)
-        }
+        rule.runOnIdle { assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(1) }
     }
 
     @Test
@@ -244,10 +198,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.onNodeWithTag("TestTag").assertExists()
 
         // Assert.
-        rule.runOnIdle {
-            assertThat(semanticsModifier.applySemanticsInvocations)
-                .isEqualTo(if (precomputedSemantics) 7 else 2)
-        }
+        rule.runOnIdle { assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(7) }
     }
 
     @Test
@@ -363,11 +314,7 @@ class SemanticsModifierNodeTest(private val precomputedSemantics: Boolean) {
         rule.onNodeWithTag("tag").assertExists()
 
         // Assert.
-        if (precomputedSemantics) {
-            assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(0)
-        } else {
-            assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(1)
-        }
+        assertThat(semanticsModifier.applySemanticsInvocations).isEqualTo(0)
     }
 
     @Test

@@ -16,6 +16,7 @@
 
 package androidx.compose.remote.creation.compose.state
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
@@ -23,6 +24,9 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -31,11 +35,13 @@ import org.robolectric.RobolectricTestRunner
 
 @SdkSuppress(minSdkVersion = 26)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteDpTest {
     val context =
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
         }
+    val appContext = ApplicationProvider.getApplicationContext<Context>()
     val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
 
     @Test
@@ -109,6 +115,22 @@ class RemoteDpTest {
         val resultPxId = remoteFloatPx.getIdForCreationState(creationState)
 
         assertThat(resultDpId).isNotEqualTo(resultPxId)
+    }
+
+    @Test
+    fun fromDp() {
+        val density = 2f
+
+        val dp = 10.5.dp
+        val remoteFloatDp = dp.asRdp()
+        val resultDpId = remoteFloatDp.getIdForCreationState(creationState)
+        val px = with(Density(density, 1f)) { dp.toPx() }
+
+        context.density = density
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(resultDpId)).isEqualTo(px)
     }
 
     private fun makeAndPaintCoreDocument() =

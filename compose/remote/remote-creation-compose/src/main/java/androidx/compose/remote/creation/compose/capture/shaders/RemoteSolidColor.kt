@@ -18,14 +18,12 @@
 package androidx.compose.remote.creation.compose.capture.shaders
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
 
 @Stable
@@ -40,14 +38,10 @@ public fun RemoteBrush.Companion.solidColor(color: RemoteColor): RemoteSolidColo
 @Immutable
 public data class RemoteSolidColor(val color: RemoteColor) : RemoteBrush() {
 
-    override fun createShader(size: Size): Shader {
+    override fun createShader(size: RemoteSize): Shader {
         throw UnsupportedOperationException(
             "SolidColor not supported for Shader, use Color directly"
         )
-    }
-
-    override fun toComposeUi(): Brush {
-        return SolidColor(Color(color.constantValue!!.toArgb()))
     }
 
     override val hasShader: Boolean

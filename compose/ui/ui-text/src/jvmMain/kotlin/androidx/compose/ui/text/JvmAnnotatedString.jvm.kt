@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.collection.mutableIntIntMapOf
 import androidx.compose.ui.text.AnnotatedString.Range
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastMap
@@ -34,14 +35,15 @@ internal actual fun AnnotatedString.transform(
     collectRangeTransitions(annotations, transitions)
 
     var resultStr = ""
-    val offsetMap = mutableMapOf(0 to 0)
+    val offsetMap = mutableIntIntMapOf()
+    offsetMap[0] = 0
     transitions.windowed(size = 2) { (start, end) ->
         resultStr += transform(text, start, end)
         offsetMap.put(end, resultStr.length)
     }
     // The offset map must have mapping entry from all style start, end position.
     val newAnnotations =
-        annotations?.fastMap { Range(it.item, offsetMap[it.start]!!, offsetMap[it.end]!!) }
+        annotations?.fastMap { Range(it.item, offsetMap[it.start], offsetMap[it.end]) }
 
     return AnnotatedString(text = resultStr, annotations = newAnnotations)
 }

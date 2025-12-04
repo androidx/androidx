@@ -423,6 +423,8 @@ message GetRecompositionStateReadResponse {
     // The groups of state reads for the requested recompositions. If the specific recompositions
     // were not found return the closest recompositions in the specified search direction.
     repeated StateReadGroup read = 3;
+    // The number of state reads discarded by the agent so far
+    uint64 purged_state_reads = 4;
 }
 
 message Command {

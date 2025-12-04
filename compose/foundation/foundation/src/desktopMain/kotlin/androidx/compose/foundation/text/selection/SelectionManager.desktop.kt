@@ -17,7 +17,6 @@
 package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.DesktopPlatform
-import androidx.compose.foundation.text.MappedKeys
 import androidx.compose.foundation.text.DesktopTextContextMenuItems
 import androidx.compose.foundation.text.DesktopTextContextMenuItems.Copy
 import androidx.compose.foundation.text.DesktopTextContextMenuItems.SelectAll
@@ -25,6 +24,7 @@ import androidx.compose.foundation.text.contextmenu.builder.TextContextMenuBuild
 import androidx.compose.foundation.text.contextmenu.builder.item
 import androidx.compose.foundation.text.contextmenu.modifier.addTextContextMenuComponentsWithLocalization
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.isCtrlPressed
 import androidx.compose.ui.input.key.isMetaPressed
@@ -34,10 +34,10 @@ import androidx.compose.ui.input.key.key
 // it would end up being a function for any conceptual keyevent (selectall, cut, copy, paste)
 // TODO(b/1564937)
 internal actual fun isCopyKeyEvent(keyEvent: KeyEvent) =
-    keyEvent.key == MappedKeys.C && when (DesktopPlatform.Current) {
+    keyEvent.key == Key.C && when (DesktopPlatform.Current) {
         DesktopPlatform.MacOS -> keyEvent.isMetaPressed
         else -> keyEvent.isCtrlPressed
-    } || keyEvent.key == MappedKeys.Copy
+    } || keyEvent.key == Key.Copy
 
 /**
  * Magnification is not supported on desktop.

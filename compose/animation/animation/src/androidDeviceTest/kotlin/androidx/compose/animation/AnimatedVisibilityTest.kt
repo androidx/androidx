@@ -755,4 +755,208 @@ class AnimatedVisibilityTest {
             assertEquals(0, boxPosition.y)
             assertThat(boxPosition.x).isGreaterThan(positionAtInterruption.x)
         }
+
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun animateVisibilitySlideAndVeilTest() {
+        val testModifier by mutableStateOf(TestModifier())
+        var visible by mutableStateOf(true)
+        var veilColor by mutableStateOf(Color.Transparent)
+        rule.mainClock.autoAdvance = false
+        val targetColor = Color.Red
+        rule.setContent {
+            AnimatedVisibility(
+                visible,
+                testModifier,
+                enter = EnterTransition.None,
+                exit = veilOut(tween(160, easing = FastOutSlowInEasing), targetColor = targetColor),
+            ) {
+                Box(Modifier.requiredSize(100.dp, 100.dp)) {
+                    veilColor =
+                        transition.animations.firstOrNull { it.label.contains("veil") }?.value
+                            as? Color ?: veilColor
+                }
+            }
+        }
+
+        rule.runOnIdle { visible = false }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        for (i in 0..160 step frameDuration) {
+            val fraction = FastOutSlowInEasing.transform(i / 160f)
+            // Check scrim
+            val expectedColor =
+                androidx.compose.ui.graphics.lerp(
+                    targetColor.copy(alpha = 0f),
+                    targetColor,
+                    fraction,
+                )
+            assertEquals(expectedColor.red, veilColor.red, 0.02f)
+            assertEquals(expectedColor.green, veilColor.green, 0.02f)
+            assertEquals(expectedColor.blue, veilColor.blue, 0.02f)
+            assertEquals(expectedColor.alpha, veilColor.alpha, 0.02f)
+            rule.mainClock.advanceTimeBy(frameDuration.toLong())
+            rule.waitForIdle()
+        }
+    }
+
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun animateVisibilityVeilInterruptionEnterToExitTest() {
+        var visible by mutableStateOf(false)
+        var veilColor by mutableStateOf(Color.Transparent)
+        rule.mainClock.autoAdvance = false
+        val enterColor = Color.Red
+        val exitColor = Color.Blue
+        rule.setContent {
+            AnimatedVisibility(
+                visible,
+                enter = unveilIn(tween(160, easing = LinearEasing), initialColor = enterColor),
+                exit = veilOut(tween(160, easing = LinearEasing), targetColor = exitColor),
+            ) {
+                Box(Modifier.requiredSize(100.dp, 100.dp)) {
+                    veilColor =
+                        transition.animations.firstOrNull { it.label.contains("veil") }?.value
+                            as? Color ?: veilColor
+                }
+            }
+        }
+
+        rule.runOnIdle { visible = true }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Interrupt enter animation midway
+        rule.mainClock.advanceTimeBy(80)
+        rule.waitForIdle()
+        val expectedInterruptedColor = enterColor.copy(alpha = 0.5f)
+        val interruptedColor = veilColor
+        assertEquals(expectedInterruptedColor.red, interruptedColor.red, 0.02f)
+        assertEquals(expectedInterruptedColor.green, interruptedColor.green, 0.02f)
+        assertEquals(expectedInterruptedColor.blue, interruptedColor.blue, 0.02f)
+        assertEquals(expectedInterruptedColor.alpha, interruptedColor.alpha, 0.02f)
+
+        rule.runOnIdle { visible = false }
+
+        // Run the animation for a few steps/frames to guarantee each frame is rendered, since a
+        // spring is used after interruption it's unknown how many more frames we need till the
+        // end of the animation, but we don't need to run the entire animation.
+        // We also need to run more than one step, since springs keep their initial momentum.
+        repeat(3) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+        // after interruption the color should animate from red to blue and alpha should increase
+        // again
+        assertThat(veilColor.red).isLessThan(interruptedColor.red)
+        assertEquals(expectedInterruptedColor.green, 0f, 0.02f)
+        assertThat(veilColor.blue).isGreaterThan(interruptedColor.blue)
+        assertThat(veilColor.alpha).isGreaterThan(interruptedColor.alpha)
+    }
+
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun animateVisibilityVeilInterruptionRemoveVeilTest() {
+        var visible by mutableStateOf(false)
+        var veilColor by mutableStateOf(Color.Transparent)
+        rule.mainClock.autoAdvance = false
+        val enterColor = Color.Red
+        val exitColor = Color.Blue
+        var enterTransition by
+            mutableStateOf(unveilIn(tween(160, easing = LinearEasing), initialColor = enterColor))
+        var exitTransition by
+            mutableStateOf(veilOut(tween(160, easing = LinearEasing), targetColor = exitColor))
+        rule.setContent {
+            AnimatedVisibility(visible, enter = enterTransition, exit = exitTransition) {
+                Box(Modifier.requiredSize(100.dp, 100.dp)) {
+                    veilColor =
+                        transition.animations.firstOrNull { it.label.contains("veil") }?.value
+                            as? Color ?: veilColor
+                }
+            }
+        }
+
+        rule.runOnIdle { visible = true }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+
+        // Interrupt enter animation midway
+        rule.mainClock.advanceTimeBy(80)
+        rule.waitForIdle()
+        val interruptedColor = veilColor
+        val expectedInterruptedColor = enterColor.copy(alpha = 0.5f)
+        assertEquals(expectedInterruptedColor.red, interruptedColor.red, 0.02f)
+        assertEquals(expectedInterruptedColor.green, interruptedColor.green, 0.02f)
+        assertEquals(expectedInterruptedColor.blue, interruptedColor.blue, 0.02f)
+        assertEquals(expectedInterruptedColor.alpha, interruptedColor.alpha, 0.02f)
+
+        // Remove veil animation
+        exitTransition = ExitTransition.None
+        enterTransition = EnterTransition.None
+
+        // Continue the animation for a few steps/frames
+        repeat(3) {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+        }
+        // verify that the animation continues (alpha decreases) despite the veil animation being
+        // removed from the transition
+        assertEquals(expectedInterruptedColor.red, veilColor.red, 0.02f)
+        assertEquals(expectedInterruptedColor.green, veilColor.green, 0.02f)
+        assertEquals(expectedInterruptedColor.blue, veilColor.blue, 0.02f)
+        assertThat(veilColor.alpha).isLessThan(interruptedColor.alpha)
+    }
+
+    @OptIn(ExperimentalAnimationApi::class)
+    @Test
+    fun animateVisibilityVeilNoInterruptionTest() {
+        var visible by mutableStateOf(false)
+        var veilColor by mutableStateOf(Color.Transparent)
+        var disposed by mutableStateOf(false)
+
+        rule.mainClock.autoAdvance = false
+        val enterColor = Color.Red
+        val exitColor = Color.Blue
+        rule.setContent {
+            AnimatedVisibility(
+                visible,
+                enter = unveilIn(tween(160, easing = LinearEasing), initialColor = enterColor),
+                exit = veilOut(tween(160, easing = LinearEasing), targetColor = exitColor),
+            ) {
+                Box(Modifier.requiredSize(100.dp, 100.dp)) {
+                    veilColor =
+                        transition.animations.firstOrNull { it.label.contains("veil") }?.value
+                            as? Color ?: veilColor
+                    DisposableEffect(Unit) { onDispose { disposed = true } }
+                }
+            }
+        }
+
+        rule.runOnIdle { visible = true }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(160)
+        rule.waitForIdle()
+
+        // verify veilColor is not visible after enter
+        assertEquals(0f, veilColor.alpha, 0.02f)
+        assertEquals(enterColor.red, veilColor.red, 0.02f)
+        assertEquals(enterColor.green, veilColor.green, 0.02f)
+        assertEquals(enterColor.blue, veilColor.blue, 0.02f)
+
+        rule.runOnIdle { visible = false }
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeByFrame()
+        rule.mainClock.advanceTimeBy(160)
+        rule.waitForIdle()
+        assertEquals(exitColor.red, veilColor.red, 0.02f)
+        assertEquals(exitColor.green, veilColor.green, 0.02f)
+        assertEquals(exitColor.blue, veilColor.blue, 0.02f)
+        // Since AnimatedVisibility is removed from the composition and disposed, we can't assert
+        // the final alpha value (1f). Instead we verify that it was greater than 0f and that the
+        // composable was indeed disposed.
+        assertThat(exitColor.alpha).isGreaterThan(0f)
+        assertTrue(disposed)
+    }
 }

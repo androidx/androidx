@@ -18,17 +18,15 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthInModifier(
     public val min: Dp = Dp.Unspecified,
     public val max: Dp = Dp.Unspecified,
-) : RemoteLayoutModifier {
+) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         var minValue = 0f
         var maxValue = Float.MAX_VALUE
@@ -39,11 +37,6 @@ public class WidthInModifier(
             maxValue = max.value
         }
         return androidx.compose.remote.creation.modifiers.WidthInModifier(minValue, maxValue)
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        return widthIn(min, max)
     }
 }
 

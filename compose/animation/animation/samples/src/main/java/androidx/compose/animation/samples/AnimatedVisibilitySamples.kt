@@ -48,6 +48,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOut
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.unveilIn
+import androidx.compose.animation.veilOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -687,6 +689,23 @@ fun AnimateEnterExitPartialContent() {
                     // Content of the notification goes here
                 }
             }
+        }
+    }
+}
+
+@Sampled
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun AnimatedVisibilityVeil() {
+    var visible by remember { mutableStateOf(true) }
+    Column(modifier = Modifier.background(Color.White)) {
+        Button(onClick = { visible = !visible }) { Text("Toggle") }
+        AnimatedVisibility(
+            visible = visible,
+            enter = unveilIn(initialColor = Color.White),
+            exit = veilOut(targetColor = Color.White),
+        ) {
+            Box(Modifier.fillMaxSize().padding(30.dp).background(Color.Blue)) { Text("Content") }
         }
     }
 }

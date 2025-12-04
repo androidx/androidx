@@ -44,7 +44,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 public class RemoteBitmapFont(
     public val glyphs: List<Glyph>,
     public val kerningTable: Map<String, Short> = emptyMap(),
-) : BaseRemoteState {
+) : BaseRemoteState<Any>() {
     /** A Glyph from a [RemoteBitmapFont] which may represent one or more characters. */
     public class Glyph(
         /** The character(s) this glyph represents. */
@@ -125,4 +125,7 @@ public class RemoteBitmapFont(
             )
         }
     }
+
+    override val constantValue: Any?
+        get() = null
 }

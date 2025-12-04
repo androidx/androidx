@@ -38,7 +38,8 @@ import java.util.List;
  * mMode = 2 color2 is a colorID. mMode = 3 color1 & color2 are ids mMode = 4 H S V mode
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorExpression extends Operation implements VariableSupport, Serializable {
+public class ColorExpression extends Operation implements VariableSupport, Serializable,
+        ComponentData {
     private static final int OP_CODE = Operations.COLOR_EXPRESSIONS;
     private static final String CLASS_NAME = "ColorExpression";
     public int mId;

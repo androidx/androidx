@@ -36,8 +36,6 @@ import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.tooling.CompositionObserver
 import androidx.compose.runtime.tooling.CompositionObserverHandle
 import androidx.compose.runtime.tooling.ObservableComposition
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * A composition object is usually constructed for you, and returned from an API that is used to
@@ -323,19 +321,6 @@ internal inline fun <R> ControlledComposition.pausable(
 }
 
 /**
- * The [CoroutineContext] that should be used to perform concurrent recompositions of this
- * [ControlledComposition] when used in an environment supporting concurrent composition.
- *
- * See [Recomposer.runRecomposeConcurrentlyAndApplyChanges] as an example of configuring such an
- * environment.
- */
-// Implementation note: as/if this method graduates it should become a real method of
-// ControlledComposition with a default implementation.
-@ExperimentalComposeApi
-public val ControlledComposition.recomposeCoroutineContext: CoroutineContext
-    get() = (this as? CompositionImpl)?.recomposeContext ?: EmptyCoroutineContext
-
-/**
  * This method is the way to initiate a composition. [parent] [CompositionContext] can be
  * * provided to make the composition behave as a sub-composition of the parent. If composition does
  * * not have a parent, [Recomposer] instance should be provided.
@@ -396,29 +381,6 @@ public fun ControlledComposition(
     parent: CompositionContext,
 ): ControlledComposition = CompositionImpl(parent, applier)
 
-/**
- * Create a [Composition] using [applier] to manage the composition, as a child of [parent].
- *
- * When used in a configuration that supports concurrent recomposition, hint to the environment that
- * [recomposeCoroutineContext] should be used to perform recomposition. Recompositions will be
- * launched into the
- */
-@ExperimentalComposeApi
-public fun Composition(
-    applier: Applier<*>,
-    parent: CompositionContext,
-    recomposeCoroutineContext: CoroutineContext,
-): Composition = CompositionImpl(parent, applier, recomposeContext = recomposeCoroutineContext)
-
-@TestOnly
-@ExperimentalComposeApi
-public fun ControlledComposition(
-    applier: Applier<*>,
-    parent: CompositionContext,
-    recomposeCoroutineContext: CoroutineContext,
-): ControlledComposition =
-    CompositionImpl(parent, applier, recomposeContext = recomposeCoroutineContext)
-
 private val PendingApplyNoModifications = Any()
 
 @OptIn(ExperimentalComposeRuntimeApi::class)
@@ -435,8 +397,6 @@ private const val DISPOSED = 3
  *
  * @param parent An optional reference to the parent composition.
  * @param applier The applier to use to manage the tree built by the composer.
- * @param recomposeContext The coroutine context to use to recompose this composition. If left
- *   `null` the controlling recomposer's default context is used.
  */
 @OptIn(ExperimentalComposeRuntimeApi::class)
 internal class CompositionImpl(
@@ -448,7 +408,6 @@ internal class CompositionImpl(
 
     /** The applier to use to update the tree managed by the composition. */
     private val applier: Applier<*>,
-    recomposeContext: CoroutineContext? = null,
 ) :
     ControlledComposition,
     ReusableComposition,
@@ -584,8 +543,8 @@ internal class CompositionImpl(
     private val rememberManager = RememberEventDispatcher()
 
     /** The [Composer] to use to create and update the tree managed by this composition. */
-    internal val composer: ComposerImpl =
-        ComposerImpl(
+    internal val composer: GapComposer =
+        GapComposer(
                 applier = applier,
                 parentContext = parent,
                 slotTable = slotTable,
@@ -596,13 +555,6 @@ internal class CompositionImpl(
                 observerHolder = observerHolder,
             )
             .also { parent.registerComposer(it) }
-
-    /** The [CoroutineContext] override, if there is one, for this composition. */
-    private val _recomposeContext: CoroutineContext? = recomposeContext
-
-    /** the [CoroutineContext] to use to [recompose] this composition. */
-    val recomposeContext: CoroutineContext
-        get() = _recomposeContext ?: parent.recomposeCoroutineContext
 
     /** Return true if this is a root (non-sub-) composition. */
     val isRoot: Boolean = parent is Recomposer

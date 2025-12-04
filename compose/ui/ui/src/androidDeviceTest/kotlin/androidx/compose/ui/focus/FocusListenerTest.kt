@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -45,8 +44,6 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.runner.RunWith
 
@@ -55,25 +52,10 @@ import org.junit.runner.RunWith
 class FocusListenerTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
-    @OptIn(ExperimentalComposeUiApi::class)
-    private val previousFlagValue = ComposeUiFlags.isSemanticAutofillEnabled
-
     // When we clear focus on Pre P devices, request focus is called even when we are
     // in touch mode.
     // https://developer.android.com/about/versions/pie/android-9.0-changes-28#focus
     private val initialFocusAfterClearFocus = SDK_INT < Build.VERSION_CODES.P
-
-    @Before
-    fun enableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = true
-    }
-
-    @After
-    fun disableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = previousFlagValue
-    }
 
     @Test
     fun nothingFocused() {

@@ -68,7 +68,6 @@ public class PaintBundle implements Serializable {
                         String fontString = paintContext.getText(font_type);
                         p.setTypeFace(fontString, weight, italic);
                     } else {
-
                         p.setTypeFace(font_type, weight, italic);
                     }
                     break;

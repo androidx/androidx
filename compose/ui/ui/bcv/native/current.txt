@@ -866,7 +866,7 @@ abstract interface androidx.compose.ui.node/GlobalPositionAwareModifierNode : an
     abstract fun onGloballyPositioned(androidx.compose.ui.layout/LayoutCoordinates) // androidx.compose.ui.node/GlobalPositionAwareModifierNode.onGloballyPositioned|onGloballyPositioned(androidx.compose.ui.layout.LayoutCoordinates){}[0]
 }
 
-abstract interface androidx.compose.ui.node/LayoutAwareModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.node/LayoutAwareModifierNode|null[0]
+abstract interface androidx.compose.ui.node/LayoutAwareModifierNode : androidx.compose.ui.node/DelegatableNode, androidx.compose.ui.node/MeasuredSizeAwareModifierNode { // androidx.compose.ui.node/LayoutAwareModifierNode|null[0]
     open fun onPlaced(androidx.compose.ui.layout/LayoutCoordinates) // androidx.compose.ui.node/LayoutAwareModifierNode.onPlaced|onPlaced(androidx.compose.ui.layout.LayoutCoordinates){}[0]
     open fun onRemeasured(androidx.compose.ui.unit/IntSize) // androidx.compose.ui.node/LayoutAwareModifierNode.onRemeasured|onRemeasured(androidx.compose.ui.unit.IntSize){}[0]
 }
@@ -877,6 +877,10 @@ abstract interface androidx.compose.ui.node/LayoutModifierNode : androidx.compos
     open fun (androidx.compose.ui.layout/IntrinsicMeasureScope).maxIntrinsicWidth(androidx.compose.ui.layout/IntrinsicMeasurable, kotlin/Int): kotlin/Int // androidx.compose.ui.node/LayoutModifierNode.maxIntrinsicWidth|maxIntrinsicWidth@androidx.compose.ui.layout.IntrinsicMeasureScope(androidx.compose.ui.layout.IntrinsicMeasurable;kotlin.Int){}[0]
     open fun (androidx.compose.ui.layout/IntrinsicMeasureScope).minIntrinsicHeight(androidx.compose.ui.layout/IntrinsicMeasurable, kotlin/Int): kotlin/Int // androidx.compose.ui.node/LayoutModifierNode.minIntrinsicHeight|minIntrinsicHeight@androidx.compose.ui.layout.IntrinsicMeasureScope(androidx.compose.ui.layout.IntrinsicMeasurable;kotlin.Int){}[0]
     open fun (androidx.compose.ui.layout/IntrinsicMeasureScope).minIntrinsicWidth(androidx.compose.ui.layout/IntrinsicMeasurable, kotlin/Int): kotlin/Int // androidx.compose.ui.node/LayoutModifierNode.minIntrinsicWidth|minIntrinsicWidth@androidx.compose.ui.layout.IntrinsicMeasureScope(androidx.compose.ui.layout.IntrinsicMeasurable;kotlin.Int){}[0]
+}
+
+abstract interface androidx.compose.ui.node/MeasuredSizeAwareModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.node/MeasuredSizeAwareModifierNode|null[0]
+    abstract fun onRemeasured(androidx.compose.ui.unit/IntSize) // androidx.compose.ui.node/MeasuredSizeAwareModifierNode.onRemeasured|onRemeasured(androidx.compose.ui.unit.IntSize){}[0]
 }
 
 abstract interface androidx.compose.ui.node/ObserverModifierNode : androidx.compose.ui.node/DelegatableNode { // androidx.compose.ui.node/ObserverModifierNode|null[0]
@@ -3522,6 +3526,8 @@ final object androidx.compose.ui.semantics/SemanticsProperties { // androidx.com
         final fun <get-TestTag>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin/String> // androidx.compose.ui.semantics/SemanticsProperties.TestTag.<get-TestTag>|<get-TestTag>(){}[0]
     final val Text // androidx.compose.ui.semantics/SemanticsProperties.Text|{}Text[0]
         final fun <get-Text>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin.collections/List<androidx.compose.ui.text/AnnotatedString>> // androidx.compose.ui.semantics/SemanticsProperties.Text.<get-Text>|<get-Text>(){}[0]
+    final val TextEntryKey // androidx.compose.ui.semantics/SemanticsProperties.TextEntryKey|{}TextEntryKey[0]
+        final fun <get-TextEntryKey>(): androidx.compose.ui.semantics/SemanticsPropertyKey<kotlin/Unit> // androidx.compose.ui.semantics/SemanticsProperties.TextEntryKey.<get-TextEntryKey>|<get-TextEntryKey>(){}[0]
     final val TextSelectionRange // androidx.compose.ui.semantics/SemanticsProperties.TextSelectionRange|{}TextSelectionRange[0]
         final fun <get-TextSelectionRange>(): androidx.compose.ui.semantics/SemanticsPropertyKey<androidx.compose.ui.text/TextRange> // androidx.compose.ui.semantics/SemanticsProperties.TextSelectionRange.<get-TextSelectionRange>|<get-TextSelectionRange>(){}[0]
     final val TextSubstitution // androidx.compose.ui.semantics/SemanticsProperties.TextSubstitution|{}TextSubstitution[0]
@@ -4028,6 +4034,7 @@ final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).androidx.com
 final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).androidx.compose.ui.semantics/setText(kotlin/String? = ..., kotlin/Function1<androidx.compose.ui.text/AnnotatedString, kotlin/Boolean>?) // androidx.compose.ui.semantics/setText|setText@androidx.compose.ui.semantics.SemanticsPropertyReceiver(kotlin.String?;kotlin.Function1<androidx.compose.ui.text.AnnotatedString,kotlin.Boolean>?){}[0]
 final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).androidx.compose.ui.semantics/setTextSubstitution(kotlin/String? = ..., kotlin/Function1<androidx.compose.ui.text/AnnotatedString, kotlin/Boolean>?) // androidx.compose.ui.semantics/setTextSubstitution|setTextSubstitution@androidx.compose.ui.semantics.SemanticsPropertyReceiver(kotlin.String?;kotlin.Function1<androidx.compose.ui.text.AnnotatedString,kotlin.Boolean>?){}[0]
 final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).androidx.compose.ui.semantics/showTextSubstitution(kotlin/String? = ..., kotlin/Function1<kotlin/Boolean, kotlin/Boolean>?) // androidx.compose.ui.semantics/showTextSubstitution|showTextSubstitution@androidx.compose.ui.semantics.SemanticsPropertyReceiver(kotlin.String?;kotlin.Function1<kotlin.Boolean,kotlin.Boolean>?){}[0]
+final fun (androidx.compose.ui.semantics/SemanticsPropertyReceiver).androidx.compose.ui.semantics/textEntryKey() // androidx.compose.ui.semantics/textEntryKey|textEntryKey@androidx.compose.ui.semantics.SemanticsPropertyReceiver(){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.autofill/contentType(androidx.compose.ui.autofill/ContentType): androidx.compose.ui/Modifier // androidx.compose.ui.autofill/contentType|contentType@androidx.compose.ui.Modifier(androidx.compose.ui.autofill.ContentType){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/alpha(kotlin/Float): androidx.compose.ui/Modifier // androidx.compose.ui.draw/alpha|alpha@androidx.compose.ui.Modifier(kotlin.Float){}[0]
 final fun (androidx.compose.ui/Modifier).androidx.compose.ui.draw/blur(androidx.compose.ui.unit/Dp, androidx.compose.ui.draw/BlurredEdgeTreatment = ...): androidx.compose.ui/Modifier // androidx.compose.ui.draw/blur|blur@androidx.compose.ui.Modifier(androidx.compose.ui.unit.Dp;androidx.compose.ui.draw.BlurredEdgeTreatment){}[0]

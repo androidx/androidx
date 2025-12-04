@@ -31,8 +31,27 @@ import org.jspecify.annotations.Nullable;
 public class RemoteComposeWriterAndroid extends RemoteComposeWriter {
     private final @NonNull Painter mPainter = new Painter(this);
 
+    public RemoteComposeWriterAndroid(
+            @NonNull CreationDisplayInfo creationDisplayInfo,
+            @Nullable String contentDescription,
+            @NonNull Profile profile,
+            @Nullable Object writerCallback) {
+        super(creationDisplayInfo, contentDescription, profile, writerCallback);
+    }
+
+    public RemoteComposeWriterAndroid(
+            @NonNull CreationDisplayInfo creationDisplayInfo,
+            @Nullable String contentDescription,
+            @NonNull Profile profile) {
+        super(creationDisplayInfo, contentDescription, profile, null);
+    }
+
+    public RemoteComposeWriterAndroid(@NonNull Profile profile, HTag @NonNull ... tags) {
+        super(profile, tags);
+    }
+
     public RemoteComposeWriterAndroid(int width, int height,
-            @NonNull String contentDescription,
+            @Nullable String contentDescription,
             @NonNull RcPlatformServices platform) {
         super(width, height, contentDescription, platform);
     }
@@ -61,7 +80,7 @@ public class RemoteComposeWriterAndroid extends RemoteComposeWriter {
     /**
      * Add a bitmap to the document
      *
-     * @param image a Bitmap object
+     * @param image              a Bitmap object
      * @param contentDescription a description for the image
      */
     public void drawBitmap(@NonNull Bitmap image, @Nullable String contentDescription) {

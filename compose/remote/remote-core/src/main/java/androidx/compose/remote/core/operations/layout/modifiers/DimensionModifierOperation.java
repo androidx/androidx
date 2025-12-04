@@ -39,7 +39,7 @@ public abstract class DimensionModifierOperation extends Operation
         EXACT_DP;
 
         @NonNull
-        static Type fromInt(int value) {
+        public static Type fromInt(int value) {
             switch (value) {
                 case 0:
                     return EXACT;

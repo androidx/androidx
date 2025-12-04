@@ -33,6 +33,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -1122,6 +1123,25 @@ class WindowInsetsPaddingTest {
         rule.waitUntil { WindowInsetsActivity.topActivity == null }
     }
 
+    @Test
+    fun contentNotRecomposedWhenContainerRecomposed() {
+        var forceRecomposing by mutableStateOf(0)
+        val recomposed = mutableStateOf(false)
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                forceRecomposing
+                InnerContent(Modifier.systemGesturesPadding(), recomposed)
+            }
+        }
+
+        rule.waitForIdle()
+        recomposed.value = false
+        forceRecomposing++
+        rule.waitForIdle()
+        assertThat(recomposed.value).isFalse()
+    }
+
     private fun sendInsets(
         type: Int,
         sentInsets: AndroidXInsets = AndroidXInsets.of(10, 11, 12, 13),
@@ -1264,4 +1284,9 @@ internal class InsetsView(context: Context) : FrameLayout(context) {
             return null
         }
     }
+}
+
+@Composable
+private fun InnerContent(modifier: Modifier, state: MutableState<Boolean>) {
+    Box(modifier) { state.value = true }
 }

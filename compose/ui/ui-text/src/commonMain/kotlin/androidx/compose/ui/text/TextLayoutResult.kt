@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.text
 
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Path
@@ -271,7 +272,7 @@ private constructor(private val fontFamilyResolver: FontFamily.Resolver) : Font.
         // If this map is found to be large in profiling of an app, please modify your code to not
         // call getFontResourceLoader, and evaluate if FontFamily.Resolver is being correctly cached
         // (via e.g. remember)
-        var cache = mutableMapOf<FontFamily.Resolver, Font.ResourceLoader>()
+        var cache = mutableScatterMapOf<FontFamily.Resolver, Font.ResourceLoader>()
         val lock: SynchronizedObject = makeSynchronizedObject()
 
         fun from(fontFamilyResolver: FontFamily.Resolver): Font.ResourceLoader {

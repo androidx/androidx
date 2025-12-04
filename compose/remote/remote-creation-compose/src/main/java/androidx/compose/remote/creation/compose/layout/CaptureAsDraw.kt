@@ -37,7 +37,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 @RemoteComposable
 @Composable
 public fun CaptureAsDraw(content: @Composable () -> Unit) {
-    Box {
+    RemoteBox {
         CompositionLocalProvider(LocalRemoteComposeCreationState provides NoRemoteCompose()) {
             content.invoke()
         }

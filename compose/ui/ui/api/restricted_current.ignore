@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-BecameUnchecked: androidx.compose.ui.contentcapture:
-    Removed package androidx.compose.ui.contentcapture from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat_androidKt:
-    Removed class androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat_androidKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.platform.ClipboardExtensions_androidKt:
-    Removed class androidx.compose.ui.platform.ClipboardExtensions_androidKt from compatibility checked API surface

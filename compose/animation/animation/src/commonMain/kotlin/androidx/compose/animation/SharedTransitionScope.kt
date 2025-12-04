@@ -44,6 +44,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -1190,18 +1191,18 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     // Called from the observation in SharedTransitionScopeRootModifierNode
     internal val observeAnimatingBlock: () -> Unit = {
-        sharedElements.any { _, element -> element.isAnimating() }
+        sharedElements.any { (_, element) -> element.isAnimating() }
     }
 
     internal fun updateTransitionActiveness() {
-        val isActive = sharedElements.any { _, element -> element.isAnimating() }
+        val isActive = sharedElements.any { (_, element) -> element.isAnimating() }
         if (isActive != isTransitionActive) {
             isTransitionActive = isActive
             if (!isActive) {
-                sharedElements.forEach { _, element -> element.onSharedTransitionFinished() }
+                sharedElements.forEach { (_, element) -> element.onSharedTransitionFinished() }
             }
         }
-        sharedElements.forEach { _, element -> element.updateMatch() }
+        sharedElements.forEach { (_, element) -> element.updateMatch() }
     }
 
     /** ******** Impl details below **************** */
@@ -1366,7 +1367,11 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     // TODO: Use MutableObjectList and impl sort
     private val renderers = mutableStateListOf<LayerRenderer>()
 
-    private val sharedElements = MutableScatterMap<Any, SharedElement>()
+    // sharedElements are being observed for the edge events of 1) any transition has started,
+    // and 2) all transitions are finished. As such, the map containing the key-sharedElement pairs
+    // need to be observable, in order to update the observation when new shared elements are
+    // added or removed.
+    private val sharedElements = mutableStateMapOf<Any, SharedElement>()
 
     private fun sharedElementsFor(key: Any): SharedElement {
         return sharedElements[key] ?: SharedElement(key, this).also { sharedElements[key] = it }

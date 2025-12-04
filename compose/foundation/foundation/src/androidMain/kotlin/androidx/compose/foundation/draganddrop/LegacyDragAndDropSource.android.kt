@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.node.DelegatingNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.MeasuredSizeAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.IntSize
@@ -128,7 +128,7 @@ private class LegacyDragAndDropSourceElement(
 internal class LegacyDragAndDropSourceNode(
     var drawDragDecoration: DrawScope.() -> Unit,
     var dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit,
-) : DelegatingNode(), LayoutAwareModifierNode {
+) : DelegatingNode(), MeasuredSizeAwareModifierNode {
 
     private var size: IntSize = IntSize.Zero
 

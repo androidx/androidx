@@ -74,6 +74,7 @@ public class DrawBitmapTextAnchored extends PaintOperation implements VariableSu
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
+        context.listensTo(mTextID, this);
         mOutX = Float.isNaN(mX) ? context.getFloat(Utils.idFromNan(mX)) : mX;
         mOutY = Float.isNaN(mY) ? context.getFloat(Utils.idFromNan(mY)) : mY;
         mOutPanX = Float.isNaN(mPanX) ? context.getFloat(Utils.idFromNan(mPanX)) : mPanX;

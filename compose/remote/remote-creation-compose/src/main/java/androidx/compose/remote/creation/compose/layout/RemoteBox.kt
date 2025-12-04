@@ -18,19 +18,13 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.modifier.BackgroundModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.modifier.toComposeUi
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -39,22 +33,18 @@ import androidx.compose.ui.unit.LayoutDirection
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeBoxModifier(
     private val modifier: RemoteModifier,
-    private val horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    private val verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    private val horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
+    private val verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
-        drawIntoCanvas {
-            if (it.nativeCanvas is RecordingCanvas) {
-                (it.nativeCanvas as RecordingCanvas).let {
-                    it.document.startBox(
-                        modifier.toRemoteCompose(),
-                        horizontalAlignment.toRemoteCompose(),
-                        verticalArrangement.toRemoteCompose(),
-                    )
-                    drawContent()
-                    it.document.endBox()
-                }
-            }
+        drawIntoRemoteCanvas { canvas ->
+            canvas.document.startBox(
+                modifier.toRemoteCompose(),
+                horizontalAlignment.toRemoteCompose(),
+                verticalArrangement.toRemoteCompose(),
+            )
+            this@draw.drawContent()
+            canvas.document.endBox()
         }
     }
 }
@@ -68,32 +58,21 @@ public class RemoteComposeBoxModifier(
 @Composable
 public fun RemoteBox(
     modifier: RemoteModifier = RemoteModifier,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Center,
+    horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
+    verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
     content: @Composable () -> Unit,
 ) {
-    val captureMode = LocalRemoteComposeCreationState.current
-    if (captureMode is NoRemoteCompose) {
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        androidx.compose.foundation.layout.Box(
-            modifier.toComposeUi(),
-            contentAlignment = boxAlignment(horizontalAlignment, verticalArrangement),
-        ) {
-            content()
+    val background = modifier.find<BackgroundModifier>()
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
+    androidx.compose.foundation.layout.Box(
+        RemoteComposeBoxModifier(modifier, horizontalAlignment, verticalArrangement)
+            .then(modifier.toComposeUiLayout())
+    ) {
+        if (background?.brush?.hasShader == true) {
+            RemoteCanvas(RemoteModifier.fillMaxSize()) { drawRect(background.brush) }
         }
-    } else {
-        val background = modifier.find<BackgroundModifier>()
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        androidx.compose.foundation.layout.Box(
-            RemoteComposeBoxModifier(modifier, horizontalAlignment, verticalArrangement)
-                .then(modifier.toComposeUiLayout())
-        ) {
-            if (background?.brush?.hasShader == true) {
-                RemoteCanvas(RemoteModifier.fillMaxSize()) { drawRect(background.brush) }
-            }
 
-            content()
-        }
+        content()
     }
 }
 
@@ -102,19 +81,20 @@ public inline fun <reified T : RemoteModifier.Element> RemoteModifier.find(): T?
 }
 
 public fun boxAlignment(
-    horizontal: Alignment.Horizontal,
-    vertical: Arrangement.Vertical,
+    horizontal: RemoteAlignment.Horizontal,
+    vertical: RemoteArrangement.Vertical,
 ): androidx.compose.ui.Alignment {
     return CombinedAlignment(horizontal.toComposeUi(), vertical.toComposeUiAlignment())
 }
 
-private fun Arrangement.Vertical.toComposeUiAlignment(): androidx.compose.ui.Alignment.Vertical {
+private fun RemoteArrangement.Vertical.toComposeUiAlignment():
+    androidx.compose.ui.Alignment.Vertical {
     return when (this) {
-        Arrangement.Top -> androidx.compose.ui.Alignment.Top
-        Arrangement.Center -> androidx.compose.ui.Alignment.CenterVertically
-        Arrangement.Bottom -> androidx.compose.ui.Alignment.Bottom
+        RemoteArrangement.Top -> androidx.compose.ui.Alignment.Top
+        RemoteArrangement.Center -> androidx.compose.ui.Alignment.CenterVertically
+        RemoteArrangement.Bottom -> androidx.compose.ui.Alignment.Bottom
         else -> {
-            System.err.println("Unsupported Arrangement $this")
+            System.err.println("Unsupported RemoteArrangement $this")
             androidx.compose.ui.Alignment.CenterVertically
         }
     }

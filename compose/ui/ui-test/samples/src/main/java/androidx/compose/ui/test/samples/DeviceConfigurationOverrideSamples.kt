@@ -41,6 +41,7 @@ import androidx.compose.ui.test.RoundScreen
 import androidx.compose.ui.test.Touchscreen
 import androidx.compose.ui.test.UiMode
 import androidx.compose.ui.test.WindowInsets
+import androidx.compose.ui.test.WindowSize
 import androidx.compose.ui.test.then
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.DpRect
@@ -75,6 +76,15 @@ fun DeviceConfigurationOverrideFontScaleSample() {
 fun DeviceConfigurationOverrideForcedSizeSample() {
     DeviceConfigurationOverride(DeviceConfigurationOverride.ForcedSize(DpSize(1280.dp, 800.dp))) {
         MyScreen() // will be rendered in the space for 1280dp by 800dp without clipping
+    }
+}
+
+@Sampled
+@Composable
+fun DeviceConfigurationOverrideWindowSizeSample() {
+    DeviceConfigurationOverride(DeviceConfigurationOverride.WindowSize(DpSize(1280.dp, 800.dp))) {
+        MyScreen() // will be rendered with an apparent window size of 1280dp by 800dp without
+        // clipping
     }
 }
 

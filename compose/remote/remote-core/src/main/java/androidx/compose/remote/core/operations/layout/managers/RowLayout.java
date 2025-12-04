@@ -128,8 +128,8 @@ public class RowLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float maxWidth,
-            float maxHeight,
+            float minWidth, float maxWidth,
+            float minHeight, float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
@@ -137,16 +137,68 @@ public class RowLayout extends LayoutManager {
         DebugLog.s(() -> "COMPUTE WRAP SIZE in " + this + " (" + mComponentId + ")");
         int visibleChildrens = 0;
         float currentMaxWidth = maxWidth;
-        for (Component c : mChildrenComponents) {
-            c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
-            ComponentMeasure m = measure.get(c);
-            if (!m.isGone()) {
-                size.setWidth(size.getWidth() + m.getW());
-                size.setHeight(Math.max(size.getHeight(), m.getH()));
-                visibleChildrens++;
-                currentMaxWidth -= m.getW();
+
+        float totalWeights = 0f;
+        boolean hasWeights = false;
+        for (Component child : mChildrenComponents) {
+            ComponentMeasure childMeasure = measure.get(child);
+            if (childMeasure.isGone()) {
+                continue;
+            }
+            if (child instanceof LayoutComponent
+                    && ((LayoutComponent) child).getWidthModifier().hasWeight()) {
+                hasWeights = true;
+                totalWeights += ((LayoutComponent) child).getWidthModifier().getValue();
             }
         }
+
+        if (hasWeights) {
+            // we have to measure all children first that do not have weight
+            for (Component c : mChildrenComponents) {
+                if (c instanceof LayoutComponent
+                        && ((LayoutComponent) c).getWidthModifier().hasWeight()) {
+                    continue;
+                }
+                c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(size.getWidth() + m.getW());
+                    size.setHeight(Math.max(size.getHeight(), m.getH()));
+                    visibleChildrens++;
+                    currentMaxWidth -= m.getW();
+                }
+            }
+            // Then we can measure the children with weight
+            for (Component c : mChildrenComponents) {
+                if (!(c instanceof LayoutComponent
+                        && ((LayoutComponent) c).getWidthModifier().hasWeight())) {
+                    continue;
+                }
+                float childWeight = ((LayoutComponent) c).getWidthModifier().getValue();
+                float childMinWidth = (childWeight * currentMaxWidth) / totalWeights;
+                float childMaxWidth = childMinWidth;
+
+                c.measure(context, childMinWidth, childMaxWidth, 0f, maxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(size.getWidth() + m.getW());
+                    size.setHeight(Math.max(size.getHeight(), m.getH()));
+                    visibleChildrens++;
+                }
+            }
+        } else {
+            for (Component c : mChildrenComponents) {
+                c.measure(context, 0f, currentMaxWidth, 0f, maxHeight, measure);
+                ComponentMeasure m = measure.get(c);
+                if (!m.isGone()) {
+                    size.setWidth(size.getWidth() + m.getW());
+                    size.setHeight(Math.max(size.getHeight(), m.getH()));
+                    visibleChildrens++;
+                    currentMaxWidth -= m.getW();
+                }
+            }
+        }
+
         if (!mChildrenComponents.isEmpty()) {
             size.setWidth(size.getWidth() + (mSpacedBy * (visibleChildrens - 1)));
         }

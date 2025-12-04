@@ -21,7 +21,9 @@ import android.graphics.Typeface
 import android.os.Build
 import android.util.TypedValue
 import androidx.annotation.RequiresApi
+import androidx.collection.ScatterMap
 import androidx.collection.SieveCache
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.AndroidPreloadedFont
 import androidx.compose.ui.text.font.Font
@@ -59,7 +61,7 @@ internal class AndroidFontListTypeface(
         val fontMatcher = FontMatcher()
     }
 
-    private val loadedTypefaces: Map<Font, Typeface>
+    private val loadedTypefaces: ScatterMap<Font, Typeface>
 
     init {
         val blockingFonts =
@@ -74,7 +76,7 @@ internal class AndroidFontListTypeface(
         val targetFonts = matchedFonts ?: blockingFonts
         checkPrecondition(targetFonts.isNotEmpty()) { "Could not match font" }
 
-        val typefaces = mutableMapOf<Font, Typeface>()
+        val typefaces = mutableScatterMapOf<Font, Typeface>()
         targetFonts.fastForEach {
             try {
                 typefaces[it] = AndroidTypefaceCache.getOrCreate(context, it)
@@ -93,10 +95,9 @@ internal class AndroidFontListTypeface(
         fontStyle: FontStyle,
         synthesis: FontSynthesis,
     ): Typeface {
-        val font =
-            fontMatcher
-                .matchFont(ArrayList(loadedTypefaces.keys), fontWeight, fontStyle)
-                .firstOrNull()
+        val typefaces = ArrayList<Font>()
+        loadedTypefaces.forEachKey { typefaces += it }
+        val font = fontMatcher.matchFont(typefaces, fontWeight, fontStyle).firstOrNull()
         checkPreconditionNotNull(font) { "Could not load font" }
 
         val typeface = loadedTypefaces[font]

@@ -492,7 +492,9 @@ constructor(
         scrollPriority: MutatePriority,
         block: suspend ScrollScope.() -> Unit,
     ) {
-        awaitLayoutModifier.waitForFirstLayout()
+        if (layoutInfoState.value === EmptyLazyGridLayoutInfo) {
+            awaitLayoutModifier.waitForFirstLayout()
+        }
         scrollableState.scroll(scrollPriority, block)
     }
 

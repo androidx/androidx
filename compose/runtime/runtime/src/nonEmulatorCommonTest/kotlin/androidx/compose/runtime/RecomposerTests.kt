@@ -22,13 +22,11 @@ import androidx.compose.runtime.mock.Text
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectNoChanges
 import androidx.compose.runtime.snapshots.Snapshot
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -251,24 +249,6 @@ class RecomposerTests {
 
         state = false
         advance()
-    }
-
-    @Test
-    @OptIn(ExperimentalComposeApi::class)
-    fun compositionRecomposeContextDelegation() {
-        val recomposer = Recomposer(EmptyCoroutineContext)
-        val parent = Composition(UnitApplier(), recomposer, CoroutineName("testParent"))
-        lateinit var child: ControlledComposition
-        parent.setContent {
-            val parentContext = rememberCompositionContext()
-            SideEffect { child = ControlledComposition(UnitApplier(), parentContext) }
-        }
-
-        assertEquals(
-            "testParent",
-            child.recomposeCoroutineContext[CoroutineName]?.name,
-            "child did not inherit parent recomposeCoroutineContext",
-        )
     }
 
     @Test

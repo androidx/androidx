@@ -101,7 +101,7 @@ class PagerNestedPrefetchingTest(val config: ParamConfig) : BasePagerTest(config
             runBlocking {
                 // this will move the viewport so pages 1-2 are visible
                 // and schedule a prefetching for 3
-                listState.scrollBy(pageSizePx * 2f.toFloat())
+                listState.scrollBy(pageSizePx * 2f)
             }
         }
 

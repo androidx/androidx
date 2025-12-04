@@ -120,7 +120,7 @@ public actual class SnapshotStateSet<T> : Parcelable, StateObject, MutableSet<T>
     }
 
     internal companion object {
-        @Suppress("unused", "NullableCollectionElement")
+        @field:Suppress("unused", "NullableCollectionElement")
         @JvmField
         val CREATOR: Parcelable.Creator<SnapshotStateSet<Any?>> =
             object : Parcelable.ClassLoaderCreator<SnapshotStateSet<Any?>> {

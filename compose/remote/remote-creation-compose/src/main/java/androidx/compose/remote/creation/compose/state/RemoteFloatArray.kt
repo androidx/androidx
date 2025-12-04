@@ -23,14 +23,10 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.ui.util.fastMap
 
-/**
- * Represents an array of floats.
- *
- * @property input The collection of floats to store in the document
- */
+/** Represents an array of floats. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteFloatArray(public override val constantValue: List<RemoteFloat>?) :
-    RemoteState<List<RemoteFloat>> {
+    BaseRemoteState<List<RemoteFloat>>() {
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val asFloat = constantValue!!.fastMap { it.toFloat() }.toFloatArray()

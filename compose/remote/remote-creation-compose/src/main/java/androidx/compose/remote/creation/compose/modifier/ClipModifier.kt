@@ -24,8 +24,6 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.modifiers.UnsupportedModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
@@ -73,8 +71,6 @@ public class ClipModifier(
             }
         }
     }
-
-    @Composable override fun Modifier.toComposeUi(): Modifier = clip(shape)
 }
 
 @Composable

@@ -225,7 +225,7 @@ class PlatformFontFamilyTypefaceAdapterTest {
     }
 
     private class TrackingFun : Function1<TypefaceResult, Unit> {
-        private val lock = Object()
+        private val lock = Any()
         private val _calledWith = mutableListOf<TypefaceResult>()
         val calledWith: List<TypefaceResult>
             get() = synchronized(lock) { _calledWith }

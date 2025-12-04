@@ -6,9 +6,7 @@ package androidx.compose.ui.unit {
   }
 
   @SuppressCompatibility @androidx.compose.ui.unit.ExperimentalUnitApi public final class ComposeUiUnitFlags {
-    property public boolean isDpCompareToChanged;
     field public static final androidx.compose.ui.unit.ComposeUiUnitFlags INSTANCE;
-    field public static boolean isDpCompareToChanged;
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Constraints {
@@ -381,7 +379,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable public final class IntRect {
-    ctor public IntRect(@androidx.compose.runtime.Stable int left, @androidx.compose.runtime.Stable int top, @androidx.compose.runtime.Stable int right, @androidx.compose.runtime.Stable int bottom);
+    ctor public IntRect(int left, int top, int right, int bottom);
     method public int component1();
     method public int component2();
     method public int component3();

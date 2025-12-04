@@ -24,6 +24,8 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -34,7 +36,7 @@ import java.util.List;
 
 /** Operation to Measure Text data */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextMeasure extends PaintOperation {
+public class TextMeasure extends PaintOperation implements VariableSupport {
     private static final int OP_CODE = Operations.TEXT_MEASURE;
     private static final String CLASS_NAME = "TextMeasure";
     public int mId;
@@ -58,6 +60,14 @@ public class TextMeasure extends PaintOperation {
         this.mTextId = textId;
         this.mType = type;
     }
+
+    @Override
+    public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextId, this);
+    }
+
+    @Override
+    public void updateVariables(@NonNull RemoteContext context) {}
 
     @Override
     public void write(@NonNull WireBuffer buffer) {

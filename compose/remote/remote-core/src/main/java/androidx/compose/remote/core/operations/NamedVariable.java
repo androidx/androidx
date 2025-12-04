@@ -46,6 +46,7 @@ public class NamedVariable extends Operation implements Serializable {
     public static final int IMAGE_TYPE = 3;
     public static final int INT_TYPE = 4;
     public static final int LONG_TYPE = 5;
+    public static final int FLOAT_ARRAY_TYPE = 6;
 
     public NamedVariable(int varId, int varType, @NonNull String name) {
         this.mVarId = varId;

@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.profile;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.RcPlatformServices;
+import androidx.compose.remote.creation.CreationDisplayInfo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
@@ -52,15 +53,16 @@ public class Profile {
     @NonNull
     RemoteComposeWriterFactory mFactory;
 
-    @Nullable Supplier<Set<Integer>> mSupportedOperations;
+    @Nullable
+    Supplier<Set<Integer>> mSupportedOperations;
 
     /**
      * Profile constructor
      *
-     * @param apiLevel the api level used by this profile
+     * @param apiLevel          the api level used by this profile
      * @param operationProfiles the operation profiles bitmask (specifying valid set of operations)
-     * @param platform a platform services implementation
-     * @param factory a valid factory returning a RemoteComposeWriter
+     * @param platform          a platform services implementation
+     * @param factory           a valid factory returning a RemoteComposeWriter
      */
     public Profile(
             int apiLevel,
@@ -76,11 +78,12 @@ public class Profile {
     /**
      * Profile constructor
      *
-     * @param apiLevel the api level used by this profile
-     * @param operationProfiles the operation profiles bitmask (specifying valid set of operations)
-     * @param platform a platform services implementation
+     * @param apiLevel            the api level used by this profile
+     * @param operationProfiles   the operation profiles bitmask (specifying valid set of
+     *                            operations)
+     * @param platform            a platform services implementation
      * @param supportedOperations supplier of supported operations
-     * @param factory a valid factory returning a RemoteComposeWriter
+     * @param factory             a valid factory returning a RemoteComposeWriter
      */
     public Profile(
             int apiLevel,
@@ -98,13 +101,13 @@ public class Profile {
     /**
      * Returns a valid RemoteComposeWriter that can be used to create a document
      *
-     * @param width original width of the document
-     * @param height original height of the document
-     * @param description content description
+     * @param creationDisplayInfo original size of the document
+     * @param writerCallback the callback for writer out of band data
      * @return a valid RemoteComposeWriter
      */
-    public @NonNull RemoteComposeWriter create(int width, int height, @NonNull String description) {
-        return mFactory.create(width, height, description, this);
+    public @NonNull RemoteComposeWriter create(@NonNull CreationDisplayInfo creationDisplayInfo,
+            @Nullable Object writerCallback) {
+        return mFactory.create(creationDisplayInfo, this, writerCallback);
     }
 
     /**

@@ -19,9 +19,12 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.util.TypedValue;
 
 import androidx.annotation.RestrictTo;
+
+import java.util.HashMap;
 
 /** Implement color theme support */
 @RestrictTo(LIBRARY_GROUP)
@@ -29,6 +32,7 @@ public class ThemeSupport {
 
     RemoteComposeView mInner;
     Context mContext;
+    HashMap<String, Integer> mColorMap = null;
 
     /** Map system colors to document */
     public void mapColors(Context context, RemoteComposeView view) {
@@ -42,6 +46,19 @@ public class ThemeSupport {
             return;
         }
         boolean found = false;
+        String prefix = "color.";
+        for (int i = 0; i < name.length; i++) {
+            if (name[i].startsWith(prefix)) {
+                int id = lookupColor(name[i].substring(prefix.length()));
+                if (id != -1) {
+                   // setRColor(name[i], id);
+                    mInner.setColor(name[i], context.getColor(id));
+                    int color = context.getColor(id);
+                    float[]hsb = new float[3];
+                    Color.colorToHSV(color, hsb);
+                }
+            }
+        }
         for (int i = 0; i < name.length; i++) {
             if (name[i].startsWith("android.")) {
                 found = true;
@@ -51,7 +68,9 @@ public class ThemeSupport {
         if (!found) {
             return;
         }
-
+        if (null ==  mContext.getApplicationContext()) {
+            return;
+        }
         for (int i = 0; i < name.length; i++) {
             String s = name[i];
             if (!s.startsWith("android.")) {
@@ -231,8 +250,10 @@ public class ThemeSupport {
     }
 
     private void setRColor(String name, int id) {
-        int color = getColorFromResource(id);
-        mInner.setColor(name, color);
+        if (null !=  mContext.getApplicationContext()) {
+            int color = getColorFromResource(id);
+            mInner.setColor(name, color);
+        }
     }
 
     private int getColorFromResource(int id) {
@@ -240,12 +261,423 @@ public class ThemeSupport {
                 >= android.os.Build.VERSION_CODES.S) { // REMOVE IN PLATFORM
             TypedValue typedValue = new TypedValue();
             try (TypedArray arr =
-                    mContext.getApplicationContext()
+                         mContext.getApplicationContext()
                             .obtainStyledAttributes(typedValue.data, new int[] {id})) {
                 int color = arr.getColor(0, -1);
                 return color;
             }
         } // REMOVE IN PLATFORM
         return 0; // REMOVE IN PLATFORM
+    }
+
+    private int lookupColor(String name) {
+
+        int[] colors = {
+                android.R.color.background_dark,
+                android.R.color.background_light,
+                android.R.color.black,
+                android.R.color.darker_gray,
+                android.R.color.holo_blue_bright,
+                android.R.color.holo_blue_dark,
+                android.R.color.holo_blue_light,
+                android.R.color.holo_green_dark,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_dark,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_purple,
+                android.R.color.holo_red_dark,
+                android.R.color.holo_red_light,
+                android.R.color.system_accent1_0,
+                android.R.color.system_accent1_10,
+                android.R.color.system_accent1_100,
+                android.R.color.system_accent1_1000,
+                android.R.color.system_accent1_200,
+                android.R.color.system_accent1_300,
+                android.R.color.system_accent1_400,
+                android.R.color.system_accent1_50,
+                android.R.color.system_accent1_500,
+                android.R.color.system_accent1_600,
+                android.R.color.system_accent1_700,
+                android.R.color.system_accent1_800,
+                android.R.color.system_accent1_900,
+                android.R.color.system_accent2_0,
+                android.R.color.system_accent2_10,
+                android.R.color.system_accent2_100,
+                android.R.color.system_accent2_1000,
+                android.R.color.system_accent2_200,
+                android.R.color.system_accent2_300,
+                android.R.color.system_accent2_400,
+                android.R.color.system_accent2_50,
+                android.R.color.system_accent2_500,
+                android.R.color.system_accent2_600,
+                android.R.color.system_accent2_700,
+                android.R.color.system_accent2_800,
+                android.R.color.system_accent2_900,
+                android.R.color.system_accent3_0,
+                android.R.color.system_accent3_10,
+                android.R.color.system_accent3_100,
+                android.R.color.system_accent3_1000,
+                android.R.color.system_accent3_200,
+                android.R.color.system_accent3_300,
+                android.R.color.system_accent3_400,
+                android.R.color.system_accent3_50,
+                android.R.color.system_accent3_500,
+                android.R.color.system_accent3_600,
+                android.R.color.system_accent3_700,
+                android.R.color.system_accent3_800,
+                android.R.color.system_accent3_900,
+                android.R.color.system_background_dark,
+                android.R.color.system_background_light,
+                android.R.color.system_control_activated_dark,
+                android.R.color.system_control_activated_light,
+                android.R.color.system_control_highlight_dark,
+                android.R.color.system_control_highlight_light,
+                android.R.color.system_control_normal_dark,
+                android.R.color.system_control_normal_light,
+                android.R.color.system_error_0,
+                android.R.color.system_error_10,
+                android.R.color.system_error_100,
+                android.R.color.system_error_1000,
+                android.R.color.system_error_200,
+                android.R.color.system_error_300,
+                android.R.color.system_error_400,
+                android.R.color.system_error_50,
+                android.R.color.system_error_500,
+                android.R.color.system_error_600,
+                android.R.color.system_error_700,
+                android.R.color.system_error_800,
+                android.R.color.system_error_900,
+                android.R.color.system_error_container_dark,
+                android.R.color.system_error_container_light,
+                android.R.color.system_error_dark,
+                android.R.color.system_error_light,
+                android.R.color.system_neutral1_0,
+                android.R.color.system_neutral1_10,
+                android.R.color.system_neutral1_100,
+                android.R.color.system_neutral1_1000,
+                android.R.color.system_neutral1_200,
+                android.R.color.system_neutral1_300,
+                android.R.color.system_neutral1_400,
+                android.R.color.system_neutral1_50,
+                android.R.color.system_neutral1_500,
+                android.R.color.system_neutral1_600,
+                android.R.color.system_neutral1_700,
+                android.R.color.system_neutral1_800,
+                android.R.color.system_neutral1_900,
+                android.R.color.system_neutral2_0,
+                android.R.color.system_neutral2_10,
+                android.R.color.system_neutral2_100,
+                android.R.color.system_neutral2_1000,
+                android.R.color.system_neutral2_200,
+                android.R.color.system_neutral2_300,
+                android.R.color.system_neutral2_400,
+                android.R.color.system_neutral2_50,
+                android.R.color.system_neutral2_500,
+                android.R.color.system_neutral2_600,
+                android.R.color.system_neutral2_700,
+                android.R.color.system_neutral2_800,
+                android.R.color.system_neutral2_900,
+                android.R.color.system_on_background_dark,
+                android.R.color.system_on_background_light,
+                android.R.color.system_on_error_container_dark,
+                android.R.color.system_on_error_container_light,
+                android.R.color.system_on_error_dark,
+                android.R.color.system_on_error_light,
+                android.R.color.system_on_primary_container_dark,
+                android.R.color.system_on_primary_container_light,
+                android.R.color.system_on_primary_dark,
+                android.R.color.system_on_primary_fixed,
+                android.R.color.system_on_primary_fixed_variant,
+                android.R.color.system_on_primary_light,
+                android.R.color.system_on_secondary_container_dark,
+                android.R.color.system_on_secondary_container_light,
+                android.R.color.system_on_secondary_dark,
+                android.R.color.system_on_secondary_fixed,
+                android.R.color.system_on_secondary_fixed_variant,
+                android.R.color.system_on_secondary_light,
+                android.R.color.system_on_surface_dark,
+                android.R.color.system_on_surface_disabled,
+                android.R.color.system_on_surface_light,
+                android.R.color.system_on_surface_variant_dark,
+                android.R.color.system_on_surface_variant_light,
+                android.R.color.system_on_tertiary_container_dark,
+                android.R.color.system_on_tertiary_container_light,
+                android.R.color.system_on_tertiary_dark,
+                android.R.color.system_on_tertiary_fixed,
+                android.R.color.system_on_tertiary_fixed_variant,
+                android.R.color.system_on_tertiary_light,
+                android.R.color.system_outline_dark,
+                android.R.color.system_outline_disabled,
+                android.R.color.system_outline_light,
+                android.R.color.system_outline_variant_dark,
+                android.R.color.system_outline_variant_light,
+                android.R.color.system_palette_key_color_neutral_dark,
+                android.R.color.system_palette_key_color_neutral_light,
+                android.R.color.system_palette_key_color_neutral_variant_dark,
+                android.R.color.system_palette_key_color_neutral_variant_light,
+                android.R.color.system_palette_key_color_primary_dark,
+                android.R.color.system_palette_key_color_primary_light,
+                android.R.color.system_palette_key_color_secondary_dark,
+                android.R.color.system_palette_key_color_secondary_light,
+                android.R.color.system_palette_key_color_tertiary_dark,
+                android.R.color.system_palette_key_color_tertiary_light,
+                android.R.color.system_primary_container_dark,
+                android.R.color.system_primary_container_light,
+                android.R.color.system_primary_dark,
+                android.R.color.system_primary_fixed,
+                android.R.color.system_primary_fixed_dim,
+                android.R.color.system_primary_light,
+                android.R.color.system_secondary_container_dark,
+                android.R.color.system_secondary_container_light,
+                android.R.color.system_secondary_dark,
+                android.R.color.system_secondary_fixed,
+                android.R.color.system_secondary_fixed_dim,
+                android.R.color.system_secondary_light,
+                android.R.color.system_surface_bright_dark,
+                android.R.color.system_surface_bright_light,
+                android.R.color.system_surface_container_dark,
+                android.R.color.system_surface_container_high_dark,
+                android.R.color.system_surface_container_high_light,
+                android.R.color.system_surface_container_highest_dark,
+                android.R.color.system_surface_container_highest_light,
+                android.R.color.system_surface_container_light,
+                android.R.color.system_surface_container_low_dark,
+                android.R.color.system_surface_container_low_light,
+                android.R.color.system_surface_container_lowest_dark,
+                android.R.color.system_surface_container_lowest_light,
+                android.R.color.system_surface_dark,
+                android.R.color.system_surface_dim_dark,
+                android.R.color.system_surface_dim_light,
+                android.R.color.system_surface_disabled,
+                android.R.color.system_surface_light,
+                android.R.color.system_surface_variant_dark,
+                android.R.color.system_surface_variant_light,
+                android.R.color.system_tertiary_container_dark,
+                android.R.color.system_tertiary_container_light,
+                android.R.color.system_tertiary_dark,
+                android.R.color.system_tertiary_fixed,
+                android.R.color.system_tertiary_fixed_dim,
+                android.R.color.system_tertiary_light,
+                android.R.color.system_text_hint_inverse_dark,
+                android.R.color.system_text_hint_inverse_light,
+                android.R.color.system_text_primary_inverse_dark,
+                android.R.color.system_text_primary_inverse_disable_only_dark,
+                android.R.color.system_text_primary_inverse_disable_only_light,
+                android.R.color.system_text_primary_inverse_light,
+                android.R.color.system_text_secondary_and_tertiary_inverse_dark,
+                android.R.color.system_text_secondary_and_tertiary_inverse_disabled_dark,
+                android.R.color.system_text_secondary_and_tertiary_inverse_disabled_light,
+                android.R.color.system_text_secondary_and_tertiary_inverse_light,
+                android.R.color.tab_indicator_text
+        };
+        String[] colorNames = {
+                "background_dark",
+                "background_light",
+                "black",
+                "darker_gray",
+                "holo_blue_bright",
+                "holo_blue_dark",
+                "holo_blue_light",
+                "holo_green_dark",
+                "holo_green_light",
+                "holo_orange_dark",
+                "holo_orange_light",
+                "holo_purple",
+                "holo_red_dark",
+                "holo_red_light",
+                "system_accent1_0",
+                "system_accent1_10",
+                "system_accent1_100",
+                "system_accent1_1000",
+                "system_accent1_200",
+                "system_accent1_300",
+                "system_accent1_400",
+                "system_accent1_50",
+                "system_accent1_500",
+                "system_accent1_600",
+                "system_accent1_700",
+                "system_accent1_800",
+                "system_accent1_900",
+                "system_accent2_0",
+                "system_accent2_10",
+                "system_accent2_100",
+                "system_accent2_1000",
+                "system_accent2_200",
+                "system_accent2_300",
+                "system_accent2_400",
+                "system_accent2_50",
+                "system_accent2_500",
+                "system_accent2_600",
+                "system_accent2_700",
+                "system_accent2_800",
+                "system_accent2_900",
+                "system_accent3_0",
+                "system_accent3_10",
+                "system_accent3_100",
+                "system_accent3_1000",
+                "system_accent3_200",
+                "system_accent3_300",
+                "system_accent3_400",
+                "system_accent3_50",
+                "system_accent3_500",
+                "system_accent3_600",
+                "system_accent3_700",
+                "system_accent3_800",
+                "system_accent3_900",
+                "system_background_dark",
+                "system_background_light",
+                "system_control_activated_dark",
+                "system_control_activated_light",
+                "system_control_highlight_dark",
+                "system_control_highlight_light",
+                "system_control_normal_dark",
+                "system_control_normal_light",
+                "system_error_0",
+                "system_error_10",
+                "system_error_100",
+                "system_error_1000",
+                "system_error_200",
+                "system_error_300",
+                "system_error_400",
+                "system_error_50",
+                "system_error_500",
+                "system_error_600",
+                "system_error_700",
+                "system_error_800",
+                "system_error_900",
+                "system_error_container_dark",
+                "system_error_container_light",
+                "system_error_dark",
+                "system_error_light",
+                "system_neutral1_0",
+                "system_neutral1_10",
+                "system_neutral1_100",
+                "system_neutral1_1000",
+                "system_neutral1_200",
+                "system_neutral1_300",
+                "system_neutral1_400",
+                "system_neutral1_50",
+                "system_neutral1_500",
+                "system_neutral1_600",
+                "system_neutral1_700",
+                "system_neutral1_800",
+                "system_neutral1_900",
+                "system_neutral2_0",
+                "system_neutral2_10",
+                "system_neutral2_100",
+                "system_neutral2_1000",
+                "system_neutral2_200",
+                "system_neutral2_300",
+                "system_neutral2_400",
+                "system_neutral2_50",
+                "system_neutral2_500",
+                "system_neutral2_600",
+                "system_neutral2_700",
+                "system_neutral2_800",
+                "system_neutral2_900",
+                "system_on_background_dark",
+                "system_on_background_light",
+                "system_on_error_container_dark",
+                "system_on_error_container_light",
+                "system_on_error_dark",
+                "system_on_error_light",
+                "system_on_primary_container_dark",
+                "system_on_primary_container_light",
+                "system_on_primary_dark",
+                "system_on_primary_fixed",
+                "system_on_primary_fixed_variant",
+                "system_on_primary_light",
+                "system_on_secondary_container_dark",
+                "system_on_secondary_container_light",
+                "system_on_secondary_dark",
+                "system_on_secondary_fixed",
+                "system_on_secondary_fixed_variant",
+                "system_on_secondary_light",
+                "system_on_surface_dark",
+                "system_on_surface_disabled",
+                "system_on_surface_light",
+                "system_on_surface_variant_dark",
+                "system_on_surface_variant_light",
+                "system_on_tertiary_container_dark",
+                "system_on_tertiary_container_light",
+                "system_on_tertiary_dark",
+                "system_on_tertiary_fixed",
+                "system_on_tertiary_fixed_variant",
+                "system_on_tertiary_light",
+                "system_outline_dark",
+                "system_outline_disabled",
+                "system_outline_light",
+                "system_outline_variant_dark",
+                "system_outline_variant_light",
+                "system_palette_key_color_neutral_dark",
+                "system_palette_key_color_neutral_light",
+                "system_palette_key_color_neutral_variant_dark",
+                "system_palette_key_color_neutral_variant_light",
+                "system_palette_key_color_primary_dark",
+                "system_palette_key_color_primary_light",
+                "system_palette_key_color_secondary_dark",
+                "system_palette_key_color_secondary_light",
+                "system_palette_key_color_tertiary_dark",
+                "system_palette_key_color_tertiary_light",
+                "system_primary_container_dark",
+                "system_primary_container_light",
+                "system_primary_dark",
+                "system_primary_fixed",
+                "system_primary_fixed_dim",
+                "system_primary_light",
+                "system_secondary_container_dark",
+                "system_secondary_container_light",
+                "system_secondary_dark",
+                "system_secondary_fixed",
+                "system_secondary_fixed_dim",
+                "system_secondary_light",
+                "system_surface_bright_dark",
+                "system_surface_bright_light",
+                "system_surface_container_dark",
+                "system_surface_container_high_dark",
+                "system_surface_container_high_light",
+                "system_surface_container_highest_dark",
+                "system_surface_container_highest_light",
+                "system_surface_container_light",
+                "system_surface_container_low_dark",
+                "system_surface_container_low_light",
+                "system_surface_container_lowest_dark",
+                "system_surface_container_lowest_light",
+                "system_surface_dark",
+                "system_surface_dim_dark",
+                "system_surface_dim_light",
+                "system_surface_disabled",
+                "system_surface_light",
+                "system_surface_variant_dark",
+                "system_surface_variant_light",
+                "system_tertiary_container_dark",
+                "system_tertiary_container_light",
+                "system_tertiary_dark",
+                "system_tertiary_fixed",
+                "system_tertiary_fixed_dim",
+                "system_tertiary_light",
+                "system_text_hint_inverse_dark",
+                "system_text_hint_inverse_light",
+                "system_text_primary_inverse_dark",
+                "system_text_primary_inverse_disable_only_dark",
+                "system_text_primary_inverse_disable_only_light",
+                "system_text_primary_inverse_light",
+                "system_text_secondary_and_tertiary_inverse_dark",
+                "system_text_secondary_and_tertiary_inverse_disabled_dark",
+                "system_text_secondary_and_tertiary_inverse_disabled_light",
+                "system_text_secondary_and_tertiary_inverse_light",
+                "tab_indicator_text"
+        };
+        if (mColorMap == null) {
+            mColorMap = new HashMap<>();
+            for (int i = 0; i < colorNames.length; i++) {
+                mColorMap.put(colorNames[i], colors[i]);
+            }
+        }
+        Integer ret = mColorMap.get(name);
+        if (ret != null) {
+            return ret;
+        }
+        return -1;
     }
 }

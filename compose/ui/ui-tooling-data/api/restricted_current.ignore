@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-BecameUnchecked: androidx.compose.ui.tooling.data:
-    Removed package androidx.compose.ui.tooling.data from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.tooling.data.CompositionDataTreeKt:
-    Removed class androidx.compose.ui.tooling.data.CompositionDataTreeKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.tooling.data.SlotTreeKt:
-    Removed class androidx.compose.ui.tooling.data.SlotTreeKt from compatibility checked API surface

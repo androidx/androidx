@@ -33,6 +33,7 @@ import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuData
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItem
+import androidx.compose.foundation.text.contextmenu.data.TextContextMenuKeys
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSeparator
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuTextClassificationItem
@@ -284,12 +285,21 @@ internal class AndroidTextContextMenuToolbarProvider(
                 when (component) {
                     is TextContextMenuItem -> {
                         val orderId = currentOrderId++
+                        val itemId =
+                            when (component.key) {
+                                TextContextMenuKeys.CutKey -> android.R.id.cut
+                                TextContextMenuKeys.CopyKey -> android.R.id.copy
+                                TextContextMenuKeys.PasteKey -> android.R.id.paste
+                                TextContextMenuKeys.SelectAllKey -> android.R.id.selectAll
+                                TextContextMenuKeys.AutofillKey -> android.R.id.autofill
+                                else -> orderId
+                            }
                         val menuItem =
                             menu.add(
                                 /* groupId = */ currentGroupId,
                                 // itemId must be unique so that onClick listeners
                                 // can be called on the item itself.
-                                /* itemId = */ orderId,
+                                /* itemId = */ itemId,
                                 /* order = */ orderId,
                                 /* title = */ component.label,
                             )

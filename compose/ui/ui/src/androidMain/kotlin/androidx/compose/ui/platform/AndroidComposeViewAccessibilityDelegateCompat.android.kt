@@ -58,6 +58,7 @@ import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
 import androidx.collection.mutableIntSetOf
 import androidx.collection.mutableObjectIntMapOf
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.R
 import androidx.compose.ui.contentcapture.ContentCaptureManager
@@ -738,6 +739,10 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
         semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.Heading)?.let {
             info.isHeading = true
+        }
+
+        semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.TextEntryKey)?.let {
+            info.isTextEntryKey = true
         }
 
         // Drawing order is not applicable for the root node.
@@ -2672,12 +2677,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         val oldActions = oldNode.unmergedConfig.getOrNull(CustomActions)
                         if (oldActions != null) {
                             // Suppose actions with the same label should be deduped.
-                            val labels = mutableSetOf<String>()
+                            val labels = mutableScatterSetOf<String>()
                             actions.fastForEach { action -> labels.add(action.label) }
-                            val oldLabels = mutableSetOf<String>()
+                            val oldLabels = mutableScatterSetOf<String>()
                             oldActions.fastForEach { action -> oldLabels.add(action.label) }
-                            propertyChanged =
-                                !(labels.containsAll(oldLabels) && oldLabels.containsAll(labels))
+                            propertyChanged = labels != oldLabels
                         } else if (actions.isNotEmpty()) {
                             propertyChanged = true
                         }

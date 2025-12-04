@@ -21,7 +21,6 @@ import android.view.InputDevice
 import android.view.InputDevice.SOURCE_DPAD
 import android.view.InputDevice.SOURCE_KEYBOARD
 import android.view.KeyEvent
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
@@ -94,7 +93,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -102,7 +100,6 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -709,73 +706,7 @@ internal class TextFieldFocusTest {
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputSingleLineTextInBasicTextField()
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move focus to the focusable element on left
-        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)) return
-
-        // Check if the element to the left of text field gains focus
-        rule.onNodeWithTag("test-button-left").assertIsFocused()
-    }
-
-    @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputSingleLineTextInBasicTextField()
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move focus to the focusable element on right
-        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)) return
-
-        // Check if the element to the right of text field gains focus
-        rule.onNodeWithTag("test-button-right").assertIsFocused()
-    }
-
-    @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputMultilineTextInBasicTextField()
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move focus to the focusable element on top
-        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP)) return
-
-        // Check if the element on the left of text field gains focus
-        // due to the new way the focus is represented in BTF, the up would switch focus to the left
-        rule.onNodeWithTag("test-button-left").assertIsFocused()
-    }
-
-    @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputMultilineTextInBasicTextField()
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move focus to the focusable element on bottom
-        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)) return
-
-        // Check if the element to the bottom of text field gains focus
-        rule.onNodeWithTag("test-button-bottom").assertIsFocused()
-    }
-
-    @Test
-    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice() {
         setupAndEnableBasicTextField()
         inputSingleLineTextInBasicTextField()
 
@@ -789,175 +720,62 @@ internal class TextFieldFocusTest {
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputSingleLineTextInBasicTextField()
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move the cursor to the left
-        if (!keyPressOnKeyboardInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_LEFT)) return
-
-        // Check if the element to the left of text field does not gain focus
-        rule.onNodeWithTag("test-button-left").assertIsNotFocused()
-        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
-
-        // Check if the cursor has actually moved to the left -> "ab|c"
-        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
-    }
-
-    @FlakyTest(bugId = 348380475)
-    @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputSingleLineTextInBasicTextField()
-        // Carry the cursor to the start after typing -> "|abc"
-        rule.onNodeWithTag("test-text-field-1").performTextInputSelection(TextRange.Zero)
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move the cursor to the left
-        if (!keyPressOnKeyboardInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_RIGHT)) return
-
-        // Check if the element to the right of text field does not gain focus
-        rule.onNodeWithTag("test-button-right").assertIsNotFocused()
-        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
-
-        // Check if the cursor has actually moved to the right -> "a|bc"
-        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(1))
-    }
-
-    @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputMultilineTextInBasicTextField()
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move focus to the focusable element on top
-        if (!keyPressOnKeyboardInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_UP)) return
-
-        // Check if the element on the top of text field does not gain focus
-        rule.onNodeWithTag("test-button-top").assertIsNotFocused()
-        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
-
-        // Check if the cursor has actually moved up -> "a\nb|\nc"
-        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(3))
-    }
-
-    @FlakyTest(bugId = 348380475)
-    @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_beforeFix() {
-        Assume.assumeFalse(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputMultilineTextInBasicTextField()
-        // Carry the cursor to the start after typing -> "|a\nb\nc"
-        rule.onNodeWithTag("test-text-field-1").performTextInputSelection(TextRange.Zero)
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-
-        // Move focus to the focusable element on bottom
-        if (!keyPressOnKeyboardInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_DOWN)) return
-
-        // Check if the element to the bottom of text field does not gain focus
-        rule.onNodeWithTag("test-button-bottom").assertIsNotFocused()
-        rule.onNodeWithTag("test-text-field-1").assertIsFocused()
-
-        // Check if the cursor has actually moved down -> "a\n|b\nc"
-        rule.onNodeWithTag("test-text-field-1").assertSelection(TextRange(2))
-    }
-
-    @Test
-    fun basicTextField_checkKeyboardShown_onDPadCenter_DPadDevice_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
-        setupAndEnableBasicTextField()
-        inputSingleLineTextInBasicTextField()
-
-        // Dismiss keyboard on back press
-        keyPressOnVirtualKeyboard(NativeKeyEvent.KEYCODE_BACK)
-        testKeyboardController.assertHidden()
-
-        // Check if keyboard is enabled on Dpad center key press
-        if (!keyPressOnDpadInputDevice(rule, NativeKeyEvent.KEYCODE_DPAD_CENTER)) return
-        testKeyboardController.assertShown()
-    }
-
-    @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DPadDevice() {
         checkFocusNavigationLeft(SOURCE_DPAD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadRight_DPadDevice() {
         checkFocusNavigationRight(SOURCE_DPAD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadUp_DPadDevice() {
         checkFocusNavigationUp(SOURCE_DPAD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadDown_DPadDevice() {
         checkFocusNavigationDown(SOURCE_DPAD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadLeft_hardwareKeyboard() {
         checkFocusNavigationLeft(SOURCE_KEYBOARD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadRight_hardwareKeyboard() {
         checkFocusNavigationRight(SOURCE_KEYBOARD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadUp_hardwareKeyboard() {
         checkFocusNavigationUp(SOURCE_KEYBOARD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadDown_hardwareKeyboard() {
         checkFocusNavigationDown(SOURCE_DPAD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadLeft_DpadHardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadLeft_DpadHardwareKeyboard() {
         checkFocusNavigationLeft(SOURCE_DPAD or SOURCE_KEYBOARD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadRight_DpadHardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadRight_DpadHardwareKeyboard() {
         checkFocusNavigationRight(SOURCE_DPAD or SOURCE_KEYBOARD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadUp_DpadHardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadUp_DpadHardwareKeyboard() {
         checkFocusNavigationUp(SOURCE_DPAD or SOURCE_KEYBOARD)
     }
 
     @Test
-    fun basicTextField_checkFocusNavigation_onDPadDown_DpadHardwareKeyboard_afterFix() {
-        Assume.assumeTrue(ComposeFoundationFlags.isTextFieldDpadNavigationEnabled)
+    fun basicTextField_checkFocusNavigation_onDPadDown_DpadHardwareKeyboard() {
         checkFocusNavigationDown(SOURCE_DPAD or SOURCE_KEYBOARD)
     }
 

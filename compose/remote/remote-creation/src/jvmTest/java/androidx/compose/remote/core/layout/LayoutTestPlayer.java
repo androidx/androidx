@@ -57,7 +57,7 @@ public class LayoutTestPlayer {
         int th1 = 1000;
         byte[] byteBuffer = writer.buffer();
         int bufferSize = writer.bufferSize();
-        CoreDocument doc = new CoreDocument();
+        CoreDocument doc = new CoreDocument(testParameters.getClock());
         RemoteComposeBuffer buffer = RemoteComposeBuffer.fromInputStream(
                 new ByteArrayInputStream(byteBuffer, 0, bufferSize));
         doc.initFromBuffer(buffer);

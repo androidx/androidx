@@ -78,6 +78,16 @@ public class StateLayout extends LayoutManager {
         mIndexId = indexId;
     }
 
+    public StateLayout(
+            int componentId,
+            int animationId,
+            int horizontalPositioning,
+            int verticalPositioning,
+            int indexId) {
+        super(null, componentId, animationId, 0f, 0f, 100f, 100f);
+        mIndexId = indexId;
+    }
+
     @Override
     public void inflate() {
         super.inflate();
@@ -164,15 +174,16 @@ public class StateLayout extends LayoutManager {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float maxWidth,
-            float maxHeight,
+            float minWidth, float maxWidth,
+            float minHeight, float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,
             @NonNull Size size) {
         LayoutManager layout = getLayout(currentLayoutIndex);
         layout.computeWrapSize(
-                context, maxWidth, maxHeight, horizontalWrap, verticalWrap, measure, size);
+                context, minWidth, maxWidth, minHeight , maxHeight,
+                horizontalWrap, verticalWrap, measure, size);
     }
 
     @Override

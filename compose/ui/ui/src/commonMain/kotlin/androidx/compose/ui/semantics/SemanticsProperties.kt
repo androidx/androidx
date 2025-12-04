@@ -75,6 +75,9 @@ object SemanticsProperties {
     /** @see SemanticsPropertyReceiver.heading */
     val Heading = AccessibilityKey<Unit>("Heading")
 
+    /** @see SemanticsPropertyReceiver.textEntryKey */
+    val TextEntryKey = AccessibilityKey<Unit>("TextEntryKey")
+
     /** @see SemanticsPropertyReceiver.disabled */
     val Disabled = AccessibilityKey<Unit>("Disabled")
 
@@ -877,6 +880,22 @@ var SemanticsPropertyReceiver.progressBarRangeInfo by SemanticsProperties.Progre
  */
 fun SemanticsPropertyReceiver.heading() {
     this[SemanticsProperties.Heading] = Unit
+}
+
+/**
+ * The node is marked as a text entry key for accessibility. This is used to indicate that this
+ * composable acts as a key within a text entry interface, such as a custom on-screen keyboard.
+ * Accessibility services can use this information to provide a better experience for users
+ * interacting with custom text input methods.
+ *
+ * See
+ * [AccessibilityNodeInfo.setTextEntryKey](https://developer.android.com/reference/android/view/accessibility/AccessibilityNodeInfo#setTextEntryKey(boolean))
+ * for more details.
+ *
+ * @see SemanticsProperties.TextEntryKey
+ */
+fun SemanticsPropertyReceiver.textEntryKey() {
+    this[SemanticsProperties.TextEntryKey] = Unit
 }
 
 /**

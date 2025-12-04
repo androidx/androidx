@@ -388,7 +388,6 @@ public class Component extends PaintOperation
 
     /**
      * Returns true if the component contains computed modifiers
-     * @return
      */
     public boolean hasComputedLayout() {
         return false;
@@ -396,11 +395,6 @@ public class Component extends PaintOperation
 
     /**
      * Apply computed modifiers
-     * @param type
-     * @param context
-     * @param m
-     * @param parent
-     * @return
      */
     public boolean applyComputedLayout(int type, @NonNull PaintContext context,
             @NonNull ComponentMeasure m, @NonNull ComponentMeasure parent) {
@@ -1146,7 +1140,9 @@ public class Component extends PaintOperation
      */
     public void getData(@NonNull ArrayList<Operation> data) {
         for (Operation op : mList) {
-            if (op instanceof TextData || op instanceof BitmapData || op instanceof ComponentData) {
+            if (op instanceof TextData
+                    || op instanceof BitmapData
+                    || op instanceof ComponentData) {
                 data.add(op);
             }
         }

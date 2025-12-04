@@ -26,7 +26,9 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,15 +64,23 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcProfiles.PROFILE_WIDGETS
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.Theme
+import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.capture.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCapture
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths.pathTest
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo1
 import androidx.compose.remote.integration.view.demos.examples.LayoutModifierDemo2
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo3
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo3b
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo4
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo5
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo6
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo7
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo8
 import androidx.compose.remote.integration.view.demos.examples.ScrollViewDemo
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendar
 import androidx.compose.remote.integration.view.demos.examples.SimplePath
@@ -99,7 +109,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -131,6 +140,27 @@ var remoteIDs: IntArray = IntArray(0)
 fun getRemoteComposables(context: Context, list: ArrayList<RCDoc>) {
 
     list.addAll(arrayListOf())
+}
+
+class RamDoc(val data: ByteArray, val name: String) : RemoteComposeFunc {
+
+    @Composable
+    @Suppress("RestrictedApiAndroidX")
+    override fun getDoc(): MutableState<CoreDocument?> {
+        val doc = RemoteDocument(ByteArrayInputStream(data, 0, data.size))
+        val doc2: MutableState<CoreDocument?> = remember { mutableStateOf(doc.document) }
+        return doc2
+    }
+
+    @Composable override fun Run() {}
+
+    override fun toString(): String {
+        return name
+    }
+
+    override fun getColor(): Color {
+        return Color.Red
+    }
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -173,6 +203,15 @@ fun getComposeDoc(
             return rcd.document.buffer.buffer.size
         }
 
+        override fun zipSize(): Int {
+            val rcd = remoteComposeDocument
+            if (rcd == null) {
+                return 0
+            }
+            val size = rcd.document.buffer.buffer.size
+            return compress(rcd.document.buffer.buffer.buffer, size)
+        }
+
         override fun toString(): String {
             return name
         }
@@ -190,7 +229,7 @@ fun getComposeDoc(
         ) {
             //        val doc: MutableState<CoreDocument?> = remember { mutableStateOf(null) }
             //        val density = with(LocalDensity.current) { 1.dp.toPx() * 160 }
-            val connection = CreationDisplayInfo(1000, 1000, 440)
+            val connection = CreationDisplayInfo(1000, 1000, 440 / 160f)
             //        val done = remember { mutableStateOf(false) }
             RemoteComposeCapture(
                 baseContext,
@@ -251,6 +290,14 @@ class ExperimentActivity : ComponentActivity() {
                     getpc("Fireworks") { shaderFireworks() },
                     getpc("Layout modifier 2") { LayoutModifierDemo2() },
                     getpc("Layout modifier 1") { LayoutModifierDemo1() },
+                    getpc("Card") { RcTextDemo8() },
+                    getpc("Dynamic Style Text") { RcTextDemo7() },
+                    getpc("Dynamic Size Text") { RcTextDemo6() },
+                    getpc("Ellipses Text") { RcTextDemo5() },
+                    getpc("Variable fonts Text") { RcTextDemo4() },
+                    getpc("Alignment & Justification") { RcTextDemo3b() },
+                    getpc("Line height Text") { RcTextDemo3() },
+                    getpc("Autosize Text") { RcTextDemo2() },
                     getpc("Text baseline") { RcTextDemo() },
                     getpc("CountDown") { countDown() },
                     getpc("Cube 3D") { cube3d() },
@@ -334,8 +381,7 @@ class ExperimentActivity : ComponentActivity() {
                 content: @Composable () -> Unit,
             ): MutableState<CoreDocument?> {
                 val doc: MutableState<CoreDocument?> = remember { mutableStateOf(null) }
-                val density = with(LocalDensity.current) { 1.dp.toPx() * 160 }
-                val connection = CreationDisplayInfo(1000, 1000, density.toInt())
+                val connection = CreationDisplayInfo(1000, 1000, 1f)
                 val done = remember { mutableStateOf(false) }
                 RemoteComposeCapture(
                     LocalContext.current,
@@ -384,10 +430,14 @@ class ExperimentActivity : ComponentActivity() {
             val showComposeStr = extra.getString(showComposeKey)
             val showComposePlayerStr = extra.getString(showComposePlayerKey)
             val showOrigamiStr = extra.getString(showOrigamiKey)
+            val data = extra.getByteArray("RC_DOC_DATA")
             showCompose = "true".equals(showComposeStr)
             showComposePlayer = "true".equals(showComposePlayerStr)
             showOrigami = "true".equals(showOrigamiStr)
             setTitle(composeName)
+            if (data != null) {
+                cfunc = RamDoc(data, composeName.toString())
+            }
             if (composeName?.endsWith("...") == true) {
                 menu = subMenus.get(composeName) ?: menu
             } else {
@@ -721,7 +771,7 @@ fun DisplayDoc(fileReady: Boolean, func: RemoteComposeFunc) {
         var documentHeight by remember { mutableIntStateOf(300) }
         val currentDocument = func.getDoc() // remember(func) {  }
         val textDoc = currentDocument.value?.toNestedString()
-
+        Log.v("MAIN", textDoc.toString())
         Column {
             AndroidView(
                 modifier = Modifier.size(documentWidth.dp, documentHeight.dp),
@@ -889,7 +939,48 @@ fun RemoteComposableMenu(
             Text("Debug:")
             Checkbox(checked = debugCompose, onCheckedChange = { debugCompose = it })
         }
+        val context = LocalContext.current
+        val resolver = LocalContext.current.contentResolver
+        val pickPictureLauncher =
+            rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { imageUri ->
+                if (imageUri != null) {
+                    Log.v("main", "Selected image: $imageUri")
+
+                    var fis = resolver.openInputStream(imageUri)
+                    val size = fis?.available()
+                    val data = ByteArray(size!!)
+                    fis?.read(data)
+                    fis?.close()
+                    // sendToPlayerViaIntent(context, data = data, "test.rc")
+                    setToSelfViaIntent(context, data = data, "test.rc")
+                }
+            }
+        Button(onClick = { pickPictureLauncher.launch("*/*") }) { Text("Load...") }
     }
+}
+
+fun sendToPlayerViaIntent(context: Context, data: ByteArray?, name: String?) {
+    val intent = Intent(Intent.ACTION_VIEW)
+    intent.putExtra("RC_DOC_NAME", name)
+    intent.putExtra("RC_DOC_DATA", data)
+    intent.setType("application/remote-compose-doc")
+    context.startActivity(Intent.createChooser(intent, "Open with…"))
+}
+
+private fun setToSelfViaIntent(context: Context, data: ByteArray?, name: String?) {
+    val intent = Intent(context, ExperimentActivity::class.java)
+    val composeKey = "USE_COMPOSE"
+    val showComposeKey = "SHOW_COMPOSE"
+    val showComposePlayerKey = "SHOW_COMPOSE_PLAYER"
+    val showOrigamiKey = "SHOW_ORIGAMI"
+    val debugComposeKey = "DEBUG_ORIGAMI"
+    intent.putExtra(composeKey, name)
+    intent.putExtra(showComposeKey, true)
+    intent.putExtra(showComposePlayerKey, true)
+    intent.putExtra(showOrigamiKey, true)
+    intent.putExtra(debugComposeKey, true)
+    intent.putExtra("RC_DOC_DATA", data)
+    context.startActivity(intent)
 }
 
 fun toRcColor(str: String, sat: Float = .5f): Color {

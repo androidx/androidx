@@ -20,8 +20,6 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
@@ -51,15 +49,10 @@ public class RemoteComposeComponentModifier() : DrawModifier, OnGloballyPosition
 
     override fun ContentDrawScope.draw() {
         drawIntoCanvas {
-            if (it.nativeCanvas is RecordingCanvas) {
-                (it.nativeCanvas as RecordingCanvas).let {
-                    it.document.startBox(modifier.size(asize.width, asize.height))
-                    drawContent()
-                    it.document.endBox()
-                }
-            } else {
-                drawContent()
-            }
+            val canvas = it.nativeCanvas as RecordingCanvas
+            canvas.document.startBox(modifier.size(asize.width, asize.height))
+            drawContent()
+            canvas.document.endBox()
         }
     }
 }
@@ -73,22 +66,13 @@ public class RemoteComposeDocumentModifier(public val content: (RemoteComposeWri
     public val modifier: RecordingModifier = RecordingModifier()
 
     override fun ContentDrawScope.draw() {
-        drawIntoCanvas {
-            if (it.nativeCanvas is RecordingCanvas) {
-                (it.nativeCanvas as RecordingCanvas).let { content(it.document) }
-            } else {
-                drawContent()
-            }
-        }
+        drawIntoRemoteCanvas { canvas -> content(canvas.document) }
     }
 }
 
 @RemoteComposable
 @Composable
 public fun Document(content: (RemoteComposeWriter) -> Unit) {
-    val captureMode = LocalRemoteComposeCreationState.current
-    if (captureMode !is NoRemoteCompose) {
-        // b/446706254
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") Box(modifier = Modifier.remoteDocument(content))
-    }
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
+    Box(modifier = Modifier.remoteDocument(content))
 }

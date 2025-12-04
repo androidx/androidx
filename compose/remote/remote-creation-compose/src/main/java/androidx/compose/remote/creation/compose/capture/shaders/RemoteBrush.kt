@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.capture.shaders
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Size
@@ -40,11 +41,9 @@ public abstract class RemoteBrush {
      * bounds with an arbitrary color) return [Size.Unspecified]. If there is no intrinsic size in a
      * single dimension, return [Size] with [Float.NaN] in the desired dimension.
      */
-    public open val intrinsicSize: Size = Size.Unspecified
+    public val intrinsicSize: Size = Size.Unspecified
 
-    public abstract fun toComposeUi(): Brush
-
-    public abstract fun createShader(size: Size): Shader
+    public abstract fun createShader(size: RemoteSize): Shader
 
     public open val hasShader: Boolean
         get() = true

@@ -72,16 +72,16 @@ public interface RetainedValuesStore {
      * @return A retained value for [key] if there is one and it hasn't already re-entered
      *   composition, otherwise [defaultValue].
      */
-    public fun getExitedValueOrElse(key: Any, defaultValue: Any?): Any?
+    public fun consumeExitedValueOrDefault(key: Any, defaultValue: Any?): Any?
 
     /**
      * Invoked when a retained value is exiting composition while this store is retaining exited
      * values. It is up to the implementation of this method to decide whether and how to store
-     * these values so that they can later be retrieved by [getExitedValueOrElse].
+     * these values so that they can later be retrieved by [consumeExitedValueOrDefault].
      *
      * The given [key] are not guaranteed to be unique. To handle duplicate keys, implementors
-     * should return retained values with the same keys from [getExitedValueOrElse] in the opposite
-     * order they are received by [saveExitingValue].
+     * should return retained values with the same keys from [consumeExitedValueOrDefault] in the
+     * opposite order they are received by [saveExitingValue].
      *
      * If the implementation of this store does not accept this value into its kept exited object
      * list, it MUST call [RetainObserver.onRetired] if [value] implements [RetainObserver],

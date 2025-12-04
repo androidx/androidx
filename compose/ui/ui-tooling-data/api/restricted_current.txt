@@ -16,7 +16,7 @@ package @SuppressCompatibility androidx.compose.ui.tooling.data {
     method public void clear();
   }
 
-  @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public abstract sealed class Group {
+  @SuppressCompatibility @androidx.compose.ui.tooling.data.UiToolingDataApi public abstract sealed nonexhaustive class Group {
     method @InaccessibleFromKotlin public final androidx.compose.ui.unit.IntRect getBox();
     method @InaccessibleFromKotlin public final java.util.Collection<androidx.compose.ui.tooling.data.Group> getChildren();
     method @InaccessibleFromKotlin public final java.util.Collection<java.lang.Object?> getData();

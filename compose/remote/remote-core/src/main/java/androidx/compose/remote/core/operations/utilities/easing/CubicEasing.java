@@ -15,9 +15,17 @@
  */
 package androidx.compose.remote.core.operations.utilities.easing;
 
+import androidx.annotation.RestrictTo;
+
 import org.jspecify.annotations.NonNull;
 
-class CubicEasing extends Easing {
+/**
+ * Cubic easing function similar to CSS cubic-bezier
+ * given two control point x1,y1 and x2,y2 the function is defined as
+ * f(x) = (1-x)^3 * x1 + 3 * (1-x)^2 * x * y1 + 3 * (1-x) * x^2 * y2 + x^3 * y2
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class CubicEasing extends Easing {
     float mX1 = 0f;
     float mY1 = 0f;
     float mX2 = 0f;
@@ -29,6 +37,13 @@ class CubicEasing extends Easing {
     private static final float[] LINEAR = {1f, 1f, 0f, 0f};
     private static final float[] ANTICIPATE = {0.36f, 0f, 0.66f, -0.56f};
     private static final float[] OVERSHOOT = {0.34f, 1.56f, 0.64f, 1f};
+
+    /**
+     *  a Standard CubicEasing function
+     */
+    public CubicEasing() {
+        setup(STANDARD[0], STANDARD[1], STANDARD[2], STANDARD[3]);
+    }
 
     CubicEasing(int type) {
         mType = type;
@@ -68,7 +83,14 @@ class CubicEasing extends Easing {
         setup(values[0], values[1], values[2], values[3]);
     }
 
-    void setup(float x1, float y1, float x2, float y2) {
+    /**
+     * Setup the cubic function
+     * @param x1 the x value of the first point
+     * @param y1 the y value of the first point
+     * @param x2 the x value of the second point
+     * @param y2 the y value of the second point
+     */
+    public void setup(float x1, float y1, float x2, float y2) {
         mX1 = x1;
         mY1 = y1;
         mX2 = x2;

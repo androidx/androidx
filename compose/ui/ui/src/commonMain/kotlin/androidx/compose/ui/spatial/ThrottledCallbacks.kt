@@ -224,12 +224,11 @@ internal class ThrottledCallbacks {
         globalChangeEntries?.linkedForEach { entry ->
             val node = entry.node.requireLayoutNode()
             val offsetFromRoot = node.requireOwner().rectManager.getOffsetFromRectListFor(node)
-            val lastSize = node.lastSize
 
             // For global change callbacks, we'll still need to update the Entry bounds
             entry.topLeft = offsetFromRoot.packedValue
             entry.bottomRight =
-                packXY(offsetFromRoot.x + lastSize.width, offsetFromRoot.y + lastSize.height)
+                packXY(offsetFromRoot.x + node.width, offsetFromRoot.y + node.height)
 
             fire(
                 entry = entry,

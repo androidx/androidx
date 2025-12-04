@@ -35,7 +35,7 @@ public interface RemoteModifier {
 
     public fun toRemoteCompose(): RecordingModifier
 
-    @Composable public fun Modifier.toComposeUi(): Modifier
+    @Composable public fun Modifier.toComposeUi(): Modifier = this
 
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
@@ -135,14 +135,7 @@ public fun RemoteModifier.toComposeUi(): Modifier {
 @SuppressLint("ModifierFactoryExtensionFunction")
 @Composable
 public fun RemoteModifier.toComposeUiLayout(): Modifier {
-    return this.foldIn<RemoteModifier>(RemoteModifier) { r, n ->
-            if (n is RemoteLayoutModifier) {
-                r.then(n)
-            } else {
-                r
-            }
-        }
-        .toComposeUi()
+    return this.foldIn<RemoteModifier>(RemoteModifier) { r, n -> r.then(n) }.toComposeUi()
 }
 
 /**
@@ -205,10 +198,3 @@ public class CombinedRemoteModifier(
             } +
             "]"
 }
-
-/**
- * Indicates an Element is relevant for further Remote Compose Layout even in Recording, and should
- * be applied.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RemoteLayoutModifier : RemoteModifier.Element

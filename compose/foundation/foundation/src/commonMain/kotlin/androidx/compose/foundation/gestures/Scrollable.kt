@@ -21,9 +21,7 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.splineBasedDecay
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.FocusedBoundsObserverNode
 import androidx.compose.foundation.LocalOverscrollFactory
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.OverscrollEffect
@@ -350,12 +348,6 @@ internal class ScrollableNode(
 
         /** Focus scrolling */
         delegate(BringIntoViewResponderNode(contentInViewNode))
-        if (
-            @OptIn(ExperimentalFoundationApi::class)
-            !ComposeFoundationFlags.isKeepInViewFocusObservationChangeEnabled
-        ) {
-            delegate(FocusedBoundsObserverNode { contentInViewNode.onFocusBoundsChanged(it) })
-        }
     }
 
     override fun dispatchScrollDeltaInfo(delta: Offset) {

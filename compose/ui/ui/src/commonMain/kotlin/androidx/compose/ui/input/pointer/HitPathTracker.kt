@@ -51,7 +51,8 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
     /*@VisibleForTesting*/
     internal val root: NodeParent = NodeParent()
 
-    private val hitPointerIdsAndNodes = MutableLongObjectMap<MutableObjectList<Node>>(10)
+    private val hitPointerIdsAndNodesForPruningNonMatches =
+        MutableLongObjectMap<MutableObjectList<Node>>(10)
 
     /**
      * Associates a [pointerId] to a list of hit [pointerInputNodes] and keeps track of them.
@@ -73,7 +74,6 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
         prunePointerIdsAndChangesNotInNodesList: Boolean = false,
     ) {
         var parent: NodeParent = root
-        hitPointerIdsAndNodes.clear()
         var merging = true
 
         eachPin@ for (i in pointerInputNodes.indices) {
@@ -92,12 +92,16 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
                         node.markIsIn()
                         node.pointerIds.add(pointerId)
 
-                        val mutableObjectList =
-                            hitPointerIdsAndNodes.getOrPut(pointerId.value) {
-                                mutableObjectListOf()
-                            }
+                        if (prunePointerIdsAndChangesNotInNodesList) {
+                            val mutableObjectList =
+                                hitPointerIdsAndNodesForPruningNonMatches.getOrPut(
+                                    pointerId.value
+                                ) {
+                                    mutableObjectListOf()
+                                }
 
-                        mutableObjectList.add(node)
+                            mutableObjectList.add(node)
+                        }
                         parent = node
                         continue@eachPin
                     } else {
@@ -107,10 +111,14 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
                 // TODO(lmr): i wonder if Node here and PointerInputNode ought to be the same thing?
                 val node = Node(pointerInputNode).apply { pointerIds.add(pointerId) }
 
-                val mutableObjectList =
-                    hitPointerIdsAndNodes.getOrPut(pointerId.value) { mutableObjectListOf() }
+                if (prunePointerIdsAndChangesNotInNodesList) {
+                    val mutableObjectList =
+                        hitPointerIdsAndNodesForPruningNonMatches.getOrPut(pointerId.value) {
+                            mutableObjectListOf()
+                        }
 
-                mutableObjectList.add(node)
+                    mutableObjectList.add(node)
+                }
 
                 parent.children.add(node)
                 parent = node
@@ -118,10 +126,12 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
         }
 
         if (prunePointerIdsAndChangesNotInNodesList) {
-            hitPointerIdsAndNodes.forEach { key, value ->
+            hitPointerIdsAndNodesForPruningNonMatches.forEach { key, value ->
                 removeInvalidPointerIdsAndChanges(key, value)
             }
         }
+
+        hitPointerIdsAndNodesForPruningNonMatches.clear()
     }
 
     private fun removePointerInputModifierNode(pointerInputNode: Modifier.Node) {

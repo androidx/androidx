@@ -23,7 +23,6 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.retain.RetainedValuesStore.*
 
 /**
  * Remember the value produced by [calculation] and retain it in the [LocalRetainedValuesStore]. A
@@ -217,7 +216,11 @@ private fun <T> retainImpl(key: RetainKeys, calculation: () -> T): T {
     val holder =
         remember(key) {
             val retainedValue =
-                retainedValuesStore.getExitedValueOrElse(key, RetainedValuesStoreMissingValue)
+                retainedValuesStore.consumeExitedValueOrDefault(
+                    key = key,
+                    defaultValue = RetainedValuesStoreMissingValue,
+                )
+
             if (retainedValue !== RetainedValuesStoreMissingValue) {
                 RetainedValueHolder(
                     key = key,

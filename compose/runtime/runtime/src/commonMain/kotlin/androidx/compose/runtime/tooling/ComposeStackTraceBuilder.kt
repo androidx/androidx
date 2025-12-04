@@ -17,8 +17,8 @@ package androidx.compose.runtime.tooling
 
 import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Composer
-import androidx.compose.runtime.ComposerImpl.CompositionContextHolder
 import androidx.compose.runtime.CompositionContext
+import androidx.compose.runtime.GapComposer.CompositionContextHolder
 import androidx.compose.runtime.GroupSourceInformation
 import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotReader

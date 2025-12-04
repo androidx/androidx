@@ -30,8 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.isExactly
 import androidx.compose.ui.focus.onFocusChanged
@@ -53,40 +51,14 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.Test
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
-import org.junit.runner.RunWith
-import org.junit.runners.Parameterized
 
 @MediumTest
-@RunWith(Parameterized::class)
-class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
+class SemanticsListenerTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private lateinit var semanticsOwner: SemanticsOwner
-
-    companion object {
-        @JvmStatic
-        @Parameterized.Parameters(name = "isSemanticAutofillEnabled = {0}")
-        fun initParameters() = listOf(false, true)
-    }
-
-    @OptIn(ExperimentalComposeUiApi::class)
-    private val previousFlagValue = ComposeUiFlags.isSemanticAutofillEnabled
-
-    @Before
-    fun enableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = isSemanticAutofillEnabled
-    }
-
-    @After
-    fun disableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = previousFlagValue
-    }
 
     // Initial layout does not trigger listeners. Users have to detect the initial semantics
     //  values by detecting first layout (You can get the bounds from RectManager.RectList).
@@ -185,12 +157,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(Event(semanticsId, prevSemantics = null, newSemantics = "text"))
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = null, newSemantics = "text"))
         }
     }
 
@@ -222,12 +190,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(Event(semanticsId, prevSemantics = "text", newSemantics = null))
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text", newSemantics = null))
         }
     }
 
@@ -250,12 +214,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
         }
     }
 
@@ -283,12 +243,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
         }
     }
 
@@ -321,12 +277,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
         }
     }
 
@@ -349,12 +301,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
         }
     }
 
@@ -378,15 +326,11 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(
-                        Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"),
-                        Event(semanticsId, prevSemantics = "text2", newSemantics = "text3"),
-                    )
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(
+                    Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"),
+                    Event(semanticsId, prevSemantics = "text2", newSemantics = "text3"),
+                )
         }
     }
 
@@ -419,12 +363,8 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         // Assert.
         val semanticsId = rule.onNodeWithTag("item").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(Event(semanticsId, prevSemantics = "text1", newSemantics = "text2"))
         }
     }
 
@@ -458,15 +398,11 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         val item1 = rule.onNodeWithTag("item1").semanticsId()
         val item2 = rule.onNodeWithTag("item2").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(
-                        Event(item1, prevSemantics = true, newSemantics = false),
-                        Event(item2, prevSemantics = false, newSemantics = true),
-                    )
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(
+                    Event(item1, prevSemantics = true, newSemantics = false),
+                    Event(item2, prevSemantics = false, newSemantics = true),
+                )
         }
     }
 
@@ -500,15 +436,11 @@ class SemanticsListenerTest(private val isSemanticAutofillEnabled: Boolean) {
         val item1 = rule.onNodeWithTag("item1").semanticsId()
         val item2 = rule.onNodeWithTag("item2").semanticsId()
         rule.runOnIdle {
-            if (isSemanticAutofillEnabled) {
-                assertThat(events)
-                    .isExactly(
-                        Event(item1, prevSemantics = true, newSemantics = false),
-                        Event(item2, prevSemantics = false, newSemantics = true),
-                    )
-            } else {
-                assertThat(events).isEmpty()
-            }
+            assertThat(events)
+                .isExactly(
+                    Event(item1, prevSemantics = true, newSemantics = false),
+                    Event(item2, prevSemantics = false, newSemantics = true),
+                )
         }
     }
 

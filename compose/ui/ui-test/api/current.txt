@@ -28,7 +28,7 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction tryPerformAccessibilityChecks(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
 
-  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed interface AndroidComposeUiTest<A extends androidx.activity.ComponentActivity> extends androidx.compose.ui.test.ComposeUiTest {
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed nonexhaustive interface AndroidComposeUiTest<A extends androidx.activity.ComponentActivity> extends androidx.compose.ui.test.ComposeUiTest {
     method @InaccessibleFromKotlin public A? getActivity();
     property public abstract A? activity;
   }
@@ -120,7 +120,7 @@ package androidx.compose.ui.test {
     ctor public ComposeTimeoutException(String? message);
   }
 
-  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed interface ComposeUiTest extends androidx.compose.ui.test.SemanticsNodeInteractionsProvider {
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed exhaustive interface ComposeUiTest extends androidx.compose.ui.test.SemanticsNodeInteractionsProvider {
     method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.Density getDensity();
     method @InaccessibleFromKotlin public androidx.compose.ui.test.MainTestClock getMainClock();
@@ -205,6 +205,8 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.DeviceConfigurationOverride Touchscreen(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isTouchScreen);
     method public static androidx.compose.ui.test.DeviceConfigurationOverride UiMode(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, int uiModeType);
     method public static androidx.compose.ui.test.DeviceConfigurationOverride WindowInsets(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.core.view.WindowInsetsCompat windowInsets);
+    method @KotlinOnly public static androidx.compose.ui.test.DeviceConfigurationOverride WindowSize(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.compose.ui.unit.DpSize size);
+    method @BytecodeOnly public static androidx.compose.ui.test.DeviceConfigurationOverride WindowSize-6HolHcs(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, long);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTestApi {
@@ -577,7 +579,7 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static void tripleClick-xhG_qxo$default(androidx.compose.ui.test.MouseInjectionScope!, long, int, int, Object!);
   }
 
-  public sealed interface MultiModalInjectionScope extends androidx.compose.ui.test.InjectionScope {
+  public sealed nonexhaustive interface MultiModalInjectionScope extends androidx.compose.ui.test.InjectionScope {
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void key(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.KeyInjectionScope,kotlin.Unit> block);
     method public void mouse(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.MouseInjectionScope,kotlin.Unit> block);
     method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public void rotary(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.RotaryInjectionScope,kotlin.Unit> block);

@@ -77,6 +77,7 @@ public class DrawTextOnCircle extends PaintOperation implements VariableSupport,
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextId, this);
     }
 
     @Override

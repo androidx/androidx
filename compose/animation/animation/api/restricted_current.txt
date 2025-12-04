@@ -22,10 +22,10 @@ package androidx.compose.animation {
     method @Deprecated @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi public static infix androidx.compose.animation.ContentTransform with(androidx.compose.animation.EnterTransition, androidx.compose.animation.ExitTransition exit);
   }
 
-  public sealed interface AnimatedContentScope extends androidx.compose.animation.AnimatedVisibilityScope {
+  public sealed nonexhaustive interface AnimatedContentScope extends androidx.compose.animation.AnimatedVisibilityScope {
   }
 
-  public sealed interface AnimatedContentTransitionScope<S> extends androidx.compose.animation.core.Transition.Segment<S> {
+  public sealed nonexhaustive interface AnimatedContentTransitionScope<S> extends androidx.compose.animation.core.Transition.Segment<S> {
     method @InaccessibleFromKotlin public androidx.compose.ui.Alignment getContentAlignment();
     method @InaccessibleFromKotlin public default androidx.compose.animation.ExitTransition getKeepUntilTransitionsFinished(androidx.compose.animation.ExitTransition.Companion);
     method @KotlinOnly public androidx.compose.animation.EnterTransition slideIntoContainer(androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection towards, optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Integer> initialOffset);
@@ -163,9 +163,15 @@ package androidx.compose.animation {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition! slideOutHorizontally$default(androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function1!, int, Object!);
     method @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition slideOutVertically(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.unit.IntOffset> animationSpec, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> targetOffsetY);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition! slideOutVertically$default(androidx.compose.animation.core.FiniteAnimationSpec!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition unveilIn(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color> animationSpec, optional androidx.compose.ui.graphics.Color initialColor, optional boolean matchParentSize);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition unveilIn-bw27NRU(androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color!>, long, boolean);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Stable public static androidx.compose.animation.EnterTransition! unveilIn-bw27NRU$default(androidx.compose.animation.core.FiniteAnimationSpec!, long, boolean, int, Object!);
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition veilOut(optional androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color> animationSpec, optional androidx.compose.ui.graphics.Color targetColor, optional boolean matchParentSize);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition veilOut-bw27NRU(androidx.compose.animation.core.FiniteAnimationSpec<androidx.compose.ui.graphics.Color!>, long, boolean);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.animation.ExperimentalAnimationApi @androidx.compose.runtime.Stable public static androidx.compose.animation.ExitTransition! veilOut-bw27NRU$default(androidx.compose.animation.core.FiniteAnimationSpec!, long, boolean, int, Object!);
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class EnterTransition {
+  @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class EnterTransition {
     method @androidx.compose.runtime.Stable public final operator androidx.compose.animation.EnterTransition plus(androidx.compose.animation.EnterTransition enter);
     field public static final androidx.compose.animation.EnterTransition.Companion Companion;
   }
@@ -175,7 +181,7 @@ package androidx.compose.animation {
     property public androidx.compose.animation.EnterTransition None;
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class ExitTransition {
+  @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class ExitTransition {
     method @androidx.compose.runtime.Stable public final operator androidx.compose.animation.ExitTransition plus(androidx.compose.animation.ExitTransition exit);
     field public static final androidx.compose.animation.ExitTransition.Companion Companion;
   }
@@ -241,7 +247,7 @@ package androidx.compose.animation {
     property public androidx.compose.animation.SharedTransitionScope.PlaceholderSize ContentSize;
   }
 
-  public static sealed interface SharedTransitionScope.ResizeMode {
+  public static sealed nonexhaustive interface SharedTransitionScope.ResizeMode {
     field public static final androidx.compose.animation.SharedTransitionScope.ResizeMode.Companion Companion;
   }
 

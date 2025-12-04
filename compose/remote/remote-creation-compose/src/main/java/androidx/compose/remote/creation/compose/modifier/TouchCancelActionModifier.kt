@@ -18,12 +18,9 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.clickable
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.TouchActionModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchCancelActionModifier(public val actions: List<Action>) : RemoteModifier.Element {
@@ -32,13 +29,6 @@ public class TouchCancelActionModifier(public val actions: List<Action>) : Remot
             TouchActionModifier.CANCEL,
             actions.map { it.toRemoteAction() },
         )
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        val previewActions = actions.map { it.toComposeUiAction() }
-
-        return clickable { previewActions.forEach { action -> action.invoke() } }
     }
 }
 

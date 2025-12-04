@@ -39,6 +39,7 @@ import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -1108,6 +1109,243 @@ class PlacementLayoutCoordinatesTest {
         }
 
         rule.runOnIdle { assertThat(actualPositionChild).isEqualTo(Offset(10.5f, 0f)) }
+    }
+
+    @Test
+    fun removingLayoutModifierShouldInvalidateCoordinatesOnGrandChild() {
+        var actualPosition: Offset? = null
+        with(rule.density) {
+            var modifier by mutableStateOf(Modifier.offset { IntOffset(10, 0) })
+            rule.setContent {
+                Layout(
+                    content = {
+                        Box(Modifier.size(10.dp)) {
+                            Box {
+                                Layout { measurables, constraints ->
+                                    layout(constraints.maxWidth, constraints.maxHeight) {
+                                        actualPosition = coordinates?.positionInRoot()
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    modifier = modifier.then(Modifier.offset { IntOffset(10, 0) }),
+                ) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
+                }
+            }
+
+            rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(20f, 0f)) }
+
+            rule.runOnIdle { modifier = Modifier }
+
+            rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(10f, 0f)) }
+        }
+    }
+
+    @Test
+    fun removingLayerModifierShouldInvalidateCoordinatesOnGrandChild() {
+        with(rule.density) {
+            var actualPosition: Offset? = null
+            var modifier by mutableStateOf(Modifier.graphicsLayer { translationX = 10f })
+            rule.setContent {
+                Layout(
+                    content = {
+                        Box(Modifier.size(10.dp)) {
+                            Box {
+                                Layout { measurables, constraints ->
+                                    layout(constraints.maxWidth, constraints.maxHeight) {
+                                        actualPosition = coordinates?.positionInRoot()
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    modifier = modifier.graphicsLayer { translationX = 10f },
+                ) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
+                }
+            }
+
+            rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(20f, 0f)) }
+
+            rule.runOnIdle { modifier = Modifier }
+
+            rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(10f, 0f)) }
+        }
+    }
+
+    @Test
+    fun stoppingPlacingWithLayerShouldInvalidateCoordinatesOnGrandChild() {
+        with(rule.density) {
+            var actualPosition: IntOffset? = null
+            var needLayer by mutableStateOf(true)
+            rule.setContent {
+                Layout(
+                    content = {
+                        Box(Modifier.size(10.dp)) {
+                            Box {
+                                Layout(
+                                    content = {
+                                        Layout { measurables, constraints ->
+                                            layout(constraints.maxWidth, constraints.maxHeight) {
+                                                actualPosition =
+                                                    coordinates?.positionInRoot()?.round()
+                                            }
+                                        }
+                                    }
+                                ) { measurables, constraints ->
+                                    val placeable = measurables.first().measure(constraints)
+                                    layout(constraints.maxWidth, constraints.maxHeight) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    modifier =
+                        Modifier.layout { measurable, constraints ->
+                            val placeable = measurable.measure(constraints)
+                            layout(placeable.width, placeable.height) {
+                                if (needLayer) {
+                                    placeable.placeWithLayer(0, 0) { translationX = 10f }
+                                } else {
+                                    placeable.place(0, 0)
+                                }
+                            }
+                        },
+                ) { measurables, constraints ->
+                    val placeable = measurables.first().measure(constraints)
+                    layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
+                }
+            }
+
+            rule.runOnIdle { assertThat(actualPosition).isEqualTo(IntOffset(10, 0)) }
+
+            rule.runOnIdle { needLayer = false }
+
+            rule.runOnIdle { assertThat(actualPosition).isEqualTo(IntOffset(0, 0)) }
+        }
+    }
+
+    @Test
+    fun updatingLayerBlockShouldInvalidateCoordinatesCallbackOnGrandChild() {
+        var actualPosition: Offset? = null
+        var offset by mutableStateOf(0f)
+        rule.setContent {
+            Layout(
+                content = {
+                    Box(Modifier.size(10.dp)) {
+                        Box {
+                            Layout { measurables, constraints ->
+                                layout(constraints.maxWidth, constraints.maxHeight) {
+                                    actualPosition = coordinates?.positionInRoot()
+                                }
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier.graphicsLayer(translationX = offset),
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(0f, 0f)) }
+
+        rule.runOnIdle { offset = 5f }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(5f, 0f)) }
+    }
+
+    @Test
+    fun updatingLayerBlockLambdaOnAChildShouldInvalidateCoordinatesCallback() {
+        var actualPosition: Offset? = null
+        var layerBlock by mutableStateOf<GraphicsLayerScope.() -> Unit>({})
+        rule.setContent {
+            Layout(
+                content = {
+                    Layout { _, _ ->
+                        layout(10, 10) { actualPosition = coordinates?.positionInRoot() }
+                    }
+                }
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    placeable.placeWithLayer(0, 0, layerBlock = layerBlock)
+                }
+            }
+        }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(0f, 0f)) }
+
+        rule.runOnIdle { layerBlock = { translationX = 5f } }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(Offset(5f, 0f)) }
+    }
+
+    @Test
+    fun updatingLayerBlockShouldUpdateOffsetOnGrandChild() {
+        var actualPosition: IntOffset? = null
+        var offset by mutableStateOf(0)
+        rule.setContent {
+            Layout(
+                content = {
+                    Box(Modifier.size(10.dp)) {
+                        Box {
+                            Layout(
+                                content = {
+                                    Layout { _, constraints ->
+                                        layout(constraints.maxWidth, constraints.maxHeight) {
+                                            actualPosition = coordinates?.positionInRoot()?.round()
+                                        }
+                                    }
+                                }
+                            ) { measurables, constraints ->
+                                val placeable = measurables.first().measure(constraints)
+                                layout(constraints.maxWidth, constraints.maxHeight) {
+                                    placeable.place(0, offset)
+                                }
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier.graphicsLayer(translationX = offset.toFloat()),
+            ) { measurables, constraints ->
+                val placeable = measurables.first().measure(constraints)
+                layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }
+            }
+        }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(IntOffset(0, 0)) }
+
+        rule.runOnIdle { offset = 5 }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(IntOffset(5, 5)) }
+    }
+
+    @Test
+    fun updatingLayerPropertyShouldCallCallbackOnTheSameNode() {
+        var actualPosition: IntOffset? = null
+        var offset by mutableStateOf(0)
+        rule.setContent {
+            Layout(modifier = Modifier.graphicsLayer { translationX = offset.toFloat() }) {
+                _,
+                constraints ->
+                layout(constraints.maxWidth, constraints.maxHeight) {
+                    actualPosition = coordinates?.positionInRoot()?.round()
+                }
+            }
+        }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(IntOffset(0, 0)) }
+
+        rule.runOnIdle { offset = 5 }
+
+        rule.runOnIdle { assertThat(actualPosition).isEqualTo(IntOffset(5, 0)) }
     }
 }
 
