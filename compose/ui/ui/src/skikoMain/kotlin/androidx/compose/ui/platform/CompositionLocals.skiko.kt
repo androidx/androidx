@@ -46,6 +46,7 @@ val LocalPlatformScreenReader = staticCompositionLocalOf<PlatformScreenReader> {
     error("CompositionLocal LocalPlatformScreenReader not present")
 }
 
+// TODO: Remove as part of https://youtrack.jetbrains.com/issue/CMP-9379
 /**
  * The CompositionLocal that provides information about window insets associated with current
  * scene.

@@ -310,7 +310,6 @@ private object EmptyTextToolbar : TextToolbar {
 }
 
 private object EmptyDragAndDropManager : PlatformDragAndDropManager
-private object EmptyPlatformWindowInsets : PlatformWindowInsets
 
 /**
  * Helper delegate to re-send missing events to a new listener.

@@ -25,11 +25,17 @@ import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.systemGesturesPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -55,7 +61,7 @@ import platform.UIKit.UIUserInterfaceIdiomPad
 
 class WindowInsetsPaddingTest {
     @Test
-    fun composableDoesNotRecomposeOnWindowInsetsImeChange() = runUIKitInstrumentedTest {
+    fun testComposableNotRecomposedOnWindowInsetsImeChange() = runUIKitInstrumentedTest {
         var compositionCount = 0
 
         setContent {
@@ -139,4 +145,28 @@ class WindowInsetsPaddingTest {
             boxRect
         )
     }
+
+    @Test
+    fun testContentNotRecomposedWhenContainerRecomposed() = runUIKitInstrumentedTest {
+        var forceRecomposition by mutableStateOf(0)
+        val recomposed = mutableStateOf(false)
+
+        setContent {
+            Box(Modifier.fillMaxSize()) {
+                forceRecomposition
+                InnerContent(Modifier.systemGesturesPadding(), recomposed)
+            }
+        }
+
+        recomposed.value = false
+        forceRecomposition++
+        waitForIdle()
+
+        assertEquals(false, recomposed.value)
+    }
+}
+
+@Composable
+private fun InnerContent(modifier: Modifier, state: MutableState<Boolean>) {
+    Box(modifier) { state.value = true }
 }

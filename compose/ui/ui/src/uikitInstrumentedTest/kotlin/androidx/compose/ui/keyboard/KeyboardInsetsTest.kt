@@ -79,7 +79,7 @@ import platform.UIKit.UIViewAnimationOptions
 
 internal class KeyboardInsetsTest {
     @Test
-    fun testImeInsetsAnimationFrames_FocusAboveKeyboard() = runUIKitInstrumentedTest {
+    fun testImePaddingInsetsAnimationFrames_FocusAboveKeyboard() = runUIKitInstrumentedTest {
         val contentFrames = mutableListOf<DpRect>()
         var lastContentFrame = DpRect(DpOffset.Unspecified, DpSize.Unspecified)
         var focusManager: FocusManager? = null
@@ -168,7 +168,7 @@ internal class KeyboardInsetsTest {
     }
 
     @Test
-    fun testImeInsetsAnimationFrames_DoNothing() = runUIKitInstrumentedTest {
+    fun testImePaddingInsetsAnimationFrames_DoNothing() = runUIKitInstrumentedTest {
         val contentFrames = mutableListOf<DpRect>()
         var lastContentFrame = DpRect(DpOffset.Unspecified, DpSize.Unspecified)
         var focusManager: FocusManager? = null

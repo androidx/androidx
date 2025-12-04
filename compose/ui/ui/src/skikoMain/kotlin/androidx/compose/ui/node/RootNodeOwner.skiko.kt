@@ -18,11 +18,11 @@ package androidx.compose.ui.node
 
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.mutableIntObjectMapOf
-import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
+import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
@@ -68,13 +68,15 @@ import androidx.compose.ui.platform.DefaultAccessibilityManager
 import androidx.compose.ui.platform.DefaultHapticFeedback
 import androidx.compose.ui.platform.DelegatingSoftwareKeyboardController
 import androidx.compose.ui.platform.GraphicsLayerOwnerLayer
+import androidx.compose.ui.platform.LegacyRenderNodeLayer
 import androidx.compose.ui.platform.OwnedLayerManager
 import androidx.compose.ui.platform.PlatformClipboardManager
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformRootForTest
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
-import androidx.compose.ui.platform.LegacyRenderNodeLayer
+import androidx.compose.ui.platform.PlatformWindowInsets
+import androidx.compose.ui.platform.PlatformWindowInsetsProviderNode
 import androidx.compose.ui.platform.createPlatformClipboard
 import androidx.compose.ui.platform.setLightingInfo
 import androidx.compose.ui.scene.ComposeScene
@@ -396,11 +398,9 @@ internal class RootNodeOwner(
 
         override val focusOwner: FocusOwner = FocusOwnerImpl(platformFocusOwner, this)
 
-        val rootModifier = if (ComposeUiFlags.areWindowInsetsRulersEnabled) {
-                RulerProviderModifierElement(platformContext.windowInsets)
-            } else {
-                Modifier
-            }
+        val rootModifier = Modifier
+            .then(RootWindowInsetsProviderModifierElement(platformContext.windowInsets))
+            .rulerProvider(platformContext.windowInsets)
             .then(EmptySemanticsElement(rootSemanticsNode))
             .focusProperties {
                 onExit = {
@@ -997,4 +997,28 @@ private fun IntSize.toConstraints() = Constraints(maxWidth = width, maxHeight = 
 private object IdentityPositionCalculator: PositionCalculator {
     override fun screenToLocal(positionOnScreen: Offset): Offset = positionOnScreen
     override fun localToScreen(localPosition: Offset): Offset = localPosition
+}
+
+private fun Modifier.rulerProvider(windowInsets: PlatformWindowInsets) =
+    if (ComposeUiFlags.areWindowInsetsRulersEnabled) then(RulerProviderModifierElement(windowInsets)) else this
+
+private data class RootWindowInsetsProviderModifierElement(
+    val windowInsets: PlatformWindowInsets,
+): ModifierNodeElement<RootPlatformWindowInsetsProviderNode>() {
+    override fun create(): RootPlatformWindowInsetsProviderNode = RootPlatformWindowInsetsProviderNode(windowInsets)
+    override fun update(node: RootPlatformWindowInsetsProviderNode) = node.update(windowInsets)
+}
+
+private class RootPlatformWindowInsetsProviderNode(
+    private var insets: PlatformWindowInsets,
+): PlatformWindowInsetsProviderNode(insets) {
+    override fun calculatePlatformInsets(ancestorWindowInsets: PlatformWindowInsets): PlatformWindowInsets =
+        insets
+
+    fun update(windowInsets: PlatformWindowInsets) {
+        if (insets != windowInsets) {
+            insets = windowInsets
+            windowInsetsInvalidated()
+        }
+    }
 }

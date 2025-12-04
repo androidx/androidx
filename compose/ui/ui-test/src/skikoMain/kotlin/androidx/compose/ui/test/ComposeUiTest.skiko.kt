@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformDragAndDropManager
 import androidx.compose.ui.platform.PlatformDragAndDropSource
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
+import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.scene.ComposeScene
@@ -113,6 +114,7 @@ fun runInternalSkikoComposeUiTest(
     runTestContext: CoroutineContext = EmptyCoroutineContext,
     testTimeout: Duration = Duration.INFINITE,
     semanticsOwnerListener: PlatformContext.SemanticsOwnerListener? = null,
+    windowInsets: PlatformWindowInsets? = null,
     coroutineDispatcher: TestDispatcher = defaultTestDispatcher(),
     block: suspend SkikoComposeUiTest.() -> Unit
 ): TestResult {
@@ -125,6 +127,7 @@ fun runInternalSkikoComposeUiTest(
             testTimeout = testTimeout,
             density = density,
             semanticsOwnerListener = semanticsOwnerListener,
+            windowInsets = windowInsets,
             coroutineDispatcher = coroutineDispatcher,
         ).runTest(block)
     }
@@ -158,6 +161,7 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
     private val testTimeout: Duration = Duration.INFINITE,
     override val density: Density = Density(1f),
     private val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener?,
+    private val windowInsets: PlatformWindowInsets?,
     private val coroutineDispatcher: TestDispatcher = defaultTestDispatcher(),
 ) : ComposeUiTest {
     init {
@@ -178,6 +182,7 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         effectContext = effectContext,
         density = density,
         semanticsOwnerListener = null,
+        windowInsets = null,
     )
 
     constructor(
@@ -195,6 +200,7 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
         testTimeout = testTimeout,
         density = density,
         semanticsOwnerListener = null,
+        windowInsets = null,
     )
 
     private val composeRootRegistry = ComposeRootRegistry()
@@ -520,6 +526,8 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
 
         override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener?
             get() = this@SkikoComposeUiTest.semanticsOwnerListener
+        override val windowInsets: PlatformWindowInsets
+            get() = this@SkikoComposeUiTest.windowInsets ?: super.windowInsets
 
         override val dragAndDropManager: PlatformDragAndDropManager = TestDragAndDropManager()
 

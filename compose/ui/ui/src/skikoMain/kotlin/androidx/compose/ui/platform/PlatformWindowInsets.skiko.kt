@@ -70,26 +70,27 @@ interface PlatformWindowInsets {
     ): PlatformWindowInsets = this
 }
 
+// TODO: Remove as part of https://youtrack.jetbrains.com/issue/CMP-9379
 @Composable
 internal fun PlatformWindowInsets.exclude(
     safeInsets: Boolean,
     ime: Boolean,
     content: @Composable () -> Unit
 ) {
-    val windowInsets = LocalPlatformWindowInsets.current.excluding(safeInsets, ime)
-
-    return CompositionLocalProvider(
-        LocalPlatformWindowInsets provides windowInsets,
+    CompositionLocalProvider(
+        LocalPlatformWindowInsets provides excluding(safeInsets, ime),
         content = content
     )
 }
 
+internal object EmptyPlatformWindowInsets : PlatformWindowInsets
+
 @InternalComposeUiApi
 val PlatformWindowInsets.safeDrawing: PlatformInsets get() = object : PlatformInsets {
-    override val left: Int get() = maxOf(statusBars.left, navigationBars.left, captionBar.left, displayCutout.left, ime.left, systemBars.left, tappableElement.left)
-    override val top: Int get() = maxOf(statusBars.top, navigationBars.top, captionBar.top, displayCutout.top, ime.top, systemBars.top, tappableElement.top)
-    override val right: Int get() = maxOf(statusBars.right, navigationBars.right, captionBar.right, displayCutout.right, ime.right, systemBars.right, tappableElement.right)
-    override val bottom: Int get() = maxOf(statusBars.bottom, navigationBars.bottom, captionBar.bottom, displayCutout.bottom, ime.bottom, systemBars.bottom, tappableElement.bottom)
+    override val left: Int get() = maxOf(displayCutout.left, ime.left, systemBars.left)
+    override val top: Int get() = maxOf(displayCutout.top, ime.top, systemBars.top)
+    override val right: Int get() = maxOf(displayCutout.right, ime.right, systemBars.right)
+    override val bottom: Int get() = maxOf(displayCutout.bottom, ime.bottom, systemBars.bottom)
 }
 
 @InternalComposeUiApi
@@ -102,10 +103,10 @@ val PlatformWindowInsets.safeGestures: PlatformInsets get() = object : PlatformI
 
 @InternalComposeUiApi
 val PlatformWindowInsets.safeContent: PlatformInsets get() = object : PlatformInsets {
-    override val left: Int get() = maxOf(statusBars.left, navigationBars.left, captionBar.left, ime.left, systemGestures.left, mandatorySystemGestures.left, tappableElement.left, displayCutout.left, waterfall.left)
-    override val top: Int get() = maxOf(statusBars.top, navigationBars.top, captionBar.top, ime.top, systemGestures.top, mandatorySystemGestures.top, tappableElement.top, displayCutout.top, waterfall.top)
-    override val right: Int get() = maxOf(statusBars.right, navigationBars.right, captionBar.right, ime.right, systemGestures.right, mandatorySystemGestures.right, tappableElement.right, displayCutout.right, waterfall.right)
-    override val bottom: Int get() = maxOf(statusBars.bottom, navigationBars.bottom, captionBar.bottom, ime.bottom, systemGestures.bottom, mandatorySystemGestures.bottom, tappableElement.bottom, displayCutout.bottom, waterfall.bottom)
+    override val left: Int get() = maxOf(safeDrawing.left, safeGestures.left)
+    override val top: Int get() = maxOf(safeDrawing.top, safeGestures.top)
+    override val right: Int get() = maxOf(safeDrawing.right, safeGestures.right)
+    override val bottom: Int get() = maxOf(safeDrawing.bottom, safeGestures.bottom)
 }
 
 /**

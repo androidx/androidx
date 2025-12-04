@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalPlatformWindowInsets
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.exclude
+import androidx.compose.ui.platform.excludeWindowInsets
 import androidx.compose.ui.platform.findDefaultNavigationEventDispatcherOwner
 import androidx.compose.ui.platform.union
 import androidx.compose.ui.scene.ComposeSceneLayer
@@ -182,13 +183,15 @@ private fun DialogLayout(
             platformInsets = platformInsets
         )
 
+        // TODO: remove exclude in favor of excludeWindowInsets https://youtrack.jetbrains.com/issue/CMP-9379
         LocalPlatformWindowInsets.current.exclude(
             safeInsets = properties.usePlatformInsets,
             ime = properties.useSoftwareKeyboardInset
         ) {
             Layout(
                 content = currentContent,
-                modifier = modifier,
+                modifier = modifier
+                    .excludeWindowInsets(properties.usePlatformInsets, properties.useSoftwareKeyboardInset),
                 measurePolicy = measurePolicy
             )
         }
