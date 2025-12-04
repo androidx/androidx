@@ -18,14 +18,10 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawContext
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.LayoutDirection
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -53,13 +49,6 @@ public class RemoteDrawWithContentScopeImpl(
     RemoteDrawWithContentScope {
 
     override fun drawContent() {
-        if (remoteComposeCreationState is NoRemoteCompose && drawScope is ContentDrawScope) {
-            drawScope.drawContent()
-        } else {
-            val canvas = drawScope.drawContext.canvas.nativeCanvas
-            if (canvas is RecordingCanvas) {
-                canvas.document.drawComponentContent()
-            }
-        }
+        canvas.document.drawComponentContent()
     }
 }

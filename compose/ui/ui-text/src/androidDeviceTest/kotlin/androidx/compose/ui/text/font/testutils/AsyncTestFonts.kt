@@ -31,7 +31,7 @@ import kotlinx.coroutines.CompletableDeferred
 
 @Suppress("MemberVisibilityCanBePrivate") // visible for testing
 class AsyncTestTypefaceLoader : AndroidFont.TypefaceLoader {
-    private val callbackLock = Object()
+    private val callbackLock = Any()
     private var loadCallback: ((AndroidFont) -> Unit)? = null
     @Volatile private var asyncLoadCallback: ((AndroidFont) -> Unit)? = null
     private val requests =

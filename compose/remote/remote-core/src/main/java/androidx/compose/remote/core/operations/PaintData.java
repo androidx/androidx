@@ -46,6 +46,10 @@ public class PaintData extends PaintOperation
 
     public PaintData() {}
 
+    public PaintData(@NonNull PaintBundle paintData) {
+        mPaintData = paintData;
+    }
+
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
         mPaintData.updateVariables(context);

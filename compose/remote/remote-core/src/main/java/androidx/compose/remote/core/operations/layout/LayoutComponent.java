@@ -29,6 +29,7 @@ import androidx.compose.remote.core.operations.MatrixRestore;
 import androidx.compose.remote.core.operations.MatrixSave;
 import androidx.compose.remote.core.operations.MatrixTranslate;
 import androidx.compose.remote.core.operations.layout.animation.AnimationSpec;
+import androidx.compose.remote.core.operations.layout.managers.CanvasLayout;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.modifiers.AlignByModifierOperation;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
@@ -418,6 +419,21 @@ public class LayoutComponent extends Component {
             mCachedAttributes.clear();
             mGraphicsLayerModifier.fillInAttributes(mCachedAttributes);
             context.setGraphicsLayer(mCachedAttributes);
+        }
+        // Canvas already does its own handling of internal operations
+        if (!(this instanceof CanvasLayout)) {
+            for (Operation op : mList) {
+                if (op instanceof ComponentModifiers) {
+                    continue;
+                }
+                if (!(op instanceof ComponentData)) {
+                    continue;
+                }
+                if (op instanceof VariableSupport && op.isDirty()) {
+                    ((VariableSupport) op).updateVariables(remoteContext);
+                }
+                op.apply(remoteContext);
+            }
         }
         mComponentModifiers.paint(context);
         float tx = mPaddingLeft + getScrollX();

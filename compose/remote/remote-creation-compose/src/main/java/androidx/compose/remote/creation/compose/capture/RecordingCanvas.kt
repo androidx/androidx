@@ -35,7 +35,6 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawTextOnCircle
-import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemoteComposeWriter
@@ -53,7 +52,7 @@ import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.getFloatIdForCreationState
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.asAndroidPath
 
 /**
@@ -354,7 +353,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             send = true
         }
         if (send) {
-            PaintData.apply(document.buffer.buffer, paintBundle)
+            document.buffer.addPaint(paintBundle)
         }
         forceSendingPaint = false
     }
@@ -456,10 +455,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
 
     override fun drawColor(drawColor: Int) {
         drawRect(
-            0f,
-            0f,
-            creationState.size.width,
-            creationState.size.height,
+            0f.rf,
+            0f.rf,
+            creationState.creationDisplayInfo.width.rf,
+            creationState.creationDisplayInfo.height.rf,
             Paint().apply {
                 color = drawColor
                 style = Paint.Style.FILL
@@ -472,7 +471,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         drawTextRun(text, 0, text.length, 0, text.length, x, y, false, paint)
     }
 
-    public fun drawText(text: String, x: Number, y: Number, paint: Paint) {
+    public fun drawText(text: String, x: RemoteFloat, y: RemoteFloat, paint: Paint) {
         // println("NRO drawText $text")
         drawTextRun(
             text,
@@ -496,7 +495,13 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param y The Y coordinate of the text's origin.
      * @param paint The [Paint] object used for styling the text.
      */
-    public fun drawText(text: RemoteString, length: Int, x: Number, y: Number, paint: Paint) {
+    public fun drawText(
+        text: RemoteString,
+        length: Int,
+        x: RemoteFloat,
+        y: RemoteFloat,
+        paint: Paint,
+    ) {
         // println("NRO drawText $text")
         usePaint(paint)
         document.drawTextRun(
@@ -517,7 +522,13 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.drawRect(left, top, right, bottom)
     }
 
-    public fun drawRect(left: Number, top: Number, right: Number, bottom: Number, paint: Paint) {
+    public fun drawRect(
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        paint: Paint,
+    ) {
         // println("NRO drawRect $left $top $right $bottom")
         usePaint(paint)
         document.drawRect(
@@ -543,13 +554,18 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.drawRect(rect.left, rect.top, rect.right, rect.bottom)
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
         usePaint(paint)
         document.drawOval(left, top, right, bottom)
     }
 
-    public fun drawOval(left: Number, top: Number, right: Number, bottom: Number, paint: Paint) {
+    public fun drawOval(
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        paint: Paint,
+    ) {
         usePaint(paint)
         document.drawOval(
             left.getFloatIdForCreationState(creationState),
@@ -559,7 +575,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawRoundRect(
         left: Float,
         top: Float,
@@ -575,12 +590,12 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     public fun drawRoundRect(
-        left: Number,
-        top: Number,
-        right: Number,
-        bottom: Number,
-        rx: Number,
-        ry: Number,
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        rx: RemoteFloat,
+        ry: RemoteFloat,
         paint: Paint,
     ) {
         usePaint(paint)
@@ -594,7 +609,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint) {
         //        println("NRO drawLine")
         usePaint(paint)
@@ -602,10 +616,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     public fun drawLine(
-        startX: Number,
-        startY: Number,
-        stopX: Number,
-        stopY: Number,
+        startX: RemoteFloat,
+        startY: RemoteFloat,
+        stopX: RemoteFloat,
+        stopY: RemoteFloat,
         paint: Paint,
     ) {
         //        println("NRO drawLine")
@@ -625,7 +639,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         }
     }
 
-    public fun translate(dx: Number, dy: Number) {
+    public fun translate(dx: RemoteFloat, dy: RemoteFloat) {
         // println("NRO translate $dx $dy")
         document.translate(
             dx.getFloatIdForCreationState(creationState),
@@ -640,14 +654,13 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.scale(sx, sy)
     }
 
-    public fun scale(sx: Number, sy: Number) {
+    public fun scale(sx: RemoteFloat, sy: RemoteFloat) {
         document.scale(
             sx.getFloatIdForCreationState(creationState),
             sy.getFloatIdForCreationState(creationState),
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawBitmap(bitmap: Bitmap, left: Float, top: Float, paint: Paint?) {
         // println("NRO drawBitmap 2")
         usePaint(paint!!)
@@ -661,7 +674,12 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    public fun drawBitmap(bitmap: RemoteBitmap, left: Number, top: Number, paint: Paint?) {
+    public fun drawBitmap(
+        bitmap: RemoteBitmap,
+        left: RemoteFloat,
+        top: RemoteFloat,
+        paint: Paint?,
+    ) {
         // println("NRO drawBitmap 2")
         usePaint(paint!!)
         document.drawBitmap(
@@ -672,7 +690,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawBitmap(bitmap: Bitmap, src: Rect?, dst: Rect, paint: Paint?) {
         // println("NRO drawBitmap 3 ")
         usePaint(paint!!)
@@ -783,7 +800,12 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         return super.clipRect(left, top, right, bottom)
     }
 
-    public fun clipRect(left: Number, top: Number, right: Number, bottom: Number): Boolean {
+    public fun clipRect(
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+    ): Boolean {
         val l = left.getFloatIdForCreationState(creationState)
         val t = top.getFloatIdForCreationState(creationState)
         val r = right.getFloatIdForCreationState(creationState)
@@ -828,8 +850,8 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         end: Int,
         contextStart: Int,
         contextEnd: Int,
-        x: Number,
-        y: Number,
+        x: RemoteFloat,
+        y: RemoteFloat,
         isRtl: Boolean,
         paint: Paint,
     ) {
@@ -848,7 +870,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     /**
-     * Draws a substring of [text] with [bitmapFontId] at position [x], [y]
+     * Draws a substring of [text] with [bitmapFont] at position [x], [y]
      *
      * @param text The [RemoteString] to draw
      * @param bitmapFont The [RemoteBitmapFont] to draw [text] with
@@ -864,8 +886,8 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         bitmapFont: RemoteBitmapFont,
         start: Int,
         end: Int,
-        x: Number,
-        y: Number,
+        x: RemoteFloat,
+        y: RemoteFloat,
         paint: Paint,
     ) {
         usePaint(paint)
@@ -880,7 +902,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     /**
-     * Draws a substring of [text] with [bitmapFontId] at position [x], [y]
+     * Draws a substring of [text] with [bitmapFont]
      *
      * @param text The [RemoteString] to draw
      * @param bitmapFont The [RemoteBitmapFont] to draw [text] with
@@ -912,7 +934,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     /**
-     * Draws a substring of [text] with [bitmapFontId] centered position [x], [y] with additional
+     * Draws a substring of [text] with [bitmapFont] centered position [x], [y] with additional
      * translation from [panx] & [pany]
      *
      * @param text The [RemoteString] to draw
@@ -933,10 +955,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         bitmapFont: RemoteBitmapFont,
         start: Int,
         end: Int,
-        x: Number,
-        y: Number,
-        panx: Number,
-        pany: Number,
+        x: RemoteFloat,
+        y: RemoteFloat,
+        panx: RemoteFloat,
+        pany: RemoteFloat,
         paint: Paint,
     ) {
         usePaint(paint)
@@ -969,7 +991,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      *
      * @param degrees The angle of rotation in degrees.
      */
-    public fun rotate(degrees: Number) {
+    public fun rotate(degrees: RemoteFloat) {
         val id = degrees.getFloatIdForCreationState(creationState)
         document.rotate(id)
         super.rotate(id)
@@ -982,7 +1004,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param px The X-coordinate of the pivot point.
      * @param py The Y-coordinate of the pivot point.
      */
-    public fun rotate(degrees: Number, px: Number, py: Number) {
+    public fun rotate(degrees: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
         document.rotate(
             degrees.getFloatIdForCreationState(creationState),
             px.getFloatIdForCreationState(creationState),
@@ -1041,8 +1063,8 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     public fun drawTextOnPath(
         text: String,
         path: Path,
-        hOffset: Number,
-        vOffset: Number,
+        hOffset: RemoteFloat,
+        vOffset: RemoteFloat,
         paint: Paint,
     ) {
         // println("NRO drawTextOnPath 1")
@@ -1067,11 +1089,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     public fun drawTextOnPath(
         text: RemoteString,
         path: Path,
-        hOffset: Number,
-        vOffset: Number,
+        hOffset: RemoteFloat,
+        vOffset: RemoteFloat,
         paint: Paint,
     ) {
-        // println("NRO drawTextOnPath 1")
         usePaint(paint)
         document.drawTextOnPath(
             text.getIdForCreationState(creationState),
@@ -1083,11 +1104,11 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
 
     public fun drawTextOnCircle(
         text: RemoteString,
-        centerX: Number,
-        centerY: Number,
-        radius: Number,
-        startAngle: Number,
-        warpRadiusOffset: Number,
+        centerX: RemoteFloat,
+        centerY: RemoteFloat,
+        radius: RemoteFloat,
+        startAngle: RemoteFloat,
+        warpRadiusOffset: RemoteFloat,
         alignment: DrawTextOnCircle.Alignment,
         placement: DrawTextOnCircle.Placement,
         paint: Paint,
@@ -1105,7 +1126,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawArc(
         left: Float,
         top: Float,
@@ -1126,12 +1146,12 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     public fun drawArc(
-        left: Number,
-        top: Number,
-        right: Number,
-        bottom: Number,
-        startAngle: Number,
-        sweepAngle: Number,
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        startAngle: RemoteFloat,
+        sweepAngle: RemoteFloat,
         useCenter: Boolean,
         paint: Paint,
     ) {
@@ -1158,7 +1178,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun drawCircle(cx: Float, cy: Float, radius: Float, paint: Paint) {
         //        println("NRO drawCircle ($cx, $cy)")
         usePaint(paint)
@@ -1179,10 +1198,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      */
     public fun drawAnchoredText(
         text: String,
-        anchorX: Number,
-        anchorY: Number,
-        panx: Number,
-        pany: Number,
+        anchorX: RemoteFloat,
+        anchorY: RemoteFloat,
+        panx: RemoteFloat,
+        pany: RemoteFloat,
         flags: Int,
         paint: Paint,
     ) {
@@ -1210,10 +1229,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      */
     public fun drawAnchoredText(
         text: RemoteString,
-        anchorX: Number,
-        anchorY: Number,
-        panx: Number,
-        pany: Number,
+        anchorX: RemoteFloat,
+        anchorY: RemoteFloat,
+        panx: RemoteFloat,
+        pany: RemoteFloat,
         flags: Int,
         paint: Paint,
     ) {
@@ -1245,9 +1264,9 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     public fun drawTweenPath(
         path1: androidx.compose.ui.graphics.Path,
         path2: androidx.compose.ui.graphics.Path,
-        tween: Number,
-        start: Number,
-        stop: Number,
+        tween: RemoteFloat,
+        start: RemoteFloat,
+        stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
         usePaint(paint.asFrameworkPaint())
@@ -1276,7 +1295,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     /**
-     * Draws a scaled portion of an [Image] into a destination rectangle.
+     * Draws a scaled portion of an [Bitmap] into a destination rectangle.
      *
      * @param image The [Bitmap] image to draw.
      * @param srcLeft The left coordinate of the source rectangle in the image.
@@ -1293,16 +1312,16 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      */
     public fun drawScaledBitmap(
         image: Bitmap,
-        srcLeft: Number,
-        srcTop: Number,
-        srcRight: Number,
-        srcBottom: Number,
-        dstLeft: Number,
-        dstTop: Number,
-        dstRight: Number,
-        dstBottom: Number,
+        srcLeft: RemoteFloat,
+        srcTop: RemoteFloat,
+        srcRight: RemoteFloat,
+        srcBottom: RemoteFloat,
+        dstLeft: RemoteFloat,
+        dstTop: RemoteFloat,
+        dstRight: RemoteFloat,
+        dstBottom: RemoteFloat,
         scaleType: Int,
-        scaleFactor: Number,
+        scaleFactor: RemoteFloat,
         contentDescription: String?,
     ) {
         document.drawScaledBitmap(
@@ -1339,16 +1358,16 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      */
     public fun drawScaledBitmap(
         image: RemoteBitmap,
-        srcLeft: Number,
-        srcTop: Number,
-        srcRight: Number,
-        srcBottom: Number,
-        dstLeft: Number,
-        dstTop: Number,
-        dstRight: Number,
-        dstBottom: Number,
+        srcLeft: RemoteFloat,
+        srcTop: RemoteFloat,
+        srcRight: RemoteFloat,
+        srcBottom: RemoteFloat,
+        dstLeft: RemoteFloat,
+        dstTop: RemoteFloat,
+        dstRight: RemoteFloat,
+        dstBottom: RemoteFloat,
         scaleType: Int,
-        scaleFactor: Number,
+        scaleFactor: RemoteFloat,
         contentDescription: String?,
     ) {
         document.drawScaledBitmap(
@@ -1379,9 +1398,14 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      * @param step The amount to increment each time
      * @param body Code that generates draw calls to run in a loop.
      */
-    public fun loop(from: Number, until: Number, step: Number, body: (index: RemoteFloat) -> Unit) {
+    public fun loop(
+        from: RemoteFloat,
+        until: RemoteFloat,
+        step: RemoteFloat,
+        body: (index: RemoteFloat) -> Unit,
+    ) {
         val loopVariableId = document.createFloatId()
-        val loopVariable = MutableRemoteFloat(mutableFloatStateOf(0f), loopVariableId)
+        val loopVariable = MutableRemoteFloat(loopVariableId)
         document.loop(
             Utils.idFromNan(loopVariableId),
             from.getFloatIdForCreationState(creationState),
@@ -1404,7 +1428,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      */
     public fun loop(from: Int, until: RemoteInt, body: (index: RemoteInt) -> Unit) {
         val loopVariableId = document.createFloatId()
-        val loopVariable = MutableRemoteFloat(mutableFloatStateOf(0f), loopVariableId)
+        val loopVariable = MutableRemoteFloat(loopVariableId)
         document.loop(
             Utils.idFromNan(loopVariableId),
             from.toFloat(),
@@ -1424,7 +1448,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
      *   the beginning.
      * @param tangentalOffset An offset in pixels from from the path along the tangent.
      */
-    public fun setMatrixFromPath(path: Path, fraction: Number, tangentalOffset: Number) {
+    public fun setMatrixFromPath(path: Path, fraction: RemoteFloat, tangentalOffset: RemoteFloat) {
         document.matrixFromPath(
             document.addPathData(path),
             fraction.getFloatIdForCreationState(creationState),

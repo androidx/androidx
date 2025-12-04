@@ -20,14 +20,13 @@ package androidx.compose.remote.creation.compose.capture.shaders
 import android.graphics.SweepGradient
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
-import androidx.compose.ui.geometry.isUnspecified
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
 
@@ -65,12 +64,11 @@ public class RemoteSweepShader(
  * @param center Center position of the sweep gradient circle. If this is set to
  *   [Offset.Unspecified] then the center of the drawing area is used as the center for the sweep
  *   gradient
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.sweepGradient(
     vararg colorStops: Pair<Float, Color>,
-    center: Offset = Offset.Unspecified,
+    center: RemoteOffset,
 ): RemoteSweepGradient =
     RemoteSweepGradient(
         colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
@@ -95,12 +93,11 @@ public fun RemoteBrush.Companion.sweepGradient(
  * @param center Center position of the sweep gradient circle. If this is set to
  *   [Offset.Unspecified] then the center of the drawing area is used as the center for the sweep
  *   gradient
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.sweepGradient(
     colors: List<Color>,
-    center: Offset = Offset.Unspecified,
+    center: RemoteOffset? = null,
 ): RemoteSweepGradient = RemoteSweepGradient(colors = colors, stops = null, center = center)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -108,23 +105,16 @@ public fun RemoteBrush.Companion.sweepGradient(
 public data class RemoteSweepGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
-    private val center: Offset,
+    private val center: RemoteOffset? = null,
 ) : RemoteBrush() {
 
-    override fun createShader(size: Size): Shader {
-        var realCenter = center
-        if (center.isUnspecified) {
-            realCenter = size.center
-        } else if (center.x == Float.POSITIVE_INFINITY || center.y == Float.POSITIVE_INFINITY) {
-            val centerX = if (center.x == Float.POSITIVE_INFINITY) size.width else center.x
-            val centerY = if (center.y == Float.POSITIVE_INFINITY) size.height else center.y
-            realCenter = Offset(centerX, centerY)
-        }
+    override fun createShader(size: RemoteSize): Shader {
+        val realCenter = center ?: size.center
         validateColorStops(colors = colors, colorStops = stops)
         val numTransparentColors = countTransparentColors(colors = colors)
         return RemoteSweepShader(
-            realCenter.x,
-            realCenter.y,
+            realCenter.x.toFloat(),
+            realCenter.y.toFloat(),
             makeTransparentColors(colors = colors, numTransparentColors = numTransparentColors),
             makeTransparentStops(
                 stops = stops,
@@ -132,17 +122,6 @@ public data class RemoteSweepGradient(
                 numTransparentColors = numTransparentColors,
             ),
         )
-    }
-
-    override fun toComposeUi(): Brush {
-        return if (stops != null) {
-            return Brush.sweepGradient(
-                *stops.zip<Float, Color>(colors).toTypedArray<Pair<Float, Color>>(),
-                center = center,
-            )
-        } else {
-            return Brush.sweepGradient(colors, center)
-        }
     }
 }
 

@@ -18,17 +18,15 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HeightInModifier(
     public val min: Dp = Dp.Unspecified,
     public val max: Dp = Dp.Unspecified,
-) : RemoteLayoutModifier {
+) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         var minValue = 0f
         var maxValue = Float.MAX_VALUE
@@ -39,11 +37,6 @@ public class HeightInModifier(
             maxValue = max.value
         }
         return androidx.compose.remote.creation.modifiers.HeightInModifier(minValue, maxValue)
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        return heightIn(min, max)
     }
 }
 

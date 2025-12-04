@@ -98,6 +98,7 @@ private fun OnVisibilityChangedDurationLoggingSample() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Sampled
 @Composable
 private fun OnFirstVisibleImpressionLoggingSample() {
@@ -116,6 +117,7 @@ private fun OnFirstVisibleImpressionLoggingSample() {
     }
 }
 
+@Suppress("DEPRECATION")
 @Sampled
 @Composable
 private fun OnFirstVisibleImpressionLoggingWithViewportSample() {

@@ -27,7 +27,7 @@ import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rememberRemoteFloatValue
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.DefaultAlpha
@@ -95,7 +95,7 @@ public fun RemoteImage(
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
     contentScale: ContentScale = ContentScale.Fit,
-    alpha: RemoteFloat = rememberRemoteFloatValue { DefaultAlpha },
+    alpha: RemoteFloat = DefaultAlpha.rf,
 ) {
     val bitmapId =
         LocalRemoteComposeCreationState.current.document.addBitmap(bitmap.asAndroidBitmap())
@@ -129,7 +129,7 @@ public fun RemoteImage(
     contentDescription: RemoteString?,
     modifier: RemoteModifier = RemoteModifier,
     contentScale: ContentScale = ContentScale.Fit,
-    alpha: RemoteFloat = rememberRemoteFloatValue { DefaultAlpha },
+    alpha: RemoteFloat = DefaultAlpha.rf,
 ) {
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     Box(

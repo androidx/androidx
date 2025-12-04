@@ -441,6 +441,7 @@ class ComposeLayoutInspector(
                             addRead(read.convert(stringTable, layoutInspectorTree))
                         }
                         addAllStrings(stringTable.toStringEntries())
+                        purgedStateReads = recompositionHandler.getPurgedStateReadCount()
                     }
                     .build()
         }

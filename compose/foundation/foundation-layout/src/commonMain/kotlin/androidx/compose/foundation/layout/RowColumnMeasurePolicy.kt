@@ -201,12 +201,7 @@ internal fun RowColumnMeasurePolicy.measure(
                                 0
                             },
                         crossAxisMin = crossAxisDesiredSize ?: 0,
-                        mainAxisMax =
-                            if (mainAxisMax == Constraints.Infinity && mainAxisMin == 0) {
-                                mainAxisMax
-                            } else {
-                                childMainAxisSize
-                            },
+                        mainAxisMax = childMainAxisSize,
                         crossAxisMax = crossAxisDesiredSize ?: crossAxisMax,
                         isPrioritizing = true,
                     )

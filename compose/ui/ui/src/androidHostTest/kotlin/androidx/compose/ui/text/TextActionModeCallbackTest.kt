@@ -54,7 +54,7 @@ class TextActionModeCallbackTest {
         // Before API 26, the last menu item should be "Select all."
         val lastItem = menu.menuItems.last()
         assertThat(lastItem.itemId).isEqualTo(MenuItemOption.SelectAll.id)
-        assertThat(lastItem.order).isEqualTo(MenuItemOption.SelectAll.id)
+        assertThat(lastItem.order).isEqualTo(MenuItemOption.SelectAll.order)
         assertThat(lastItem.title).isEqualTo(MenuItemOption.SelectAll.titleResource.toString())
     }
 
@@ -79,7 +79,7 @@ class TextActionModeCallbackTest {
         // For API level 26 and on, the last menu item should be "Autofill."
         val lastItem = menu.menuItems.last()
         assertThat(lastItem.itemId).isEqualTo(MenuItemOption.Autofill.id)
-        assertThat(lastItem.order).isEqualTo(MenuItemOption.Autofill.id)
+        assertThat(lastItem.order).isEqualTo(MenuItemOption.Autofill.order)
         assertThat(lastItem.title).isEqualTo(MenuItemOption.Autofill.titleResource.toString())
     }
 
@@ -92,7 +92,7 @@ class TextActionModeCallbackTest {
         val resultItem = menu.menuItems.first()
 
         assertThat(resultItem.itemId).isEqualTo(MenuItemOption.Copy.id)
-        assertThat(resultItem.order).isEqualTo(MenuItemOption.Copy.id)
+        assertThat(resultItem.order).isEqualTo(MenuItemOption.Copy.order)
         assertThat(resultItem.title).isEqualTo(MenuItemOption.Copy.titleResource.toString())
     }
 

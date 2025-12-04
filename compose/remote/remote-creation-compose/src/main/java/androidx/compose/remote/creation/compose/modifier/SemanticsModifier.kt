@@ -27,17 +27,12 @@ import androidx.compose.remote.core.semantics.CoreSemantics
 import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.text
-import androidx.compose.ui.text.AnnotatedString
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class SemanticsModifier(val mergeMode: Mode, val semantics: AccessibilitySemantics) :
@@ -57,22 +52,6 @@ public data class SemanticsModifier(val mergeMode: Mode, val semantics: Accessib
                 mRole = fromRole(semantics.role)
             }
         )
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        val properties: SemanticsPropertyReceiver.() -> Unit = {
-            semantics.text?.constantValue?.let { text = AnnotatedString(it) }
-            semantics.role?.let { role = it }
-            semantics.stateDescription?.constantValue?.let { stateDescription = it }
-            semantics.contentDescription?.constantValue?.let { contentDescription = it }
-        }
-
-        return if (mergeMode == CLEAR_AND_SET) {
-            clearAndSetSemantics(properties)
-        } else {
-            semantics(mergeDescendants = mergeMode == MERGE, properties)
-        }
     }
 }
 

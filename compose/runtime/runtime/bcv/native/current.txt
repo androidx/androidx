@@ -728,9 +728,8 @@ final class <#A: kotlin/Any?> androidx.compose.runtime/ProvidedValue { // androi
         final fun <get-canOverride>(): kotlin/Boolean // androidx.compose.runtime/ProvidedValue.canOverride.<get-canOverride>|<get-canOverride>(){}[0]
 }
 
-final class androidx.compose.runtime.platform/SynchronizedObject { // androidx.compose.runtime.platform/SynchronizedObject|null[0]
-    final fun lock() // androidx.compose.runtime.platform/SynchronizedObject.lock|lock(){}[0]
-    final fun unlock() // androidx.compose.runtime.platform/SynchronizedObject.unlock|unlock(){}[0]
+final class androidx.compose.runtime.platform/SynchronizedObject : kotlinx.atomicfu.locks/SynchronizedObject { // androidx.compose.runtime.platform/SynchronizedObject|null[0]
+    constructor <init>() // androidx.compose.runtime.platform/SynchronizedObject.<init>|<init>(){}[0]
 }
 
 final class androidx.compose.runtime.snapshots/SnapshotApplyConflictException : kotlin/Exception { // androidx.compose.runtime.snapshots/SnapshotApplyConflictException|null[0]

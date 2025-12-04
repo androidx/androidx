@@ -66,6 +66,7 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextID, this);
         if (Float.isNaN(mYAdj)) {
             context.listensTo(Utils.idFromNan(mYAdj), this);
         }

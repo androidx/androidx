@@ -19,13 +19,12 @@ package androidx.compose.remote.creation.compose.state
 
 import android.graphics.Bitmap
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_HEIGHT
+import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_WIDTH
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.core.graphics.createBitmap
 
 /**
  * Abstract base class for all remote bitmap representations in Compose Remote, this class extends
@@ -34,14 +33,14 @@ import androidx.core.graphics.createBitmap
  * @property state The [RemoteComposeCreationState] associated with this bitmap, allowing access to
  *   the remote document for registration.
  * @property hasConstantValue A boolean indicating whether this [RemoteBitmap] will always evaluate
- *   to the same [value].
+ *   to the same value.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteBitmap
 internal constructor(
     public val state: RemoteComposeCreationState?,
     public override val constantValue: Bitmap?,
-) : RemoteState<Bitmap> {
+) : BaseRemoteState<Bitmap>() {
 
     // @Deprecated("Use getIdForCreationState directly")
     // TODO: re-enable this asap
@@ -52,6 +51,28 @@ internal constructor(
             //     "Use RemoteBitmap.getIdForCreationState directly"
             // )
             return getIdForCreationState(FallbackCreationState.state)
+        }
+
+    /** The width of the bitmap as represented in the remote document. */
+    public val width: RemoteFloat
+        get() {
+            val width =
+                state?.document?.bitmapAttribute(id, IMAGE_WIDTH)
+                    ?: throw IllegalStateException(
+                        "Bitmap width is not available in the remote document."
+                    )
+            return RemoteFloat(width)
+        }
+
+    /** The height of the bitmap as represented in the remote document. */
+    public val height: RemoteFloat
+        get() {
+            val height =
+                state?.document?.bitmapAttribute(id, IMAGE_HEIGHT)
+                    ?: throw IllegalStateException(
+                        "Bitmap height is not available in the remote document."
+                    )
+            return RemoteFloat(height)
         }
 
     public companion object {
@@ -69,7 +90,7 @@ internal constructor(
             v: Bitmap,
             state: RemoteComposeCreationState? = null,
         ): RemoteBitmap {
-            return MutableRemoteBitmap(state, mutableStateOf(v), v) { creationState ->
+            return MutableRemoteBitmap(state, v) { creationState ->
                 creationState.document.addBitmap(v)
             }
         }
@@ -87,8 +108,7 @@ internal constructor(
             initialValue: Bitmap,
             state: RemoteComposeCreationState,
         ): RemoteBitmap =
-            MutableRemoteBitmap(state, mutableStateOf(initialValue), constantValue = null) {
-                creationState ->
+            MutableRemoteBitmap(state, constantValue = null) { creationState ->
                 creationState.document.addNamedBitmap(name, initialValue)
             }
     }
@@ -98,16 +118,14 @@ internal constructor(
  * A mutable implementation of [RemoteBitmap] that holds its value in a [MutableState<Bitmap>].
  *
  * @property state The [RemoteComposeCreationState] associated with this bitmap.
- * @property content The underlying [MutableState<Bitmap>] that stores the actual bitmap value.
- * @property hasConstantValue A boolean indicating whether this [MutableRemoteBitmap] is expected to
- *   remain constant. For mutable states, this is typically `false`.
+ * @property constantValue The [Bitmap] this [RemoteColor] always evaluates to, if any, or null if
+ *   it's not constant.
  * @property idProvider A lambda that provides the unique ID for this mutable bitmap within the
  *   [RemoteComposeCreationState]. This ID is used to identify the bitmap in the remote document.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteBitmap(
     state: RemoteComposeCreationState?,
-    private val content: MutableState<Bitmap>,
     constantValue: Bitmap?,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : RemoteBitmap(state, constantValue), MutableRemoteState<Bitmap> {
@@ -134,7 +152,7 @@ public fun rememberRemoteBitmapValue(
     val state = LocalRemoteComposeCreationState.current
     return rememberNamedState(name, domain) {
         val initial = value()
-        MutableRemoteBitmap(state, mutableStateOf(initial), constantValue = null) { creationState ->
+        MutableRemoteBitmap(state, constantValue = null) { creationState ->
             creationState.document.addNamedBitmap("$domain:$name", initial)
         }
     }
@@ -153,11 +171,7 @@ public fun rememberRemoteBitmap(
         // We create a bitmap of the specified dimensions as a placeholder. The actual bitmap will
         // be loaded from the URL on the remote side. Providing accurate dimensions can prevent
         // unnecessary relayouts.
-        MutableRemoteBitmap(
-            state,
-            mutableStateOf(createBitmap(width, height)),
-            constantValue = null,
-        ) { creationState ->
+        MutableRemoteBitmap(state, constantValue = null) { creationState ->
             creationState.document.addNamedBitmapUrl("$domain:$name", url)
         }
     }

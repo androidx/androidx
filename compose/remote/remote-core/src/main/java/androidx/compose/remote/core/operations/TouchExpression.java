@@ -107,7 +107,7 @@ public class TouchExpression extends Operation
     /** Stop at a collection of point described in absolute cordnates */
     public static final int STOP_NOTCHES_ABSOLUTE = 5;
 
-    /** Jump to the absolute poition of the point */
+    /** Jump to the absolute position of the point */
     public static final int STOP_ABSOLUTE_POS = 6;
 
     /** Stop at evenly spaced single step notches */

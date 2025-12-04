@@ -118,6 +118,18 @@ open class BasePagerTest(private val config: ParamConfig) :
         swipeWithVelocity(layoutStart, end, velocity)
     }
 
+    fun calculateNextPage(currentPage: Int): Int {
+        if (config.orientation == Orientation.Vertical) return currentPage + 1
+        if (config.layoutDirection == LayoutDirection.Ltr) return currentPage + 1
+        return currentPage - 1
+    }
+
+    fun calculatePreviousPage(currentPage: Int): Int {
+        if (config.orientation == Orientation.Vertical) return currentPage - 1
+        if (config.layoutDirection == LayoutDirection.Ltr) return currentPage - 1
+        return currentPage + 1
+    }
+
     fun Modifier.fillMaxCrossAxis() =
         if (vertical) {
             this.fillMaxWidth()

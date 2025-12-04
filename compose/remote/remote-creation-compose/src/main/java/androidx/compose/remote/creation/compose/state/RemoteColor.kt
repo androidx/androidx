@@ -56,7 +56,7 @@ internal constructor(
     public val green: RemoteFloat,
     public val blue: RemoteFloat,
     internal val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : RemoteState<Color> {
+) : BaseRemoteState<Color>() {
 
     /**
      * Constructor for creating a [RemoteColor] from a direct ARGB integer color value. This creates

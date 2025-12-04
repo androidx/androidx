@@ -165,8 +165,8 @@ public class CollapsibleColumnLayout extends ColumnLayout {
     @Override
     public void computeWrapSize(
             @NonNull PaintContext context,
-            float maxWidth,
-            float maxHeight,
+            float minWidth, float maxWidth,
+            float minHeight, float maxHeight,
             boolean horizontalWrap,
             boolean verticalWrap,
             @NonNull MeasurePass measure,

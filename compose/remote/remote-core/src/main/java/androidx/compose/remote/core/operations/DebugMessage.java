@@ -59,6 +59,7 @@ public class DebugMessage extends Operation implements VariableSupport {
 
     @Override
     public void registerListening(@NonNull RemoteContext context) {
+        context.listensTo(mTextID, this);
         if (Float.isNaN(mFloatValue)) {
             context.listensTo(Utils.idFromNan(mFloatValue), this);
         }

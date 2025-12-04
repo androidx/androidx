@@ -26,6 +26,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,12 +34,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.roundToIntSize
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.ConfigurationCompat
@@ -46,6 +51,9 @@ import androidx.core.os.LocaleListCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.children
 import kotlin.math.floor
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.math.roundToInt
 
 actual fun DeviceConfigurationOverride.Companion.ForcedSize(
     size: DpSize
@@ -429,6 +437,118 @@ fun DeviceConfigurationOverride.Companion.WindowInsets(
         },
         update = { with(currentWindowInsets) { it.requestApplyInsets() } },
     )
+}
+
+actual fun DeviceConfigurationOverride.Companion.WindowSize(
+    size: DpSize
+): DeviceConfigurationOverride = DeviceConfigurationOverride { contentUnderTest ->
+    // First override the density. Doing this first allows using the resulting density in the
+    // overridden window info and configuration.
+    DensityForcedSize(size) {
+        // Second, override the window info, to provide a containerDpSize that matches the
+        // requested size, and a containerSize that matches the requested size as close as
+        // possible
+        val currentDensity by rememberUpdatedState(LocalDensity.current)
+        val currentRequestedSize by rememberUpdatedState(size)
+        val currentWindowInfo = LocalWindowInfo.current
+        val newWindowInfo =
+            remember(currentWindowInfo) {
+                object : WindowInfo by currentWindowInfo {
+                    override val containerDpSize: DpSize
+                        get() = currentRequestedSize
+
+                    override val containerSize: IntSize
+                        get() = with(currentDensity) { containerDpSize.toSize() }.roundToIntSize()
+                }
+            }
+
+        CompositionLocalProvider(LocalWindowInfo provides newWindowInfo) {
+            // Third, override the configuration to use the updated window size and updated
+            // density
+            OverriddenConfiguration(
+                configuration =
+                    Configuration().apply {
+                        // Initialize from the current configuration
+                        updateFrom(LocalConfiguration.current)
+
+                        screenWidthDp = currentRequestedSize.width.value.roundToInt()
+                        screenHeightDp = currentRequestedSize.height.value.roundToInt()
+                        smallestScreenWidthDp = min(screenWidthDp, screenHeightDp)
+                        // Square screens (after rounding) being considered portrait is
+                        // derived from DisplayContent.java
+                        orientation =
+                            if (screenWidthDp <= screenHeightDp) {
+                                Configuration.ORIENTATION_PORTRAIT
+                            } else {
+                                Configuration.ORIENTATION_LANDSCAPE
+                            }
+
+                        screenLayout =
+                            screenLayout and
+                                (Configuration.SCREENLAYOUT_SIZE_MASK or
+                                        Configuration.SCREENLAYOUT_LONG_MASK)
+                                    .inv() or
+                                calculateScreenLayout(screenWidthDp, screenHeightDp)
+                        densityDpi =
+                            floor(LocalDensity.current.density * DisplayMetrics.DENSITY_DEFAULT)
+                                .toInt()
+                    },
+                content = contentUnderTest,
+            )
+        }
+    }
+}
+
+/**
+ * Given the rounded [width] and [height] in dp, returns the combined values for the
+ * [Configuration.SCREENLAYOUT_SIZE_MASK] or-ed with the [Configuration.SCREENLAYOUT_LONG_MASK] for
+ * [Configuration.screenLayout].
+ *
+ * These calculations copied from Configuration.java:
+ * https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/content/res/Configuration.java;l=428;drc=64130047e019cee612a85dde07755efd8f356f12
+ */
+private fun calculateScreenLayout(widthDp: Int, heightDp: Int): Int {
+    val shortSizeDp = min(widthDp, heightDp)
+    val longSizeDp = max(widthDp, heightDp)
+
+    val screenLayoutSize: Int
+    val screenLayoutLong: Boolean
+
+    // These semi-magic numbers define our compatibility modes for
+    // applications with different screens.  These are guarantees to
+    // app developers about the space they can expect for a particular
+    // configuration.  DO NOT CHANGE!
+    if (longSizeDp < 470) {
+        // This is shorter than an HVGA normal density screen (which
+        // is 480 pixels on its long side).
+        screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_SMALL
+        screenLayoutLong = false
+    } else {
+        // What size is this screen?
+        if (longSizeDp >= 960 && shortSizeDp >= 720) {
+            // 1.5xVGA or larger screens at medium density are the point
+            // at which we consider it to be an extra large screen.
+            screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_XLARGE
+        } else if (longSizeDp >= 640 && shortSizeDp >= 480) {
+            // VGA or larger screens at medium density are the point
+            // at which we consider it to be a large screen.
+            screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_LARGE
+        } else {
+            screenLayoutSize = Configuration.SCREENLAYOUT_SIZE_NORMAL
+        }
+
+        // Is this a long screen?
+        if (((longSizeDp * 3) / 5) >= (shortSizeDp - 1)) {
+            // Anything wider than WVGA (5:3) is considering to be long.
+            screenLayoutLong = true
+        } else {
+            screenLayoutLong = false
+        }
+    }
+
+    return screenLayoutSize or
+        if (screenLayoutLong) Configuration.SCREENLAYOUT_LONG_YES
+        else Configuration.SCREENLAYOUT_LONG_NO
 }
 
 /**

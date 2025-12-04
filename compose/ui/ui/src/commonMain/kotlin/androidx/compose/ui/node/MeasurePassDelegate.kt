@@ -281,7 +281,7 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                 // force update the layout position as we want to trigger the callbacks when the
                 // node became placed even if the final position didn't change while it wasn't
                 // placed.
-                requireOwner().rectManager.onLayoutPositionChanged(layoutNode, forceUpdate = true)
+                requireOwner().rectManager.recalculateRectIfDirty(layoutNode)
 
                 // if the node was not placed previous remeasure request could have been ignored
                 if (measurePending) {
@@ -602,7 +602,9 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
     ) {
         withComposeStackTrace(layoutNode) {
             isPlacedByParent = true
-            if (position != lastPosition || needsCoordinatesUpdate) {
+            if (
+                position != lastPosition || layerBlock !== lastLayerBlock || needsCoordinatesUpdate
+            ) {
                 if (
                     layoutNodeLayoutDelegate.coordinatesAccessedDuringModifierPlacement ||
                         layoutNodeLayoutDelegate.coordinatesAccessedDuringPlacement ||
@@ -611,7 +613,6 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
                     layoutPending = true
                     needsCoordinatesUpdate = false
                 }
-                notifyChildrenUsingCoordinatesWhilePlacing()
             }
 
             lookaheadPassDelegate?.onApproachPlacement()
@@ -852,17 +853,20 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
      * same frame), it might be worth using a flag so that this call becomes cheap after the first
      * one.
      */
-    fun notifyChildrenUsingCoordinatesWhilePlacing() {
-        if (layoutNodeLayoutDelegate.childrenAccessingCoordinatesDuringPlacement > 0) {
+    fun requestLayoutIfCoordinatesAreUsedAndNotifyChildren() {
+        if (
+            layoutNode.isPlaced &&
+                layoutNodeLayoutDelegate.childrenAccessingCoordinatesDuringPlacement > 0
+        ) {
+            val childLayoutDelegate = layoutNode.layoutDelegate
+            val accessed =
+                childLayoutDelegate.coordinatesAccessedDuringPlacement ||
+                    childLayoutDelegate.coordinatesAccessedDuringModifierPlacement
+            if (accessed && !childLayoutDelegate.layoutPending) {
+                layoutNode.requestRelayout()
+            }
             layoutNode.forEachChild { child ->
-                val childLayoutDelegate = child.layoutDelegate
-                val accessed =
-                    childLayoutDelegate.coordinatesAccessedDuringPlacement ||
-                        childLayoutDelegate.coordinatesAccessedDuringModifierPlacement
-                if (accessed && !childLayoutDelegate.layoutPending) {
-                    child.requestRelayout()
-                }
-                childLayoutDelegate.measurePassDelegate.notifyChildrenUsingCoordinatesWhilePlacing()
+                child.measurePassDelegate.requestLayoutIfCoordinatesAreUsedAndNotifyChildren()
             }
         }
     }

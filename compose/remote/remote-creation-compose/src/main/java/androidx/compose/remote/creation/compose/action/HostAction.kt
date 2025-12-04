@@ -24,7 +24,6 @@ import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.runtime.Composable
 
 /** Run the named host action when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -63,6 +62,4 @@ public class HostAction(
     override fun toRemoteAction(): androidx.compose.remote.creation.actions.Action {
         return HostAction(name, type.ordinal, id)
     }
-
-    @Composable override fun toComposeUiAction(): () -> Unit = {}
 }

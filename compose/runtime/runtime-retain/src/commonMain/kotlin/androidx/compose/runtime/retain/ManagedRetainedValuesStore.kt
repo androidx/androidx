@@ -143,7 +143,7 @@ public class ManagedRetainedValuesStore : RetainedValuesStore {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun getExitedValueOrElse(key: Any, defaultValue: Any?): Any? {
+    override fun consumeExitedValueOrDefault(key: Any, defaultValue: Any?): Any? {
         return keptExitedValues.removeLast(key, defaultValue)
     }
 

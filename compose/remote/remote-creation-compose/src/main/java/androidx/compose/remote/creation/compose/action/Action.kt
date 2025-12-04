@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.action
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.actions.Action
-import androidx.compose.runtime.Composable
 
 /**
  * A RemoteCompose frontend model of Actions that can be converted to either RemoteCompose
@@ -28,6 +27,4 @@ import androidx.compose.runtime.Composable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Action {
     public fun toRemoteAction(): Action
-
-    public @Composable fun toComposeUiAction(): () -> Unit
 }

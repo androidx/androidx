@@ -42,6 +42,7 @@ private val referenceHsvColor =
     RemoteColor.fromHSV(RemoteFloat(0.75f), RemoteFloat(0.5f), RemoteFloat(0.25f))
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 @SdkSuppress(minSdkVersion = 26)
 class RemoteColorTest {
     val context =

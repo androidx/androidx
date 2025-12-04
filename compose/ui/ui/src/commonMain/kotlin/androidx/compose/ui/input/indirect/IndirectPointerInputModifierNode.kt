@@ -40,6 +40,5 @@ interface IndirectPointerInputModifierNode : DelegatableNode {
      * be made, until at least new pointers exist. This can occur for a few reasons:
      * 1. Android dispatches ACTION_CANCEL to Compose.
      */
-    // TODO (jjw): Add support for focus cancel.
     fun onCancelIndirectPointerInput()
 }

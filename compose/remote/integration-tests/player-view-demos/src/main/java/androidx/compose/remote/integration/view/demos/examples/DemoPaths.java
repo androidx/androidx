@@ -96,13 +96,13 @@ public class DemoPaths {
         RemoteComposeWriterAndroid rc = new RemoteComposeWriterAndroid(500, 500, "sd", 7,
                 PROFILE_ANDROIDX, sPlatform);
         float touchPosition = rc.addFloatConstant(0f);
-        float computedHeight = rc.addFloatConstant(780f);
+        float computedHeight = rc.addFloatConstant(1080);
         float scrollSize = rc.floatExpression(computedHeight, 6, MUL);
         float visFloat = rc.addFloatConstant(1f);
         int vis = Utils.idFromNan(visFloat);
         float notVisFloat = rc.addFloatConstant(0f);
         int notVis = Utils.idFromNan(notVisFloat);
-        float scrollPosition = rc.floatExpression(touchPosition, computedHeight, MUL);
+        float scrollPosition = rc.floatExpression(touchPosition, computedHeight, 20, ADD, MUL);
 
         rc.root(
                 () -> {
@@ -114,7 +114,7 @@ public class DemoPaths {
                                     ScrollModifier.VERTICAL,
                                     touchPosition,
                                     scrollPosition,
-                                    7,
+                                    6,
                                     scrollSize
                             )
 
@@ -139,13 +139,14 @@ public class DemoPaths {
 
                         rc.drawComponentContent();
                         rc.endCanvasOperations();
+                        graph2(rc, computedHeight);
+
                         pathEffects1(rc, computedHeight);
                         pathEffects2(rc, computedHeight);
                         effect1(rc, computedHeight);
                         effect2(rc, computedHeight);
                         effect3(rc, computedHeight);
                         graph1(rc, computedHeight);
-                        graph2(rc, computedHeight);
                     });
                     rc.endCanvas();
                     rc.startCanvas(new RecordingModifier().visibility(vis).width(12).height(0));

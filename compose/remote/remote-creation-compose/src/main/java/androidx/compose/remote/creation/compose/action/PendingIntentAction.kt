@@ -21,7 +21,7 @@ import android.app.PendingIntent
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.PendingIntentAwareWriter
+import androidx.compose.remote.creation.compose.capture.PendingIntentWriterCallback
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.runtime.Composable
 
@@ -38,9 +38,9 @@ public class PendingIntentAction(
 ) : Action {
 
     override fun toRemoteAction(): androidx.compose.remote.creation.actions.Action {
-        val writer = remoteComposeCreationState.document
-        if (writer is PendingIntentAwareWriter) {
-            val index = writer.storePendingIntent(pendingIntent)
+        val writerCallback = remoteComposeCreationState.document.writerCallback
+        if (writerCallback is PendingIntentWriterCallback) {
+            val index = writerCallback.storePendingIntent(pendingIntent)
             val valueId = remoteComposeCreationState.document.addInteger(index)
             return androidx.compose.remote.creation.actions.HostAction(
                 ACTION_NAME,
@@ -50,12 +50,10 @@ public class PendingIntentAction(
         } else {
             error(
                 "Could not store the pendingIntent, " +
-                    "a PendingIntentAwareWriter is required for writing a PendingIntentAction."
+                    "a PendingIntentWriterCallback is required for writing a PendingIntentAction."
             )
         }
     }
-
-    @Composable override fun toComposeUiAction(): () -> Unit = {}
 
     public companion object {
         public const val ACTION_NAME: String = "SendPendingIntent"

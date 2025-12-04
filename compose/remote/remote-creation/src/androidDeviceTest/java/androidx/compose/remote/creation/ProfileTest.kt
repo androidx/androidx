@@ -36,7 +36,7 @@ class ProfileTest {
         assertEquals(CoreDocument.DOCUMENT_API_LEVEL, androidx.apiLevel)
         assertEquals(RcProfiles.PROFILE_ANDROIDX, androidx.operationsProfiles)
 
-        val writer = androidx.create(100, 100, "test")
+        val writer = androidx.create(CreationDisplayInfo(100, 100, 1f), "test")
         assertIs<RemoteComposeWriter>(writer)
 
         assertIs<AndroidxRcPlatformServices>(writer.mPlatform)
@@ -49,7 +49,7 @@ class ProfileTest {
         assertEquals(6, widgets.apiLevel)
         assertEquals(RcProfiles.PROFILE_BASELINE, widgets.operationsProfiles)
 
-        val writer = widgets.create(100, 100, "test")
+        val writer = widgets.create(CreationDisplayInfo(100, 100, 1f), "test")
         assertIs<WidgetsProfileWriterV6>(writer)
 
         assertIs<AndroidxRcPlatformServices>(writer.mPlatform)
@@ -59,7 +59,7 @@ class ProfileTest {
     fun testWidgetsv6Text() {
         val widgets = RcPlatformProfiles.WIDGETS_V6
 
-        val writer = widgets.create(100, 100, "test")
+        val writer = widgets.create(CreationDisplayInfo(100, 100, 1f), "test")
 
         val hello = writer.textCreateId("Hello")
 
@@ -100,7 +100,7 @@ class ProfileTest {
     fun testAndroidXText() {
         val androidx = RcPlatformProfiles.ANDROIDX
 
-        val writer = androidx.create(100, 100, "test")
+        val writer = androidx.create(CreationDisplayInfo(100, 100, 1f), "test")
 
         val hello = writer.textCreateId("Hello")
 
@@ -112,7 +112,6 @@ class ProfileTest {
             0,
             400f,
             null,
-            0,
             0,
             0,
             Integer.MAX_VALUE,
@@ -128,7 +127,6 @@ class ProfileTest {
             0,
             400f,
             null,
-            0,
             0,
             0,
             Integer.MAX_VALUE,

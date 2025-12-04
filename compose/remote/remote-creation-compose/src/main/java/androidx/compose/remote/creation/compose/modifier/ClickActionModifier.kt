@@ -18,11 +18,8 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.clickable
 import androidx.compose.remote.creation.compose.action.Action
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -31,13 +28,6 @@ public class ClickActionModifier(public val actions: List<Action>) : RemoteModif
         return androidx.compose.remote.creation.modifiers.ClickActionModifier(
             actions.map { it.toRemoteAction() }
         )
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        val previewActions = actions.map { it.toComposeUiAction() }
-
-        return clickable { previewActions.forEach { action -> action.invoke() } }
     }
 }
 

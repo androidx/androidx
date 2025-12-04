@@ -23,8 +23,15 @@ import androidx.compose.remote.integration.view.demos.examples.CountdownKt;
 import androidx.compose.remote.integration.view.demos.examples.Cube3DKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoAnchorText;
 import androidx.compose.remote.integration.view.demos.examples.DemoAttributedString;
+import androidx.compose.remote.integration.view.demos.examples.DemoColorKt;
+import androidx.compose.remote.integration.view.demos.examples.DemoGlobalKt;
+import androidx.compose.remote.integration.view.demos.examples.DemoKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoMetalClockKt;
+import androidx.compose.remote.integration.view.demos.examples.DemoParticlesKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoPaths;
+import androidx.compose.remote.integration.view.demos.examples.DemoTextTransformKt;
+import androidx.compose.remote.integration.view.demos.examples.DemoTouchKt;
+import androidx.compose.remote.integration.view.demos.examples.ExampleNumbersKt;
 import androidx.compose.remote.integration.view.demos.examples.ExampleTimerKt;
 import androidx.compose.remote.integration.view.demos.examples.PlotWaveKt;
 import androidx.compose.remote.integration.view.demos.examples.ServerSideKt;
@@ -45,18 +52,44 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos() {
         return new ArrayList<>(Arrays.asList(
+                getp("5/Server/serverClock", ServerSideKt::serverClock),
+                getp("2/Example/spreadSheet", ExampleNumbersKt::spreadSheet),
+                getp("1/Example/color", DemoColorKt::colorButtons),
+                getp("1/Example/spreadSheet", ExampleNumbersKt::spreadSheet),
+                getp("1/Example/demoUseOfGlobal",
+                        DemoGlobalKt::demoUseOfGlobal),
+                getp("0/Example/demoTextTransform",
+                        DemoTextTransformKt::demoTextTransform),
+
+                getp("0/ThemedPlot1", DemoKt::plot1),
+                getp("0/plot2", DemoKt::plot2),
+                getp("0/plot3", DemoKt::plot3),
+                getp("0/plot4", DemoKt::plot4),
+                getp("0/touch1", DemoTouchKt::touchStopGently),
+                getp("0/touch2", DemoTouchKt::touchStopNotchesEven),
+                getp("0/touch3", DemoTouchKt::demoTouchThumbWheel1),
+                getp("0/touch44", DemoTouchKt::touchStopAbsolutePos),
+
+                getp("5/Server/serverClock", ServerSideKt::serverClock),
+
+                getp("Procedural/plotWave", PlotWaveKt::basicPlot),
                 getp("Procedural/plotWave", PlotWaveKt::plotWave),
-                getp("Server/serverClock", ServerSideKt::serverClock),
-                getp("Java/AttributeString", DemoAttributedString::demo),
-                getp("Java/pathTest", ExampleTimerKt::basicTimer),
-                getp("fancyClock2", DemoMetalClockKt::fancyClock2),
-                getp("Java/pathTest", DemoAnchorText::anchoredText),
-                getp("Java/pathTest", DemoPaths::pathTest),
-                getpc("Procedural/Text baseline", TextKt::RcTextDemo),
-                getp("Procedural/StartAnimation", DemoPaths::pathTest),
                 getpc("Procedural/CountDown", CountdownKt::countDown),
-                getpc("Procedural/Cube 3D", Cube3DKt::cube3d),
-                getpc("Procedural/Shader Calendar", ShaderCalendarKt::ShaderCalendar)
+                getpc("Procedural/Cube3D", Cube3DKt::cube3d),
+                getpc("Procedural/ShaderCalendar", ShaderCalendarKt::ShaderCalendar),
+                getp("Procedural/countdown", ExampleTimerKt::basicTimer),
+                getpc("Procedural/TextBaseline", TextKt::RcTextDemo),
+
+                getp("Java/AttributeString", DemoAttributedString::demo),
+                getp("Java/anchoredText", DemoAnchorText::anchoredText),
+                getp("Java/pathsDemos", DemoPaths::pathTest),
+
+                getp("fancyClock2", DemoMetalClockKt::fancyClock2),
+                getp("Server/maze", DemoParticlesKt::pmaze),
+                getp("Server/maze1", DemoParticlesKt::pmaze1),
+                getp("Server/maze2", DemoParticlesKt::pmaze2)
+
+
         ));
     }
 

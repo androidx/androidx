@@ -44,6 +44,7 @@ fun RemoteInt.computeValue(creationState: RemoteComposeCreationState): Int? {
 }
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteIntTest {
     val context =
         AndroidRemoteContext().apply {

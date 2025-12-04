@@ -40,7 +40,6 @@ import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.layout.OnPlacedModifier
 import androidx.compose.ui.layout.OnPlacedNode
 import androidx.compose.ui.layout.OnRemeasuredModifier
-import androidx.compose.ui.layout.OnSizeChangedNode
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.modifier.ModifierLocalConsumer
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
@@ -105,7 +104,7 @@ internal object Nodes {
 
     @JvmStatic
     inline val OnRemeasured
-        get() = NodeKind<LayoutAwareModifierNode>(0b1 shl 7)
+        get() = NodeKind<MeasuredSizeAwareModifierNode>(0b1 shl 7)
 
     @JvmStatic
     inline val GlobalPositionAware
@@ -239,15 +238,15 @@ internal fun calculateNodeKindSetFrom(node: Modifier.Node): Int {
         if (node is ParentDataModifierNode) {
             mask = mask or Nodes.ParentData
         }
-        // OnSizeChangedNode and OnPlacedNode implement the combined LayoutAwareModifierNode,
-        // But we know they only use one part of the interface, so we want to invalidate smarter.
+        // OnPlacedNode implement the combined LayoutAwareModifierNode, But we know it only uses
+        // one part of the interface, so we want to invalidate smarter.
         if (node is OnPlacedNode) {
             mask = mask or Nodes.OnPlaced
-        } else if (node is OnSizeChangedNode) {
-            mask = mask or Nodes.OnRemeasured
         } else if (node is LayoutAwareModifierNode) {
             mask = mask or Nodes.OnRemeasured
             mask = mask or Nodes.OnPlaced
+        } else if (node is MeasuredSizeAwareModifierNode) {
+            mask = mask or Nodes.OnRemeasured
         }
         if (node is GlobalPositionAwareModifierNode) {
             mask = mask or Nodes.GlobalPositionAware
@@ -387,6 +386,14 @@ private fun autoInvalidateNodeSelf(node: Modifier.Node, selfKindSet: Int, phase:
     }
     if (Nodes.FocusEvent in selfKindSet && node is FocusEventModifierNode) {
         node.invalidateFocusEvent()
+    }
+
+    if (
+        Nodes.IndirectPointerInput in selfKindSet &&
+            node is IndirectPointerInputModifierNode &&
+            phase == Removed
+    ) {
+        node.onCancelIndirectPointerInput()
     }
 }
 

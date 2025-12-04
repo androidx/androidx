@@ -14,35 +14,30 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:Suppress("USELESS_IS_CHECK")
 
 package androidx.compose.remote.creation.compose.layout
 
 import android.graphics.Bitmap
-import android.graphics.Rect
+import android.graphics.Typeface
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.utilities.ImageScaling
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposePath
-import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope.Companion.DefaultBlendMode
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope.Companion.DefaultFilterQuality
 import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.capture.withTransform
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.toComposeUi
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
-import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -57,36 +52,23 @@ import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathIterator
-import androidx.compose.ui.graphics.PathSegment
 import androidx.compose.ui.graphics.asAndroidPath
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.DrawTransform
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.IntSize
-import kotlinx.coroutines.isActive
 
 /** Utility modifier to record the layout information */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeCanvasModifier(public val modifier: RecordingModifier) : DrawModifier {
     override fun ContentDrawScope.draw() {
-        drawIntoCanvas {
-            if (it.nativeCanvas is RecordingCanvas) {
-                (it.nativeCanvas as RecordingCanvas).let {
-                    it.document.startCanvas(modifier)
-                    drawContent()
-                    it.document.endCanvas()
-                }
-            } else {
-                drawContent()
-            }
+        drawIntoRemoteCanvas { canvas ->
+            canvas.document.startCanvas(modifier)
+            this@draw.drawContent()
+            canvas.document.endCanvas()
         }
     }
 }
@@ -103,80 +85,32 @@ public fun RemoteCanvas(
     content: RemoteCanvasDrawScope.() -> Unit,
 ) {
     val captureMode = LocalRemoteComposeCreationState.current
-    if (captureMode is NoRemoteCompose) {
-        LaunchedEffect(Unit) {
-            while (isActive) {
-                withFrameMillis { captureMode.time.value = it }
-            }
-        }
-        //    androidx.compose.foundation.Canvas(modifier = modifier.toComposeUi()) { content() }
-        val observer = remember { SnapshotStateObserver { it() } }
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        androidx.compose.foundation.layout.Spacer(
-            modifier =
-                modifier.toComposeUi().drawBehind {
-                    RemoteCanvasDrawScope(captureMode, drawScope = this).content()
-                }
-        )
-    } else {
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        androidx.compose.foundation.layout.Spacer(
-            modifier =
-                RemoteComposeCanvasModifier(modifier.toRemoteCompose())
-                    .drawBehind { RemoteCanvasDrawScope(captureMode, drawScope = this).content() }
-                    .then(modifier.toComposeUiLayout())
-        )
-    }
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
+    Spacer(
+        modifier =
+            RemoteComposeCanvasModifier(modifier.toRemoteCompose())
+                .drawBehind { RemoteCanvasDrawScope(captureMode, drawScope = this).content() }
+                .then(modifier.toComposeUiLayout())
+    )
 }
 
 public fun RemoteCanvasDrawScope.rotate(
-    angle: Number,
-    pivotX: Number,
-    pivotY: Number,
+    angle: RemoteFloat,
+    pivotX: RemoteFloat,
+    pivotY: RemoteFloat,
     function: RemoteCanvasDrawScope.() -> Unit,
 ) {
-    val canvas = drawContext.canvas.nativeCanvas
-    if (canvas is RecordingCanvas) {
-        canvas.save()
-        canvas.rotate(angle, pivotX, pivotY)
-        this@rotate.function()
-        canvas.restore()
-    } else {
-        val iAngle: Float =
-            if (angle is RemoteFloat) angle.getFloatIdForCreationState(FallbackCreationState.state)
-            else angle.toFloat()
-        val iPivotX: Float =
-            if (pivotX is RemoteFloat)
-                pivotX.getFloatIdForCreationState(FallbackCreationState.state)
-            else pivotX.toFloat()
-        val iPivotY: Float =
-            if (pivotY is RemoteFloat)
-                pivotY.getFloatIdForCreationState(FallbackCreationState.state)
-            else pivotY.toFloat()
-        val iPivotXNeg: Float =
-            if (pivotX is RemoteFloat)
-                (pivotX * -1f).getFloatIdForCreationState(FallbackCreationState.state)
-            else pivotX.toFloat() * -1f
-        val iPivotYNeg: Float =
-            if (pivotY is RemoteFloat)
-                (pivotY * -1f).getFloatIdForCreationState(FallbackCreationState.state)
-            else pivotY.toFloat() * -1f
-
-        withTransform({
-            translate(iPivotX, iPivotY)
-            rotate(iAngle, pivot = Offset(0f, 0f))
-            translate(iPivotXNeg, iPivotYNeg)
-        }) {
-            this@rotate.function()
-        }
-    }
+    canvas.save()
+    canvas.rotate(angle, pivotX, pivotY)
+    this@rotate.function()
+    canvas.restore()
 }
 
 public fun RemoteCanvasDrawScope.clipRect(
-    left: Number,
-    top: Number,
-    right: Number,
-    bottom: Number,
+    left: RemoteFloat,
+    top: RemoteFloat,
+    right: RemoteFloat,
+    bottom: RemoteFloat,
     clipOp: ClipOp = ClipOp.Intersect,
     block: RemoteCanvasDrawScope.() -> Unit,
 ) {
@@ -196,7 +130,7 @@ public fun RemoteCanvasDrawScope.clipRect(
     withTransform({ clipRect(iLeft, iTop, iRight, iBottom, clipOp) }) { this@clipRect.block() }
 }
 
-public fun DrawTransform.translate(x: Number, y: Number) {
+public fun DrawTransform.translate(x: RemoteFloat, y: RemoteFloat) {
     val ix: Float =
         if (x is RemoteFloat) x.getFloatIdForCreationState(FallbackCreationState.state)
         else x.toFloat()
@@ -209,13 +143,13 @@ public fun DrawTransform.translate(x: Number, y: Number) {
 public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: CharSequence,
     brush: RemoteBrush,
-    anchor: Offset,
-    panx: Number,
-    pany: Number,
-    alpha: Number,
+    anchor: RemoteOffset,
+    panx: RemoteFloat,
+    pany: RemoteFloat,
+    alpha: RemoteFloat,
     drawStyle: DrawStyle = Fill,
-    typeface: android.graphics.Typeface? = null,
-    textSize: Number = 18f,
+    typeface: Typeface? = null,
+    textSize: RemoteFloat = 18f.rf,
 ) {
     val iAlpha: Float =
         if (alpha is RemoteFloat) alpha.getFloatIdForCreationState(FallbackCreationState.state)
@@ -226,81 +160,40 @@ public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
         else textSize.toFloat()
 
     val colorFilter: ColorFilter? = null
-    val blendMode: BlendMode = RemoteDrawScope.DefaultBlendMode
+    val blendMode: BlendMode = DefaultBlendMode
 
-    val canvas = drawContext.canvas.nativeCanvas
+    val size = RemoteSize(remote.component.width, remote.component.height)
+    val paint = toPaint(brush, drawStyle, iAlpha, colorFilter, blendMode, size = size)
 
-    if (canvas is RecordingCanvas) {
-        val paint =
-            toPaint(brush, drawStyle, iAlpha, colorFilter, blendMode, size = drawContext.size)
+    val ap = paint.asFrameworkPaint()
 
-        val ap = paint.asFrameworkPaint()
-
-        if (typeface != null) {
-            ap.setTypeface(typeface)
-        } else {
-            ap.setTypeface(android.graphics.Typeface.DEFAULT)
-        }
-        ap.textSize = iTextSize
-        canvas.drawAnchoredText(
-            text.toString(),
-            anchorX = anchor.x,
-            anchorY = anchor.y,
-            panx = panx,
-            pany = pany,
-            flags = 0,
-            paint = ap,
-        )
+    if (typeface != null) {
+        ap.setTypeface(typeface)
     } else {
-        val iPanx: Float =
-            if (panx is RemoteFloat) panx.getFloatIdForCreationState(FallbackCreationState.state)
-            else panx.toFloat()
-        val iPany: Float =
-            if (pany is RemoteFloat) pany.getFloatIdForCreationState(FallbackCreationState.state)
-            else pany.toFloat()
-
-        val paint =
-            configurePaint(
-                size = drawContext.size,
-                brush.toComposeUi(),
-                drawStyle,
-                iAlpha,
-                colorFilter,
-                blendMode,
-            )
-        val ap = paint.asFrameworkPaint()
-        if (typeface != null) {
-            ap.setTypeface(typeface)
-        } else {
-            ap.setTypeface(android.graphics.Typeface.DEFAULT)
-        }
-        ap.textSize = iTextSize
-        val rec = Rect()
-        ap.getTextBounds(text, 0, text.length, rec)
-        val monospace = false
-        val bounds = FloatArray(4)
-        bounds[0] = rec.left.toFloat()
-        bounds[1] = rec.top.toFloat()
-        bounds[2] =
-            if (monospace) (ap.measureText(text, 0, text.length) - rec.left)
-            else rec.right.toFloat()
-        bounds[3] = rec.bottom.toFloat()
-        val x = anchor.x + getHorizontalOffset(iPanx, bounds)
-        val y = anchor.y + getVerticalOffset(iPany, bounds)
-        canvas.drawText(text.toString(), x, y, ap)
+        ap.setTypeface(Typeface.DEFAULT)
     }
+    ap.textSize = iTextSize
+    canvas.drawAnchoredText(
+        text.toString(),
+        anchorX = anchor.x,
+        anchorY = anchor.y,
+        panx = panx,
+        pany = pany,
+        flags = 0,
+        paint = ap,
+    )
 }
 
 public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: RemoteString,
     brush: RemoteBrush,
-    anchor: Offset,
-    panx: Number,
-    pany: Number,
-    alpha: Number,
+    anchor: RemoteOffset,
+    panx: RemoteFloat,
+    pany: RemoteFloat,
+    alpha: RemoteFloat,
     drawStyle: DrawStyle = Fill,
-    typeface: android.graphics.Typeface? = null,
-    textSize: Number = 18f,
+    typeface: Typeface? = null,
+    textSize: RemoteFloat = 18f.rf,
 ) {
     val iAlpha: Float =
         if (alpha is RemoteFloat) alpha.getFloatIdForCreationState(FallbackCreationState.state)
@@ -311,153 +204,96 @@ public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
         else textSize.toFloat()
 
     val colorFilter: ColorFilter? = null
-    val blendMode: BlendMode = RemoteDrawScope.DefaultBlendMode
+    val blendMode: BlendMode = DefaultBlendMode
 
-    val canvas = drawContext.canvas.nativeCanvas
+    val size = RemoteSize(remote.component.width, remote.component.height)
+    val paint = toPaint(brush, drawStyle, iAlpha, colorFilter, blendMode, size = size)
 
-    if (canvas is RecordingCanvas) {
-        val paint =
-            toPaint(brush, drawStyle, iAlpha, colorFilter, blendMode, size = drawContext.size)
+    val ap = paint.asFrameworkPaint()
 
-        val ap = paint.asFrameworkPaint()
-
-        if (typeface != null) {
-            ap.setTypeface(typeface)
-        } else {
-            ap.setTypeface(android.graphics.Typeface.DEFAULT)
-        }
-        ap.textSize = iTextSize
-        canvas.drawAnchoredText(
-            text,
-            anchorX = anchor.x,
-            anchorY = anchor.y,
-            panx = panx,
-            pany = pany,
-            flags = 0,
-            paint = ap,
-        )
+    if (typeface != null) {
+        ap.setTypeface(typeface)
+    } else {
+        ap.setTypeface(Typeface.DEFAULT)
     }
+    ap.textSize = iTextSize
+    canvas.drawAnchoredText(
+        text,
+        anchorX = anchor.x,
+        anchorY = anchor.y,
+        panx = panx,
+        pany = pany,
+        flags = 0,
+        paint = ap,
+    )
 }
 
 public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: CharSequence,
     color: Color,
-    anchor: Offset,
-    panx: Number,
-    pany: Number,
-    alpha: Number,
+    anchor: RemoteOffset,
+    panx: RemoteFloat,
+    pany: RemoteFloat,
+    alpha: RemoteFloat,
     drawStyle: DrawStyle = Fill,
-    typeface: android.graphics.Typeface? = null,
-    textSize: Number = 18f,
+    typeface: Typeface? = null,
+    textSize: RemoteFloat = 18f.rf,
 ) {
-    val iAlpha: Float =
-        if (alpha is RemoteFloat) alpha.getFloatIdForCreationState(FallbackCreationState.state)
-        else alpha.toFloat()
-    val iTextSize: Float =
-        if (textSize is RemoteFloat)
-            textSize.getFloatIdForCreationState(FallbackCreationState.state)
-        else textSize.toFloat()
-
     val colorFilter: ColorFilter? = null
-    val blendMode: BlendMode = RemoteDrawScope.DefaultBlendMode
+    val blendMode: BlendMode = DefaultBlendMode
 
-    val canvas = drawContext.canvas.nativeCanvas
+    val paint = configurePaint(color, drawStyle, alpha.id, colorFilter, blendMode)
+    val ap = paint.asFrameworkPaint()
 
-    if (canvas is RecordingCanvas) {
-        val paint = configurePaint(color, drawStyle, iAlpha, colorFilter, blendMode)
-        val ap = paint.asFrameworkPaint()
-
-        if (typeface != null) {
-            ap.setTypeface(typeface)
-        } else {
-            ap.setTypeface(android.graphics.Typeface.DEFAULT)
-        }
-        ap.textSize = iTextSize
-        canvas.drawAnchoredText(
-            text.toString(),
-            anchorX = anchor.x,
-            anchorY = anchor.y,
-            panx = panx,
-            pany = pany,
-            flags = 0,
-            paint = ap,
-        )
+    if (typeface != null) {
+        ap.setTypeface(typeface)
     } else {
-        val iPanx: Float =
-            if (panx is RemoteFloat) panx.getFloatIdForCreationState(FallbackCreationState.state)
-            else panx.toFloat()
-        val iPany: Float =
-            if (pany is RemoteFloat) pany.getFloatIdForCreationState(FallbackCreationState.state)
-            else pany.toFloat()
-
-        val paint = configurePaint(color, drawStyle, iAlpha, colorFilter, blendMode)
-        val ap = paint.asFrameworkPaint()
-        if (typeface != null) {
-            ap.setTypeface(typeface)
-        } else {
-            ap.setTypeface(android.graphics.Typeface.DEFAULT)
-        }
-        ap.textSize = iTextSize
-        val rec = Rect()
-        ap.getTextBounds(text, 0, text.length, rec)
-        val monospace = false
-        val bounds = FloatArray(4)
-        bounds[0] = rec.left.toFloat()
-        bounds[1] = rec.top.toFloat()
-        bounds[2] =
-            if (monospace) (ap.measureText(text, 0, text.length) - rec.left)
-            else rec.right.toFloat()
-        bounds[3] = rec.bottom.toFloat()
-        val x = anchor.x + getHorizontalOffset(iPanx, bounds)
-        val y = anchor.y + getVerticalOffset(iPany, bounds)
-        canvas.drawText(text.toString(), x, y, ap)
+        ap.setTypeface(Typeface.DEFAULT)
     }
+    ap.textSize = textSize.id
+    canvas.drawAnchoredText(
+        text.toString(),
+        anchorX = anchor.x,
+        anchorY = anchor.y,
+        panx = panx,
+        pany = pany,
+        flags = 0,
+        paint = ap,
+    )
 }
 
 public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     text: RemoteString,
     color: Color,
-    anchor: Offset,
-    panx: Number,
-    pany: Number,
-    alpha: Number,
+    anchor: RemoteOffset,
+    panx: RemoteFloat,
+    pany: RemoteFloat,
+    alpha: RemoteFloat,
     drawStyle: DrawStyle = Fill,
-    typeface: android.graphics.Typeface? = null,
-    textSize: Number = 18f,
+    typeface: Typeface? = null,
+    textSize: RemoteFloat = 18f.rf,
 ) {
-    val iAlpha: Float =
-        if (alpha is RemoteFloat) alpha.getFloatIdForCreationState(FallbackCreationState.state)
-        else alpha.toFloat()
-    val iTextSize: Float =
-        if (textSize is RemoteFloat)
-            textSize.getFloatIdForCreationState(FallbackCreationState.state)
-        else textSize.toFloat()
-
     val colorFilter: ColorFilter? = null
-    val blendMode: BlendMode = RemoteDrawScope.DefaultBlendMode
+    val blendMode: BlendMode = DefaultBlendMode
 
-    val canvas = drawContext.canvas.nativeCanvas
+    val paint = configurePaint(color, drawStyle, alpha.id, colorFilter, blendMode)
+    val ap = paint.asFrameworkPaint()
 
-    if (canvas is RecordingCanvas) {
-        val paint = configurePaint(color, drawStyle, iAlpha, colorFilter, blendMode)
-        val ap = paint.asFrameworkPaint()
-
-        if (typeface != null) {
-            ap.setTypeface(typeface)
-        } else {
-            ap.setTypeface(android.graphics.Typeface.DEFAULT)
-        }
-        ap.textSize = iTextSize
-        canvas.drawAnchoredText(
-            text,
-            anchorX = anchor.x,
-            anchorY = anchor.y,
-            panx = panx,
-            pany = pany,
-            flags = 0,
-            paint = ap,
-        )
+    if (typeface != null) {
+        ap.setTypeface(typeface)
+    } else {
+        ap.setTypeface(Typeface.DEFAULT)
     }
+    ap.textSize = textSize.id
+    canvas.drawAnchoredText(
+        text,
+        anchorX = anchor.x,
+        anchorY = anchor.y,
+        panx = panx,
+        pany = pany,
+        flags = 0,
+        paint = ap,
+    )
 }
 
 private fun getHorizontalOffset(mOutPanX: Float, mBounds: FloatArray): Float {
@@ -477,87 +313,23 @@ private fun getVerticalOffset(mOutPanY: Float, mBounds: FloatArray): Float {
 public fun RemoteCanvasDrawScope.remoteDrawTweePath(
     path1: Path,
     path2: Path,
-    tween: Number,
-    start: Number,
-    stop: Number,
+    tween: RemoteFloat,
+    start: RemoteFloat,
+    stop: RemoteFloat,
     color: Color,
     alpha: Float = 1.0f,
     style: DrawStyle = Fill,
     colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = RemoteDrawScope.DefaultBlendMode,
+    blendMode: BlendMode = DefaultBlendMode,
 ) {
-    val canvas = drawContext.canvas.nativeCanvas
-    if (canvas is RecordingCanvas) {
-        canvas.drawTweenPath(
-            path1,
-            path2,
-            tween,
-            start,
-            stop,
-            configurePaint(color, style, alpha, colorFilter, blendMode),
-        )
-    } else {
-        val iTween: Float =
-            if (tween is RemoteFloat) tween.getFloatIdForCreationState(FallbackCreationState.state)
-            else tween.toFloat()
-        val path = Path()
-        val it1 = path1.iterator(conicEvaluation = PathIterator.ConicEvaluation.AsQuadratics)
-        val it2 = path2.iterator(conicEvaluation = PathIterator.ConicEvaluation.AsQuadratics)
-        while (it1.hasNext() && it2.hasNext()) {
-            val ps1 = it1.next()
-            val ps2 = it2.next()
-            when (ps1.type) {
-                PathSegment.Type.Move ->
-                    path.moveTo(
-                        tween(iTween, ps1.points[0], ps2.points[0]),
-                        tween(iTween, ps1.points[1], ps2.points[1]),
-                    )
-                PathSegment.Type.Line -> {
-                    val lines = ps1.points.size / 2 - 1
-                    for (i in 0..lines) {
-                        val k = i * 2
-                        path.lineTo(
-                            tween(iTween, ps1.points[k], ps2.points[k]),
-                            tween(iTween, ps1.points[k + 1], ps2.points[k + 1]),
-                        )
-                    }
-                }
-                PathSegment.Type.Quadratic -> {
-                    val lines = ps1.points.size / 4 - 1
-                    for (i in 0..lines) {
-                        val k = i * 4
-                        path.quadraticTo(
-                            tween(iTween, ps1.points[k], ps2.points[k]),
-                            tween(iTween, ps1.points[k + 1], ps2.points[k + 1]),
-                            tween(iTween, ps1.points[k + 2], ps2.points[k + 2]),
-                            tween(iTween, ps1.points[k + 3], ps2.points[k + 3]),
-                        )
-                    }
-                }
-                PathSegment.Type.Conic -> println("should not have conic")
-                PathSegment.Type.Cubic -> {
-                    val lines = ps1.points.size / 6 - 1
-                    for (i in 0..lines) {
-                        val k = i * 6
-                        path.cubicTo(
-                            tween(iTween, ps1.points[k], ps2.points[k]),
-                            tween(iTween, ps1.points[k + 1], ps2.points[k + 1]),
-                            tween(iTween, ps1.points[k + 2], ps2.points[k + 2]),
-                            tween(iTween, ps1.points[k + 3], ps2.points[k + 3]),
-                            tween(iTween, ps1.points[k + 4], ps2.points[k + 4]),
-                            tween(iTween, ps1.points[k + 5], ps2.points[k + 5]),
-                        )
-                    }
-                }
-                PathSegment.Type.Close -> {
-                    path.close()
-                }
-                PathSegment.Type.Done -> println("done")
-            }
-        }
-
-        drawScope.drawPath(path, color, alpha, style, colorFilter, blendMode)
-    }
+    canvas.drawTweenPath(
+        path1,
+        path2,
+        tween,
+        start,
+        stop,
+        configurePaint(color, style, alpha, colorFilter, blendMode),
+    )
 }
 
 public fun tween(t: Float, a1: Float, a2: Float): Float {
@@ -626,7 +398,7 @@ private fun configurePaint(
     return paint
 }
 
-public fun DrawScope.remoteDrawRect(
+public fun RemoteCanvasDrawScope.remoteDrawRect(
     color: Color,
     left: Float,
     top: Float,
@@ -638,31 +410,17 @@ public fun DrawScope.remoteDrawRect(
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
-    drawIntoCanvas {
-        val nc = it.nativeCanvas
-        val paint = configurePaint(color, style, alpha, colorFilter, blendMode)
-        if (nc is RecordingCanvas) {
-            val rc = nc as RecordingCanvas
-            rc.drawRect(
-                left = left,
-                top = top,
-                right = right,
-                bottom = bottom,
-                paint = paint.asFrameworkPaint(),
-            )
-        } else {
-            it.drawRect(
-                left = left,
-                top = top,
-                right = right,
-                bottom = bottom,
-                paint = toPaint(color, style, alpha, colorFilter, blendMode),
-            )
-        }
-    }
+    val paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+    canvas.drawRect(
+        left = left,
+        top = top,
+        right = right,
+        bottom = bottom,
+        paint = paint.asFrameworkPaint(),
+    )
 }
 
-public fun DrawScope.remoteDrawPath(
+public fun RemoteCanvasDrawScope.remoteDrawPath(
     path: Path,
     color: Color,
     alpha: Float,
@@ -670,26 +428,15 @@ public fun DrawScope.remoteDrawPath(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    drawIntoCanvas {
-        val nc = it.nativeCanvas
-        val paint = configurePaint(color, style, alpha, colorFilter, blendMode)
-        if (nc is RecordingCanvas) {
-            if (path is RemoteComposePath) {
-                nc.drawRPath(path.remote, paint.asFrameworkPaint())
-            } else {
-                nc.drawPath(path.asAndroidPath(), paint.asFrameworkPaint())
-            }
-        } else {
-            if (path is RemoteComposePath) {
-                // TODO
-            } else {
-                it.drawPath(path, paint)
-            }
-        }
+    val paint = configurePaint(color, style, alpha, colorFilter, blendMode)
+    if (path is RemoteComposePath) {
+        canvas.drawRPath(path.remote, paint.asFrameworkPaint())
+    } else {
+        canvas.drawPath(path.asAndroidPath(), paint.asFrameworkPaint())
     }
 }
 
-public fun DrawScope.remoteDrawRect(
+public fun RemoteCanvasDrawScope.remoteDrawRect(
     brush: RemoteBrush,
     left: Float,
     top: Float,
@@ -700,25 +447,18 @@ public fun DrawScope.remoteDrawRect(
     colorFilter: ColorFilter? = null,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
 ) {
-    drawIntoCanvas {
-        val paint = toPaint(brush, style, alpha, colorFilter, blendMode, size = drawContext.size)
-        val nc = it.nativeCanvas
-        if (nc is RecordingCanvas) {
-            val rc = nc as RecordingCanvas
-            rc.drawRect(
-                left = left,
-                top = top,
-                right = right,
-                bottom = bottom,
-                paint = paint.asFrameworkPaint(),
-            )
-        } else {
-            it.drawRect(left = left, top = top, right = right, bottom = bottom, paint = paint)
-        }
-    }
+    val size = RemoteSize(remote.component.width, remote.component.height)
+    val paint = toPaint(brush, style, alpha, colorFilter, blendMode, size = size)
+    canvas.drawRect(
+        left = left,
+        top = top,
+        right = right,
+        bottom = bottom,
+        paint = paint.asFrameworkPaint(),
+    )
 }
 
-public fun DrawScope.remoteDrawRoundRect(
+public fun RemoteCanvasDrawScope.remoteDrawRoundRect(
     color: Color,
     left: Float,
     top: Float,
@@ -730,20 +470,18 @@ public fun DrawScope.remoteDrawRoundRect(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    drawIntoCanvas {
-        it.drawRoundRect(
-            left = left,
-            top = top,
-            right = right,
-            bottom = bottom,
-            radiusX = cornerRadius.x,
-            radiusY = cornerRadius.y,
-            paint = toPaint(color, style, alpha, colorFilter, blendMode),
-        )
-    }
+    canvas.drawRoundRect(
+        left,
+        top,
+        right,
+        bottom,
+        cornerRadius.x,
+        cornerRadius.y,
+        toPaint(color, style, alpha, colorFilter, blendMode).asFrameworkPaint(),
+    )
 }
 
-public fun DrawScope.remoteDrawRoundRect(
+public fun RemoteCanvasDrawScope.remoteDrawRoundRect(
     brush: RemoteBrush,
     left: Float,
     top: Float,
@@ -755,22 +493,20 @@ public fun DrawScope.remoteDrawRoundRect(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-
-    drawIntoCanvas {
-        val paint = toPaint(brush, style, alpha, colorFilter, blendMode, size = drawContext.size)
-        it.drawRoundRect(
-            left = left,
-            top = top,
-            right = right,
-            bottom = bottom,
-            radiusX = cornerRadius.x,
-            radiusY = cornerRadius.y,
-            paint = paint,
-        )
-    }
+    val size = RemoteSize(remote.component.width, remote.component.height)
+    val paint = toPaint(brush, style, alpha, colorFilter, blendMode, size = size)
+    canvas.drawRoundRect(
+        left,
+        top,
+        right,
+        bottom,
+        cornerRadius.x,
+        cornerRadius.y,
+        paint.asFrameworkPaint(),
+    )
 }
 
-public fun DrawScope.remoteDrawOval(
+public fun RemoteCanvasDrawScope.remoteDrawOval(
     color: Color,
     left: Float,
     top: Float,
@@ -781,18 +517,16 @@ public fun DrawScope.remoteDrawOval(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    drawIntoCanvas {
-        it.drawOval(
-            left = left,
-            top = top,
-            right = right,
-            bottom = bottom,
-            paint = toPaint(color, style, alpha, colorFilter, blendMode),
-        )
-    }
+    canvas.drawOval(
+        left = left,
+        top = top,
+        right = right,
+        bottom = bottom,
+        paint = toPaint(color, style, alpha, colorFilter, blendMode).asFrameworkPaint(),
+    )
 }
 
-public fun DrawScope.remoteDrawScaledBitmap(
+public fun RemoteCanvasDrawScope.remoteDrawScaledBitmap(
     image: Bitmap,
     srcLeft: Float,
     srcTop: Float,
@@ -810,65 +544,29 @@ public fun DrawScope.remoteDrawScaledBitmap(
     blendMode: BlendMode = DefaultBlendMode,
     filterQuality: FilterQuality = DefaultFilterQuality,
 ) {
-    drawIntoCanvas {
-        val nc = it.nativeCanvas
-        if (nc is RecordingCanvas) {
-            val paint = Paint()
-            paint.filterQuality = filterQuality
-            paint.blendMode = blendMode
-            paint.colorFilter = colorFilter
-            paint.alpha = alpha
-            nc.usePaint(paint.asFrameworkPaint())
-            nc.drawScaledBitmap(
-                image,
-                srcLeft,
-                srcTop,
-                srcRight,
-                srcBottom,
-                dstLeft,
-                dstTop,
-                dstRight,
-                dstBottom,
-                scaleType,
-                scaleFactor,
-                contentDescription,
-            )
-        } else {
-            val paint = Paint()
-            paint.filterQuality = filterQuality
-            paint.blendMode = blendMode
-            paint.colorFilter = colorFilter
-            paint.alpha = alpha
-            val scaling =
-                ImageScaling(
-                    srcLeft,
-                    srcTop,
-                    srcRight,
-                    srcBottom,
-                    dstLeft,
-                    dstTop,
-                    dstRight,
-                    dstBottom,
-                    scaleType,
-                    scaleFactor,
-                )
-
-            it.drawImageRect(
-                image.asImageBitmap(),
-                IntOffset(srcLeft.toInt(), srcTop.toInt()),
-                IntSize((srcRight - srcLeft).toInt(), (srcBottom - srcTop).toInt()),
-                IntOffset(scaling.mFinalDstLeft.toInt(), scaling.mFinalDstTop.toInt()),
-                IntSize(
-                    (scaling.mFinalDstRight - scaling.mFinalDstLeft).toInt(),
-                    (scaling.mFinalDstBottom - scaling.mFinalDstTop).toInt(),
-                ),
-                paint = paint,
-            )
-        }
-    }
+    val paint = Paint()
+    paint.filterQuality = filterQuality
+    paint.blendMode = blendMode
+    paint.colorFilter = colorFilter
+    paint.alpha = alpha
+    canvas.usePaint(paint.asFrameworkPaint())
+    canvas.drawScaledBitmap(
+        image,
+        srcLeft.rf,
+        srcTop.rf,
+        srcRight.rf,
+        srcBottom.rf,
+        dstLeft.rf,
+        dstTop.rf,
+        dstRight.rf,
+        dstBottom.rf,
+        scaleType,
+        scaleFactor.rf,
+        contentDescription,
+    )
 }
 
-public fun DrawScope.remoteDrawOval(
+public fun RemoteCanvasDrawScope.remoteDrawOval(
     brush: RemoteBrush,
     left: Float,
     top: Float,
@@ -879,13 +577,18 @@ public fun DrawScope.remoteDrawOval(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    drawIntoCanvas {
-        val paint = toPaint(brush, style, alpha, colorFilter, blendMode, size = drawContext.size)
-        it.drawOval(left = left, top = top, right = right, bottom = bottom, paint = paint)
-    }
+    val size = RemoteSize(remote.component.width, remote.component.height)
+    val paint = toPaint(brush, style, alpha, colorFilter, blendMode, size = size)
+    canvas.drawOval(
+        left = left,
+        top = top,
+        right = right,
+        bottom = bottom,
+        paint = paint.asFrameworkPaint(),
+    )
 }
 
-public fun DrawScope.remoteDrawArc(
+public fun RemoteCanvasDrawScope.remoteDrawArc(
     color: Color,
     startAngle: Float,
     sweepAngle: Float,
@@ -899,18 +602,16 @@ public fun DrawScope.remoteDrawArc(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
 ) {
-    drawIntoCanvas {
-        it.drawArc(
-            left = left,
-            top = top,
-            right = right,
-            bottom = bottom,
-            startAngle = startAngle,
-            sweepAngle = sweepAngle,
-            useCenter = useCenter,
-            paint = toPaint(color, style, alpha, colorFilter, blendMode),
-        )
-    }
+    canvas.drawArc(
+        left = left,
+        top = top,
+        right = right,
+        bottom = bottom,
+        startAngle = startAngle,
+        sweepAngle = sweepAngle,
+        useCenter = useCenter,
+        paint = toPaint(color, style, alpha, colorFilter, blendMode).asFrameworkPaint(),
+    )
 }
 
 /** Converts parameters to androidx.compose.ui.graphics.Paint */
@@ -927,6 +628,7 @@ internal fun toPaint(
             is Fill -> {
                 this.style = PaintingStyle.Fill
             }
+
             is Stroke -> {
                 this.style = PaintingStyle.Stroke
                 this.strokeCap = drawStyle.cap
@@ -950,13 +652,14 @@ internal fun toPaint(
     colorFilter: ColorFilter?,
     blendMode: BlendMode,
     filterQuality: FilterQuality = DrawScope.DefaultFilterQuality,
-    size: Size,
+    size: RemoteSize,
 ): Paint =
     Paint().apply {
         when (drawStyle) {
             is Fill -> {
                 this.style = PaintingStyle.Fill
             }
+
             is Stroke -> {
                 this.style = PaintingStyle.Stroke
                 this.strokeCap = drawStyle.cap
@@ -984,24 +687,9 @@ internal typealias ROffset = Offset
 
 internal typealias RSize = Size
 
-public fun ROffset(x: Number, y: Number): ROffset {
-    val ix: Float =
-        if (x is RemoteFloat) x.getFloatIdForCreationState(FallbackCreationState.state)
-        else x.toFloat()
-    val iy: Float =
-        if (y is RemoteFloat) y.getFloatIdForCreationState(FallbackCreationState.state)
-        else y.toFloat()
-
-    return Offset(ix, iy)
-}
-
-public fun RSize(w: Number, h: Number): RSize {
-    val iw: Float =
-        if (w is RemoteFloat) w.getFloatIdForCreationState(FallbackCreationState.state)
-        else w.toFloat()
-    val ih: Float =
-        if (h is RemoteFloat) h.getFloatIdForCreationState(FallbackCreationState.state)
-        else h.toFloat()
-
-    return Size(iw, ih)
+public inline fun DrawScope.drawIntoRemoteCanvas(block: (RecordingCanvas) -> Unit): Unit {
+    val canvas = drawContext.canvas.nativeCanvas as? RecordingCanvas
+    if (canvas != null) {
+        block(canvas)
+    }
 }

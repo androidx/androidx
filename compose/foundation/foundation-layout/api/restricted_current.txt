@@ -131,8 +131,8 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void Column(androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.Arrangement.Vertical?, androidx.compose.ui.Alignment.Horizontal?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.ColumnScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy columnMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, androidx.compose.ui.Alignment.Horizontal horizontalAlignment);
     method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy columnMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Vertical, androidx.compose.ui.Alignment.Horizontal, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy getDefaultColumnMeasurePolicy();
     property @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy DefaultColumnMeasurePolicy;
-    field @kotlin.PublishedApi internal static final androidx.compose.ui.layout.MeasurePolicy DefaultColumnMeasurePolicy;
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface ColumnScope {
@@ -268,7 +268,7 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurementHelper(androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.foundation.layout.Arrangement.Vertical, int, androidx.compose.runtime.Composer?, int);
   }
 
-  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public abstract sealed class FlowLayoutOverflow {
+  @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public abstract sealed exhaustive class FlowLayoutOverflow {
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class FlowRowOverflow extends androidx.compose.foundation.layout.FlowLayoutOverflow {
@@ -353,6 +353,7 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float calculateEndPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Dp calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static float calculateStartPadding(androidx.compose.foundation.layout.PaddingValues, androidx.compose.ui.unit.LayoutDirection);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.foundation.layout.PaddingValues minus(androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.layout.PaddingValues other);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, androidx.compose.ui.unit.Dp all);
     method @KotlinOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding(androidx.compose.ui.Modifier, optional androidx.compose.ui.unit.Dp horizontal, optional androidx.compose.ui.unit.Dp vertical);
@@ -362,6 +363,7 @@ package androidx.compose.foundation.layout {
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! padding-VpY3zN4$default(androidx.compose.ui.Modifier!, float, float, int, Object!);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier padding-qDBjuR0(androidx.compose.ui.Modifier, float, float, float, float);
     method @BytecodeOnly @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier! padding-qDBjuR0$default(androidx.compose.ui.Modifier!, float, float, float, float, int, Object!);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.foundation.layout.PaddingValues plus(androidx.compose.foundation.layout.PaddingValues, androidx.compose.foundation.layout.PaddingValues other);
   }
 
   @androidx.compose.runtime.Stable public interface PaddingValues {
@@ -399,10 +401,10 @@ package androidx.compose.foundation.layout {
   public final class RowKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline void Row(optional androidx.compose.ui.Modifier modifier, optional androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, optional androidx.compose.ui.Alignment.Vertical verticalAlignment, kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void Row(androidx.compose.ui.Modifier?, androidx.compose.foundation.layout.Arrangement.Horizontal?, androidx.compose.ui.Alignment.Vertical?, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.layout.RowScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy getDefaultRowMeasurePolicy();
     method @KotlinOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement, androidx.compose.ui.Alignment.Vertical verticalAlignment);
     method @BytecodeOnly @androidx.compose.runtime.Composable @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy rowMeasurePolicy(androidx.compose.foundation.layout.Arrangement.Horizontal, androidx.compose.ui.Alignment.Vertical, androidx.compose.runtime.Composer?, int);
     property @kotlin.PublishedApi internal static androidx.compose.ui.layout.MeasurePolicy DefaultRowMeasurePolicy;
-    field @kotlin.PublishedApi internal static final androidx.compose.ui.layout.MeasurePolicy DefaultRowMeasurePolicy;
   }
 
   @androidx.compose.foundation.layout.LayoutScopeMarker @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface RowScope {
@@ -486,6 +488,10 @@ package androidx.compose.foundation.layout {
   public final class SpacerKt {
     method @KotlinOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.NonRestartableComposable public static void Spacer(androidx.compose.ui.Modifier modifier);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void Spacer(androidx.compose.ui.Modifier, androidx.compose.runtime.Composer?, int);
+  }
+
+  public final class VisibleKt {
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier visible(androidx.compose.ui.Modifier, boolean visible);
   }
 
   @androidx.compose.runtime.Stable public interface WindowInsets {

@@ -56,7 +56,7 @@ object ComposeUiTestFlags {
      * Enables support for providing a StandardTestDispatcher to ComposeTestRule. When false,
      * previous behavior is restored even if a StandardTestDispatcher is explicitly provided.
      */
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     @JvmField
     var isStandardTestDispatcherSupportEnabled: Boolean = true
 }

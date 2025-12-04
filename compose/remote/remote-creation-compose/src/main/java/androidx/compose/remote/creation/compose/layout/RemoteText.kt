@@ -19,14 +19,9 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Text
 import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.remote.creation.compose.modifier.semantics
-import androidx.compose.remote.creation.compose.modifier.toComposeUi
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteIntReference
@@ -37,9 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -87,7 +80,7 @@ public fun RemoteText(
 public fun RemoteText(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
-    color: RemoteColor = RemoteColor(Color.Black),
+    color: RemoteColor? = null,
     fontSize: TextUnit = TextUnit.Unspecified,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
@@ -97,7 +90,8 @@ public fun RemoteText(
     maxLines: Int = Int.MAX_VALUE,
     style: TextStyle = LocalTextStyle.current,
 ) {
-    // Remote color is always used and style color is ignored.
+    val textColor = color ?: RemoteColor(style.color.takeOrElse { Color.Black })
+
     val style =
         style.merge(
             fontSize = fontSize,
@@ -110,7 +104,7 @@ public fun RemoteText(
     RemoteText(
         text,
         modifier,
-        color,
+        textColor,
         style.fontSize,
         style.fontStyle,
         style.fontWeight,
@@ -137,34 +131,30 @@ public class RemoteComposeTextComponentModifier(
     public var maxLines: Int,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
-        drawIntoCanvas {
-            if (it.nativeCanvas is RecordingCanvas) {
-                (it.nativeCanvas as RecordingCanvas).let {
-                    val flags =
-                        if (isColorConstant) {
-                            0
-                        } else {
-                            TextLayout.FLAG_IS_DYNAMIC_COLOR.toShort()
-                        }
-
-                    it.document.startTextComponent(
-                        modifier,
-                        id.toInt(),
-                        color,
-                        fontSize,
-                        fontStyle,
-                        fontWeight,
-                        fontFamily,
-                        flags,
-                        textAlign.toShort(),
-                        overflow,
-                        maxLines,
-                    )
-
-                    drawContent()
-                    it.document.endTextComponent()
+        drawIntoRemoteCanvas { canvas ->
+            val flags =
+                if (isColorConstant) {
+                    0
+                } else {
+                    TextLayout.FLAG_IS_DYNAMIC_COLOR.toShort()
                 }
-            }
+
+            canvas.document.startTextComponent(
+                modifier,
+                id.toInt(),
+                color,
+                fontSize,
+                fontStyle,
+                fontWeight,
+                fontFamily,
+                flags,
+                textAlign.toShort(),
+                overflow,
+                maxLines,
+            )
+
+            this@draw.drawContent()
+            canvas.document.endTextComponent()
         }
     }
 }
@@ -185,6 +175,7 @@ public fun RemoteText(
     maxLines: Int = Int.MAX_VALUE,
 ) {
     val captureMode = LocalRemoteComposeCreationState.current
+
     val rFontSize =
         with(LocalDensity.current) {
             if (fontSize == TextUnit.Unspecified) 12.sp.toPx() else fontSize.toPx()
@@ -230,40 +221,24 @@ public fun RemoteText(
             TextOverflow.MiddleEllipsis -> TextLayout.OVERFLOW_MIDDLE_ELLIPSIS
             else -> -1
         }
-    if (captureMode is NoRemoteCompose) {
-        @Suppress("DEPRECATION", "COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        Text(
-            text = text.constantValue!!,
-            modifier = modifier.toComposeUi(),
-            Color(color.constantValue!!.toArgb()),
-            fontSize,
-            fontStyle,
-            fontWeight,
-            fontFamily,
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines,
-        )
-    } else {
-        val isColorConstant = color.hasConstantValue
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        androidx.compose.foundation.layout.Box(
-            RemoteComposeTextComponentModifier(
-                    modifier.toRemoteCompose(),
-                    RemoteIntReference(text.getIdForCreationState(captureMode)),
-                    color.constantValue?.toArgb() ?: color.getIdForCreationState(captureMode),
-                    isColorConstant,
-                    rFontSize,
-                    rFontStyle,
-                    rFontWeight,
-                    rFontFamily,
-                    rTextAlign,
-                    rOverflow,
-                    maxLines,
-                )
-                .then(modifier.semantics { this.text = text }.toComposeUiLayout())
-        )
-    }
+    val isColorConstant = color.hasConstantValue
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
+    androidx.compose.foundation.layout.Box(
+        RemoteComposeTextComponentModifier(
+                modifier.toRemoteCompose(),
+                RemoteIntReference(text.getIdForCreationState(captureMode)),
+                color.constantValue?.toArgb() ?: color.getIdForCreationState(captureMode),
+                isColorConstant,
+                rFontSize,
+                rFontStyle,
+                rFontWeight,
+                rFontFamily,
+                rTextAlign,
+                rOverflow,
+                maxLines,
+            )
+            .then(modifier.toComposeUiLayout())
+    )
 }
 
 @Composable
@@ -282,6 +257,7 @@ public fun RemoteText(
 ) {
     val isColorConstant = color.hasConstantValue
     val captureMode = LocalRemoteComposeCreationState.current
+
     val rFontSize =
         with(LocalDensity.current) {
             if (fontSize == TextUnit.Unspecified) 12.sp.toPx() else fontSize.toPx()
@@ -327,37 +303,21 @@ public fun RemoteText(
             TextOverflow.MiddleEllipsis -> TextLayout.OVERFLOW_MIDDLE_ELLIPSIS
             else -> -1
         }
-    if (captureMode is NoRemoteCompose) {
-        @Suppress("DEPRECATION", "COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        Text(
-            text = "XX",
-            modifier = modifier.toComposeUi(),
-            Color(color.constantValue!!.toArgb()),
-            fontSize,
-            fontStyle,
-            fontWeight,
-            fontFamily,
-            textAlign = textAlign,
-            overflow = overflow,
-            maxLines = maxLines,
-        )
-    } else {
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        androidx.compose.foundation.layout.Box(
-            RemoteComposeTextComponentModifier(
-                    modifier.toRemoteCompose(),
-                    textId,
-                    color.constantValue?.toArgb() ?: color.getIdForCreationState(captureMode),
-                    isColorConstant,
-                    rFontSize,
-                    rFontStyle,
-                    rFontWeight,
-                    rFontFamily,
-                    rTextAlign,
-                    rOverflow,
-                    maxLines,
-                )
-                .then(modifier.toComposeUiLayout())
-        )
-    }
+    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
+    androidx.compose.foundation.layout.Box(
+        RemoteComposeTextComponentModifier(
+                modifier.toRemoteCompose(),
+                textId,
+                color.constantValue?.toArgb() ?: color.getIdForCreationState(captureMode),
+                isColorConstant,
+                rFontSize,
+                rFontStyle,
+                rFontWeight,
+                rFontFamily,
+                rTextAlign,
+                rOverflow,
+                maxLines,
+            )
+            .then(modifier.toComposeUiLayout())
+    )
 }

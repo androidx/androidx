@@ -24,15 +24,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.remote.creation.compose.capture.RememberRemoteDocumentInline
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.integration.demos.preview.RemoteComposePreview
 import androidx.compose.remote.integration.demos.ui.theme.RemoteComposeDemosTheme
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -93,11 +95,18 @@ fun Main(modifier: Modifier = Modifier) {
 @Composable
 @Suppress("RestrictedApiAndroidX")
 fun Greeting(modifier: RemoteModifier = RemoteModifier) {
-    RemoteBox(modifier = modifier) { RemoteText(text = "Hello world!") }
+    RemoteBox(
+        modifier = modifier,
+        horizontalAlignment = RemoteAlignment.CenterHorizontally,
+        verticalArrangement = RemoteArrangement.Center,
+    ) {
+        RemoteText(text = "Hello world!")
+    }
 }
 
 @Suppress("RestrictedApiAndroidX")
 @Preview
-@RemoteComposable
 @Composable
-fun GreetingPreview() = RemoteComposePreview { Greeting() }
+fun GreetingPreview() {
+    RemotePreview { Greeting() }
+}

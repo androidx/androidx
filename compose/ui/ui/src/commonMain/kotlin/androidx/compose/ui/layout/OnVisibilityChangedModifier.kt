@@ -57,7 +57,6 @@ import kotlinx.coroutines.launch
  * @param callback lambda that is invoked when the fraction of this node inside of the specified
  *   viewport crosses the [minFractionVisible]. The boolean argument passed into this lambda will be
  *   true in cases where the fraction visible is greater, and false when it is not.
- * @see onFirstVisible
  * @see onLayoutRectChanged
  * @see registerOnLayoutRectChanged
  * @see RelativeLayoutBounds.fractionVisibleIn
@@ -179,17 +178,14 @@ internal class OnVisibilityChangedNode(
     var handle: DelegatableNode.RegistrationHandle? = null
     var job: Job? = null
     var lastResult = false
-    var firedOnce = false
+    var lastReportedResult = false
     var lastBounds: RelativeLayoutBounds? = null
     var lastViewport: RelativeLayoutBounds? = null
-        set(value) {
-            if (field != value) {
-                field = value
-                forceUpdate()
-            }
-        }
 
     val rectChanged = { bounds: RelativeLayoutBounds ->
+        // as the bounds of the provided viewportBounds might have changed within the same
+        // relayout pass, we should recalculate them without waiting for onObservedReadsChanged()
+        lastViewport = this.viewportBounds?.bounds
         checkVisibility(minFractionVisible, bounds, lastViewport)
     }
 
@@ -210,29 +206,31 @@ internal class OnVisibilityChangedNode(
             if (viewport != null) bounds.fractionVisibleIn(viewport)
             else bounds.fractionVisibleInWindow()
         val newResult = fractionVisible > minFractionVisible || fractionVisible == 1f
-        if (!firedOnce || newResult != lastResult) {
+        if (newResult != lastResult) {
             lastResult = newResult
-            firedOnce = true
-            startTimer()
-        }
-    }
-
-    fun startTimer() {
-        val minDurationMs = minDurationMs
-        if (minDurationMs == 0L) triggerCallback()
-        else {
             job?.cancel()
-            job =
-                coroutineScope.launch {
-                    delay(minDurationMs)
+            job = null
+            if (newResult != lastReportedResult) {
+                // only wait for minDurationMs if the result is visible, not visible events are
+                // always reported immediately
+                if (newResult && minDurationMs > 0) {
+                    job =
+                        coroutineScope.launch {
+                            delay(minDurationMs)
+                            triggerCallback()
+                        }
+                } else {
                     triggerCallback()
                 }
+            }
         }
     }
 
     fun triggerCallback() {
         job?.cancel()
+        job = null
         callback(lastResult)
+        lastReportedResult = lastResult
     }
 
     fun forceUpdate() {
@@ -243,10 +241,13 @@ internal class OnVisibilityChangedNode(
     }
 
     fun fireExitIfNeeded() {
-        if (lastResult && firedOnce) {
-            job?.cancel()
-            lastResult = false
-            callback(false)
+        job?.cancel()
+        job = null
+        lastResult = false
+        // lastReportedResult is different from lastResult if we have a non zero minDurationMs,
+        // it might be that we are visible (lastResult == true), but we didn't yet report it
+        if (lastReportedResult) {
+            triggerCallback()
         }
     }
 
@@ -257,15 +258,23 @@ internal class OnVisibilityChangedNode(
         lastResult = false
         lastBounds = null
         lastViewport = null
-        firedOnce = false
     }
 
     fun updateViewport() {
         if (viewportBounds == null) {
-            lastViewport = null
+            if (lastViewport != null) {
+                lastViewport = null
+                forceUpdate()
+            }
             return
         }
-        observeReads { lastViewport = viewportBounds?.bounds }
+        observeReads {
+            val newViewport = viewportBounds?.bounds
+            if (lastViewport != newViewport) {
+                lastViewport = newViewport
+                forceUpdate()
+            }
+        }
     }
 
     override fun onAttach() {

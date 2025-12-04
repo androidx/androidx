@@ -84,9 +84,4 @@ internal class IndirectPointerInputNode(
     override fun onCancelIndirectPointerInput() {
         onCancel()
     }
-
-    override fun onDetach() {
-        onCancel()
-        super.onDetach()
-    }
 }

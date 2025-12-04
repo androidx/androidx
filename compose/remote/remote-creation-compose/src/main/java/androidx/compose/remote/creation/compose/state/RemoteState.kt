@@ -43,9 +43,11 @@ public object FallbackCreationState {
 
 /** Common base interface for all Remote types. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface BaseRemoteState {
+public abstract class BaseRemoteState<T> : RemoteState<T> {
+
     /** Whether or not this remote value always evaluates to the same result. */
-    public val hasConstantValue: Boolean
+    public open val hasConstantValue: Boolean
+        get() = constantValue != null
 
     /**
      * Returns a new or cached id for this [RemoteState] within the RemoteComposeCreationState.
@@ -84,7 +86,7 @@ public interface BaseRemoteState {
      * @param creationState The [RemoteComposeCreationState] to write to
      * @return The ID allocated by the [RemoteComposeWriter]
      */
-    public fun writeToDocument(creationState: RemoteComposeCreationState): Int
+    public abstract fun writeToDocument(creationState: RemoteComposeCreationState): Int
 }
 
 /**
@@ -97,12 +99,9 @@ public interface BaseRemoteState {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
-public interface RemoteState<T> : BaseRemoteState {
+public interface RemoteState<T> {
     /** The constant value or null if there isn't one. */
     public val constantValue: T?
-
-    override val hasConstantValue: Boolean
-        get() = constantValue != null
 }
 
 /**
@@ -114,7 +113,7 @@ public interface RemoteState<T> : BaseRemoteState {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
-public interface MutableRemoteState<T> : RemoteState<T>
+public interface MutableRemoteState<T> : RemoteState<T> {}
 
 /**
  * Remembers a named state value.
@@ -135,7 +134,7 @@ public interface MutableRemoteState<T> : RemoteState<T>
  */
 @RemoteComposable
 @Composable
-public inline fun <reified T : BaseRemoteState> rememberNamedState(
+public inline fun <reified T : RemoteState<*>> rememberNamedState(
     name: String,
     domain: RemoteDomains,
     noinline function: () -> T,

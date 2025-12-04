@@ -573,9 +573,7 @@ internal class FocusOwnerImpl(
             val previousValue = field
             field = value
             if (value == null || previousValue !== value) isFocusCaptured = false
-            if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isSemanticAutofillEnabled) {
-                listeners.forEach { it.onFocusChanged(previousValue, value) }
-            }
+            listeners.forEach { it.onFocusChanged(previousValue, value) }
         }
 
     override var isFocusCaptured: Boolean = false

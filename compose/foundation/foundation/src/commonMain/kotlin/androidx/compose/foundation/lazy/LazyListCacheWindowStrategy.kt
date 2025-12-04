@@ -135,6 +135,10 @@ internal class LazyListCacheWindowScope() : CacheWindowScope {
 
     override fun getLastIndexInLine(lineIndex: Int): Int = lineIndex
 
+    override fun getVisibleLineKey(indexInVisibleLines: Int): Any {
+        return layoutInfo.visibleItemsInfo[indexInVisibleLines].key
+    }
+
     override fun getLastLineIndex(): Int {
         if (totalItemsCount == 0) return InvalidIndex
         return totalItemsCount - 1

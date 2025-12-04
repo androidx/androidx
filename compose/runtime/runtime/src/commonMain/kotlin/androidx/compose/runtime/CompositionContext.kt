@@ -47,7 +47,6 @@ public abstract class CompositionContext internal constructor() {
 
     /** The [CoroutineContext] with which effects for the composition will be executed in. */
     public abstract val effectCoroutineContext: CoroutineContext
-    internal abstract val recomposeCoroutineContext: CoroutineContext
 
     /** Associated composition if one exists. */
     internal abstract val composition: Composition?

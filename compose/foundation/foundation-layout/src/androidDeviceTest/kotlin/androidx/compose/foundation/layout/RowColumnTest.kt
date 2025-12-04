@@ -1968,36 +1968,6 @@ class RowColumnTest : LayoutTest() {
         }
 
     @Test
-    fun testRow_withInfiniteWidth_measuresWeightedChildrenCorrectly() =
-        with(density) {
-            val weightedChildWidth = 100.toDp()
-            val nonWeightedChildWidth = 30.toDp()
-            val latch = CountDownLatch(2)
-            show {
-                WithInfiniteConstraints {
-                    Row {
-                        FixedSizeLayout(nonWeightedChildWidth.roundToPx(), 0, mapOf())
-
-                        BoxWithConstraints(Modifier.weight(1f, fill = true)) {
-                            assertEquals(0, constraints.minWidth)
-                            assertEquals(Constraints.Infinity, constraints.maxWidth)
-                            FixedSizeLayout(weightedChildWidth.roundToPx(), 0, mapOf())
-                            latch.countDown()
-                        }
-
-                        BoxWithConstraints(Modifier.weight(1f, fill = false)) {
-                            assertEquals(0, constraints.minWidth)
-                            assertEquals(Constraints.Infinity, constraints.maxWidth)
-                            FixedSizeLayout(weightedChildWidth.roundToPx(), 0, mapOf())
-                            latch.countDown()
-                        }
-                    }
-                }
-            }
-            assertTrue(latch.await(1, TimeUnit.SECONDS))
-        }
-
-    @Test
     fun testRow_protectsAgainstOverflow() =
         with(density) {
             val rowMinWidth = 0.toDp()
@@ -2515,36 +2485,6 @@ class RowColumnTest : LayoutTest() {
                     }
                 }
             }
-        }
-
-    @Test
-    fun testColumn_withInfiniteHeight_measuresWeightedChildrenCorrectly() =
-        with(density) {
-            val weightedChildHeight = 100.toDp()
-            val nonWeightedChildHeight = 30.toDp()
-            val latch = CountDownLatch(2)
-            show {
-                WithInfiniteConstraints {
-                    Column {
-                        FixedSizeLayout(0, nonWeightedChildHeight.roundToPx(), mapOf())
-
-                        BoxWithConstraints(Modifier.weight(1f, fill = true)) {
-                            assertEquals(0, constraints.minHeight)
-                            assertEquals(Constraints.Infinity, constraints.maxHeight)
-                            FixedSizeLayout(0, weightedChildHeight.roundToPx(), mapOf())
-                            latch.countDown()
-                        }
-
-                        BoxWithConstraints(Modifier.weight(1f, fill = false)) {
-                            assertEquals(0, constraints.minHeight)
-                            assertEquals(Constraints.Infinity, constraints.maxHeight)
-                            FixedSizeLayout(0, weightedChildHeight.roundToPx(), mapOf())
-                            latch.countDown()
-                        }
-                    }
-                }
-            }
-            assertTrue(latch.await(1, TimeUnit.SECONDS))
         }
 
     @Test

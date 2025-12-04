@@ -18,14 +18,17 @@ package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Typeface
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
-import androidx.compose.remote.creation.compose.layout.Alignment
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -39,13 +42,12 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
-@Preview
 @Composable
 @RemoteComposable
 fun SimplePath() {
     RemoteRow(
         modifier = RemoteModifier.fillMaxSize(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         RemoteCanvas(modifier = RemoteModifier.fillMaxWidth().fillMaxHeight()) {
             val rec =
@@ -55,7 +57,7 @@ fun SimplePath() {
                     remote.component.width.internalAsFloat(),
                     remote.component.height.internalAsFloat(),
                 )
-            drawRect(Color.DarkGray, rec.topLeft, rec.size)
+            drawRect(Color.DarkGray, RemoteOffset(rec.topLeft), RemoteSize(rec.size))
 
             val path =
                 Path().apply {
@@ -89,3 +91,5 @@ fun SimplePath() {
         }
     }
 }
+
+@Preview @Composable fun SimplePathPreview() = RemotePreview { SimplePath() }

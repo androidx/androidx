@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ComposeFoundationFlags.isNonSuspendingPointerInputInDraggableEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
@@ -41,7 +40,6 @@ import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChange
@@ -518,8 +516,6 @@ internal abstract class DragGestureNode(
         }
     }
 
-    private var pointerInputNode: SuspendingPointerInputModifierNode? = null
-
     override fun onDetach() {
         isListeningForEvents = false
         disposeInteractionSource()
@@ -533,17 +529,10 @@ internal abstract class DragGestureNode(
         bounds: IntSize,
     ) {
         isListeningForPointerInputEvents = true
-        if (isNonSuspendingPointerInputInDraggableEnabled) {
-            if (enabled) {
-                // initialize current state
-                if (currentDragState == null) currentDragState = awaitDownState
-                processRawPointerEvent(pointerEvent, pass)
-            }
-        } else {
-            if (enabled && pointerInputNode == null) {
-                pointerInputNode = delegate(initializePointerInputNode())
-            }
-            pointerInputNode?.onPointerEvent(pointerEvent, pass, bounds)
+        if (enabled) {
+            // initialize current state
+            if (currentDragState == null) currentDragState = awaitDownState
+            processRawPointerEvent(pointerEvent, pass)
         }
     }
 
@@ -560,87 +549,8 @@ internal abstract class DragGestureNode(
         indirectPointerInputDragCycleDetector?.resetDragDetectionState()
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
-    private fun initializePointerInputNode(): SuspendingPointerInputModifierNode {
-        return SuspendingPointerInputModifierNode {
-            // re-create tracker when pointer input block restarts. This lazily creates the tracker
-            // only when it is need.
-            val suspendingPointerInputVelocityTracker = VelocityTracker()
-            var previousPositionOnScreen = requireLayoutCoordinates().positionOnScreen()
-            val onDragStart:
-                (
-                    down: PointerInputChange,
-                    slopTriggerChange: PointerInputChange,
-                    postSlopOffset: Offset,
-                ) -> Unit =
-                { down, slopTriggerChange, postSlopOffset ->
-                    nodeOffset = Offset.Zero // restart node offset
-                    if (canDrag.invoke(down.type)) {
-                        if (!isListeningForEvents) startListeningForEvents()
-                        suspendingPointerInputVelocityTracker.addPointerInputChange(down)
-                        val dragStartedOffset = slopTriggerChange.position - postSlopOffset
-                        // the drag start event offset is the down event + touch slop value
-                        // or in this case the event that triggered the touch slop minus
-                        // the post slop offset
-                        channel?.trySend(DragStarted(dragStartedOffset))
-                    }
-                }
-
-            val onDragEnd: (change: PointerInputChange) -> Unit = { upEvent ->
-                suspendingPointerInputVelocityTracker.addPointerInputChange(upEvent)
-                val maximumVelocity = viewConfiguration.maximumFlingVelocity
-                val velocity =
-                    suspendingPointerInputVelocityTracker.calculateVelocity(
-                        Velocity(maximumVelocity, maximumVelocity)
-                    )
-                suspendingPointerInputVelocityTracker.resetTracking()
-                channel?.trySend(
-                    DragStopped(velocity.toValidVelocity(), isIndirectPointerEvent = false)
-                )
-            }
-
-            val onDragCancel: () -> Unit = { channel?.trySend(DragCancelled) }
-
-            val shouldAwaitTouchSlop: () -> Boolean = { !startDragImmediately() }
-
-            val onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit =
-                { change, delta ->
-                    val currentPositionOnScreen = requireLayoutCoordinates().positionOnScreen()
-                    // container changed positions
-                    if (currentPositionOnScreen != previousPositionOnScreen) {
-                        val delta = currentPositionOnScreen - previousPositionOnScreen
-                        nodeOffset += delta
-                    }
-                    previousPositionOnScreen = currentPositionOnScreen
-                    suspendingPointerInputVelocityTracker.addPointerInputChange(
-                        event = change,
-                        offset = nodeOffset,
-                    )
-                    channel?.trySend(DragDelta(delta, isIndirectPointerEvent = false))
-                }
-
-            coroutineScope {
-                try {
-                    detectDragGestures(
-                        orientationLock = orientationLock,
-                        onDragStart = onDragStart,
-                        onDragEnd = onDragEnd,
-                        onDragCancel = onDragCancel,
-                        shouldAwaitTouchSlop = shouldAwaitTouchSlop,
-                        onDrag = onDrag,
-                    )
-                } catch (cancellation: CancellationException) {
-                    channel?.trySend(DragCancelled)
-                    if (!isActive) throw cancellation
-                }
-            }
-        }
-    }
-
     override fun onCancelPointerInput() {
-        pointerInputNode?.onCancelPointerInput()
-        if (isNonSuspendingPointerInputInDraggableEnabled && isListeningForPointerInputEvents)
-            resetDragDetectionState()
+        if (isListeningForPointerInputEvents) resetDragDetectionState()
         isListeningForPointerInputEvents = false
     }
 
@@ -691,8 +601,6 @@ internal abstract class DragGestureNode(
             this.enabled = enabled
             if (!enabled) {
                 disposeInteractionSource()
-                pointerInputNode?.let { undelegate(it) }
-                pointerInputNode = null
                 indirectPointerInputDragCycleDetector = null
             }
             resetPointerInputHandling = true
@@ -708,10 +616,8 @@ internal abstract class DragGestureNode(
         }
 
         if (resetPointerInputHandling) {
-            if (isNonSuspendingPointerInputInDraggableEnabled && isListeningForPointerInputEvents)
-                resetDragDetectionState()
+            if (isListeningForPointerInputEvents) resetDragDetectionState()
             indirectPointerInputDragCycleDetector?.resetDragDetectionState()
-            pointerInputNode?.resetPointerInputHandler()
         }
     }
 

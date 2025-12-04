@@ -29,10 +29,6 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableIntState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlin.math.abs
 import kotlin.math.max
@@ -76,9 +72,9 @@ public value class RemoteIntReference(private val v: Int) {
  * Abstract base class for all remote integer representations in Compose Remote, this extends.
  * [RemoteState<Int>].
  *
- * @property hasConstantValue Whether this [RemoteInt] will always evaluate to the same [value].
- *   This is a conservative check that may report false negatives for some expressions that
- *   reference other expressions since the tracking involved is expensive.
+ * @property hasConstantValue Whether this [RemoteInt] will always evaluate to the same value. This
+ *   is a conservative check that may report false negatives for some expressions that reference
+ *   other expressions since the tracking involved is expensive.
  * @property arrayProvider A lambda that provides the [LongArray] representing the expression for
  *   this [RemoteInt], given a [RemoteComposeCreationState].
  */
@@ -87,7 +83,7 @@ public abstract class RemoteInt
 internal constructor(
     public override val constantValue: Int?,
     internal val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
-) : RemoteState<Int>, State<Int> {
+) : BaseRemoteState<Int>() {
 
     // @Deprecated("Use getLongIdForCreationState instead")
     // TODO: re-enable asap
@@ -99,9 +95,6 @@ internal constructor(
             // )
             return getLongIdForCreationState(FallbackCreationState.state)
         }
-
-    override val value: Int
-        get() = throw UnsupportedOperationException()
 
     /**
      * Retrieves the [LongArray] representing this [RemoteInt]\'s expression using the provided
@@ -159,7 +152,6 @@ internal constructor(
         }
 
         return MutableRemoteString(
-            mutableStateOf(""), // TODO compute the string?,
             constantValue = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
@@ -648,31 +640,28 @@ public fun clamp(min: RemoteInt, max: RemoteInt, value: RemoteInt): RemoteInt {
 }
 
 /**
- * A mutable implementation of [RemoteInt] that holds its value in a [MutableIntState].
+ * A mutable implementation of [RemoteInt].
  *
- * @property content The underlying [MutableIntState] that stores the actual integer value.
  * @property idProvider A lambda that provides the unique ID for this mutable integer within the
  *   [RemoteComposeCreationState]. This ID is used to identify the integer in the remote document.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteInt(
-    private val content: MutableIntState,
+    constantValue: Int? = null,
     public val idProvider: (creationState: RemoteComposeCreationState) -> Long,
 ) :
-    RemoteInt(constantValue = null, { creationState -> longArrayOf(idProvider(creationState)) }),
+    RemoteInt(
+        constantValue = constantValue,
+        arrayProvider = { creationState -> longArrayOf(idProvider(creationState)) },
+    ),
     MutableRemoteState<Int> {
 
     /**
-     * Constructor for [MutableRemoteInt] that allows specifying an initial ID. If no ID is
-     * provided, it defaults to the initial value\'s long representation.
+     * Constructor for [MutableRemoteInt] that allows specifying an initial ID.
      *
-     * @param content The [MutableIntState] to hold the value.
-     * @param id An optional explicit ID for this mutable integer. If `null`, a default is used.
+     * @param id An explicit ID for this mutable integer.
      */
-    public constructor(
-        content: MutableIntState,
-        id: Long? = null,
-    ) : this(content, { creationState -> id ?: content.value.toLong() })
+    public constructor(id: Long) : this(constantValue = null, idProvider = { creationState -> id })
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         Utils.idFromLong(idProvider(creationState)).toInt()
@@ -859,9 +848,8 @@ public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt {
     val state = LocalRemoteComposeCreationState.current
     return remember {
         val initial = value()
-        // TODO either store with an id and reference, or use directly
         val id = state.document.addInteger(initial)
-        MutableRemoteInt(mutableIntStateOf(initial), id)
+        MutableRemoteInt(id = id)
     }
 }
 
@@ -880,14 +868,14 @@ public fun rememberRemoteIntValue(
     name: String,
     domain: RemoteDomains = RemoteDomains.USER,
     value: () -> Int,
-): MutableRemoteInt {
+): RemoteInt {
     val state = LocalRemoteComposeCreationState.current
     return rememberNamedState(name, domain) {
         val initial = value()
         // TODO either store with an id and reference, or use directly
         val id = state.document.addInteger(initial)
         state.document.setStringName(id.toInt(), "$domain:$name")
-        MutableRemoteInt(mutableIntStateOf(initial), id)
+        MutableRemoteInt(id = id)
     }
 }
 

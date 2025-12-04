@@ -44,13 +44,6 @@ import kotlin.math.tan
 private const val FP_TO_RAD = 57.29578f // 180/PI
 private const val FP_TO_DEG = 0.017453292f // 180/PI
 
-public fun toFloat(a: Number): Float {
-    return when (a) {
-        is RemoteFloat -> a.id
-        else -> a.toFloat()
-    }
-}
-
 public fun max(a: RemoteFloat, b: Float): RemoteFloat =
     binaryOp(a, b, AnimatedFloatExpression.MAX) { a, b -> max(a, b) }
 
@@ -192,20 +185,19 @@ public fun lerp(from: Float, to: Float, tween: RemoteFloat): RemoteFloat {
     )
 }
 
-private fun isConst(a: Number) =
-    when (a) {
-        is RemoteFloat -> a.hasConstantValue
-        else -> true
-    }
-
 /**
  * parameters can be float or RemoteFloat. Coded this way to not require 8 versions returns a*b+c
  */
-public fun mad(a: Number, b: Number, c: Number): RemoteFloat {
+public fun mad(a: RemoteFloat, b: RemoteFloat, c: RemoteFloat): RemoteFloat {
     return RemoteFloatExpression(
         constantValue = null,
         { creationState ->
-            floatArrayOf(*(toArray(a)), *(toArray(b)), *(toArray(c)), AnimatedFloatExpression.MAD)
+            floatArrayOf(
+                *(toArray(a, creationState)),
+                *(toArray(b, creationState)),
+                *(toArray(c, creationState)),
+                AnimatedFloatExpression.MAD,
+            )
         },
     )
 }

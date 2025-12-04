@@ -47,6 +47,12 @@ public interface RCDoc {
     int size();
 
     /**
+     * size of the document
+     * @return
+     */
+    int zipSize();
+
+    /**
      * Run the doc
      */
     void run();

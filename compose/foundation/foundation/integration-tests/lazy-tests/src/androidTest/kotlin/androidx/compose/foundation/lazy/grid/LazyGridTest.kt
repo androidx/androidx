@@ -893,7 +893,7 @@ class LazyGridTest(private val orientation: Orientation) :
             ) {
                 item { Spacer(modifier = Modifier.size(size = 0.dp)) }
                 items((0..8).map { it.toString() }) {
-                    Box(Modifier.testTag(it)) { BasicText(text = it.toString()) }
+                    Box(Modifier.testTag(it)) { BasicText(text = it) }
                 }
             }
         }
@@ -924,7 +924,7 @@ class LazyGridTest(private val orientation: Orientation) :
                     )
                 }
                 items((0..8).map { it.toString() }) {
-                    Box(Modifier.testTag(it)) { BasicText(text = it.toString()) }
+                    Box(Modifier.testTag(it)) { BasicText(text = it) }
                 }
             }
         }

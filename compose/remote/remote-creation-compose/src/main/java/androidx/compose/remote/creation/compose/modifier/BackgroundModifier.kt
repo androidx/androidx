@@ -18,15 +18,15 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
-import androidx.compose.foundation.background
 import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.capture.shaders.RemoteSolidColor
 import androidx.compose.remote.creation.compose.capture.shaders.solidColor
+import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.layout.remoteComponentHeight
+import androidx.compose.remote.creation.compose.layout.remoteComponentWidth
+import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -39,17 +39,13 @@ public data class BackgroundModifier(val brush: RemoteBrush) : RemoteModifier.El
             val a = brush.color.alpha.id
             androidx.compose.remote.creation.modifiers.SolidBackgroundModifier(r, g, b, a)
         } else {
-            // TODO specify
+            val width = remoteComponentWidth(FallbackCreationState.state)
+            val height = remoteComponentHeight(FallbackCreationState.state)
             androidx.compose.remote.creation.modifiers.BackgroundModifier(
-                brush.createShader(Size(100f, 100f)),
+                brush.createShader(RemoteSize(width, height)),
                 0,
             )
         }
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        return background(brush.toComposeUi())
     }
 }
 

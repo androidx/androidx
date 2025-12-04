@@ -86,8 +86,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ComposeUiFlags.isAdaptiveRefreshRateEnabled
-import androidx.compose.ui.ComposeUiFlags.isCanScrollUsingLastDownEventFixEnabled
 import androidx.compose.ui.ComposeUiFlags.isIndirectPointerNavigationGestureDetectorEnabled
+import androidx.compose.ui.ComposeUiFlags.isOptimizedFocusEventDispatchEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.InternalComposeUiApi
@@ -112,8 +112,10 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
 import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
+import androidx.compose.ui.focus.FocusListener
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
+import androidx.compose.ui.focus.FocusTargetModifierNode
 import androidx.compose.ui.focus.FocusTargetNode
 import androidx.compose.ui.focus.PlatformFocusOwner
 import androidx.compose.ui.focus.calculateFocusRectRelativeTo
@@ -193,8 +195,10 @@ import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.ancestors
 import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.node.requireLayoutNode
+import androidx.compose.ui.node.setOfAncestors
 import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
 import androidx.compose.ui.platform.coreshims.ViewCompatShims
@@ -216,6 +220,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.fastRoundToInt
@@ -267,7 +272,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     OutOfFrameExecutor,
     ViewTreeObserver.OnGlobalLayoutListener,
     ViewTreeObserver.OnScrollChangedListener,
-    ViewTreeObserver.OnTouchModeChangeListener {
+    ViewTreeObserver.OnTouchModeChangeListener,
+    FocusListener {
 
     /**
      * Remembers the position of the last pointer input event that was down. This position will be
@@ -322,7 +328,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
         private set
 
-    private lateinit var frameRateCategoryView: View
+    private var frameRateCategoryView: View? = null
 
     internal val isArrEnabled =
         @OptIn(ExperimentalComposeUiApi::class) isAdaptiveRefreshRateEnabled &&
@@ -914,7 +920,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     /** Set to `true` when [sendHoverExitEvent] has been posted. */
     private var hoverExitReceived = false
 
-    // Determines scroll/swipe to next or previous focusable element for indirect touch events.
+    // Determines scroll/swipe to next or previous focusable element for indirect pointer events.
     private val indirectPointerNavigationGestureDetector =
         IndirectPointerNavigationGestureDetector(context) {
             focusOwner.moveFocus(focusDirection = it, wrapAroundForOneDimensionalFocus = false)
@@ -969,13 +975,14 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (SDK_INT >= Q) AndroidComposeViewForceDarkModeQ.disallowForceDark(this)
 
         if (isArrEnabled) {
-            frameRateCategoryView =
+            val view =
                 View(context).apply {
                     layoutParams = LayoutParams(1, 1)
                     // hide this View from layout inspector
                     setTag(R.id.hide_in_inspector_tag, true)
                 }
-            addView(frameRateCategoryView)
+            frameRateCategoryView = view
+            addView(view)
         }
     }
 
@@ -1300,10 +1307,33 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
     }
 
+    // Override for View focus changes.
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
         if (!gainFocus && !hasFocus()) {
             focusOwner.releaseFocus()
+        }
+    }
+
+    // Override for Compose focus changes.
+    override fun onFocusChanged(
+        previous: FocusTargetModifierNode?,
+        current: FocusTargetModifierNode?,
+    ) {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (isOptimizedFocusEventDispatchEnabled) {
+            val previousIndirectPointerEventModifiers =
+                previous?.ancestors(type = Nodes.IndirectPointerInput, includeSelf = true) ?: return
+
+            val currentIndirectPointerEventModifiers =
+                current?.setOfAncestors(type = Nodes.IndirectPointerInput, includeSelf = true)
+
+            previousIndirectPointerEventModifiers.fastForEach {
+                val stillHasFocus = currentIndirectPointerEventModifiers?.contains(it) ?: false
+                if (!stillHasFocus) {
+                    it.onCancelIndirectPointerInput()
+                }
+            }
         }
     }
 
@@ -1340,6 +1370,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     /** This function is used by the testing framework to send indirect pointer events. */
     @ExperimentalIndirectPointerApi
     override fun sendIndirectPointerEvent(indirectPointerEvent: IndirectPointerEvent): Boolean {
+        // TODO (jjw): Investigate only triggering cancel during an active indirect event stream
+        //  (should include detach scenarios).
         if (indirectPointerEvent.nativeEvent.actionMasked == ACTION_CANCEL) {
             focusOwner.dispatchIndirectPointerCancel()
             return true
@@ -1397,8 +1429,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun onPostAttach(node: LayoutNode) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
+        if (autofillSupported()) {
             _autofillManager?.onPostAttach(node)
         }
     }
@@ -1407,15 +1438,13 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         layoutNodes.remove(node.semanticsId)
         measureAndLayoutDelegate.onNodeDetached(node)
         requestClearInvalidObservations()
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
+        if (autofillSupported()) {
             _autofillManager?.onDetach(node)
         }
     }
 
     override fun requestAutofill(node: LayoutNode) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
+        if (autofillSupported()) {
             _autofillManager?.requestAutofill(node)
         }
     }
@@ -1433,8 +1462,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (childAndroidViews != null) {
             clearChildInvalidObservations(childAndroidViews)
         }
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
+        if (autofillSupported()) {
             _autofillManager?.onEndApplyChanges()
         }
         // Listeners can add more items to the list and we want to ensure that they
@@ -1707,6 +1735,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                     requestLayout()
                 }
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                rectManager.dispatchCallbacks()
                 dispatchPendingInteropLayoutCallbacks()
             }
         }
@@ -1720,9 +1749,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // it allows us to not traverse the hierarchy twice.
             if (!measureAndLayoutDelegate.hasPendingMeasureOrLayout) {
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
+                rectManager.dispatchCallbacks()
                 dispatchPendingInteropLayoutCallbacks()
             }
-            rectManager.dispatchCallbacks()
         }
     }
 
@@ -1883,7 +1912,9 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             globalPosition = IntOffset(tmpPositionArray[0], tmpPositionArray[1])
             if (globalX != Int.MAX_VALUE && globalY != Int.MAX_VALUE) {
                 positionChanged = true
-                root.layoutDelegate.measurePassDelegate.notifyChildrenUsingCoordinatesWhilePlacing()
+                root.forEachChild { child ->
+                    child.measurePassDelegate.requestLayoutIfCoordinatesAreUsedAndNotifyChildren()
+                }
             }
         }
         recalculateWindowPosition()
@@ -1997,8 +2028,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
+        if (autofillSupported()) {
             _autofillManager?.onLayoutNodeDeactivated(layoutNode)
         }
     }
@@ -2010,8 +2040,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun onPostLayoutNodeReused(layoutNode: LayoutNode, oldSemanticsId: Int) {
-        @OptIn(ExperimentalComposeUiApi::class)
-        if (autofillSupported() && ComposeUiFlags.isSemanticAutofillEnabled) {
+        if (autofillSupported()) {
             _autofillManager?.onPostLayoutNodeReused(layoutNode, oldSemanticsId)
         }
     }
@@ -2082,17 +2111,19 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // Used to handle frame rate information
         if (isArrEnabled) {
             Api35Impl.setRequestedFrameRate(this, currentFrameRate)
-            Api35Impl.setRequestedFrameRate(frameRateCategoryView, currentFrameRateCategory)
+            val frameRateCategoryView = frameRateCategoryView
+            if (frameRateCategoryView != null) {
+                Api35Impl.setRequestedFrameRate(frameRateCategoryView, currentFrameRateCategory)
 
-            if (!currentFrameRateCategory.isNaN()) {
-                frameRateCategoryView.invalidate()
-                drawChild(canvas, frameRateCategoryView, drawingTime)
+                if (!currentFrameRateCategory.isNaN()) {
+                    frameRateCategoryView.invalidate()
+                    drawChild(canvas, frameRateCategoryView, drawingTime)
+                }
             }
 
             currentFrameRate = Float.NaN
             currentFrameRateCategory = Float.NaN
         }
-        rectManager.dispatchCallbacks()
     }
 
     internal fun notifyLayerIsDirty(layer: OwnedLayer, isDirty: Boolean) {
@@ -2236,6 +2267,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             focusOwner.listeners += it
             semanticsOwner.listeners += it
         }
+        focusOwner.listeners += this
     }
 
     private fun installLocalRetainedValuesStore(
@@ -2268,7 +2300,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (ComposeUiFlags.areWindowInsetsRulersEnabled) {
             insetsListener.onViewDetachedFromWindow(this)
         }
-        if (isArrEnabled) {
+        val frameRateCategoryView = frameRateCategoryView
+        if (isArrEnabled && frameRateCategoryView != null) {
             removeView(frameRateCategoryView)
         }
 
@@ -2302,22 +2335,19 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         }
 
         rectManager.removeScheduledCallback()
+        focusOwner.listeners -= this
     }
 
     override fun onProvideAutofillVirtualStructure(structure: ViewStructure?, flags: Int) {
         if (autofillSupported() && structure != null) {
-            if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isSemanticAutofillEnabled) {
-                _autofillManager?.populateViewStructure(structure)
-            }
+            _autofillManager?.populateViewStructure(structure)
             _autofill?.populateViewStructure(structure)
         }
     }
 
     override fun autofill(values: SparseArray<AutofillValue>) {
         if (autofillSupported()) {
-            if (@OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isSemanticAutofillEnabled) {
-                _autofillManager?.performAutofill(values)
-            }
+            _autofillManager?.performAutofill(values)
             _autofill?.performAutofill(values)
         }
     }
@@ -2379,6 +2409,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                         }
                     } else {
                         focusOwner.dispatchIndirectPointerCancel()
+                        indirectPointerNavigationGestureDetector.cancelCurrentEventStream()
                         return true
                     }
                 }
@@ -2640,10 +2671,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // needs to be cached.
             pointerInputEvent.pointers
                 .fastLastOrNull {
-                    it.down &&
-                        (action == ACTION_DOWN ||
-                            action == ACTION_POINTER_DOWN ||
-                            !isCanScrollUsingLastDownEventFixEnabled)
+                    it.down && (action == ACTION_DOWN || action == ACTION_POINTER_DOWN)
                 }
                 ?.position
                 ?.let { lastDownPointerPosition = it }
@@ -3870,12 +3898,16 @@ internal class IndirectPointerNavigationGestureDetector(
                 // If another component consumes a move or up event, we should ignore the
                 // rest of the gesture to prevent conflicting actions on the final fling.
                 if (isConsumed) {
-                    ignoreCurrentGestureStream = true
+                    cancelCurrentEventStream()
                 }
             }
         }
-
         return gestureDetector.onTouchEvent(motionEvent)
+    }
+
+    fun cancelCurrentEventStream() {
+        primaryDirectionalMotionAxis = IndirectPointerEventPrimaryDirectionalMotionAxis.None
+        ignoreCurrentGestureStream = true
     }
 }
 

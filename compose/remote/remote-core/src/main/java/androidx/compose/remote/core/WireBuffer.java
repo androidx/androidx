@@ -480,4 +480,43 @@ public class WireBuffer {
             mValidOperations[o] = true;
         }
     }
+
+    /**
+     * Move the commands from beyond to mSize to insertLocation.
+     * The support pushing commands to earlier in the buffer
+     * <code><br>
+     *  before:  0..... ........ xxxxxxxx mSize<br>
+     *  insertLocation ^ beyond ^<br>
+     *  after: 0..... xxxxxxxx ........  mSize>br>
+     *  </code>
+     *
+     * @param beyond the index to move from
+     * @param insertLocation the index to move to
+     */
+    public void moveBlock(int beyond, int insertLocation) {
+        if (insertLocation < 0 || beyond > mSize || insertLocation >= beyond) {
+            return;
+        }
+
+        int lengthOfBlockA = beyond - insertLocation;
+        int lengthOfBlockB = mSize - beyond;
+
+        if (lengthOfBlockB < lengthOfBlockA) {
+            // Strategy: Copy Block B (the moving part) out, shift A, put B back.
+            byte[] temp = new byte[lengthOfBlockB];
+            System.arraycopy(mBuffer, beyond, temp, 0, lengthOfBlockB);
+            // System.arraycopy handles overlapping regions safely.
+            System.arraycopy(mBuffer, insertLocation, mBuffer,
+                    insertLocation + lengthOfBlockB, lengthOfBlockA);
+            System.arraycopy(temp, 0, mBuffer, insertLocation, lengthOfBlockB);
+
+        } else {
+            // Strategy: Copy Block A (the shifting part) out, move B, put A back.
+            // This is efficient when the gap we are crossing is small
+            byte[] temp = new byte[lengthOfBlockA];
+            System.arraycopy(mBuffer, insertLocation, temp, 0, lengthOfBlockA);
+            System.arraycopy(mBuffer, beyond, mBuffer, insertLocation, lengthOfBlockB);
+            System.arraycopy(temp, 0, mBuffer, insertLocation + lengthOfBlockB, lengthOfBlockA);
+        }
+    }
 }

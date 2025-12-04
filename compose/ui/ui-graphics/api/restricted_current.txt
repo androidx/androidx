@@ -35,17 +35,18 @@ package androidx.compose.ui.graphics {
     method @KotlinOnly public void drawVertices(androidx.compose.ui.graphics.Vertices vertices, androidx.compose.ui.graphics.BlendMode blendMode, androidx.compose.ui.graphics.Paint paint);
     method @BytecodeOnly public void drawVertices-TPEHhCM(androidx.compose.ui.graphics.Vertices, int, androidx.compose.ui.graphics.Paint);
     method public void enableZ();
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal android.graphics.Canvas getInternalCanvas();
     method public void restore();
     method public void rotate(float degrees);
     method public void save();
     method public void saveLayer(androidx.compose.ui.geometry.Rect bounds, androidx.compose.ui.graphics.Paint paint);
     method public void scale(float sx, float sy);
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal void setInternalCanvas(android.graphics.Canvas);
     method public void skew(float sx, float sy);
     method @KotlinOnly public android.graphics.Region.Op toRegionOp(androidx.compose.ui.graphics.ClipOp);
     method @BytecodeOnly public android.graphics.Region.Op toRegionOp--7u2Bmg(int);
     method public void translate(float dx, float dy);
     property @kotlin.PublishedApi internal android.graphics.Canvas internalCanvas;
-    field @kotlin.PublishedApi internal android.graphics.Canvas internalCanvas;
   }
 
   public final class AndroidCanvas_androidKt {
@@ -323,7 +324,7 @@ package androidx.compose.ui.graphics {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class Brush {
+  @androidx.compose.runtime.Immutable public abstract sealed exhaustive class Brush {
     method @KotlinOnly public abstract void applyTo(androidx.compose.ui.geometry.Size size, androidx.compose.ui.graphics.Paint p, float alpha);
     method @BytecodeOnly public abstract void applyTo-Pq9zytI(long, androidx.compose.ui.graphics.Paint, float);
     method @BytecodeOnly public long getIntrinsicSize-NH-jbRc();
@@ -422,8 +423,8 @@ package androidx.compose.ui.graphics {
   public final class CanvasHolder {
     ctor public CanvasHolder();
     method public inline void drawInto(android.graphics.Canvas targetCanvas, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Canvas,kotlin.Unit> block);
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal androidx.compose.ui.graphics.AndroidCanvas getAndroidCanvas();
     property @kotlin.PublishedApi internal androidx.compose.ui.graphics.AndroidCanvas androidCanvas;
-    field @kotlin.PublishedApi internal final androidx.compose.ui.graphics.AndroidCanvas androidCanvas;
   }
 
   public final class CanvasKt {
@@ -830,7 +831,7 @@ package androidx.compose.ui.graphics {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
-  public abstract sealed class Outline {
+  public abstract sealed exhaustive class Outline {
     method @InaccessibleFromKotlin public abstract androidx.compose.ui.geometry.Rect getBounds();
     property public abstract androidx.compose.ui.geometry.Rect bounds;
   }
@@ -1195,7 +1196,7 @@ package androidx.compose.ui.graphics {
     property @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Shape RectangleShape;
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class RenderEffect {
+  @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class RenderEffect {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public final android.graphics.RenderEffect asAndroidRenderEffect();
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected abstract android.graphics.RenderEffect createRenderEffect();
     method public boolean isSupported();
@@ -1661,6 +1662,7 @@ package androidx.compose.ui.graphics.drawscope {
     method @BytecodeOnly public void drawRoundRect-u-Aw5IA(long, long, long, long, androidx.compose.ui.graphics.drawscope.DrawStyle, @FloatRange(from=0.0, to=1.0) float, androidx.compose.ui.graphics.ColorFilter?, int);
     method @InaccessibleFromKotlin public float getDensity();
     method @InaccessibleFromKotlin public androidx.compose.ui.graphics.drawscope.DrawContext getDrawContext();
+    method @InaccessibleFromKotlin @kotlin.PublishedApi internal androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams getDrawParams();
     method @InaccessibleFromKotlin public float getFontScale();
     method @InaccessibleFromKotlin public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     property public float density;
@@ -1668,7 +1670,6 @@ package androidx.compose.ui.graphics.drawscope {
     property @kotlin.PublishedApi internal androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams drawParams;
     property public float fontScale;
     property public androidx.compose.ui.unit.LayoutDirection layoutDirection;
-    field @kotlin.PublishedApi internal final androidx.compose.ui.graphics.drawscope.CanvasDrawScope.DrawParams drawParams;
   }
 
   @kotlin.PublishedApi internal static final class CanvasDrawScope.DrawParams {
@@ -1837,7 +1838,7 @@ package androidx.compose.ui.graphics.drawscope {
   @kotlin.DslMarker public @interface DrawScopeMarker {
   }
 
-  public abstract sealed class DrawStyle {
+  public abstract sealed exhaustive class DrawStyle {
   }
 
   @androidx.compose.ui.graphics.drawscope.DrawScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface DrawTransform {
@@ -2115,7 +2116,7 @@ package androidx.compose.ui.graphics.shadow {
     property public androidx.compose.ui.unit.Dp spread;
   }
 
-  public sealed interface ShadowContext {
+  public sealed nonexhaustive interface ShadowContext {
     method public default void clearCache();
     method public default androidx.compose.ui.graphics.shadow.DropShadowPainter createDropShadowPainter(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.shadow.Shadow shadow);
     method public default androidx.compose.ui.graphics.shadow.InnerShadowPainter createInnerShadowPainter(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.shadow.Shadow shadow);
@@ -2154,7 +2155,7 @@ package androidx.compose.ui.graphics.vector {
     property public java.util.List<androidx.compose.ui.graphics.vector.PathNode> nodes;
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class PathNode {
+  @androidx.compose.runtime.Immutable public abstract sealed exhaustive class PathNode {
     method @InaccessibleFromKotlin public final boolean isCurve();
     method @InaccessibleFromKotlin public final boolean isQuad();
     property public final boolean isCurve;

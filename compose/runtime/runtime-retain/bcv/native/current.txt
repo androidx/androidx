@@ -19,7 +19,7 @@ abstract interface androidx.compose.runtime.retain/RetainedEffectResult { // and
 }
 
 abstract interface androidx.compose.runtime.retain/RetainedValuesStore { // androidx.compose.runtime.retain/RetainedValuesStore|null[0]
-    abstract fun getExitedValueOrElse(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/RetainedValuesStore.getExitedValueOrElse|getExitedValueOrElse(kotlin.Any;kotlin.Any?){}[0]
+    abstract fun consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/RetainedValuesStore.consumeExitedValueOrDefault|consumeExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
     abstract fun onContentEnteredComposition() // androidx.compose.runtime.retain/RetainedValuesStore.onContentEnteredComposition|onContentEnteredComposition(){}[0]
     abstract fun onContentExitComposition() // androidx.compose.runtime.retain/RetainedValuesStore.onContentExitComposition|onContentExitComposition(){}[0]
     abstract fun saveExitingValue(kotlin/Any, kotlin/Any?) // androidx.compose.runtime.retain/RetainedValuesStore.saveExitingValue|saveExitingValue(kotlin.Any;kotlin.Any?){}[0]
@@ -31,10 +31,10 @@ final class androidx.compose.runtime.retain/ManagedRetainedValuesStore : android
     final val isRetainingExitedValues // androidx.compose.runtime.retain/ManagedRetainedValuesStore.isRetainingExitedValues|{}isRetainingExitedValues[0]
         final fun <get-isRetainingExitedValues>(): kotlin/Boolean // androidx.compose.runtime.retain/ManagedRetainedValuesStore.isRetainingExitedValues.<get-isRetainingExitedValues>|<get-isRetainingExitedValues>(){}[0]
 
+    final fun consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/ManagedRetainedValuesStore.consumeExitedValueOrDefault|consumeExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
     final fun disableRetainingExitedValues() // androidx.compose.runtime.retain/ManagedRetainedValuesStore.disableRetainingExitedValues|disableRetainingExitedValues(){}[0]
     final fun dispose() // androidx.compose.runtime.retain/ManagedRetainedValuesStore.dispose|dispose(){}[0]
     final fun enableRetainingExitedValues() // androidx.compose.runtime.retain/ManagedRetainedValuesStore.enableRetainingExitedValues|enableRetainingExitedValues(){}[0]
-    final fun getExitedValueOrElse(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/ManagedRetainedValuesStore.getExitedValueOrElse|getExitedValueOrElse(kotlin.Any;kotlin.Any?){}[0]
     final fun onContentEnteredComposition() // androidx.compose.runtime.retain/ManagedRetainedValuesStore.onContentEnteredComposition|onContentEnteredComposition(){}[0]
     final fun onContentExitComposition() // androidx.compose.runtime.retain/ManagedRetainedValuesStore.onContentExitComposition|onContentExitComposition(){}[0]
     final fun saveExitingValue(kotlin/Any, kotlin/Any?) // androidx.compose.runtime.retain/ManagedRetainedValuesStore.saveExitingValue|saveExitingValue(kotlin.Any;kotlin.Any?){}[0]
@@ -56,7 +56,7 @@ final class androidx.compose.runtime.retain/RetainedValuesStoreRegistry { // and
 }
 
 final object androidx.compose.runtime.retain/ForgetfulRetainedValuesStore : androidx.compose.runtime.retain/RetainedValuesStore { // androidx.compose.runtime.retain/ForgetfulRetainedValuesStore|null[0]
-    final fun getExitedValueOrElse(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/ForgetfulRetainedValuesStore.getExitedValueOrElse|getExitedValueOrElse(kotlin.Any;kotlin.Any?){}[0]
+    final fun consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?): kotlin/Any? // androidx.compose.runtime.retain/ForgetfulRetainedValuesStore.consumeExitedValueOrDefault|consumeExitedValueOrDefault(kotlin.Any;kotlin.Any?){}[0]
     final fun onContentEnteredComposition() // androidx.compose.runtime.retain/ForgetfulRetainedValuesStore.onContentEnteredComposition|onContentEnteredComposition(){}[0]
     final fun onContentExitComposition() // androidx.compose.runtime.retain/ForgetfulRetainedValuesStore.onContentExitComposition|onContentExitComposition(){}[0]
     final fun saveExitingValue(kotlin/Any, kotlin/Any?) // androidx.compose.runtime.retain/ForgetfulRetainedValuesStore.saveExitingValue|saveExitingValue(kotlin.Any;kotlin.Any?){}[0]

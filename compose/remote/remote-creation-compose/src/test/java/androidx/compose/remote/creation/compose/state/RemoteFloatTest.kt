@@ -20,12 +20,15 @@ import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.VariableSupport
+import androidx.compose.remote.core.operations.TextFromFloat
+import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.text.DecimalFormat
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import org.junit.Test
@@ -34,6 +37,7 @@ import org.robolectric.RobolectricTestRunner
 
 @SdkSuppress(minSdkVersion = 26)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteFloatTest {
     val context =
         AndroidRemoteContext().apply {
@@ -330,6 +334,16 @@ class RemoteFloatTest {
     }
 
     @Test
+    fun one_divided_by() {
+        val result = RemoteFloat(1f) / RemoteFloat(2f)
+        val resultId = result.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(resultId)).isEqualTo(0.5f)
+    }
+
+    @Test
     fun hasConstantValue_true() {
         assertThat(RemoteFloat(21.5f).hasConstantValue).isTrue()
         assertThat(RemoteFloat(21.5f).plus(RemoteFloat(21.5f)).hasConstantValue).isTrue()
@@ -558,6 +572,136 @@ class RemoteFloatTest {
         val longExpressionId = longExpression.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
         assertThat(context.getFloat(longExpressionId)).isEqualTo(expected)
+    }
+
+    fun testTextFromFloat(
+        expected: String,
+        value: RemoteFloat,
+        before: Int,
+        after: Int = 2,
+        flags: Int = TextFromFloat.PAD_AFTER_ZERO,
+    ) {
+        val constantFloatString = value.toRemoteString(before, after, flags)
+
+        val constantStringId = constantFloatString.getIdForCreationState(creationState)
+
+        val variableFloat = MutableRemoteFloat { state -> value.getFloatIdForCreationState(state) }
+        val variableFloatId = variableFloat.getIdForCreationState(creationState)
+        val variableFloatString = variableFloat.toRemoteString(before, after, flags)
+        val variableStringId = variableFloatString.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(variableFloatId)).isEqualTo(value.constantValue)
+        assertThat(context.getText(constantStringId)).isEqualTo(expected)
+        assertThat(context.getText(variableStringId)).isEqualTo(expected)
+    }
+
+    @Test
+    fun textFromFloat() {
+        testTextFromFloat(".50", 0.5f.rf, 0)
+        testTextFromFloat("-.50", (-0.5f).rf, 0)
+        testTextFromFloat(
+            "00.5000",
+            0.5f.rf,
+            2,
+            4,
+            TextFromFloat.PAD_AFTER_ZERO or TextFromFloat.PAD_PRE_ZERO,
+        )
+        testTextFromFloat(
+            "5000000",
+            5000000.rf,
+            10,
+            0,
+            TextFromFloat.PAD_PRE_NONE or TextFromFloat.PAD_AFTER_NONE,
+        )
+    }
+
+    fun testTextFromFloat(expected: String, value: RemoteFloat, formatter: DecimalFormat) {
+        val constantFloatString = value.toRemoteString(formatter)
+
+        val constantStringId = constantFloatString.getIdForCreationState(creationState)
+
+        val variableFloat = MutableRemoteFloat { state -> value.getFloatIdForCreationState(state) }
+        val variableFloatId = variableFloat.getIdForCreationState(creationState)
+        val variableFloatString = variableFloat.toRemoteString(formatter)
+        val variableStringId = variableFloatString.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(variableFloatId)).isEqualTo(value.constantValue)
+        assertThat(context.getText(constantStringId)).isEqualTo(expected)
+        assertThat(context.getText(variableStringId)).isEqualTo(expected)
+    }
+
+    @Test
+    fun textFromFloatFormatting() {
+        // Should be 0.500?
+        testTextFromFloat("0.5", 0.5f.rf, DecimalFormat("#0.000"))
+        testTextFromFloat("-0.5", (-0.5f).rf, DecimalFormat("#0.000"))
+        testTextFromFloat("0.5", 0.5f.rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("(0.5)", (-0.5f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("5000000.0", 5000000.rf, DecimalFormat("#0.##"))
+
+        //        val indianFormatter = DecimalFormat.getNumberInstance(Locale("hi", "IN")) as
+        // DecimalFormat
+        //        testTextFromFloat("50,00,000.0", 5000000.rf, indianFormatter)
+    }
+
+    @Test
+    fun addAndAddPeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 100f + 50f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 150.0 + ")
+    }
+
+    @Test
+    fun addAndSubtractPeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) + 100f - 50f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 50.0 + ")
+    }
+
+    @Test
+    fun subtractAndSubtractPeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) - 100f - 50f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 150.0 - ")
+    }
+
+    @Test
+    fun subtractAndAddPeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) - 100f + 50f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 50.0 - ")
+    }
+
+    @Test
+    fun multiplyAndMultiplyPeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 4f * 2f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 8.0 * ")
+    }
+
+    @Test
+    fun multiplyAndDividePeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 4f / 2f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 2.0 * ")
+    }
+
+    @Test
+    fun divideAndDividePeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 4f / 2f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 8.0 / ")
+    }
+
+    @Test
+    fun divideAndMultiplyPeepholeOptimization() {
+        val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 4f * 2f
+        val array = expr.arrayForCreationState(creationState)
+        assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 2.0 / ")
     }
 
     private fun makeAndPaintCoreDocument() =

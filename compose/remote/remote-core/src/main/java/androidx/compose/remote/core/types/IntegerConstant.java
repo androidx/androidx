@@ -39,7 +39,7 @@ public class IntegerConstant extends Operation implements Serializable {
     private int mValue;
     public final int mId;
 
-    IntegerConstant(int id, int value) {
+    public IntegerConstant(int id, int value) {
         mId = id;
         mValue = value;
     }

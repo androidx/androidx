@@ -282,6 +282,50 @@ class VectorTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun testVectorDrawsOnEveryInvalidation() {
+        var drawCount = 0
+        val testTag = "TestTag"
+        var vectorPainter: VectorPainter? = null
+        rule.setContent {
+            vectorPainter =
+                rememberVectorPainter(
+                    defaultWidth = 10.dp,
+                    defaultHeight = 10.dp,
+                    autoMirror = false,
+                ) { viewportWidth, viewportHeight ->
+                    Group {
+                        Path(
+                            fill = SolidColor(Color.Blue),
+                            pathData =
+                                PathData {
+                                    lineTo(viewportWidth, 0f)
+                                    lineTo(viewportWidth, viewportHeight)
+                                    lineTo(0f, viewportHeight)
+                                    close()
+                                },
+                        )
+                    }
+                }
+            Box(
+                modifier =
+                    Modifier.wrapContentSize()
+                        .drawBehind { drawCount++ }
+                        .paint(vectorPainter)
+                        .testTag(testTag)
+            )
+        }
+
+        vectorPainter?.vector?.invalidateCallback?.invoke()
+        rule.waitForIdle()
+        assertEquals(2, drawCount)
+
+        vectorPainter?.vector?.invalidateCallback?.invoke()
+        rule.waitForIdle()
+        assertEquals(3, drawCount)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun testVectorClipPath() {
         rule.setContent { VectorClip() }
 

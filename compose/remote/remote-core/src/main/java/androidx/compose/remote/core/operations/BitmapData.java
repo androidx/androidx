@@ -96,6 +96,31 @@ public class BitmapData extends Operation implements SerializableToString, Seria
     }
 
     /**
+     * create a bitmap structure
+     *
+     * @param imageId the id to store the image
+     * @param type
+     * @param width the width of the image
+     * @param encoding
+     * @param height the height of the image
+     * @param bitmap the data
+     */
+    public BitmapData(
+            int imageId,
+            short type,
+            short width,
+            short encoding,
+            short height,
+            byte @NonNull [] bitmap) {
+        this.mImageId = imageId;
+        this.mType = type;
+        this.mImageWidth = width;
+        this.mEncoding = encoding;
+        this.mImageHeight = height;
+        this.mBitmap = bitmap;
+    }
+
+    /**
      * Update the bitmap data
      *
      * @param from the bitmap to copy
@@ -128,7 +153,8 @@ public class BitmapData extends Operation implements SerializableToString, Seria
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mImageId, mImageWidth, mImageHeight, mBitmap);
+        apply(buffer, mImageId, mType, (short) mImageWidth, mEncoding, (short) mImageHeight,
+                mBitmap);
     }
 
     @NonNull

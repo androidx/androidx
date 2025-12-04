@@ -20,7 +20,9 @@ import android.view.Gravity
 import android.view.ViewGroup.LayoutParams
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
+import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
@@ -93,6 +95,55 @@ class PlayerScreenshotTest {
         activityScenarioRule.scenario.onActivity { playerView.setDocument(remoteComposeDocument) }
 
         assertScreenshot("circle")
+    }
+
+    @Test
+    fun showEllipses() {
+        val androidContext = AndroidRemoteContext()
+        playerView.layoutParams = FrameLayout.LayoutParams(600, 600, Gravity.CENTER)
+        val remoteComposeDocument: RemoteDocument =
+            createDocument(
+                androidContext,
+                7,
+                RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            ) { rcDoc ->
+                rcDoc.root {
+                    rcDoc.column(RecordingModifier().background(Color.YELLOW).fillMaxSize()) {
+                        val fontName = "DancingScript-Regular"
+                        val content2 = "The quick brown fox jumps over the lazy dog"
+                        rcDoc.text(
+                            content2,
+                            RecordingModifier().background(Color.LTGRAY).fillMaxWidth(),
+                            fontFamily = fontName,
+                            color = Color.RED,
+                            fontSize = 80f,
+                            overflow = CoreText.OVERFLOW_ELLIPSIS,
+                            maxLines = 1,
+                        )
+                        rcDoc.text(
+                            content2,
+                            RecordingModifier().background(Color.LTGRAY).fillMaxWidth(),
+                            fontFamily = fontName,
+                            color = Color.GREEN,
+                            fontSize = 80f,
+                            overflow = CoreText.OVERFLOW_MIDDLE_ELLIPSIS,
+                            maxLines = 1,
+                        )
+                        rcDoc.text(
+                            content2,
+                            RecordingModifier().background(Color.LTGRAY).fillMaxWidth(),
+                            fontFamily = fontName,
+                            color = Color.BLUE,
+                            fontSize = 80f,
+                            overflow = CoreText.OVERFLOW_START_ELLIPSIS,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+        activityScenarioRule.scenario.onActivity { playerView.setDocument(remoteComposeDocument) }
+
+        assertScreenshot("ellipses")
     }
 
     fun assertScreenshot(filename: String) {

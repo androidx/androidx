@@ -165,7 +165,7 @@ internal actual constructor(persistentList: PersistentList<T>) :
     }
 
     internal companion object {
-        @Suppress("unused", "NullableCollectionElement")
+        @field:Suppress("unused", "NullableCollectionElement")
         @JvmField
         val CREATOR: Parcelable.Creator<SnapshotStateList<Any?>> =
             object : Parcelable.ClassLoaderCreator<SnapshotStateList<Any?>> {

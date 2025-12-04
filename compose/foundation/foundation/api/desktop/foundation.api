@@ -276,6 +276,16 @@ public final class androidx/compose/foundation/ProgressSemanticsKt {
 	public static synthetic fun progressSemantics$default (Landroidx/compose/ui/Modifier;FLkotlin/ranges/ClosedFloatingPointRange;IILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 }
 
+public abstract interface class androidx/compose/foundation/ScrollIndicatorFactory {
+	public abstract fun createNode (Landroidx/compose/foundation/ScrollIndicatorState;Landroidx/compose/foundation/gestures/Orientation;)Landroidx/compose/ui/node/DelegatableNode;
+	public abstract fun equals (Ljava/lang/Object;)Z
+	public abstract fun hashCode ()I
+}
+
+public final class androidx/compose/foundation/ScrollIndicatorKt {
+	public static final fun scrollIndicator (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/ScrollIndicatorFactory;Landroidx/compose/foundation/ScrollIndicatorState;Landroidx/compose/foundation/gestures/Orientation;)Landroidx/compose/ui/Modifier;
+}
+
 public abstract interface class androidx/compose/foundation/ScrollIndicatorState {
 	public abstract fun getContentSize ()I
 	public abstract fun getScrollOffset ()I

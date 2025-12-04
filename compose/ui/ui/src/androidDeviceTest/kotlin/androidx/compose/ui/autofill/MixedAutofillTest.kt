@@ -28,8 +28,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.ComposeUiFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -52,8 +50,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.After
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -65,20 +61,6 @@ class MixedAutofillTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
     private val height = 200.dp
     private val width = 200.dp
-    private val previousFlagValue =
-        @OptIn(ExperimentalComposeUiApi::class) ComposeUiFlags.isSemanticAutofillEnabled
-
-    @Before
-    fun enableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = true
-    }
-
-    @After
-    fun disableAutofill() {
-        @OptIn(ExperimentalComposeUiApi::class)
-        ComposeUiFlags.isSemanticAutofillEnabled = previousFlagValue
-    }
 
     @Test
     fun populateViewStructure_empty() {

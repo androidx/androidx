@@ -383,9 +383,16 @@ internal fun CoreTextField(
         }
     }
 
-    val pointerModifier = Modifier.textFieldPointer(
-        manager, enabled, interactionSource, state, focusRequester, readOnly, offsetMapping
-    )
+    val pointerModifier =
+        Modifier.textFieldPointer(
+            manager,
+            enabled,
+            interactionSource,
+            state,
+            focusRequester,
+            readOnly,
+            offsetMapping,
+        )
 
     val drawModifier =
         Modifier.drawBehind {

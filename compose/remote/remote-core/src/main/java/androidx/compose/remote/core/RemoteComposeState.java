@@ -475,8 +475,10 @@ public class RemoteComposeState implements CollectionsAccess {
             v = new ArrayList<VariableSupport>();
             mVarListeners.put(id, v);
         }
-        v.add(variableSupport);
-        mAllVarListeners.add(variableSupport);
+        if (!v.contains(variableSupport)) {
+            v.add(variableSupport);
+            mAllVarListeners.add(variableSupport);
+        }
     }
 
     /**

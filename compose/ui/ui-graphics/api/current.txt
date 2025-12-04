@@ -268,7 +268,7 @@ package androidx.compose.ui.graphics {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class Brush {
+  @androidx.compose.runtime.Immutable public abstract sealed exhaustive class Brush {
     method @KotlinOnly public abstract void applyTo(androidx.compose.ui.geometry.Size size, androidx.compose.ui.graphics.Paint p, float alpha);
     method @BytecodeOnly public abstract void applyTo-Pq9zytI(long, androidx.compose.ui.graphics.Paint, float);
     method @BytecodeOnly public long getIntrinsicSize-NH-jbRc();
@@ -736,7 +736,7 @@ package androidx.compose.ui.graphics {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected android.graphics.RenderEffect createRenderEffect();
   }
 
-  public abstract sealed class Outline {
+  public abstract sealed exhaustive class Outline {
     method @InaccessibleFromKotlin public abstract androidx.compose.ui.geometry.Rect getBounds();
     property public abstract androidx.compose.ui.geometry.Rect bounds;
   }
@@ -1101,7 +1101,7 @@ package androidx.compose.ui.graphics {
     property @androidx.compose.runtime.Stable public static androidx.compose.ui.graphics.Shape RectangleShape;
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class RenderEffect {
+  @androidx.compose.runtime.Immutable public abstract sealed nonexhaustive class RenderEffect {
     method @RequiresApi(android.os.Build.VERSION_CODES.S) public final android.graphics.RenderEffect asAndroidRenderEffect();
     method @RequiresApi(android.os.Build.VERSION_CODES.S) protected abstract android.graphics.RenderEffect createRenderEffect();
     method public boolean isSupported();
@@ -1713,7 +1713,7 @@ package androidx.compose.ui.graphics.drawscope {
   @kotlin.DslMarker public @interface DrawScopeMarker {
   }
 
-  public abstract sealed class DrawStyle {
+  public abstract sealed exhaustive class DrawStyle {
   }
 
   @androidx.compose.ui.graphics.drawscope.DrawScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface DrawTransform {
@@ -1991,7 +1991,7 @@ package androidx.compose.ui.graphics.shadow {
     property public androidx.compose.ui.unit.Dp spread;
   }
 
-  public sealed interface ShadowContext {
+  public sealed nonexhaustive interface ShadowContext {
     method public default void clearCache();
     method public default androidx.compose.ui.graphics.shadow.DropShadowPainter createDropShadowPainter(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.shadow.Shadow shadow);
     method public default androidx.compose.ui.graphics.shadow.InnerShadowPainter createInnerShadowPainter(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.shadow.Shadow shadow);
@@ -2030,7 +2030,7 @@ package androidx.compose.ui.graphics.vector {
     property public java.util.List<androidx.compose.ui.graphics.vector.PathNode> nodes;
   }
 
-  @androidx.compose.runtime.Immutable public abstract sealed class PathNode {
+  @androidx.compose.runtime.Immutable public abstract sealed exhaustive class PathNode {
     method @InaccessibleFromKotlin public final boolean isCurve();
     method @InaccessibleFromKotlin public final boolean isQuad();
     property public final boolean isCurve;

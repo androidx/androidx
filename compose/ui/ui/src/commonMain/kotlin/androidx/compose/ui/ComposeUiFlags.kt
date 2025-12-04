@@ -17,6 +17,7 @@
 
 package androidx.compose.ui
 
+import androidx.compose.ui.node.findNearestAncestor
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmName
 
@@ -55,22 +56,16 @@ import kotlin.jvm.JvmName
 @ExperimentalComposeUiApi
 object ComposeUiFlags {
     /**
-     * With this flag on, the new semantic version of Autofill APIs will be enabled. Turning this
-     * flag off will disable the new Semantic Autofill APIs, and the new refactored semantics.
-     */
-    @Suppress("MutableBareField") @JvmField var isSemanticAutofillEnabled: Boolean = true
-
-    /**
      * This enables fixes for View focus. The changes are large enough to require a flag to allow
      * disabling them.
      */
-    @Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = false
+    @field:Suppress("MutableBareField") @JvmField var isViewFocusFixEnabled: Boolean = false
 
     /**
      * This flag enables an alternate approach to fixing the issues addressed by the
      * [isViewFocusFixEnabled] flag.
      */
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     @JvmField
     var isBypassUnfocusableComposeViewEnabled: Boolean = true
 
@@ -78,13 +73,15 @@ object ComposeUiFlags {
      * This flag enables a fix for b/378570682. For API >=26. We attempt to manually find the next
      * focusable item for 1-D focus search cases when Compose does not have any focusable content.
      */
-    @Suppress("MutableBareField") @JvmField var isPre26FocusFinderFixEnabled: Boolean = false
+    @field:Suppress("MutableBareField") @JvmField var isPre26FocusFinderFixEnabled: Boolean = false
 
     /**
      * This flag enables a fix for b/388590015. The view system ignores an invalid prevFocusRect
      * when requestFocus is called, so we support this behavior in Compose too.
      */
-    @Suppress("MutableBareField") @JvmField var isIgnoreInvalidPrevFocusRectEnabled: Boolean = true
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isIgnoreInvalidPrevFocusRectEnabled: Boolean = true
 
     /**
      * When an embedded view that is focused is removed from the hierarchy, it triggers a
@@ -92,7 +89,7 @@ object ComposeUiFlags {
      * This flag enables a fix for this issue.
      */
     @Deprecated("This flag is no longer needed.")
-    @Suppress("MutableBareField", "unused")
+    @field:Suppress("MutableBareField", "unused")
     @JvmField
     var isRemoveFocusedViewFixEnabled: Boolean = false
 
@@ -111,34 +108,12 @@ object ComposeUiFlags {
      * * `SafeContentRulers`
      */
     // off for b/410868572
-    @Suppress("MutableBareField") @JvmField var areWindowInsetsRulersEnabled = true
-
-    /**
-     * With this flag on, when an AccessibilityService performs ACTION_FOCUS on a Composable node,
-     * if it is in touch mode, it will exit touch mode first, then try to request focus on the node.
-     */
-    @Deprecated("This flag is no longer needed.")
-    @Suppress("MutableBareField", "unused")
-    @JvmField
-    var isFocusActionExitsTouchModeEnabled: Boolean = false
-
-    /**
-     * With this flag on, Modifier.focusRestorer() will not pin the item that needs to be restored.
-     * Users are responsible for providing a key for the item that needs to be restored b/330696779.
-     */
-    @Deprecated("This flag is no longer needed.")
-    @Suppress("MutableBareField", "unused")
-    @JvmField
-    var isNoPinningInFocusRestorationEnabled: Boolean = false
-
-    /** Enable clearing focus when a focused item is removed from a lazyList. */
-    @Deprecated("This flag is no longer needed.")
-    @Suppress("MutableBareField", "unused")
-    @JvmField
-    var isClearFocusOnResetEnabled: Boolean = false
+    @field:Suppress("MutableBareField") @JvmField var areWindowInsetsRulersEnabled = true
 
     /** Enable initial focus when a focusable is added to a screen with no focusable content. */
-    @Suppress("MutableBareField") @JvmField var isInitialFocusOnFocusableAvailable: Boolean = false
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isInitialFocusOnFocusableAvailable: Boolean = false
 
     /**
      * With this flag on, requesting focus on a non-focusable focus target will request focus for
@@ -148,7 +123,7 @@ object ComposeUiFlags {
      * [FocusRequester.requestFocus][androidx.compose.ui.focus.FocusRequester.requestFocus] and
      * [FocusRequesterModifierNode.requestFocus][androidx.compose.ui.focus.requestFocus]
      */
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     @JvmField
     var isRequestFocusOnNonFocusableFocusTargetEnabled: Boolean = true
 
@@ -156,53 +131,37 @@ object ComposeUiFlags {
      * With this flag on, the adaptive refresh rate (ARR) feature will be enabled. A preferred frame
      * rate can be set on a Composable through frame rate modifier: [Modifier.preferredFrameRate]
      */
-    @Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
+    @field:Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
 
     /** Flag for enabling indirect pointer event navigation gestures in Compose. */
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     @JvmField
     var isIndirectPointerNavigationGestureDetectorEnabled: Boolean = true
 
     /** Flag enables optimized focus change dispatching logic. */
-    @Suppress("MutableBareField") @JvmField var isOptimizedFocusEventDispatchEnabled: Boolean = true
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isOptimizedFocusEventDispatchEnabled: Boolean = true
 
     /** This flag enables setting the shape semantics property in the graphicsLayer modifiers. */
-    @Suppress("MutableBareField") @JvmField var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
-
-    /**
-     * Flag for enabling nested scroll interop fix for propagating integers, this fixes an issue
-     * with interop between compose and views nested scroll where small deltas with the wrong sign
-     * were being scaled up due to the rounding used.
-     */
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     @JvmField
-    var isNestedScrollInteropIntegerPropagationEnabled: Boolean = true
-
-    /**
-     * Enable fix for `[ComposeView.canScrollHorizontally]` and `[ComposeView.canScrollVertically]`
-     * methods. Previously, these methods would sometimes use the last MOVE event's position to
-     * determine if scrolling was possible, even if the gesture started with a DOWN event at a
-     * different location. This could lead to incorrect scrollability checks, especially when a
-     * scrollable container was touched and then moved. With this flag enabled, the methods
-     * correctly use the position of the initial DOWN event to establish the pointer position for an
-     * event that started on a scrollable container, ensuring accurate scroll checks.
-     */
-    @Suppress("MutableBareField")
-    @JvmField
-    var isCanScrollUsingLastDownEventFixEnabled: Boolean = true
+    var isGraphicsLayerShapeSemanticsEnabled: Boolean = true
 
     /**
      * Enable fix to scroll target rect to the center when performing scroll capture, thus generally
      * avoiding floating content at the top and bottom of the UI.
      */
-    @Suppress("MutableBareField") @JvmField var isScrollCaptureCenteringEnabled: Boolean = true
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isScrollCaptureCenteringEnabled: Boolean = true
 
     /**
      * Enable performance optimization where coordinates calculations like
      * [androidx.compose.ui.layout.LayoutCoordinates.localToRoot] are using the cached offsets we
      * already have in RectManager, instead of traversing the whole tree on each call.
      */
-    @Suppress("MutableBareField")
+    @field:Suppress("MutableBareField")
     @JvmField
     var isRectManagerOffsetUsageFromLayoutCoordinatesEnabled: Boolean = true
 
@@ -210,5 +169,15 @@ object ComposeUiFlags {
      * Enables automatic pinning of interop AndroidViews when they are focused inside lazy
      * containers.
      */
-    @Suppress("MutableBareField") @JvmField var isPinningFocusedAndroidViewsEnabled: Boolean = true
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isPinningFocusedAndroidViewsEnabled: Boolean = true
+
+    /**
+     * Enables a fix where [TraversableNode] traversal method [findNearestAncestor] will take into
+     * consideration any delegates that might also be traversable.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isTraversableDelegatesFixEnabled: Boolean = true
 }

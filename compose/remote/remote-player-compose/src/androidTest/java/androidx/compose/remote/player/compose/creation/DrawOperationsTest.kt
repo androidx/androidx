@@ -161,7 +161,7 @@ private fun ComposeScreenshotTestRule.drawOperationsInGrid() {
 
 private fun drawBitmap() = getCoreDocument {
     drawBitmap(
-        image = createBitmap() as Object,
+        image = createBitmap() as Any,
         width = 100,
         height = 100,
         contentDescription = "contentDescription",
@@ -199,7 +199,7 @@ private fun drawBitmapWithIdAndPosition() = getCoreDocument {
 
 private fun drawScaledBitmap() = getCoreDocument {
     drawScaledBitmap(
-        image = createBitmap() as Object,
+        image = createBitmap() as Any,
         srcLeft = 0f,
         srcTop = 0f,
         srcRight = 100f,
@@ -216,7 +216,7 @@ private fun drawScaledBitmap() = getCoreDocument {
 
 private fun drawScaledBitmap_partially_samePosition() = getCoreDocument {
     drawScaledBitmap(
-        image = createBitmap() as Object,
+        image = createBitmap() as Any,
         srcLeft = 0f,
         srcTop = 0f,
         srcRight = 50f,
@@ -233,7 +233,7 @@ private fun drawScaledBitmap_partially_samePosition() = getCoreDocument {
 
 private fun drawScaledBitmap_partially_differentPosition() = getCoreDocument {
     drawScaledBitmap(
-        image = createBitmap() as Object,
+        image = createBitmap() as Any,
         srcLeft = 0f,
         srcTop = 0f,
         srcRight = 50f,

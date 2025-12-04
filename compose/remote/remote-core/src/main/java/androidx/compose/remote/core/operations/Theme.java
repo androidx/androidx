@@ -39,8 +39,13 @@ public class Theme extends Operation implements RemoteComposeOperation {
     private static final int OP_CODE = Operations.THEME;
     private static final String CLASS_NAME = "Theme";
     int mTheme;
+    /** The default the system defines the theme to be LIGHT OR DARK */
+    public static final int SYSTEM = 0;
+    /** Theme sections are not used */
     public static final int UNSPECIFIED = -1;
+    /** Sections after Theme.DARK are used */
     public static final int DARK = -2;
+    /** Sections after Theme.Light are used */
     public static final int LIGHT = -3;
 
     /**

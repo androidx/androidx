@@ -37,6 +37,7 @@ import androidx.compose.animation.demos.layoutanimation.NestedMenuDemo
 import androidx.compose.animation.demos.layoutanimation.ScaleEnterExitDemo
 import androidx.compose.animation.demos.layoutanimation.ScreenTransitionDemo
 import androidx.compose.animation.demos.layoutanimation.ShrineCartDemo
+import androidx.compose.animation.demos.layoutanimation.VeilTransitionDemo
 import androidx.compose.animation.demos.lookahead.AnimateBoundsModifierDemo
 import androidx.compose.animation.demos.lookahead.AnimateBoundsOnFloatingToolbarDemo
 import androidx.compose.animation.demos.lookahead.CraneDemo
@@ -118,6 +119,7 @@ val AnimationDemos =
                     ComposableDemo("Scaled Enter/Exit") { ScaleEnterExitDemo() },
                     ComposableDemo("Shrine Cart") { ShrineCartDemo() },
                     ComposableDemo("Screen Transition") { ScreenTransitionDemo() },
+                    ComposableDemo("Veil Transition Demo") { VeilTransitionDemo() },
                 ),
             ),
             DemoCategory(

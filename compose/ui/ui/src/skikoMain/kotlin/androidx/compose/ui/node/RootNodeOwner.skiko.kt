@@ -247,7 +247,7 @@ internal class RootNodeOwner(
         } else false
 
         if (hasPositionOnScreenChanged || hasPositionInWindowChanged) {
-            owner.root.layoutDelegate.measurePassDelegate.notifyChildrenUsingCoordinatesWhilePlacing()
+            owner.root.layoutDelegate.measurePassDelegate.requestLayoutIfCoordinatesAreUsedAndNotifyChildren()
         }
         val containerSize = platformContext.windowInfo.containerSize
         owner.rectManager.updateOffsets(

@@ -87,7 +87,7 @@ class LazyColumnTest {
 
     @Test
     fun rowsInOrder(): Unit = runBlocking {
-        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single().toLong()
+        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single()
         textComponentsInOrder(0)
         rule.onNode(hasScrollAction()).performScrollToIndex(30)
         rule.waitForIdle()
@@ -103,7 +103,7 @@ class LazyColumnTest {
     @Test
     fun testDrawModifierNodes() = runBlocking {
         generation++
-        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single().toLong()
+        rootId = getGlobalWindowViews().map { it.uniqueDrawingId }.single()
         val checks = createAllParametersChecks(inspectorTester, rootId, generation)
         val withChildDrawModifiers =
             checks.composableResponse

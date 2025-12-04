@@ -43,6 +43,10 @@ public class CanvasContent extends Component {
         super(parent, componentId, animationId, x, y, width, height);
     }
 
+    public CanvasContent(int componentId) {
+        super(null, componentId, 0, -1, 0, 0, 0);
+    }
+
     /**
      * The name of the class
      *

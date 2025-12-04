@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.unit
 
-import kotlin.jvm.JvmField
-
 /**
  * This is a collection of flags which are used to guard against regressions in some of the
  * "riskier" refactors or new feature support that is added to this module. These flags are always
@@ -50,11 +48,4 @@ import kotlin.jvm.JvmField
  *          public static int isRectTrackingEnabled return false
  *      }
  */
-@ExperimentalUnitApi
-object ComposeUiUnitFlags {
-    /**
-     * When this flag is enabled, comparing [Dp] values with [Dp.Unspecified] using `>` and `<`
-     * always returns false. However, [Dp.compareTo] with [Dp.Unspecified] always returns 0.
-     */
-    @Suppress("MutableBareField") @JvmField var isDpCompareToChanged: Boolean = true
-}
+@ExperimentalUnitApi object ComposeUiUnitFlags {}

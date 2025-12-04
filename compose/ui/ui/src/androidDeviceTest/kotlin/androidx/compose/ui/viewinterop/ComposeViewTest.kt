@@ -48,8 +48,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
-import androidx.compose.ui.ComposeUiFlags.isCanScrollUsingLastDownEventFixEnabled
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -96,7 +94,6 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertSame
 import org.junit.Assert.assertTrue
-import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -626,10 +623,8 @@ class ComposeViewTest {
         rule.runOnIdle { composeView.assertCanScroll() }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun canScrollVertically_returnsTrue_ifWeMoveOutsideScrollable() {
-        Assume.assumeTrue(isCanScrollUsingLastDownEventFixEnabled)
         lateinit var composeView: View
         rule.setContent {
             composeView = LocalView.current

@@ -21,14 +21,19 @@ import android.graphics.LinearGradient
 import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.toAndroidTileMode
-import kotlin.math.abs
+import androidx.compose.ui.graphics.toArgb
 
 /**
  * Creates a linear gradient with the provided colors along the given start and end coordinates. The
@@ -56,8 +61,8 @@ import kotlin.math.abs
 @Stable
 public fun RemoteBrush.Companion.linearGradient(
     vararg colorStops: Pair<Float, Color>,
-    start: Offset = Offset.Zero,
-    end: Offset = Offset.Infinite,
+    start: RemoteOffset,
+    end: RemoteOffset,
     tileMode: TileMode = TileMode.Clamp,
 ): RemoteLinearGradient =
     RemoteLinearGradient(
@@ -87,13 +92,12 @@ public fun RemoteBrush.Companion.linearGradient(
  *   position at the far right and bottom of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.linearGradient(
     colors: List<Color>,
-    start: Offset = Offset.Zero,
-    end: Offset = Offset.Infinite,
+    start: RemoteOffset,
+    end: RemoteOffset,
     tileMode: TileMode = TileMode.Clamp,
 ): RemoteLinearGradient =
     RemoteLinearGradient(
@@ -123,15 +127,22 @@ public fun RemoteBrush.Companion.linearGradient(
  *   which indicates the right of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.horizontalGradient(
     colors: List<Color>,
-    startX: Float = 0.0f,
-    endX: Float = Float.POSITIVE_INFINITY,
+    startX: RemoteFloat? = null,
+    endX: RemoteFloat? = null,
     tileMode: TileMode = TileMode.Clamp,
-): RemoteLinearGradient = linearGradient(colors, Offset(startX, 0.0f), Offset(endX, 0.0f), tileMode)
+): RemoteLinearGradient =
+    RemoteLinearGradient(
+        colors = colors,
+        stops = null,
+        start = startX?.let { RemoteOffset(it, 0.0f) },
+        end = endX?.let { RemoteOffset(it, 0.0f) },
+        endVector = { size -> RemoteOffset(size.width, 0f) },
+        tileMode = tileMode,
+    )
 
 /**
  * Creates a horizontal gradient with the given colors dispersed at the provided offset defined in
@@ -156,19 +167,20 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *   which indicates the right of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.horizontalGradient(
     vararg colorStops: Pair<Float, Color>,
-    startX: Float = 0.0f,
-    endX: Float = Float.POSITIVE_INFINITY,
+    startX: RemoteFloat?,
+    endX: RemoteFloat?,
     tileMode: TileMode = TileMode.Clamp,
 ): RemoteLinearGradient =
-    linearGradient(
-        *colorStops,
-        start = Offset(startX, 0.0f),
-        end = Offset(endX, 0.0f),
+    RemoteLinearGradient(
+        colors = List(colorStops.size) { i -> colorStops[i].second },
+        stops = List(colorStops.size) { i -> colorStops[i].first },
+        start = startX?.let { RemoteOffset(startX, 0f.rf) },
+        end = endX?.let { RemoteOffset(endX, 0f.rf) },
+        endVector = { size -> RemoteOffset(size.width, 0f) },
         tileMode = tileMode,
     )
 
@@ -190,15 +202,22 @@ public fun RemoteBrush.Companion.horizontalGradient(
  *   which indicates the bottom of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.verticalGradient(
     colors: List<Color>,
-    startY: Float = 0.0f,
-    endY: Float = Float.POSITIVE_INFINITY,
+    startY: RemoteFloat? = null,
+    endY: RemoteFloat? = null,
     tileMode: TileMode = TileMode.Clamp,
-): RemoteLinearGradient = linearGradient(colors, Offset(0.0f, startY), Offset(0.0f, endY), tileMode)
+): RemoteLinearGradient =
+    RemoteLinearGradient(
+        colors = colors,
+        stops = null,
+        start = startY?.let { RemoteOffset(0f.rf, it) },
+        end = endY?.let { RemoteOffset(0f.rf, it) },
+        endVector = { size -> RemoteOffset(0f, size.height) },
+        tileMode = tileMode,
+    )
 
 /**
  * Creates a vertical gradient with the given colors at the provided offset defined in the
@@ -223,19 +242,20 @@ public fun RemoteBrush.Companion.verticalGradient(
  *   which indicates the bottom of the specified drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.verticalGradient(
     vararg colorStops: Pair<Float, Color>,
-    startY: Float = 0f,
-    endY: Float = Float.POSITIVE_INFINITY,
+    startY: RemoteFloat?,
+    endY: RemoteFloat?,
     tileMode: TileMode = TileMode.Clamp,
 ): RemoteLinearGradient =
-    linearGradient(
-        *colorStops,
-        start = Offset(0.0f, startY),
-        end = Offset(0.0f, endY),
+    RemoteLinearGradient(
+        colors = List(colorStops.size) { i -> colorStops[i].second },
+        stops = List(colorStops.size) { i -> colorStops[i].first },
+        start = startY?.let { RemoteOffset(0.0f, startY) },
+        end = endY?.let { RemoteOffset(0.0f, endY) },
+        endVector = { size -> RemoteOffset(0f, size.height) },
         tileMode = tileMode,
     )
 
@@ -261,32 +281,24 @@ public class RemoteLinearShader(
 public data class RemoteLinearGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
-    private val start: Offset,
-    private val end: Offset,
+    private val start: RemoteOffset?,
+    private val end: RemoteOffset?,
+    private val endVector: (RemoteSize) -> RemoteOffset = { size ->
+        RemoteOffset(size.width, size.height)
+    },
     private val tileMode: TileMode = TileMode.Clamp,
 ) : RemoteBrush() {
 
-    override val intrinsicSize: Size
-        get() =
-            Size(
-                if (start.x.isFinite() && end.x.isFinite()) abs(start.x - end.x) else Float.NaN,
-                if (start.y.isFinite() && end.y.isFinite()) abs(start.y - end.y) else Float.NaN,
-            )
-
-    override fun createShader(size: Size): Shader {
-        val startX = if (start.x == Float.POSITIVE_INFINITY) size.width else start.x
-        val startY = if (start.y == Float.POSITIVE_INFINITY) size.height else start.y
-        val endX = if (end.x == Float.POSITIVE_INFINITY) size.width else end.x
-        val endY = if (end.y == Float.POSITIVE_INFINITY) size.height else end.y
-        val from = Offset(startX, startY)
-        val to = Offset(endX, endY)
+    override fun createShader(size: RemoteSize): Shader {
+        val realStart = start ?: RemoteOffset(0.0f, 0.0f)
+        val realEnd = end ?: endVector(size)
         validateColorStops(colors = colors, colorStops = stops)
         val numTransparentColors = countTransparentColors(colors = colors)
         return RemoteLinearShader(
-            x0 = from.x,
-            y0 = from.y,
-            x1 = to.x,
-            y1 = to.y,
+            x0 = realStart.x.toFloat(),
+            y0 = realStart.y.toFloat(),
+            x1 = realEnd.x.toFloat(),
+            y1 = realEnd.y.toFloat(),
             colors =
                 makeTransparentColors(colors = colors, numTransparentColors = numTransparentColors),
             positions =
@@ -297,24 +309,6 @@ public data class RemoteLinearGradient(
                 ),
             tileMode = tileMode.toAndroidTileMode(),
         )
-    }
-
-    override fun toComposeUi(): Brush {
-        return if (stops != null) {
-            return Brush.linearGradient(
-                colorStops = stops.zip<Float, Color>(colors).toTypedArray<Pair<Float, Color>>(),
-                start = start,
-                end = end,
-                tileMode = tileMode,
-            )
-        } else {
-            return Brush.linearGradient(
-                colors = colors,
-                start = start,
-                end = end,
-                tileMode = tileMode,
-            )
-        }
     }
 }
 

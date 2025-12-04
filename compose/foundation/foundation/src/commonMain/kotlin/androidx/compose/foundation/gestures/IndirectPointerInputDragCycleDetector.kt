@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.gestures
 
+import androidx.collection.LongList
+import androidx.collection.ObjectList
+import androidx.collection.mutableLongListOf
+import androidx.collection.mutableObjectListOf
 import androidx.compose.foundation.gestures.DragEvent.DragCancelled
 import androidx.compose.foundation.gestures.DragEvent.DragDelta
 import androidx.compose.foundation.gestures.DragEvent.DragStarted
@@ -39,7 +43,6 @@ import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFirstOrNull
-import androidx.compose.ui.util.fastMap
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalIndirectPointerApi::class)
@@ -714,7 +717,7 @@ private fun VelocityTracker.addIndirectPointerInputChange(
 @OptIn(ExperimentalIndirectPointerApi::class)
 internal class IndirectPointerInputEventSmoother() {
     private var eventRotatingIndex = 0
-    private var eventRotatingArray = mutableListOf<IndirectPointerInputChange>()
+    private var eventRotatingArray = mutableObjectListOf<IndirectPointerInputChange>()
 
     fun smoothEventPosition(change: IndirectPointerInputChange): Offset {
 
@@ -736,8 +739,13 @@ internal class IndirectPointerInputEventSmoother() {
             if (eventRotatingIndex == SmoothingFactor) {
                 eventRotatingIndex = 0
             }
-            xPosition = eventRotatingArray.fastMap { it.position.x }.average().toFloat()
-            yPosition = eventRotatingArray.fastMap { it.position.y }.average().toFloat()
+            fun <T> ObjectList<T>.averageBy(selector: (T) -> Float): Float {
+                var total = 0f
+                forEach { total += selector(it) }
+                return total / size
+            }
+            xPosition = eventRotatingArray.averageBy { it.position.x }
+            yPosition = eventRotatingArray.averageBy { it.position.y }
         }
 
         return Offset(xPosition, yPosition)
@@ -754,20 +762,25 @@ internal class IndirectPointerInputEventSmoother() {
 @Suppress("PrimitiveInCollection")
 internal class OffsetSmoother() {
     private var eventRotatingIndex = 0
-    private var eventRotatingArray = mutableListOf<Offset>()
+    private var eventRotatingArray = mutableLongListOf()
 
     fun smoothEventPosition(offset: Offset): Offset {
         if (eventRotatingArray.size == SmoothingFactor) {
-            eventRotatingArray[eventRotatingIndex++] = offset
+            eventRotatingArray[eventRotatingIndex++] = offset.packedValue
         } else {
-            eventRotatingArray.add(offset)
+            eventRotatingArray.add(offset.packedValue)
         }
 
         if (eventRotatingIndex == SmoothingFactor) {
             eventRotatingIndex = 0
         }
-        val xPosition: Float = eventRotatingArray.fastMap { it.x }.average().toFloat()
-        val yPosition: Float = eventRotatingArray.fastMap { it.y }.average().toFloat()
+        fun LongList.averageBy(selector: (Long) -> Float): Float {
+            var total = 0f
+            forEach { total += selector(it) }
+            return total / size
+        }
+        val xPosition: Float = eventRotatingArray.averageBy { Offset(it).x }
+        val yPosition: Float = eventRotatingArray.averageBy { Offset(it).y }
 
         return Offset(xPosition, yPosition)
     }

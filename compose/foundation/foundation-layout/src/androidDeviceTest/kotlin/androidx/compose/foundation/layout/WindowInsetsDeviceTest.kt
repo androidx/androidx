@@ -78,9 +78,9 @@ class WindowInsetsDeviceTest {
         }
         val instrumentation = InstrumentationRegistry.getInstrumentation()
         val activity = rule.activity
-        while (!activity.isDestroyed) {
+        if (!activity.isDestroyed && !activity.isFinishing) {
             instrumentation.runOnMainSync {
-                if (!activity.isDestroyed) {
+                if (!activity.isDestroyed && !activity.isFinishing) {
                     activity.finish()
                 }
             }

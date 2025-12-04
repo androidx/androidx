@@ -19,19 +19,20 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
+import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.ScrollModifier as CoreScrollModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteScrollState(public val position: Float, public val notches: Int) {
+public class RemoteScrollState(
+    public val positionState: MutableRemoteFloat,
+    public val notches: Int,
+) {
+    public constructor(position: Float, notches: Int) : this(MutableRemoteFloat(position), notches)
 
     public fun toComposeUi(): ScrollState {
         return ScrollState(0)
@@ -42,10 +43,7 @@ public class RemoteScrollState(public val position: Float, public val notches: I
 public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
     val state = LocalRemoteComposeCreationState.current
     val scrollState = remember {
-        var positionId = 0f
-        if (state !is NoRemoteCompose) {
-            positionId = Utils.asNan(state.document.nextId())
-        }
+        val positionId = Utils.asNan(state.document.nextId())
         RemoteScrollState(positionId, evenNotches)
     }
     return scrollState
@@ -55,20 +53,10 @@ public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
 public data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
     RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
-        return CoreScrollModifier(direction, state.position, state.notches)
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        if (direction == CoreScrollModifier.VERTICAL) {
-            return verticalScroll(state.toComposeUi())
-        } else {
-            return horizontalScroll(state.toComposeUi())
-        }
+        return CoreScrollModifier(direction, state.positionState.id, state.notches)
     }
 }
 
-@Composable
 public fun RemoteModifier.verticalScroll(state: RemoteScrollState): RemoteModifier {
     return this.then(ScrollModifier(CoreScrollModifier.VERTICAL, state))
 }

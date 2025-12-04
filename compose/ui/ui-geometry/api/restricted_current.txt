@@ -205,7 +205,7 @@ package androidx.compose.ui.geometry {
   }
 
   @androidx.compose.runtime.Immutable public final class Rect {
-    ctor public Rect(@androidx.compose.runtime.Stable float left, @androidx.compose.runtime.Stable float top, @androidx.compose.runtime.Stable float right, @androidx.compose.runtime.Stable float bottom);
+    ctor public Rect(float left, float top, float right, float bottom);
     method public float component1();
     method public float component2();
     method public float component3();

@@ -32,6 +32,7 @@ private fun bitmap(width: Int, height: Int) =
     Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteBitmapFontTest {
     val context =
         AndroidRemoteContext().apply {

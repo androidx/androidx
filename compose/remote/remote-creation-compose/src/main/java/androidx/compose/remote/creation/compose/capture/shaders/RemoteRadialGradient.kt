@@ -20,13 +20,14 @@ package androidx.compose.remote.creation.compose.capture.shaders
 import android.graphics.RadialGradient
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
-import androidx.compose.ui.geometry.isUnspecified
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.toAndroidTileMode
 
@@ -55,13 +56,12 @@ import androidx.compose.ui.graphics.toAndroidTileMode
  *   largest radius that can fit within the bounds of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.radialGradient(
     vararg colorStops: Pair<Float, Color>,
-    center: Offset = Offset.Unspecified,
-    radius: Float = Float.POSITIVE_INFINITY,
+    center: RemoteOffset? = null,
+    radius: RemoteFloat? = null,
     tileMode: TileMode = TileMode.Clamp,
 ): RemoteRadialGradient =
     RemoteRadialGradient(
@@ -94,13 +94,12 @@ public fun RemoteBrush.Companion.radialGradient(
  *   largest radius that can fit within the bounds of the drawing area
  * @param tileMode Determines the behavior for how the shader is to fill a region outside its
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
- * @sample androidx.compose.ui.graphics.samples.GradientBrushSample
  */
 @Stable
 public fun RemoteBrush.Companion.radialGradient(
     colors: List<Color>,
-    center: Offset = Offset.Unspecified,
-    radius: Float = Float.POSITIVE_INFINITY,
+    center: RemoteOffset? = null,
+    radius: RemoteFloat? = null,
     tileMode: TileMode = TileMode.Clamp,
 ): RemoteRadialGradient =
     RemoteRadialGradient(
@@ -116,56 +115,25 @@ public fun RemoteBrush.Companion.radialGradient(
 public data class RemoteRadialGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
-    private val center: Offset,
-    private val radius: Float,
+    private val center: RemoteOffset?,
+    private val radius: RemoteFloat?,
     private val tileMode: TileMode = TileMode.Clamp,
 ) : RemoteBrush() {
 
-    override val intrinsicSize: Size
-        get() = if (radius.isFinite()) Size(radius * 2, radius * 2) else Size.Unspecified
-
-    override fun createShader(size: Size): Shader {
-        val centerX: Float
-        val centerY: Float
-
-        if (center.isUnspecified) {
-
-            centerX = size.center.x
-            centerY = size.center.y
-        } else {
-            centerX = if (center.x == Float.POSITIVE_INFINITY) size.width else center.x
-            centerY = if (center.y == Float.POSITIVE_INFINITY) size.height else center.y
-        }
-        var realCenter = Offset(centerX, centerY)
+    override fun createShader(size: RemoteSize): Shader {
 
         validateColorStops(colors = colors, colorStops = stops)
         val numTransparentColors = countTransparentColors(colors = colors)
+        val realCenter = center ?: size.center
+        val realRadius = radius ?: (size.width.min(size.height) / 2f)
         return RemoteRadialShader(
-            realCenter.x,
-            realCenter.y,
-            if (radius == Float.POSITIVE_INFINITY) size.minDimension / 2 else radius,
+            realCenter.x.toFloat(),
+            realCenter.y.toFloat(),
+            realRadius.toFloat(),
             makeTransparentColors(colors, numTransparentColors),
             makeTransparentStops(stops, colors, numTransparentColors),
             tileMode.toAndroidTileMode(),
         )
-    }
-
-    override fun toComposeUi(): Brush {
-        return if (stops != null) {
-            return Brush.radialGradient(
-                colorStops = stops.zip<Float, Color>(colors).toTypedArray<Pair<Float, Color>>(),
-                center = center,
-                radius = radius,
-                tileMode = tileMode,
-            )
-        } else {
-            return Brush.radialGradient(
-                colors = colors,
-                center = center,
-                radius = radius,
-                tileMode = tileMode,
-            )
-        }
     }
 }
 

@@ -19,18 +19,16 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.layout.RemoteDrawWithContentScope
 import androidx.compose.remote.creation.compose.layout.RemoteDrawWithContentScopeImpl
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class DrawWithContentModifier(public val content: (RemoteDrawWithContentScope).() -> Unit) :
-    RemoteLayoutModifier {
+    RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.DrawWithContentModifier()
     }
@@ -38,11 +36,6 @@ public class DrawWithContentModifier(public val content: (RemoteDrawWithContentS
     @Composable
     override fun Modifier.toComposeUi(): Modifier {
         val captureMode = LocalRemoteComposeCreationState.current
-        if (captureMode is NoRemoteCompose) {
-            return this.drawWithContent {
-                RemoteDrawWithContentScopeImpl(captureMode, drawScope = this).content()
-            }
-        }
         return this.drawBehind {
             captureMode.document.startCanvasOperations()
             RemoteDrawWithContentScopeImpl(captureMode, drawScope = this).content()
@@ -53,7 +46,7 @@ public class DrawWithContentModifier(public val content: (RemoteDrawWithContentS
 
 @Composable
 public fun RemoteModifier.drawWithContent(
-    content: (RemoteDrawWithContentScope).() -> Unit
+    onDraw: (RemoteDrawWithContentScope).() -> Unit
 ): RemoteModifier {
-    return then(DrawWithContentModifier(content))
+    return then(DrawWithContentModifier(onDraw))
 }

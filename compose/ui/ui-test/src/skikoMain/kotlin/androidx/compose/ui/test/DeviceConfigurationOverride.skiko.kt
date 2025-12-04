@@ -34,3 +34,9 @@ actual fun DeviceConfigurationOverride.Companion.LayoutDirection(
 ): DeviceConfigurationOverride {
     throw UnsupportedOperationException("LayoutDirection isn't supported")
 }
+
+actual fun DeviceConfigurationOverride.Companion.WindowSize(
+    size: DpSize
+): DeviceConfigurationOverride {
+    throw UnsupportedOperationException("WindowSize isn't supported")
+}

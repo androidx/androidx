@@ -96,6 +96,7 @@ public final class androidx/compose/ui/test/DeviceConfigurationOverride_skikoKt 
 	public static final fun FontScale (Landroidx/compose/ui/test/DeviceConfigurationOverride$Companion;F)Landroidx/compose/ui/test/DeviceConfigurationOverride;
 	public static final fun ForcedSize-6HolHcs (Landroidx/compose/ui/test/DeviceConfigurationOverride$Companion;J)Landroidx/compose/ui/test/DeviceConfigurationOverride;
 	public static final fun LayoutDirection (Landroidx/compose/ui/test/DeviceConfigurationOverride$Companion;Landroidx/compose/ui/unit/LayoutDirection;)Landroidx/compose/ui/test/DeviceConfigurationOverride;
+	public static final fun WindowSize-6HolHcs (Landroidx/compose/ui/test/DeviceConfigurationOverride$Companion;J)Landroidx/compose/ui/test/DeviceConfigurationOverride;
 }
 
 public abstract interface annotation class androidx/compose/ui/test/ExperimentalTestApi : java/lang/annotation/Annotation {

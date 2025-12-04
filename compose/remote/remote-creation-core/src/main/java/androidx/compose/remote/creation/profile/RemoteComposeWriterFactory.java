@@ -16,9 +16,11 @@
 package androidx.compose.remote.creation.profile;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.creation.CreationDisplayInfo;
 import androidx.compose.remote.creation.RemoteComposeWriter;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 /** Interface representing the constructor for a RemoteComposeWriter (used in {@link Profile}) */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -26,12 +28,13 @@ public interface RemoteComposeWriterFactory {
     /**
      * Returns a valid RemoteComposeWriter
      *
-     * @param width original width of the document
-     * @param height original height of the document
-     * @param contentDescription content description
-     * @param profile operation profiles used by this document
+     * @param creationDisplayInfo original size of the document
+     * @param profile             operation profiles used by this document
+     * @param writerCallback      callbacks for out of band creation data such as pending intents
      * @return a valid RemoteComposeWriter
      */
-    @NonNull RemoteComposeWriter create(
-            int width, int height, @NonNull String contentDescription, @NonNull Profile profile);
+    @NonNull
+    RemoteComposeWriter create(
+            @NonNull CreationDisplayInfo creationDisplayInfo, @NonNull Profile profile,
+            @Nullable Object writerCallback);
 }

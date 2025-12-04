@@ -28,16 +28,23 @@ import android.graphics.Typeface
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RecordingRemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.remote.creation.compose.test.R
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
@@ -47,6 +54,10 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import com.google.common.truth.Truth.assertThat
+import java.time.Clock
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.ArrayList
 import org.junit.Before
 import org.junit.Rule
@@ -64,18 +75,35 @@ class RecordingCanvasTest {
     private val context: Context = ApplicationProvider.getApplicationContext()
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(SCREENSHOT_GOLDEN_DIRECTORY)
 
-    private val creationState =
-        RemoteComposeCreationState(
-            AndroidxRcPlatformServices(),
-            Size(WIDTH.toFloat(), HEIGHT.toFloat()),
+    private val recordingBuffer = RecordingRemoteComposeBuffer()
+    private val profile =
+        Profile(
             CoreDocument.DOCUMENT_API_LEVEL,
             RcProfiles.PROFILE_ANDROIDX,
-        )
+            AndroidxRcPlatformServices(),
+        ) { creationDisplayInfo, profile, callback ->
+            RemoteComposeWriter(
+                profile,
+                recordingBuffer,
+                RemoteComposeWriter.hTag(Header.DOC_WIDTH, creationDisplayInfo.width),
+                RemoteComposeWriter.hTag(Header.DOC_HEIGHT, creationDisplayInfo.height),
+                RemoteComposeWriter.hTag(Header.DOC_PROFILES, RcProfiles.PROFILE_ANDROIDX),
+            )
+        }
+
+    private val creationState =
+        RemoteComposeCreationState(Size(WIDTH.toFloat(), HEIGHT.toFloat()), profile)
 
     private val recordingCanvas =
         RecordingCanvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888))
 
     private val remoteContext = AndroidRemoteContext()
+    private val timeZone = ZoneId.of("America/New_York")
+    private val clock =
+        Clock.fixed(
+            ZonedDateTime.of(LocalDateTime.of(2025, 11, 20, 10, 30, 25), timeZone).toInstant(),
+            timeZone,
+        )
 
     @Before
     fun setUp() {
@@ -96,42 +124,126 @@ class RecordingCanvasTest {
     @Test
     fun drawConditionally_true() {
         val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
-        val document = constructConditionalDocument(flag)
+        val document = constructSimpleConditionalDocument(flag)
         assertScreenshot(document, "drawConditonally_true")
     }
 
     @Test
     fun drawConditionally_false() {
         val flag = RemoteBoolean.createNamedRemoteBoolean("flag", false)
-        val document = constructConditionalDocument(flag)
+        val document = constructSimpleConditionalDocument(flag)
         assertScreenshot(document, "drawConditonally_false")
     }
 
-    private fun constructConditionalDocument(flag: RemoteBoolean): CoreDocument {
+    private fun constructSimpleConditionalDocument(flag: RemoteBoolean): CoreDocument {
+        val angle = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) * 6f % 360.0f
         recordingCanvas.drawConditionally(flag) {
+            recordingCanvas.save()
+            recordingCanvas.rotate(angle, 150f.rf, 150f.rf)
+            recordingCanvas.drawRect(
+                10f.rf,
+                10f.rf,
+                300f.rf,
+                300f.rf,
+                Paint().apply { color = Color.YELLOW },
+            )
             recordingCanvas.drawText(
                 "True",
-                10,
-                80,
+                10.rf,
+                80.rf,
+                Paint().apply {
+                    color = Color.GREEN
+                    textSize = 80f
+                },
+            )
+            recordingCanvas.restore()
+        }
+        recordingCanvas.drawConditionally(!flag) {
+            recordingCanvas.save()
+            recordingCanvas.rotate(angle, 150f.rf, 150f.rf)
+            recordingCanvas.drawRect(
+                10f.rf,
+                10f.rf,
+                300f.rf,
+                300f.rf,
+                Paint().apply { color = Color.YELLOW },
+            )
+
+            recordingCanvas.drawText(
+                "False",
+                10.rf,
+                80.rf,
+                Paint().apply {
+                    color = Color.RED
+                    textSize = 80f
+                },
+            )
+            recordingCanvas.restore()
+        }
+
+        return constructDocument()
+    }
+
+    private class Hues(val hue1: RemoteString, val hue2: RemoteString)
+
+    private fun createConditionalHues(flag: RemoteBoolean): Hues {
+        val tweenFactor = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 30f % 1f
+        val colorRamp = tween(Color.RED, Color.BLUE, tweenFactor)
+        val hue = colorRamp.hue
+        val hueString1 = hue.toRemoteString(1)
+        val hueString2 = RemoteString("hue") + hue.toRemoteString(1)
+        // Conditional drop shadow.
+        recordingCanvas.drawConditionally(flag) {
+            recordingCanvas.drawText(
+                hueString1,
+                -1,
+                10f.rf,
+                80f.rf,
                 Paint().apply {
                     color = Color.GREEN
                     textSize = 80f
                 },
             )
         }
-        recordingCanvas.drawConditionally(!flag) {
-            recordingCanvas.drawText(
-                "False",
-                10,
-                80,
-                Paint().apply {
-                    color = Color.RED
-                    textSize = 80f
-                },
-            )
-        }
+        recordingCanvas.drawText(
+            hueString2,
+            -1,
+            12f.rf,
+            82f.rf,
+            Paint().apply {
+                color = Color.RED
+                textSize = 80f
+            },
+        )
+        return Hues(hueString1, hueString2)
+    }
 
-        return constructDocument()
+    @Test
+    fun conditionalColorAttribute_true() {
+        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", true)
+        val hues = createConditionalHues(flag)
+        val hueId1 = hues.hue1.getIdForCreationState(creationState)
+        val hueId2 = hues.hue2.getIdForCreationState(creationState)
+        remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+
+        val document = constructDocument()
+        document.paint(remoteContext, 0)
+
+        assertThat(remoteContext.getText(hueId1)).isEqualTo("0.75")
+        assertThat(remoteContext.getText(hueId2)).isEqualTo("hue0.75")
+    }
+
+    @Test
+    fun conditionalColorAttribute_false() {
+        val flag = RemoteBoolean.createNamedRemoteBoolean("flag", false)
+        val hues = createConditionalHues(flag)
+        val hueId2 = hues.hue2.getIdForCreationState(creationState)
+        remoteContext.useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
+
+        val document = constructDocument()
+        document.paint(remoteContext, 0)
+
+        assertThat(remoteContext.getText(hueId2)).isEqualTo("hue0.75")
     }
 
     @Test
@@ -289,27 +401,33 @@ class RecordingCanvasTest {
 
     @Test
     fun drawToOffscreenBitmap() {
-        recordingCanvas.drawRect(0, 0, WIDTH, HEIGHT, Paint().apply { color = Color.BLACK })
         recordingCanvas.drawRect(
-            20,
-            20,
-            WIDTH - 20,
-            HEIGHT - 20,
+            0.rf,
+            0.rf,
+            WIDTH.rf,
+            HEIGHT.rf,
+            Paint().apply { color = Color.BLACK },
+        )
+        recordingCanvas.drawRect(
+            20.rf,
+            20.rf,
+            (WIDTH - 20).rf,
+            (HEIGHT - 20).rf,
             Paint().apply { color = Color.YELLOW },
         )
         val bitmap =
             recordingCanvas.drawToOffscreenBitmap(WIDTH, HEIGHT, Color.BLACK) {
                 recordingCanvas.drawOval(
-                    20,
-                    20,
-                    WIDTH - 20,
-                    HEIGHT - 20,
+                    20.rf,
+                    20.rf,
+                    (WIDTH - 20).rf,
+                    (HEIGHT - 20).rf,
                     Paint().apply { color = Color.RED },
                 )
                 recordingCanvas.drawText(
                     "HI",
-                    20,
-                    HEIGHT - 50,
+                    20.rf,
+                    (HEIGHT - 50).rf,
                     Paint().apply {
                         textSize = 380f
                         typeface = Typeface.DEFAULT_BOLD
@@ -331,13 +449,25 @@ class RecordingCanvasTest {
 
     @Test
     fun drawToOffscreenBitmap_nested() {
-        recordingCanvas.drawRect(0, 0, WIDTH, HEIGHT, Paint().apply { color = Color.BLACK })
+        recordingCanvas.drawRect(
+            0.rf,
+            0.rf,
+            WIDTH.rf,
+            HEIGHT.rf,
+            Paint().apply { color = Color.BLACK },
+        )
 
         // Create the outer offscreen bitmap.
         val outerBitmap =
             recordingCanvas.drawToOffscreenBitmap(WIDTH, HEIGHT, Color.TRANSPARENT) {
                 // Draw a blue background on the outer bitmap.
-                recordingCanvas.drawRect(0, 0, WIDTH, HEIGHT, Paint().apply { color = Color.BLUE })
+                recordingCanvas.drawRect(
+                    0.rf,
+                    0.rf,
+                    WIDTH.rf,
+                    HEIGHT.rf,
+                    Paint().apply { color = Color.BLUE },
+                )
 
                 recordingCanvas.save()
 
@@ -377,7 +507,8 @@ class RecordingCanvasTest {
     }
 
     private fun constructDocument() =
-        CoreDocument().apply {
+        CoreDocument(clock).apply {
+            recordingBuffer.writeToBuffer()
             val buffer = creationState.document.buffer
             buffer.buffer.index = 0
             initFromBuffer(buffer)
@@ -392,6 +523,7 @@ class RecordingCanvasTest {
     }
 
     private fun inflateOperations(): ArrayList<Operation> {
+        recordingBuffer.writeToBuffer()
         val buffer = creationState.document.buffer
         buffer.buffer.index = 0
         val operations = ArrayList<Operation>()

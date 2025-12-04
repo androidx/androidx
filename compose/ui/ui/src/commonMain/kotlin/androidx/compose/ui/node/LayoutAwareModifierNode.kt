@@ -35,7 +35,7 @@ import androidx.compose.ui.unit.IntSize
  * @sample androidx.compose.ui.samples.OnPlaced
  * @sample androidx.compose.ui.samples.LayoutAwareModifierNodeSample
  */
-interface LayoutAwareModifierNode : DelegatableNode {
+interface LayoutAwareModifierNode : MeasuredSizeAwareModifierNode, DelegatableNode {
     /**
      * [onPlaced] is called after the parent [LayoutModifier] and parent layout has been placed and
      * before child [LayoutModifier] is placed. This allows child [LayoutModifier] to adjust its own
@@ -53,7 +53,7 @@ interface LayoutAwareModifierNode : DelegatableNode {
      * This method is called when the layout content is remeasured. The most common usage is
      * [onSizeChanged].
      */
-    fun onRemeasured(size: IntSize) {}
+    override fun onRemeasured(size: IntSize) {}
 }
 
 // TODO remove after usages on other platforms are migrated to the new name.

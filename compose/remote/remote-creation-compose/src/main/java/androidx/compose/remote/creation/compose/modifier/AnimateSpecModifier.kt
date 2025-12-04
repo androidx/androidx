@@ -22,7 +22,6 @@ import androidx.compose.remote.core.operations.layout.animation.AnimationSpec.AN
 import androidx.compose.remote.core.operations.utilities.easing.GeneralEasing
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class AnimateSpecModifier(
@@ -33,7 +32,7 @@ public class AnimateSpecModifier(
     public val visibilityEasingType: Int,
     public val enterAnimation: ANIMATION,
     public val exitAnimation: ANIMATION,
-) : RemoteLayoutModifier {
+) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.AnimateSpecModifier(
             animationId,
@@ -44,11 +43,6 @@ public class AnimateSpecModifier(
             enterAnimation,
             exitAnimation,
         )
-    }
-
-    @Composable
-    override fun Modifier.toComposeUi(): Modifier {
-        return this
     }
 }
 

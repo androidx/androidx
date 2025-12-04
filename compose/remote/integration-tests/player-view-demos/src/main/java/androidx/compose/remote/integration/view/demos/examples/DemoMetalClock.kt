@@ -29,6 +29,9 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemoteComposeWriterInterface
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 class ExampleTimer {}
 
@@ -297,3 +300,5 @@ fun genPath(
     rc.pathAppendClose(pid)
     return pid
 }
+
+@Preview @Composable fun FancyClock2Preview() = RemoteDocPreview(fancyClock2())

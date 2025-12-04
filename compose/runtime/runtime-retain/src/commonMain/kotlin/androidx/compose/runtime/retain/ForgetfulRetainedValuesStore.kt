@@ -39,7 +39,7 @@ public object ForgetfulRetainedValuesStore : RetainedValuesStore {
         // be used arbitrarily across many compositions.
     }
 
-    override fun getExitedValueOrElse(key: Any, defaultValue: Any?): Any? {
+    override fun consumeExitedValueOrDefault(key: Any, defaultValue: Any?): Any? {
         return defaultValue
     }
 

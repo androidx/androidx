@@ -1,9 +1,0 @@
-// Baseline format: 1.0
-BecameUnchecked: androidx.compose.ui.test.ComposeUiTestKt:
-    Removed class androidx.compose.ui.test.ComposeUiTestKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.test.GlobalAssertions:
-    Removed class androidx.compose.ui.test.GlobalAssertions from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.test.PlatformTextInputMethodOverrideKt:
-    Removed class androidx.compose.ui.test.PlatformTextInputMethodOverrideKt from compatibility checked API surface
-BecameUnchecked: androidx.compose.ui.test.TestMonotonicFrameClock_jvmKt:
-    Removed class androidx.compose.ui.test.TestMonotonicFrameClock_jvmKt from compatibility checked API surface

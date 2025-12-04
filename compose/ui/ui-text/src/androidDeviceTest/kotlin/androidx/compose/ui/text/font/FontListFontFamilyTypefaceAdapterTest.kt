@@ -523,7 +523,7 @@ class FontListFontFamilyTypefaceAdapterTest {
         val subject = FontListFontFamilyTypefaceAdapter(cache)
         var beforeThread: Thread? = null
         var afterThread: Thread? = null
-        val lock = Object()
+        val lock = Any()
         val latch = CountDownLatch(1)
 
         val typefaceLoader =

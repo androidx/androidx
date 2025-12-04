@@ -20,15 +20,25 @@ import androidx.compose.remote.core.layout.ApplyTouchDown
 import androidx.compose.remote.core.layout.CaptureComponentTree
 import androidx.compose.remote.core.layout.Color
 import androidx.compose.remote.core.layout.LayoutTestPlayer
+import androidx.compose.remote.core.layout.ResizeDocument
 import androidx.compose.remote.core.layout.TestComponentVisibility
 import androidx.compose.remote.core.layout.TestOperation
 import androidx.compose.remote.core.layout.TestParameters
 import androidx.compose.remote.core.operations.layout.Component
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
+import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
+import androidx.compose.remote.core.operations.layout.managers.TextLayout.TEXT_ALIGN_START
+import androidx.compose.remote.creation.Rc.Time.CONTINUOUS_SEC
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.actions.ValueIntegerChange
 import androidx.compose.remote.creation.computeMeasure
 import androidx.compose.remote.creation.computePosition
+import androidx.compose.remote.creation.modifiers.RecordingModifier
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -39,6 +49,24 @@ class LayoutTest : LayoutTestPlayer() {
 
     @Rule @JvmField var name = TestName()
 
+    class TestClock(val time: Long) : RemoteClock() {
+        override fun nanoTime(): Long {
+            return time
+        }
+
+        override fun getZone(): ZoneId? {
+            return ZoneId.of("UTC")
+        }
+
+        override fun withZone(zone: ZoneId?): Clock? {
+            return null
+        }
+
+        override fun instant(): Instant? {
+            return Instant.ofEpochMilli(time)
+        }
+    }
+
     private fun checkLayout(
         w: Int,
         h: Int,
@@ -46,6 +74,7 @@ class LayoutTest : LayoutTestPlayer() {
         profile: Int,
         description: String,
         ops: ArrayList<TestOperation?>,
+        testClock: RemoteClock = TestClock(1234),
     ) {
         if (ops.size == 0) {
             return
@@ -54,7 +83,7 @@ class LayoutTest : LayoutTestPlayer() {
             return
         }
         val function = (ops[0] as TestLayout).layout
-        val testParameters = TestParameters(name.getMethodName(), GENERATE_GOLD_FILES)
+        val testParameters = TestParameters(name.getMethodName(), GENERATE_GOLD_FILES, testClock)
         val writer =
             RemoteComposeContext(
                     w,
@@ -200,6 +229,110 @@ class LayoutTest : LayoutTestPlayer() {
             RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
             "Layout",
             ops,
+        )
+    }
+
+    @Test
+    fun testLayoutTextFromFloat1() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    box(
+                        RecordingModifier().fillMaxSize().background(Color.YELLOW),
+                        BoxLayout.CENTER,
+                        BoxLayout.CENTER,
+                    ) {
+                        val textId = createTextFromFloat(CONTINUOUS_SEC, 5, 5, 3)
+                        textComponent(
+                            RecordingModifier().fillMaxWidth().background(Color.GREEN),
+                            textId,
+                            0xFF000000.toInt(),
+                            20f,
+                            0,
+                            500f,
+                            "Sans Serif",
+                            TEXT_ALIGN_START,
+                            0,
+                            1,
+                        ) {}
+                    }
+                },
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testLayoutTextOverflow() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    row(
+                        Modifier.background(Color.GREEN).padding(8).fillMaxWidth(),
+                        vertical = RowLayout.CENTER,
+                    ) {
+                        column(Modifier.horizontalWeight(1f).background(Color.YELLOW)) {
+                            text(
+                                "New Arsenal Game",
+                                maxLines = 1,
+                                overflow = CoreText.OVERFLOW_ELLIPSIS,
+                            )
+                            text(
+                                "Arsenal vs Bayern Munich",
+                                fontSize = 64f,
+                                maxLines = 3,
+                                overflow = CoreText.OVERFLOW_ELLIPSIS,
+                            )
+                            text(
+                                "UEFA Champions League Group Stage",
+                                maxLines = 2,
+                                overflow = CoreText.OVERFLOW_ELLIPSIS,
+                            )
+                            text(
+                                "Wednesday 26th November",
+                                maxLines = 1,
+                                overflow = CoreText.OVERFLOW_ELLIPSIS,
+                            )
+                        }
+                        column(
+                            Modifier.size(130).background(Color.BLUE).padding(8),
+                            ColumnLayout.CENTER,
+                            ColumnLayout.CENTER,
+                        ) {
+                            box(
+                                Modifier.size(100).background(Color.YELLOW),
+                                BoxLayout.CENTER,
+                                BoxLayout.CENTER,
+                            ) {
+                                text("IMG")
+                            }
+                        }
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(800, 1000),
+                CaptureComponentTree(),
+                ResizeDocument(500, 1000),
+                CaptureComponentTree(),
+                ResizeDocument(200, 1000),
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            7,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
         )
     }
 }

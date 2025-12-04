@@ -74,8 +74,8 @@ public class RemoteContext {
     @Composable
     public fun Row(
         modifier: RemoteModifier = RemoteModifier,
-        horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
-        verticalAlignment: Alignment.Vertical = Alignment.Top,
+        horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
+        verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
         content: @Composable RemoteRowScope.() -> Unit,
     ) {
         RemoteRow(modifier, horizontalArrangement, verticalAlignment, content)
@@ -85,8 +85,8 @@ public class RemoteContext {
     @Composable
     public fun Column(
         modifier: RemoteModifier = RemoteModifier,
-        horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-        verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+        horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
+        verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
         content: @Composable RemoteColumnScope.() -> Unit,
     ) {
         RemoteColumn(modifier, verticalArrangement, horizontalAlignment, content)
@@ -96,8 +96,8 @@ public class RemoteContext {
     @Composable
     public fun Box(
         modifier: RemoteModifier = RemoteModifier,
-        horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-        verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+        horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
+        verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
         content: @Composable () -> Unit,
     ) {
         RemoteBox(modifier, horizontalAlignment, verticalArrangement, content)

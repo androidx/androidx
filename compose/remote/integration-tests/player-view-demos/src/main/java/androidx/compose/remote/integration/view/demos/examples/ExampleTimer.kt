@@ -29,6 +29,9 @@ import androidx.compose.remote.creation.min
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.sin
+import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
 fun basicTimer(): RemoteComposeWriter {
@@ -104,3 +107,5 @@ fun basicTimer(): RemoteComposeWriter {
         }
     return rc.writer
 }
+
+@Preview @Composable fun BasicTimerPreview() = RemoteDocPreview(basicTimer())

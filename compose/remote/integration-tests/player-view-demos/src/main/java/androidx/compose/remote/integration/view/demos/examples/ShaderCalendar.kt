@@ -24,6 +24,9 @@ import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.remote.tooling.preview.RemoteDocPreview
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import java.text.SimpleDateFormat
 import java.util.Calendar
 
@@ -220,3 +223,5 @@ half4 main(vec2 fragCoord) {
     return vec4(ac, 1.0);
 } 
 """
+
+@Preview @Composable fun ShaderCalendarPreview() = RemoteDocPreview(ShaderCalendar())

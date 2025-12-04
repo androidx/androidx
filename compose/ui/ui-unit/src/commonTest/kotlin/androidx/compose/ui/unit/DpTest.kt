@@ -210,7 +210,6 @@ class DpTest {
 
     @Test
     fun compareDp() {
-        @OptIn(ExperimentalUnitApi::class) if (!ComposeUiUnitFlags.isDpCompareToChanged) return
         assertTrue(1.dp == 1.dp)
         assertFalse(1.dp != 1.dp)
 

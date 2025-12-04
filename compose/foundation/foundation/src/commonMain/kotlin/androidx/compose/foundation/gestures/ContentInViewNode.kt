@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.gestures
 
-import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation.Horizontal
@@ -28,11 +27,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
-import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.MeasuredSizeAwareModifierNode
 import androidx.compose.ui.node.currentValueOf
-import androidx.compose.ui.node.requireLayoutCoordinates
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toSize
@@ -75,7 +72,7 @@ internal class ContentInViewNode(
     Modifier.Node(),
     androidx.compose.foundation.relocation.BringIntoViewResponder,
     CompositionLocalConsumerModifierNode,
-    LayoutAwareModifierNode {
+    MeasuredSizeAwareModifierNode {
 
     override val shouldAutoInvalidate: Boolean = false
 
@@ -94,23 +91,11 @@ internal class ContentInViewNode(
      */
     private val bringIntoViewRequests = BringIntoViewRequestPriorityQueue()
 
-    private var focusedChild: LayoutCoordinates? = null
-
     /**
      * Set to true when this class is actively animating the scroll to keep the focused child in
      * view.
      */
     private var trackingFocusedChild = false
-
-    /**
-     * When the viewport shrinks, we need to wait for the focused bounds to be updated, which
-     * happens when globally positioned callbacks happen - this is _after_ this node has been
-     * remeasured. As a result we cannot bring into view until we know what the new bounds of the
-     * child are, as this can be affected by the measurement logic of this scrollable container /
-     * its parent(s). The old bounds of the child might still appear to be 'visible', even though it
-     * will now be placed in a different place, and become invisible.
-     */
-    private var childWasMaxVisibleBeforeViewportShrunk = false
 
     /** The size of the scrollable container. */
     internal var viewportSize = IntSize.Zero
@@ -146,31 +131,7 @@ internal class ContentInViewNode(
         }
     }
 
-    fun onFocusBoundsChanged(newBounds: LayoutCoordinates?) {
-        focusedChild = newBounds
-
-        if (childWasMaxVisibleBeforeViewportShrunk) {
-            getFocusedChildBounds()?.let { focusedChild ->
-                if (DEBUG) println("[$TAG] focused child bounds: $focusedChild")
-                if (!focusedChild.isMaxVisible(viewportSize)) {
-                    if (DEBUG)
-                        println(
-                            "[$TAG] focused child was clipped by viewport shrink: $focusedChild"
-                        )
-                    trackingFocusedChild = true
-                    launchAnimation()
-                }
-            }
-        }
-        childWasMaxVisibleBeforeViewportShrunk = false
-    }
-
     override fun onRemeasured(size: IntSize) {
-        if (!ComposeFoundationFlags.isKeepInViewFocusObservationChangeEnabled) {
-            onRemeasuredLegacy(size)
-            return
-        }
-
         val previousViewportSize = viewportSize
         viewportSize = size
 
@@ -223,46 +184,6 @@ internal class ContentInViewNode(
                 launchAnimation(viewportAdjustmentForReverseScroll)
             }
         }
-    }
-
-    private fun onRemeasuredLegacy(size: IntSize) {
-        val previousViewportSize = viewportSize
-        viewportSize = size
-
-        // Don't care if the viewport grew.
-        if (size >= previousViewportSize) return
-
-        if (DEBUG) println("[$TAG] viewport shrunk: $previousViewportSize -> $size")
-
-        // Ignore if we are already tracking an existing animation
-        if (isAnimationRunning || trackingFocusedChild) {
-            if (DEBUG) println("[$TAG] ignoring size change because animation is in progress")
-            return
-        }
-
-        // onRemeasured is called before the onGloballyPositioned callbacks are dispatched, so
-        // the bounds we get here will essentially be the previous bounds of the focused child,
-        // before this remeasurement occurred.
-        val boundsBeforeRemeasurement = getFocusedChildBounds() ?: return
-
-        // If the focused child was previously fully visible (its 'previous' bounds fit inside the
-        // previous viewport), we need to see if it is still visible after this remeasurement
-        // finishes and the child is placed in its new location. To do that we need to wait for
-        // its onGloballyPositioned callback, which will then end up calling onFocusBoundsChanged
-        if (boundsBeforeRemeasurement.isMaxVisible(previousViewportSize)) {
-            childWasMaxVisibleBeforeViewportShrunk = true
-        }
-    }
-
-    private fun getFocusedChildBounds(): Rect? {
-        if (ComposeFoundationFlags.isKeepInViewFocusObservationChangeEnabled) {
-            return getFocusedRect()
-        }
-
-        if (!isAttached) return null
-        val coordinates = requireLayoutCoordinates()
-        val focusedChild = this.focusedChild?.takeIf { it.isAttached } ?: return null
-        return coordinates.localBoundingBoxOf(focusedChild, clipBounds = false)
     }
 
     private fun launchAnimation(viewportAdjustmentForReverseScroll: IntOffset = IntOffset.Zero) {
@@ -347,10 +268,7 @@ internal class ContentInViewNode(
 
                             // Stop tracking any KIV requests that were satisfied by this scroll
                             // adjustment.
-                            if (
-                                trackingFocusedChild &&
-                                    getFocusedChildBounds()?.isMaxVisible() == true
-                            ) {
+                            if (trackingFocusedChild && getFocusedRect()?.isMaxVisible() == true) {
                                 if (DEBUG)
                                     println("[$TAG] Completed tracking focused child request")
                                 trackingFocusedChild = false
@@ -406,7 +324,7 @@ internal class ContentInViewNode(
 
         val rectangleToMakeVisible: Rect =
             findBringIntoViewRequest()
-                ?: (if (trackingFocusedChild) getFocusedChildBounds() else null)
+                ?: (if (trackingFocusedChild) getFocusedRect() else null)
                 ?: return 0f
 
         val size = viewportSize.toSize()

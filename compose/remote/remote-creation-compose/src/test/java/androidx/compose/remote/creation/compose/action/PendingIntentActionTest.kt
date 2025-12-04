@@ -18,15 +18,13 @@ package androidx.compose.remote.creation.compose.action
 
 import android.app.PendingIntent
 import android.content.Intent
-import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.core.RcProfiles.PROFILE_ANDROIDX
-import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.action.PendingIntentAction.Companion.ACTION_NAME
-import androidx.compose.remote.creation.compose.capture.PendingIntentAwareWriter
+import androidx.compose.remote.creation.compose.capture.PendingIntentWriterCallback
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.geometry.Size
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -36,6 +34,7 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class PendingIntentActionTest {
     val testPendingIntent: PendingIntent =
         PendingIntent.getActivity(
@@ -59,8 +58,15 @@ class PendingIntentActionTest {
         val pendingIntents: MutableList<PendingIntent> = mutableListOf()
         val creationState =
             RemoteComposeCreationState(
-                size = Size(1f, 1f),
-                profile = PendingIntentAwareProfile(pendingIntents),
+                creationDisplayInfo = CreationDisplayInfo(1, 1, 1f),
+                profile = RcPlatformProfiles.ANDROIDX,
+                writerCallback =
+                    object : PendingIntentWriterCallback {
+                        override fun storePendingIntent(pendingIntent: PendingIntent): Int {
+                            pendingIntents.add(pendingIntent)
+                            return pendingIntents.lastIndex
+                        }
+                    },
             )
 
         val testAction = PendingIntentAction(creationState, testPendingIntent)
@@ -72,28 +78,3 @@ class PendingIntentActionTest {
         assertThat((remoteAction as HostAction).toString()).contains("mActionName='${ACTION_NAME}'")
     }
 }
-
-private class PendingIntentAwareProfile(val pendingIntents: MutableList<PendingIntent>) :
-    Profile(
-        CoreDocument.DOCUMENT_API_LEVEL,
-        PROFILE_ANDROIDX,
-        AndroidxRcPlatformServices(),
-        { width, height, contentDescription, profile ->
-            object :
-                RemoteComposeWriter(
-                    width,
-                    height,
-                    contentDescription,
-                    CoreDocument.DOCUMENT_API_LEVEL,
-                    PROFILE_ANDROIDX,
-                    profile.platform,
-                ),
-                PendingIntentAwareWriter {
-
-                override fun storePendingIntent(pendingIntent: PendingIntent): Int {
-                    pendingIntents.add(pendingIntent)
-                    return pendingIntents.size - 1
-                }
-            }
-        },
-    )

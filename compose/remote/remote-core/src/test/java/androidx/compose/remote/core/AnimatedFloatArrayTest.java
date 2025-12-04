@@ -22,6 +22,7 @@ import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExp
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_MAX;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_MIN;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_SPLINE;
+import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_SPLINE_LOOP;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.A_SUM;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.MUL;
 import static androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.SUB;
@@ -65,6 +66,14 @@ public class AnimatedFloatArrayTest {
         return e.eval(ca, exp, exp.length);
     }
 
+    @Test
+    public void testSplineLoop() {
+        AnimatedFloatExpression e = new AnimatedFloatExpression();
+        float a = Utils.asNan(0x123 | ID_REGION_ARRAY);
+        assertEquals(2.5f, eval(e, ra(1, 2, 3, 4), a, 0.5f, A_SPLINE_LOOP), 0.002f);
+        assertEquals(2.5f, eval(e, ra(1, 2, 3, 4), a, 1.5f, A_SPLINE_LOOP), 0.002f);
+        assertEquals(2.5f, eval(e, ra(1, 2, 3, 4), a, -0.5f, A_SPLINE_LOOP), 0.002f);
+    }
     static CollectionsAccess ra(float... data) {
         return new CollectionsAccess() {
 
