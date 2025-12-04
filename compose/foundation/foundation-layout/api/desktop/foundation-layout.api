@@ -187,12 +187,14 @@ public final class androidx/compose/foundation/layout/PaddingKt {
 	public static synthetic fun absolutePadding-qDBjuR0$default (Landroidx/compose/ui/Modifier;FFFFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 	public static final fun calculateEndPadding (Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/ui/unit/LayoutDirection;)F
 	public static final fun calculateStartPadding (Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/ui/unit/LayoutDirection;)F
+	public static final fun minus (Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/foundation/layout/PaddingValues;
 	public static final fun padding (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/ui/Modifier;
 	public static final fun padding-3ABfNKs (Landroidx/compose/ui/Modifier;F)Landroidx/compose/ui/Modifier;
 	public static final fun padding-VpY3zN4 (Landroidx/compose/ui/Modifier;FF)Landroidx/compose/ui/Modifier;
 	public static synthetic fun padding-VpY3zN4$default (Landroidx/compose/ui/Modifier;FFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
 	public static final fun padding-qDBjuR0 (Landroidx/compose/ui/Modifier;FFFF)Landroidx/compose/ui/Modifier;
 	public static synthetic fun padding-qDBjuR0$default (Landroidx/compose/ui/Modifier;FFFFILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static final fun plus (Landroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/layout/PaddingValues;)Landroidx/compose/foundation/layout/PaddingValues;
 }
 
 public abstract interface class androidx/compose/foundation/layout/PaddingValues {
@@ -295,6 +297,10 @@ public final class androidx/compose/foundation/layout/SizeKt {
 
 public final class androidx/compose/foundation/layout/SpacerKt {
 	public static final fun Spacer (Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;I)V
+}
+
+public final class androidx/compose/foundation/layout/VisibleKt {
+	public static final fun visible (Landroidx/compose/ui/Modifier;Z)Landroidx/compose/ui/Modifier;
 }
 
 public abstract interface class androidx/compose/foundation/layout/WindowInsets {

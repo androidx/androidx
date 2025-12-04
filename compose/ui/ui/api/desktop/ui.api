@@ -3395,7 +3395,7 @@ public abstract interface class androidx/compose/ui/node/GlobalPositionAwareModi
 public abstract interface annotation class androidx/compose/ui/node/InternalCoreApi : java/lang/annotation/Annotation {
 }
 
-public abstract interface class androidx/compose/ui/node/LayoutAwareModifierNode : androidx/compose/ui/node/DelegatableNode {
+public abstract interface class androidx/compose/ui/node/LayoutAwareModifierNode : androidx/compose/ui/node/DelegatableNode, androidx/compose/ui/node/MeasuredSizeAwareModifierNode {
 	public fun onPlaced (Landroidx/compose/ui/layout/LayoutCoordinates;)V
 	public fun onRemeasured-ozmzZPI (J)V
 }
@@ -3414,6 +3414,10 @@ public final class androidx/compose/ui/node/LayoutModifierNodeKt {
 	public static final fun invalidatePlacement (Landroidx/compose/ui/node/LayoutModifierNode;)V
 	public static final fun remeasureSync (Landroidx/compose/ui/node/LayoutModifierNode;)V
 	public static final fun updateLayerBlock (Landroidx/compose/ui/node/LayoutModifierNode;Lkotlin/jvm/functions/Function1;)V
+}
+
+public abstract interface class androidx/compose/ui/node/MeasuredSizeAwareModifierNode : androidx/compose/ui/node/DelegatableNode {
+	public abstract fun onRemeasured-ozmzZPI (J)V
 }
 
 public abstract class androidx/compose/ui/node/ModifierNodeElement : androidx/compose/ui/Modifier$Element, androidx/compose/ui/platform/InspectableValue {
@@ -4123,6 +4127,7 @@ public final class androidx/compose/ui/semantics/SemanticsProperties {
 	public final fun getStateDescription ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getTestTag ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getText ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
+	public final fun getTextEntryKey ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getTextSelectionRange ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getTextSubstitution ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
 	public final fun getToggleableState ()Landroidx/compose/ui/semantics/SemanticsPropertyKey;
@@ -4262,6 +4267,7 @@ public final class androidx/compose/ui/semantics/SemanticsPropertiesKt {
 	public static final fun setVerticalScrollAxisRange (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Landroidx/compose/ui/semantics/ScrollAxisRange;)V
 	public static final fun showTextSubstitution (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function1;)V
 	public static synthetic fun showTextSubstitution$default (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;Ljava/lang/String;Lkotlin/jvm/functions/Function1;ILjava/lang/Object;)V
+	public static final fun textEntryKey (Landroidx/compose/ui/semantics/SemanticsPropertyReceiver;)V
 }
 
 public final class androidx/compose/ui/semantics/SemanticsPropertyKey {
