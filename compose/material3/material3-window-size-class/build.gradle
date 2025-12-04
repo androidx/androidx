@@ -41,10 +41,10 @@ kotlin {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                implementation("org.jetbrains.compose.ui:ui-util:1.9.3")
-                api("org.jetbrains.compose.runtime:runtime:1.9.3")
-                api("org.jetbrains.compose.ui:ui:1.9.3")
-                api("org.jetbrains.compose.ui:ui-unit:1.9.3")
+                implementation(project(":compose:ui:ui-util"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui"))
+                api(project(":compose:ui:ui-unit"))
             }
         }
 
