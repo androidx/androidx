@@ -21,35 +21,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSerializable
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
-import androidx.navigation3.runtime.samples.NavBackStackSamples.MultiBackStack
+import androidx.navigation3.runtime.samples.NavBackStackSamples.Chat
+import androidx.navigation3.runtime.samples.NavBackStackSamples.Home
+import androidx.navigation3.runtime.samples.NavBackStackSamples.SealedKey
+import androidx.navigation3.runtime.samples.NavBackStackSamples.Spaces
+import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.modules.SerializersModule
+import kotlinx.serialization.modules.polymorphic
+import kotlinx.serialization.modules.subclass
 import kotlinx.serialization.serializer
 
 object NavBackStackSamples {
 
+    // --- Open Polymorphism ---
     @Serializable open class Home : NavKey
 
     @Serializable open class Chat : NavKey
 
     @Serializable open class Spaces : NavKey
 
+    // --- Closed Polymorphism ---
     @Serializable
-    class MultiBackStack(
-        val homeTabStack: NavBackStack<Home>,
-        val chatTabStack: NavBackStack<Chat>,
-        val spacesTabStack: NavBackStack<Spaces>,
-    )
+    sealed class SealedKey : NavKey {
+
+        @Serializable class Inbox : SealedKey()
+
+        @Serializable class Settings : SealedKey()
+    }
 }
 
 @Composable
 @Sampled
-fun NavBackStack_Serializer() {
-    val multiBackStack =
-        rememberSerializable(serializer = serializer()) {
-            MultiBackStack(
-                homeTabStack = NavBackStack(),
-                chatTabStack = NavBackStack(),
-                spacesTabStack = NavBackStack(),
-            )
-        }
+fun NavBackStack_OpenPolymorphism() {
+    // https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#open-polymorphism
+    rememberSerializable(
+        serializer = serializer(),
+        configuration =
+            SavedStateConfiguration {
+                serializersModule = SerializersModule {
+                    polymorphic(baseClass = NavKey::class) {
+                        subclass(clazz = Home::class)
+                        subclass(clazz = Chat::class)
+                        subclass(clazz = Spaces::class)
+                    }
+                }
+            },
+    ) {
+        NavBackStack<NavKey>()
+    }
+}
+
+@Composable
+@Sampled
+fun NavBackStack_ClosedPolymorphism() {
+    // https://github.com/Kotlin/kotlinx.serialization/blob/master/docs/polymorphism.md#closed-polymorphism
+    rememberSerializable(serializer = serializer()) { NavBackStack<SealedKey>() }
 }

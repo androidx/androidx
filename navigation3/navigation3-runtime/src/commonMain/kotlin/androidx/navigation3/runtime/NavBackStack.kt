@@ -41,7 +41,8 @@ import kotlinx.serialization.Serializable
  * backStack.removeLast()         // pops stack
  * ```
  *
- * @sample androidx.navigation3.runtime.samples.NavBackStack_Serializer
+ * @sample androidx.navigation3.runtime.samples.NavBackStack_OpenPolymorphism
+ * @sample androidx.navigation3.runtime.samples.NavBackStack_ClosedPolymorphism
  * @constructor Creates a new back stack backed by the provided [SnapshotStateList].
  * @see rememberNavBackStack for lifecycle-aware persistence.
  */

@@ -35,9 +35,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -46,7 +43,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.NavEntryDecorator
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -59,7 +55,6 @@ import androidx.navigation3.runtime.samples.NavigateButton
 import androidx.navigation3.runtime.samples.Profile
 import androidx.navigation3.runtime.samples.ProfileViewModel
 import androidx.navigation3.runtime.samples.Scrollable
-import androidx.navigation3.scene.Scene
 import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.navigationevent.NavigationEvent
@@ -120,61 +115,27 @@ fun SceneNav() {
 @Sampled
 @Composable
 fun SceneNavSharedEntrySample() {
-
-    /** The [SharedTransitionScope] of the [NavDisplay]. */
-    val localNavSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope> =
-        compositionLocalOf {
-            throw IllegalStateException(
-                "Unexpected access to LocalNavSharedTransitionScope. You must provide a " +
-                    "SharedTransitionScope from a call to SharedTransitionLayout() or " +
-                    "SharedTransitionScope()"
-            )
-        }
-
-    /**
-     * A [NavEntryDecorator] that wraps each entry in a shared element that is controlled by the
-     * [Scene].
-     */
-    val sharedEntryInSceneNavEntryDecorator =
-        NavEntryDecorator<Any> { entry ->
-            with(localNavSharedTransitionScope.current) {
-                Box(
-                    Modifier.sharedElement(
-                        rememberSharedContentState(entry.contentKey),
-                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                    )
-                ) {
-                    entry.Content()
-                }
-            }
-        }
-
     val backStack = rememberNavBackStack(CatList)
     SharedTransitionLayout {
-        CompositionLocalProvider(localNavSharedTransitionScope provides this) {
-            NavDisplay(
-                backStack = backStack,
-                onBack = { backStack.removeAt(backStack.lastIndex) },
-                entryDecorators =
-                    listOf(
-                        sharedEntryInSceneNavEntryDecorator,
-                        rememberSaveableStateHolderNavEntryDecorator(),
-                    ),
-                entryProvider =
-                    entryProvider {
-                        entry<CatList> {
-                            CatList(this@SharedTransitionLayout) { cat ->
-                                backStack.add(CatDetail(cat))
-                            }
+        NavDisplay(
+            backStack = backStack,
+            onBack = { backStack.removeAt(backStack.lastIndex) },
+            entryDecorators = listOf(rememberSaveableStateHolderNavEntryDecorator()),
+            sharedTransitionScope = this,
+            entryProvider =
+                entryProvider {
+                    entry<CatList> {
+                        CatList(this@SharedTransitionLayout) { cat ->
+                            backStack.add(CatDetail(cat))
                         }
-                        entry<CatDetail> { args ->
-                            CatDetail(args.cat, this@SharedTransitionLayout) {
-                                backStack.removeAt(backStack.lastIndex)
-                            }
+                    }
+                    entry<CatDetail> { args ->
+                        CatDetail(args.cat, this@SharedTransitionLayout) {
+                            backStack.removeAt(backStack.lastIndex)
                         }
-                    },
-            )
-        }
+                    }
+                },
+        )
     }
 }
 

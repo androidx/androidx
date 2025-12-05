@@ -23,6 +23,7 @@ import androidx.collection.mutableObjectFloatMapOf
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.animate
@@ -168,9 +169,12 @@ public object NavDisplay {
  *   [NavEntry]s.
  * @param entryProvider lambda used to construct each possible [NavEntry]
  * @sample androidx.navigation3.ui.samples.SceneNav
- * @sample androidx.navigation3.ui.samples.SceneNavSharedEntrySample
  * @sample androidx.navigation3.ui.samples.SceneNavSharedElementSample
  */
+@Deprecated(
+    message = "Deprecated in favor of NavDisplay that supports sharedTransitionScope",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun <T : Any> NavDisplay(
     backStack: List<T>,
@@ -196,6 +200,90 @@ public fun <T : Any> NavDisplay(
         defaultPredictivePopTransitionSpec(),
     entryProvider: (key: T) -> NavEntry<T>,
 ) {
+    NavDisplay(
+        backStack = backStack,
+        modifier = modifier,
+        contentAlignment = contentAlignment,
+        onBack = onBack,
+        entryDecorators = entryDecorators,
+        sceneStrategy = sceneStrategy,
+        sharedTransitionScope = null,
+        sizeTransform = sizeTransform,
+        transitionSpec = transitionSpec,
+        popTransitionSpec = popTransitionSpec,
+        predictivePopTransitionSpec = predictivePopTransitionSpec,
+        entryProvider = entryProvider,
+    )
+}
+
+/**
+ * A nav display that renders and animates between different [Scene]s, each of which can render one
+ * or more [NavEntry]s.
+ *
+ * The [Scene]s are calculated with the given [SceneStrategy], which may be an assembled delegated
+ * chain of [SceneStrategy]s. If no [Scene] is calculated, the fallback will be to a
+ * [SinglePaneSceneStrategy].
+ *
+ * It is allowable for different [Scene]s to render the same [NavEntry]s, perhaps on some conditions
+ * as determined by the [sceneStrategy] based on window size, form factor, other arbitrary logic.
+ *
+ * If this happens, and these [Scene]s are rendered at the same time due to animation or predictive
+ * back, then the content for the [NavEntry] will only be rendered in the most recent [Scene] that
+ * is the target for being the current scene as determined by [sceneStrategy]. This enforces a
+ * unique invocation of each [NavEntry], even if it is displayable by two different [Scene]s.
+ *
+ * By default, AnimatedContent transitions are prioritized in this order:
+ * ```
+ * transitioning [NavEntry.metadata] > current [Scene.metadata] > NavDisplay defaults
+ * ```
+ *
+ * However, a [Scene.metadata] does have the ability to override [NavEntry.metadata]. Nevertheless,
+ * the final fallback will always be the NavDisplay's default transitions.
+ *
+ * @param backStack the collection of keys that represents the state that needs to be handled
+ * @param modifier the modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param onBack a callback for handling system back press. By default, this pops a single item off
+ *   of the given back stack if it is a [MutableList], otherwise you should provide this parameter.
+ * @param entryDecorators list of [NavEntryDecorator] to add information to the entry content
+ * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
+ * @param sharedTransitionScope the [SharedTransitionScope] to allow transitions between scenes.
+ * @param sizeTransform the [SizeTransform] for the [AnimatedContent].
+ * @param transitionSpec Default [ContentTransform] when navigating to [NavEntry]s.
+ * @param popTransitionSpec Default [ContentTransform] when popping [NavEntry]s.
+ * @param predictivePopTransitionSpec Default [ContentTransform] when popping with predictive back
+ *   [NavEntry]s.
+ * @param entryProvider lambda used to construct each possible [NavEntry]
+ * @sample androidx.navigation3.ui.samples.SceneNav
+ * @sample androidx.navigation3.ui.samples.SceneNavSharedEntrySample
+ * @sample androidx.navigation3.ui.samples.SceneNavSharedElementSample
+ */
+@Composable
+public fun <T : Any> NavDisplay(
+    backStack: List<T>,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    onBack: () -> Unit = {
+        if (backStack is MutableList<T>) {
+            backStack.removeLastOrNull()
+        }
+    },
+    entryDecorators: List<NavEntryDecorator<T>> =
+        listOf(rememberSaveableStateHolderNavEntryDecorator()),
+    sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
+    sharedTransitionScope: SharedTransitionScope? = null,
+    sizeTransform: SizeTransform? = null,
+    transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
+        defaultTransitionSpec(),
+    popTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
+        defaultPopTransitionSpec(),
+    predictivePopTransitionSpec:
+        AnimatedContentTransitionScope<Scene<T>>.(
+            @NavigationEvent.SwipeEdge Int
+        ) -> ContentTransform =
+        defaultPredictivePopTransitionSpec(),
+    entryProvider: (key: T) -> NavEntry<T>,
+) {
     require(backStack.isNotEmpty()) { "NavDisplay backstack cannot be empty" }
 
     val entries =
@@ -208,6 +296,7 @@ public fun <T : Any> NavDisplay(
     NavDisplay(
         entries = entries,
         sceneStrategy = sceneStrategy,
+        sharedTransitionScope = sharedTransitionScope,
         modifier = modifier,
         contentAlignment = contentAlignment,
         sizeTransform = sizeTransform,
@@ -264,6 +353,10 @@ public fun <T : Any> NavDisplay(
  * @sample androidx.navigation3.ui.samples.ConcatenatedBackStackSample
  * @see [rememberDecoratedNavEntries]
  */
+@Deprecated(
+    message = "Deprecated in favor of NavDisplay that supports sharedTransitionScope",
+    level = DeprecationLevel.HIDDEN,
+)
 @Composable
 public fun <T : Any> NavDisplay(
     entries: List<NavEntry<T>>,
@@ -282,9 +375,90 @@ public fun <T : Any> NavDisplay(
         defaultPredictivePopTransitionSpec(),
     onBack: () -> Unit,
 ) {
+    NavDisplay(
+        entries = entries,
+        sceneStrategy = sceneStrategy,
+        sharedTransitionScope = null,
+        modifier = modifier,
+        contentAlignment = contentAlignment,
+        sizeTransform = sizeTransform,
+        transitionSpec = transitionSpec,
+        popTransitionSpec = popTransitionSpec,
+        predictivePopTransitionSpec = predictivePopTransitionSpec,
+        onBack = onBack,
+    )
+}
+
+/**
+ * A nav display that renders and animates between different [Scene]s, each of which can render one
+ * or more [NavEntry]s.
+ *
+ * The [Scene]s are calculated with the given [SceneStrategy], which may be an assembled delegated
+ * chain of [SceneStrategy]s. If no [Scene] is calculated, the fallback will be to a
+ * [SinglePaneSceneStrategy].
+ *
+ * It is allowable for different [Scene]s to render the same [NavEntry]s, perhaps on some conditions
+ * as determined by the [sceneStrategy] based on window size, form factor, other arbitrary logic.
+ *
+ * If this happens, and these [Scene]s are rendered at the same time due to animation or predictive
+ * back, then the content for the [NavEntry] will only be rendered in the most recent [Scene] that
+ * is the target for being the current scene as determined by [sceneStrategy]. This enforces a
+ * unique invocation of each [NavEntry], even if it is displayable by two different [Scene]s.
+ *
+ * By default, AnimatedContent transitions are prioritized in this order:
+ * ```
+ * transitioning [NavEntry.metadata] > current [Scene.metadata] > NavDisplay defaults
+ * ```
+ *
+ * However, a [Scene.metadata] does have the ability to override [NavEntry.metadata]. Nevertheless,
+ * the final fallback will always be the NavDisplay's default transitions.
+ *
+ * **WHEN TO USE** This overload can be used when you need to switch between different backStacks
+ * and each with their own separate decorator states, or when you want to concatenate backStacks and
+ * their states to form a larger backstack.
+ *
+ * **HOW TO USE** The [entries] can first be created via [rememberDecoratedNavEntries] in order to
+ * associate a backStack with a particular set of states.
+ *
+ * @param entries the list of [NavEntry] built from a backStack. The entries can be created from a
+ *   backStack decorated with [NavEntryDecorator] via [rememberDecoratedNavEntries].
+ * @param modifier the modifier to be applied to the layout.
+ * @param contentAlignment The [Alignment] of the [AnimatedContent]
+ * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
+ * @param sharedTransitionScope the [SharedTransitionScope] to allow transitions between scenes.
+ * @param sizeTransform the [SizeTransform] for the [AnimatedContent].
+ * @param transitionSpec Default [ContentTransform] when navigating to [NavEntry]s.
+ * @param popTransitionSpec Default [ContentTransform] when popping [NavEntry]s.
+ * @param predictivePopTransitionSpec Default [ContentTransform] when popping with predictive back
+ *   [NavEntry]s.
+ * @param onBack a callback for handling system back press.
+ * @sample androidx.navigation3.ui.samples.MultipleBackStackSample
+ * @sample androidx.navigation3.ui.samples.ConcatenatedBackStackSample
+ * @sample androidx.navigation3.ui.samples.SceneNavSharedEntrySample
+ * @see [rememberDecoratedNavEntries]
+ */
+@Composable
+public fun <T : Any> NavDisplay(
+    entries: List<NavEntry<T>>,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment = Alignment.TopStart,
+    sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
+    sharedTransitionScope: SharedTransitionScope? = null,
+    sizeTransform: SizeTransform? = null,
+    transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
+        defaultTransitionSpec(),
+    popTransitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
+        defaultPopTransitionSpec(),
+    predictivePopTransitionSpec:
+        AnimatedContentTransitionScope<Scene<T>>.(
+            @NavigationEvent.SwipeEdge Int
+        ) -> ContentTransform =
+        defaultPredictivePopTransitionSpec(),
+    onBack: () -> Unit,
+) {
     require(entries.isNotEmpty()) { "NavDisplay entries cannot be empty" }
 
-    val sceneState = rememberSceneState(entries, sceneStrategy, onBack)
+    val sceneState = rememberSceneState(entries, sceneStrategy, sharedTransitionScope, onBack)
     val scene = sceneState.currentScene
 
     // Predictive Back Handling

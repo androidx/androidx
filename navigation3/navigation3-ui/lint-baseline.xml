@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+<issues format="6" by="lint 9.0.0-alpha13" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha13)" variant="all" version="9.0.0-alpha13">
 
     <issue
         id="UseSdkSuppress"
@@ -89,6 +89,15 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidDeviceTest/kotlin/androidx/navigation3/ui/NavDisplayScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    val previousSceneInfos = sceneState.previousScenes.map { SceneInfo(it) }"
+        errorLine2="                                                       ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>
 
     <issue

@@ -22,20 +22,17 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.samples.RememberNavBackStackSamples.Details
 import androidx.navigation3.runtime.samples.RememberNavBackStackSamples.Home
-import androidx.navigation3.runtime.samples.RememberNavBackStackSamples.Screen
 import androidx.savedstate.serialization.SavedStateConfiguration
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 
-object RememberNavBackStackSamples {
+private object RememberNavBackStackSamples {
 
-    @Serializable open class Screen : NavKey
+    @Serializable open class Home(val id: String) : NavKey
 
-    @Serializable open class Home(val id: String) : Screen()
-
-    @Serializable open class Details(val itemId: Long) : Screen()
+    @Serializable open class Details(val itemId: Long) : NavKey
 }
 
 @Composable
@@ -51,7 +48,7 @@ fun rememberNavBackStack_withSerializersModule() {
     val config = SavedStateConfiguration {
         // Register subtypes for open polymorphism or multiplatform use.
         serializersModule = SerializersModule {
-            polymorphic(baseClass = Screen::class) {
+            polymorphic(baseClass = NavKey::class) {
                 subclass(serializer = Home.serializer())
                 subclass(serializer = Details.serializer())
             }
