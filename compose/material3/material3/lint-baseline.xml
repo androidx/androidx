@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha13" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha13)" variant="all" version="9.0.0-alpha13">
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
 
     <issue
         id="BanThreadSleep"
@@ -939,7 +939,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="        rule.runOnUiThread { progress.value = 0.5f }"
         errorLine2="                                      ~~~~~">
         <location
@@ -957,7 +957,7 @@
 
     <issue
         id="AutoboxingStateValueProperty"
-        message="Reading `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
         errorLine1="        rule.runOnUiThread { progress.value = 0.5f }"
         errorLine2="                                      ~~~~~">
         <location

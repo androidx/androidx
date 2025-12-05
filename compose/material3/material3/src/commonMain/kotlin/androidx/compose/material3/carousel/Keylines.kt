@@ -229,8 +229,15 @@ internal fun heroKeylineList(
     // Force arrangements with less than 3 items to be start-aligned since they cannot be centered
     val shouldCenter = isCentered && itemCount >= 3
 
-    // Centered arrangements always need even numbers of small and medium items
-    var smallCounts: IntArray = if (shouldCenter) intArrayOf(2) else intArrayOf(1)
+    var smallCounts =
+        when {
+            // If there is only one item, it should be large with no small items
+            itemCount <= 1 -> intArrayOf(0)
+            // Centered arrangements always need even numbers of small items
+            shouldCenter == true -> intArrayOf(2)
+            // Otherwise make a start-aligned hero carousel with one small item
+            else -> intArrayOf(1)
+        }
 
     val targetLargeSize = min(maxItemSize ?: carouselMainAxisSize, carouselMainAxisSize)
     // Visually balanced layouts should aim to use small items that are 1/3 the size of large items

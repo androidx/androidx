@@ -601,10 +601,10 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {
     ctor @KotlinOnly @Deprecated public CheckboxColors(androidx.compose.ui.graphics.Color checkedCheckmarkColor, androidx.compose.ui.graphics.Color uncheckedCheckmarkColor, androidx.compose.ui.graphics.Color checkedBoxColor, androidx.compose.ui.graphics.Color uncheckedBoxColor, androidx.compose.ui.graphics.Color disabledCheckedBoxColor, androidx.compose.ui.graphics.Color disabledUncheckedBoxColor, androidx.compose.ui.graphics.Color disabledIndeterminateBoxColor, androidx.compose.ui.graphics.Color checkedBorderColor, androidx.compose.ui.graphics.Color uncheckedBorderColor, androidx.compose.ui.graphics.Color disabledBorderColor, androidx.compose.ui.graphics.Color disabledUncheckedBorderColor, androidx.compose.ui.graphics.Color disabledIndeterminateBorderColor);
-    ctor @KotlinOnly public CheckboxColors(androidx.compose.ui.graphics.Color checkedCheckmarkColor, androidx.compose.ui.graphics.Color uncheckedCheckmarkColor, androidx.compose.ui.graphics.Color disabledCheckmarkColor, androidx.compose.ui.graphics.Color checkedBoxColor, androidx.compose.ui.graphics.Color uncheckedBoxColor, androidx.compose.ui.graphics.Color disabledCheckedBoxColor, androidx.compose.ui.graphics.Color disabledUncheckedBoxColor, androidx.compose.ui.graphics.Color disabledIndeterminateBoxColor, androidx.compose.ui.graphics.Color checkedBorderColor, androidx.compose.ui.graphics.Color uncheckedBorderColor, androidx.compose.ui.graphics.Color disabledBorderColor, androidx.compose.ui.graphics.Color disabledUncheckedBorderColor, androidx.compose.ui.graphics.Color disabledIndeterminateBorderColor);
+    ctor @KotlinOnly public CheckboxColors(androidx.compose.ui.graphics.Color checkedCheckmarkColor, androidx.compose.ui.graphics.Color uncheckedCheckmarkColor, androidx.compose.ui.graphics.Color checkedBoxColor, androidx.compose.ui.graphics.Color uncheckedBoxColor, androidx.compose.ui.graphics.Color disabledCheckedBoxColor, androidx.compose.ui.graphics.Color disabledUncheckedBoxColor, androidx.compose.ui.graphics.Color disabledIndeterminateBoxColor, androidx.compose.ui.graphics.Color checkedBorderColor, androidx.compose.ui.graphics.Color uncheckedBorderColor, androidx.compose.ui.graphics.Color disabledBorderColor, androidx.compose.ui.graphics.Color disabledUncheckedBorderColor, androidx.compose.ui.graphics.Color disabledIndeterminateBorderColor, androidx.compose.ui.graphics.Color disabledCheckmarkColor);
     ctor @BytecodeOnly @Deprecated public CheckboxColors(long, long, long, long, long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public CheckboxColors(long, long, long, long, long, long, long, long, long, long, long, long, long, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @KotlinOnly public androidx.compose.material3.CheckboxColors copy(optional androidx.compose.ui.graphics.Color checkedCheckmarkColor, optional androidx.compose.ui.graphics.Color uncheckedCheckmarkColor, optional androidx.compose.ui.graphics.Color disabledCheckmarkColor, optional androidx.compose.ui.graphics.Color checkedBoxColor, optional androidx.compose.ui.graphics.Color uncheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledCheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledUncheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledIndeterminateBoxColor, optional androidx.compose.ui.graphics.Color checkedBorderColor, optional androidx.compose.ui.graphics.Color uncheckedBorderColor, optional androidx.compose.ui.graphics.Color disabledBorderColor, optional androidx.compose.ui.graphics.Color disabledUncheckedBorderColor, optional androidx.compose.ui.graphics.Color disabledIndeterminateBorderColor);
+    method @KotlinOnly public androidx.compose.material3.CheckboxColors copy(optional androidx.compose.ui.graphics.Color checkedCheckmarkColor, optional androidx.compose.ui.graphics.Color uncheckedCheckmarkColor, optional androidx.compose.ui.graphics.Color checkedBoxColor, optional androidx.compose.ui.graphics.Color uncheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledCheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledUncheckedBoxColor, optional androidx.compose.ui.graphics.Color disabledIndeterminateBoxColor, optional androidx.compose.ui.graphics.Color checkedBorderColor, optional androidx.compose.ui.graphics.Color uncheckedBorderColor, optional androidx.compose.ui.graphics.Color disabledBorderColor, optional androidx.compose.ui.graphics.Color disabledUncheckedBorderColor, optional androidx.compose.ui.graphics.Color disabledIndeterminateBorderColor, optional androidx.compose.ui.graphics.Color disabledCheckmarkColor);
     method @BytecodeOnly @Deprecated public androidx.compose.material3.CheckboxColors! copy-2qZNXz8(long, long, long, long, long, long, long, long, long, long, long, long);
     method @BytecodeOnly @Deprecated public static androidx.compose.material3.CheckboxColors! copy-2qZNXz8$default(androidx.compose.material3.CheckboxColors!, long, long, long, long, long, long, long, long, long, long, long, long, int, Object!);
     method @BytecodeOnly public androidx.compose.material3.CheckboxColors copy-daRQuJA(long, long, long, long, long, long, long, long, long, long, long, long, long);
@@ -658,9 +658,6 @@ package androidx.compose.material3 {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void TriStateCheckbox(androidx.compose.ui.state.ToggleableState, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.compose.ui.graphics.drawscope.Stroke, androidx.compose.ui.graphics.drawscope.Stroke, androidx.compose.ui.Modifier?, boolean, androidx.compose.material3.CheckboxColors?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TriStateCheckbox(androidx.compose.ui.state.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.CheckboxColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposableTarget(applier="androidx.compose.ui.UiComposable") public static void TriStateCheckbox(androidx.compose.ui.state.ToggleableState, kotlin.jvm.functions.Function0<kotlin.Unit!>?, androidx.compose.ui.Modifier?, boolean, androidx.compose.material3.CheckboxColors?, androidx.compose.foundation.interaction.MutableInteractionSource?, androidx.compose.runtime.Composer?, int, int);
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static boolean isCheckboxStylingFixEnabled();
-    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static void setCheckboxStylingFixEnabled(boolean);
-    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static boolean isCheckboxStylingFixEnabled;
   }
 
   @Deprecated @androidx.compose.runtime.Immutable public final class ChipBorder {
@@ -867,8 +864,10 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class ComposeMaterial3Flags {
+    property public boolean isCheckboxStylingFixEnabled;
     property public boolean isPrecisionPointerComponentSizingEnabled;
     field public static final androidx.compose.material3.ComposeMaterial3Flags INSTANCE;
+    field public static boolean isCheckboxStylingFixEnabled;
     field public static boolean isPrecisionPointerComponentSizingEnabled;
   }
 
@@ -4939,6 +4938,37 @@ package androidx.compose.material3.carousel {
   @SuppressCompatibility public final class CarouselStateKt {
     method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.carousel.CarouselState rememberCarouselState(optional int initialItem, kotlin.jvm.functions.Function0<java.lang.Integer> itemCount);
     method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public static androidx.compose.material3.carousel.CarouselState rememberCarouselState(int, kotlin.jvm.functions.Function0<java.lang.Integer!>, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public sealed nonexhaustive interface MultiAspectCarouselItemDrawInfo {
+    method @InaccessibleFromKotlin public int getIndex();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getMaskEnd();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getMaskStart();
+    method @InaccessibleFromKotlin public float getMaxSize();
+    method @InaccessibleFromKotlin public float getMinSize();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getParallax();
+    method @InaccessibleFromKotlin @androidx.compose.runtime.annotation.FrequentlyChangingValue public float getSize();
+    method @InaccessibleFromKotlin public boolean isHorizontal();
+    property public abstract int index;
+    property public abstract boolean isHorizontal;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float maskEnd;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float maskStart;
+    property public abstract float maxSize;
+    property public abstract float minSize;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float parallax;
+    property @androidx.compose.runtime.annotation.FrequentlyChangingValue public abstract float size;
+  }
+
+  public final class MultiAspectCarouselKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public static androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo MultiAspectCarouselItemDrawInfo(int index, androidx.compose.foundation.lazy.LazyListState state);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void MultiAspectCarouselScope(kotlin.jvm.functions.Function1<androidx.compose.material3.carousel.MultiAspectCarouselScope,kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void MultiAspectCarouselScope(kotlin.jvm.functions.Function3<? super androidx.compose.material3.carousel.MultiAspectCarouselScope!,? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+  }
+
+  public interface MultiAspectCarouselScope {
+    method @KotlinOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke border, androidx.compose.ui.graphics.Shape shape, androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo multiAspectItemDrawInfo);
+    method @BytecodeOnly @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier maskBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke, androidx.compose.ui.graphics.Shape, androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo, androidx.compose.runtime.Composer?, int);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public androidx.compose.ui.Modifier maskClip(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Shape shape, androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo multiAspectItemDrawInfo);
   }
 
 }

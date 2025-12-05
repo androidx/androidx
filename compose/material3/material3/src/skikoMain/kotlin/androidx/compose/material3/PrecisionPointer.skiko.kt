@@ -20,9 +20,6 @@ import androidx.compose.runtime.Composable
 
 // TODO https://youtrack.jetbrains.com/issue/CMP-9305
 
-internal actual val shouldUsePrecisionPointerComponentSizing: Boolean
-    get() = false
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal actual fun EnsurePrecisionPointerListenersRegistered(content: @Composable (() -> Unit)) {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: 24.1.2
+// VERSION: 29.0.0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -28,11 +28,12 @@ internal object ListTokens {
     val DividerTrailingSpace = 16.0.dp
     val FocusIndicatorColor = ColorSchemeKeyTokens.Secondary
     val ItemBetweenSpace = 12.0.dp
-    val ItemBottomSpace = 12.0.dp
+    val ItemBottomSpace = 10.0.dp
     val ItemContainerColor = ColorSchemeKeyTokens.Surface
     val ItemContainerElevation = ElevationTokens.Level0
-    val ItemContainerExpressiveShape = ShapeKeyTokens.CornerMedium
+    val ItemContainerExpressiveShape = ShapeKeyTokens.CornerExtraSmall
     val ItemContainerShape = ShapeKeyTokens.CornerNone
+    val ItemDisabledContainerExpressiveShape = ShapeKeyTokens.CornerExtraSmall
     val ItemDisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemDisabledLabelTextOpacity = 0.38f
     val ItemDisabledLeadingIconColor = ColorSchemeKeyTokens.OnSurface
@@ -45,15 +46,18 @@ internal object ListTokens {
     val ItemDisabledTrailingIconColor = ColorSchemeKeyTokens.OnSurface
     val ItemDisabledTrailingIconOpacity = 0.38f
     val ItemDraggedContainerElevation = ElevationTokens.Level4
+    val ItemDraggedContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemDraggedLabelTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemDraggedLeadingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemDraggedTrailingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemFocusLabelTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemFocusLeadingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemFocusTrailingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val ItemFocusedContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemHoverLabelTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemHoverLeadingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemHoverTrailingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val ItemHoveredContainerExpressiveShape = ShapeKeyTokens.CornerMedium
     val ItemLabelTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemLabelTextFont = TypographyKeyTokens.BodyLarge
     val ItemLargeLeadingVideoHeight = 64.0.dp
@@ -76,13 +80,16 @@ internal object ListTokens {
     val ItemOneLineContainerHeight = 56.0.dp
     val ItemOverlineColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemOverlineFont = TypographyKeyTokens.LabelSmall
+    val ItemPressedContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemPressedLabelTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemPressedLeadingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemPressedTrailingIconIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemSegmentedContainerColor = ColorSchemeKeyTokens.Surface
     val ItemSelectedContainerColor = ColorSchemeKeyTokens.SecondaryContainer
+    val ItemSelectedContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemSelectedContainerShape = ShapeKeyTokens.CornerLarge
     val ItemSelectedDisabledContainerColor = ColorSchemeKeyTokens.OnSurface
+    val ItemSelectedDisabledContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemSelectedDisabledContainerOpacity = 0.38f
     val ItemSelectedDisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemSelectedDisabledLabelTextOpacity = 0.38f
@@ -97,30 +104,34 @@ internal object ListTokens {
     val ItemSelectedDisabledTrailingIconOpacity = 0.38f
     val ItemSelectedDisabledTrailingSupportingTextColor = ColorSchemeKeyTokens.OnSurface
     val ItemSelectedDisabledTrailingSupportingTextOpacity = 0.38f
+    val ItemSelectedDraggedContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemSelectedDraggedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val ItemSelectedDraggedLeadingIconColor = ColorSchemeKeyTokens.OnSurface
     val ItemSelectedDraggedTrailingIconColor = ColorSchemeKeyTokens.OnSurface
     val ItemSelectedFocusLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val ItemSelectedFocusLeadingIconColor = ColorSchemeKeyTokens.OnSurface
     val ItemSelectedFocusTrailingIconColor = ColorSchemeKeyTokens.OnSurface
+    val ItemSelectedFocusedContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemSelectedHoverLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val ItemSelectedHoverLeadingIconColor = ColorSchemeKeyTokens.OnSurface
     val ItemSelectedHoverTrailingIconColor = ColorSchemeKeyTokens.OnSurface
+    val ItemSelectedHoveredContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemSelectedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val ItemSelectedLeadingIconColor = ColorSchemeKeyTokens.OnSurface
-    val ItemSelectedOverlineColor = ColorSchemeKeyTokens.OnSurface
+    val ItemSelectedLeadingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val ItemSelectedOverlineColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val ItemSelectedPressedContainerExpressiveShape = ShapeKeyTokens.CornerLarge
     val ItemSelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val ItemSelectedPressedLeadingIconColor = ColorSchemeKeyTokens.OnSurface
     val ItemSelectedPressedTrailingIconColor = ColorSchemeKeyTokens.OnSurface
-    val ItemSelectedSupportingTextColor = ColorSchemeKeyTokens.OnSurface
-    val ItemSelectedTrailingIconColor = ColorSchemeKeyTokens.Primary
-    val ItemSelectedTrailingSupportingTextColor = ColorSchemeKeyTokens.OnSurface
+    val ItemSelectedSupportingTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val ItemSelectedTrailingIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val ItemSelectedTrailingSupportingTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val ItemSmallLeadingVideoHeight = 56.0.dp
     val ItemSmallLeadingVideoWidth = 100.0.dp
     val ItemSupportingTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemSupportingTextFont = TypographyKeyTokens.BodyMedium
     val ItemThreeLineContainerHeight = 88.0.dp
-    val ItemTopSpace = 12.0.dp
+    val ItemTopSpace = 10.0.dp
     val ItemTrailingIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val ItemTrailingIconExpressiveSize = 20.0.dp
     val ItemTrailingIconSize = 24.0.dp

@@ -19,10 +19,14 @@ package androidx.compose.material3
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.animateTo
+import androidx.compose.foundation.gestures.snapTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
@@ -34,11 +38,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
-import androidx.compose.material3.internal.AnchoredDraggableState
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.animateTo
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.snapTo
 import androidx.compose.material3.tokens.ScrimTokens
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.Composable
@@ -89,8 +90,8 @@ import kotlinx.coroutines.CancellationException
 @ExperimentalMaterial3Api
 class SheetState(
     internal val skipPartiallyExpanded: Boolean,
-    positionalThreshold: () -> Float,
-    velocityThreshold: () -> Float,
+    internal val positionalThreshold: () -> Float,
+    internal val velocityThreshold: () -> Float,
     initialValue: SheetValue = Hidden,
     internal val confirmValueChange: (SheetValue) -> Boolean = { true },
     internal val skipHiddenState: Boolean = false,
@@ -118,7 +119,10 @@ class SheetState(
      * was in before the swipe or animation started.
      */
     val currentValue: SheetValue
-        get() = anchoredDraggableState.currentValue
+        // Note: Current Value is mapping to the newly introduced settled value for roughly
+        // analogous behavior to internal fork. anchoredDraggableState.currentValue now maps to the
+        // value the touch target is closest to, regardless of release/settling.
+        get() = anchoredDraggableState.settledValue
 
     /**
      * The target value of the bottom sheet state.
@@ -162,11 +166,11 @@ class SheetState(
 
     /** Whether the sheet has an expanded state defined. */
     val hasExpandedState: Boolean
-        get() = anchoredDraggableState.anchors.hasAnchorFor(Expanded)
+        get() = anchoredDraggableState.anchors.hasPositionFor(Expanded)
 
     /** Whether the modal bottom sheet has a partially expanded state defined. */
     val hasPartiallyExpandedState: Boolean
-        get() = anchoredDraggableState.anchors.hasAnchorFor(PartiallyExpanded)
+        get() = anchoredDraggableState.anchors.hasPositionFor(PartiallyExpanded)
 
     /**
      * If [confirmValueChange] returns true, fully expand the bottom sheet with animation and
@@ -228,7 +232,6 @@ class SheetState(
      *
      * @param targetValue The target value of the animation
      * @param animationSpec an [AnimationSpec]
-     * @param velocity an initial velocity for the animation
      * @throws CancellationException if the interaction interrupted by another interaction like a
      *   gesture interaction or another programmatic interaction like a [animateTo] or [snapTo]
      *   call.
@@ -236,23 +239,7 @@ class SheetState(
     internal suspend fun animateTo(
         targetValue: SheetValue,
         animationSpec: FiniteAnimationSpec<Float>,
-        velocity: Float = anchoredDraggableState.lastVelocity,
-    ) {
-        anchoredDraggableState.anchoredDrag(targetValue = targetValue) { anchors, latestTarget ->
-            val targetOffset = anchors.positionOf(latestTarget)
-            if (!targetOffset.isNaN()) {
-                var prev = if (offset.isNaN()) 0f else offset
-                animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
-                    // Our onDrag coerces the value within the bounds, but an animation may
-                    // overshoot, for example a spring animation or an overshooting interpolator
-                    // We respect the user's intention and allow the overshoot, but still use
-                    // DraggableState's drag for its mutex.
-                    dragTo(value, velocity)
-                    prev = value
-                }
-            }
-        }
-    }
+    ) = anchoredDraggableState.animateTo(targetValue, animationSpec)
 
     /**
      * Snap to a [targetValue] without any animation.
@@ -266,23 +253,40 @@ class SheetState(
         anchoredDraggableState.snapTo(targetValue)
     }
 
-    /**
-     * Find the closest anchor taking into account the velocity and settle at it with an animation.
-     */
-    internal suspend fun settle(velocity: Float) {
-        anchoredDraggableState.settle(velocity)
-    }
-
     internal var anchoredDraggableMotionSpec: AnimationSpec<Float> = BottomSheetAnimationSpec
 
-    internal var anchoredDraggableState =
-        AnchoredDraggableState(
-            initialValue = initialValue,
-            animationSpec = { anchoredDraggableMotionSpec },
-            confirmValueChange = confirmValueChange,
-            positionalThreshold = { positionalThreshold() },
-            velocityThreshold = velocityThreshold,
+    @Suppress("Deprecation")
+    internal var anchoredDraggableState: AnchoredDraggableState<SheetValue> =
+        AnchoredDraggableState(initialValue = initialValue, confirmValueChange = confirmValueChange)
+
+    /**
+     * Calculate the new offset for a [delta] to ensure it is coerced in the bounds
+     *
+     * @param delta The delta to be added to the [offset]
+     * @return The coerced offset
+     */
+    internal fun newOffsetForDelta(delta: Float) =
+        ((if (offset.isNaN()) 0f else offset) + delta).coerceIn(
+            anchoredDraggableState.anchors.minPosition(),
+            anchoredDraggableState.anchors.maxPosition(),
         )
+
+    internal suspend fun anchoredDrag(flingBehavior: FlingBehavior, initialVelocity: Float): Float {
+        var consumedVelocity = 0f
+        anchoredDraggableState.anchoredDrag {
+            val scrollScope =
+                object : ScrollScope {
+                    override fun scrollBy(pixels: Float): Float {
+                        val newOffset = newOffsetForDelta(pixels)
+                        val consumed = newOffset - offset
+                        dragTo(newOffset)
+                        return consumed
+                    }
+                }
+            consumedVelocity = with(flingBehavior) { scrollScope.performFling(initialVelocity) }
+        }
+        return consumedVelocity
+    }
 
     internal val offset: Float
         get() = anchoredDraggableState.offset
@@ -303,11 +307,17 @@ class SheetState(
             Saver<SheetState, SheetValue>(
                 save = { it.currentValue },
                 restore = { savedValue ->
+                    val newValue =
+                        if (skipPartiallyExpanded && savedValue == PartiallyExpanded) {
+                            Expanded
+                        } else {
+                            savedValue
+                        }
                     SheetState(
                         skipPartiallyExpanded,
                         positionalThreshold,
                         velocityThreshold,
-                        savedValue,
+                        newValue,
                         confirmValueChange,
                         skipHiddenState,
                     )
@@ -448,7 +458,7 @@ internal fun DragHandleWithTooltip(modifier: Modifier, content: @Composable (() 
 internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
     sheetState: SheetState,
     orientation: Orientation,
-    onFling: (velocity: Float) -> Unit,
+    flingBehavior: FlingBehavior,
 ): NestedScrollConnection =
     object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
@@ -475,9 +485,9 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         override suspend fun onPreFling(available: Velocity): Velocity {
             val toFling = available.toFloat()
             val currentOffset = sheetState.requireOffset()
-            val minAnchor = sheetState.anchoredDraggableState.anchors.minAnchor()
+            val minAnchor = sheetState.anchoredDraggableState.anchors.minPosition()
             return if (toFling < 0 && currentOffset > minAnchor) {
-                onFling(toFling)
+                sheetState.anchoredDrag(flingBehavior, toFling)
                 // since we go to the anchor with tween settling, consume all for the best UX
                 available
             } else {
@@ -486,8 +496,9 @@ internal fun ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
         }
 
         override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-            onFling(available.toFloat())
-            return available
+            val toFling = available.toFloat()
+            val consumedByAnchoredDraggableFling = sheetState.anchoredDrag(flingBehavior, toFling)
+            return Velocity(consumed.x, consumedByAnchoredDraggableFling)
         }
 
         private fun Float.toOffset(): Offset =
@@ -543,5 +554,5 @@ internal fun rememberSheetState(
 private val DragHandleVerticalPadding = 22.dp
 
 /** A function that provides the default animation spec used by [SheetState]. */
-private val BottomSheetAnimationSpec: AnimationSpec<Float> =
+internal val BottomSheetAnimationSpec: AnimationSpec<Float> =
     tween(durationMillis = 300, easing = FastOutSlowInEasing)

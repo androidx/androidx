@@ -22,9 +22,13 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
+import androidx.compose.foundation.gestures.DraggableAnchors
+import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
@@ -39,9 +43,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
-import androidx.compose.material3.internal.DraggableAnchors
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.draggableAnchors
+import androidx.compose.material3.internal.draggableAnchorsV2
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
@@ -149,7 +152,7 @@ fun ModalBottomSheet(
     }
     val scope = rememberCoroutineScope()
     val animateToDismiss: () -> Unit = {
-        if (sheetState.anchoredDraggableState.confirmValueChange(Hidden)) {
+        if (sheetState.confirmValueChange(Hidden)) {
             scope
                 .launch { sheetState.hide() }
                 .invokeOnCompletion {
@@ -158,11 +161,6 @@ fun ModalBottomSheet(
                     }
                 }
         }
-    }
-    val settleToDismiss: (velocity: Float) -> Unit = {
-        scope
-            .launch { sheetState.settle(it) }
-            .invokeOnCompletion { if (!sheetState.isVisible) onDismissRequest() }
     }
 
     val predictiveBackProgress = remember { Animatable(initialValue = 0f) }
@@ -193,8 +191,8 @@ fun ModalBottomSheet(
             ModalBottomSheetContent(
                 predictiveBackProgress,
                 scope,
+                onDismissRequest,
                 animateToDismiss,
-                settleToDismiss,
                 modifier,
                 sheetState,
                 sheetMaxWidth,
@@ -219,8 +217,8 @@ fun ModalBottomSheet(
 internal fun BoxScope.ModalBottomSheetContent(
     predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     scope: CoroutineScope,
+    onDismissRequest: () -> Unit,
     animateToDismiss: () -> Unit,
-    settleToDismiss: (velocity: Float) -> Unit,
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(),
     sheetMaxWidth: Dp = BottomSheetDefaults.SheetMaxWidth,
@@ -234,6 +232,27 @@ internal fun BoxScope.ModalBottomSheetContent(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val bottomSheetPaneTitle = getString(string = Strings.BottomSheetPaneTitle)
+    val anchoredDraggableFlingBehavior =
+        AnchoredDraggableDefaults.flingBehavior(
+            state = sheetState.anchoredDraggableState,
+            positionalThreshold = { _ -> sheetState.positionalThreshold.invoke() },
+            animationSpec = BottomSheetAnimationSpec,
+        )
+    val modalBottomSheetFlingBehavior =
+        remember(anchoredDraggableFlingBehavior) {
+            object : FlingBehavior {
+                override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                    var remainingVelocity = 0f
+                    try {
+                        remainingVelocity =
+                            with(anchoredDraggableFlingBehavior) { performFling(initialVelocity) }
+                    } finally {
+                        if (!sheetState.isVisible) onDismissRequest()
+                    }
+                    return remainingVelocity
+                }
+            }
+        }
 
     Surface(
         modifier =
@@ -248,13 +267,13 @@ internal fun BoxScope.ModalBottomSheetContent(
                                 ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
                                     sheetState = sheetState,
                                     orientation = Orientation.Vertical,
-                                    onFling = settleToDismiss,
+                                    flingBehavior = modalBottomSheetFlingBehavior,
                                 )
                             }
                         )
                     else Modifier
                 )
-                .draggableAnchors(sheetState.anchoredDraggableState, Orientation.Vertical) {
+                .draggableAnchorsV2(sheetState.anchoredDraggableState, Orientation.Vertical) {
                     sheetSize,
                     constraints ->
                     val fullHeight = constraints.maxHeight.toFloat()
@@ -274,24 +293,25 @@ internal fun BoxScope.ModalBottomSheetContent(
                             Hidden -> Hidden
                             PartiallyExpanded -> {
                                 val hasPartiallyExpandedState =
-                                    newAnchors.hasAnchorFor(PartiallyExpanded)
+                                    newAnchors.hasPositionFor(PartiallyExpanded)
                                 val newTarget =
                                     if (hasPartiallyExpandedState) PartiallyExpanded
-                                    else if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
+                                    else if (newAnchors.hasPositionFor(Expanded)) Expanded
+                                    else Hidden
                                 newTarget
                             }
+
                             Expanded -> {
-                                if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
+                                if (newAnchors.hasPositionFor(Expanded)) Expanded else Hidden
                             }
                         }
-                    return@draggableAnchors newAnchors to newTarget
+                    return@draggableAnchorsV2 newAnchors to newTarget
                 }
-                .draggable(
-                    state = sheetState.anchoredDraggableState.draggableState,
+                .anchoredDraggable(
+                    state = sheetState.anchoredDraggableState,
                     orientation = Orientation.Vertical,
-                    enabled = sheetGesturesEnabled && sheetState.isVisible,
-                    startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
-                    onDragStopped = { settleToDismiss(it) },
+                    enabled = sheetGesturesEnabled && sheetState.currentValue != Hidden,
+                    flingBehavior = modalBottomSheetFlingBehavior,
                 )
                 .semantics {
                     paneTitle = bottomSheetPaneTitle
@@ -362,22 +382,14 @@ internal fun BoxScope.ModalBottomSheetContent(
                                         }
                                         if (currentValue == PartiallyExpanded) {
                                             expand(expandActionLabel) {
-                                                if (
-                                                    anchoredDraggableState.confirmValueChange(
-                                                        Expanded
-                                                    )
-                                                ) {
+                                                if (confirmValueChange(Expanded)) {
                                                     scope.launch { sheetState.expand() }
                                                 }
                                                 true
                                             }
                                         } else if (hasPartiallyExpandedState) {
                                             collapse(collapseActionLabel) {
-                                                if (
-                                                    anchoredDraggableState.confirmValueChange(
-                                                        PartiallyExpanded
-                                                    )
-                                                ) {
+                                                if (confirmValueChange(PartiallyExpanded)) {
                                                     scope.launch { partialExpand() }
                                                 }
                                                 true

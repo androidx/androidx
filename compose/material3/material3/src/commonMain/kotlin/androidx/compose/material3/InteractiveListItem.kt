@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -1145,7 +1146,7 @@ internal object InteractiveListItemDefaults {
                         selectedLeadingContentColor =
                             fromToken(ListTokens.ItemSelectedLeadingIconColor),
                         selectedTrailingContentColor =
-                            fromToken(ListTokens.ItemSelectedTrailingSupportingTextColor),
+                            fromToken(ListTokens.ItemSelectedTrailingIconColor),
                         selectedOverlineContentColor =
                             fromToken(ListTokens.ItemSelectedOverlineColor),
                         selectedSupportingContentColor =
@@ -1175,7 +1176,7 @@ internal object InteractiveListItemDefaults {
                         draggedTrailingContentColor =
                             fromToken(ReorderListTokens.ItemTrailingIconColor),
                         draggedOverlineContentColor =
-                            fromToken(ReorderListTokens.ItemLabelTextColor),
+                            fromToken(ReorderListTokens.ItemOverlineColor),
                         draggedSupportingContentColor =
                             fromToken(ReorderListTokens.ItemSupportingTextColor),
                     )
@@ -1302,7 +1303,7 @@ internal object InteractiveListItemDefaults {
                         selectedLeadingContentColor =
                             fromToken(ListTokens.ItemSelectedLeadingIconColor),
                         selectedTrailingContentColor =
-                            fromToken(ListTokens.ItemSelectedTrailingSupportingTextColor),
+                            fromToken(ListTokens.ItemSelectedTrailingIconColor),
                         selectedOverlineContentColor =
                             fromToken(ListTokens.ItemSelectedOverlineColor),
                         selectedSupportingContentColor =
@@ -1332,7 +1333,7 @@ internal object InteractiveListItemDefaults {
                         draggedTrailingContentColor =
                             fromToken(ReorderListTokens.ItemTrailingIconColor),
                         draggedOverlineContentColor =
-                            fromToken(ReorderListTokens.ItemLabelTextColor),
+                            fromToken(ReorderListTokens.ItemOverlineColor),
                         draggedSupportingContentColor =
                             fromToken(ReorderListTokens.ItemSupportingTextColor),
                     )
@@ -1435,10 +1436,10 @@ internal object InteractiveListItemDefaults {
             return defaultInteractiveListItemShapesCached
                 ?: InteractiveListItemShapes(
                         shape = fromToken(ListTokens.ItemContainerExpressiveShape),
-                        selectedShape = fromToken(ListTokens.ItemSelectedContainerShape),
-                        pressedShape = fromToken(ListTokens.ItemSelectedContainerShape),
-                        focusedShape = fromToken(ListTokens.ItemSelectedContainerShape),
-                        hoveredShape = fromToken(ListTokens.ItemSelectedContainerShape),
+                        selectedShape = fromToken(ListTokens.ItemSelectedContainerExpressiveShape),
+                        pressedShape = fromToken(ListTokens.ItemPressedContainerExpressiveShape),
+                        focusedShape = fromToken(ListTokens.ItemFocusedContainerExpressiveShape),
+                        hoveredShape = fromToken(ListTokens.ItemHoveredContainerExpressiveShape),
                         draggedShape = fromToken(ReorderListTokens.ItemShape),
                     )
                     .also { defaultInteractiveListItemShapesCached = it }
@@ -1762,6 +1763,7 @@ private fun InteractiveListItem(
             modifier =
                 modifier
                     .semantics(mergeDescendants = true, properties = applySemantics)
+                    .defaultMinSize(minHeight = ListTokens.ItemOneLineContainerHeight)
                     .minimumInteractiveComponentSize()
                     .zIndexLambda { if (shadowElevation.value > 0.dp) 1f else 0f }
                     .graphicsLayer {
@@ -2099,8 +2101,8 @@ internal val InteractiveListBottomPadding = ListTokens.ItemBottomSpace
 internal val InteractiveListInternalSpacing = ListTokens.ItemBetweenSpace
 
 /**
- * How tall a list item needs to be before internal content is top-aligned instead of
- * center-aligned.
+ * How tall a list item (excluding padding) needs to be before internal content is top-aligned
+ * instead of center-aligned.
  */
 internal val InteractiveListVerticalAlignmentBreakpoint =
     (ListTokens.ItemThreeLineContainerHeight + ListTokens.ItemTwoLineContainerHeight) / 2 -

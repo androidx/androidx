@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: 24.1.2
+// VERSION: 29.0.0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -23,6 +23,7 @@ internal object ExpandedListTokens {
     val CollapsedItemTrailingIconIconColor = ColorSchemeKeyTokens.OnSurface
     val ContainerShape = ShapeKeyTokens.CornerLarge
     val ExpandedItemContainerColor = ColorSchemeKeyTokens.Surface
+    val ExpandedItemSegmentedContainerColor = ColorSchemeKeyTokens.Surface
     val ExpandedItemTrailingIconContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val ExpandedItemTrailingIconIconColor = ColorSchemeKeyTokens.OnSurface
     val TrailingIconShape = ShapeKeyTokens.CornerFull

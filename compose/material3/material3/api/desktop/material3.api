@@ -456,7 +456,7 @@ public final class androidx/compose/material3/ComposableSingletons$ModalBottomSh
 	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$ModalBottomSheetKt;
 	public fun <init> ()V
 	public final fun getLambda$1121996006$material3 ()Lkotlin/jvm/functions/Function2;
-	public final fun getLambda$1716959002$material3 ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$2132285819$material3 ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class androidx/compose/material3/ComposableSingletons$ScaffoldKt {
@@ -2177,6 +2177,13 @@ public final class androidx/compose/material3/WideNavigationRailValue : java/lan
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material3/WideNavigationRailValue;
 	public static fun values ()[Landroidx/compose/material3/WideNavigationRailValue;
+}
+
+public final class androidx/compose/material3/carousel/MultiAspectCarouselKt {
+	public static final fun MultiAspectCarouselScope (Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;I)V
+}
+
+public abstract interface class androidx/compose/material3/carousel/MultiAspectCarouselScope {
 }
 
 public final class androidx/compose/material3/pulltorefresh/PullToRefreshDefaults {

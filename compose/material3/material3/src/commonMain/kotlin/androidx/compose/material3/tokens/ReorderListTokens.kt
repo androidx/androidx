@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: 24.1.2
+// VERSION: 29.0.0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -23,6 +23,7 @@ internal object ReorderListTokens {
     val ItemDropZoneColor = ColorSchemeKeyTokens.SurfaceContainerLow
     val ItemLabelTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
     val ItemLeadingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
+    val ItemOverlineColor = ColorSchemeKeyTokens.OnTertiaryContainer
     val ItemShape = ShapeKeyTokens.CornerLarge
     val ItemSupportingTextColor = ColorSchemeKeyTokens.OnTertiaryContainer
     val ItemTrailingIconColor = ColorSchemeKeyTokens.OnTertiaryContainer
