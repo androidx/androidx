@@ -60,7 +60,7 @@ jobs:
       - name: Run iOS Tests
         timeout-minutes: 15
         run: |
-          ./gradlew testUIKit \
+          ./gradlew testIos \
             --no-daemon --stacktrace
 
       - name: Test Summary

@@ -22,7 +22,7 @@ jobs:
 
       - name: Compose Publish Darwin + Native Linux
         run: |
-          ./gradlew publishComposeJb -Pcompose.platforms=macos,uikit,tvos,watchos,linux,mingw \
+          ./gradlew publishComposeJb -Pcompose.platforms=macos,ios,tvos,watchos,linux,mingw \
             --no-daemon --stacktrace
 
   compose-web-publish:

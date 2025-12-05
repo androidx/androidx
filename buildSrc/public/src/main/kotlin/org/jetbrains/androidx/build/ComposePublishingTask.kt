@@ -9,7 +9,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Internal
 
 @CacheableTask
-abstract class AbstractComposePublishingTask : DefaultTask() {
+open class ComposePublishingTask : DefaultTask() {
     @get:Internal
     lateinit var repository: String
 
@@ -21,7 +21,9 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
         composeProperties.targetPlatforms
     }
 
-    abstract fun dependsOnComposeTask(task: String)
+    fun dependsOnComposeTask(task: String) {
+        dependsOn(task)
+    }
 
     fun publish(component: ComposeComponent) {
         if (component.customTasks.isNotEmpty()) {
@@ -68,17 +70,7 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
         }
 
         for (platform in component.supportedPlatforms) {
-            // TODO: Rename everything to "iOS" and remove this mapping
-            val fixedPlatform = when(platform) {
-                ComposePlatforms.UikitX64 -> ComposePlatforms.IosX64
-                ComposePlatforms.UikitArm64 -> ComposePlatforms.IosArm64
-                ComposePlatforms.UikitSimArm64 -> ComposePlatforms.IosSimulatorArm64
-                ComposePlatforms.IosX64 -> ComposePlatforms.UikitX64
-                ComposePlatforms.IosArm64 -> ComposePlatforms.UikitArm64
-                ComposePlatforms.IosSimulatorArm64 -> ComposePlatforms.UikitSimArm64
-                else -> platform
-            }
-            if (platform !in targetPlatforms && fixedPlatform !in targetPlatforms) continue
+            if (platform !in targetPlatforms) continue
             if (project.hasRedirection(platform)) continue
 
             dependsOnComposeTask("${component.path}:publish${platform.name}PublicationTo$repository")

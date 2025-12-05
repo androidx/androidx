@@ -20,9 +20,6 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
     WasmJs("Web"),
     MacosX64("Macos"),
     MacosArm64("Macos"),
-    UikitX64("UiKit"), // TODO: Align with AOSP: rename to iOS
-    UikitArm64("UiKit"), // TODO: Align with AOSP: rename to iOS
-    UikitSimArm64("UiKit"), // TODO: Align with AOSP: rename to iOS
     IosX64("Ios"),
     IosArm64("Ios"),
     IosSimulatorArm64("Ios"),
@@ -55,12 +52,6 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
             Desktop,
             AndroidDebug,
             AndroidRelease
-        )
-
-        val UI_KIT = EnumSet.of(
-            UikitX64,
-            UikitArm64,
-            UikitSimArm64
         )
 
         val IOS = EnumSet.of(
@@ -106,15 +97,14 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
             WasmJs
         )
 
-        val DARWIN = UI_KIT + IOS + WATCH_OS + TV_OS + MACOS_NATIVE
+        val DARWIN = IOS + WATCH_OS + TV_OS + MACOS_NATIVE
 
         val GENERATE_KLIB = WEB + LINUX_NATIVE + WINDOWS_NATIVE + DARWIN
 
         val SKIKO_SUPPORT =
-            EnumSet.of(KotlinMultiplatform) + JVM_BASED + UI_KIT + MACOS_NATIVE + WEB
+            EnumSet.of(KotlinMultiplatform) + JVM_BASED + IOS + MACOS_NATIVE + WEB
 
-        val ALL = EnumSet.allOf(ComposePlatforms::class.java) - IOS
-        val ALL_AOSP = EnumSet.allOf(ComposePlatforms::class.java) - UI_KIT
+        val ALL = EnumSet.allOf(ComposePlatforms::class.java)
 
         /**
          * Maps comma separated list of platforms into a set of [ComposePlatforms]

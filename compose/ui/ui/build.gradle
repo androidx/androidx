@@ -223,10 +223,15 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
                 }
             }
-            uikitMain {
+            iosMain {
+                kotlin.srcDir("src/uikitMain/kotlin")
+                resources.srcDir("src/uikitMain/resources")
                 dependencies {
                     implementation(project(":compose:ui:ui-uikit"))
                 }
+            }
+            iosTest {
+                kotlin.srcDir("src/uikitTest/kotlin")
             }
             desktopMain {
                 dependsOn(skikoMain)
@@ -342,7 +347,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(webTest)
                 dependsOn(skikoTest)
             }
-            uikitInstrumentedTest.dependencies {
+            iosInstrumentedTest.dependencies {
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:foundation:foundation"))

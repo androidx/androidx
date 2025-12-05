@@ -26,27 +26,30 @@ plugins {
 }
 
 kotlin {
-    iosX64("uikitX64") {
+    iosX64("iosX64") {
         configure(it, false)
     }
-    iosArm64("uikitArm64") {
+    iosArm64("iosArm64") {
         configure(it, true)
     }
-    iosSimulatorArm64("uikitSimArm64") {
+    iosSimulatorArm64("iosSimulatorArm64") {
         configure(it, false)
     }
 
     sourceSets {
         commonMain {}
-        def uikitMain = sourceSets.create("uikitMain")
-        def uikitX64Main = sourceSets.getByName("uikitX64Main")
-        def uikitArm64Main = sourceSets.getByName("uikitArm64Main")
-        def uikitSimArm64Main = sourceSets.getByName("uikitSimArm64Main")
+        def iosMain = sourceSets.create("iosMain") {
+            kotlin.srcDir("src/uikitMain/kotlin")
+            resources.srcDir("src/uikitMain/resources")
+        }
+        def iosX64Main = sourceSets.getByName("iosX64Main")
+        def iosArm64Main = sourceSets.getByName("iosArm64Main")
+        def iosSimulatorArm64Main = sourceSets.getByName("iosSimulatorArm64Main")
 
-        uikitMain.dependsOn(commonMain)
-        uikitX64Main.dependsOn(uikitMain)
-        uikitArm64Main.dependsOn(uikitMain)
-        uikitSimArm64Main.dependsOn(uikitMain)
+        iosMain.dependsOn(commonMain)
+        iosX64Main.dependsOn(iosMain)
+        iosArm64Main.dependsOn(iosMain)
+        iosSimulatorArm64Main.dependsOn(iosMain)
 
         configureEach {
             languageSettings.optIn("kotlinx.cinterop.BetaInteropApi")

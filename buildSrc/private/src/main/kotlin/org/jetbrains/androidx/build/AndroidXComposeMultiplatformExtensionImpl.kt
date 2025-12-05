@@ -209,45 +209,45 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
     override fun darwin(): Unit = multiplatformExtension.run {
         macosX64()
         macosArm64()
-        iosX64("uikitX64")
-        iosArm64("uikitArm64")
-        iosSimulatorArm64("uikitSimArm64")
+        iosX64("iosX64")
+        iosArm64("iosArm64")
+        iosSimulatorArm64("iosSimulatorArm64")
 
         val nativeMain = getOrCreateNativeMain()
         val darwinMain = sourceSets.create("darwinMain")
         val macosMain = sourceSets.create("macosMain")
         val macosX64Main = sourceSets.getByName("macosX64Main")
         val macosArm64Main = sourceSets.getByName("macosArm64Main")
-        val uikitMain = sourceSets.create("uikitMain")
-        val uikitX64Main = sourceSets.getByName("uikitX64Main")
-        val uikitArm64Main = sourceSets.getByName("uikitArm64Main")
-        val uikitSimArm64Main = sourceSets.getByName("uikitSimArm64Main")
+        val iosMain = sourceSets.create("iosMain")
+        val iosX64Main = sourceSets.getByName("iosX64Main")
+        val iosArm64Main = sourceSets.getByName("iosArm64Main")
+        val iosSimulatorArm64Main = sourceSets.getByName("iosSimulatorArm64Main")
         darwinMain.dependsOn(nativeMain)
         macosMain.dependsOn(darwinMain)
         macosX64Main.dependsOn(macosMain)
         macosArm64Main.dependsOn(macosMain)
-        uikitMain.dependsOn(darwinMain)
-        uikitX64Main.dependsOn(uikitMain)
-        uikitArm64Main.dependsOn(uikitMain)
-        uikitSimArm64Main.dependsOn(uikitMain)
+        iosMain.dependsOn(darwinMain)
+        iosX64Main.dependsOn(iosMain)
+        iosArm64Main.dependsOn(iosMain)
+        iosSimulatorArm64Main.dependsOn(iosMain)
 
         val nativeTest = getOrCreateNativeTest()
         val darwinTest = sourceSets.create("darwinTest")
         val macosTest = sourceSets.create("macosTest")
         val macosX64Test = sourceSets.getByName("macosX64Test")
         val macosArm64Test = sourceSets.getByName("macosArm64Test")
-        val uikitTest = sourceSets.create("uikitTest")
-        val uikitX64Test = sourceSets.getByName("uikitX64Test")
-        val uikitArm64Test = sourceSets.getByName("uikitArm64Test")
-        val uikitSimArm64Test = sourceSets.getByName("uikitSimArm64Test")
+        val iosTest = sourceSets.create("iosTest")
+        val iosX64Test = sourceSets.getByName("iosX64Test")
+        val iosArm64Test = sourceSets.getByName("iosArm64Test")
+        val iosSimulatorArm64Test = sourceSets.getByName("iosSimulatorArm64Test")
         darwinTest.dependsOn(nativeTest)
         macosTest.dependsOn(darwinTest)
         macosX64Test.dependsOn(macosTest)
         macosArm64Test.dependsOn(macosTest)
-        uikitTest.dependsOn(darwinTest)
-        uikitX64Test.dependsOn(uikitTest)
-        uikitArm64Test.dependsOn(uikitTest)
-        uikitSimArm64Test.dependsOn(uikitTest)
+        iosTest.dependsOn(darwinTest)
+        iosX64Test.dependsOn(iosTest)
+        iosArm64Test.dependsOn(iosTest)
+        iosSimulatorArm64Test.dependsOn(iosTest)
     }
 
     override fun linux(): Unit = multiplatformExtension.run {
@@ -337,15 +337,16 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
         multiplatformExtension.run {
             macosX64 { configureFreeCompilerArgs() }
             macosArm64 { configureFreeCompilerArgs() }
-            iosX64("uikitX64") { configureFreeCompilerArgs() }
-            iosArm64("uikitArm64") { configureFreeCompilerArgs() }
-            iosSimulatorArm64("uikitSimArm64") { configureFreeCompilerArgs() }
+            iosX64("iosX64") { configureFreeCompilerArgs() }
+            iosArm64("iosArm64") { configureFreeCompilerArgs() }
+            iosSimulatorArm64("iosSimulatorArm64") { configureFreeCompilerArgs() }
         }
     }
 
     override fun iosInstrumentedTest() {
         multiplatformExtension.run {
-            val uikitInstrumentedTest = sourceSets.create("uikitInstrumentedTest")
+            val iosInstrumentedTest = sourceSets.create("iosInstrumentedTest")
+            iosInstrumentedTest.kotlin.srcDir("src/uikitInstrumentedTest/kotlin")
 
             fun KotlinNativeTargetWithSimulatorTests.configureTestRun() {
                 val testCompilation = compilations.create("instrumentedTest") {
@@ -355,7 +356,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
                     }
 
                     it.associateWith(compilations.getByName("test"))
-                    it.defaultSourceSet.dependsOn(uikitInstrumentedTest)
+                    it.defaultSourceSet.dependsOn(iosInstrumentedTest)
                 }
                 binaries.framework("InstrumentedTest", setOf(DEBUG)) {
                     compilation = testCompilation
@@ -364,12 +365,12 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
                 }
             }
             testableTargets.getByName(
-                "uikitX64",
+                "iosX64",
                 KotlinNativeTargetWithSimulatorTests::class,
                 KotlinNativeTargetWithSimulatorTests::configureTestRun
             )
             testableTargets.getByName(
-                "uikitSimArm64",
+                "iosSimulatorArm64",
                 KotlinNativeTargetWithSimulatorTests::class,
                 KotlinNativeTargetWithSimulatorTests::configureTestRun
             )

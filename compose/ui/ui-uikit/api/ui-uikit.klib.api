@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64.uikitArm64, iosSimulatorArm64.uikitSimArm64, iosX64.uikitX64]
+// Targets: [iosArm64, iosSimulatorArm64, iosX64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true

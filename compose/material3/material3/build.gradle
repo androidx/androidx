@@ -216,7 +216,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(webTest)
             }
 
-            uikitTest {
+            iosTest {
                 dependsOn(darwinTest)
             }
 

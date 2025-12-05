@@ -27,27 +27,29 @@ plugins {
 JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
 kotlin {
-    iosX64("uikitX64") {
-        configure(it, false, "x86_64", "uikitX64Test")
+    iosX64("iosX64") {
+        configure(it, false, "x86_64", "iosX64Test")
     }
-    iosArm64("uikitArm64") {
-        configure(it, true, "arm64", null /*"uikitArm64Test"*/)
+    iosArm64("iosArm64") {
+        configure(it, true, "arm64", null /*"iosArm64Test"*/)
     }
-    iosSimulatorArm64("uikitSimArm64") {
-        configure(it, false, "arm64", "uikitSimArm64Test")
+    iosSimulatorArm64("iosSimulatorArm64") {
+        configure(it, false, "arm64", "iosSimulatorArm64Test")
     }
 
     sourceSets {
         commonMain {}
-        def uikitMain = sourceSets.create("uikitMain")
-        def uikitX64Main = sourceSets.getByName("uikitX64Main")
-        def uikitArm64Main = sourceSets.getByName("uikitArm64Main")
-        def uikitSimArm64Main = sourceSets.getByName("uikitSimArm64Main")
+        def iosMain = sourceSets.create("iosMain") {
+            kotlin.srcDir("src/uikitMain/kotlin")
+        }
+        def iosX64Main = sourceSets.getByName("iosX64Main")
+        def iosArm64Main = sourceSets.getByName("iosArm64Main")
+        def iosSimulatorArm64Main = sourceSets.getByName("iosSimulatorArm64Main")
 
-        uikitMain.dependsOn(commonMain)
-        uikitX64Main.dependsOn(uikitMain)
-        uikitArm64Main.dependsOn(uikitMain)
-        uikitSimArm64Main.dependsOn(uikitMain)
+        iosMain.dependsOn(commonMain)
+        iosX64Main.dependsOn(iosMain)
+        iosArm64Main.dependsOn(iosMain)
+        iosSimulatorArm64Main.dependsOn(iosMain)
     }
 }
 

@@ -70,12 +70,16 @@ kotlin {
         }
         val nativeMain by creating { dependsOn(skikoMain) }
         val darwinMain by creating { dependsOn(nativeMain) }
-        val uikitMain by creating { dependsOn(darwinMain) }
-        val iosArm64Main by getting { dependsOn(uikitMain) }
+        val iosMain by creating {
+            kotlin.srcDir("src/uikitMain/kotlin")
+            resources.srcDir("src/uikitMain/resources")
+            dependsOn(darwinMain)
+        }
+        val iosArm64Main by getting { dependsOn(iosMain) }
         if (isArm64Host) {
-            val iosSimulatorArm64Main by getting { dependsOn(uikitMain) }
+            val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
         } else {
-            val iosX64Main by getting { dependsOn(uikitMain) }
+            val iosX64Main by getting { dependsOn(iosMain) }
         }
     }
 }

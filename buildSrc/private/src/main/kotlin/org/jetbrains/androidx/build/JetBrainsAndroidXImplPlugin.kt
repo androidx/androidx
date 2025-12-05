@@ -88,20 +88,6 @@ open class JetBrainsExtensions(
         val test = compilations.getByName("test")
 
         val targetName = name.lowercase()
-        // The target name in a dependency project might be different from this project,
-        // so we check for an alternative name too.
-        // Historically, we had such aliases only for the 'ios <-> uikit' pair.
-        val altName = if (targetName.startsWith("ios")) {
-            targetName
-                .replace("iossimulator", "uikitsim")
-                .replace("ios", "uikit")
-        } else if (targetName.startsWith("uikit")) {
-            targetName
-                .replace("uikitsim", "iossimulator")
-                .replace("uikit", "ios")
-        } else {
-            null
-        }
 
         val rootProjectName = project.rootProject.name // compose-multiplatform-core
         val redirectedProjects by lazy {
@@ -111,7 +97,7 @@ open class JetBrainsExtensions(
                     // they have a group name with rootProjectName in it
                     !it.group.toString().contains(rootProjectName)
                 }?.artifactRedirection()?.takeIf {
-                    it.targetNames.contains(targetName) || it.targetNames.contains(altName)
+                    it.targetNames.contains(targetName)
                 }?.let {
                     project.path to it.groupId + ":" + project.name + ":" + it.versionForTargetOrDefault(targetName)
                 }
