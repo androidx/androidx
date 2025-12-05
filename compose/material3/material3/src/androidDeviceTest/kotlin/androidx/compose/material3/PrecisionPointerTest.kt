@@ -21,9 +21,7 @@ import android.hardware.input.InputManager
 import android.os.Build
 import android.view.InputDevice
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -32,6 +30,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,17 +47,21 @@ import org.mockito.kotlin.mock
 class PrecisionPointerTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
+    @Before
+    fun setup() {
+        shouldUsePrecisionPointerComponentSizing.value = false
+    }
+
     @Test
     fun precisionPointerUiDisabled_withPhysicalKeyboardAndMouse_noDenseUi() {
         ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled = false
 
         val inputManager = FakeInputManager()
 
-        val usePrecisionPointerUi by
-            rule.setContentAndGetPrecisionPointerState(inputManager.inputManager)
+        rule.setContent(inputManager.inputManager)
         inputManager.addDevice(MockDevices.physicalKeyboard)
         inputManager.addDevice(MockDevices.mouse)
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isFalse() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
     }
 
     @Test
@@ -67,10 +70,9 @@ class PrecisionPointerTest {
 
         val inputManager = FakeInputManager()
 
-        val usePrecisionPointerUi by
-            rule.setContentAndGetPrecisionPointerState(inputManager.inputManager)
+        rule.setContent(inputManager.inputManager)
 
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isFalse() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
     }
 
     @Test
@@ -79,11 +81,10 @@ class PrecisionPointerTest {
 
         val inputManager = FakeInputManager()
 
-        val usePrecisionPointerUi by
-            rule.setContentAndGetPrecisionPointerState(inputManager.inputManager)
+        rule.setContent(inputManager.inputManager)
         inputManager.addDevice(MockDevices.physicalKeyboard)
         inputManager.addDevice(MockDevices.mouse)
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isTrue() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
     }
 
     @Test
@@ -92,16 +93,15 @@ class PrecisionPointerTest {
 
         val inputManager = FakeInputManager()
 
-        val usePrecisionPointerUi by
-            rule.setContentAndGetPrecisionPointerState(inputManager.inputManager)
+        rule.setContent(inputManager.inputManager)
 
         // Add just mouse, not enough to trigger dense UI
         inputManager.addDevice(MockDevices.mouse)
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isFalse() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
 
         // Add keyboard as well, now we have kb+mouse, so we can trigger dense UI
         inputManager.addDevice(MockDevices.physicalKeyboard)
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isTrue() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
     }
 
     @Test
@@ -110,19 +110,18 @@ class PrecisionPointerTest {
 
         val inputManager = FakeInputManager()
 
-        val usePrecisionPointerUi by
-            rule.setContentAndGetPrecisionPointerState(inputManager.inputManager)
+        rule.setContent(inputManager.inputManager)
 
         inputManager.addDevice(MockDevices.physicalKeyboard)
         inputManager.addDevice(MockDevices.touchpadNonMouse)
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isFalse() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
 
         inputManager.updateDevice(
             MockDevices.touchpadNonMouse.copy(
                 sources = InputDevice.SOURCE_TOUCHPAD or InputDevice.SOURCE_MOUSE
             )
         )
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isTrue() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
     }
 
     @Test
@@ -131,32 +130,23 @@ class PrecisionPointerTest {
 
         val inputManager = FakeInputManager()
 
-        val usePrecisionPointerUi by
-            rule.setContentAndGetPrecisionPointerState(inputManager.inputManager)
+        rule.setContent(inputManager.inputManager)
 
         inputManager.addDevice(MockDevices.physicalKeyboard)
         inputManager.addDevice(MockDevices.mouse)
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isTrue() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isTrue() }
 
         inputManager.removeDevice(MockDevices.physicalKeyboard)
-        rule.runOnIdle { assertThat(usePrecisionPointerUi).isFalse() }
+        rule.runOnIdle { assertThat(shouldUsePrecisionPointerComponentSizing.value).isFalse() }
     }
 }
 
-private fun ComposeContentTestRule.setContentAndGetPrecisionPointerState(
-    inputManager: InputManager
-): State<Boolean?> {
+private fun ComposeContentTestRule.setContent(inputManager: InputManager) {
     val fakeContext: Context = mock {
         on { getSystemService(InputManager::class.java) } doReturn inputManager
     }
 
-    val shouldUseDenseUiState = mutableStateOf<Boolean?>(null)
-    setContent {
-        CompositionLocalProvider(LocalContext provides fakeContext) {
-            MaterialTheme { shouldUseDenseUiState.value = shouldUsePrecisionPointerComponentSizing }
-        }
-    }
-    return shouldUseDenseUiState
+    setContent { CompositionLocalProvider(LocalContext provides fakeContext) { MaterialTheme {} } }
 }
 
 private object MockDevices {

@@ -124,7 +124,10 @@ class InteractiveListTest {
 
     @Test
     fun clickableListItem_verticalAlignmentCenter_positioning() {
-        val height = InteractiveListVerticalAlignmentBreakpoint - 10.dp
+        val height =
+            InteractiveListVerticalAlignmentBreakpoint +
+                InteractiveListTopPadding +
+                InteractiveListBottomPadding - 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             ListItem(
                 modifier = Modifier.height(height),
@@ -165,7 +168,11 @@ class InteractiveListTest {
 
     @Test
     fun clickableListItem_verticalAlignmentTop_positioning() {
-        val height = InteractiveListVerticalAlignmentBreakpoint + 10.dp
+        val height =
+            InteractiveListVerticalAlignmentBreakpoint +
+                InteractiveListTopPadding +
+                InteractiveListBottomPadding +
+                10.dp
         rule.setMaterialContent(lightColorScheme()) {
             ListItem(
                 modifier = Modifier.height(height),
@@ -204,7 +211,10 @@ class InteractiveListTest {
 
     @Test
     fun clickableListItem_verticalAlignmentCenter_positioning_rtl() {
-        val height = InteractiveListVerticalAlignmentBreakpoint - 10.dp
+        val height =
+            InteractiveListVerticalAlignmentBreakpoint +
+                InteractiveListTopPadding +
+                InteractiveListBottomPadding - 10.dp
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 ListItem(
@@ -247,7 +257,11 @@ class InteractiveListTest {
 
     @Test
     fun clickableListItem_verticalAlignmentTop_positioning_rtl() {
-        val height = InteractiveListVerticalAlignmentBreakpoint + 10.dp
+        val height =
+            InteractiveListVerticalAlignmentBreakpoint +
+                InteractiveListTopPadding +
+                InteractiveListBottomPadding +
+                10.dp
         rule.setMaterialContent(lightColorScheme()) {
             CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 ListItem(

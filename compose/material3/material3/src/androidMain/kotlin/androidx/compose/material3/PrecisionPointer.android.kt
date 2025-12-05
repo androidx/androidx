@@ -26,31 +26,26 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
-
-internal actual val shouldUsePrecisionPointerComponentSizing: Boolean
-    @Composable
-    get() {
-        val devices = LocalDevices.current
-        return devices != null && devices.keyboards.isNotEmpty() && devices.mice.isNotEmpty()
-    }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal actual fun EnsurePrecisionPointerListenersRegistered(content: @Composable (() -> Unit)) {
     val shouldRegisterListeners =
         ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled &&
-            LocalDevices.current == null
+            !LocalIsPrecisionPointerListenerRegistered.current
     if (shouldRegisterListeners) {
         // Precision pointer UI flag enabled, and LocalDevices is not yet populated in this
         // hierarchy; set up device listeners to update LocalDevices
-        val devices by rememberDevicesState()
-        CompositionLocalProvider(LocalDevices provides devices, content = content)
+        val devices = rememberDevicesState().value
+        shouldUsePrecisionPointerComponentSizing.value =
+            devices != null && devices.keyboards.isNotEmpty() && devices.mice.isNotEmpty()
+        CompositionLocalProvider(LocalIsPrecisionPointerListenerRegistered provides true, content)
     } else {
         // Already initialized within this hierarchy, or the user does not want precision pointer
         // UI, so just render their provided content
@@ -118,7 +113,7 @@ private fun rememberDevicesState(): State<Devices?> {
     return devicesState
 }
 
-private val LocalDevices = compositionLocalOf<Devices?> { null }
+private val LocalIsPrecisionPointerListenerRegistered = staticCompositionLocalOf { false }
 
 @Immutable private data class Devices(val keyboards: IntSet, val mice: IntSet)
 

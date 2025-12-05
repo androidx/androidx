@@ -17,6 +17,8 @@
 package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 
 /**
  * A flag that represents whether a precision pointer is present, and thus whether components should
@@ -25,7 +27,7 @@ import androidx.compose.runtime.Composable
  * Note that this value will always be `false` if the
  * [ComposeMaterial3Flags.isPrecisionPointerComponentSizingEnabled] flag is not enabled.
  */
-@get:Composable internal expect val shouldUsePrecisionPointerComponentSizing: Boolean
+internal val shouldUsePrecisionPointerComponentSizing: MutableState<Boolean> = mutableStateOf(false)
 
 /**
  * Provides support for querying the device state for the presence of precision pointers via

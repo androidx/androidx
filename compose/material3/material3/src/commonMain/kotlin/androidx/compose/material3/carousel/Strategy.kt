@@ -635,7 +635,7 @@ private fun MutableList<Keyline>.move(srcIndex: Int, dstIndex: Int): MutableList
     return this
 }
 
-private fun lerp(
+internal fun lerp(
     outputMin: Float,
     outputMax: Float,
     inputMin: Float,

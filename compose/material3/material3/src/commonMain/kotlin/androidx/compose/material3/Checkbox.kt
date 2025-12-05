@@ -33,11 +33,8 @@ import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
@@ -278,6 +275,7 @@ fun TriStateCheckbox(
     colors: CheckboxColors = CheckboxDefaults.colors(),
     interactionSource: MutableInteractionSource? = null,
 ) {
+    val isCheckboxStylingFixEnabled = ComposeMaterial3Flags.isCheckboxStylingFixEnabled
     val indication =
         if (isCheckboxStylingFixEnabled)
             ripple(
@@ -478,6 +476,7 @@ private fun CheckboxImpl(
     checkmarkStroke: Stroke,
     outlineStroke: Stroke,
 ) {
+    val isCheckboxStylingFixEnabled = ComposeMaterial3Flags.isCheckboxStylingFixEnabled
     val transition = updateTransition(value)
     val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
     val checkDrawFraction =
@@ -583,6 +582,7 @@ private fun DrawScope.drawCheck(
     stroke: Stroke,
     drawingCache: CheckDrawingCache,
 ) {
+    val isCheckboxStylingFixEnabled = ComposeMaterial3Flags.isCheckboxStylingFixEnabled
     val width = size.width
     val checkCrossX = 0.4f
     val checkCrossY = if (isCheckboxStylingFixEnabled) 0.65f else 0.7f
@@ -623,7 +623,6 @@ private class CheckDrawingCache(
  *
  * @param checkedCheckmarkColor color that will be used for the checkmark when checked
  * @param uncheckedCheckmarkColor color that will be used for the checkmark when unchecked
- * @param disabledCheckmarkColor color that will be used for the checkmark when disabled
  * @param checkedBoxColor the color that will be used for the box when checked
  * @param uncheckedBoxColor color that will be used for the box when unchecked
  * @param disabledCheckedBoxColor color that will be used for the box when disabled and checked
@@ -637,6 +636,7 @@ private class CheckDrawingCache(
  *   unchecked
  * @param disabledIndeterminateBorderColor color that will be used for the border when disabled and
  *   in an [ToggleableState.Indeterminate] state.
+ * @param disabledCheckmarkColor color that will be used for the checkmark when disabled
  * @constructor create an instance with arbitrary colors, see [CheckboxDefaults.colors] for the
  *   default implementation that follows Material specifications.
  */
@@ -645,7 +645,6 @@ class CheckboxColors
 constructor(
     val checkedCheckmarkColor: Color,
     val uncheckedCheckmarkColor: Color,
-    val disabledCheckmarkColor: Color,
     val checkedBoxColor: Color,
     val uncheckedBoxColor: Color,
     val disabledCheckedBoxColor: Color,
@@ -656,6 +655,7 @@ constructor(
     val disabledBorderColor: Color,
     val disabledUncheckedBorderColor: Color,
     val disabledIndeterminateBorderColor: Color,
+    val disabledCheckmarkColor: Color,
 ) {
     @Deprecated(
         message =
@@ -678,7 +678,6 @@ constructor(
     ) : this(
         checkedCheckmarkColor = checkedCheckmarkColor,
         uncheckedCheckmarkColor = uncheckedCheckmarkColor,
-        disabledCheckmarkColor = checkedCheckmarkColor,
         checkedBoxColor = checkedBoxColor,
         uncheckedBoxColor = uncheckedBoxColor,
         disabledCheckedBoxColor = disabledCheckedBoxColor,
@@ -689,6 +688,7 @@ constructor(
         disabledBorderColor = disabledBorderColor,
         disabledUncheckedBorderColor = disabledUncheckedBorderColor,
         disabledIndeterminateBorderColor = disabledIndeterminateBorderColor,
+        disabledCheckmarkColor = checkedCheckmarkColor,
     )
 
     /**
@@ -715,19 +715,27 @@ constructor(
         disabledIndeterminateBorderColor: Color = this.disabledIndeterminateBorderColor,
     ) =
         CheckboxColors(
-            checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
-            uncheckedCheckmarkColor.takeOrElse { this.uncheckedCheckmarkColor },
-            checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
-            checkedBoxColor.takeOrElse { this.checkedBoxColor },
-            uncheckedBoxColor.takeOrElse { this.uncheckedBoxColor },
-            disabledCheckedBoxColor.takeOrElse { this.disabledCheckedBoxColor },
-            disabledUncheckedBoxColor.takeOrElse { this.disabledUncheckedBoxColor },
-            disabledIndeterminateBoxColor.takeOrElse { this.disabledIndeterminateBoxColor },
-            checkedBorderColor.takeOrElse { this.checkedBorderColor },
-            uncheckedBorderColor.takeOrElse { this.uncheckedBorderColor },
-            disabledBorderColor.takeOrElse { this.disabledBorderColor },
-            disabledUncheckedBorderColor.takeOrElse { this.disabledUncheckedBorderColor },
-            disabledIndeterminateBorderColor.takeOrElse { this.disabledIndeterminateBorderColor },
+            checkedCheckmarkColor = checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
+            uncheckedCheckmarkColor =
+                uncheckedCheckmarkColor.takeOrElse { this.uncheckedCheckmarkColor },
+            checkedBoxColor = checkedBoxColor.takeOrElse { this.checkedBoxColor },
+            uncheckedBoxColor = uncheckedBoxColor.takeOrElse { this.uncheckedBoxColor },
+            disabledCheckedBoxColor =
+                disabledCheckedBoxColor.takeOrElse { this.disabledCheckedBoxColor },
+            disabledUncheckedBoxColor =
+                disabledUncheckedBoxColor.takeOrElse { this.disabledUncheckedBoxColor },
+            disabledIndeterminateBoxColor =
+                disabledIndeterminateBoxColor.takeOrElse { this.disabledIndeterminateBoxColor },
+            checkedBorderColor = checkedBorderColor.takeOrElse { this.checkedBorderColor },
+            uncheckedBorderColor = uncheckedBorderColor.takeOrElse { this.uncheckedBorderColor },
+            disabledBorderColor = disabledBorderColor.takeOrElse { this.disabledBorderColor },
+            disabledUncheckedBorderColor =
+                disabledUncheckedBorderColor.takeOrElse { this.disabledUncheckedBorderColor },
+            disabledIndeterminateBorderColor =
+                disabledIndeterminateBorderColor.takeOrElse {
+                    this.disabledIndeterminateBorderColor
+                },
+            disabledCheckmarkColor = checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
         )
 
     /**
@@ -737,7 +745,6 @@ constructor(
     fun copy(
         checkedCheckmarkColor: Color = this.checkedCheckmarkColor,
         uncheckedCheckmarkColor: Color = this.uncheckedCheckmarkColor,
-        disabledCheckmarkColor: Color = this.disabledCheckmarkColor,
         checkedBoxColor: Color = this.checkedBoxColor,
         uncheckedBoxColor: Color = this.uncheckedBoxColor,
         disabledCheckedBoxColor: Color = this.disabledCheckedBoxColor,
@@ -748,21 +755,31 @@ constructor(
         disabledBorderColor: Color = this.disabledBorderColor,
         disabledUncheckedBorderColor: Color = this.disabledUncheckedBorderColor,
         disabledIndeterminateBorderColor: Color = this.disabledIndeterminateBorderColor,
+        disabledCheckmarkColor: Color = this.disabledCheckmarkColor,
     ) =
         CheckboxColors(
-            checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
-            uncheckedCheckmarkColor.takeOrElse { this.uncheckedCheckmarkColor },
-            disabledCheckmarkColor.takeOrElse { this.disabledCheckmarkColor },
-            checkedBoxColor.takeOrElse { this.checkedBoxColor },
-            uncheckedBoxColor.takeOrElse { this.uncheckedBoxColor },
-            disabledCheckedBoxColor.takeOrElse { this.disabledCheckedBoxColor },
-            disabledUncheckedBoxColor.takeOrElse { this.disabledUncheckedBoxColor },
-            disabledIndeterminateBoxColor.takeOrElse { this.disabledIndeterminateBoxColor },
-            checkedBorderColor.takeOrElse { this.checkedBorderColor },
-            uncheckedBorderColor.takeOrElse { this.uncheckedBorderColor },
-            disabledBorderColor.takeOrElse { this.disabledBorderColor },
-            disabledUncheckedBorderColor.takeOrElse { this.disabledUncheckedBorderColor },
-            disabledIndeterminateBorderColor.takeOrElse { this.disabledIndeterminateBorderColor },
+            checkedCheckmarkColor = checkedCheckmarkColor.takeOrElse { this.checkedCheckmarkColor },
+            uncheckedCheckmarkColor =
+                uncheckedCheckmarkColor.takeOrElse { this.uncheckedCheckmarkColor },
+            checkedBoxColor = checkedBoxColor.takeOrElse { this.checkedBoxColor },
+            uncheckedBoxColor = uncheckedBoxColor.takeOrElse { this.uncheckedBoxColor },
+            disabledCheckedBoxColor =
+                disabledCheckedBoxColor.takeOrElse { this.disabledCheckedBoxColor },
+            disabledUncheckedBoxColor =
+                disabledUncheckedBoxColor.takeOrElse { this.disabledUncheckedBoxColor },
+            disabledIndeterminateBoxColor =
+                disabledIndeterminateBoxColor.takeOrElse { this.disabledIndeterminateBoxColor },
+            checkedBorderColor = checkedBorderColor.takeOrElse { this.checkedBorderColor },
+            uncheckedBorderColor = uncheckedBorderColor.takeOrElse { this.uncheckedBorderColor },
+            disabledBorderColor = disabledBorderColor.takeOrElse { this.disabledBorderColor },
+            disabledUncheckedBorderColor =
+                disabledUncheckedBorderColor.takeOrElse { this.disabledUncheckedBorderColor },
+            disabledIndeterminateBorderColor =
+                disabledIndeterminateBorderColor.takeOrElse {
+                    this.disabledIndeterminateBorderColor
+                },
+            disabledCheckmarkColor =
+                disabledCheckmarkColor.takeOrElse { this.disabledCheckmarkColor },
         )
 
     /**
@@ -941,17 +958,3 @@ private const val SnapAnimationDelay = 100
 private val CheckboxDefaultPadding = 2.dp
 private val CheckboxSize = 20.dp
 private val RadiusSize = 2.dp
-
-/**
- * Flag indicating checkbox style. When true, the checkbox will use the Material Design 3 styling.
- * This includes updated colors, and checkbox container sizing. When false, it uses the older
- * Material Design 2 styling. This flag is intended for temporary use during the migration.
- *
- * See the [Material Design 2 Checkboxes Specs](https://m2.material.io/components/checkboxes#specs)
- * and the [Material Design 3 Checkboxes Specs](https://m3.material.io/components/checkbox/specs).
- */
-@Suppress("GetterSetterNames")
-@get:Suppress("GetterSetterNames")
-@set:ExperimentalMaterial3Api
-@ExperimentalMaterial3Api
-var isCheckboxStylingFixEnabled by mutableStateOf(false)

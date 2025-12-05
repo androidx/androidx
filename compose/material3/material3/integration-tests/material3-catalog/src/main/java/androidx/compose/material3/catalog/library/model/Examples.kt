@@ -156,6 +156,7 @@ import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
 import androidx.compose.material3.samples.ModalWideNavigationRailSample
+import androidx.compose.material3.samples.MultiAspectCarouselLazyRowSample
 import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
 import androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
@@ -681,6 +682,14 @@ val CarouselExamples =
             isExpressive = false,
         ) {
             CarouselWithShowAllButtonSample()
+        },
+        Example(
+            name = "MultiAspectCarouselLazyRowSample",
+            description = CarouselExampleDescription,
+            sourceUrl = CarouselExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            MultiAspectCarouselLazyRowSample()
         },
     )
 

@@ -90,7 +90,7 @@ class CheckboxTest(private val isCheckboxStyleM3FixEnabled: Boolean) {
     @OptIn(ExperimentalMaterial3Api::class)
     @Before
     fun setUp() {
-        isCheckboxStylingFixEnabled = isCheckboxStyleM3FixEnabled
+        ComposeMaterial3Flags.isCheckboxStylingFixEnabled = isCheckboxStyleM3FixEnabled
     }
 
     @Test
@@ -356,7 +356,7 @@ class CheckboxTest(private val isCheckboxStyleM3FixEnabled: Boolean) {
                 if (clickable && minimumTouchTarget) {
                     assertIsSquareWithSize(48.dp)
                 } else {
-                    if (isCheckboxStylingFixEnabled) {
+                    if (ComposeMaterial3Flags.isCheckboxStylingFixEnabled) {
                         assertIsSquareWithSize(18.dp)
                     } else {
                         assertIsSquareWithSize(2.dp * 2 + 20.dp)

@@ -1424,7 +1424,7 @@ private class DropdownMenuItemMeasurePolicy(
 
 // Size defaults.
 internal val MenuVerticalMargin = 48.dp
-internal val MenuHorizontalMargin = 48.dp
+internal val MenuHorizontalMargin = 8.dp
 private val MenuListItemContainerHeight = 48.dp
 internal val DropdownMenuItemHorizontalPadding = 12.dp
 internal val DropdownMenuGroupVerticalPadding = 2.dp

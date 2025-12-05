@@ -38,6 +38,14 @@ import kotlin.jvm.JvmField
 @ExperimentalMaterial3Api
 object ComposeMaterial3Flags {
     /**
+     * When the flag is `true`, the [Checkbox] will use Material Design 3 styling, including updated
+     * colors and container sizing. When `false`, it uses older Material Design 2 styling. See the
+     * [Material Design 2 Checkboxes Specs](https://m2.material.io/components/checkboxes#specs) and
+     * the [Material Design 3 Checkboxes Specs](https://m3.material.io/components/checkbox/specs).
+     */
+    @field:Suppress("MutableBareField") @JvmField var isCheckboxStylingFixEnabled: Boolean = false
+
+    /**
      * When this flag is true and a precision pointer is present, components are resized accordingly
      */
     @field:Suppress("MutableBareField")

@@ -77,6 +77,29 @@ class CenteredHeroTest {
     }
 
     @Test
+    fun oneItemOnly_shouldGoFullscreen() {
+        val keylineList =
+            heroKeylineList(
+                density = Density,
+                carouselMainAxisSize = 40f + 40f + 40f,
+                maxItemSize = null,
+                itemSpacing = 0f,
+                itemCount = 1,
+                isCentered = true,
+            )
+        val strategy =
+            Strategy(
+                defaultKeylines = keylineList,
+                availableSpace = 40f + 40f + 40f,
+                itemSpacing = 0f,
+                beforeContentPadding = 0f,
+                afterContentPadding = 0f,
+            )
+
+        assertThat(strategy.itemMainAxisSize).isEqualTo(120f)
+    }
+
+    @Test
     fun lessThanFullscreenThreshold_shouldGoFullscreen() {
         val keylineList =
             heroKeylineList(

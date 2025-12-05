@@ -36,8 +36,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -53,6 +56,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
 import androidx.compose.material3.carousel.HorizontalMultiBrowseCarousel
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
+import androidx.compose.material3.carousel.MultiAspectCarouselItemDrawInfo
+import androidx.compose.material3.carousel.MultiAspectCarouselScope
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -77,6 +82,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -406,6 +412,76 @@ fun CarouselWithShowAllButtonSample() {
                                 RoundedCornerShape(16.dp),
                             )
                 ) {}
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Sampled
+@Composable
+fun MultiAspectCarouselLazyRowSample() {
+    data class CarouselItem(
+        val id: Int,
+        @DrawableRes val imageResId: Int,
+        @StringRes val contentDescriptionResId: Int,
+        val mainAxisSize: Dp,
+    )
+
+    val items =
+        listOf(
+            CarouselItem(
+                0,
+                R.drawable.carousel_image_1,
+                R.string.carousel_image_1_description,
+                305.dp,
+            ),
+            CarouselItem(
+                1,
+                R.drawable.carousel_image_2,
+                R.string.carousel_image_2_description,
+                205.dp,
+            ),
+            CarouselItem(
+                2,
+                R.drawable.carousel_image_3,
+                R.string.carousel_image_3_description,
+                275.dp,
+            ),
+            CarouselItem(
+                3,
+                R.drawable.carousel_image_4,
+                R.string.carousel_image_4_description,
+                350.dp,
+            ),
+            CarouselItem(
+                4,
+                R.drawable.carousel_image_5,
+                R.string.carousel_image_5_description,
+                100.dp,
+            ),
+        )
+
+    MultiAspectCarouselScope {
+        val state = rememberLazyListState()
+        LazyRow(
+            state = state,
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().height(221.dp),
+        ) {
+            itemsIndexed(items) { i, item ->
+                val drawInfo = remember { MultiAspectCarouselItemDrawInfo(i, state) }
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = stringResource(item.contentDescriptionResId),
+                    modifier =
+                        Modifier.width(item.mainAxisSize)
+                            .height(205.dp)
+                            .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
+                    contentScale = ContentScale.Crop,
+                )
             }
         }
     }

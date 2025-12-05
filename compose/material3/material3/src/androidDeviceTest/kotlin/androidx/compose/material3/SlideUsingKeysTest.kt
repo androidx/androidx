@@ -106,22 +106,6 @@ class SlideUsingKeysTest {
                 assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
             }
 
-            // Up key should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue + 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Down key should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue - 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
             onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
             onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
             runOnIdle { assertEquals(1f, state.value) }
@@ -186,22 +170,6 @@ class SlideUsingKeysTest {
                 assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
             }
 
-            // Up key should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue + 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Down key should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue - 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
             onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
             onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
             runOnIdle { assertEquals(1f, state.value) }
@@ -255,18 +223,6 @@ class SlideUsingKeysTest {
             onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
             onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
             currentValue += 3f
-            runOnIdle { assertEquals(currentValue, state.value) }
-
-            // Up key should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            currentValue += 1f
-            runOnIdle { assertEquals(currentValue, state.value) }
-
-            // Down key should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            currentValue -= 1f
             runOnIdle { assertEquals(currentValue, state.value) }
 
             onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
@@ -326,18 +282,6 @@ class SlideUsingKeysTest {
             // Press arrow key up.
             onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
             onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
-            // Press arrow key right.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key left.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
             // Assert went up.
             runOnIdle { assertEquals(0f, currentValue.floatValue) }
 
@@ -403,18 +347,6 @@ class SlideUsingKeysTest {
             // Press arrow key down.
             onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
             onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
-            // Press arrow key right.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key left.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
             // Assert went down.
             runOnIdle { assertEquals(0f, currentValue.floatValue) }
 
@@ -484,18 +416,6 @@ class SlideUsingKeysTest {
             // Assert went up.
             runOnIdle { assertEquals(0f, currentValue.floatValue) }
 
-            // Press arrow key left.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key right.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
             // Press page down.
             onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
             onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
@@ -560,18 +480,6 @@ class SlideUsingKeysTest {
             // Press arrow key down.
             onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
             onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
-            // Press arrow key left.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key right.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
             // Assert went down.
             runOnIdle { assertEquals(0f, currentValue.floatValue) }
 

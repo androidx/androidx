@@ -67,7 +67,7 @@ class CheckboxScreenshotTest(
     @OptIn(ExperimentalMaterial3Api::class)
     @Before
     fun setUp() {
-        isCheckboxStylingFixEnabled = isCheckboxStyleM3FixEnabled
+        ComposeMaterial3Flags.isCheckboxStylingFixEnabled = isCheckboxStyleM3FixEnabled
     }
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
