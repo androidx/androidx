@@ -84,6 +84,8 @@ public final class androidx/compose/foundation/ContextMenuData {
 public class androidx/compose/foundation/ContextMenuItem {
 	public static final field $stable I
 	public fun <init> (Ljava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public fun <init> (Ljava/lang/String;ZLkotlin/jvm/functions/Function0;)V
+	public final fun contextMenuItemBaseClassEnabled ()Z
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getLabel ()Ljava/lang/String;
 	public final fun getOnClick ()Lkotlin/jvm/functions/Function0;
@@ -137,7 +139,8 @@ public final class androidx/compose/foundation/DarkThemeKt {
 
 public final class androidx/compose/foundation/DefaultContextMenuRepresentation : androidx/compose/foundation/ContextMenuRepresentation {
 	public static final field $stable I
-	public synthetic fun <init> (JJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJJJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun Representation (Landroidx/compose/foundation/ContextMenuState;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)V
 }
 

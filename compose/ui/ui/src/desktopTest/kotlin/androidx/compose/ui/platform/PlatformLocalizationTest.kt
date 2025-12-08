@@ -87,13 +87,18 @@ class PlatformLocalizationTest {
                 get() = "My Select All"
         }
 
+        val emptyAction = TextContextMenu.Action(
+            enabled = true,
+            execute = { }
+        )
+
         val textManager = object: TextContextMenu.TextManager {
             override val selectedText: AnnotatedString
                 get() = AnnotatedString("")
-            override val cut = { }
-            override val copy = { }
-            override val paste = { }
-            override val selectAll = { }
+            override val cut = emptyAction
+            override val copy = emptyAction
+            override val paste = emptyAction
+            override val selectAll = emptyAction
             override fun selectWordAtPositionIfNotAlreadySelected(offset: Offset) { }
         }
 

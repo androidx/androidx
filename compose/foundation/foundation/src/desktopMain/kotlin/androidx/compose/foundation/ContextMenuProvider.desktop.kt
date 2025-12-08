@@ -186,19 +186,27 @@ private suspend fun AwaitPointerEventScope.awaitEventFirstDown(): PointerEvent {
  * Individual element of context menu.
  *
  * @param label The text to be displayed as a context menu item.
+ * @param enabled Whether the item is enabled.
  * @param onClick The action to be executed after click on the item.
  */
 open class ContextMenuItem(
     val label: String,
+    enabled: Boolean,
     val onClick: () -> Unit
 ) {
+    constructor(label: String, onClick: () -> Unit) : this(label, true, onClick)
+
+    // Avoid breaking backwards compatibility with subclasses that already have an `enabled` field
+    private val _enabled = enabled
+    val enabled: Boolean
+        @JvmName("contextMenuItemBaseClassEnabled") get() = _enabled
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || this::class != other::class) return false
-
-        other as ContextMenuItem
+        if (other !is ContextMenuItem) return false
 
         if (label != other.label) return false
+        if (enabled != other.enabled) return false
         if (onClick != other.onClick) return false
 
         return true
@@ -206,12 +214,13 @@ open class ContextMenuItem(
 
     override fun hashCode(): Int {
         var result = label.hashCode()
+        result = 31 * result + enabled.hashCode()
         result = 31 * result + onClick.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "ContextMenuItem(label='$label')"
+        return "ContextMenuItem(label='$label', enabled=$enabled)"
     }
 }
 

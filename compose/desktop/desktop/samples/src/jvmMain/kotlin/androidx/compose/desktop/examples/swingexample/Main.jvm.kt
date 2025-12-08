@@ -265,15 +265,17 @@ fun CustomTextMenuProvider(content: @Composable () -> Unit) {
 
 private fun AnnotatedString.crop() = if (length <= 5) toString() else "${take(5)}..."
 
+@OptIn(ExperimentalFoundationApi::class)
 private fun swingItem(
     label: String,
     color: java.awt.Color,
     key: Int,
-    onClick: () -> Unit
+    menuItemAction: TextContextMenu.Action
 ) = JMenuItem(label).apply {
     icon = circleIcon(color)
     accelerator = KeyStroke.getKeyStroke(key, if (hostOs.isMacOS) META_DOWN_MASK else CTRL_DOWN_MASK)
-    addActionListener { onClick() }
+    isEnabled = menuItemAction.enabled
+    addActionListener { menuItemAction.execute() }
 }
 
 private fun circleIcon(color: java.awt.Color) = object : Icon {

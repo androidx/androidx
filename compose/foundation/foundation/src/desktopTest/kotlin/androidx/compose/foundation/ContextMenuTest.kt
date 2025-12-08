@@ -17,10 +17,20 @@
 package androidx.compose.foundation
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.LocalTextContextMenu
+import androidx.compose.foundation.text.TextContextMenu
+import androidx.compose.foundation.text.TextContextMenuArea
 import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.selection.SelectionContainer
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -33,10 +43,12 @@ import androidx.compose.ui.platform.LocalLocalization
 import androidx.compose.ui.platform.NativeClipboard
 import androidx.compose.ui.platform.PlatformLocalization
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.SemanticsNodeInteraction
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -46,6 +58,7 @@ import androidx.compose.ui.test.rightClick
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import androidx.navigationevent.DirectNavigationEventInput
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 import java.awt.datatransfer.StringSelection
@@ -160,8 +173,8 @@ class ContextMenuTest {
         onNodeWithText(localization.selectAll).assertDoesNotExist()
 
         onNodeWithTag("textfield").performMouseInput { rightClick() }
-        onNodeWithText(localization.copy).assertMenuItemDoesNotExistOrIsDisabled()
-        onNodeWithText(localization.cut).assertMenuItemDoesNotExistOrIsDisabled()
+        onNodeWithText(localization.copy).assertIsNotEnabled()
+        onNodeWithText(localization.cut).assertIsNotEnabled()
         onNodeWithText(localization.paste).assertExists()
         onNodeWithText(localization.selectAll).assertExists()
 
@@ -176,22 +189,13 @@ class ContextMenuTest {
         onNodeWithText(localization.copy).assertExists()
         onNodeWithText(localization.cut).assertExists()
         onNodeWithText(localization.paste).assertExists()
-        onNodeWithText(localization.selectAll).assertMenuItemDoesNotExistOrIsDisabled()
+        onNodeWithText(localization.selectAll).assertIsNotEnabled()
 
         navEventInput.backCompleted()
         onNodeWithText(localization.copy).assertDoesNotExist()
         onNodeWithText(localization.cut).assertDoesNotExist()
         onNodeWithText(localization.paste).assertDoesNotExist()
         onNodeWithText(localization.selectAll).assertDoesNotExist()
-    }
-
-    private fun SemanticsNodeInteraction.assertMenuItemDoesNotExistOrIsDisabled() {
-        // New context menus disabled items; old context menus don't show disabled items.
-        if (ComposeFoundationFlags.isNewContextMenuEnabled) {
-            assertIsNotEnabled()
-        } else {
-            assertDoesNotExist()
-        }
     }
 
     @Test
@@ -236,9 +240,93 @@ class ContextMenuTest {
         }
     }
 
+    // https://youtrack.jetbrains.com/issue/CMP-9329
+    @Test
+    fun `contextMenuArea disables or removes copy action for SelectionContainer with empty selection`() =
+        runContextMenuTest {
+            val localization = object : PlatformLocalization {
+                override val copy = "copy"
+                override val cut = "cut"
+                override val paste = "paste"
+                override val selectAll = "selectAll"
+            }
+
+            var textContextMenu by mutableStateOf(TextContextMenu.Default)
+            setContent {
+                CompositionLocalProvider(
+                    LocalLocalization provides localization,
+                    LocalTextContextMenu provides textContextMenu
+                ) {
+                    SelectionContainer {
+                        BasicText("Hello, row 1")
+                        Box(Modifier.testTag("box").size(16.dp))
+                        BasicText("Hello, row 2")
+                    }
+                }
+            }
+
+            // Check disabled variant
+            onNodeWithTag("box").performMouseInput { rightClick() }
+            onNodeWithText(localization.copy).let {
+                it.assertExists()
+                it.assertIsNotEnabled()
+            }
+
+            // Close the menu
+            onNode(ContextMenuMatcher).assertExists()
+            onNodeWithTag("box").performMouseInput { click(Offset.Zero) }
+            onNode(ContextMenuMatcher).assertDoesNotExist()  // Verify it has been closed
+
+            // Check hiding variant
+            textContextMenu = TextContextMenu.HideDisabledMenuItems
+            waitForIdle()
+            onNodeWithTag("box").performMouseInput { rightClick() }
+            onNodeWithText(localization.copy).assertDoesNotExist()
+        }
+
+    // https://youtrack.jetbrains.com/issue/CMP-9342
+    @Test
+    fun `empty text context menu is not shown`() =
+        runContextMenuTest {
+            val emptyTextContextMenu = object : TextContextMenu {
+                @Composable
+                override fun Area(
+                    textManager: TextContextMenu.TextManager,
+                    state: ContextMenuState,
+                    content: @Composable (() -> Unit)
+                ) {
+                    TextContextMenuArea(
+                        textManager = textManager,
+                        items = { emptyList() },
+                        state = state,
+                        content = content
+                    )
+                }
+            }
+
+            setContent {
+                CompositionLocalProvider(
+                    LocalTextContextMenu provides emptyTextContextMenu
+                ) {
+                    SelectionContainer {
+                        BasicText("Hello, row 1")
+                        Box(Modifier.testTag("box").size(16.dp))
+                        BasicText("Hello, row 2")
+                    }
+                }
+            }
+
+            onNodeWithTag("box").performMouseInput { rightClick() }
+            onNode(ContextMenuMatcher).assertDoesNotExist()
+        }
+
     private fun runContextMenuTest(block: ComposeUiTest.() -> Unit) = runComposeUiTest {
         DesktopPlatform.withOverriddenCurrent(DesktopPlatform.Unknown) {
             block()
         }
     }
+}
+
+private val ContextMenuMatcher = SemanticsMatcher("Context menu") {
+    SemanticsProperties.IsPopup in it.config
 }

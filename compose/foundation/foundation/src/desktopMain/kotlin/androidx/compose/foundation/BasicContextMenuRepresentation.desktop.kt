@@ -21,6 +21,7 @@ import androidx.compose.foundation.text.contextmenu.data.TextContextMenuItemWith
 import androidx.compose.foundation.text.contextmenu.data.TextContextMenuSession
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -65,42 +66,48 @@ val DarkDefaultContextMenuRepresentation = DefaultContextMenuRepresentation(
 class DefaultContextMenuRepresentation(
     private val backgroundColor: Color,
     private val textColor: Color,
-    private val itemHoverColor: Color
+    private val itemHoverColor: Color,
+    private val disabledTextColor: Color = textColor.copy(alpha = 0.38f),
 ) : ContextMenuRepresentation {
     @OptIn(ExperimentalComposeUiApi::class)
     @Composable
     override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
         val status = state.status
-        if (status is ContextMenuState.Status.Open) {
-            val session = remember(state) {
-                object : TextContextMenuSession {
-                    override fun close() {
-                        state.status = ContextMenuState.Status.Closed
-                    }
+        if (status !is ContextMenuState.Status.Open) return
+
+        val session = remember(state) {
+            object : TextContextMenuSession {
+                override fun close() {
+                    state.status = ContextMenuState.Status.Closed
                 }
             }
-            val components by remember {
-                derivedStateOf {
-                    items().map {
-                        TextContextMenuItemWithComposableLeadingIcon(
-                            key = it,
-                            label = it.label,
-                            enabled = true,
-                            onClick = {
-                                session.close()
-                                it.onClick()
-                            }
-                        )
-                    }
+        }
+        val components by remember {
+            derivedStateOf {
+                items().map {
+                    TextContextMenuItemWithComposableLeadingIcon(
+                        key = it,
+                        label = it.label,
+                        enabled = it.enabled,
+                        onClick = {
+                            session.close()
+                            it.onClick()
+                        }
+                    )
                 }
             }
-            val colors = remember(backgroundColor, textColor, itemHoverColor) {
+        }
+
+        if (components.isEmpty()) {
+            SideEffect { session.close() }
+        } else {
+            val colors = remember(backgroundColor, textColor, itemHoverColor, disabledTextColor) {
                 ContextMenuColors(
                     backgroundColor = backgroundColor,
                     textColor = textColor,
-                    iconColor = Color.Unspecified,
-                    disabledTextColor = Color.Unspecified,
-                    disabledIconColor = Color.Unspecified,
+                    iconColor = textColor,
+                    disabledTextColor = disabledTextColor,
+                    disabledIconColor = disabledTextColor,
                     hoverColor = itemHoverColor,
                 )
             }

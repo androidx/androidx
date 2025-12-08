@@ -137,45 +137,41 @@ private val TextFieldSelectionManager.textManager: TextManager get() = object : 
 
     val isPassword get() = visualTransformation is PasswordVisualTransformation
 
-    override val cut: (() -> Unit)? get() =
-        if (!value.selection.collapsed && editable && !isPassword) {
-            {
+    override val cut: TextContextMenu.Action get() =
+        TextContextMenu.Action(
+            enabled = !value.selection.collapsed && editable && !isPassword,
+            execute = {
                 cut()
                 focusRequester?.requestFocus()
             }
-        } else {
-            null
-        }
+        )
 
-    override val copy: (() -> Unit)? get() =
-        if (!value.selection.collapsed && !isPassword) {
-            {
+    override val copy: TextContextMenu.Action get() =
+        TextContextMenu.Action(
+            enabled = !value.selection.collapsed && !isPassword,
+            execute = {
                 copy(false)
                 focusRequester?.requestFocus()
             }
-        } else {
-            null
-        }
+        )
 
-    override val paste: (() -> Unit)? get() =
-        if (editable && clipboard?.nativeClipboardHasText() == true) {
-            {
+    override val paste: TextContextMenu.Action get() =
+        TextContextMenu.Action(
+            enabled = editable && clipboard?.nativeClipboardHasText() == true,
+            execute = {
                 paste()
                 focusRequester?.requestFocus()
             }
-        } else {
-            null
-        }
+        )
 
-    override val selectAll: (() -> Unit)? get() =
-        if (value.selection.length != value.text.length) {
-            {
+    override val selectAll: TextContextMenu.Action get() =
+        TextContextMenu.Action(
+            enabled = value.selection.length != value.text.length,
+            execute = {
                 selectAll()
                 focusRequester?.requestFocus()
             }
-        } else {
-            null
-        }
+        )
 
     override fun selectWordAtPositionIfNotAlreadySelected(offset: Offset) {
         this@textManager.selectWordAtPositionIfNotAlreadySelected(offset)
@@ -198,20 +194,32 @@ private fun TextFieldSelectionState.textManager(coroutineScope: CoroutineScope):
 
         private fun pasteImpl() = launchUndispatched { paste() }
 
-        override val cut: (() -> Unit)?
-            get() = if (canShowCutMenuItem()) ::cutImpl else null
+        override val cut: TextContextMenu.Action get() =
+            TextContextMenu.Action(
+                enabled = canShowCutMenuItem(),
+                execute = ::cutImpl
+            )
 
-        override val copy: (() -> Unit)?
-            get() = if (canShowCopyMenuItem()) ::copyImpl else null
+        override val copy: TextContextMenu.Action get() =
+            TextContextMenu.Action(
+                enabled = canShowCopyMenuItem(),
+                execute = ::copyImpl
+            )
 
-        override val paste: (() -> Unit)?
-            get() {
-                launchUndispatched { updateClipboardEntry() }
-                return if (canShowPasteMenuItem()) ::pasteImpl else null
-            }
+        override val paste: TextContextMenu.Action get() =
+            TextContextMenu.Action(
+                enabled = run {
+                    launchUndispatched { updateClipboardEntry() }
+                    canShowPasteMenuItem()
+                },
+                execute = ::pasteImpl
+            )
 
-        override val selectAll: (() -> Unit)?
-            get() = if (canShowSelectAllMenuItem()) ::selectAll else null
+        override val selectAll: TextContextMenu.Action get() =
+            TextContextMenu.Action(
+                enabled = canShowSelectAllMenuItem(),
+                execute = ::selectAll
+            )
 
         override fun selectWordAtPositionIfNotAlreadySelected(offset: Offset) {
             if (!textLayoutState.isPositionOnText(offset)) return
@@ -236,7 +244,11 @@ private fun TextFieldSelectionState.textManager(coroutineScope: CoroutineScope):
 private val SelectionManager.textManager: TextManager get() = object : TextManager {
     override val selectedText get() = getSelectedText() ?: AnnotatedString("")
     override val cut = null
-    override val copy = { copy() }
+    override val copy get() =
+        TextContextMenu.Action(
+            enabled = isNonEmptySelection(),
+            execute = { copy()}
+        )
     override val paste = null
     override val selectAll = null
     override fun selectWordAtPositionIfNotAlreadySelected(offset: Offset) {
@@ -283,22 +295,22 @@ interface TextContextMenu {
         /**
          * Action for cutting the selected text to the clipboard. Null if there is no text to cut.
          */
-        val cut: (() -> Unit)?
+        val cut: Action?
 
         /**
          * Action for copy the selected text to the clipboard. Null if there is no text to copy.
          */
-        val copy: (() -> Unit)?
+        val copy: Action?
 
         /**
          * Action for pasting text from the clipboard. Null if there is no text in the clipboard.
          */
-        val paste: (() -> Unit)?
+        val paste: Action?
 
         /**
          * Action for selecting the whole text. Null if the text is already selected.
          */
-        val selectAll: (() -> Unit)?
+        val selectAll: Action?
 
         /**
          * Selects the word at the given [offset], unless the current selection already encompasses
@@ -307,40 +319,56 @@ interface TextContextMenu {
         fun selectWordAtPositionIfNotAlreadySelected(offset: Offset)
     }
 
+    @ExperimentalFoundationApi
+    class Action(val enabled: Boolean, val execute: () -> Unit)
+
     companion object {
         /**
          * [TextContextMenu] that is used by default in Compose.
          */
         @ExperimentalFoundationApi
-        val Default = object : TextContextMenu {
-            @Composable
-            override fun Area(textManager: TextManager, state: ContextMenuState, content: @Composable () -> Unit) {
-                val localization = LocalLocalization.current
-                val items = {
-                    listOfNotNull(
-                        textManager.cut?.let {
-                            ContextMenuItem(localization.cut, it)
-                        },
-                        textManager.copy?.let {
-                            ContextMenuItem(localization.copy, it)
-                        },
-                        textManager.paste?.let {
-                            ContextMenuItem(localization.paste, it)
-                        },
-                        textManager.selectAll?.let {
-                            ContextMenuItem(localization.selectAll, it)
-                        },
-                    )
-                }
+        val Default: TextContextMenu = BasicTextContextMenu(showDisabledItems = true)
 
-                TextContextMenuArea(
-                    textManager = textManager,
-                    items = items,
-                    state = state,
-                    content = content
-                )
+        /**
+         * [TextContextMenu] that doesn't show any disabled items.
+         */
+        @ExperimentalFoundationApi
+        val HideDisabledMenuItems: TextContextMenu = BasicTextContextMenu(showDisabledItems = false)
+    }
+}
+
+/**
+ * Basic implementation of [TextContextMenu].
+ */
+private class BasicTextContextMenu(
+    val showDisabledItems: Boolean
+) : TextContextMenu {
+    @Composable
+    override fun Area(
+        textManager: TextManager,
+        state: ContextMenuState,
+        content: @Composable () -> Unit
+    ) {
+        val localization = LocalLocalization.current
+        val items = {
+            listOf(
+                localization.cut to textManager.cut,
+                localization.copy to textManager.copy,
+                localization.paste to textManager.paste,
+                localization.selectAll to textManager.selectAll,
+            ).mapNotNull { (localization, action) ->
+                if (action == null) return@mapNotNull null
+                if (!showDisabledItems && !action.enabled) return@mapNotNull null
+                ContextMenuItem(localization, action.enabled, action.execute)
             }
         }
+
+        TextContextMenuArea(
+            textManager = textManager,
+            items = items,
+            state = state,
+            content = content
+        )
     }
 }
 
