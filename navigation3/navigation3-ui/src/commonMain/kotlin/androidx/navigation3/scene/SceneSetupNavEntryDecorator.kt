@@ -38,8 +38,9 @@ internal fun <T : Any> rememberSceneSetupNavEntryDecorator(): SceneSetupNavEntry
  * the same entry content is not composed multiple times in different places of the hierarchy by
  * different scenes.
  *
- * This should likely be the first [NavEntryDecorator] to ensure that other [NavEntryDecorator]
- * calls that are stateful are moved properly inside the [movableContentOf].
+ * This should likely be the first [NavEntryDecorator] (with the exception of the
+ * [SharedEntryInSceneNavEntryDecorator]) to ensure that other [NavEntryDecorator] calls that are
+ * stateful are moved properly inside the [movableContentOf].
  */
 internal class SceneSetupNavEntryDecorator<T : Any>(
     val movableContentMap: MutableMap<Any, @Composable (@Composable () -> Unit) -> Unit> =

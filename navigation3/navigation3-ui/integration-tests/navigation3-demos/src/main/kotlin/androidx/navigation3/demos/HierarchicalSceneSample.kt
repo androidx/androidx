@@ -18,7 +18,6 @@ package androidx.navigation3.demos
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
-import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,9 +26,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -42,12 +38,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation3.runtime.NavEntry
-import androidx.navigation3.runtime.NavEntryDecorator
-import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
-import androidx.navigation3.ui.LocalNavAnimatedContentScope
 import androidx.navigation3.ui.NavDisplay
 import androidx.savedstate.compose.serialization.serializers.SnapshotStateListSerializer
 import kotlin.collections.forEach
@@ -63,38 +56,9 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 
-/** The [SharedTransitionScope] of the [NavDisplay]. */
-@OptIn(ExperimentalSharedTransitionApi::class)
-val LocalNavSharedTransitionScope: ProvidableCompositionLocal<SharedTransitionScope> =
-    compositionLocalOf {
-        throw IllegalStateException(
-            "Unexpected access to LocalNavSharedTransitionScope. You must provide a " +
-                "SharedTransitionScope from a call to SharedTransitionLayout() or " +
-                "SharedTransitionScope()"
-        )
-    }
-
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalUuidApi::class)
 @Composable
 fun HierarchicalSceneSample() {
-    /**
-     * A [NavEntryDecorator] that wraps each entry in a shared element that is controlled by the
-     * [Scene].
-     */
-    val sharedEntryInSceneNavEntryDecorator =
-        NavEntryDecorator<ColorEntry> { entry ->
-            with(LocalNavSharedTransitionScope.current) {
-                Box(
-                    Modifier.sharedElement(
-                        rememberSharedContentState(entry.contentKey),
-                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                    )
-                ) {
-                    entry.Content()
-                }
-            }
-        }
-
     var columns by rememberSaveable { mutableIntStateOf(1) }
 
     val backStack: MutableList<ColorEntry> =
@@ -112,35 +76,29 @@ fun HierarchicalSceneSample() {
             }
         }
         SharedTransitionLayout {
-            CompositionLocalProvider(LocalNavSharedTransitionScope provides this) {
-                NavDisplay(
-                    backStack = backStack,
-                    onBack = { backStack.removeAt(backStack.lastIndex) },
-                    entryDecorators =
-                        listOf(
-                            sharedEntryInSceneNavEntryDecorator,
-                            rememberSaveableStateHolderNavEntryDecorator(),
-                        ),
-                    sceneStrategy = sceneStrategy,
-                ) {
-                    NavEntry(key = it, contentKey = it.id) { entry ->
-                        Box(
-                            modifier = Modifier.background(entry.color).fillMaxSize(),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(entry.color.toString())
+            NavDisplay(
+                backStack = backStack,
+                onBack = { backStack.removeAt(backStack.lastIndex) },
+                sceneStrategy = sceneStrategy,
+                sharedTransitionScope = this,
+            ) {
+                NavEntry(key = it, contentKey = it.id) { entry ->
+                    Box(
+                        modifier = Modifier.background(entry.color).fillMaxSize(),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(entry.color.toString())
 
-                                var counter by rememberSaveable { mutableIntStateOf(0) }
+                            var counter by rememberSaveable { mutableIntStateOf(0) }
 
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Button(onClick = { counter-- }) { Text("-") }
-                                    Text(
-                                        "rememberSaveable counter: $counter",
-                                        modifier = Modifier.weight(1f, fill = false),
-                                    )
-                                    Button(onClick = { counter++ }) { Text("+") }
-                                }
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Button(onClick = { counter-- }) { Text("-") }
+                                Text(
+                                    "rememberSaveable counter: $counter",
+                                    modifier = Modifier.weight(1f, fill = false),
+                                )
+                                Button(onClick = { counter++ }) { Text("+") }
                             }
                         }
                     }

@@ -49,7 +49,8 @@ public final class androidx/navigation3/scene/SceneState {
 }
 
 public final class androidx/navigation3/scene/SceneStateKt {
-	public static final fun rememberSceneState (Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/scene/SceneState;
+	public static final fun rememberSceneState (Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SharedTransitionScope;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)Landroidx/navigation3/scene/SceneState;
+	public static final synthetic fun rememberSceneState (Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;I)Landroidx/navigation3/scene/SceneState;
 }
 
 public abstract interface class androidx/navigation3/scene/SceneStrategy {
@@ -83,8 +84,10 @@ public final class androidx/navigation3/ui/NavDisplay {
 
 public final class androidx/navigation3/ui/NavDisplayKt {
 	public static final fun NavDisplay (Landroidx/navigation3/scene/SceneState;Landroidx/navigationevent/compose/NavigationEventState;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
-	public static final fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
-	public static final fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function0;Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public static final synthetic fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function0;Landroidx/compose/runtime/Composer;II)V
+	public static final fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function0;Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SharedTransitionScope;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun NavDisplay (Ljava/util/List;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/Alignment;Lkotlin/jvm/functions/Function0;Ljava/util/List;Landroidx/navigation3/scene/SceneStrategy;Landroidx/compose/animation/SizeTransform;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
 	public static final fun defaultPopTransitionSpec ()Lkotlin/jvm/functions/Function1;
 	public static final fun defaultPredictivePopTransitionSpec ()Lkotlin/jvm/functions/Function2;
 	public static final fun defaultTransitionSpec ()Lkotlin/jvm/functions/Function1;

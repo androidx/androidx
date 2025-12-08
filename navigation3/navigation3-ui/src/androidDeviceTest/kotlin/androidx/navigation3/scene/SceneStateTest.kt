@@ -16,9 +16,12 @@
 
 package androidx.navigation3.scene
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mock.Text
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
@@ -108,10 +111,158 @@ internal class SceneStateTest {
         rule.waitForIdle()
         assertThat(currentScene).isInstanceOf<SinglePaneScene<String>>()
     }
+
+    @Test
+    fun testSceneStateDoesNotRecalculateOnUnrelatedRecomposition() {
+        val strategy = CountingSceneStrategy<Any>()
+        val backStack = mutableStateListOf(First)
+        val sceneStates = mutableSetOf<SceneState<Any>>()
+
+        // Unrelated state we'll use to trigger recomposition.
+        var tick by mutableStateOf(0)
+
+        rule.setContent {
+            val entries =
+                rememberDecoratedNavEntries<Any>(
+                    backStack,
+                    entryDecorators = emptyList(),
+                    entryProvider { entry<First> { Text("First") } },
+                )
+
+            // Read tick to participate in recomposition without changing inputs.
+            @Suppress("UnusedVariable", "unused") val unused = tick
+
+            sceneStates += rememberSceneState(entries, strategy, onBack = {})
+        }
+
+        // First composition should call calculate once.
+        assertThat(strategy.calculateSceneInvocations).isEqualTo(1)
+
+        // Trigger recomposition.
+        rule.runOnIdle { tick++ }
+        rule.runOnIdle { tick++ }
+        rule.runOnIdle { tick++ }
+
+        // After recomposition, still only one calculation.
+        rule.runOnIdle { assertThat(strategy.calculateSceneInvocations).isEqualTo(1) }
+
+        // Sanity check.
+        rule.runOnIdle {
+            assertThat(sceneStates.first().currentScene).isInstanceOf<SinglePaneScene<Any>>()
+        }
+        rule.runOnIdle { assertThat(sceneStates.size).isEqualTo(1) }
+    }
+
+    @Test
+    fun testSceneStateDoesNotRecalculateOnOnBackChange() {
+        val strategy = CountingSceneStrategy<Any>()
+
+        // Unrelated state we'll use to trigger recomposition.
+        var tick by mutableStateOf(0)
+
+        rule.setContent {
+            val entries =
+                rememberDecoratedNavEntries<Any>(
+                    listOf(First),
+                    entryDecorators = emptyList(),
+                    entryProvider { entry<First> { Text("First") } },
+                )
+
+            // This creates a new lambda instance on every recomposition
+            // that captures the current 'tick'.
+            val unstableOnBack = {
+                @Suppress("UNUSED_VARIABLE") val unused = tick
+            }
+
+            rememberSceneState(entries, strategy, onBack = unstableOnBack)
+        }
+
+        // First composition should call calculate once.
+        rule.runOnIdle { assertThat(strategy.calculateSceneInvocations).isEqualTo(1) }
+
+        // Trigger recomposition, which creates a new 'unstableOnBack' lambda.
+        rule.runOnIdle { tick++ }
+        rule.runOnIdle { tick++ }
+
+        // After recomposition, calculation should NOT have run again.
+        rule.runOnIdle { assertThat(strategy.calculateSceneInvocations).isEqualTo(1) }
+    }
+
+    @Test
+    fun testSceneStateRecalculatesOnEntriesChange() {
+        val strategy = CountingSceneStrategy<Any>()
+        val backStack = mutableStateListOf<Any>(First)
+
+        rule.setContent {
+            val entries =
+                rememberDecoratedNavEntries(
+                    backStack,
+                    entryDecorators = emptyList(),
+                    entryProvider {
+                        entry<First> { Text("First") }
+                        entry<Second> { Text("Second") }
+                    },
+                )
+            rememberSceneState(entries, strategy, onBack = {})
+        }
+
+        // First composition should call calculate once.
+        rule.runOnIdle { assertThat(strategy.calculateSceneInvocations).isEqualTo(1) }
+
+        // Trigger recomposition by changing entries.
+        rule.runOnIdle { backStack += Second }
+
+        // After recomposition with new entries, calculation should run again.
+        rule.runOnIdle { assertThat(strategy.calculateSceneInvocations).isGreaterThan(1) }
+    }
+
+    @Test
+    fun testSceneStateRecalculatesOnStrategyChange() {
+        val initialStrategy = CountingSceneStrategy<Any>()
+        val newStrategy = CountingSceneStrategy<Any>()
+        var strategy: SceneStrategy<Any> by mutableStateOf(initialStrategy)
+
+        rule.setContent {
+            val entries =
+                rememberDecoratedNavEntries<Any>(
+                    listOf(First),
+                    entryDecorators = emptyList(),
+                    entryProvider { entry<First> { Text("First") } },
+                )
+            rememberSceneState(entries, strategy, onBack = {})
+        }
+
+        // First composition should call calculate once on the initial strategy.
+        rule.runOnIdle { assertThat(initialStrategy.calculateSceneInvocations).isEqualTo(1) }
+        rule.runOnIdle { assertThat(newStrategy.calculateSceneInvocations).isEqualTo(0) }
+
+        // Trigger recomposition by changing the strategy instance.
+        rule.runOnIdle { strategy = newStrategy }
+
+        // The new strategy should now be used, incrementing its count.
+        rule.runOnIdle { assertThat(initialStrategy.calculateSceneInvocations).isEqualTo(1) }
+        rule.runOnIdle { assertThat(newStrategy.calculateSceneInvocations).isEqualTo(1) }
+    }
 }
 
-object First
+private object First
 
-object Second
+private object Second
 
-object Third
+private object Third
+
+/** Minimal strategy that counts calls to [calculateSceneWithSinglePaneFallback]. */
+private class CountingSceneStrategy<T : Any>() : SceneStrategy<T> {
+
+    private val base = SinglePaneSceneStrategy<T>()
+
+    var calculateSceneInvocations = 0
+        private set
+
+    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
+        calculateSceneInvocations++
+        with(base) {
+            return calculateScene(entries)
+        }
+    }
+}
