@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExtendedFloatingActionButton
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -38,6 +39,7 @@ import androidx.compose.ui.window.Dialog
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.skia.Image
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Ignore
 import org.junit.Rule
@@ -94,7 +96,7 @@ class ImageComposeSceneTest {
 
     @Test
     fun `run dialog in center`() {
-        val image = renderComposeScene(
+        val image = renderComposeSceneOnIdle(
             width = 80,
             height = 40,
         ) {
@@ -130,4 +132,20 @@ class ImageComposeSceneTest {
             scene.close()
         }
     }
+}
+
+@OptIn(ExperimentalTime::class)
+private fun renderComposeSceneOnIdle(
+    width: Int,
+    height: Int,
+    density: Density = Density(1f),
+    content: @Composable () -> Unit
+): Image = ImageComposeScene(
+    width = width,
+    height = height,
+    density = density,
+    content = content
+).use {
+    val time = it.runUntilIdle()
+    it.render(time)
 }

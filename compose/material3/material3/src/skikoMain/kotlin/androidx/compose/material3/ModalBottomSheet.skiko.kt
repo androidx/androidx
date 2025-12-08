@@ -71,6 +71,7 @@ internal actual fun ModalBottomSheetDialog(
             usePlatformDefaultWidth = false,
             usePlatformInsets = false,
             scrimColor = Color.Transparent,
+            animateTransition = false,
         ),
         content = content
     )

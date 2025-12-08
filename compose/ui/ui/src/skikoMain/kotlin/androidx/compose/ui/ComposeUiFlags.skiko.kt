@@ -26,6 +26,10 @@ internal object SkikoComposeUiFlags {
     @Suppress("MutableBareField")
     @JvmField
     var isClearFocusOnMouseDownEnabled: Boolean = true
+
+    @Suppress("MutableBareField")
+    @JvmField
+    var isDialogAnimationEnabled: Boolean = true
 }
 
 /**
@@ -44,3 +48,11 @@ var ComposeUiFlags.useLegacyRenderNodeLayers by SkikoComposeUiFlags::useLegacyRe
  */
 @ExperimentalComposeUiApi
 var ComposeUiFlags.isClearFocusOnMouseDownEnabled by SkikoComposeUiFlags::isClearFocusOnMouseDownEnabled
+
+/**
+ * When enabled the [androidx.compose.ui.window.Dialog] appear and disappear with animation.
+ *
+ * Note that it's a temporary flag, it will be removed in the future.
+ */
+@ExperimentalComposeUiApi
+var ComposeUiFlags.isDialogAnimationEnabled by SkikoComposeUiFlags::isDialogAnimationEnabled

@@ -27,6 +27,10 @@ internal fun easeInOutTimingFunction(progress: Float): Float = if (progress < 0.
     (-2f * progress * progress) + (4f * progress) - 1f
 }
 
+internal fun easeOutTimingFunction(progress: Float): Float {
+    return -progress * (progress - 2f)
+}
+
 internal suspend fun withAnimationProgress(
     duration: Duration,
     timingFunction: (Float) -> Float = ::easeInOutTimingFunction,
@@ -34,11 +38,11 @@ internal suspend fun withAnimationProgress(
 ) {
     update(0f)
 
-    var firstFrameTime = 0L
+    var firstFrameTime: Long = -1
     var progressDuration = Duration.ZERO
     while (progressDuration < duration) {
         withFrameNanos { frameTime ->
-            if (firstFrameTime == 0L) {
+            if (firstFrameTime == -1L) {
                 firstFrameTime = frameTime
             }
             progressDuration = (frameTime - firstFrameTime).nanoseconds

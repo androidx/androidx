@@ -18,13 +18,16 @@ package androidx.compose.ui.window
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.DialogState
 import androidx.compose.ui.FillBox
 import androidx.compose.ui.Modifier
@@ -32,6 +35,7 @@ import androidx.compose.ui.assertReceived
 import androidx.compose.ui.assertReceivedLast
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -345,4 +349,50 @@ class DialogTest {
         onNodeWithTag("content2").assertIsDisplayed()
     }
 
+    @Test
+    fun testDialogScrimColorChange() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val scrimColor = mutableStateOf(Color.Red)
+        setContent {
+            Dialog(
+                onDismissRequest = {},
+                properties = DialogProperties(scrimColor = scrimColor.value)
+            ) {}
+        }
+
+        captureToImage().assertPixels { Color.Red }
+
+        scrimColor.value = Color.Blue
+        waitForIdle()
+
+        captureToImage().assertPixels { Color.Blue }
+    }
+
+    @Test
+    fun testMovableContentWithDialogAnimation_noCrash() = runSkikoComposeUiTest(
+        size = Size(100f, 100f)
+    ) {
+        val text = mutableStateOf("Hello")
+        val content = movableContentOf() { Text(text.value) }
+        val showDialog = mutableStateOf(true)
+        setContent {
+            if (showDialog.value) {
+                Dialog(
+                    onDismissRequest = {},
+                    properties = DialogProperties(animateTransition = true)
+                ) {
+                    content()
+                }
+            } else {
+                content()
+            }
+        }
+
+        waitForIdle()
+        showDialog.value = false
+        waitForIdle()
+
+        // If not crash then test passed
+    }
 }
