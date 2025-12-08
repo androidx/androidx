@@ -37,6 +37,7 @@ import platform.Foundation.NSRunLoopCommonModes
 import platform.Foundation.NSTimeInterval
 import platform.Metal.MTLCommandQueueProtocol
 import platform.Metal.MTLDeviceProtocol
+import platform.posix.QOS_CLASS_USER_INTERACTIVE
 
 private class DisplayLinkConditions(
     val setPausedCallback: (Boolean) -> Unit
@@ -495,7 +496,10 @@ internal class MetalRedrawer(
 
     companion object {
         private val renderingDispatchQueue =
-            dispatch_queue_create("RenderingDispatchQueue", null)
+            dispatch_queue_create(
+                label = "RenderingDispatchQueue",
+                attr = dispatch_queue_attr_make_with_qos_class(null, QOS_CLASS_USER_INTERACTIVE, 0)
+            )
 
         private class CachedCommandQueue(
             val queue: MTLCommandQueueProtocol,
