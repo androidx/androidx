@@ -19,6 +19,7 @@ package androidx.compose.ui.text.platform
 import androidx.compose.ui.text.PlatformStringDelegate
 import androidx.compose.ui.text.intl.PlatformLocale
 import androidx.compose.ui.text.intl.language
+import kotlin.js.js
 
 /**
  * A JS implementation of StringDelegate

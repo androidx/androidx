@@ -148,12 +148,10 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 resources.srcDir("src/uikitTest/resources")
             }
             jsMain {
-                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(webMain)
             }
 
             wasmJsMain {
-                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(webMain)
             }
 

@@ -22,6 +22,8 @@ import androidx.compose.material3.CalendarLocale
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.util.fastFlatMap
 import androidx.compose.ui.util.fastMap
+import kotlin.js.definedExternally
+import kotlin.js.js
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
