@@ -519,6 +519,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 }
 
 tasks.register("desktopHeadlessTest", Test) {
+    group = "verification"
+    description = "Headless desktop tests"
     testClassesDirs = sourceSets.desktopTest.output.classesDirs
     classpath = sourceSets.desktopTest.runtimeClasspath
 
@@ -532,7 +534,6 @@ tasks.desktopTest {
     useJUnit {
         excludeCategories("androidx.compose.ui.HeadlessTest")
     }
-    finalizedBy("desktopHeadlessTest")
 }
 
 android {

@@ -41,6 +41,7 @@ val libraries = project.findProperty("jetbrains.publication.libraries")
 tasks.register("testDesktop") {
     group = "Compose Multiplatform"
     dependsOn(allTasksWith(name = "desktopTest"))
+    dependsOn(allTasksWith(name = "desktopHeadlessTest"))
     dependsOn(":collection:collection:jvmTest")
 }
 
