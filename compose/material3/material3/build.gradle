@@ -144,11 +144,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             webMain.dependsOn(nonJvmMain)
 
             jsMain {
-                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(webMain)
             }
             wasmJsMain {
-                kotlin.srcDir("src/webCommonW3C/kotlin")
                 dependsOn(webMain)
                 dependencies {
                     implementation(libs.kotlinStdlib)

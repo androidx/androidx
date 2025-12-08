@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.InternalFoundationApi
 import androidx.compose.ui.dom.domEventOrNull
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -25,8 +24,7 @@ import androidx.compose.ui.input.key.isMetaPressed
 import androidx.compose.ui.input.key.type
 import org.w3c.dom.events.KeyboardEvent
 
-@InternalFoundationApi // TODO: Remove from public at all
-actual val KeyEvent.isTypedEvent: Boolean
+internal actual val KeyEvent.isTypedEvent: Boolean
     get() = type == KeyEventType.KeyDown
         && !isMetaPressed
         && !isCtrlPressed

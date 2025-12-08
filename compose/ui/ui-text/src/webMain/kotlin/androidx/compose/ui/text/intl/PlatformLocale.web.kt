@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,8 @@
 package androidx.compose.ui.text.intl
 
 import androidx.compose.ui.util.fastMap
+import kotlin.js.JsName
+import kotlin.js.js
 
 internal actual val PlatformLocale.language: String
     get() = _language
