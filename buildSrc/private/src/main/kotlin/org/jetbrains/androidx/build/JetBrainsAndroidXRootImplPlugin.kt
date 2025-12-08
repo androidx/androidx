@@ -22,6 +22,8 @@ import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.component.SoftwareComponentFactory
+import org.gradle.api.tasks.testing.AbstractTestTask
+import org.gradle.kotlin.dsl.withType
 
 class JetBrainsAndroidXRootImplPlugin @Inject constructor(
     val componentFactory: SoftwareComponentFactory
@@ -31,6 +33,11 @@ class JetBrainsAndroidXRootImplPlugin @Inject constructor(
             it.tasks.configureEach {
                 if (it.name == "kotlinStoreYarnLock") it.enabled = false
                 if (it.name == "kotlinWasmStoreYarnLock") it.enabled = false
+            }
+
+            // Never cache test results
+            it.tasks.withType<AbstractTestTask>().configureEach {
+                it.outputs.upToDateWhen { false }
             }
         }
     }
