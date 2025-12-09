@@ -52,7 +52,7 @@ kotlin {
                 implementation(libs.kotlinStdlib)
                 api(project(":compose:material3:adaptive:adaptive-navigation"))
                 api(project(":navigation3:navigation3-ui"))
-                implementation(project(":navigationevent:navigationevent-compose"))
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")
                 implementation("androidx.collection:collection:1.5.0")
             }
         }

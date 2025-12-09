@@ -52,7 +52,7 @@ kotlin {
         commonMain {
             dependencies {
                 api("androidx.navigation3:navigation3-runtime:$navigation3Version")
-                api(project(":navigationevent:navigationevent-compose"))
+                api("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")
                 api(project(":compose:animation:animation"))
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:runtime:runtime-saveable"))

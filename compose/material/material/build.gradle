@@ -173,7 +173,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:ui:ui-test"))
                 def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
                 implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
-                implementation(project(":navigationevent:navigationevent-compose"))
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")
             }
 
             desktopTest.dependencies {
