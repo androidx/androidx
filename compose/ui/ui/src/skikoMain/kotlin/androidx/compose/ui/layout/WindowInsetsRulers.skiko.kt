@@ -58,17 +58,10 @@ internal actual fun findInsetsAnimationProperties(
     return NoWindowInsetsAnimation
 }
 
-internal class RulerProviderModifierElement(
+internal data class RulerProviderModifierElement(
     val windowInsets: PlatformWindowInsets
 ): ModifierNodeElement<RulerProviderModifierNode>() {
     override fun create(): RulerProviderModifierNode = RulerProviderModifierNode(windowInsets)
-    override fun hashCode(): Int = windowInsets.hashCode()
-    override fun equals(other: Any?): Boolean {
-        if (other === this) {
-            return true
-        }
-        return (other as? RulerProviderModifierElement)?.windowInsets === windowInsets
-    }
     override fun update(node: RulerProviderModifierNode) {
         node.windowInsets = windowInsets
     }
@@ -90,9 +83,7 @@ internal class RulerProviderModifierNode(
             }
         }
 
-    val rulerLambda: RulerScope.() -> Unit = {
-        val (width, height) = coordinates.size
-
+    fun rulerLambda(width: Int, height: Int): RulerScope.() -> Unit = {
         provideInsetsValues(CaptionBar, windowInsets.captionBar, width, height)
         provideInsetsValues(DisplayCutout, windowInsets.displayCutout, width, height)
         provideInsetsValues(Ime, windowInsets.ime, width, height)
@@ -158,7 +149,7 @@ internal class RulerProviderModifierNode(
         val placeable = measurable.measure(constraints)
         val width = placeable.width
         val height = placeable.height
-        return layout(width, height, rulers = rulerLambda) { placeable.place(0, 0) }
+        return layout(width, height, rulers = rulerLambda(width, height)) { placeable.place(0, 0) }
     }
 
     override val traverseKey: Any

@@ -51,7 +51,6 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.delay
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
-import org.junit.Ignore
 import org.junit.Test
 
 class ApplicationTest {
@@ -266,7 +265,6 @@ class ApplicationTest {
     }
 
     @Test
-    @Ignore // TODO: https://youtrack.jetbrains.com/issue/CMP-9385 , Ignored after merging 1.11.0-alpha01
     fun `onGloballyPositioned is not called repeatedly with same position on screen`() = runApplicationTest(useDelay = true) {
         lateinit var window: ComposeWindow
         val positionsOnScreen = mutableListOf<Offset>()

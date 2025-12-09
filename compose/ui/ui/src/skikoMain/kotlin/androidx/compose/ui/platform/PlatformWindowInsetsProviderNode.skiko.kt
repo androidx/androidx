@@ -70,25 +70,12 @@ abstract class PlatformWindowInsetsProviderNode(
 internal fun Modifier.excludeWindowInsets(safeInsets: Boolean, ime: Boolean) = this.then(
     ExcludedWindowInsetsProviderModifierElement(safeInsets, ime))
 
-private class ExcludedWindowInsetsProviderModifierElement(
+private data class ExcludedWindowInsetsProviderModifierElement(
     private val safeInsets: Boolean,
     private val ime: Boolean,
 ): ModifierNodeElement<ExcludedWindowInsetsProviderNode>() {
     override fun create(): ExcludedWindowInsetsProviderNode = ExcludedWindowInsetsProviderNode(safeInsets, ime)
-
     override fun update(node: ExcludedWindowInsetsProviderNode) = node.update(safeInsets, ime)
-
-    override fun hashCode(): Int {
-        var result = safeInsets.hashCode()
-        result = 31 * result + ime.hashCode()
-        return result
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is ExcludedWindowInsetsProviderModifierElement) return false
-        return safeInsets == other.safeInsets && ime == other.ime
-    }
 }
 
 private class ExcludedWindowInsetsProviderNode(
