@@ -163,8 +163,8 @@ internal class ParagraphLayouter(
         shadow: Shadow?,
         textDecoration: TextDecoration?,
     ) {
-        if (builder.textStyle.shadow != shadow ||
-            builder.textStyle.textDecoration != textDecoration
+        if (!builder.textStyle.shadow.sameValueAs(shadow) ||
+            !builder.textStyle.textDecoration.sameValueAs(textDecoration)
         ) {
             builder.textStyle = builder.textStyle.copy(
                 shadow = shadow,
@@ -219,6 +219,11 @@ internal class ParagraphLayouter(
     }
 }
 
-private fun Float.sameValueAs(other: Float) : Boolean {
-    return abs(this - other) < 0.00001f
-}
+private fun Shadow?.sameValueAs(other: Shadow?) =
+    (this ?: Shadow.None) == (other ?: Shadow.None)
+
+private fun TextDecoration?.sameValueAs(other: TextDecoration?) =
+    (this ?: TextDecoration.None) == (other ?: TextDecoration.None)
+
+private fun Float.sameValueAs(other: Float) =
+    abs(this - other) < 0.00001f

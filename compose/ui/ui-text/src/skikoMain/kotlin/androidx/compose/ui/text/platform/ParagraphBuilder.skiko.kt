@@ -160,7 +160,7 @@ private sealed interface ComputedStyle {
             fontStyle?.let {
                 res.fontStyle = it.toSkFontStyle()
             }
-            textDecoration?.let {
+            textDecoration.takeUnless { it == TextDecoration.None }?.let {
                 res.decorationStyle =
                     it.toSkDecorationStyle(textForegroundStyle.color, textDecorationLineStyle)
             }
@@ -172,7 +172,7 @@ private sealed interface ComputedStyle {
             fontWeight?.let {
                 res.fontStyle = res.fontStyle.withWeight(it.weight)
             }
-            shadow?.let {
+            shadow.takeUnless { it == Shadow.None }?.let {
                 res.addShadow(it.toSkShadow())
             }
 
