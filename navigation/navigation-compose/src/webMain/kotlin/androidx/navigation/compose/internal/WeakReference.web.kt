@@ -16,9 +16,27 @@
 
 package androidx.navigation.compose.internal
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-1286
+import kotlin.js.ExperimentalWasmJsInterop
+import kotlin.js.JsAny
+import kotlin.js.JsReference
+import kotlin.js.get
+import kotlin.js.toJsReference
+import kotlin.js.unsafeCast
+
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakRef
+@OptIn(ExperimentalWasmJsInterop::class)
+private external class WeakRef {
+    constructor(target: JsAny)
+    fun deref(): JsAny?
+}
+
+@OptIn(ExperimentalWasmJsInterop::class)
 internal actual class WeakReference<T : Any> actual constructor(reference: T) {
-    private var reference: T? = reference
-    actual fun get(): T? = reference
-    actual fun clear() { reference = null }
+    private var weakRef: WeakRef? = WeakRef(reference.toJsReference())
+    actual fun get(): T? = weakRef?.deref()?.unsafeCast<JsReference<T>>()?.get()
+
+    // Js WeakRef doesn't have a method for clearing it. So we just drop the WeakRef itself.
+    actual fun clear() {
+        weakRef = null
+    }
 }
