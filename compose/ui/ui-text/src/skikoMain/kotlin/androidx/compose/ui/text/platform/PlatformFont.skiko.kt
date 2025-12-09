@@ -19,6 +19,7 @@ import org.jetbrains.skia.Typeface as SkTypeface
 import androidx.compose.ui.text.Cache
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.ExpireAfterAccessCache
+import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.font.DefaultFontFamily
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -290,7 +291,7 @@ class FontLoader : Font.ResourceLoader {
 
 class FontLoadResult(val typeface: SkTypeface?, val aliases: List<String>)
 
-@OptIn(ExperimentalTextApi::class)
+@OptIn(ExperimentalTextApi::class, InternalTextApi::class)
 internal class FontCache {
     internal val fonts = FontCollection()
     private val fontProvider = TypefaceFontProviderWithFallback()

@@ -24,16 +24,8 @@ internal actual class WeakKeysCache<K : Any, V> : Cache<K, V> {
     private val cache = HashMap<Key<K>, V>()
 
     actual override fun get(key: K, loader: (K) -> V): V {
-        clean()
+        cache.entries.removeAll { !it.key.isAvailable }
         return cache.getOrPut(Key(key)) { loader(key) }
-    }
-
-    private fun clean() {
-        cache.keys
-            .filter { !it.isAvailable }
-            .forEach {
-                cache.remove(it)
-            }
     }
 
     @OptIn(ExperimentalNativeApi::class)

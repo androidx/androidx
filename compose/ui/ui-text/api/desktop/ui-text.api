@@ -1570,12 +1570,6 @@ public final class androidx/compose/ui/text/platform/ResourceFont : androidx/com
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class androidx/compose/ui/text/platform/SkiaParagraph_skikoKt {
-	public static final synthetic fun toSkDecorationStyle-4WTKRHQ (Landroidx/compose/ui/text/style/TextDecoration;J)Lorg/jetbrains/skia/paragraph/DecorationStyle;
-	public static final fun toSkFontStyle-nzbMABs (I)Lorg/jetbrains/skia/FontStyle;
-	public static final fun toSkPlaceholderAlignment-do9X-Gg (I)Lorg/jetbrains/skia/paragraph/PlaceholderAlignment;
-}
-
 public final class androidx/compose/ui/text/platform/SynchronizationKt {
 	public static final fun synchronized (Landroidx/compose/ui/text/platform/SynchronizedObject;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
 }
