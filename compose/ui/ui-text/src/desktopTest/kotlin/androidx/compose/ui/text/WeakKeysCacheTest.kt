@@ -26,10 +26,10 @@ class WeakKeysCacheTest {
     fun clearOnGC() {
         val cache = WeakKeysCache<MyKey, Int>()
         var created = 0
-        assertEquals(1, cache.get(MyKey(42)) { ++created })
-        assertEquals(1, cache.get(MyKey(42)) { ++created })
+        assertEquals(1, cache.getOrPut(MyKey(42)) { ++created })
+        assertEquals(1, cache.getOrPut(MyKey(42)) { ++created })
         System.gc()
-        assertEquals(2, cache.get(MyKey(42)) { ++created })
-        assertEquals(2, cache.get(MyKey(42)) { ++created })
+        assertEquals(2, cache.getOrPut(MyKey(42)) { ++created })
+        assertEquals(2, cache.getOrPut(MyKey(42)) { ++created })
     }
 }

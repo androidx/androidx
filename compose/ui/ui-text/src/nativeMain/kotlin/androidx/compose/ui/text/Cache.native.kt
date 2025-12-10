@@ -19,17 +19,17 @@ package androidx.compose.ui.text
 import kotlin.experimental.ExperimentalNativeApi
 import kotlin.native.ref.WeakReference
 
-internal actual class WeakKeysCache<K : Any, V> : Cache<K, V> {
+internal actual class WeakKeysCache<K : Any, V: Any> {
     // TODO Use WeakHashMap once available https://youtrack.jetbrains.com/issue/KT-48075
     private val cache = HashMap<Key<K>, V>()
 
-    actual override fun get(key: K, loader: (K) -> V): V {
+    actual inline fun getOrPut(key: K, loader: (K) -> V): V {
         cache.entries.removeAll { !it.key.isAvailable }
         return cache.getOrPut(Key(key)) { loader(key) }
     }
 
     @OptIn(ExperimentalNativeApi::class)
-    private class Key<K : Any>(key: K) {
+    internal class Key<K : Any>(key: K) {
         private val ref = WeakReference(key)
         private val hash: Int = key.hashCode()
 
@@ -37,8 +37,15 @@ internal actual class WeakKeysCache<K : Any, V> : Cache<K, V> {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
+            if (other == null) return false
             other as Key<*>
-            return ref.value == other.ref.value
+            val a = ref.get()
+            val b = other.ref.get()
+            if (a == null || b == null) {
+                // If either side is cleared, they should not be considered equal
+                return false
+            }
+            return a == b
         }
 
         override fun hashCode(): Int = hash

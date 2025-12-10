@@ -17,9 +17,9 @@
 package androidx.compose.ui.text
 
 
-internal actual class WeakKeysCache<K : Any, V> : Cache<K, V> {
+internal actual class WeakKeysCache<K : Any, V: Any> {
     private val cache =  java.util.WeakHashMap<K, V>()
 
-    actual override fun get(key: K, loader: (K) -> V): V =
+    actual inline fun getOrPut(key: K, loader: (K) -> V): V =
         cache.getOrPut(key) { loader(key) }
 }

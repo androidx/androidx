@@ -435,7 +435,13 @@ internal class ParagraphBuilder(
                         op.style.fontStyle ?: FontStyle.Normal,
                         op.style.fontSynthesis ?: FontSynthesis.All
                     )
-                    pb.pushStyle(makeSkTextStyle(op.style.toImmutable()))
+
+                    // It's always mutable at this point, so we can safely cast
+                    val style = (op.style as ComputedStyle.Mutable).toImmutable()
+                    // Store immutable reference because it's used as a weak reference key
+                    op.style = style
+
+                    pb.pushStyle(makeSkTextStyle(style))
                 }
                 is Op.PutPlaceholder -> {
                     val placeholderStyle =
@@ -471,7 +477,7 @@ internal class ParagraphBuilder(
 
         data class StyleAdd(
             override val position: Int,
-            val style: ComputedStyle.Mutable
+            var style: ComputedStyle
         ) : Op()
 
         data class PutPlaceholder(
@@ -544,7 +550,9 @@ internal class ParagraphBuilder(
                             )
                         )
                     } else {
-                        prev.style.merge(density, cut.style)
+                        // It's always mutable at this point, so we can safely cast
+                        val style = prev.style as ComputedStyle.Mutable
+                        style.merge(density, cut.style)
                     }
                 }
                 is Cut.StyleRemove -> {
@@ -642,7 +650,7 @@ internal class ParagraphBuilder(
     }
 
     private fun makeSkTextStyle(style: ComputedStyle.Immutable): SkTextStyle {
-        return skTextStylesCache.get(style) {
+        return skTextStylesCache.getOrPut(style) {
             it.toSkTextStyle(fontFamilyResolver)
         }
     }

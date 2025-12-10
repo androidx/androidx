@@ -18,17 +18,11 @@ package androidx.compose.ui.text
 
 import org.jetbrains.skiko.currentNanoTime
 
-// Extremely simple Cache interface which is enough for ui.text needs
-internal interface Cache<K, V> {
-    // get a value for [key] or load it by [loader] if it doesn't exist
-    fun get(key: K, loader: (K) -> V): V
-}
-
 /**
  * Cache with weak keys.
  */
-internal expect class WeakKeysCache<K : Any, V>() : Cache<K, V> {
-    override fun get(key: K, loader: (K) -> V): V
+internal expect class WeakKeysCache<K : Any, V: Any>()  {
+    inline fun getOrPut(key: K, loader: (K) -> V): V
 }
 
 /**
@@ -37,11 +31,11 @@ internal expect class WeakKeysCache<K : Any, V>() : Cache<K, V> {
 internal class ExpireAfterAccessCache<K, V>(
     val expireAfterNanos: Long,
     val currentNanos: () -> Long = ::currentNanoTime
-) : Cache<K, V> {
+) {
     internal val map = HashMap<K, V>()
     internal val accessTime = LinkedHashMap<K, Long>()
 
-    override fun get(key: K, loader: (K) -> V): V {
+    inline fun getOrPut(key: K, loader: (K) -> V): V {
         accessTime.remove(key)
         return map.getOrPut(key) {
             loader(key)

@@ -34,21 +34,21 @@ class ExpireAfterAccessCacheTest {
 
     @Test
     fun singleKey() {
-        assertEquals("v1_1", cache.get("k1") { "v1_1" })
+        assertEquals("v1_1", cache.getOrPut("k1") { "v1_1" })
         assertEquals(setOf("k1"), cache.map.keys)
         assertEquals(setOf("k1"), cache.accessTime.keys)
         assertEquals(0, cache.accessTime["k1"])
 
         time += 10.millisToNanos()
 
-        assertEquals("v1_1", cache.get("k1") { "v1_2" })
+        assertEquals("v1_1", cache.getOrPut("k1") { "v1_2" })
         assertEquals(setOf("k1"), cache.map.keys)
         assertEquals(setOf("k1"), cache.accessTime.keys)
         assertEquals(time, cache.accessTime["k1"])
 
         time += 2.secondsToNanos()
 
-        assertEquals("v1_1", cache.get("k1") { "v1_3" })
+        assertEquals("v1_1", cache.getOrPut("k1") { "v1_3" })
         assertEquals(setOf("k1"), cache.map.keys)
         assertEquals(setOf("k1"), cache.accessTime.keys)
         assertEquals(time, cache.accessTime["k1"])
@@ -56,14 +56,14 @@ class ExpireAfterAccessCacheTest {
 
     @Test
     fun manyKeys() {
-        assertEquals("v1_1", cache.get("k1") { "v1_1" })
+        assertEquals("v1_1", cache.getOrPut("k1") { "v1_1" })
         assertEquals(setOf("k1"), cache.map.keys)
         assertEquals(cache.map.keys, cache.accessTime.keys)
         assertEquals(0, cache.accessTime["k1"])
 
         time += 10.millisToNanos()
 
-        assertEquals("v2_1", cache.get("k2") { "v2_1" })
+        assertEquals("v2_1", cache.getOrPut("k2") { "v2_1" })
         assertEquals(setOf("k1", "k2"), cache.map.keys)
         assertEquals(cache.map.keys, cache.accessTime.keys)
         assertEquals(0, cache.accessTime["k1"])
@@ -71,8 +71,8 @@ class ExpireAfterAccessCacheTest {
 
         time += 10.millisToNanos()
 
-        assertEquals("v2_1", cache.get("k2") { "v2_2" })
-        assertEquals("v3_1", cache.get("k3") { "v3_1" })
+        assertEquals("v2_1", cache.getOrPut("k2") { "v2_2" })
+        assertEquals("v3_1", cache.getOrPut("k3") { "v3_1" })
         assertEquals(setOf("k1", "k2", "k3"), cache.map.keys)
         assertEquals(cache.map.keys, cache.accessTime.keys)
         assertEquals(0, cache.accessTime["k1"])
@@ -81,7 +81,7 @@ class ExpireAfterAccessCacheTest {
 
         time += 2.secondsToNanos()
 
-        assertEquals("v2_1", cache.get("k2") { "v2_3" })
+        assertEquals("v2_1", cache.getOrPut("k2") { "v2_3" })
         assertEquals(setOf("k2"), cache.map.keys)
         assertEquals(setOf("k2"), cache.accessTime.keys)
         assertEquals(time, cache.accessTime["k2"])

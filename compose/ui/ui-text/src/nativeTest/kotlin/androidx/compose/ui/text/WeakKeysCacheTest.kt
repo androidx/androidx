@@ -33,8 +33,8 @@ class WeakKeysCacheTest {
         // Accessing to weak reference creates strong one in stack now.
         // So to make GC work, wrap it into separate function.
         fun checkCache(expected: Int) {
-            assertEquals(expected, cache.get(MyKey(42)) { ++created })
-            assertEquals(expected, cache.get(MyKey(42)) { ++created })
+            assertEquals(expected, cache.getOrPut(MyKey(42)) { ++created })
+            assertEquals(expected, cache.getOrPut(MyKey(42)) { ++created })
         }
         checkCache(1)
         GC.collect()
