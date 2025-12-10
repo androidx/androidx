@@ -58,6 +58,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import org.jetbrains.skia.Font as SkFont
@@ -419,7 +421,7 @@ internal class ParagraphBuilder(
 
         var addText = true
 
-        for (op in ops) {
+        ops.fastForEach { op ->
             if (addText && pos < op.position) {
                 pb.addText(text.subSequence(pos, op.position).toString())
             }
@@ -513,16 +515,15 @@ internal class ParagraphBuilder(
         placeholders: List<AnnotatedString.Range<Placeholder>>
     ): List<Op> {
         val cuts = mutableListOf<Cut>()
-        for (annotation in annotations) {
-
+        annotations.fastForEach { annotation ->
             // TODO https://youtrack.jetbrains.com/issue/CMP-7151
-            if (annotation.item !is SpanStyle) continue
+            if (annotation.item !is SpanStyle) return@fastForEach
 
             cuts.add(Cut.StyleAdd(annotation.start, annotation.item))
             cuts.add(Cut.StyleRemove(annotation.end, annotation.item))
         }
 
-        for (placeholder in placeholders) {
+        placeholders.fastForEach { placeholder ->
             cuts.add(Cut.PutPlaceholder(placeholder.start, placeholder.item))
             cuts.add(Cut.EndPlaceholder(placeholder.end))
         }
@@ -530,7 +531,7 @@ internal class ParagraphBuilder(
         val ops = mutableListOf<Op>(Op.StyleAdd(0, defaultStyle.toMutable()))
         cuts.sortBy { it.position }
         val activeStyles = mutableListOf(initialStyle)
-        for (cut in cuts) {
+        cuts.fastForEach { cut ->
             when (cut) {
                 is Cut.StyleAdd -> {
                     activeStyles.add(cut.style)
@@ -588,7 +589,7 @@ internal class ParagraphBuilder(
     }
 
     private fun previousStyleAddAtTheSamePosition(position: Int, ops: List<Op>): Op.StyleAdd? {
-        for (prevOp in ops.asReversed()) {
+        ops.fastForEachReversed { prevOp ->
             if (prevOp.position < position) return null
             if (prevOp is Op.StyleAdd) return prevOp
         }
