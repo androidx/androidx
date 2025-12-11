@@ -659,20 +659,6 @@ public sealed interface Composer {
     /**
      * A Compose compiler plugin API. DO NOT call directly.
      *
-     * Temporarily disable reusing if it is enabled.
-     */
-    @ComposeCompilerApi public fun disableReusing()
-
-    /**
-     * A Compose compiler plugin API. DO NOT call directly.
-     *
-     * Reenable reusing if it was previously enabled before the last call to [disableReusing].
-     */
-    @ComposeCompilerApi public fun enableReusing()
-
-    /**
-     * A Compose compiler plugin API. DO NOT call directly.
-     *
      * Return a marker for the current group that can be used in a call to [endToMarker].
      */
     @ComposeCompilerApi public val currentMarker: Int
