@@ -232,8 +232,6 @@ kotlin {
         val macosX64Main by getting { dependsOn(macosMain) }
         val macosArm64Main by getting { dependsOn(macosMain) }
         val iosMain by creating {
-            kotlin.srcDir("src/uikitMain/kotlin")
-            resources.srcDir("src/uikitMain/resources")
             dependsOn(darwinMain)
         }
         val iosX64Main by getting { dependsOn(iosMain) }

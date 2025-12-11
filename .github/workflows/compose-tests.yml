@@ -87,7 +87,7 @@ jobs:
       - name: Run iOS Utils Tests
         timeout-minutes: 15
         shell: bash
-        working-directory: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils
+        working-directory: compose/ui/ui-uikit/src/iosMain/objc/CMPUIKitUtils
         run: |
           xcodebuild test \
             -resultBundlePath TestResults.xcresult \
@@ -100,7 +100,7 @@ jobs:
         if: failure()
         with:
           name: TestResults-${{ github.run_number }}.xcresult
-          path: compose/ui/ui-uikit/src/uikitMain/objc/CMPUIKitUtils/TestResults.xcresult
+          path: compose/ui/ui-uikit/src/iosMain/objc/CMPUIKitUtils/TestResults.xcresult
 
   compose-ios-instrumented-tests:
     runs-on: macos-15-xlarge

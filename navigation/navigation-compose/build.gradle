@@ -137,10 +137,6 @@ kotlin {
         darwinTest.dependsOn(nativeTest)
         linuxTest.dependsOn(nativeTest)
 
-        iosMain {
-            kotlin.srcDir("src/uikitMain/kotlin")
-        }
-
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 if (target.konanTarget.family.appleFamily) {

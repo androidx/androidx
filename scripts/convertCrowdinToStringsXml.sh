@@ -18,7 +18,7 @@
 
 #
 # The script rearranges and copies the localized strings files from the Crowding Service
-#  export archive to the `compose/ui/ui/src/uikitMain/res` using the appropriate directory
+#  export archive to the `compose/ui/ui/src/iosMain/res` using the appropriate directory
 #  structure for the `UpdateTranslationsTask`.
 # The script:
 #  - copies each `<locale>/general/string.xml` to `values-<locale>/string.xml`;
@@ -33,7 +33,7 @@
 
 # Directory to go through
 crowding_res_path=$1
-target_dir='../compose/ui/ui/src/uikitMain/res'
+target_dir='../compose/ui/ui/src/iosMain/res'
 
 # Check if directory path is not empty
 if [ -z "$crowding_res_path" ]; then

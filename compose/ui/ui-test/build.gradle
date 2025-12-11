@@ -173,7 +173,6 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             nativeMain.dependsOn(nonJvmMain)
 
             iosMain {
-                kotlin.srcDir("src/uikitMain/kotlin")
                 dependsOn(nativeMain)
             }
             macosMain.dependsOn(nativeMain)

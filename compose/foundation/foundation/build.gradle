@@ -137,15 +137,13 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             nativeMain.dependsOn(nonJvmMain)
             webMain.dependsOn(nonJvmMain)
             iosMain {
-                kotlin.srcDir("src/uikitMain/kotlin")
-                resources.srcDir("src/uikitMain/resources")
+                dependsOn(nativeMain)
                 dependencies {
                     implementation(project(":compose:ui:ui-uikit"))
                 }
             }
             iosTest {
-                kotlin.srcDir("src/uikitTest/kotlin")
-                resources.srcDir("src/uikitTest/resources")
+                dependsOn(nativeTest)
             }
             jsMain {
                 dependsOn(webMain)

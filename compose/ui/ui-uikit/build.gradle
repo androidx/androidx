@@ -39,9 +39,7 @@ kotlin {
 
     sourceSets {
         commonMain {}
-        def iosMain = sourceSets.create("iosMain") {
-            kotlin.srcDir("src/uikitMain/kotlin")
-        }
+        def iosMain = sourceSets.create("iosMain")
         def iosX64Main = sourceSets.getByName("iosX64Main")
         def iosArm64Main = sourceSets.getByName("iosArm64Main")
         def iosSimulatorArm64Main = sourceSets.getByName("iosSimulatorArm64Main")
@@ -57,7 +55,7 @@ private def configure(target, isDevice, architecture, testTarget) {
     def frameworkName = "CMPUIKitUtils"
     def buildSchemeName = frameworkName
     def testSchemeName = "${frameworkName}Tests"
-    def objcDir = new File(project.projectDir, "src/uikitMain/objc")
+    def objcDir = new File(project.projectDir, "src/iosMain/objc")
     def frameworkSourcesDir = new File(objcDir, frameworkName)
     def sdkName
     def destination

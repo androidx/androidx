@@ -57,7 +57,6 @@ import platform.UIKit.UIPasteboard
 class BasicInteractionTest {
     /**
      *  Distance in pixels a touch can wander before we think the user is scrolling.
-     *  https://github.com/JetBrains/compose-multiplatform-core/blob/jb-main/compose/ui/ui/src/uikitMain/kotlin/androidx/compose/ui/platform/Constants.uikit.kt#L22
      */
     private val CUPERTINO_TOUCH_SLOP = 10.dp
 

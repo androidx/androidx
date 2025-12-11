@@ -83,7 +83,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             iosMain {
-                kotlin.srcDir("src/uikitMain/kotlin")
                 dependencies {
                     implementation(project(":compose:ui:ui-uikit"))
                 }

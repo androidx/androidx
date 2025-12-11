@@ -224,14 +224,9 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
             iosMain {
-                kotlin.srcDir("src/uikitMain/kotlin")
-                resources.srcDir("src/uikitMain/resources")
                 dependencies {
                     implementation(project(":compose:ui:ui-uikit"))
                 }
-            }
-            iosTest {
-                kotlin.srcDir("src/uikitTest/kotlin")
             }
             desktopMain {
                 dependsOn(skikoMain)
@@ -417,14 +412,14 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
     ]
 }
 
-// This task updates the translations of the localizable strings for the uikitMain target.
+// This task updates the translations of the localizable strings for the iosMain target.
 // It obtains them from compose multiplatform repository.
 // See also `scripts/convertCrowdinToStringsXml.sh`.
 tasks.register("updateTranslationsIos", UpdateTranslationsTask.class) {
     group = "localization"
     gitRepo = "https://github.com/JetBrains/compose-multiplatform-core"
-    repoResDirectories = ["compose/ui/ui/src/uikitMain/res"]
-    targetDirectory = project.file("src/uikitMain/kotlin/androidx/compose/ui/platform/l10n")
+    repoResDirectories = ["compose/ui/ui/src/iosMain/res"]
+    targetDirectory = project.file("src/iosMain/kotlin/androidx/compose/ui/platform/l10n")
     targetPackageName = "androidx.compose.ui.platform.l10n"
     kotlinStringsPackageName = "androidx.compose.ui.platform"
     stringByResourceName = [
