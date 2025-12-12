@@ -31,7 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.WebElementView
+import androidx.compose.ui.viewinterop.HtmlElementView
 import kotlinx.browser.document
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLTextAreaElement
@@ -59,7 +59,7 @@ fun SyncTextState() {
 
         TextField(textState)
 
-        WebElementView(
+        HtmlElementView(
             factory = {
                 (document.createElement("textarea") as HTMLTextAreaElement).apply {
                     style.apply {
@@ -91,7 +91,7 @@ fun SyncTextStateViaParameter() {
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun TextInDiv(text: String) {
-    WebElementView(
+    HtmlElementView(
         factory = {
             (document.createElement("div") as HTMLDivElement).apply {
                 innerText = text

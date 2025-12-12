@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.viewinterop.WebElementView
+import androidx.compose.ui.viewinterop.HtmlElementView
 import kotlinx.browser.document
 import org.w3c.dom.HTMLIFrameElement
 
@@ -17,14 +17,14 @@ fun Map() {
     Box(
         modifier = Modifier.fillMaxWidth().fillMaxHeight()
     ) {
-            WebElementView(
-                factory = {
-                    (document.createElement("iframe") as HTMLIFrameElement).apply {
-                        src = ttCoordinates
-                    }
-                },
-                modifier = Modifier.fillMaxSize(),
-                update = { iframe -> iframe.src = iframe.src }
-            )
+        HtmlElementView(
+            factory = {
+                (document.createElement("iframe") as HTMLIFrameElement).apply {
+                    src = ttCoordinates
+                }
+            },
+            modifier = Modifier.fillMaxSize(),
+            update = { iframe -> iframe.src = iframe.src }
+        )
     }
 }

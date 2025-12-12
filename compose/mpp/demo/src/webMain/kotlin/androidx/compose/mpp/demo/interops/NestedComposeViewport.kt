@@ -33,12 +33,12 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.HtmlElementView
 import kotlinx.browser.document
 import kotlinx.browser.window
 import kotlinx.dom.createElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLIFrameElement
-import androidx.compose.ui.viewinterop.WebElementView
 import androidx.compose.ui.window.ComposeViewport
 
 private val ttGoogleMaps =
@@ -55,7 +55,7 @@ fun NestedComposeViewportDemo() {
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
-        WebElementView(
+        HtmlElementView(
             factory = {
                 (document.createElement("iframe") as HTMLIFrameElement)
             },
@@ -88,7 +88,7 @@ private fun NestedComposeViewPort(
     modifier: Modifier = Modifier.size(300.dp),
     content: @Composable BoxScope.() -> Unit
 ) {
-    WebElementView(
+    HtmlElementView(
         modifier = modifier,
         factory = {
             (document.createElement("div") as HTMLDivElement).apply {
