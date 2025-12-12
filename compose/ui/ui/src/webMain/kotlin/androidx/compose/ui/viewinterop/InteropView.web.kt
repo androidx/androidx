@@ -85,6 +85,7 @@ fun <T : HTMLElement> HtmlElementView(
  * containing [T] was reused. If null, [T] will not be reused, a new instance of [T] will be created
  * using [factory] every time this function enters the composition.
  */
+@Deprecated("Use HtmlElementView instead", replaceWith = ReplaceWith("HtmlElementView(factory, modifier, update, onRelease, onReset)"))
 @ExperimentalComposeUiApi
 @Composable
 fun <T : HTMLElement> WebElementView(
