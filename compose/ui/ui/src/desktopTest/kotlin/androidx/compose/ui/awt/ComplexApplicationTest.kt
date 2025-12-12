@@ -125,6 +125,7 @@ import androidx.compose.ui.window.rememberWindowState
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth
 import kotlin.random.Random
+import kotlin.test.Ignore
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -691,6 +692,7 @@ class ComplexApplicationTest {
             .isLessThan(1.15)
     }
 
+    @Ignore("Flaky https://youtrack.jetbrains.com/issue/CMP-9422")
     @Test
     fun `no memory leak when wait 3 minutes`() = runApplicationTest(
         timeoutMillis = 10 * 60 * 1000

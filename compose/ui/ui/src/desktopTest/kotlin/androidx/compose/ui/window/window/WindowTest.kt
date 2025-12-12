@@ -612,6 +612,7 @@ class WindowTest {
         assertThat(isWindowEffectEnded).isTrue()
     }
 
+    @Ignore("Flaky https://youtrack.jetbrains.com/issue/CMP-9422")
     @Test
     fun `undecorated resizable window with unspecified size`() = runApplicationTest {
         lateinit var window: ComposeWindow
