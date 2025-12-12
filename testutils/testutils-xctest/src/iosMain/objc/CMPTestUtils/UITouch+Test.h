@@ -26,12 +26,14 @@ NS_ASSUME_NONNULL_BEGIN
                     fromEdge:(BOOL)fromEdge;
 
 + (UIEvent *)getTouchesEvent;
++ (void)endAllTouches;
 
 @property (assign) UITouchPhase phase;
 @property (assign) CGPoint locationInWindow;
 
 - (void)send;
 - (void)updateTimestamp;
+- (void)endTouch;
 
 @end
 

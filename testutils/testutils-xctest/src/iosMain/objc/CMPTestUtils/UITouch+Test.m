@@ -18,6 +18,7 @@
 #import <objc/runtime.h>
 #import "HIDEvent.h"
 
+#pragma mark - UIEvent private methods
 @interface UIEvent (CMPTestPrivate)
 
 - (void)_addTouch:(UITouch *)touch forDelayedDelivery:(BOOL)arg2;
@@ -26,6 +27,7 @@
 
 @end
 
+#pragma mark - UIApplication private methods
 @interface UIApplication (CMPTestPrivate)
 
 - (UIEvent *)_touchesEvent;
@@ -39,6 +41,39 @@ typedef struct {
     unsigned int _sentTouchesEnded:1;
     unsigned int _abandonForwardingRecord:1;
 } UITouchFlags;
+
+#pragma mark - ActiveTouchesHolder
+
+@interface CMPActiveTouchesHolder : NSObject
+
+@property (strong, nonatomic) NSMutableArray<UITouch *> *touches;
+
++ (instancetype)shared;
+
+@end
+
+@implementation CMPActiveTouchesHolder
+
++ (instancetype)shared {
+    static CMPActiveTouchesHolder *sharedInstance = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        sharedInstance = [[self alloc] init];
+    });
+    return sharedInstance;
+}
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        _touches = [NSMutableArray new];
+    }
+    return self;
+}
+
+@end
+
+#pragma mark - UITouch extension
 
 @interface UITouch (CMPTestPrivate)
 
@@ -73,6 +108,10 @@ typedef struct {
     return [UIApplication.sharedApplication _touchesEvent];
 }
 
++ (void)endAllTouches {
+    [CMPActiveTouchesHolder.shared.touches removeAllObjects];
+}
+
 - (id)initAtPoint:(CGPoint)point inWindow:(UIWindow *)window tapCount:(NSInteger)tapCount fromEdge:(BOOL)fromEdge {
 	self = [super init];
     if (self) {
@@ -95,6 +134,8 @@ typedef struct {
         IOHIDEventPtr event = HIDEventWithTouches(@[self]);
         [self _setHidEvent:event];
         CFRelease(event);
+
+        [CMPActiveTouchesHolder.shared.touches addObject:self];
     }
     
 	return self;
@@ -113,14 +154,23 @@ typedef struct {
 }
 
 - (void)send {
+    if (![CMPActiveTouchesHolder.shared.touches containsObject:self]) {
+        [CMPActiveTouchesHolder.shared.touches addObject:self];
+    }
+
     UIEvent *event = [[UIApplication sharedApplication] _touchesEvent];
-    IOHIDEventPtr hidEvent = HIDEventWithTouches(@[self]);
+    [event _clearTouches];
+    IOHIDEventPtr hidEvent = HIDEventWithTouches(CMPActiveTouchesHolder.shared.touches);
     [event _setHIDEvent:hidEvent];
 
     [self updateTimestamp];
     [event _addTouch:self forDelayedDelivery:NO];
     
     [[UIApplication sharedApplication] sendEvent:event];
+}
+
+- (void)endTouch {
+    [CMPActiveTouchesHolder.shared.touches removeObject:self];
 }
 
 @end
