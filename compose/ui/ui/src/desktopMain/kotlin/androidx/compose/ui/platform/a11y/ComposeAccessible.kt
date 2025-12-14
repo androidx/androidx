@@ -259,9 +259,13 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleParent(): Accessible? {
-            return semanticsNode.parent?.id?.let { id ->
-                controller.accessibleByNodeId(id)!!
-            } ?: accessibleParent
+            val parentNode = semanticsNode.parent ?: return controller.parentAccessible
+            return controller.accessibleByNodeId(parentNode.id)!!
+        }
+
+        override fun getAccessibleIndexInParent(): Int {
+            val parent = semanticsNode.parent ?: return controller.indexInScene()
+            return parent.traversalOrderedChildren().indexOfFirst { it.id == semanticsNode.id }
         }
 
         override fun getAccessibleComponent(): AccessibleComponent? {
@@ -320,11 +324,6 @@ internal class ComposeAccessible(
                 progressBarRangeInfo != null -> ProgressBarAccessibleValue(this)
                 else -> null
             }
-        }
-
-        override fun getAccessibleIndexInParent(): Int {
-            val parentChildren = semanticsNode.parent?.traversalOrderedChildren()
-            return (parentChildren?.indexOfFirst { it.id == semanticsNode.id } ?: -1)
         }
 
         override fun getAccessibleChildrenCount(): Int {
@@ -429,6 +428,7 @@ internal class ComposeAccessible(
             // Check semantics role
             val role = semanticsConfig.getOrNull(SemanticsProperties.Role)
             val accessibleRole = when (role) {
+                null -> null  // Quickly return null
                 Role.Button -> AccessibleRole.PUSH_BUTTON
                 Role.Checkbox, Role.Switch -> AccessibleRole.CHECK_BOX
                 Role.RadioButton -> AccessibleRole.RADIO_BUTTON

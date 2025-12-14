@@ -19,6 +19,7 @@ package androidx.compose.ui.platform.a11y
 import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -33,6 +34,7 @@ import javax.accessibility.AccessibleContext.ACCESSIBLE_STATE_PROPERTY
 import javax.accessibility.AccessibleContext.ACCESSIBLE_TEXT_PROPERTY
 import javax.accessibility.AccessibleContext.ACCESSIBLE_VALUE_PROPERTY
 import javax.accessibility.AccessibleState
+import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.CoroutineScope
@@ -53,7 +55,8 @@ import kotlinx.coroutines.launch
 internal class AccessibilityController(
     val owner: SemanticsOwner,
     val desktopComponent: PlatformComponent,
-    private val onFocusReceived: (ComposeAccessible) -> Unit
+    val parentAccessible: ComposeSceneAccessible,
+    private val onFocusReceived: (ComposeAccessible) -> Unit,
 ) {
 
     /**
@@ -71,18 +74,62 @@ internal class AccessibilityController(
      * Returns the [ComposeAccessible] associated with the given semantics node id.
      */
     fun accessibleByNodeId(nodeId: Int): ComposeAccessible? {
+        syncNodesIfInvalid()
+        return accessibleByNodeId[nodeId]
+    }
+
+    /**
+     * Syncs the accessible nodes if the current mapping is invalid.
+     */
+    private fun syncNodesIfInvalid() {
         if (!nodeMappingIsValid) {
             syncNodes()
         }
+    }
 
-        return accessibleByNodeId[nodeId]
+    /**
+     * Returns the index of this [AccessibilityController]'s root node in the scene.
+     */
+    fun indexInScene(): Int {
+        return parentAccessible.indexOfChild(this)
     }
 
     /**
      * Invoked when a new [ComposeAccessible] is created.
      */
-    @Suppress("UNUSED_PARAMETER")
-    private fun onNodeAdded(accessible: ComposeAccessible) {}
+    private fun onNodeAdded(accessible: ComposeAccessible) {
+        for (entry in accessible.semanticsNode.config) {
+            when (entry.key) {
+                SemanticsProperties.Focused -> {
+                    if (entry.value as Boolean) {
+                        invokeLaterOnAccessible(accessible.semanticsNode.id) { accessible, config ->
+                            // Check that it's still focused
+                            if (config.getOrNull(SemanticsProperties.Focused) == true) {
+                                notifyOnFocusReceived(accessible)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Invoke [action] on the next EDT iteration, if the node still exists then.
+     *
+     * This is needed when firing property change events on newly created nodes because [syncNodes],
+     * and consequently [onNodeAdded], can be called as the result of the accessibility system
+     * trying to obtain the [Accessible]. If we fire the event directly in [onNodeAdded], it will
+     * fire before the system had a chance to register the property listener to the event.
+     */
+    private fun invokeLaterOnAccessible(
+        nodeId: Int,
+        action: (ComposeAccessible, SemanticsConfiguration) -> Unit
+    ) = SwingUtilities.invokeLater {
+        if (disposed) return@invokeLater
+        val accessible = accessibleByNodeId(nodeId) ?: return@invokeLater
+        action(accessible, accessible.semanticsNode.config)
+    }
 
     /**
      * Invoked when a [ComposeAccessible] is removed.
@@ -95,11 +142,11 @@ internal class AccessibilityController(
      * Invoked when the [SemanticsNode] a [ComposeAccessible] represents changes.
      */
     private fun onNodeChanged(
-        component: ComposeAccessible,
+        accessible: ComposeAccessible,
         previousSemanticsNode: SemanticsNode,
         newSemanticsNode: SemanticsNode
     ) {
-        val accessibleContext by lazy { component.composeAccessibleContext }
+        val accessibleContext by lazy { accessible.composeAccessibleContext }
         for (entry in newSemanticsNode.config) {
             val prev = previousSemanticsNode.config.getOrNull(entry.key)
             if (entry.value != prev) {
@@ -149,28 +196,21 @@ internal class AccessibilityController(
 
                     SemanticsProperties.Focused ->
                         if (entry.value as Boolean) {
-                            component.composeAccessibleContext.firePropertyChange(
-                                ACCESSIBLE_STATE_PROPERTY,
-                                null, AccessibleState.FOCUSED
-                            )
-                            onFocusReceived(component)
+                            notifyOnFocusReceived(accessible)
                         } else {
-                            component.composeAccessibleContext.firePropertyChange(
-                                ACCESSIBLE_STATE_PROPERTY,
-                                AccessibleState.FOCUSED, null
-                            )
+                            notifyOnFocusLost(accessible)
                         }
 
                     SemanticsProperties.ToggleableState -> {
                         when (entry.value as ToggleableState) {
                             ToggleableState.On ->
-                                component.composeAccessibleContext.firePropertyChange(
+                                accessibleContext.firePropertyChange(
                                     ACCESSIBLE_STATE_PROPERTY,
                                     null, AccessibleState.CHECKED
                                 )
 
                             ToggleableState.Off, ToggleableState.Indeterminate ->
-                                component.composeAccessibleContext.firePropertyChange(
+                                accessibleContext.firePropertyChange(
                                     ACCESSIBLE_STATE_PROPERTY,
                                     AccessibleState.CHECKED, null
                                 )
@@ -179,7 +219,7 @@ internal class AccessibilityController(
 
                     SemanticsProperties.ProgressBarRangeInfo -> {
                         val value = entry.value as ProgressBarRangeInfo
-                        component.composeAccessibleContext.firePropertyChange(
+                        accessibleContext.firePropertyChange(
                             ACCESSIBLE_VALUE_PROPERTY,
                             (prev as? ProgressBarRangeInfo)?.current,
                             value.current
@@ -188,6 +228,27 @@ internal class AccessibilityController(
                 }
             }
         }
+    }
+
+    /**
+     * Notifies the system when the given accessible becomes focused.
+     */
+    private fun notifyOnFocusReceived(accessible: ComposeAccessible) {
+        accessible.accessibleContext?.firePropertyChange(
+            ACCESSIBLE_STATE_PROPERTY,
+            null, AccessibleState.FOCUSED
+        )
+        onFocusReceived(accessible)
+    }
+
+    /**
+     * Notifies the system when the given accessible loses focused.
+     */
+    private fun notifyOnFocusLost(accessible: ComposeAccessible) {
+        accessible.accessibleContext?.firePropertyChange(
+            ACCESSIBLE_STATE_PROPERTY,
+            AccessibleState.FOCUSED, null
+        )
     }
 
     /**
@@ -223,10 +284,17 @@ internal class AccessibilityController(
     private var syncingJob: Job? = null
 
     /**
+     * Whether this [AccessibilityController] has been disposed.
+     */
+    @Volatile
+    private var disposed = false
+
+    /**
      * Disposes of this [AccessibilityController], releasing any resources associated with it.
      */
     fun dispose() {
         syncingJob?.cancel()
+        disposed = true
     }
 
     /**
@@ -334,6 +402,36 @@ internal class AccessibilityController(
         // TODO: Only recompute the layout-related properties of the node
         nodeMappingIsValid = false
         scheduleNodeSyncIfNeeded()
+    }
+
+    /**
+     * Returns the [ComposeAccessible] associated with the currently focused node.
+     */
+    private fun focusedAccessible(): ComposeAccessible? {
+        syncNodesIfInvalid()
+        accessibleByNodeId.forEachValue { accessible ->
+            if (accessible.semanticsNode.config.getOrNull(SemanticsProperties.Focused) == true) {
+                return accessible
+            }
+        }
+
+        return null
+    }
+
+    /**
+     * Invoked when the AWT component of the Compose content gains focus.
+     */
+    fun onFocusGained() {
+        if (!AccessibilityUsage.recentlyUsed) return
+        focusedAccessible()?.let { notifyOnFocusReceived(it) }
+    }
+
+    /**
+     * Invoked when the AWT component of the Compose content loses focus.
+     */
+    fun onFocusLost() {
+        if (!AccessibilityUsage.recentlyUsed) return
+        focusedAccessible()?.let { notifyOnFocusLost(it) }
     }
 
     /**

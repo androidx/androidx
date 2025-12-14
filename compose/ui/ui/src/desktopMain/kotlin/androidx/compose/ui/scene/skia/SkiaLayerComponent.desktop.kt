@@ -35,6 +35,9 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
  */
 internal interface SkiaLayerComponent {
     val contentComponent: JComponent
+    // The Accessible that will be reported as the accessible parent of
+    // ComposeSceneMediator.accessible (ComposeSceneAccessible)
+    val sceneAccessibleParent: Accessible?
     val interopBlendingSupported: Boolean
     val renderApi: GraphicsApi
     val clipComponents: MutableList<ClipRectangle>

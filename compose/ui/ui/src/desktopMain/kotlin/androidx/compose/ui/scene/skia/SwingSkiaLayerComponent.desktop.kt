@@ -102,6 +102,16 @@ internal class SwingSkiaLayerComponent(
             }
         }
 
+    override val sceneAccessibleParent: Accessible?
+        get() = run {
+            var parent = contentComponent.parent
+            while (parent != null) {
+                if (parent is Accessible) return@run parent
+                parent = parent.parent
+            }
+            null
+        }
+
     override val renderApi by contentComponent::renderApi
 
     override val interopBlendingSupported: Boolean

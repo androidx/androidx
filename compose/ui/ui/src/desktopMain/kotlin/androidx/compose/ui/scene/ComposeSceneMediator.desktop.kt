@@ -93,7 +93,6 @@ import java.awt.event.MouseAdapter
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import java.awt.im.InputMethodRequests
-import javax.accessibility.Accessible
 import javax.swing.JComponent
 import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
@@ -136,11 +135,12 @@ internal class ComposeSceneMediator(
     private var isComponentAttached = false
     private val invisibleComponent = InvisibleComponent()
 
-    private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
+    private val semanticsOwnerManager = DesktopSemanticsOwnerManager()
     var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
-    val accessible: Accessible = ComposeSceneAccessible {
-        semanticsOwnerListener.accessibilityControllers
-    }
+    val accessible: ComposeSceneAccessible = ComposeSceneAccessible(
+        parent = { skiaLayerComponent.sceneAccessibleParent },
+        accessibilityControllersProvider = { semanticsOwnerManager.accessibilityControllers }
+    )
 
     private val navigationEventInput = BackNavigationEventInput()
 
@@ -155,7 +155,7 @@ internal class ComposeSceneMediator(
     var fullscreen by skiaLayerComponent::fullscreen
     val windowHandle by skiaLayerComponent::windowHandle
     val renderApi by skiaLayerComponent::renderApi
-    val semanticsOwners: Collection<SemanticsOwner> by semanticsOwnerListener::semanticsOwners
+    val semanticsOwners: Collection<SemanticsOwner> by semanticsOwnerManager::semanticsOwners
 
     /**
      * @see ComposeFeatureFlags.useInteropBlending
@@ -267,9 +267,13 @@ internal class ComposeSceneMediator(
                     else -> Unit
                 }
             }
+
+            semanticsOwnerManager.onContentComponentGainedFocus()
         }
 
         override fun focusLost(e: FocusEvent) {
+            semanticsOwnerManager.onContentComponentLostFocus()
+
             // We don't reset focus for Compose when the component loses focus temporarily.
             // Partially because we don't support restoring focus after clearing it.
             // Focus can be lost temporarily when another window or popup takes focus.
@@ -752,7 +756,7 @@ internal class ComposeSceneMediator(
             }
     }
 
-    private inner class DesktopSemanticsOwnerListener : PlatformContext.SemanticsOwnerListener {
+    private inner class DesktopSemanticsOwnerManager : PlatformContext.SemanticsOwnerListener {
         /**
          * A new [SemanticsOwner] is always created above existing ones. So, usage of [LinkedHashMap]
          * is required here to keep insertion-order (that equal to [SemanticsOwner]s order).
@@ -762,14 +766,25 @@ internal class ComposeSceneMediator(
 
         val semanticsOwners = mutableStateSetOf<SemanticsOwner>()
 
+        private var requestingNativeFocus = false
+
         override fun onSemanticsOwnerAppended(semanticsOwner: SemanticsOwner) {
             check(semanticsOwner !in _accessibilityControllers)
             _accessibilityControllers[semanticsOwner] = AccessibilityController(
                 owner = semanticsOwner,
                 desktopComponent = platformComponent,
+                parentAccessible = accessible,
                 onFocusReceived = {
-                    skiaLayerComponent.requestNativeFocusOnAccessible(it)
-                }
+                    // requestNativeFocusOnAccessible fires focusGained events, which in turn
+                    // can call this method themselves, so we need to prevent infinite recursion
+                    if (requestingNativeFocus) return@AccessibilityController
+                    requestingNativeFocus = true
+                    try {
+                        skiaLayerComponent.requestNativeFocusOnAccessible(it)
+                    } finally {
+                        requestingNativeFocus = false
+                    }
+                },
             ).also {
                 it.launchSyncLoop(coroutineContext)
             }
@@ -787,6 +802,14 @@ internal class ComposeSceneMediator(
 
         override fun onLayoutChange(semanticsOwner: SemanticsOwner, semanticsNodeId: Int) {
             _accessibilityControllers[semanticsOwner]?.onLayoutChanged(nodeId = semanticsNodeId)
+        }
+
+        fun onContentComponentGainedFocus() {
+            _accessibilityControllers.values.lastOrNull()?.onFocusGained()
+        }
+
+        fun onContentComponentLostFocus() {
+            _accessibilityControllers.values.lastOrNull()?.onFocusLost()
         }
     }
 
@@ -837,7 +860,7 @@ internal class ComposeSceneMediator(
         override val rootForTestListener
             get() = this@ComposeSceneMediator.rootForTestListener
         override val semanticsOwnerListener
-            get() = this@ComposeSceneMediator.semanticsOwnerListener
+            get() = this@ComposeSceneMediator.semanticsOwnerManager
         override val isClearFocusOnMouseDownEnabled: Boolean
             get() = this@ComposeSceneMediator.isClearFocusOnMouseDownEnabled
     }

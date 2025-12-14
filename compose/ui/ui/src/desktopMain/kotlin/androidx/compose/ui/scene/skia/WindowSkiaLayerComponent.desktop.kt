@@ -122,6 +122,10 @@ internal class WindowSkiaLayerComponent(
         }
     }
 
+    override val sceneAccessibleParent: Accessible
+        // SkiaLayer passes externalAccessibleFactory to a child component of itself.
+        get() = contentComponent
+
     override val renderApi by contentComponent::renderApi
 
     override val interopBlendingSupported
