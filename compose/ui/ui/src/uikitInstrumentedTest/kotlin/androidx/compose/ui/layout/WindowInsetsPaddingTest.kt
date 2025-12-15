@@ -106,7 +106,7 @@ class WindowInsetsPaddingTest {
         assertEquals(
             DpRect(
                 DpOffset.Zero, size = DpSize(
-                    screenSize.width - hostingViewController.view.safeAreaInsets.useContents { right }.dp,
+                    screenSize.width - viewController.view.safeAreaInsets.useContents { right }.dp,
                     screenSize.height
                 )
             ),
@@ -134,7 +134,7 @@ class WindowInsetsPaddingTest {
             }
         }
 
-        val xOffset = hostingViewController.view.safeAreaInsets.useContents { left }.dp
+        val xOffset = viewController.view.safeAreaInsets.useContents { left }.dp
 
         assertEquals(
             DpRect(

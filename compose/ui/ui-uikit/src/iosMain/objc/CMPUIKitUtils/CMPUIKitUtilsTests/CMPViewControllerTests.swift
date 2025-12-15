@@ -356,16 +356,16 @@ private class TestViewController: CMPViewController {
     }
     
     override func viewControllerDidEnterWindowHierarchy() {
-        super.viewControllerDidEnterWindowHierarchy()
         print("TestViewController_\(id) didEnterWindowHierarchy")
         XCTAssertFalse(viewIsInWindowHierarchy)
         viewIsInWindowHierarchy = true
     }
 
     override func viewControllerDidLeaveWindowHierarchy() {
-        super.viewControllerDidLeaveWindowHierarchy()
         print("TestViewController_\(id) didLeaveWindowHierarchy")
         XCTAssertTrue(viewIsInWindowHierarchy)
         viewIsInWindowHierarchy = false
     }
+    
+    override func userInterfaceStyleDidChange() {}
 }

@@ -182,10 +182,10 @@ internal class ComposeSceneKeyboardOffsetManager(
             completion = { isFinished ->
                 keyboardDisplayLink.invalidate()
                 animationView.removeFromSuperview()
+                if (keyboardAnimationListener == keyboardDisplayLink) {
+                    keyboardAnimationListener = null
+                }
                 if (isFinished) {
-                    if (keyboardAnimationListener == keyboardDisplayLink) {
-                        keyboardAnimationListener = null
-                    }
                     updateAnimationValues(1.0)
                 }
             }

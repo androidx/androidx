@@ -29,7 +29,9 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.WeakReference
+import androidx.compose.ui.window.ComposeUIView
 import androidx.compose.ui.test.MockAppDelegate
+import androidx.compose.ui.uikit.embedSubview
 import androidx.compose.ui.window.ComposeUIViewController
 import androidx.compose.ui.window.IntermediateTextInputUIView
 import kotlin.native.runtime.GC
@@ -165,7 +167,6 @@ class MemoryLeaksTest {
         assertNull(composeViewControllerRef.get())
     }
 
-    @OptIn(ExperimentalForeignApi::class, ExperimentalFoundationApi::class)
     @Test
     fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndOldContextMenu() =
         runRepeatingBlocking(newContextMenuEnabled = false) {
@@ -220,7 +221,6 @@ class MemoryLeaksTest {
             assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
         }
 
-    @OptIn(ExperimentalForeignApi::class, ExperimentalFoundationApi::class)
     @Test
     fun testComposeUIViewControllerSubviewsWithTextInputDisposalAndNewContextMenu() =
         runRepeatingBlocking(newContextMenuEnabled = true) {
@@ -257,6 +257,171 @@ class MemoryLeaksTest {
                 expected = 6,
                 actual = subviewsReferences.count(),
                 message = "Expected 6 subviews: [ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, CMPEditMenuView, IntermediateTextInputUIView]" +
+                    ", but given: ${
+                        subviewsReferences.mapNotNull {
+                            it.get()?.let { it::class.simpleName }
+                        }
+                    }"
+            )
+
+            appDelegate.cleanUp()
+            // In Kotlin, when UITextInput view becomes a first responder, UIKit captures
+            // strong references on this view. For test purposes, staring another text input session
+            // to let UIKit release reference to the previous text input view.
+            startFakeTextInputSession()
+
+            cleanupMemory()
+
+            assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
+        }
+
+    @Test
+    fun testComposeUIViewDisposal() = runRepeatingBlocking {
+        val appDelegate = MockAppDelegate()
+        var composeViewRef: WeakReference<UIView>? = null
+        var composeLoaded = false
+
+        run {
+            val view = ComposeUIView({
+                enforceStrictPlistSanityCheck = false
+            }) {
+                Box(modifier = Modifier.fillMaxSize().background(Color.Blue))
+                SideEffect {
+                    composeLoaded = true
+                }
+            }
+            composeViewRef = WeakReference(view)
+            val controller = UIViewController()
+            controller.view.embedSubview(view)
+            appDelegate.setUpWindow(controller)
+        }
+
+        // Allow run loop to start the application
+        runApplicationLoop(1.milliseconds)
+
+        assertTrue(composeLoaded)
+        assertNotNull(composeViewRef?.get())
+
+        appDelegate.cleanUp()
+        cleanupMemory()
+
+        assertNull(composeViewRef.get())
+    }
+
+    @Test
+    fun testComposeUIViewSubviewsDisposal() = runRepeatingBlocking {
+        val appDelegate = MockAppDelegate()
+        val subviewsReferences = mutableListOf<WeakReference<UIView>>()
+
+        run {
+            val view = ComposeUIView({
+                enforceStrictPlistSanityCheck = false
+            }) {
+                Box(modifier = Modifier.fillMaxSize().background(Color.Blue))
+            }
+            val controller = UIViewController()
+            controller.view.embedSubview(view)
+            appDelegate.setUpWindow(controller)
+        }
+
+        // Allow run loop to start the application
+        runApplicationLoop(1.milliseconds)
+
+        collectSubviewsRecursively(
+            appDelegate.window?.rootViewController?.view!!,
+            subviewsReferences
+        )
+
+        assertEquals(
+            expected = 6,
+            actual = subviewsReferences.count(),
+            message = "Expected 6 subviews: [UIView, ComposeHostingView, ComposeView, UserInputView, MetalView, UIKitTransparentContainerView]" +
+                ", but given: ${
+                    subviewsReferences.mapNotNull {
+                        it.get()?.let { it::class.simpleName }
+                    }
+                }"
+        )
+
+        appDelegate.cleanUp()
+        cleanupMemory()
+
+        assertEquals(emptyList(), subviewsReferences.mapNotNull { it.get() })
+    }
+
+    @Test
+    fun testComposeUIViewWithTextInputDisposal() = runBlocking {
+        val appDelegate = MockAppDelegate()
+        var composeViewRef: WeakReference<UIView>? = null
+
+        run {
+            val view = ComposeUIView({
+                enforceStrictPlistSanityCheck = false
+            }) {
+                val focusRequester = FocusRequester()
+                TextField(
+                    value = "",
+                    onValueChange = {},
+                    modifier = Modifier.focusRequester(focusRequester)
+                )
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
+            }
+            composeViewRef = WeakReference(view)
+            val controller = UIViewController()
+            controller.view.embedSubview(view)
+            appDelegate.setUpWindow(controller)
+        }
+
+        // Allow run loop to start the application
+        runApplicationLoop(KeyboardAnimationDelay)
+
+        assertNotNull(composeViewRef?.get())
+
+        appDelegate.cleanUp()
+        cleanupMemory()
+
+        assertNull(composeViewRef.get())
+    }
+
+    @Test
+    fun testComposeUIViewSubviewsWithTextInputDisposalAndNewContextMenu() =
+        runRepeatingBlocking(newContextMenuEnabled = true) {
+            val appDelegate = MockAppDelegate()
+            val subviewsReferences = mutableListOf<WeakReference<UIView>>()
+
+            run {
+                val view = ComposeUIView({
+                    enforceStrictPlistSanityCheck = false
+                }) {
+                    val focusRequester = FocusRequester()
+                    TextField(
+                        value = "",
+                        onValueChange = {},
+                        modifier = Modifier.focusRequester(focusRequester)
+                    )
+                    LaunchedEffect(Unit) {
+                        focusRequester.requestFocus()
+                    }
+                }
+                val controller = UIViewController()
+                controller.view.embedSubview(view)
+                appDelegate.setUpWindow(controller)
+            }
+
+            // Allow run loop to start the application
+            runApplicationLoop(KeyboardAnimationDelay)
+
+            collectSubviewsRecursively(
+                appDelegate.window?.rootViewController?.view!!,
+                subviewsReferences
+            )
+
+            assertEquals(
+                expected = 8,
+                actual = subviewsReferences.count(),
+                message = "Expected 8 subviews: [UIView, ComposeHostingView, ComposeView, UserInputView, MetalView, UIKitTransparentContainerView, CMPEditMenuView, IntermediateTextInputUIView]" +
                     ", but given: ${
                         subviewsReferences.mapNotNull {
                             it.get()?.let { it::class.simpleName }

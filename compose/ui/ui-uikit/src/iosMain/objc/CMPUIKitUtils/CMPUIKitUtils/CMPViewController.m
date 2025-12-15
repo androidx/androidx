@@ -171,12 +171,15 @@
 }
 
 - (void)viewControllerDidEnterWindowHierarchy {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)viewControllerDidLeaveWindowHierarchy {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)userInterfaceStyleDidChange {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)dealloc {

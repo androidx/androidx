@@ -166,9 +166,10 @@ private class TestView: CMPView {
     }
 
     override func viewDidLeaveWindowHierarchy() {
-        super.viewDidLeaveWindowHierarchy()
         print("TestView_\(id) didLeaveWindowHierarchy")
         XCTAssertTrue(viewIsInWindowHierarchy)
         viewIsInWindowHierarchy = false
     }
+    
+    override func userInterfaceStyleDidChange() {}
 }

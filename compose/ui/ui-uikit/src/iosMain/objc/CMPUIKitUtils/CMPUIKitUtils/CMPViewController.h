@@ -16,6 +16,7 @@
 
 #import <UIKit/UIKit.h>
 #import "CMPComposeContainerLifecycleDelegate.h"
+#import "CMPMacros.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,13 +25,13 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)initWithLifecycleDelegate:(id<CMPComposeContainerLifecycleDelegate> _Nullable)delegate;
 
 /// Indicates that view controller is considered alive in terms of structural containment
-- (void)viewControllerDidEnterWindowHierarchy;
+- (void)viewControllerDidEnterWindowHierarchy CMP_ABSTRACT_FUNCTION;
 
 /// Indicates that view controller is considered closed in terms of structural containment
-- (void)viewControllerDidLeaveWindowHierarchy;
+- (void)viewControllerDidLeaveWindowHierarchy CMP_ABSTRACT_FUNCTION;
 
 /// Indicates that trait interface style trait changed
-- (void)userInterfaceStyleDidChange;
+- (void)userInterfaceStyleDidChange CMP_ABSTRACT_FUNCTION;
 
 @end
 

@@ -493,7 +493,7 @@ internal class ImeOptionsTest {
     ): UITextInputProtocol = setContentAndFindInput(keyboardOptions = KeyboardOptions(platformImeOptions = imeOptions))
 
     private fun UIKitInstrumentedTest.findFirstUITextInput(): UIView? {
-        val windowScene = hostingViewController.view.window?.windowScene ?: return null
+        val windowScene = viewController.view.window?.windowScene ?: return null
 
         fun traverseSubviews(view: UIView): UIView? {
             if (view as? UITextInputProtocol != null) {

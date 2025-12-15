@@ -38,7 +38,7 @@ import platform.UIKit.UIView
 import platform.UIKit.UIViewContentMode
 import platform.UIKit.UIWindow
 
-internal class ComposeView(
+internal class ComposeContainerView(
     private val useOpaqueConfiguration: Boolean,
     private val transparentForTouches: Boolean,
 ): UIView(frame = UIScreen.mainScreen.bounds) {

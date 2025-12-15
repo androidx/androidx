@@ -18,38 +18,24 @@ package androidx.compose.ui.modifiers
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.padding
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.preferredFrameRate
 import androidx.compose.ui.test.findNodeWithTag
-import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onFirst
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runUIKitInstrumentedTest
-import androidx.compose.ui.unit.dp
-import kotlin.math.abs
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.fail
-import kotlinx.coroutines.launch
-import platform.QuartzCore.CADisplayLink
 
 internal class FrameRateTest {
 
@@ -65,7 +51,7 @@ internal class FrameRateTest {
             }
         }
 
-        val redrawer = hostingViewController.rootViewRedrawer
+        val redrawer = rootRedrawer
         assertNotNull(redrawer, "redrawer is null")
 
         for (frameRate in frameRates) {
@@ -91,7 +77,7 @@ internal class FrameRateTest {
             }
         }
 
-        val redrawer = hostingViewController.rootViewRedrawer
+        val redrawer = rootRedrawer
         assertNotNull(redrawer, "redrawer is null")
 
         for (frameRate in frameRates) {

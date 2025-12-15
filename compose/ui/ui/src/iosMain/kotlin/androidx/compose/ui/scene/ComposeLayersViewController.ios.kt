@@ -16,13 +16,14 @@
 
 package androidx.compose.ui.scene
 
+import androidx.compose.ui.animation.withAnimationProgress
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.uikit.addLayoutConstraintsToMatch
 import androidx.compose.ui.uikit.embedSubview
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
-import androidx.compose.ui.window.ComposeView
+import androidx.compose.ui.window.ComposeContainerView
 import androidx.compose.ui.window.DisplayLinkListener
 import androidx.compose.ui.window.MetalView
 import kotlin.coroutines.CoroutineContext
@@ -66,7 +67,7 @@ internal class ComposeLayersViewController(
         canBeOpaque = false
     }
 
-    private val rootView = ComposeView(
+    private val rootView = ComposeContainerView(
         useOpaqueConfiguration = false,
         transparentForTouches = true
     ).also {
@@ -302,7 +303,13 @@ internal class ComposeLayersViewController(
         val animations = listOf(
             windowContext.prepareAndGetSizeTransitionAnimation()
         ) + this.layers.map {
-            it.prepareAndGetSizeTransitionAnimation()
+            { duration ->
+                it.prepareAndGetSizeTransitionAnimation { onFrame ->
+                    withAnimationProgress(duration) { progress ->
+                        onFrame(progress)
+                    }
+                }
+            }
         }
 
         rootView.animateSizeTransition(scope) {

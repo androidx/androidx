@@ -4487,18 +4487,12 @@ sealed interface androidx.compose.ui.viewinterop/UIKitInteropInteractionMode { /
 }
 
 // Targets: [ios]
-final class androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration { // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration|null[0]
+final class androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration : androidx.compose.ui.uikit/ComposeContainerConfiguration { // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration|null[0]
     constructor <init>() // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.<init>|<init>(){}[0]
 
     final var delegate // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.delegate|{}delegate[0]
         final fun <get-delegate>(): androidx.compose.ui.uikit/ComposeUIViewControllerDelegate // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.delegate.<get-delegate>|<get-delegate>(){}[0]
         final fun <set-delegate>(androidx.compose.ui.uikit/ComposeUIViewControllerDelegate) // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.delegate.<set-delegate>|<set-delegate>(androidx.compose.ui.uikit.ComposeUIViewControllerDelegate){}[0]
-    final var enforceStrictPlistSanityCheck // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.enforceStrictPlistSanityCheck|{}enforceStrictPlistSanityCheck[0]
-        final fun <get-enforceStrictPlistSanityCheck>(): kotlin/Boolean // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.enforceStrictPlistSanityCheck.<get-enforceStrictPlistSanityCheck>|<get-enforceStrictPlistSanityCheck>(){}[0]
-        final fun <set-enforceStrictPlistSanityCheck>(kotlin/Boolean) // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.enforceStrictPlistSanityCheck.<set-enforceStrictPlistSanityCheck>|<set-enforceStrictPlistSanityCheck>(kotlin.Boolean){}[0]
-    final var onFocusBehavior // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.onFocusBehavior|{}onFocusBehavior[0]
-        final fun <get-onFocusBehavior>(): androidx.compose.ui.uikit/OnFocusBehavior // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.onFocusBehavior.<get-onFocusBehavior>|<get-onFocusBehavior>(){}[0]
-        final fun <set-onFocusBehavior>(androidx.compose.ui.uikit/OnFocusBehavior) // androidx.compose.ui.uikit/ComposeUIViewControllerConfiguration.onFocusBehavior.<set-onFocusBehavior>|<set-onFocusBehavior>(androidx.compose.ui.uikit.OnFocusBehavior){}[0]
 }
 
 // Targets: [ios]
@@ -4515,6 +4509,16 @@ final class androidx.compose.ui.viewinterop/UIKitInteropProperties { // androidx
 
     final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.ui.viewinterop/UIKitInteropProperties.equals|equals(kotlin.Any?){}[0]
     final fun hashCode(): kotlin/Int // androidx.compose.ui.viewinterop/UIKitInteropProperties.hashCode|hashCode(){}[0]
+}
+
+// Targets: [ios]
+sealed class androidx.compose.ui.uikit/ComposeContainerConfiguration { // androidx.compose.ui.uikit/ComposeContainerConfiguration|null[0]
+    final var enforceStrictPlistSanityCheck // androidx.compose.ui.uikit/ComposeContainerConfiguration.enforceStrictPlistSanityCheck|{}enforceStrictPlistSanityCheck[0]
+        final fun <get-enforceStrictPlistSanityCheck>(): kotlin/Boolean // androidx.compose.ui.uikit/ComposeContainerConfiguration.enforceStrictPlistSanityCheck.<get-enforceStrictPlistSanityCheck>|<get-enforceStrictPlistSanityCheck>(){}[0]
+        final fun <set-enforceStrictPlistSanityCheck>(kotlin/Boolean) // androidx.compose.ui.uikit/ComposeContainerConfiguration.enforceStrictPlistSanityCheck.<set-enforceStrictPlistSanityCheck>|<set-enforceStrictPlistSanityCheck>(kotlin.Boolean){}[0]
+    final var onFocusBehavior // androidx.compose.ui.uikit/ComposeContainerConfiguration.onFocusBehavior|{}onFocusBehavior[0]
+        final fun <get-onFocusBehavior>(): androidx.compose.ui.uikit/OnFocusBehavior // androidx.compose.ui.uikit/ComposeContainerConfiguration.onFocusBehavior.<get-onFocusBehavior>|<get-onFocusBehavior>(){}[0]
+        final fun <set-onFocusBehavior>(androidx.compose.ui.uikit/OnFocusBehavior) // androidx.compose.ui.uikit/ComposeContainerConfiguration.onFocusBehavior.<set-onFocusBehavior>|<set-onFocusBehavior>(androidx.compose.ui.uikit.OnFocusBehavior){}[0]
 }
 
 // Targets: [ios]
@@ -4558,6 +4562,12 @@ final val androidx.compose.ui.uikit/LocalUIView // androidx.compose.ui.uikit/Loc
 // Targets: [ios]
 final val androidx.compose.ui.uikit/LocalUIViewController // androidx.compose.ui.uikit/LocalUIViewController|{}LocalUIViewController[0]
     final fun <get-LocalUIViewController>(): androidx.compose.runtime/ProvidableCompositionLocal<platform.UIKit/UIViewController> // androidx.compose.ui.uikit/LocalUIViewController.<get-LocalUIViewController>|<get-LocalUIViewController>(){}[0]
+
+// Targets: [ios]
+final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeContainerConfiguration$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeContainerConfiguration$stableprop|#static{}androidx_compose_ui_uikit_ComposeContainerConfiguration$stableprop[0]
+
+// Targets: [ios]
+final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewConfiguration$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewConfiguration$stableprop|#static{}androidx_compose_ui_uikit_ComposeUIViewConfiguration$stableprop[0]
 
 // Targets: [ios]
 final val androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop|#static{}androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop[0]
@@ -4635,6 +4645,12 @@ final fun androidx.compose.ui.platform/androidx_compose_ui_platform_CFScopeRelea
 
 // Targets: [ios]
 final fun androidx.compose.ui.platform/androidx_compose_ui_platform_CFScopeReleasable_Image$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_CFScopeReleasable_Image$stableprop_getter|androidx_compose_ui_platform_CFScopeReleasable_Image$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeContainerConfiguration$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeContainerConfiguration$stableprop_getter|androidx_compose_ui_uikit_ComposeContainerConfiguration$stableprop_getter(){}[0]
+
+// Targets: [ios]
+final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewConfiguration$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewConfiguration$stableprop_getter|androidx_compose_ui_uikit_ComposeUIViewConfiguration$stableprop_getter(){}[0]
 
 // Targets: [ios]
 final fun androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter(): kotlin/Int // androidx.compose.ui.uikit/androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter|androidx_compose_ui_uikit_ComposeUIViewControllerConfiguration$stableprop_getter(){}[0]

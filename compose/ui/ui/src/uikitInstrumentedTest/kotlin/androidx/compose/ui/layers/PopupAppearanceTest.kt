@@ -52,11 +52,11 @@ class PopupAppearanceTest {
         // Show and hide modal view controller
         var presented = false
         val safari = SFSafariViewController(uRL = NSURL(string = "https://jb.gg"))
-        hostingViewController.presentViewController(safari, true) {
+        viewController.presentViewController(safari, true) {
             presented = true
         }
         waitUntil { presented }
-        hostingViewController.dismissViewControllerAnimated(true) {
+        viewController.dismissViewControllerAnimated(true) {
             presented = false
         }
         waitUntil { !presented }

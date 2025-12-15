@@ -59,7 +59,7 @@ class LocalDensityTest {
         }
 
         assertNotEquals(customDensity.density, density)
-        assertEquals(hostingViewController.view.density.density, density)
+        assertEquals(this.density.density, density)
     }
 
     @Test
@@ -76,7 +76,7 @@ class LocalDensityTest {
         }
 
         assertNotEquals(customDensity.density, density)
-        assertEquals(hostingViewController.view.density.density, density)
+        assertEquals(this.density.density, density)
     }
 
     @Test
@@ -100,7 +100,7 @@ class LocalDensityTest {
         }
 
         assertNotEquals(outerDensity.density, actualOuterDensity)
-        assertEquals(hostingViewController.view.density.density, actualOuterDensity)
+        assertEquals(this.density.density, actualOuterDensity)
         assertEquals(innerDensity.density, actualInnerDensity)
     }
 
@@ -125,7 +125,7 @@ class LocalDensityTest {
         }
 
         assertNotEquals(outerDensity.density, actualOuterDensity)
-        assertEquals(hostingViewController.view.density.density, actualOuterDensity)
+        assertEquals(this.density.density, actualOuterDensity)
         assertEquals(innerDensity.density, actualInnerDensity)
     }
 

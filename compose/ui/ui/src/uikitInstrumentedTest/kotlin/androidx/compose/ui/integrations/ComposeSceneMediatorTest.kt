@@ -35,7 +35,6 @@ import androidx.compose.ui.viewinterop.UIKitInteropAction
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
 import androidx.compose.ui.window.MetalRedrawer
 import kotlin.test.Test
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -54,7 +53,8 @@ class ComposeSceneMediatorTest {
         mediator.compositionLocalContext = null
         mediator.interactionBounds = IntRect.Zero
         mediator.isAccessibilityEnabled = true
-        mediator.prepareAndGetSizeTransitionAnimation().invoke(10.milliseconds)
+        mediator.prepareAndGetSizeTransitionAnimation { onFrame -> onFrame(1.0f) }
+        Unit
     }
 
     @OptIn(ExperimentalForeignApi::class)
@@ -62,7 +62,7 @@ class ComposeSceneMediatorTest {
     fun testDisposedViewControllerTapNoCrash() = runUIKitInstrumentedTest {
         setContent {}
 
-        hostingViewController.viewControllerDidLeaveWindowHierarchy()
+        stopComposeScene()
 
         tap(screenSize.center)
 
@@ -74,10 +74,10 @@ class ComposeSceneMediatorTest {
     fun testDisposedViewControllerResizeNoCrash() = runUIKitInstrumentedTest {
         setContent {}
 
-        hostingViewController.viewControllerDidLeaveWindowHierarchy()
+        stopComposeScene()
 
-        hostingViewController.view.setFrame(CGRectMake(0.0, 0.0, 100.0, 100.0))
-        hostingViewController.view.layoutIfNeeded()
+        viewController.view.setFrame(CGRectMake(0.0, 0.0, 100.0, 100.0))
+        viewController.view.layoutIfNeeded()
 
         waitForIdle()
     }

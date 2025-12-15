@@ -21,9 +21,29 @@ import androidx.compose.ui.scene.ComposeHostingViewController
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import platform.UIKit.UIViewController
 
+/**
+ * Creates a [UIViewController] that can host Compose content.
+ *
+ * This method is a convenience wrapper around the [ComposeUIViewController] function with the
+ * default configuration.
+ *
+ * @param content a composable lambda defining the UI content to be displayed within the
+ * [UIViewController].
+ * @return a [UIViewController] instance capable of hosting the specified Compose content.
+ */
 fun ComposeUIViewController(content: @Composable () -> Unit): UIViewController =
     ComposeUIViewController(configure = {}, content = content)
 
+/**
+ * Creates a [UIViewController] capable of hosting Compose content.
+ *
+ * @param configure A lambda function used to configure the behavior of the created
+ * [ComposeUIViewController].
+ * @param content A composable lambda defining the UI content to be displayed within the
+ * [ComposeUIViewController].
+ * @return A configured [UIViewController] instance capable of displaying the provided Compose
+ * content.
+ */
 fun ComposeUIViewController(
     configure: ComposeUIViewControllerConfiguration.() -> Unit = {},
     content: @Composable () -> Unit

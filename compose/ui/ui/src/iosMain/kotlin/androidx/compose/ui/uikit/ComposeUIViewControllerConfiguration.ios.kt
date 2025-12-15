@@ -16,20 +16,14 @@
 
 package androidx.compose.ui.uikit
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import platform.UIKit.UIStatusBarAnimation
 import platform.UIKit.UIStatusBarStyle
 import platform.UIKit.UIViewController
 
 /**
- * Configuration of ComposeUIViewController behavior.
+ * Configuration of [androidx.compose.ui.window.ComposeUIViewController] behavior.
  */
-class ComposeUIViewControllerConfiguration {
-    /**
-     * Control Compose behaviour on focus changed inside Compose.
-     */
-    var onFocusBehavior: OnFocusBehavior = OnFocusBehavior.FocusableAboveKeyboard
-
+class ComposeUIViewControllerConfiguration: ComposeContainerConfiguration() {
     /**
      * Reassign this property with an object implementing [ComposeUIViewControllerDelegate] to interact with APIs
      * that otherwise would require subclassing internal implementation of [UIViewController], which is impossible.
@@ -41,45 +35,6 @@ class ComposeUIViewControllerConfiguration {
     )
     @Suppress("DEPRECATION")
     var delegate: ComposeUIViewControllerDelegate = object : ComposeUIViewControllerDelegate {}
-
-    /**
-     * Determines whether the Compose view should have an opaque background.
-     * Warning: disabling opaque layer may affect performance.
-     */
-    @ExperimentalComposeUiApi
-    var opaque: Boolean = true
-
-    /**
-     * A boolean flag to enable or disable the strict sanity check for the `Info.plist` file.
-     * If the flag is set to true, and keys are missing, the app will crash with an
-     * explanation on how to fix the issue.
-     */
-    var enforceStrictPlistSanityCheck: Boolean = true
-
-    /**
-     * If set to true, the Compose will encode the rendering commands on a dedicated render thread,
-     * when possible.
-     * This can improve the performance when no interop UIKit is used.
-     *
-     * It's an experimental API, and the effects of enabling it are not considered stable.
-     *
-     * Changing this setting outside of `ComposeUIViewController` `configure` argument scope has no effect.
-     */
-    @ExperimentalComposeUiApi
-    var parallelRendering: Boolean = false
-
-    /**
-     * Determines how the end edge pan gestures will be handled.
-     * In LTR layouts, the end edge is the right edge of the screen.
-     * In RTL layouts, the end edge is the left edge of the screen.
-     *
-     * Note: this setting only affects the behavior of the end edge pan gestures.
-     * The start edge pan gestures will always be handled as back navigation events.
-     *
-     * Default value is [EndEdgePanGestureBehavior.Disabled].
-     */
-    @ExperimentalComposeUiApi
-    var endEdgePanGestureBehavior: EndEdgePanGestureBehavior = EndEdgePanGestureBehavior.Disabled
 }
 
 /**
@@ -120,36 +75,4 @@ interface ComposeUIViewControllerDelegate {
     fun viewDidAppear(animated: Boolean) = Unit
     fun viewWillDisappear(animated: Boolean) = Unit
     fun viewDidDisappear(animated: Boolean) = Unit
-}
-
-sealed interface OnFocusBehavior {
-    /**
-     * The Compose view will stay on the current position.
-     */
-    @Suppress("unused")
-    data object DoNothing : OnFocusBehavior
-
-    /**
-     * The Compose view will be panned in "y" coordinates.
-     * A focusable element should be displayed above the keyboard.
-     */
-    data object FocusableAboveKeyboard : OnFocusBehavior
-}
-
-@ExperimentalComposeUiApi
-sealed interface EndEdgePanGestureBehavior {
-    /**
-     * No navigation events will be sent on the end edge.
-     */
-    data object Disabled : EndEdgePanGestureBehavior
-
-    /**
-     * Back navigation events will be sent on the end edge.
-     */
-    data object Back : EndEdgePanGestureBehavior
-
-    /**
-     * Forward navigation events will be sent on the end edge.
-     */
-    data object Forward : EndEdgePanGestureBehavior
 }

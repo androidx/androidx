@@ -16,6 +16,7 @@
 
 #import <UIKit/UIKit.h>
 #import "CMPComposeContainerLifecycleDelegate.h"
+#import "CMPMacros.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -24,19 +25,19 @@ NS_ASSUME_NONNULL_BEGIN
 - (id)initWithLifecycleDelegate:(id<CMPComposeContainerLifecycleDelegate> _Nullable)delegate;
 
 /// Notifies the view is added to a view hierarchy
-- (void)viewDidAppear;
+- (void)viewDidAppear CMP_ABSTRACT_FUNCTION;
 
 /// Notifies the view was removed from a view hierarchy
-- (void)viewDidDisappear;
+- (void)viewDidDisappear CMP_ABSTRACT_FUNCTION;
 
 /// Indicates that view is considered alive in terms of structural containment
-- (void)viewDidEnterWindowHierarchy;
+- (void)viewDidEnterWindowHierarchy CMP_ABSTRACT_FUNCTION;
 
 /// Indicates that view is considered as closed in terms of structural containment
-- (void)viewDidLeaveWindowHierarchy;
+- (void)viewDidLeaveWindowHierarchy CMP_ABSTRACT_FUNCTION;
 
 /// Indicates that trait interface style trait changed
-- (void)userInterfaceStyleDidChange;
+- (void)userInterfaceStyleDidChange CMP_ABSTRACT_FUNCTION;
 
 @end
 

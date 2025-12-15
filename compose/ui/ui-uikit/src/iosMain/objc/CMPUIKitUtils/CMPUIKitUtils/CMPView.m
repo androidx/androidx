@@ -118,18 +118,23 @@
 }
 
 - (void)viewDidAppear {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)viewDidDisappear {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)viewDidEnterWindowHierarchy {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)viewDidLeaveWindowHierarchy {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)userInterfaceStyleDidChange {
+    CMP_ABSTRACT_FUNCTION_CALLED
 }
 
 - (void)dealloc {

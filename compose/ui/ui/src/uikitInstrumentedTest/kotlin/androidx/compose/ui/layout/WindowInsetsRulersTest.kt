@@ -67,7 +67,7 @@ class WindowInsetsRulersTest {
         assertNotNull(insetsRect)
         assertEquals(1, displayCutoutRects.size)
         assertEquals(
-            IntRect(0, 0, screenSizePx.width, hostingViewController.view.safeAreaPlatformInsets.top),
+            IntRect(0, 0, screenSizePx.width, viewController.view.safeAreaPlatformInsets.top),
             displayCutoutRects.first()
         )
     }
@@ -84,7 +84,7 @@ class WindowInsetsRulersTest {
         assertNotNull(insetsRect)
         assertEquals(1, displayCutoutRects.size)
         assertEquals(
-            IntRect(screenSizePx.width - hostingViewController.view.safeAreaPlatformInsets.right,0,screenSizePx.width,screenSizePx.height),
+            IntRect(screenSizePx.width - viewController.view.safeAreaPlatformInsets.right,0,screenSizePx.width,screenSizePx.height),
             displayCutoutRects.first()
         )
     }
@@ -101,7 +101,7 @@ class WindowInsetsRulersTest {
         assertNotNull(insetsRect)
         assertEquals(1, displayCutoutRects.size)
         assertEquals(
-            IntRect(0,0,hostingViewController.view.safeAreaPlatformInsets.left,screenSizePx.height),
+            IntRect(0,0,viewController.view.safeAreaPlatformInsets.left,screenSizePx.height),
             displayCutoutRects.first()
         )
     }
