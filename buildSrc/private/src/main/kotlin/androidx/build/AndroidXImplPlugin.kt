@@ -105,15 +105,19 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.AbstractTestTask
+import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
+import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.findByType
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withModule
 import org.gradle.kotlin.dsl.withType
 import org.gradle.plugin.devel.plugins.JavaGradlePluginPlugin
@@ -203,6 +207,13 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         // copy host side test results to DIST
         project.tasks.withType(AbstractTestTask::class.java) { task ->
             configureTestTask(project, task, allHostTests, androidXExtension)
+        }
+        project.tasks.withType(Test::class.java).configureEach { task ->
+            task.javaLauncher.set(
+                project.the<JavaToolchainService>().launcherFor {
+                    it.languageVersion.set(JavaLanguageVersion.of(21))
+                }
+            )
         }
 
         project.configureTaskTimeouts()

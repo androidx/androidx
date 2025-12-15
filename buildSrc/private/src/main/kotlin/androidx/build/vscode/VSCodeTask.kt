@@ -70,9 +70,9 @@ fun Project.configureVSCodeTask(task: ManagedIdeTask) {
 
     task.provisionAction.set {
         val jdkPath =
-            it.providers.environmentVariable(BuildEnvironment.ANDROIDX_JDK21).orNull
+            it.providers.environmentVariable(BuildEnvironment.ANDROIDX_JDK25).orNull
                 ?: throw GradleException(
-                    "${BuildEnvironment.ANDROIDX_JDK21} is not set; " +
+                    "${BuildEnvironment.ANDROIDX_JDK25} is not set; " +
                         "VS Code must be launched via ./gradlew :vscode"
                 )
         val settingsFile =
