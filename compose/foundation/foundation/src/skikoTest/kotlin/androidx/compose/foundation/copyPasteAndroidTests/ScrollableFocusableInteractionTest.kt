@@ -90,11 +90,11 @@ class ScrollableFocusableInteractionTest {
     private var reverseScrolling: Boolean? = null
 
     private val parameters = initParameters()
-    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) {
+    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) = runSkikoComposeUiTest {
         parameters.forEach {
             orientation = it[0] as Orientation
             reverseScrolling = it[1] as Boolean
-            runSkikoComposeUiTest { test() }
+            test()
         }
     }
 

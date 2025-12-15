@@ -79,15 +79,14 @@ class BorderTest {
     private var shape: Shape? = null
 
     private val sceneSize = Size(40f, 40f)
-    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) {
-        params.forEach {
-            shape = it
-            runSkikoComposeUiTest(sceneSize) {
+    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) =
+        runSkikoComposeUiTest(sceneSize) {
+            params.forEach {
+                shape = it
                 test()
             }
             shape = null
         }
-    }
 
     @BeforeTest
     fun reset() {

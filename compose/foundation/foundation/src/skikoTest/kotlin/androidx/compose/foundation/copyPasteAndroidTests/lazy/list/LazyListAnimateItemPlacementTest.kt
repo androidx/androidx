@@ -101,14 +101,12 @@ class LazyListAnimateItemPlacementTest {
     private lateinit var state: LazyListState
     
     private val density = Density(1f)
-    
-    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) {
-        params().forEach { 
+
+    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) = runSkikoComposeUiTest {
+        params().forEach {
             config = it
-            runSkikoComposeUiTest {
-                mainClock.autoAdvance = false
-                test()
-            }
+            mainClock.autoAdvance = false
+            test()
         }
     }
 

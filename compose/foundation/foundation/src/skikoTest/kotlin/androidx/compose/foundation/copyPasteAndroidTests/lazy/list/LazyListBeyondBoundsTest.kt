@@ -98,10 +98,10 @@ class LazyListBeyondBoundsTest {
     private lateinit var lazyListState: LazyListState
     private lateinit var scope: CoroutineScope
 
-    private fun runParametrizedTest(test: suspend ComposeUiTest.() -> Unit) {
+    private fun runParametrizedTest(test: suspend ComposeUiTest.() -> Unit) = runComposeUiTest {
         ParamsToTest.forEach {
             param = it
-            runComposeUiTest { test() }
+            test()
             param = null
         }
     }

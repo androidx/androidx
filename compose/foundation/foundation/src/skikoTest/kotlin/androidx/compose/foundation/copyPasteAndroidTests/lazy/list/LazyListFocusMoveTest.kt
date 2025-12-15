@@ -99,14 +99,12 @@ class LazyListFocusMoveTest {
     private lateinit var lazyListState: LazyListState
     private lateinit var focusManager: FocusManager
 
-    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) {
+    private fun runParametrizedTest(test: SkikoComposeUiTest.() -> Unit) = runSkikoComposeUiTest {
         initParameters().forEach {
             param = it
-            runSkikoComposeUiTest {
-                test()
-            }
-            param = null
+            test()
         }
+        param = null
     }
 
     companion object {
