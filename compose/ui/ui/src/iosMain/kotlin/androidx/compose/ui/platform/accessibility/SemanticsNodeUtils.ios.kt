@@ -30,6 +30,7 @@ import androidx.compose.ui.semantics.SemanticsProperties.InvisibleToUser
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.semantics.sortByGeometryGroupings
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 import platform.UIKit.UIAccessibilityScrollDirection
@@ -293,4 +294,26 @@ internal val SemanticsNode.contentDescription: String? get() {
     } else {
         config.getOrNull(SemanticsProperties.Text)?.joinToString(", ") { it.text }
     }
+}
+
+internal fun SemanticsNode.sortFlattenChildren(children: List<SemanticsNode>): List<SemanticsNode> {
+    val sortedChildren = sortByGeometryGroupings(children) as MutableList<SemanticsNode>
+
+    // Fix the specifics of nodes sorting where a parent node may go after a child in the sorted list.
+    // Swapping them if the order is not specified by other criteria as TraversalIndex.
+    // In case of other sort issues, consider copy and re-implementing the `sortByGeometryGroupings`
+    // method to match TalkBack application traversal order.
+    repeat(sortedChildren.count() - 1) { index ->
+        val first = sortedChildren[index]
+        val second = sortedChildren[index + 1]
+        if (!first.unmergedConfig.contains(SemanticsProperties.TraversalIndex) &&
+            !second.unmergedConfig.contains(SemanticsProperties.TraversalIndex) &&
+            first.layoutNode.parent != second.layoutNode.parent &&
+            first.layoutNode.findClosestParentNode({ it == second.layoutNode }) != null
+        ) {
+            sortedChildren[index] = second
+            sortedChildren[index + 1] = first
+        }
+    }
+    return sortedChildren
 }

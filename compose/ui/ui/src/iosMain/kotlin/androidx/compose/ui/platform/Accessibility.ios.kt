@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.accessibility.isRTL
 import androidx.compose.ui.platform.accessibility.isScreenReaderFocusable
 import androidx.compose.ui.platform.accessibility.scrollIfPossible
 import androidx.compose.ui.platform.accessibility.scrollToCenterRectIfNeeded
+import androidx.compose.ui.platform.accessibility.sortFlattenChildren
 import androidx.compose.ui.platform.accessibility.unclippedBoundsInWindow
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsActions
@@ -1485,7 +1486,7 @@ internal class AccessibilityMediator(
                     flatten = flattenChildren
                 )
 
-                val sortedChildren = node.sortByGeometryGroupings(visibleChildren)
+                val sortedChildren = node.sortFlattenChildren(visibleChildren)
                 beforeChildren.sortWith(BeyondBoundsComparator(node.isRTL))
                 afterChildren.sortWith(BeyondBoundsComparator(node.isRTL))
 
