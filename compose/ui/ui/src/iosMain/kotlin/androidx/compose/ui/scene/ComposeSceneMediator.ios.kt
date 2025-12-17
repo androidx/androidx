@@ -184,6 +184,7 @@ private class SemanticsOwnerListenerImpl(
 
 internal class ComposeSceneMediator(
     private val onFocusBehavior: OnFocusBehavior,
+    private val isClearFocusOnMouseDownEnabled: Boolean,
     focusedViewsList: FocusedViewsList?,
     private val windowContext: PlatformWindowContext,
     private val architectureComponentsOwner: PlatformArchitectureComponentsOwner,
@@ -722,6 +723,8 @@ internal class ComposeSceneMediator(
         override val semanticsOwnerListener get() = this@ComposeSceneMediator.semanticsOwnerListener
         override val dragAndDropManager get() = this@ComposeSceneMediator.dragAndDropManager
         override val windowInsets get() = this@ComposeSceneMediator.windowInsetsManager.windowInsets
+        override val isClearFocusOnMouseDownEnabled: Boolean
+            get() = this@ComposeSceneMediator.isClearFocusOnMouseDownEnabled
 
         override var isKeepScreenOnEnabled: Boolean
             get() = UIKitIdleTimerManager.isIdleTimerDisabled

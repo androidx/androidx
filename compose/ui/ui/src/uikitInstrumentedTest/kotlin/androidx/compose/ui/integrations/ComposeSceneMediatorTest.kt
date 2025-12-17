@@ -86,6 +86,7 @@ class ComposeSceneMediatorTest {
     private fun makeMediator(): ComposeSceneMediator {
         val mediator = ComposeSceneMediator(
             onFocusBehavior = OnFocusBehavior.DoNothing,
+            isClearFocusOnMouseDownEnabled = false,
             focusedViewsList = null,
             windowContext = PlatformWindowContext(),
             architectureComponentsOwner = DefaultArchitectureComponentsOwner(),

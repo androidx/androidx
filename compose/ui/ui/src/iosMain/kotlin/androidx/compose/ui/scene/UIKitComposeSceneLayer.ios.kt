@@ -29,10 +29,9 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.navigationevent.UIKitNavigationEventInput
 import androidx.compose.ui.platform.PlatformArchitectureComponentsOwner
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.uikit.EndEdgePanGestureBehavior
+import androidx.compose.ui.uikit.ComposeContainerConfiguration
 import androidx.compose.ui.uikit.InterfaceOrientation
 import androidx.compose.ui.uikit.LocalUIViewController
-import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.uikit.density
 import androidx.compose.ui.uikit.embedSubview
 import androidx.compose.ui.unit.Density
@@ -62,8 +61,7 @@ internal class UIKitComposeSceneLayer(
     private val layersViewController: ComposeLayersViewController,
     private val initialLayoutDirection: LayoutDirection,
     private val onAccessibilityChanged: () -> Unit,
-    onFocusBehavior: OnFocusBehavior,
-    endEdgeGestureBehavior: EndEdgePanGestureBehavior,
+    configuration: ComposeContainerConfiguration,
     private var focusedViewsList: FocusedViewsList?,
     compositionContext: CompositionContext,
     private val ownerProvider: PlatformArchitectureComponentsOwner,
@@ -93,11 +91,12 @@ internal class UIKitComposeSceneLayer(
     private val navigationEventInput = UIKitNavigationEventInput(
         density = interactionView.density,
         getTopLeftOffsetInWindow = { boundsInWindow.topLeft },
-        endEdgePanGestureBehavior = endEdgeGestureBehavior
+        endEdgePanGestureBehavior = configuration.endEdgePanGestureBehavior
     ).also { navigationEventDispatcher.addInput(it) }
 
     private val mediator = ComposeSceneMediator(
-        onFocusBehavior = onFocusBehavior,
+        onFocusBehavior = configuration.onFocusBehavior,
+        isClearFocusOnMouseDownEnabled = configuration.isClearFocusOnMouseDownEnabled,
         focusedViewsList = focusedViewsList,
         windowContext = layersViewController.windowContext,
         architectureComponentsOwner = ownerProvider,

@@ -86,6 +86,7 @@ typedef struct {
 - (void)_setLocationInWindow:(CGPoint)location resetPrevious:(BOOL)resetPrevious;
 - (void)_setIsFirstTouchForView:(BOOL)firstTouchForView;
 - (void)_setIsTapToClick:(BOOL)tapToClick;
+- (void)_setType:(UITouchType)type;
 
 - (void)_setHidEvent:(IOHIDEventPtr)event;
 - (void)_setEdgeType:(NSInteger)edgeType;
@@ -98,10 +99,15 @@ typedef struct {
 @implementation UITouch (CMPTest)
 
 + (instancetype)touchAtPoint:(CGPoint)point
+                    withType:(UITouchType)type
                     inWindow:(UIWindow *)window
                     tapCount:(NSInteger)tapCount
                     fromEdge:(BOOL)fromEdge {
-    return [[UITouch alloc] initAtPoint:point inWindow:window tapCount:tapCount fromEdge:fromEdge];
+    return [[UITouch alloc] initAtPoint:point
+                               withType:type
+                               inWindow:window
+                               tapCount:tapCount
+                               fromEdge:fromEdge];
 }
 
 + (UIEvent *)getTouchesEvent {
@@ -112,7 +118,11 @@ typedef struct {
     [CMPActiveTouchesHolder.shared.touches removeAllObjects];
 }
 
-- (id)initAtPoint:(CGPoint)point inWindow:(UIWindow *)window tapCount:(NSInteger)tapCount fromEdge:(BOOL)fromEdge {
+- (id)initAtPoint:(CGPoint)point
+         withType:(UITouchType)type
+         inWindow:(UIWindow *)window
+         tapCount:(NSInteger)tapCount
+         fromEdge:(BOOL)fromEdge {
 	self = [super init];
     if (self) {
         UIView *hitTestView = [window hitTest:point withEvent:[[UIApplication sharedApplication] _touchesEvent]];
@@ -122,6 +132,7 @@ typedef struct {
         [self setTapCount:tapCount];
         [self _setLocationInWindow:point resetPrevious:YES];
         [self setPhase:UITouchPhaseBegan];
+        [self _setType:type];
         [self _setEdgeType:fromEdge ? 4 : 0];
         [self _setIsFirstTouchForView:YES];
         

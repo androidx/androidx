@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.uikit
 
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.isClearFocusOnMouseDownEnabled
 
 /**
  * Base configuration of the Compose container.
@@ -65,6 +67,12 @@ sealed class ComposeContainerConfiguration {
      */
     @ExperimentalComposeUiApi
     var endEdgePanGestureBehavior: EndEdgePanGestureBehavior = EndEdgePanGestureBehavior.Disabled
+
+    /**
+     * Controls whether a mouse/trackpad clicks on an unfocusable element clear focus.
+     */
+    @ExperimentalComposeUiApi
+    var isClearFocusOnMouseDownEnabled: Boolean = ComposeUiFlags.isClearFocusOnMouseDownEnabled
 }
 
 /**

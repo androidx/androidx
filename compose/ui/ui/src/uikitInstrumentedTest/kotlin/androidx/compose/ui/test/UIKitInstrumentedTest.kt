@@ -23,6 +23,7 @@ import androidx.compose.ui.scene.ComposeHostingView
 import androidx.compose.ui.scene.ComposeHostingViewController
 import androidx.compose.ui.test.utils.center
 import androidx.compose.ui.test.utils.getTouchesEvent
+import androidx.compose.ui.test.utils.mouseDown
 import androidx.compose.ui.test.utils.moveToLocationOnWindow
 import androidx.compose.ui.test.utils.resetTouches
 import androidx.compose.ui.test.utils.toCGPoint
@@ -291,15 +292,34 @@ internal class UIKitInstrumentedTest(
             toView = appDelegate.window()
         )
 
-        val targetWindow = window ?: appDelegate.window()!!
+        return getTargetWindow(position, window).touchDown(positionOnWindow.asDpOffset())
+    }
+
+    /**
+     * Simulates a mouse-down event at the specified position on the screen.
+     *
+     * @param position The position on the root hosting controller.
+     * @param window will be used to handle mouse/trackpad click; otherwise,
+     * the window hosting the view will be used.
+     * @return A UITouch object representing the mouse/trackpad interaction.
+     */
+    fun mouseDown(position: DpOffset, window: UIWindow? = null): UITouch {
+        val positionOnWindow = viewController.view.convertPoint(
+            point = position.toCGPoint(),
+            toView = appDelegate.window()
+        )
+
+        return getTargetWindow(position, window).mouseDown(positionOnWindow.asDpOffset())
+    }
+
+    private fun getTargetWindow(position: DpOffset, window: UIWindow? = null): UIWindow {
+        return window ?: appDelegate.window()!!
             .windowScene!!
             .windows
             .findLast {
                 it as UIWindow
                 it.hitTest(position.toCGPoint(), it.getTouchesEvent()) != null
             } as UIWindow
-
-        return targetWindow.touchDown(positionOnWindow.asDpOffset())
     }
 
     /**
@@ -312,11 +332,28 @@ internal class UIKitInstrumentedTest(
     }
 
     /**
+     * Simulates a click gesture at the specified position on the screen.
+     *
+     * @param position The position on the root hosting controller.
+     */
+    fun click(position: DpOffset) {
+        return mouseDown(position).up()
+    }
+
+    /**
      * Simulates a tap gesture for a given AccessibilityTestNode.
      */
     fun AccessibilityTestNode.tap() {
         val frame = frame ?: error("Internal error. Frame is missing.")
         return tap(frame.center())
+    }
+
+    /**
+     * Simulates a trackpad click gesture for a given AccessibilityTestNode.
+     */
+    fun AccessibilityTestNode.click() {
+        val frame = frame ?: error("Internal error. Frame is missing.")
+        return click(frame.center())
     }
 
     fun AccessibilityTestNode.doubleTap() {

@@ -28,12 +28,28 @@ import kotlinx.cinterop.ExperimentalForeignApi
 import platform.UIKit.UIEvent
 import platform.UIKit.UITouch
 import platform.UIKit.UITouchPhase
+import platform.UIKit.UITouchTypeDirect
+import platform.UIKit.UITouchTypeIndirect
 import platform.UIKit.UIWindow
 
 @OptIn(ExperimentalForeignApi::class)
 internal fun UIWindow.touchDown(location: DpOffset): UITouch {
     return UITouch.touchAtPoint(
         point = location.toCGPoint(),
+        withType = UITouchTypeDirect,
+        inWindow = this,
+        tapCount = 1L,
+        fromEdge = false
+    ).also {
+        it.send()
+    }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+internal fun UIWindow.mouseDown(location: DpOffset): UITouch {
+    return UITouch.touchAtPoint(
+        point = location.toCGPoint(),
+        withType = UITouchTypeIndirect,
         inWindow = this,
         tapCount = 1L,
         fromEdge = false

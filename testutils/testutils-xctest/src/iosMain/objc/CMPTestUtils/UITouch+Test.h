@@ -21,6 +21,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UITouch (CMPTest)
 
 + (instancetype)touchAtPoint:(CGPoint)point
+                    withType:(UITouchType)type
                     inWindow:(UIWindow *)window
                     tapCount:(NSInteger)tapCount
                     fromEdge:(BOOL)fromEdge;

@@ -19,14 +19,19 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.changedToDown
@@ -301,6 +306,84 @@ class BasicInteractionTest {
             assertEquals(1, touchesDown)
             assertEquals(1, touchesUp)
         }
+    }
+
+    @Test
+    fun testComposePanelClearFocusOnMouseDownEnabledFlag() = runUIKitInstrumentedTest {
+        val focusRequester = FocusRequester()
+        var textFieldIsFocused = false
+
+        setContent(
+            configure = {
+                isClearFocusOnMouseDownEnabled = true
+            }
+        ) {
+            Column {
+                BasicTextField(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            textFieldIsFocused = it.isFocused
+                        }
+                )
+                Box(Modifier.size(100.dp).testTag("box"))
+            }
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+        }
+
+        assertTrue(textFieldIsFocused)
+
+        // No focus changes after tap
+        findNodeWithTag("box").tap()
+        waitForIdle()
+        assertTrue(textFieldIsFocused)
+
+        // Clear focus on a click
+        findNodeWithTag("box").click()
+        waitForIdle()
+        assertFalse(textFieldIsFocused)
+    }
+
+    @Test
+    fun testComposePanelClearFocusOnMouseDownDisabledFlag() = runUIKitInstrumentedTest {
+        val focusRequester = FocusRequester()
+        var textFieldIsFocused = false
+
+        setContent(
+            configure = {
+                isClearFocusOnMouseDownEnabled = false
+            }
+        ) {
+            Column {
+                BasicTextField(
+                    state = rememberTextFieldState(),
+                    modifier = Modifier
+                        .focusRequester(focusRequester)
+                        .onFocusChanged {
+                            textFieldIsFocused = it.isFocused
+                        }
+                )
+                Box(Modifier.size(100.dp).testTag("box"))
+            }
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+        }
+
+        assertTrue(textFieldIsFocused)
+
+        // No focus changes after tap
+        findNodeWithTag("box").tap()
+        waitForIdle()
+        assertTrue(textFieldIsFocused)
+
+        // No focus changes after click
+        findNodeWithTag("box").click()
+        waitForIdle()
+        assertTrue(textFieldIsFocused)
     }
 
     private fun UIKitInstrumentedTest.openToolbar(textFieldTag: String) {
