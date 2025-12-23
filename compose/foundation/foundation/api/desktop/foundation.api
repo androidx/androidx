@@ -748,11 +748,15 @@ public final class androidx/compose/foundation/gestures/TransformGestureDetector
 }
 
 public abstract interface class androidx/compose/foundation/gestures/TransformScope {
+	public fun transformBy-IEwrmTk (JFJF)V
+	public static synthetic fun transformBy-IEwrmTk$default (Landroidx/compose/foundation/gestures/TransformScope;JFJFILjava/lang/Object;)V
 	public abstract fun transformBy-d-4ec7I (FJF)V
 	public static synthetic fun transformBy-d-4ec7I$default (Landroidx/compose/foundation/gestures/TransformScope;FJFILjava/lang/Object;)V
 }
 
 public final class androidx/compose/foundation/gestures/TransformScope$DefaultImpls {
+	public static fun transformBy-IEwrmTk (Landroidx/compose/foundation/gestures/TransformScope;JFJF)V
+	public static synthetic fun transformBy-IEwrmTk$default (Landroidx/compose/foundation/gestures/TransformScope;JFJFILjava/lang/Object;)V
 	public static synthetic fun transformBy-d-4ec7I$default (Landroidx/compose/foundation/gestures/TransformScope;FJFILjava/lang/Object;)V
 }
 
@@ -775,20 +779,36 @@ public final class androidx/compose/foundation/gestures/TransformableState$Defau
 
 public final class androidx/compose/foundation/gestures/TransformableStateKt {
 	public static final fun TransformableState (Lkotlin/jvm/functions/Function3;)Landroidx/compose/foundation/gestures/TransformableState;
-	public static final fun animateBy-Su4bsnU (Landroidx/compose/foundation/gestures/TransformableState;FJFLandroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun TransformableState (Lkotlin/jvm/functions/Function4;)Landroidx/compose/foundation/gestures/TransformableState;
+	public static final synthetic fun animateBy-Su4bsnU (Landroidx/compose/foundation/gestures/TransformableState;FJFLandroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun animateBy-Su4bsnU$default (Landroidx/compose/foundation/gestures/TransformableState;FJFLandroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun animatePanBy-ubNVwUQ (Landroidx/compose/foundation/gestures/TransformableState;JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun animateBy-jlnHOkQ (Landroidx/compose/foundation/gestures/TransformableState;FJFLandroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateBy-jlnHOkQ$default (Landroidx/compose/foundation/gestures/TransformableState;FJFLandroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final synthetic fun animatePanBy-ubNVwUQ (Landroidx/compose/foundation/gestures/TransformableState;JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun animatePanBy-ubNVwUQ$default (Landroidx/compose/foundation/gestures/TransformableState;JLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun animateRotateBy (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun animatePanBy-umk_asQ (Landroidx/compose/foundation/gestures/TransformableState;JLandroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animatePanBy-umk_asQ$default (Landroidx/compose/foundation/gestures/TransformableState;JLandroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final synthetic fun animateRotateBy (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun animateRotateBy$default (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun animateZoomBy (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun animateRotateBy-Fgt4K4Q (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateRotateBy-Fgt4K4Q$default (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final synthetic fun animateZoomBy (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun animateZoomBy$default (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun panBy-d-4ec7I (Landroidx/compose/foundation/gestures/TransformableState;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun animateZoomBy-Fgt4K4Q (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun animateZoomBy-Fgt4K4Q$default (Landroidx/compose/foundation/gestures/TransformableState;FLandroidx/compose/animation/core/AnimationSpec;JLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final fun panBy-DUneCvk (Landroidx/compose/foundation/gestures/TransformableState;JJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun panBy-DUneCvk$default (Landroidx/compose/foundation/gestures/TransformableState;JJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
+	public static final synthetic fun panBy-d-4ec7I (Landroidx/compose/foundation/gestures/TransformableState;JLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static final fun rememberTransformableState (Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/gestures/TransformableState;
-	public static final fun rotateBy (Landroidx/compose/foundation/gestures/TransformableState;FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun rememberTransformableState (Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;I)Landroidx/compose/foundation/gestures/TransformableState;
+	public static final synthetic fun rotateBy (Landroidx/compose/foundation/gestures/TransformableState;FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun rotateBy-Rg1IO4c (Landroidx/compose/foundation/gestures/TransformableState;FJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun rotateBy-Rg1IO4c$default (Landroidx/compose/foundation/gestures/TransformableState;FJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 	public static final fun stopTransformation (Landroidx/compose/foundation/gestures/TransformableState;Landroidx/compose/foundation/MutatePriority;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun stopTransformation$default (Landroidx/compose/foundation/gestures/TransformableState;Landroidx/compose/foundation/MutatePriority;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
-	public static final fun zoomBy (Landroidx/compose/foundation/gestures/TransformableState;FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final synthetic fun zoomBy (Landroidx/compose/foundation/gestures/TransformableState;FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static final fun zoomBy-Rg1IO4c (Landroidx/compose/foundation/gestures/TransformableState;FJLkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun zoomBy-Rg1IO4c$default (Landroidx/compose/foundation/gestures/TransformableState;FJLkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class androidx/compose/foundation/gestures/snapping/LazyGridSnapLayoutInfoProviderKt {
