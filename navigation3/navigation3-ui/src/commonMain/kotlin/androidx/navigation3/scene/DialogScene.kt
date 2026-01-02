@@ -74,14 +74,15 @@ public class DialogSceneStrategy<T : Any>() : SceneStrategy<T> {
     public override fun SceneStrategyScope<T>.calculateScene(
         entries: List<NavEntry<T>>
     ): Scene<T>? {
+        val backgroundEntries = entries.dropLast(1)
         val lastEntry = entries.lastOrNull()
         val dialogProperties = lastEntry?.metadata?.get(DIALOG_KEY) as? DialogProperties
         return dialogProperties?.let { properties ->
             DialogScene(
                 key = lastEntry.contentKey,
                 entry = lastEntry,
-                previousEntries = entries.dropLast(1),
-                overlaidEntries = entries.dropLast(1),
+                previousEntries = backgroundEntries,
+                overlaidEntries = backgroundEntries,
                 dialogProperties = properties,
                 onBack = onBack,
             )
