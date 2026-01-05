@@ -179,7 +179,6 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             desktopMain.dependencies {
                 implementation(libs.junit)
-                implementation(libs.truth)
                 implementation(libs.skiko)
             }
 
