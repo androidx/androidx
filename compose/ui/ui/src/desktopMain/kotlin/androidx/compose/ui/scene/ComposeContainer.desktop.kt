@@ -176,6 +176,7 @@ internal class ComposeContainer(
     val preferredSize by mediator::preferredSize
     val semanticsOwners by mediator::semanticsOwners
 
+    var redispatchUnconsumedMouseWheelEvents by mediator::redispatchUnconsumedMouseWheelEvents
     var showLayoutBounds by mediator::showLayoutBounds
 
     private var isDisposed = false

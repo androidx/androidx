@@ -335,6 +335,8 @@ internal class ComposeSceneMediator(
             scene.showLayoutBounds = value
         }
 
+    var redispatchUnconsumedMouseWheelEvents: Boolean =
+        ComposeFeatureFlags.redispatchUnconsumedMouseWheelEvents.value
 
     /**
      * Provides the size of ComposeScene content inside infinity constraints
@@ -497,7 +499,7 @@ internal class ComposeSceneMediator(
         processMouseEvent {
             val processingResult = scene.onMouseWheelEvent(event.position, event)
             if (!processingResult.anyChangeConsumed) {
-                if (ComposeFeatureFlags.redispatchUnconsumedMouseWheelEvents.value) {
+                if (redispatchUnconsumedMouseWheelEvents) {
                     redispatchUnconsumedMouseEvent(event)
                 }
             }
@@ -517,7 +519,7 @@ internal class ComposeSceneMediator(
     }
 
     /**
-     * (Re)Dispatches the given mouse event to the component that would have received it had
+     * (Re)dispatches the given mouse event to the component that would have received it had
      * this [ComposeSceneMediator] not been listening to the corresponding type of mouse events.
      *
      * The problem this attempts to solve is that [ComposeSceneMediator] has to register listeners

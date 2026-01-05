@@ -140,8 +140,8 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      *
      * If it is set to false, it is developer's responsibility to call [dispose] function
      * when Compose state and all related to [ComposePanel] resources are no longer needed.
-     * It can be useful for cases when [ComposePanel] can be attached/detached to Swing hierarchy multiple times,
-     * so with [isDisposeOnRemove] = `false` state will be preserved.
+     * It can be useful for cases when [ComposePanel] can be attached/detached to Swing hierarchy
+     * multiple times, so with [isDisposeOnRemove] = `false` state will be preserved.
      *
      * On the other hand, [isDisposeOnRemove] = `true` can be useful for stateless components,
      * that can be recreated for each attaching to Swing hierarchy.
@@ -150,6 +150,29 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      */
     @ExperimentalComposeUiApi
     var isDisposeOnRemove: Boolean = true
+
+    /**
+     * Determines whether unconsumed mouse wheel events will be propagated to the parent component.
+     *
+     * When set to `true`, mouse wheel events that are not consumed by the Compose UI will be passed
+     * to Swing for further processing. This is useful when placing [ComposePanel] inside a
+     * scrollable Swing container (i.e. [javax.swing.JScrollPane]).
+     *
+     * When set to `false`, [ComposePanel] will behave like [javax.swing.JScrollPane], consuming all
+     * mouse wheel events that occur over it.
+     *
+     * To configure this behavior globally, set
+     * [ComposeFeatureFlags.redispatchUnconsumedMouseWheelEvents].
+     *
+     * @see ComposeFeatureFlags.redispatchUnconsumedMouseWheelEvents
+     */
+    @ExperimentalComposeUiApi
+    var redispatchUnconsumedMouseWheelEvents: Boolean =
+        ComposeFeatureFlags.redispatchUnconsumedMouseWheelEvents.value
+        set(value) {
+            field = value
+            _composeContainer?.redispatchUnconsumedMouseWheelEvents = value
+        }
 
     /**
      * Saves the current UI state into a [SavedState] object. The returned state can be used
@@ -254,6 +277,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         // content.
         val composeContainer = _composeContainer ?: createComposeContainer().also {
             _composeContainer = it
+            it.redispatchUnconsumedMouseWheelEvents = redispatchUnconsumedMouseWheelEvents
             @OptIn(InternalCoreApi::class)
             it.showLayoutBounds = showLayoutBounds
             val composeContent = _composeContent
