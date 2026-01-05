@@ -44,8 +44,9 @@ import javax.swing.ImageIcon
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.ExperimentalTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.withContext
 import org.jetbrains.skiko.MainUIDispatcher
 
 fun testImage(color: Color): Painter = run {
@@ -243,18 +244,13 @@ fun Component.performClick() {
     dispatchEvent(MouseEvent(this, MouseEvent.MOUSE_RELEASED, 0, 0,1, 1, 1, false, MouseEvent.BUTTON1))
 }
 
-// TODO(demin): It seems this not-so-good synchronization
-//  doesn't cause flakiness in our window tests.
-//  But more robust solution will be to using something like UiUtil
 /**
- * Wait until all scheduled tasks in Event Dispatch Thread are performed.
- * New scheduled tasks in these tasks also will be performed
+ * Wait until all scheduled tasks in the Event Dispatch Thread are performed.
+ * New scheduled tasks in these tasks also will be performed.
  */
-suspend fun awaitEDT() {
-    // Most of the work usually is done after the first yield(), almost all the work -
-    // after fourth yield()
-    repeat(100) {
-        yield()
+suspend fun Robot.awaitEDT() {
+    withContext(Dispatchers.IO) {
+        waitForIdle()
     }
 }
 

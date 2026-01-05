@@ -79,7 +79,7 @@ class DesktopScrollableTest {
                     Modifier
                         .scrollable(
                             orientation = Orientation.Vertical,
-                            state = context.controller()
+                            state = context.controller
                         )
                         .size(10.dp, 20.dp)
                 )
@@ -123,7 +123,7 @@ class DesktopScrollableTest {
                     Modifier
                         .scrollable(
                             orientation = Orientation.Vertical,
-                            state = context.controller()
+                            state = context.controller
                         )
                         .size(10.dp, 20.dp)
                 )
@@ -166,7 +166,7 @@ class DesktopScrollableTest {
                     Modifier
                         .scrollable(
                             orientation = Orientation.Vertical,
-                            state = context.controller()
+                            state = context.controller
                         )
                         .size(10.dp, 20.dp)
                 )
@@ -199,7 +199,7 @@ class DesktopScrollableTest {
                     Modifier
                         .scrollable(
                             orientation = Orientation.Vertical,
-                            state = context.controller()
+                            state = context.controller
                         )
                         .size(10.dp, 20.dp)
                 )
@@ -232,7 +232,7 @@ class DesktopScrollableTest {
                     Modifier
                         .scrollable(
                             orientation = Orientation.Vertical,
-                            state = column.controller()
+                            state = column.controller
                         )
                         .size(10.dp, 20.dp)
                 )
@@ -268,11 +268,11 @@ class DesktopScrollableTest {
                     Modifier
                         .scrollable(
                             orientation = Orientation.Vertical,
-                            state = verticalContext.controller()
+                            state = verticalContext.controller
                         )
                         .scrollable(
                             orientation = Orientation.Horizontal,
-                            state = horizontalContext.controller()
+                            state = horizontalContext.controller
                         )
                         .size(10.dp, 20.dp)
                 )
@@ -320,7 +320,7 @@ class DesktopScrollableTest {
                         Modifier
                             .scrollable(
                                 orientation = Orientation.Vertical,
-                                state = context.controller()
+                                state = context.controller
                             )
                             .size(10.dp, 20.dp)
                     )
@@ -390,8 +390,7 @@ class DesktopScrollableTest {
         var offset = 0f
             private set
 
-        @Composable
-        fun controller() = ScrollableState(::consumeScrollDelta)
+        val controller = ScrollableState(::consumeScrollDelta)
 
         private fun consumeScrollDelta(delta: Float): Float {
             offset += delta

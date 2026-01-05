@@ -35,6 +35,7 @@ import kotlinx.coroutines.withTimeout
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
 import androidx.compose.ui.window.launchApplication as realLaunchApplication
+import java.awt.Robot
 import java.awt.Window
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
@@ -127,6 +128,8 @@ internal class WindowTestScope(
 
     lateinit var window: ComposeWindow
 
+    private val robot = Robot()
+
     fun launchTestApplication(
         content: @Composable ApplicationScope.() -> Unit
     ) = realLaunchApplication {
@@ -171,7 +174,7 @@ internal class WindowTestScope(
             delay(delayMillis)
         }
 
-        awaitEDT()
+        robot.awaitEDT()
 
         Snapshot.sendApplyNotifications()
 
@@ -182,7 +185,7 @@ internal class WindowTestScope(
                 recomposerInfo.state.takeWhile { it > Recomposer.State.Idle }.collect()
             }
 
-            awaitEDT()
+            robot.awaitEDT()
         }
 
         exceptionHandler.throwIfCaught()
