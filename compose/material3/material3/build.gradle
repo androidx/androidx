@@ -134,13 +134,17 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
+            jvmAndAndroidMain.dependsOn(commonMain)
+            desktopMain.dependsOn(jvmAndAndroidMain)
             desktopMain.dependsOn(skikoMain)
 
             nonJvmMain.dependsOn(commonMain)
             nonJvmMain.dependsOn(skikoMain)
 
             nativeMain.dependsOn(nonJvmMain)
-            darwinMain.dependsOn(nativeMain)
+            appleMain.dependsOn(commonMain)
+            appleMain.dependsOn(nativeMain)
+            darwinMain.dependsOn(appleMain)
             webMain.dependsOn(nonJvmMain)
 
             jsMain {
