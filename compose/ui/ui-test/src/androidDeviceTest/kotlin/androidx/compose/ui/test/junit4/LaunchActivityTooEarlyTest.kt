@@ -19,7 +19,7 @@ package androidx.compose.ui.test.junit4
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.runEmptyComposeUiTest
+import androidx.compose.ui.test.v2.runEmptyComposeUiTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest

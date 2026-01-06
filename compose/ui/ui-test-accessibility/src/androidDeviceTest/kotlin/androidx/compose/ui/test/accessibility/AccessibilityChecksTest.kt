@@ -27,9 +27,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.runAndroidComposeUiTest
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.tryPerformAccessibilityChecks
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -38,7 +38,6 @@ import androidx.test.filters.SmallTest
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityViewCheckException
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -48,32 +47,30 @@ import org.junit.runner.RunWith
 @SmallTest
 class AccessibilityChecksTest {
     @Test
-    fun performAccessibilityChecks_findsNoErrors() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            setContent { BoxWithoutProblems() }
-            enableAccessibilityChecks()
+    fun performAccessibilityChecks_findsNoErrors() = runComposeUiTest {
+        setContent { BoxWithoutProblems() }
+        enableAccessibilityChecks()
 
-            // There are no errors, this should not throw
-            onRoot().tryPerformAccessibilityChecks()
-        }
+        // There are no errors, this should not throw
+        onRoot().tryPerformAccessibilityChecks()
+    }
 
     @Test
-    fun performAccessibilityChecks_findsOneError() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            setContent { BoxWithMissingContentDescription() }
-            enableAccessibilityChecks()
+    fun performAccessibilityChecks_findsOneError() = runComposeUiTest {
+        setContent { BoxWithMissingContentDescription() }
+        enableAccessibilityChecks()
 
-            expectError<AccessibilityViewCheckException>(
-                expectedMessage = "There was 1 accessibility result:.*"
-            ) {
-                // There is an error, this should throw
-                onRoot().tryPerformAccessibilityChecks()
-            }
+        expectError<AccessibilityViewCheckException>(
+            expectedMessage = "There was 1 accessibility result:.*"
+        ) {
+            // There is an error, this should throw
+            onRoot().tryPerformAccessibilityChecks()
         }
+    }
 
     @Test
     fun performAccessibilityChecks_usesCustomValidator() =
-        runAndroidComposeUiTest<ComponentActivity>(effectContext = StandardTestDispatcher()) {
+        runAndroidComposeUiTest<ComponentActivity> {
             setContent { BoxWithoutProblems() }
             var listenerInvocations = 0
             // addCheckListener resolves to the overload that takes an AccessibilityCheckListener
@@ -89,33 +86,31 @@ class AccessibilityChecksTest {
 
     // Dialogs live in a sibling root view. Test if we catch problems in dialogs
     @Test
-    fun performAccessibilityChecks_checksDialogs() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            setContent {
-                BoxWithoutProblems()
-                Dialog({}) { BoxWithMissingContentDescription() }
-            }
-
-            enableAccessibilityChecks()
-            expectError<AccessibilityViewCheckException>(
-                expectedMessage = "There was 1 accessibility result:.*"
-            ) {
-                // There are no errors in the main screen, but there is one in the dialog, so this
-                // should throw
-                onRoot().tryPerformAccessibilityChecks()
-            }
+    fun performAccessibilityChecks_checksDialogs() = runComposeUiTest {
+        setContent {
+            BoxWithoutProblems()
+            Dialog({}) { BoxWithMissingContentDescription() }
         }
+
+        enableAccessibilityChecks()
+        expectError<AccessibilityViewCheckException>(
+            expectedMessage = "There was 1 accessibility result:.*"
+        ) {
+            // There are no errors in the main screen, but there is one in the dialog, so this
+            // should throw
+            onRoot().tryPerformAccessibilityChecks()
+        }
+    }
 
     // Checks that tryPerformAccessibilityChecks does not throw if the validator is thus configured
     @Test
-    fun performAccessibilityChecks_allowsErrorCollection() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            setContent { BoxWithMissingContentDescription() }
-            enableAccessibilityChecks(AccessibilityValidator().setThrowExceptionFor(null))
+    fun performAccessibilityChecks_allowsErrorCollection() = runComposeUiTest {
+        setContent { BoxWithMissingContentDescription() }
+        enableAccessibilityChecks(AccessibilityValidator().setThrowExceptionFor(null))
 
-            // Despite the a11y error, this should not throw
-            onRoot().tryPerformAccessibilityChecks()
-        }
+        // Despite the a11y error, this should not throw
+        onRoot().tryPerformAccessibilityChecks()
+    }
 
     @Composable
     private fun BoxWithoutProblems() {

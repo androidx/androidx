@@ -23,7 +23,7 @@ import androidx.compose.ui.inspection.util.createAllParametersChecks
 import androidx.compose.ui.inspection.util.filter
 import androidx.compose.ui.inspection.util.nodes
 import androidx.compose.ui.test.hasScrollAction
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.inspection.testing.InspectorTester
 import androidx.test.filters.LargeTest

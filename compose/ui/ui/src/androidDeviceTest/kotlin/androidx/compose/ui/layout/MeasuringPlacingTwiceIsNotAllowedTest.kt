@@ -18,7 +18,7 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.layout.Placeable.PlacementScope
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.Constraints
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest

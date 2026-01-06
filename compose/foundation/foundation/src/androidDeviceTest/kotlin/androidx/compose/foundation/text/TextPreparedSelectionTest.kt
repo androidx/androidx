@@ -20,7 +20,7 @@ import androidx.compose.foundation.text.selection.BaseTextPreparedSelection
 import androidx.compose.foundation.text.selection.TextPreparedSelection
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange

@@ -26,7 +26,7 @@ import androidx.compose.ui.test.isCtrlDown
 import androidx.compose.ui.test.isFnDown
 import androidx.compose.ui.test.isMetaDown
 import androidx.compose.ui.test.isShiftDown
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.pressKey

@@ -40,7 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -55,14 +55,17 @@ import androidx.wear.compose.foundation.pager.PagerState
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Rule
 import org.junit.Test
 
 class PagerScaffoldTest {
-    @Suppress("ComposeTestRuleDispatcher") // b/457595340
+    @Suppress("ComposeTestRuleDispatcher")
+    @OptIn(ExperimentalCoroutinesApi::class) // b/457595340
     @get:Rule
-    val rule = createComposeRule()
+    val rule = createComposeRule(UnconfinedTestDispatcher())
 
     @Test
     fun horizontal_pager_scaffold_is_composed() {

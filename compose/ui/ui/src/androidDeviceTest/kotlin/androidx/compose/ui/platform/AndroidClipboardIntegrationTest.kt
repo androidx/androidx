@@ -20,7 +20,7 @@ import android.content.ClipData
 import android.content.Context
 import android.os.Build
 import androidx.compose.ui.test.TestActivity
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.text.AnnotatedString
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest

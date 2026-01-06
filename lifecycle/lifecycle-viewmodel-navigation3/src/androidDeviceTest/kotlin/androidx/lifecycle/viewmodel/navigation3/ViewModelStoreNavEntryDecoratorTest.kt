@@ -18,7 +18,7 @@ package androidx.lifecycle.viewmodel.navigation3
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.lifecycle.SavedStateHandle

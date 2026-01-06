@@ -38,8 +38,7 @@ import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.firstUriOrNull
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -55,9 +54,7 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 class ReceiveContentTest {
 
-    @OptIn(ExperimentalTestApi::class)
-    @get:Rule
-    val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<TestActivity>(StandardTestDispatcher())
 
     @Test
     fun receiveContentConfiguration_isMergedBottomToTop() {

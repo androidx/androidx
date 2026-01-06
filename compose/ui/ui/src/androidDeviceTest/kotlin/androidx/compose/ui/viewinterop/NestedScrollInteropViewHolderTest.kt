@@ -38,7 +38,7 @@ import androidx.compose.ui.graphics.Color as ComposeColor
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp

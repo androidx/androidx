@@ -27,9 +27,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
-import androidx.compose.ui.test.runAndroidComposeUiTest
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.tryPerformAccessibilityChecks
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.espresso.accessibility.AccessibilityChecks
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult.AccessibilityCheckResultType
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator

@@ -26,7 +26,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
@@ -35,8 +35,10 @@ import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.RepeatRule
 import com.google.common.truth.Truth
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
@@ -49,9 +51,11 @@ class ComposeCameraAppTest {
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(*ComposeCameraActivity.REQUIRED_PERMISSIONS)
 
-    @Suppress("ComposeTestRuleDispatcher") // b/457970052
+    @Suppress("ComposeTestRuleDispatcher")
+    @OptIn(ExperimentalCoroutinesApi::class) // b/457970052
     @get:Rule
-    val androidComposeTestRule = createAndroidComposeRule<ComposeCameraActivity>()
+    val androidComposeTestRule =
+        createAndroidComposeRule<ComposeCameraActivity>(UnconfinedTestDispatcher())
 
     @get:Rule val labTest: LabTestRule = LabTestRule()
 

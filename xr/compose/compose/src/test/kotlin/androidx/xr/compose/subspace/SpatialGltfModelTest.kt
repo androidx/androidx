@@ -71,7 +71,13 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @TargetApi(Build.VERSION_CODES.O) // needed for the Paths.get API
 class SpatialGltfModelTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     // --- Test Cases ---
 

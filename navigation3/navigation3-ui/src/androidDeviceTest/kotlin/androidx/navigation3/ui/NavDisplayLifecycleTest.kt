@@ -17,7 +17,7 @@
 package androidx.navigation3.ui
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.navigation3.runtime.NavEntry

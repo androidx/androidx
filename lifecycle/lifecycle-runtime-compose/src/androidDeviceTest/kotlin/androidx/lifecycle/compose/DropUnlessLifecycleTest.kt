@@ -18,12 +18,11 @@ package androidx.lifecycle.compose
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle.State
 import androidx.lifecycle.testing.TestLifecycleOwner
 import kotlin.test.Test
-import kotlinx.coroutines.test.StandardTestDispatcher
 
 @OptIn(ExperimentalTestApi::class)
 class DropUnlessLifecycleTest {
@@ -55,7 +54,7 @@ class DropUnlessLifecycleTest {
     }
 
     private fun testDropUnlessStarted(currentLifecycleState: State, shouldInvoke: Boolean) =
-        runComposeUiTest(StandardTestDispatcher()) {
+        runComposeUiTest {
             val lifecycleOwner =
                 TestLifecycleOwner(State.CREATED).apply { currentState = currentLifecycleState }
             var hasBeenInvoked = false
@@ -100,7 +99,7 @@ class DropUnlessLifecycleTest {
     }
 
     private fun testDropUnlessResumed(currentLifecycleState: State, shouldInvoke: Boolean) =
-        runComposeUiTest(StandardTestDispatcher()) {
+        runComposeUiTest {
             val lifecycleOwner =
                 TestLifecycleOwner(State.CREATED).apply { currentState = currentLifecycleState }
             var hasBeenInvoked = false

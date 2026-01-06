@@ -68,7 +68,12 @@ import org.mockito.kotlin.verify
 @RunWith(AndroidJUnit4::class)
 class OrbiterTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     private val parentTestTag = "parent"
 

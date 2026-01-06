@@ -57,12 +57,12 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
 
         // Create session
         session = SessionManager(this).createSession()
-        if (session == null) this.finish()
+        if (session == null) return finish()
         session!!.scene.addSpatialCapabilitiesChangedListener { capabilities ->
             tryToCreateActivityPanel(capabilities)
         }
+        session!!.scene.keyEntity = session!!.scene.mainPanelEntity
         tryToCreateActivityPanel(session!!.scene.spatialCapabilities)
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         @SuppressLint("InflateParams")
         val panelEntityView = layoutInflater.inflate(R.layout.rounded_corner_panel_entity, null)
@@ -79,6 +79,7 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
                 "panel_entity",
                 Pose(Vector3(0.1f, -0.5f, 0.1f)),
             )
+        panelEntity?.parent = session!!.scene.keyEntity
 
         val mainPanelSwitch = panelEntityView.findViewById<MaterialSwitch>(R.id.main_panel_switch)
         mainPanelSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
@@ -163,6 +164,7 @@ class PanelRoundedCornerActivity : AppCompatActivity() {
             activityPanelEntity!!.startActivity(intent)
             activityPanelEntity!!.setPose(Pose(Vector3(0.75f, 0.0f, 0.0f)))
             activityPanelCreated = true
+            activityPanelEntity?.parent = session!!.scene.keyEntity
         }
     }
 

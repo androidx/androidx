@@ -21,7 +21,7 @@ import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.clock.TransitionClockTest
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert

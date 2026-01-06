@@ -52,9 +52,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.core.os.BundleCompat
 import androidx.glance.wear.WearWidgetRawContent
@@ -66,9 +65,7 @@ import org.junit.Test
 
 class WearWidgetCaptureTest {
 
-    @OptIn(ExperimentalTestApi::class)
-    @get:Rule
-    val composeTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     companion object {
         val context: Context = ApplicationProvider.getApplicationContext()

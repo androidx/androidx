@@ -75,7 +75,13 @@ import org.junit.runner.RunWith
 /** Tests for [SpatialDialog]. */
 @RunWith(AndroidJUnit4::class)
 class SpatialDialogTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     @Test
     fun spatialDialog_dismissOnBackPress_setToTrue_dismissDialog() {

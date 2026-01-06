@@ -109,7 +109,12 @@ import org.junit.runner.RunWith
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 class SubspaceTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     private object DefaultTestRecommendedBoxSize {
         const val WIDTH_METERS: Float = 1.73f

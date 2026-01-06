@@ -56,7 +56,7 @@ import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.graphics.toComposeIntRect
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize

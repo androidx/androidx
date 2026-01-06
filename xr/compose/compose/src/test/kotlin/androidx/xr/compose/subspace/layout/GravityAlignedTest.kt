@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.xr.compose.subspace.layout
 
 import androidx.compose.material3.Text
@@ -47,7 +48,13 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class GravityAlignedTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     @Test
     fun gravityAligned_parentIsLevel_appliesNoRotation() {

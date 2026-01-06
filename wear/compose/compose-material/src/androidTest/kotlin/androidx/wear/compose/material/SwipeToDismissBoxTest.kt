@@ -41,7 +41,7 @@ import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -57,15 +57,18 @@ import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import com.google.common.truth.Truth.assertThat
 import java.lang.Math.sin
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class SwipeToDismissBoxTest {
-    @Suppress("ComposeTestRuleDispatcher") // b/457630005
+    @Suppress("ComposeTestRuleDispatcher")
+    @OptIn(ExperimentalCoroutinesApi::class) // b/457630005
     @get:Rule
-    val rule = createComposeRule()
+    val rule = createComposeRule(UnconfinedTestDispatcher())
 
     @Test
     fun supports_testtag() {

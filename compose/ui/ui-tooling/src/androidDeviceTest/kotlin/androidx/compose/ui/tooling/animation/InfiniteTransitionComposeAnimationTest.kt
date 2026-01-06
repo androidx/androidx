@@ -18,7 +18,7 @@ package androidx.compose.ui.tooling.animation
 
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.tooling.ComposeAnimationType
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.InfiniteTransitionComposeAnimation.Companion.parse
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest

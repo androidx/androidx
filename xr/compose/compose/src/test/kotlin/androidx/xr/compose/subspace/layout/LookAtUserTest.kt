@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.xr.compose.subspace.layout
 
 import androidx.activity.ComponentActivity
@@ -49,7 +50,12 @@ import org.robolectric.android.controller.ActivityController
 @RunWith(AndroidJUnit4::class)
 class LookAtUserTest {
     private val testDispatcher = StandardTestDispatcher()
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
 

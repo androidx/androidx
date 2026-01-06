@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.test.filters.SdkSuppress
@@ -34,14 +34,17 @@ import androidx.wear.compose.foundation.curvedComposable
 import java.util.Calendar
 import java.util.Locale
 import java.util.TimeZone
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
 class TimeTextTest {
-    @Suppress("ComposeTestRuleDispatcher") // b/457595340
+    @Suppress("ComposeTestRuleDispatcher")
+    @OptIn(ExperimentalCoroutinesApi::class) // b/457595340
     @get:Rule
-    val rule = createComposeRule()
+    val rule = createComposeRule(UnconfinedTestDispatcher())
 
     @Test
     fun supports_testtag() {

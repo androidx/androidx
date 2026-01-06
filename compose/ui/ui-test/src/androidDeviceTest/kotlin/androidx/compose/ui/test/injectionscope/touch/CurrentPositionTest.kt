@@ -17,7 +17,7 @@
 package androidx.compose.ui.test.injectionscope.touch
 
 import androidx.compose.ui.test.injectionscope.touch.Common.performTouchInput
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.MultiPointerInputRecorder
 import androidx.test.ext.junit.runners.AndroidJUnit4

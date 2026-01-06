@@ -38,11 +38,10 @@ import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runAndroidComposeUiTest
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -66,7 +65,7 @@ class ViewVisibilityTest(private val visibility: Int) {
 
     @Test
     fun noTimeout_hostView_visibility() {
-        runComposeUiTest(StandardTestDispatcher()) {
+        runComposeUiTest {
             setContent {
                 val hostView = LocalView.current
                 SideEffect { hostView.visibility = visibility }
@@ -82,7 +81,7 @@ class ViewVisibilityTest(private val visibility: Int) {
 
     @Test
     fun noTimeout_composeView_visibility() {
-        runAndroidComposeUiTest<ComponentActivity>(StandardTestDispatcher()) {
+        runAndroidComposeUiTest<ComponentActivity> {
             runOnUiThread {
                 val activity = activity!!
                 val composeView = ComposeView(activity)

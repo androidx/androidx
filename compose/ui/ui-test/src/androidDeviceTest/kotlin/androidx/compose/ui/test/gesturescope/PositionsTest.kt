@@ -36,7 +36,7 @@ import androidx.compose.ui.test.centerRight
 import androidx.compose.ui.test.centerX
 import androidx.compose.ui.test.centerY
 import androidx.compose.ui.test.height
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.left
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.percentOffset

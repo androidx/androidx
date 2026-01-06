@@ -42,7 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.Utils.attachAllAnimations
 import androidx.compose.ui.tooling.animation.states.AnimatedVisibilityState
 import androidx.compose.ui.unit.dp

@@ -20,7 +20,7 @@ import android.content.Context
 import android.view.accessibility.AccessibilityManager
 import androidx.compose.runtime.State
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlinx.coroutines.test.StandardTestDispatcher

@@ -64,8 +64,6 @@ class ComposeTestRuleDispatcherDetector : Detector(), SourceCodeScanner {
             CreateComposeRule.shortName,
             CreateAndroidComposeRule.shortName,
             CreateEmptyComposeRule.shortName,
-            RunComposeUiTest.shortName,
-            RunAndroidComposeUiTest.shortName,
         )
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {

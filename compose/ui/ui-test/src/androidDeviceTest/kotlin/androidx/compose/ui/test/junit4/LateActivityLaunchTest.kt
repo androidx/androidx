@@ -19,7 +19,7 @@ package androidx.compose.ui.test.junit4
 import android.content.Intent
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.runEmptyComposeUiTest
+import androidx.compose.ui.test.v2.runEmptyComposeUiTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
