@@ -48,7 +48,7 @@ package androidx.compose.remote.player.compose
  *          public static boolean SomeFeatureEnabled return false
  *      }
  */
-@ExperimentalRemoteComposePlayerApi
+@ExperimentalRemotePlayerApi
 public object RemoteComposePlayerFlags {
     /** Whether to use the view player. If false, it uses the compose player. */
     @field:Suppress("MutableBareField") @JvmField public var isViewPlayerEnabled: Boolean = true

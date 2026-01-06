@@ -16,5 +16,6 @@
 
 package androidx.compose.ui.test
 
+@OptIn(ExperimentalMultiplatform::class)
 @OptionalExpectation
 expect annotation class IgnoreWebTest()

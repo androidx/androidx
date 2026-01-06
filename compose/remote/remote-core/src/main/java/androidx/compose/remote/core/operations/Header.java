@@ -349,7 +349,7 @@ public class Header extends Operation implements RemoteComposeOperation {
             short @NonNull [] type,
             Object @NonNull [] value) {
         buffer.start(OP_CODE);
-        if (apiLevel == CoreDocument.DOCUMENT_API_LEVEL) {
+        if (apiLevel >= 7) {
             buffer.writeInt(MAJOR_VERSION | MAGIC_NUMBER); // major version number of the protocol
             buffer.writeInt(MINOR_VERSION); // minor version number of the protocol
             buffer.writeInt(PATCH_VERSION); // patch version number of the protocol
@@ -492,6 +492,9 @@ public class Header extends Operation implements RemoteComposeOperation {
                 return -1;
             }
             majorVersion &= 0xFFFF;
+        }
+        if (majorVersion == 1 && minorVersion == 2) {
+            return 8;
         }
         if (majorVersion == 1 && minorVersion == 1) {
             return 7;

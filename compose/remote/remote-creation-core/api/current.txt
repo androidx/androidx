@@ -1,1 +1,20 @@
 // Signature format: 4.0
+package androidx.compose.remote.creation {
+
+  public class CreationDisplayInfo {
+    ctor public CreationDisplayInfo(int, int, int);
+    method public float getDensity();
+    method public int getDensityDpi();
+    method public int getHeight();
+    method public int getWidth();
+  }
+
+}
+
+package androidx.compose.remote.creation.profile {
+
+  public class Profile {
+  }
+
+}
+

@@ -62,8 +62,8 @@ public class TextFromFloat extends Operation implements VariableSupport, Seriali
     public static final int PAD_AFTER_NONE = 1; // do not pad past last digit
     public static final int PAD_AFTER_ZERO = 3; // pad with 0 past last digit
     public static final int PAD_PRE_SPACE = 0; // pad before number with spaces
-    public static final int PAD_PRE_NONE = 4; // pad before number with 0s
-    public static final int PAD_PRE_ZERO = 12; // do not pad before number
+    public static final int PAD_PRE_NONE = 4; // do not pad before number
+    public static final int PAD_PRE_ZERO = 12; // pad before number with 0s
     public static final int GROUPING_NONE = 0; // e.g. 1234567890.12
     public static final int GROUPING_BY3 = 1 << 4;   // e.g. 1,234,567,890.12
     public static final int GROUPING_BY4 = 2 << 4;  // e.g. 12,3456,7890.12

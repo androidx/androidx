@@ -60,7 +60,6 @@ internal var inputMethodManagerFactory: (View) -> InputMethodManager = ::InputMe
 internal actual fun createLegacyPlatformTextInputServiceAdapter():
     LegacyPlatformTextInputServiceAdapter = AndroidLegacyPlatformTextInputServiceAdapter()
 
-
 internal class AndroidLegacyPlatformTextInputServiceAdapter :
     LegacyPlatformTextInputServiceAdapter() {
 

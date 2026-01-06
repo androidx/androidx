@@ -381,8 +381,10 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
                         false, measure, mCachedWrapSize);
                 float w = mCachedWrapSize.getWidth();
                 if (hasHorizontalScroll()) {
-                    computeSize(context, 0f, w, 0, measuredHeight, measure);
-                    mComponentModifiers.setHorizontalScrollDimension(measuredWidth, w);
+                    float internalHeight = Math.min(measuredHeight, insetMaxHeight);
+                    float hostWidth = Math.min(measuredWidth, insetMaxWidth);
+                    computeSize(context, 0f, w, 0, internalHeight, measure);
+                    mComponentModifiers.setHorizontalScrollDimension(hostWidth, w);
                 } else {
                     computeSize(
                             context,
@@ -401,8 +403,10 @@ public abstract class LayoutManager extends LayoutComponent implements Measurabl
                         mCachedWrapSize);
                 float h = mCachedWrapSize.getHeight();
                 if (hasVerticalScroll()) {
-                    computeSize(context, 0f, measuredWidth, 0, h, measure);
-                    mComponentModifiers.setVerticalScrollDimension(measuredHeight, h);
+                    float internalWidth = Math.min(measuredWidth, insetMaxWidth);
+                    float hostHeight = Math.min(measuredHeight, insetMaxHeight);
+                    computeSize(context, 0f, internalWidth, 0, h, measure);
+                    mComponentModifiers.setVerticalScrollDimension(hostHeight, h);
                 } else {
                     computeSize(
                             context,

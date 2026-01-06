@@ -232,7 +232,7 @@ fun RcTextDemo5(): RemoteComposeContext {
                 val content2 = "The quick brown fox jumps over the lazy dog"
                 val c1 = 0xFFFF0000.toInt()
                 val c2 = 0xFF0000FF.toInt()
-                val color = addColorExpression(c1, c2, tween.toFloat())
+                val color = addColorExpression(c1, c2, tween)
                 text(
                     content2,
                     RecordingModifier().background(Color.LTGRAY).fillMaxWidth(),
@@ -439,6 +439,33 @@ fun RcTextDemo3b(): RemoteComposeContext {
 }
 
 @Suppress("RestrictedApiAndroidX")
+fun RcTextDemo3c(): RemoteComposeContext {
+    return RemoteComposeContextAndroid(
+        600,
+        600,
+        "Demo",
+        7,
+        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+        AndroidxRcPlatformServices(),
+    ) {
+        root {
+            column {
+                row {
+                    val content =
+                        "Lorem ipsum dolor sit amet, consectetur" +
+                            " adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna" +
+                            " aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris" +
+                            " nisi ut aliquip ex ea commodo consequat."
+                    column(Modifier.fillMaxSize().background(Color.CYAN).horizontalWeight(1f)) {
+                        text(content, maxLines = 5, overflow = CoreText.OVERFLOW_ELLIPSIS)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
 fun RcTextDemo2(): RemoteComposeContext {
     return RemoteComposeContextAndroid(
         600,
@@ -455,7 +482,7 @@ fun RcTextDemo2(): RemoteComposeContext {
                     "Resizable Hello World!",
                     modifier = Modifier.verticalWeight(1f).fillMaxWidth().background(Color.GREEN),
                     autosize = true,
-                    hyphenationFrequency = CoreText.HYPHENATION_FREQUENCY_NORMAL,
+                    hyphenationFrequency = CoreText.HYPHENATION_FREQUENCY_NONE,
                 )
             }
         }

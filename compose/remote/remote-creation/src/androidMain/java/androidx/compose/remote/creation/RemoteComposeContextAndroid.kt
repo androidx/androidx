@@ -196,6 +196,17 @@ public class RemoteComposeContextAndroid : RemoteComposeContext {
         drawTextAnchored(id, x.toFloat(), y.toFloat(), panX.toFloat(), panY.toFloat(), flags)
     }
 
+    public fun drawTextAnchored(
+        str: String,
+        x: Number,
+        y: Number,
+        panX: Number,
+        panY: Number,
+        flags: Int,
+    ) {
+        drawTextAnchored(str, x.toFloat(), y.toFloat(), panX.toFloat(), panY.toFloat(), flags)
+    }
+
     public fun loop(from: Float, step: Float, until: Float, content: RcFloatArgumentCallback) {
         val indexId = createID(0)
         mRemoteWriter.startLoop(indexId, from, step, until)

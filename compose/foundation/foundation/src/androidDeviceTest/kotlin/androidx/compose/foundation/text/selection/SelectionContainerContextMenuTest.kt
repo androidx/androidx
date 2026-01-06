@@ -50,6 +50,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.rightClick
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.lerp
@@ -82,7 +83,7 @@ open class SelectionContainerContextMenuTest {
 
     // region SelectionContainer Context Menu Gesture Tests
     @Test
-    fun contextMenu_rightClick_appears() {
+    fun contextMenu_mouseRightClick_appears() {
         rule.setContent {
             SelectionContainer { BasicText(defaultText, modifier = Modifier.testTag(textTag)) }
         }
@@ -94,7 +95,19 @@ open class SelectionContainerContextMenuTest {
     }
 
     @Test
-    fun contextMenu_leftClick_doesNotAppear() {
+    fun contextMenu_trackpadRightClick_appears() {
+        rule.setContent {
+            SelectionContainer { BasicText(defaultText, modifier = Modifier.testTag(textTag)) }
+        }
+
+        val contextMenuInteraction = rule.onNode(isPopup())
+        contextMenuInteraction.assertDoesNotExist()
+        rule.onNodeWithTag(textTag).performTrackpadInput { rightClick(center) }
+        contextMenuInteraction.assertExists()
+    }
+
+    @Test
+    fun contextMenu_mouseLeftClick_doesNotAppear() {
         rule.setContent {
             SelectionContainer { BasicText(defaultText, modifier = Modifier.testTag(textTag)) }
         }
@@ -106,7 +119,19 @@ open class SelectionContainerContextMenuTest {
     }
 
     @Test
-    fun contextMenu_disappearsOnClickOffOfPopup() {
+    fun contextMenu_trackpadLeftClick_doesNotAppear() {
+        rule.setContent {
+            SelectionContainer { BasicText(defaultText, modifier = Modifier.testTag(textTag)) }
+        }
+
+        val contextMenuInteraction = rule.onNode(isPopup())
+        contextMenuInteraction.assertDoesNotExist()
+        rule.onNodeWithTag(textTag).performTrackpadInput { click(center) }
+        contextMenuInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun contextMenu_disappearsOnMouseClickOffOfPopup() {
         rule.setContent {
             SelectionContainer { BasicText(defaultText, modifier = Modifier.testTag(textTag)) }
         }
@@ -114,6 +139,20 @@ open class SelectionContainerContextMenuTest {
         val contextMenuInteraction = rule.onNode(isPopup())
         contextMenuInteraction.assertDoesNotExist()
         rule.onNodeWithTag(textTag).performMouseInput { rightClick(center) }
+        contextMenuInteraction.assertExists()
+        rule.clickOffPopup { rootRect -> lerp(rootRect.topLeft, rootRect.center, 0.5f) }
+        contextMenuInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun contextMenu_disappearsOnTrackpadClickOffOfPopup() {
+        rule.setContent {
+            SelectionContainer { BasicText(defaultText, modifier = Modifier.testTag(textTag)) }
+        }
+
+        val contextMenuInteraction = rule.onNode(isPopup())
+        contextMenuInteraction.assertDoesNotExist()
+        rule.onNodeWithTag(textTag).performTrackpadInput { rightClick(center) }
         contextMenuInteraction.assertExists()
         rule.clickOffPopup { rootRect -> lerp(rootRect.topLeft, rootRect.center, 0.5f) }
         contextMenuInteraction.assertDoesNotExist()

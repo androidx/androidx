@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
+
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
@@ -24,6 +26,7 @@ import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -62,7 +65,7 @@ class CaptureRemoteDocumentTest {
     fun captureDocument() = runTest {
         val document: ByteArray =
             withContext(Dispatchers.Main) {
-                captureRemoteDocument(context) {
+                captureSingleRemoteDocument(context) {
                     RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red))
                 }
             }
@@ -90,7 +93,7 @@ class CaptureRemoteDocumentTest {
             }
         val document: ByteArray =
             withContext(Dispatchers.Main) {
-                captureRemoteDocument(context, profile = customProfile) {
+                captureSingleRemoteDocument(context, profile = customProfile) {
                     RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
                         val textPaint =
                             Paint().apply {

@@ -295,6 +295,7 @@ public abstract class PaintContext {
             int overflow,
             int maxLines,
             float maxWidth,
+            float maxHeight,
             float letterSpacing,
             float lineHeightAdd,
             float lineHeightMultiplier,

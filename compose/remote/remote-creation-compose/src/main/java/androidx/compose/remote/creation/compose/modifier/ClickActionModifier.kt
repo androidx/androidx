@@ -26,7 +26,7 @@ import androidx.compose.ui.semantics.Role
 public class ClickActionModifier(public val actions: List<Action>) : RemoteModifier.Element {
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.ClickActionModifier(
-            actions.map { it.toRemoteAction() }
+            @Suppress("ListIterator") actions.map { it.toRemoteAction() }
         )
     }
 }

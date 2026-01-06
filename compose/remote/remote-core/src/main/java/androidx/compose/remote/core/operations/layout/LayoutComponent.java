@@ -161,13 +161,21 @@ public class LayoutComponent extends Component {
     protected LayoutComponentContent mContent = null;
 
     // Should be removed after ImageLayout is in
-    private static final boolean USE_IMAGE_TEMP_FIX = true;
+    private static final boolean USE_IMAGE_TEMP_FIX = false;
 
     /**
      * Set canvas operations op on this component
      */
     public void setCanvasOperations(@Nullable CanvasOperations operations) {
         mDrawContentOperations = operations;
+    }
+
+    /**
+     * Allow override of the behavior
+     */
+    protected void getComponentsData(@NonNull LayoutComponentContent content,
+            @NonNull ArrayList<Operation> data) {
+        content.getData(data);
     }
 
     @Override
@@ -207,10 +215,10 @@ public class LayoutComponent extends Component {
                             canvasContent.inflate();
                         }
                     } else {
-                        content.getData(data);
+                        getComponentsData(content, data);
                     }
                 } else {
-                    content.getData(data);
+                    getComponentsData(content, data);
                 }
             } else if (op instanceof ModifierOperation) {
                 // TODO: refactor to introduce a common interface
@@ -403,6 +411,14 @@ public class LayoutComponent extends Component {
 
     protected final HashMap<Integer, Object> mCachedAttributes = new HashMap<>();
 
+    /**
+     * This allow subclasses to handle the list of operations differently
+     */
+    protected void handleOperations(@NonNull RemoteContext context,
+            @NonNull ArrayList<Operation> operations) {
+        // nothing here
+    }
+
     @Override
     public void paintingComponent(@NonNull PaintContext context) {
         Component prev = context.getContext().mLastComponent;
@@ -439,6 +455,7 @@ public class LayoutComponent extends Component {
         float tx = mPaddingLeft + getScrollX();
         float ty = mPaddingTop + getScrollY();
         context.translate(tx, ty);
+        handleOperations(remoteContext, mList);
         if (mChildrenHaveZIndex) {
             // TODO -- should only sort when something has changed
             ArrayList<Component> sorted = new ArrayList<Component>(mChildrenComponents);

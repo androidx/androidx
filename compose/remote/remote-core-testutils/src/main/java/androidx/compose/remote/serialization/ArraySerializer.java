@@ -44,7 +44,7 @@ public interface ArraySerializer {
      *
      * @param value The Serializable
      */
-    void add(Serializable value);
+    void add(@Nullable Serializable value);
 
     /**
      * Adds a String to this array

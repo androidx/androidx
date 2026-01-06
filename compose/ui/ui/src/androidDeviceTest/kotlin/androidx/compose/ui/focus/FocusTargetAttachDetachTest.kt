@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -1062,7 +1061,6 @@ class FocusTargetAttachDetachTest {
         rule.runOnIdle { assertThat(focusState.isFocused).isFalse() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun focusTarget_nodeThatIsKeyInputNodeKind_implementing_receivesKeyEventsWhenFocused() {
         class FocusTargetAndKeyInputNode : DelegatingNode(), KeyInputModifierNode {
@@ -1111,7 +1109,6 @@ class FocusTargetAttachDetachTest {
         assertThat(focusTargetAndKeyInputNode.keyEvents[0].key).isEqualTo(Key.Enter)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun focusTarget_nodeThatIsKeyInputNodeKind_delegating_receivesKeyEventsWhenFocused() {
         class FocusTargetAndKeyInputNode : DelegatingNode() {
@@ -1274,7 +1271,6 @@ class FocusTargetAttachDetachTest {
         assertThat(focusTargetAndSoftKeyboardNode.keyEvents[0].key).isEqualTo(Key.Enter)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun focusTarget_nodeThatIsRotaryInputNodeKind_implementing_receivesRotaryEventsWhenFocused() {
         class FocusTargetAndRotaryNode : DelegatingNode(), RotaryInputModifierNode {
@@ -1316,7 +1312,6 @@ class FocusTargetAttachDetachTest {
         assertThat(focusTargetAndRotaryNode.events[0].verticalScrollPixels).isEqualTo(100f)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun focusTarget_nodeThatIsRotaryInputNodeKind_delegating_receivesRotaryEventsWhenFocused() {
         class FocusTargetAndRotaryNode : DelegatingNode() {

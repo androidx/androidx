@@ -57,7 +57,6 @@ import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
@@ -596,7 +595,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_clickWithEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -630,7 +628,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_clickWithNumPadEnterKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -664,7 +661,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_clickWithDPadCenter() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -698,7 +694,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_enterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -746,7 +741,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_numPadEnterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -794,7 +788,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_dpadCenter_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -843,7 +836,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_otherKey_doesNotEmitIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -879,7 +871,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_doubleEnterKey_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -941,7 +932,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1003,7 +993,6 @@ class SelectableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun selectableTest_interruptedClick_emitsCancelIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()

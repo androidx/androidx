@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+AddedAbstractMethod: androidx.compose.ui.test.MultiModalInjectionScope#trackpad(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TrackpadInjectionScope,kotlin.Unit>):
+    Binary breaking change: Added method androidx.compose.ui.test.MultiModalInjectionScope.trackpad(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.TrackpadInjectionScope,kotlin.Unit>)

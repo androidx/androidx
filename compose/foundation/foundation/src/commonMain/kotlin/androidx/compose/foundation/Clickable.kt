@@ -875,8 +875,7 @@ internal open class ClickableNode(
     @OptIn(ExperimentalFoundationApi::class)
     private val isSuspendingPointerInputEnabled =
         // old behavior prior this flag was heavily relying on coroutines dispatching
-        !isDetectTapGesturesImmediateCoroutineDispatchEnabled ||
-            !ComposeFoundationFlags.isNonSuspendingPointerInputInClickableEnabled
+        !isDetectTapGesturesImmediateCoroutineDispatchEnabled
 
     override fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode? =
         if (isSuspendingPointerInputEnabled) {

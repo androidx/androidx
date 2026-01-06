@@ -67,7 +67,6 @@ import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -106,7 +105,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalTestApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(ContextMenuFlagFlipperRunner::class)
 @ContextMenuFlagSuppress(suppressedFlagValue = true)
@@ -315,7 +314,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun toolbarDisappears_whenTextIsEntered_throughHardwareKeyboard() {
         val textToolbar = FakeTextToolbar()
@@ -332,7 +330,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         rule.runOnIdle { assertThat(textToolbar.status).isEqualTo(TextToolbarStatus.Hidden) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun toolbarDoesNotShow_ifSelectionInitiatedByHardwareKeyboard() {
         val textToolbar = FakeTextToolbar()
@@ -643,7 +640,6 @@ class TextFieldTextToolbarTest : FocusedWindowTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun toolbarDoesNotShowCopyOrCut_whenSelectionIsCollapsed() {
         var cutOptionAvailable = false

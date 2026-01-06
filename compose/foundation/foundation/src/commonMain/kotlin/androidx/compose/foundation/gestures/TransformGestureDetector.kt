@@ -235,12 +235,26 @@ fun PointerEvent.calculateCentroidSize(useCurrent: Boolean = true): Float {
  *
  * @sample androidx.compose.foundation.samples.CalculateCentroidSize
  */
-fun PointerEvent.calculateCentroid(useCurrent: Boolean = true): Offset {
+fun PointerEvent.calculateCentroid(useCurrent: Boolean = true): Offset =
+    calculateCentroid(useCurrent = useCurrent) { change ->
+        change.pressed && change.previousPressed
+    }
+
+/**
+ * Returns the centroid of all pointers that match [pointerInputChangeMatcher]. If no pointers
+ * match, [Offset.Unspecified] is returned. If [useCurrent] is `true`, the centroid of the
+ * [PointerInputChange.position] is returned and if `false`, the centroid of the
+ * [PointerInputChange.previousPosition] is returned.
+ */
+internal fun PointerEvent.calculateCentroid(
+    useCurrent: Boolean = true,
+    pointerInputChangeMatcher: (PointerInputChange) -> Boolean,
+): Offset {
     var centroid = Offset.Zero
     var centroidWeight = 0
 
     changes.fastForEach { change ->
-        if (change.pressed && change.previousPressed) {
+        if (pointerInputChangeMatcher(change)) {
             val position = if (useCurrent) change.position else change.previousPosition
             centroid += position
             centroidWeight++

@@ -29,7 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /** A player of a [CoreDocument] */
-@OptIn(ExperimentalRemoteComposePlayerApi::class)
+@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
 public fun RemoteDocumentPlayer(
     document: CoreDocument,

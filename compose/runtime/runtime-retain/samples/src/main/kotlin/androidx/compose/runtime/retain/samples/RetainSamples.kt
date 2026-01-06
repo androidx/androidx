@@ -28,12 +28,25 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.retain.LocalRetainedValuesStoreProvider
 import androidx.compose.runtime.retain.RetainedEffect
 import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.retain.retainManagedRetainedValuesStore
 import androidx.compose.runtime.retain.retainRetainedValuesStoreRegistry
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.painter.Painter
+
+@Sampled
+fun retainSample() {
+    @Composable
+    fun retainMediaPlayer(): MediaPlayer {
+        // The returned object will be returned similarly to `remember`.
+        // If the composition hierarchy is destroyed and recreated, the same player instance
+        // will be returned in the new composition, following the documented retention rules.
+        return retain { MediaPlayer() }
+    }
+}
 
 @Sampled
 fun retainedEffectSample() {

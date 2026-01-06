@@ -27,7 +27,7 @@ public class TouchCancelActionModifier(public val actions: List<Action>) : Remot
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.TouchActionModifier(
             TouchActionModifier.CANCEL,
-            actions.map { it.toRemoteAction() },
+            @Suppress("ListIterator") actions.map { it.toRemoteAction() },
         )
     }
 }

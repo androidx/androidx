@@ -37,25 +37,25 @@ import java.util.HashSet;
 public class YAMLSerializer extends AbstractSerializer {
 
     @Override
-    public AbstractArraySerializer newArraySerializer() {
+    public @NonNull AbstractArraySerializer newArraySerializer() {
         return new YAMLArraySerializer();
     }
 
     @Override
-    public AbstractMapSerializer newMapSerializer() {
+    public @NonNull AbstractMapSerializer newMapSerializer() {
         return new YAMLMapSerializer();
     }
 
     @Override
-    public AbstractSerializer newSerializer() {
+    public @NonNull AbstractSerializer newSerializer() {
         return new YAMLSerializer();
     }
 
     /**
      * Returns a concrete object
-     * @return
      */
-    @Nullable public Object toObject() {
+    @Nullable
+    public Object toObject() {
         switch (getValueType()) {
             case ARRAY:
                 YAMLArraySerializer arraySerializer = (YAMLArraySerializer) mValue;
@@ -87,19 +87,15 @@ public class YAMLSerializer extends AbstractSerializer {
 
     /**
      * return simple string
-     *
-     * @return
      */
-    public String toSimpleString() {
+    public @NonNull String toSimpleString() {
         return yamlToString(toString());
     }
 
     /**
      * return flat string
-     *
-     * @return
      */
-    public String toFlatString() {
+    public @NonNull String toFlatString() {
         return yamlToFlatString(toString());
     }
 
@@ -116,7 +112,7 @@ public class YAMLSerializer extends AbstractSerializer {
      * @param yamlContent The YAML content as a String.
      * @return A formatted string representation of the YAML structure.
      */
-    private String yamlToString(String yamlContent) {
+    private @NonNull String yamlToString(@NonNull String yamlContent) {
         Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         Node node = yaml.compose(new StringReader(yamlContent));
         if (node == null) {
@@ -130,7 +126,7 @@ public class YAMLSerializer extends AbstractSerializer {
     HashSet<String> mSkipList = new HashSet<>(Arrays.asList("type", "value", "operations"));
     HashSet<String> mCommandList = new HashSet<>(Arrays.asList("TextData", "value"));
 
-    private void visitNode(Node node, int indent, StringBuilder stringBuilder) {
+    private void visitNode(@NonNull Node node, int indent, @NonNull StringBuilder stringBuilder) {
         boolean typeFlag = false;
         String indentation = "  ".repeat(indent);
         if (node instanceof MappingNode) {
@@ -186,7 +182,7 @@ public class YAMLSerializer extends AbstractSerializer {
      * @param yamlContent The YAML content as a String.
      * @return A formatted string representation of the YAML structure.
      */
-    private String yamlToFlatString(String yamlContent) {
+    private @NonNull String yamlToFlatString(@NonNull String yamlContent) {
         Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
         Node node = yaml.compose(new StringReader(yamlContent));
         if (node == null) {
@@ -197,7 +193,8 @@ public class YAMLSerializer extends AbstractSerializer {
         return stringBuilder.toString();
     }
 
-    private void visitNodeFlat(Node node, int indent, StringBuilder stringBuilder) {
+    private void visitNodeFlat(@NonNull Node node, int indent,
+            @NonNull StringBuilder stringBuilder) {
         boolean typeFlag = false;
 
         String indentation = "  ".repeat(indent);

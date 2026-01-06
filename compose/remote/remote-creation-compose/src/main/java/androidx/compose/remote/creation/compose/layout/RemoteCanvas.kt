@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposePath
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope.Companion.DefaultBlendMode
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope.Companion.DefaultFilterQuality
 import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.capture.shaders.RemoteSolidColor
 import androidx.compose.remote.creation.compose.capture.withTransform
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
@@ -114,20 +115,9 @@ public fun RemoteCanvasDrawScope.clipRect(
     clipOp: ClipOp = ClipOp.Intersect,
     block: RemoteCanvasDrawScope.() -> Unit,
 ) {
-    val iLeft: Float =
-        if (left is RemoteFloat) left.getFloatIdForCreationState(FallbackCreationState.state)
-        else left.toFloat()
-    val iTop: Float =
-        if (top is RemoteFloat) top.getFloatIdForCreationState(FallbackCreationState.state)
-        else top.toFloat()
-    val iRight: Float =
-        if (right is RemoteFloat) right.getFloatIdForCreationState(FallbackCreationState.state)
-        else right.toFloat()
-    val iBottom: Float =
-        if (bottom is RemoteFloat) bottom.getFloatIdForCreationState(FallbackCreationState.state)
-        else bottom.toFloat()
-
-    withTransform({ clipRect(iLeft, iTop, iRight, iBottom, clipOp) }) { this@clipRect.block() }
+    withTransform({ clipRect(left.id, top.id, right.id, bottom.id, clipOp) }) {
+        this@clipRect.block()
+    }
 }
 
 public fun DrawTransform.translate(x: RemoteFloat, y: RemoteFloat) {
@@ -151,19 +141,11 @@ public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     typeface: Typeface? = null,
     textSize: RemoteFloat = 18f.rf,
 ) {
-    val iAlpha: Float =
-        if (alpha is RemoteFloat) alpha.getFloatIdForCreationState(FallbackCreationState.state)
-        else alpha.toFloat()
-    val iTextSize: Float =
-        if (textSize is RemoteFloat)
-            textSize.getFloatIdForCreationState(FallbackCreationState.state)
-        else textSize.toFloat()
-
     val colorFilter: ColorFilter? = null
     val blendMode: BlendMode = DefaultBlendMode
 
     val size = RemoteSize(remote.component.width, remote.component.height)
-    val paint = toPaint(brush, drawStyle, iAlpha, colorFilter, blendMode, size = size)
+    val paint = toPaint(brush, drawStyle, alpha.id, colorFilter, blendMode, size = size)
 
     val ap = paint.asFrameworkPaint()
 
@@ -172,7 +154,7 @@ public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     } else {
         ap.setTypeface(Typeface.DEFAULT)
     }
-    ap.textSize = iTextSize
+    ap.textSize = textSize.id
     canvas.drawAnchoredText(
         text.toString(),
         anchorX = anchor.x,
@@ -195,19 +177,11 @@ public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     typeface: Typeface? = null,
     textSize: RemoteFloat = 18f.rf,
 ) {
-    val iAlpha: Float =
-        if (alpha is RemoteFloat) alpha.getFloatIdForCreationState(FallbackCreationState.state)
-        else alpha.toFloat()
-    val iTextSize: Float =
-        if (textSize is RemoteFloat)
-            textSize.getFloatIdForCreationState(FallbackCreationState.state)
-        else textSize.toFloat()
-
     val colorFilter: ColorFilter? = null
     val blendMode: BlendMode = DefaultBlendMode
 
     val size = RemoteSize(remote.component.width, remote.component.height)
-    val paint = toPaint(brush, drawStyle, iAlpha, colorFilter, blendMode, size = size)
+    val paint = toPaint(brush, drawStyle, alpha.id, colorFilter, blendMode, size = size)
 
     val ap = paint.asFrameworkPaint()
 
@@ -216,7 +190,7 @@ public fun RemoteCanvasDrawScope.remoteDrawAnchoredText(
     } else {
         ap.setTypeface(Typeface.DEFAULT)
     }
-    ap.textSize = iTextSize
+    ap.textSize = textSize.id
     canvas.drawAnchoredText(
         text,
         anchorX = anchor.x,
@@ -677,7 +651,23 @@ internal fun toPaint(
             }
         if (this.shader != shader) this.shader = shader
         this.alpha = alpha
-        this.color = Color.Red
+        when (brush) {
+            is RemoteSolidColor -> {
+                val constantValue = brush.color.constantValue
+                color =
+                    if (constantValue != null) {
+                        Color(constantValue.toArgb())
+                    } else {
+                        // If the remote color isn't a constant value then we don't have a way of
+                        // accurately setting it via setColor, so set it to a known value.
+                        Color.Transparent
+                    }
+            }
+            else -> {
+                // if brush is gradient
+            }
+        }
+
         if (this.colorFilter != colorFilter) this.colorFilter = colorFilter
         if (this.blendMode != blendMode) this.blendMode = blendMode
         if (this.filterQuality != filterQuality) this.filterQuality = filterQuality

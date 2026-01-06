@@ -154,7 +154,6 @@ package androidx.compose.foundation {
     property public boolean isCacheWindowRefillFixEnabled;
     property public boolean isDetectTapGesturesImmediateCoroutineDispatchEnabled;
     property public boolean isNewContextMenuEnabled;
-    property public boolean isNonSuspendingPointerInputInClickableEnabled;
     property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isSmartSelectionEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
@@ -163,7 +162,6 @@ package androidx.compose.foundation {
     field public static boolean isCacheWindowRefillFixEnabled;
     field public static boolean isDetectTapGesturesImmediateCoroutineDispatchEnabled;
     field public static boolean isNewContextMenuEnabled;
-    field public static boolean isNonSuspendingPointerInputInClickableEnabled;
     field public static boolean isPausableCompositionInPrefetchEnabled;
     field public static boolean isSmartSelectionEnabled;
   }
@@ -870,9 +868,12 @@ package androidx.compose.foundation.gestures {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface TransformScope {
-    method @KotlinOnly public void transformBy(optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
-    method @BytecodeOnly public void transformBy-d-4ec7I(float, long, float);
-    method @BytecodeOnly public static void transformBy-d-4ec7I$default(androidx.compose.foundation.gestures.TransformScope!, float, long, float, int, Object!);
+    method @KotlinOnly public default void transformBy(androidx.compose.ui.geometry.Offset centroid, optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
+    method @KotlinOnly @Deprecated public void transformBy(optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
+    method @BytecodeOnly public default void transformBy-IEwrmTk(long, float, long, float);
+    method @BytecodeOnly public static void transformBy-IEwrmTk$default(androidx.compose.foundation.gestures.TransformScope!, long, float, long, float, int, Object!);
+    method @BytecodeOnly @Deprecated public void transformBy-d-4ec7I(float, long, float);
+    method @BytecodeOnly @Deprecated public static void transformBy-d-4ec7I$default(androidx.compose.foundation.gestures.TransformScope!, float, long, float, int, Object!);
   }
 
   public final class TransformableKt {
@@ -890,25 +891,46 @@ package androidx.compose.foundation.gestures {
   }
 
   public final class TransformableStateKt {
-    method public static androidx.compose.foundation.gestures.TransformableState TransformableState(kotlin.jvm.functions.Function3<? super java.lang.Float,? super androidx.compose.ui.geometry.Offset,? super java.lang.Float,kotlin.Unit> onTransformation);
-    method @KotlinOnly public static suspend Object? animateBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, androidx.compose.ui.geometry.Offset panOffset, float rotationDegrees, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> zoomAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> panAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> rotationAnimationSpec, kotlin.coroutines.Continuation<? super java.lang.Void>);
-    method @BytecodeOnly public static Object? animateBy-Su4bsnU(androidx.compose.foundation.gestures.TransformableState, float, long, float, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset!>, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
-    method @BytecodeOnly public static Object! animateBy-Su4bsnU$default(androidx.compose.foundation.gestures.TransformableState!, float, long, float, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
-    method @KotlinOnly public static suspend Object? animatePanBy(androidx.compose.foundation.gestures.TransformableState, androidx.compose.ui.geometry.Offset offset, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animationSpec, kotlin.coroutines.Continuation<? super java.lang.Void>);
-    method @BytecodeOnly public static Object? animatePanBy-ubNVwUQ(androidx.compose.foundation.gestures.TransformableState, long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset!>, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
-    method @BytecodeOnly public static Object! animatePanBy-ubNVwUQ$default(androidx.compose.foundation.gestures.TransformableState!, long, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
-    method public static suspend Object? animateRotateBy(androidx.compose.foundation.gestures.TransformableState, float degrees, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @BytecodeOnly public static Object! animateRotateBy$default(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
-    method public static suspend Object? animateZoomBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @BytecodeOnly public static Object! animateZoomBy$default(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
-    method @KotlinOnly public static suspend Object? panBy(androidx.compose.foundation.gestures.TransformableState, androidx.compose.ui.geometry.Offset offset, kotlin.coroutines.Continuation<? super java.lang.Void>);
-    method @BytecodeOnly public static Object? panBy-d-4ec7I(androidx.compose.foundation.gestures.TransformableState, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TransformableState rememberTransformableState(kotlin.jvm.functions.Function3<? super java.lang.Float!,? super androidx.compose.ui.geometry.Offset!,? super java.lang.Float!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TransformableState rememberTransformableState(kotlin.jvm.functions.Function3<java.lang.Float,androidx.compose.ui.geometry.Offset,java.lang.Float,kotlin.Unit> onTransformation);
-    method public static suspend Object? rotateBy(androidx.compose.foundation.gestures.TransformableState, float degrees, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @Deprecated public static androidx.compose.foundation.gestures.TransformableState TransformableState(kotlin.jvm.functions.Function3<? super java.lang.Float,? super androidx.compose.ui.geometry.Offset,? super java.lang.Float,kotlin.Unit> onTransformation);
+    method public static androidx.compose.foundation.gestures.TransformableState TransformableState(kotlin.jvm.functions.Function4<? super androidx.compose.ui.geometry.Offset,? super java.lang.Float,? super androidx.compose.ui.geometry.Offset,? super java.lang.Float,kotlin.Unit> onTransformation);
+    method @KotlinOnly public static suspend Object? animateBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, androidx.compose.ui.geometry.Offset panOffset, float rotationDegrees, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> zoomAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> panAnimationSpec, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> rotationAnimationSpec, optional androidx.compose.ui.geometry.Offset centroid, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @BytecodeOnly @Deprecated public static Object! animateBy-Su4bsnU(androidx.compose.foundation.gestures.TransformableState!, float, long, float, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!);
+    method @BytecodeOnly @Deprecated public static Object! animateBy-Su4bsnU$default(androidx.compose.foundation.gestures.TransformableState!, float, long, float, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object? animateBy-jlnHOkQ(androidx.compose.foundation.gestures.TransformableState, float, long, float, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset!>, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method @BytecodeOnly public static Object! animateBy-jlnHOkQ$default(androidx.compose.foundation.gestures.TransformableState!, float, long, float, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, androidx.compose.animation.core.AnimationSpec!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method @KotlinOnly public static suspend Object? animatePanBy(androidx.compose.foundation.gestures.TransformableState, androidx.compose.ui.geometry.Offset offset, optional androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animationSpec, optional androidx.compose.ui.geometry.Offset centroid, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @BytecodeOnly @Deprecated public static Object! animatePanBy-ubNVwUQ(androidx.compose.foundation.gestures.TransformableState!, long, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!);
+    method @BytecodeOnly @Deprecated public static Object! animatePanBy-ubNVwUQ$default(androidx.compose.foundation.gestures.TransformableState!, long, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object? animatePanBy-umk_asQ(androidx.compose.foundation.gestures.TransformableState, long, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset!>, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method @BytecodeOnly public static Object! animatePanBy-umk_asQ$default(androidx.compose.foundation.gestures.TransformableState!, long, androidx.compose.animation.core.AnimationSpec!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly @Deprecated public static Object! animateRotateBy(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!);
+    method @KotlinOnly public static suspend Object? animateRotateBy(androidx.compose.foundation.gestures.TransformableState, float degrees, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.geometry.Offset centroid, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @BytecodeOnly @Deprecated public static Object! animateRotateBy$default(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object? animateRotateBy-Fgt4K4Q(androidx.compose.foundation.gestures.TransformableState, float, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method @BytecodeOnly public static Object! animateRotateBy-Fgt4K4Q$default(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly @Deprecated public static Object! animateZoomBy(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!);
+    method @KotlinOnly public static suspend Object? animateZoomBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional androidx.compose.ui.geometry.Offset centroid, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @BytecodeOnly @Deprecated public static Object! animateZoomBy$default(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly public static Object? animateZoomBy-Fgt4K4Q(androidx.compose.foundation.gestures.TransformableState, float, androidx.compose.animation.core.AnimationSpec<java.lang.Float!>, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method @BytecodeOnly public static Object! animateZoomBy-Fgt4K4Q$default(androidx.compose.foundation.gestures.TransformableState!, float, androidx.compose.animation.core.AnimationSpec!, long, kotlin.coroutines.Continuation!, int, Object!);
+    method @KotlinOnly public static suspend Object? panBy(androidx.compose.foundation.gestures.TransformableState, androidx.compose.ui.geometry.Offset offset, optional androidx.compose.ui.geometry.Offset centroid, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @BytecodeOnly public static Object? panBy-DUneCvk(androidx.compose.foundation.gestures.TransformableState, long, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method @BytecodeOnly public static Object! panBy-DUneCvk$default(androidx.compose.foundation.gestures.TransformableState!, long, long, kotlin.coroutines.Continuation!, int, Object!);
+    method @BytecodeOnly @Deprecated public static Object! panBy-d-4ec7I(androidx.compose.foundation.gestures.TransformableState!, long, kotlin.coroutines.Continuation!);
+    method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TransformableState rememberTransformableState(kotlin.jvm.functions.Function3<? super java.lang.Float!,? super androidx.compose.ui.geometry.Offset!,? super java.lang.Float!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TransformableState rememberTransformableState(kotlin.jvm.functions.Function3<java.lang.Float,androidx.compose.ui.geometry.Offset,java.lang.Float,kotlin.Unit> onTransformation);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TransformableState rememberTransformableState(kotlin.jvm.functions.Function4<? super androidx.compose.ui.geometry.Offset!,? super java.lang.Float!,? super androidx.compose.ui.geometry.Offset!,? super java.lang.Float!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.TransformableState rememberTransformableState(kotlin.jvm.functions.Function4<androidx.compose.ui.geometry.Offset,java.lang.Float,androidx.compose.ui.geometry.Offset,java.lang.Float,kotlin.Unit> onTransformation);
+    method @KotlinOnly public static suspend Object? rotateBy(androidx.compose.foundation.gestures.TransformableState, float degrees, optional androidx.compose.ui.geometry.Offset centroid, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @BytecodeOnly @Deprecated public static Object! rotateBy(androidx.compose.foundation.gestures.TransformableState!, float, kotlin.coroutines.Continuation!);
+    method @BytecodeOnly public static Object? rotateBy-Rg1IO4c(androidx.compose.foundation.gestures.TransformableState, float, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method @BytecodeOnly public static Object! rotateBy-Rg1IO4c$default(androidx.compose.foundation.gestures.TransformableState!, float, long, kotlin.coroutines.Continuation!, int, Object!);
     method public static suspend Object? stopTransformation(androidx.compose.foundation.gestures.TransformableState, optional androidx.compose.foundation.MutatePriority terminationPriority, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! stopTransformation$default(androidx.compose.foundation.gestures.TransformableState!, androidx.compose.foundation.MutatePriority!, kotlin.coroutines.Continuation!, int, Object!);
-    method public static suspend Object? zoomBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @KotlinOnly public static suspend Object? zoomBy(androidx.compose.foundation.gestures.TransformableState, float zoomFactor, optional androidx.compose.ui.geometry.Offset centroid, kotlin.coroutines.Continuation<? super java.lang.Void>);
+    method @BytecodeOnly @Deprecated public static Object! zoomBy(androidx.compose.foundation.gestures.TransformableState!, float, kotlin.coroutines.Continuation!);
+    method @BytecodeOnly public static Object? zoomBy-Rg1IO4c(androidx.compose.foundation.gestures.TransformableState, float, long, kotlin.coroutines.Continuation<? super kotlin.Unit!>);
+    method @BytecodeOnly public static Object! zoomBy-Rg1IO4c$default(androidx.compose.foundation.gestures.TransformableState!, float, long, kotlin.coroutines.Continuation!, int, Object!);
   }
 
 }
@@ -1244,7 +1266,7 @@ package androidx.compose.foundation.lazy {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.lazy.LazyListState rememberLazyListState(int, int, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @kotlin.DslMarker public @interface LazyScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface LazyScopeMarker {
   }
 
 }
@@ -1404,7 +1426,7 @@ package androidx.compose.foundation.lazy.grid {
     method @BytecodeOnly public static void stickyHeader$default(androidx.compose.foundation.lazy.grid.LazyGridScope!, Object!, Object!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
-  @kotlin.DslMarker public @interface LazyGridScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface LazyGridScopeMarker {
   }
 
   public final class LazyGridScrollScopeKt {

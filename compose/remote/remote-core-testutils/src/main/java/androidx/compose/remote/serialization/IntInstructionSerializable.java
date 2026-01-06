@@ -22,9 +22,9 @@ import org.jspecify.annotations.NonNull;
 
 public class IntInstructionSerializable implements Serializable {
 
-    private final String mInstruction;
+    private final @NonNull String mInstruction;
 
-    public IntInstructionSerializable(String instruction) {
+    public IntInstructionSerializable(@NonNull String instruction) {
         this.mInstruction = instruction;
     }
 

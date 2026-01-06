@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal.selection
 
+import android.os.Build
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
@@ -50,6 +51,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -193,6 +195,10 @@ class TextFieldTripleTapTest : FocusedWindowTest {
 
     @Test
     fun tripleTapThen_dragDown_selectsFromCurrentToTargetParagraph_ltr() {
+        assumeFalse(
+            "Test fails on cuttlefish b/467124919",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         val state = TextFieldState("abc def\nabc def\nabc def")
         rule.setTextFieldTestContent {
             BasicTextField(

@@ -193,6 +193,7 @@ internal class StateReadValidator(
      * Specifies the expected stack trace for when the state read was observed in the
      * RecompositionHandler.
      */
+    @DoNotChangeMayRequireChangesInAndroidStudio
     fun trace(trace: String) {
         var traceIndex = 0
         var skipUntilFound = false
@@ -228,6 +229,22 @@ internal class StateReadValidator(
             error("Only $traceIndex stack trace lines of ${stackTraces.size} are accounted for.")
         }
         checkInvalidated()
+    }
+
+    @DoNotChangeMayRequireChangesInAndroidStudio
+    fun folding(unfolded: String) {
+        val unfoldedLineIndexes = fold(strings, stackTraces)
+        val unfoldedLines = unfoldedLineIndexes.map { stackTraces[it] }
+        val expectedLines = unfolded.trimIndent().lines()
+        if (unfoldedLines.size != expectedLines.size) {
+            assertThat(convertToLines(strings, unfoldedLines)).isEqualTo(expectedLines)
+        }
+        for (index in expectedLines.indices) {
+            val line = expectedLines[index]
+            val match =
+                stackTraceLinePattern.matchEntire(line) ?: error("Could not parse: \"$line\"")
+            assertIsMatch(line, unfoldedLines[index], match)
+        }
     }
 
     private fun isMatch(actual: StackTraceLine, match: MatchResult): Boolean {

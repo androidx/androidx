@@ -20,27 +20,29 @@ import androidx.compose.remote.serialization.AbstractMapSerializer;
 import androidx.compose.remote.serialization.AbstractSerializer;
 import androidx.compose.remote.serialization.Serializer;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class YAMLMapSerializer extends AbstractMapSerializer {
 
     @Override
-    public AbstractArraySerializer newArraySerializer() {
+    public @NonNull AbstractArraySerializer newArraySerializer() {
         return new YAMLArraySerializer();
     }
 
     @Override
-    public AbstractMapSerializer newMapSerializer() {
+    public @NonNull AbstractMapSerializer newMapSerializer() {
         return new YAMLMapSerializer();
     }
 
     @Override
-    public AbstractSerializer newSerializer() {
+    public @NonNull AbstractSerializer newSerializer() {
         return new YAMLSerializer();
     }
 
-    Map<String, Object> toMap() {
+    @NonNull Map<@NonNull String, @NonNull Object> toMap() {
         Map<String, Object> map = new LinkedHashMap<>();
         if (mType != null) {
             map.put("type", mType);

@@ -15,15 +15,15 @@
  */
 package androidx.compose.runtime.tooling
 
-import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.GapComposer.CompositionContextHolder
-import androidx.compose.runtime.GroupSourceInformation
 import androidx.compose.runtime.RememberObserverHolder
-import androidx.compose.runtime.SlotReader
-import androidx.compose.runtime.SlotTable
-import androidx.compose.runtime.SlotWriter
+import androidx.compose.runtime.composer.gapbuffer.Anchor
+import androidx.compose.runtime.composer.gapbuffer.GroupSourceInformation
+import androidx.compose.runtime.composer.gapbuffer.SlotReader
+import androidx.compose.runtime.composer.gapbuffer.SlotTable
+import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.defaultsKey
 import androidx.compose.runtime.reference
 import androidx.compose.runtime.referenceKey

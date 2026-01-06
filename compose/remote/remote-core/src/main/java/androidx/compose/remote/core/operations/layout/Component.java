@@ -1139,11 +1139,26 @@ public class Component extends PaintOperation
      * @param data an ArrayList that will be populated with the Data elements (if any)
      */
     public void getData(@NonNull ArrayList<Operation> data) {
+        getData(data, false);
+    }
+
+    /**
+     * Extract child data elements
+     * @param data an ArrayList that will be populated with the Data elements (if any)
+     * @param allButComponents if true, all elements other than components will be added.
+     */
+    public void getData(@NonNull ArrayList<Operation> data, boolean allButComponents) {
         for (Operation op : mList) {
-            if (op instanceof TextData
-                    || op instanceof BitmapData
-                    || op instanceof ComponentData) {
-                data.add(op);
+            if (allButComponents) {
+                if (!(op instanceof Component)) {
+                    data.add(op);
+                }
+            } else {
+                if (op instanceof TextData
+                        || op instanceof BitmapData
+                        || op instanceof ComponentData) {
+                    data.add(op);
+                }
             }
         }
     }

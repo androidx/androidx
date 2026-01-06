@@ -1,1 +1,30 @@
 // Signature format: 4.0
+package androidx.compose.remote.creation.compose.capture {
+
+  @SuppressCompatibility public final class CaptureRemoteDocumentKt {
+    method @SuppressCompatibility public static suspend Object? captureSingleRemoteDocument(android.content.Context context, optional androidx.compose.remote.creation.CreationDisplayInfo creationDisplayInfo, optional androidx.compose.remote.creation.profile.Profile profile, optional androidx.compose.remote.creation.compose.capture.WriterEvents? writerEvents, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super byte[]>);
+    method @BytecodeOnly @SuppressCompatibility public static Object? captureSingleRemoteDocument(android.content.Context, androidx.compose.remote.creation.CreationDisplayInfo, androidx.compose.remote.creation.profile.Profile, androidx.compose.remote.creation.compose.capture.WriterEvents?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.coroutines.Continuation<? super byte[]!>);
+    method @BytecodeOnly @SuppressCompatibility public static Object! captureSingleRemoteDocument$default(android.content.Context!, androidx.compose.remote.creation.CreationDisplayInfo!, androidx.compose.remote.creation.profile.Profile!, androidx.compose.remote.creation.compose.capture.WriterEvents!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
+  }
+
+  @SuppressCompatibility public interface WriterEvents {
+    method public void onDocumentAvailable(byte[] documentBytes);
+    method public default int storePendingIntent(android.app.PendingIntent pendingIntent);
+    field public static final androidx.compose.remote.creation.compose.capture.WriterEvents.Companion Companion;
+    field public static final int INVALID_ID = -1; // 0xffffffff
+  }
+
+  @SuppressCompatibility public static final class WriterEvents.Companion {
+    property public static int INVALID_ID;
+    field public static final int INVALID_ID = -1; // 0xffffffff
+  }
+
+}
+
+package androidx.compose.remote.creation.compose.layout {
+
+  @androidx.compose.runtime.ComposableTargetMarker(description="RemoteCompose Composable") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface RemoteComposable {
+  }
+
+}
+

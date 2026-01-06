@@ -39,7 +39,7 @@ public class AndroidRcPlatformServices implements RcPlatformServices {
     private static final String LOG_TAG = "RemoteCompose";
 
     @Override
-    public byte[] imageToByteArray(@NonNull Object image) {
+    public byte @Nullable [] imageToByteArray(@NonNull Object image) {
         if (image instanceof Bitmap) {
             // let's create a bitmap
             ByteArrayOutputStream byteArrayBitmapStream = new ByteArrayOutputStream();

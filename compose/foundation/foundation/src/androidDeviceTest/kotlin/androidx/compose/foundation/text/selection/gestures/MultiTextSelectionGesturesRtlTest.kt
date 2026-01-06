@@ -152,4 +152,30 @@ internal class MultiTextSelectionGesturesRtlTest : TextSelectionGesturesTest() {
             textToolbarShown = false
         }
     }
+
+    @Test
+    override fun whenTrackpadCollapsedSelectionAcrossLines_thenTouch_showUi() {
+        performTrackpadGesture {
+            moveTo(centerEnd)
+            press()
+        }
+
+        asserter.applyAndAssert { selection = 23.collapsed }
+
+        trackpadDragTo(characterPosition(offset = 24))
+
+        asserter.applyAndAssert { selection = 23 to 24 }
+
+        performTouchGesture {
+            swipe(start = bounds.center, end = bounds.bottomCenter + Offset(0f, 10f))
+        }
+
+        asserter.applyAndAssert {
+            selectionHandlesShown = true
+
+            // only difference from the parent function, the selection is empty,
+            // so the toolbar for copying won't appear.
+            textToolbarShown = false
+        }
+    }
 }

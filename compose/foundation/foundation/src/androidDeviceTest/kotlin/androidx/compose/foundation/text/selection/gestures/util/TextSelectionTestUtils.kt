@@ -42,6 +42,7 @@ import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.util.lerp
@@ -313,4 +314,43 @@ internal fun SemanticsNodeInteraction.mouseDragNodeBy(delta: Offset, durationMil
     performMouseInput { startVar = currentPosition }
     val start = startVar!!
     mouseDragNodeTo(start + delta, durationMillis)
+}
+
+internal fun SemanticsNodeInteraction.trackpadDragNodeTo(
+    position: Offset,
+    durationMillis: Long = 200L,
+) {
+    require(durationMillis > 0) { "Duration cannot be <= 0" }
+
+    var startVar: Offset? = null
+    var dragEventPeriodMillisVar: Long? = null
+    performTrackpadInput {
+        startVar = currentPosition
+        dragEventPeriodMillisVar = eventPeriodMillis
+    }
+    val start = startVar!!
+    val dragEventPeriodMillis = dragEventPeriodMillisVar!!
+
+    // How many steps will we take in durationMillis?
+    // At least 1, and a number that will bring as as close to eventPeriod as possible
+    val steps = max(1, (durationMillis / dragEventPeriodMillis.toFloat()).roundToInt())
+
+    var previousTime = 0L
+    for (step in 1..steps) {
+        val progress = step / steps.toFloat()
+        val nextTime = lerp(0, stop = durationMillis, fraction = progress)
+        val nextPosition = lerp(start, position, nextTime / durationMillis.toFloat())
+        performTrackpadInput { moveTo(nextPosition, delayMillis = nextTime - previousTime) }
+        previousTime = nextTime
+    }
+}
+
+internal fun SemanticsNodeInteraction.trackpadDragNodeBy(
+    delta: Offset,
+    durationMillis: Long = 100L,
+) {
+    var startVar: Offset? = null
+    performTrackpadInput { startVar = currentPosition }
+    val start = startVar!!
+    trackpadDragNodeTo(start + delta, durationMillis)
 }

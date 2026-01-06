@@ -38,7 +38,7 @@ internal interface DragAndDropScope : Density {
     fun drag(offset: Offset, uri: Uri): Boolean
 
     /** Drags an item with [clipData] payload to the [offset] location. */
-    fun drag(offset: Offset, clipData: ClipData): Boolean
+    fun drag(offset: Offset, clipData: ClipData?): Boolean
 
     /** Drops the previously declared dragging item. */
     fun drop(): Boolean
@@ -50,16 +50,16 @@ internal interface DragAndDropScope : Density {
 @Suppress("DELEGATED_MEMBER_HIDES_SUPERTYPE_OVERRIDE")
 private class DragAndDropScopeImpl(val view: View, density: Density) :
     DragAndDropScope, Density by density {
-    private var lastDraggingOffsetAndItem: Pair<Offset, Any>? = null
+    private var lastDraggingOffsetAndItem: Pair<Offset, Any?>? = null
 
     override fun drag(offset: Offset, text: String): Boolean = dragAny(offset, text)
 
     override fun drag(offset: Offset, uri: Uri): Boolean = dragAny(offset, uri)
 
-    override fun drag(offset: Offset, clipData: ClipData): Boolean = dragAny(offset, clipData)
+    override fun drag(offset: Offset, clipData: ClipData?): Boolean = dragAny(offset, clipData)
 
     /** @param item Can be only [String], [Uri], or [ClipData]. */
-    private fun dragAny(offset: Offset, item: Any): Boolean {
+    private fun dragAny(offset: Offset, item: Any?): Boolean {
         val _lastDraggingItem = lastDraggingOffsetAndItem
         var result = false
         if (_lastDraggingItem == null || _lastDraggingItem.second != item) {
@@ -95,7 +95,7 @@ private class DragAndDropScopeImpl(val view: View, density: Density) :
         view.dispatchDragEvent(DragAndDropTestUtils.makeTextDragEvent(DragEvent.ACTION_DRAG_ENDED))
     }
 
-    private fun makeDragEvent(action: Int, item: Any, offset: Offset = Offset.Zero): DragEvent {
+    private fun makeDragEvent(action: Int, item: Any?, offset: Offset = Offset.Zero): DragEvent {
         return when (item) {
             is String -> {
                 DragAndDropTestUtils.makeTextDragEvent(action, item, offset)
@@ -107,9 +107,13 @@ private class DragAndDropScopeImpl(val view: View, density: Density) :
                 DragAndDropTestUtils.makeDragEvent(action, item, offset)
             }
             else -> {
-                throw IllegalArgumentException(
-                    "{item=$item} can only be one of [String], [Uri], or [ClipData]"
-                )
+                if (item == null) {
+                    DragAndDropTestUtils.makeDragEvent(action, null, offset)
+                } else {
+                    throw IllegalArgumentException(
+                        "{item=$item} can only be one of [String], [Uri], or [ClipData]"
+                    )
+                }
             }
         }
     }

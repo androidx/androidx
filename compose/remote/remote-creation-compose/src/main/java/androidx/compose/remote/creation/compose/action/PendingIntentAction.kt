@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.creation.compose.action
 
 import android.app.PendingIntent
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.PendingIntentWriterCallback
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.runtime.Composable
 
 /** Create a [PendingIntentAction] to send the [PendingIntent] when invoked. */
@@ -39,7 +41,7 @@ public class PendingIntentAction(
 
     override fun toRemoteAction(): androidx.compose.remote.creation.actions.Action {
         val writerCallback = remoteComposeCreationState.document.writerCallback
-        if (writerCallback is PendingIntentWriterCallback) {
+        if (writerCallback is WriterEvents) {
             val index = writerCallback.storePendingIntent(pendingIntent)
             val valueId = remoteComposeCreationState.document.addInteger(index)
             return androidx.compose.remote.creation.actions.HostAction(
@@ -50,7 +52,7 @@ public class PendingIntentAction(
         } else {
             error(
                 "Could not store the pendingIntent, " +
-                    "a PendingIntentWriterCallback is required for writing a PendingIntentAction."
+                    "a WriterEvents is required for writing a PendingIntentAction."
             )
         }
     }

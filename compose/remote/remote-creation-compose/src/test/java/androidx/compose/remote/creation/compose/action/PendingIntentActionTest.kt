@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
+
 package androidx.compose.remote.creation.compose.action
 
 import android.app.PendingIntent
 import android.content.Intent
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.actions.HostAction
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.action.PendingIntentAction.Companion.ACTION_NAME
-import androidx.compose.remote.creation.compose.capture.PendingIntentWriterCallback
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.geometry.Size
@@ -58,14 +61,16 @@ class PendingIntentActionTest {
         val pendingIntents: MutableList<PendingIntent> = mutableListOf()
         val creationState =
             RemoteComposeCreationState(
-                creationDisplayInfo = CreationDisplayInfo(1, 1, 1f),
+                creationDisplayInfo = CreationDisplayInfo(1, 1, 160),
                 profile = RcPlatformProfiles.ANDROIDX,
-                writerCallback =
-                    object : PendingIntentWriterCallback {
+                writerEvents =
+                    object : WriterEvents {
                         override fun storePendingIntent(pendingIntent: PendingIntent): Int {
                             pendingIntents.add(pendingIntent)
                             return pendingIntents.lastIndex
                         }
+
+                        override fun onDocumentAvailable(documentBytes: ByteArray) {}
                     },
             )
 

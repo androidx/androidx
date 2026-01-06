@@ -31,8 +31,8 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -45,59 +45,103 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.toSize
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.max
-import kotlin.math.roundToInt
+import kotlin.math.sin
 import kotlinx.coroutines.launch
 
 @Sampled
 @Composable
 fun TransformableSample() {
+    /**
+     * Rotates the given offset around the origin by the given angle in degrees.
+     *
+     * A positive angle indicates a counterclockwise rotation around the right-handed 2D Cartesian
+     * coordinate system.
+     *
+     * See: [Rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
+     */
+    fun Offset.rotateBy(angle: Float): Offset {
+        val angleInRadians = angle * (PI / 180)
+        val cos = cos(angleInRadians)
+        val sin = sin(angleInRadians)
+        return Offset((x * cos - y * sin).toFloat(), (x * sin + y * cos).toFloat())
+    }
+
     Box(Modifier.size(200.dp).clipToBounds().background(Color.LightGray)) {
         // set up all transformation states
         var scale by remember { mutableStateOf(1f) }
         var rotation by remember { mutableStateOf(0f) }
         var offset by remember { mutableStateOf(Offset.Zero) }
         val coroutineScope = rememberCoroutineScope()
+
+        var size by remember { mutableStateOf(Size.Zero) }
+
         // let's create a modifier state to specify how to update our UI state defined above
-        val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-            // note: scale goes by factor, not an absolute difference, so we need to multiply it
-            // for this example, we don't allow downscaling, so cap it to 1f
-            scale = max(scale * zoomChange, 1f)
-            rotation += rotationChange
-            offset += offsetChange
-        }
+        val state =
+            rememberTransformableState { centroid, zoomChange, offsetChange, rotationChange ->
+                // note: scale goes by factor, not an absolute difference, so we need to multiply it
+                // for this example, we don't allow downscaling, so cap it to 1f
+                val oldScale = scale
+                val newScale = max(scale * zoomChange, 1f)
+
+                // If the centroid isn't specified, assume it should be applied from the center
+                val effectiveCentroid = centroid.takeIf { it.isSpecified } ?: size.center
+
+                // For natural zooming and rotating, the centroid of the gesture should
+                // be the fixed point where zooming and rotating occurs.
+                // We compute where the centroid was (in the pre-transformed coordinate
+                // space), and then compute where it will be after this delta.
+                // We then compute what the new offset should be to keep the centroid
+                // visually stationary for rotating and zooming, and also apply the pan.
+                offset =
+                    (offset + effectiveCentroid / oldScale).rotateBy(rotationChange) -
+                        (effectiveCentroid / newScale + offsetChange / oldScale)
+                scale = newScale
+                rotation += rotationChange
+            }
         Box(
-            Modifier
-                // apply pan offset state as a layout transformation before other modifiers
-                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+            Modifier.onSizeChanged { size = it.toSize() }
                 // add transformable to listen to multitouch transformation events after offset
                 .transformable(state = state)
                 // optional for example: add double click to zoom
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onDoubleTap = { coroutineScope.launch { state.animateZoomBy(4f) } }
+                        onDoubleTap = { offset ->
+                            coroutineScope.launch { state.animateZoomBy(4f, centroid = offset) }
+                        }
                     )
                 }
                 .fillMaxSize()
-                .border(1.dp, Color.Green),
-            contentAlignment = Alignment.Center,
+                .border(1.dp, Color.Green)
         ) {
             Text(
                 "\uD83C\uDF55",
                 fontSize = 32.sp,
                 // apply other transformations like rotation and zoom on the pizza slice emoji
                 modifier =
-                    Modifier.graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        rotationZ = rotation
-                    },
+                    Modifier.fillMaxSize()
+                        .graphicsLayer {
+                            translationX = -offset.x * scale
+                            translationY = -offset.y * scale
+                            scaleX = scale
+                            scaleY = scale
+                            rotationZ = rotation
+                            transformOrigin = TransformOrigin(0f, 0f)
+                        }
+                        .wrapContentSize(align = Alignment.Center),
             )
         }
     }
@@ -106,6 +150,21 @@ fun TransformableSample() {
 @Sampled
 @Composable
 fun TransformableSampleInsideScroll() {
+    /**
+     * Rotates the given offset around the origin by the given angle in degrees.
+     *
+     * A positive angle indicates a counterclockwise rotation around the right-handed 2D Cartesian
+     * coordinate system.
+     *
+     * See: [Rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
+     */
+    fun Offset.rotateBy(angle: Float): Offset {
+        val angleInRadians = angle * (PI / 180)
+        val cos = cos(angleInRadians)
+        val sin = sin(angleInRadians)
+        return Offset((x * cos - y * sin).toFloat(), (x * sin + y * cos).toFloat())
+    }
+
     Row(Modifier.size(width = 120.dp, height = 100.dp).horizontalScroll(rememberScrollState())) {
         // first child of the scrollable row is a transformable
         Box(Modifier.size(100.dp).clipToBounds().background(Color.LightGray)) {
@@ -114,18 +173,32 @@ fun TransformableSampleInsideScroll() {
             var rotation by remember { mutableStateOf(0f) }
             var offset by remember { mutableStateOf(Offset.Zero) }
             val coroutineScope = rememberCoroutineScope()
+
+            var size by remember { mutableStateOf(Size.Zero) }
+
             // let's create a modifier state to specify how to update our UI state defined above
-            val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-                // note: scale goes by factor, not an absolute difference, so we need to multiply it
-                // for this example, we don't allow downscaling, so cap it to 1f
-                scale = max(scale * zoomChange, 1f)
-                rotation += rotationChange
-                offset += offsetChange
-            }
+            val state =
+                rememberTransformableState { centroid, zoomChange, offsetChange, rotationChange ->
+                    val oldScale = scale
+                    val newScale = max(scale * zoomChange, 1f)
+
+                    // If the centroid isn't specified, assume it should be applied from the center
+                    val effectiveCentroid = centroid.takeIf { it.isSpecified } ?: size.center
+
+                    // For natural zooming and rotating, the centroid of the gesture should
+                    // be the fixed point where zooming and rotating occurs.
+                    // We compute where the centroid was (in the pre-transformed coordinate
+                    // space), and then compute where it will be after this delta.
+                    // We then compute what the new offset should be to keep the centroid
+                    // visually stationary for rotating and zooming, and also apply the pan.
+                    offset =
+                        (offset + effectiveCentroid / oldScale).rotateBy(rotationChange) -
+                            (effectiveCentroid / newScale + offsetChange / oldScale)
+                    scale = newScale
+                    rotation += rotationChange
+                }
             Box(
-                Modifier
-                    // apply pan offset state as a layout transformation before other modifiers
-                    .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+                Modifier.onSizeChanged { size = it.toSize() }
                     // add transformable to listen to multitouch transformation events after offset
                     // To make sure our transformable work well within pager or scrolling lists,
                     // disallow panning if we are not zoomed in.
@@ -133,23 +206,28 @@ fun TransformableSampleInsideScroll() {
                     // optional for example: add double click to zoom
                     .pointerInput(Unit) {
                         detectTapGestures(
-                            onDoubleTap = { coroutineScope.launch { state.animateZoomBy(4f) } }
+                            onDoubleTap = { offset ->
+                                coroutineScope.launch { state.animateZoomBy(4f, centroid = offset) }
+                            }
                         )
                     }
                     .fillMaxSize()
-                    .border(1.dp, Color.Green),
-                contentAlignment = Alignment.Center,
+                    .border(1.dp, Color.Green)
             ) {
                 Text(
                     "\uD83C\uDF55",
                     fontSize = 32.sp,
-                    // apply other transformations like rotation and zoom on the pizza slice emoji
                     modifier =
-                        Modifier.graphicsLayer {
-                            scaleX = scale
-                            scaleY = scale
-                            rotationZ = rotation
-                        },
+                        Modifier.fillMaxSize()
+                            .graphicsLayer {
+                                translationX = -offset.x * scale
+                                translationY = -offset.y * scale
+                                scaleX = scale
+                                scaleY = scale
+                                rotationZ = rotation
+                                transformOrigin = TransformOrigin(0f, 0f)
+                            }
+                            .wrapContentSize(align = Alignment.Center),
                 )
             }
         }
@@ -162,24 +240,53 @@ fun TransformableSampleInsideScroll() {
 @Sampled
 @Composable
 fun TransformableAnimateBySample() {
+    /**
+     * Rotates the given offset around the origin by the given angle in degrees.
+     *
+     * A positive angle indicates a counterclockwise rotation around the right-handed 2D Cartesian
+     * coordinate system.
+     *
+     * See: [Rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix)
+     */
+    fun Offset.rotateBy(angle: Float): Offset {
+        val angleInRadians = angle * (PI / 180)
+        val cos = cos(angleInRadians)
+        val sin = sin(angleInRadians)
+        return Offset((x * cos - y * sin).toFloat(), (x * sin + y * cos).toFloat())
+    }
+
     Box(Modifier.size(200.dp).clipToBounds().background(Color.LightGray)) {
         // set up all transformation states
         var scale by remember { mutableStateOf(1f) }
         var rotation by remember { mutableStateOf(0f) }
         var offset by remember { mutableStateOf(Offset.Zero) }
         val coroutineScope = rememberCoroutineScope()
+
+        var size by remember { mutableStateOf(Size.Zero) }
+
         // let's create a modifier state to specify how to update our UI state defined above
-        val state = rememberTransformableState { zoomChange, offsetChange, rotationChange ->
-            // note: scale goes by factor, not an absolute difference, so we need to multiply it
-            // for this example, we don't allow downscaling, so cap it to 1f
-            scale = max(scale * zoomChange, 1f)
-            rotation += rotationChange
-            offset += offsetChange
-        }
+        val state =
+            rememberTransformableState { centroid, zoomChange, offsetChange, rotationChange ->
+                val oldScale = scale
+                val newScale = max(scale * zoomChange, 1f)
+
+                // If the centroid isn't specified, assume it should be applied from the center
+                val effectiveCentroid = centroid.takeIf { it.isSpecified } ?: size.center
+
+                // For natural zooming and rotating, the centroid of the gesture should
+                // be the fixed point where zooming and rotating occurs.
+                // We compute where the centroid was (in the pre-transformed coordinate
+                // space), and then compute where it will be after this delta.
+                // We then compute what the new offset should be to keep the centroid
+                // visually stationary for rotating and zooming, and also apply the pan.
+                offset =
+                    (offset + effectiveCentroid / oldScale).rotateBy(rotationChange) -
+                        (effectiveCentroid / newScale + offsetChange / oldScale)
+                scale = newScale
+                rotation += rotationChange
+            }
         Box(
-            Modifier
-                // apply pan offset state as a layout transformation before other modifiers
-                .offset { IntOffset(offset.x.roundToInt(), offset.y.roundToInt()) }
+            Modifier.onSizeChanged { size = it.toSize() }
                 // add transformable to listen to multitouch transformation events after offset
                 .transformable(state = state)
                 // detect tap gestures:
@@ -187,7 +294,7 @@ fun TransformableAnimateBySample() {
                 // 2) double tap to animate back to the initial position
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onTap = {
+                        onTap = { offset ->
                             coroutineScope.launch {
                                 state.animateBy(
                                     zoomFactor = 1.5f,
@@ -196,28 +303,39 @@ fun TransformableAnimateBySample() {
                                     zoomAnimationSpec = spring(),
                                     panAnimationSpec = tween(durationMillis = 1000),
                                     rotationAnimationSpec = spring(),
+                                    centroid = offset,
                                 )
                             }
                         },
-                        onDoubleTap = {
-                            coroutineScope.launch { state.animateBy(1 / scale, -offset, -rotation) }
+                        onDoubleTap = { offset ->
+                            coroutineScope.launch {
+                                state.animateBy(
+                                    zoomFactor = 1 / scale,
+                                    panOffset = -offset,
+                                    rotationDegrees = -rotation,
+                                    centroid = offset,
+                                )
+                            }
                         },
                     )
                 }
                 .fillMaxSize()
-                .border(1.dp, Color.Green),
-            contentAlignment = Alignment.Center,
+                .border(1.dp, Color.Green)
         ) {
             Text(
                 "\uD83C\uDF55",
                 fontSize = 32.sp,
-                // apply other transformations like rotation and zoom on the pizza slice emoji
                 modifier =
-                    Modifier.graphicsLayer {
-                        scaleX = scale
-                        scaleY = scale
-                        rotationZ = rotation
-                    },
+                    Modifier.fillMaxSize()
+                        .graphicsLayer {
+                            translationX = -offset.x * scale
+                            translationY = -offset.y * scale
+                            scaleX = scale
+                            scaleY = scale
+                            rotationZ = rotation
+                            transformOrigin = TransformOrigin(0f, 0f)
+                        }
+                        .wrapContentSize(align = Alignment.Center),
             )
         }
     }

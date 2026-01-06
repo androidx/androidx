@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
-import android.hardware.display.DisplayManager
-import android.view.SurfaceView
+import android.hardware.display.VirtualDisplay
 import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
@@ -28,12 +28,14 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,17 +53,20 @@ import java.io.ByteArrayInputStream
 public fun rememberRemoteDocument(
     creationDisplayInfo: CreationDisplayInfo = createCreationDisplayInfo(),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    writerCallbacks: WriterCallback? = null,
+    writerEvents: WriterEvents? = null,
     onCreate: ((CoreDocument) -> Unit)? = null,
     content: @Composable () -> Unit,
 ): MutableState<CoreDocument?> {
     val doc: MutableState<CoreDocument?> = remember { mutableStateOf(null) }
     val done = remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
     RemoteComposeCapture(
-        context = LocalContext.current,
+        context = context,
+        virtualDisplay = virtualDisplay,
         creationDisplayInfo = creationDisplayInfo,
         immediateCapture = true,
-        onPaint = { view, writer ->
+        onPaint = { _, writer ->
             if (!done.value) {
                 val buffer = writer.buffer()
                 val bufferSize = writer.bufferSize()
@@ -79,8 +84,8 @@ public fun rememberRemoteDocument(
         },
         onCaptureReady = @Composable {},
         profile = profile,
-        writerCallbacks = writerCallbacks,
-        content = @Composable { content() },
+        writerEvents = writerEvents,
+        content = content,
     )
     return doc
 }
@@ -93,7 +98,12 @@ public fun rememberRemoteDocument(
     content: @Composable () -> Unit,
 ): MutableState<CoreDocument?> {
     return rememberRemoteDocument(
-        creationDisplayInfo = CreationDisplayInfo(size.width.toInt(), size.height.toInt(), 1f),
+        creationDisplayInfo =
+            CreationDisplayInfo(
+                size.width.toInt(),
+                size.height.toInt(),
+                LocalConfiguration.current.densityDpi,
+            ),
         onCreate = onCreate,
         content = content,
     )
@@ -103,14 +113,18 @@ public fun rememberRemoteDocument(
 public fun rememberAsyncRemoteDocument(
     creationDisplayInfo: CreationDisplayInfo = createCreationDisplayInfo(),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    writerCallbacks: WriterCallback? = null,
+    writerEvents: WriterEvents? = null,
     content: @Composable (MutableState<Boolean>) -> Unit,
 ): MutableState<CoreDocument?> {
     val doc: MutableState<CoreDocument?> = remember { mutableStateOf(null) }
     val done = remember { mutableStateOf(false) }
     val readyToCapture = remember { mutableStateOf(false) }
+
+    val virtualDisplay = rememberVirtualDisplay(creationDisplayInfo)
+
     RemoteComposeCapture(
         context = LocalContext.current,
+        virtualDisplay = virtualDisplay,
         creationDisplayInfo = creationDisplayInfo,
         immediateCapture = false,
         onPaint = { view: View, writer: RemoteComposeWriter ->
@@ -128,10 +142,18 @@ public fun rememberAsyncRemoteDocument(
         },
         onCaptureReady = {},
         profile = profile,
-        writerCallbacks = writerCallbacks,
+        writerEvents = writerEvents,
         content = @Composable { content(readyToCapture) },
     )
     return doc
+}
+
+@Composable
+public fun rememberVirtualDisplay(creationDisplayInfo: CreationDisplayInfo): VirtualDisplay {
+    val context = LocalContext.current
+    val virtualDisplay = remember { DisplayPool.allocate(context, creationDisplayInfo) }
+    DisposableEffect(Unit) { onDispose { DisplayPool.release(virtualDisplay) } }
+    return virtualDisplay
 }
 
 @Composable
@@ -153,12 +175,13 @@ public fun displaySize(): Size {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeCapture(
     context: Context,
+    virtualDisplay: VirtualDisplay,
     creationDisplayInfo: CreationDisplayInfo,
     public val immediateCapture: Boolean = true,
     public val onPaint: (View, RemoteComposeWriter) -> Boolean,
     public val onCaptureReady: @Composable () -> Unit,
     public val profile: Profile,
-    public val writerCallbacks: WriterCallback?,
+    public val writerEvents: WriterEvents?,
     public val content: @Composable () -> Unit,
     public val remoteComposeExecution:
         @Composable
@@ -168,13 +191,14 @@ public class RemoteComposeCapture(
                 captureComposeView = captureComposeView,
                 creationDisplayInfo = creationDisplayInfo,
                 profile = profile,
-                writerCallbacks = writerCallbacks,
+                writerEvents = writerEvents,
                 content = contentWrapper,
             )
         },
 ) {
     public constructor(
         context: Context,
+        virtualDisplay: VirtualDisplay,
         creationDisplayInfo: CreationDisplayInfo,
         immediateCapture: Boolean = true,
         onPaint: (View, RemoteComposeWriter) -> Boolean,
@@ -188,18 +212,19 @@ public class RemoteComposeCapture(
                     captureComposeView = captureComposeView,
                     creationDisplayInfo = creationDisplayInfo,
                     profile = RcPlatformProfiles.ANDROIDX,
-                    writerCallbacks = null,
+                    writerEvents = null,
                     content = contentWrapper,
                 )
             },
     ) : this(
         context = context,
+        virtualDisplay = virtualDisplay,
         creationDisplayInfo = creationDisplayInfo,
         immediateCapture = immediateCapture,
         onPaint = onPaint,
         onCaptureReady = onCaptureReady,
         profile = RcPlatformProfiles.ANDROIDX,
-        writerCallbacks = null,
+        writerEvents = null,
         content = content,
         remoteComposeExecution = remoteComposeExecution,
     )
@@ -211,16 +236,6 @@ public class RemoteComposeCapture(
     private var resizableLayout: ResizableLayout
 
     init {
-        val displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-        val virtualDisplay =
-            displayManager.createVirtualDisplay(
-                "Projection",
-                creationDisplayInfo.width,
-                creationDisplayInfo.height,
-                creationDisplayInfo.densityDpi,
-                SurfaceView(context).holder.surface,
-                0,
-            )
 
         val presentation = SecondaryDisplay(context, virtualDisplay.display)
         val captureComposeView =
@@ -239,14 +254,14 @@ public fun RemoteComposeExecution(
     captureComposeView: CaptureComposeView,
     creationDisplayInfo: CreationDisplayInfo,
     profile: Profile,
-    writerCallbacks: WriterCallback?,
+    writerEvents: WriterEvents?,
     content: @Composable () -> Unit,
 ) {
     val remoteComposeCreationState = remember {
         RemoteComposeCreationState(
             creationDisplayInfo = creationDisplayInfo,
             profile = profile,
-            writerCallback = writerCallbacks,
+            writerEvents = writerEvents,
         )
     }
     CompositionLocalProvider(LocalRemoteComposeCreationState provides remoteComposeCreationState) {
@@ -264,7 +279,6 @@ public fun RemoteComposeExecution(
     profiles: Int,
     content: @Composable () -> Unit,
 ) {
-    val density = LocalDensity.current
     val platform = LocalRcPlatformServices.current
 
     val remoteComposeCreationState = remember {
@@ -284,8 +298,6 @@ public fun RemoteComposeExecution(
     profile: Profile,
     content: @Composable () -> Unit,
 ) {
-    val density = LocalDensity.current
-
     val remoteComposeCreationState = remember { RemoteComposeCreationState(size, profile) }
     CompositionLocalProvider(LocalRemoteComposeCreationState provides remoteComposeCreationState) {
         FallbackCreationState.state = remoteComposeCreationState
@@ -312,7 +324,7 @@ public fun RememberRemoteDocumentInline(
                 CaptureComposeView(
                         context = context,
                         immediateCapture = true,
-                        onPaint = { view, writer ->
+                        onPaint = { _, writer ->
                             val buffer = writer.buffer()
                             val bufferSize = writer.bufferSize()
                             val inputStream = ByteArrayInputStream(buffer, 0, bufferSize)
@@ -330,7 +342,7 @@ public fun RememberRemoteDocumentInline(
                                 captureComposeView = this,
                                 creationDisplayInfo = creationDisplayInfo,
                                 profile = profile,
-                                writerCallbacks = null,
+                                writerEvents = null,
                                 content = content,
                             )
                         }

@@ -435,6 +435,10 @@ public open class RemoteComposeContext {
         mRemoteWriter.drawTextOnPath(textId, path, hOffset, vOffset)
     }
 
+    public fun drawTextOnPath(textId: Int, pathId: Int, hOffset: Float, vOffset: Float) {
+        mRemoteWriter.drawTextOnPath(textId, pathId, hOffset, vOffset)
+    }
+
     public fun drawTextOnCircle(
         textId: Int,
         centerX: Float,

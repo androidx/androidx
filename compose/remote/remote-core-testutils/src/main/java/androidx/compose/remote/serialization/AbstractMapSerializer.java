@@ -31,8 +31,8 @@ import java.util.Set;
 
 /** Optional helper class for concrete implementations */
 public abstract class AbstractMapSerializer implements MapSerializer, SerializeFactory {
-    protected Map<String, Serializer> mEntries = new LinkedHashMap<>();
-    protected Set<SerializeTags> mTags = new HashSet<>();
+    protected @NonNull Map<@NonNull String, @NonNull Serializer> mEntries = new LinkedHashMap<>();
+    protected @NonNull Set<@NonNull SerializeTags> mTags = new HashSet<>();
 
     protected @Nullable String mType;
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.contextmenu
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.contextmenu.ContextMenuState.Status
 import androidx.compose.foundation.layout.Box
@@ -56,6 +57,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -175,6 +177,10 @@ class ContextMenuAreaTest {
 
     @Test
     fun whenContextMenu_clickOffPopup_closesPopup() {
+        assumeFalse(
+            "Test fails on cuttlefish b/465855446",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         val state = ContextMenuState(Status.Open(Offset.Zero))
         rule.setContent {
             Box(Modifier.fillMaxSize()) { TestMenu(state = state, onDismiss = { state.close() }) }

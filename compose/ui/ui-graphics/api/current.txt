@@ -1710,7 +1710,7 @@ package androidx.compose.ui.graphics.drawscope {
     method public static inline void withTransform(androidx.compose.ui.graphics.drawscope.DrawScope, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawTransform,kotlin.Unit> transformBlock, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawBlock);
   }
 
-  @kotlin.DslMarker public @interface DrawScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface DrawScopeMarker {
   }
 
   public abstract sealed exhaustive class DrawStyle {

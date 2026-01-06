@@ -43,8 +43,10 @@ internal expect fun createInputDispatcher(
  * * [enqueueTouchUp]
  * * [enqueueTouchCancel]
  *
+ * Cursor input:
+ * * [currentCursorPosition]
+ *
  * Mouse input:
- * * [currentMousePosition]
  * * [enqueueMousePress]
  * * [enqueueMouseMove]
  * * [updateMousePosition]
@@ -59,6 +61,15 @@ internal expect fun createInputDispatcher(
  * Key input:
  * * [enqueueKeyDown]
  * * [enqueueKeyUp]
+ *
+ * Trackpad input:
+ * * [enqueueTrackpadPress]
+ * * [enqueueTrackpadMove]
+ * * [updateTrackpadPosition]
+ * * [enqueueTrackpadRelease]
+ * * [enqueueTrackpadCancel]
+ * * [enqueueTrackpadScroll]
+ * * [enqueueTrackpadPinch]
  *
  * Chaining methods:
  * * [advanceEventTime]
@@ -106,10 +117,10 @@ internal abstract class InputDispatcher(
     protected var partialGesture: PartialGesture? = null
 
     /**
-     * The state of the mouse. The mouse state is always available. It starts at [Offset.Zero] in
+     * The state of the cursor. The cursor state is always available. It starts at [Offset.Zero] in
      * not-entered state.
      */
-    protected var mouseInputState: MouseInputState = MouseInputState()
+    protected var cursorInputState: CursorInputState = CursorInputState()
 
     /**
      * The state of the keyboard keys. The key input state is always available. It starts with no
@@ -144,7 +155,7 @@ internal abstract class InputDispatcher(
         val state = testContext.states.remove(rootHash)
         if (state != null) {
             partialGesture = state.partialGesture
-            mouseInputState = state.mouseInputState
+            cursorInputState = state.cursorInputState
             keyInputState = state.keyInputState
         }
     }
@@ -153,7 +164,7 @@ internal abstract class InputDispatcher(
         if (root != null) {
             val rootHash = identityHashCode(root)
             testContext.states[rootHash] =
-                InputDispatcherState(partialGesture, mouseInputState, keyInputState)
+                InputDispatcherState(partialGesture, cursorInputState, keyInputState)
         }
     }
 
@@ -201,8 +212,8 @@ internal abstract class InputDispatcher(
      * The current position of the mouse. If no mouse event has been sent yet, will be
      * [Offset.Zero].
      */
-    val currentMousePosition: Offset
-        get() = mouseInputState.lastPosition
+    val currentCursorPosition: Offset
+        get() = cursorInputState.lastPosition
 
     /**
      * Indicates if the given [key] is pressed down or not.
@@ -232,12 +243,26 @@ internal abstract class InputDispatcher(
             "Cannot send DOWN event, a gesture is already in progress for pointer $pointerId"
         }
 
-        if (mouseInputState.hasAnyButtonPressed) {
-            // If mouse buttons are down, a touch gesture cancels the mouse gesture
-            mouseInputState.enqueueCancel()
-        } else if (mouseInputState.isEntered) {
-            // If no mouse buttons were down, we may have been in hovered state
-            mouseInputState.exitHover()
+        if (cursorInputState.hasAnyButtonPressed) {
+            // If cursor buttons are down, a touch gesture cancels the cursor gesture
+            when (
+                requireNotNull(cursorInputState.currentCursorInputSource) {
+                    "Cursor input had buttons down, but not associated with a specific input type"
+                }
+            ) {
+                CursorInputSource.Mouse -> enqueueMouseCancel()
+                CursorInputSource.Trackpad -> enqueueTrackpadCancel()
+            }
+        } else if (cursorInputState.isEntered) {
+            // If no cursor buttons were down, we may have been in hovered state
+            when (
+                requireNotNull(cursorInputState.currentCursorInputSource) {
+                    "Cursor is entered, but not associated with a specific input type"
+                }
+            ) {
+                CursorInputSource.Mouse -> cursorInputState.exitMouseHover()
+                CursorInputSource.Trackpad -> cursorInputState.exitTrackpadHover()
+            }
         }
 
         // Send a MOVE event if pointers have changed since the last event
@@ -383,33 +408,37 @@ internal abstract class InputDispatcher(
      *   defined by [MouseButton.buttonId].
      */
     fun enqueueMousePress(buttonId: Int) {
-        val mouse = mouseInputState
+        val cursor = cursorInputState
 
-        check(!mouse.isButtonPressed(buttonId)) {
+        check(!cursor.isButtonPressed(buttonId)) {
             "Cannot send mouse button down event, button $buttonId is already pressed"
         }
-        check(isWithinRootBounds(currentMousePosition) || mouse.hasAnyButtonPressed) {
+        check(isWithinRootBounds(currentCursorPosition) || cursor.hasAnyButtonPressed) {
             "Cannot start a mouse gesture outside the Compose root bounds, mouse position is " +
-                "$currentMousePosition and bounds are ${root.bounds}"
+                "$currentCursorPosition and bounds are ${root.bounds}"
+        }
+        if (cursor.currentCursorInputSource == CursorInputSource.Trackpad) {
+            enqueueTrackpadCancel()
         }
         if (partialGesture != null) {
             enqueueTouchCancel()
         }
+        cursor.currentCursorInputSource = CursorInputSource.Mouse
 
         // Down time is when the first button is pressed
-        if (mouse.hasNoButtonsPressed) {
-            mouse.downTime = currentTime
+        if (cursor.hasNoButtonsPressed) {
+            cursor.downTime = currentTime
         }
-        mouse.setButtonBit(buttonId)
+        cursor.setButtonBit(buttonId)
 
         // Exit hovering if necessary (Android-specific behavior)
         if (exitHoverOnPress) {
-            if (mouse.isEntered) {
-                mouse.exitHover()
+            if (cursor.isEntered) {
+                cursor.exitMouseHover()
             }
         }
         // down/move + press
-        mouse.enqueuePress(buttonId)
+        cursor.enqueueMousePress(buttonId)
     }
 
     /**
@@ -419,24 +448,27 @@ internal abstract class InputDispatcher(
      * @param position The new mouse position
      */
     fun enqueueMouseMove(position: Offset) {
-        val mouse = mouseInputState
-
+        val cursor = cursorInputState
+        if (cursor.currentCursorInputSource == CursorInputSource.Trackpad) {
+            enqueueTrackpadCancel()
+        }
         // Touch needs to be cancelled, even if mouse is out of bounds
         if (partialGesture != null) {
             enqueueTouchCancel()
         }
+        cursor.currentCursorInputSource = CursorInputSource.Mouse
 
         updateMousePosition(position)
         val isWithinBounds = isWithinRootBounds(position)
 
-        if (isWithinBounds && !mouse.isEntered && mouse.hasNoButtonsPressed) {
+        if (isWithinBounds && !cursor.isEntered && cursor.hasNoButtonsPressed) {
             // If not yet hovering and no buttons pressed, enter hover state
-            mouse.enterHover()
-        } else if (!isWithinBounds && mouse.isEntered) {
+            cursor.enterMouseHover()
+        } else if (!isWithinBounds && cursor.isEntered) {
             // If hovering, exit now
-            mouse.exitHover()
+            cursor.exitMouseHover()
         }
-        mouse.enqueueMove()
+        cursor.enqueueMouseMove()
     }
 
     /**
@@ -446,7 +478,7 @@ internal abstract class InputDispatcher(
      * @param position The new mouse position
      */
     fun updateMousePosition(position: Offset) {
-        mouseInputState.lastPosition = position
+        cursorInputState.lastPosition = position
         // Contrary to touch input, we don't need to store that the position has changed, because
         // all events that are affected send the current position regardless.
     }
@@ -460,23 +492,27 @@ internal abstract class InputDispatcher(
      *   defined by [MouseButton.buttonId].
      */
     fun enqueueMouseRelease(buttonId: Int) {
-        val mouse = mouseInputState
+        val cursor = cursorInputState
 
-        check(mouse.isButtonPressed(buttonId)) {
+        check(cursor.isButtonPressed(buttonId)) {
             "Cannot send mouse button up event, button $buttonId is not pressed"
         }
         check(partialGesture == null) {
             "Touch gesture can't be in progress, mouse buttons are down"
         }
 
-        mouse.unsetButtonBit(buttonId)
-        mouse.enqueueRelease(buttonId)
+        cursor.unsetButtonBit(buttonId)
+        cursor.enqueueMouseRelease(buttonId)
+
+        if (cursor.hasNoButtonsPressed) {
+            cursor.currentCursorInputSource = null
+        }
 
         // When no buttons remaining, enter hover state immediately (Android-specific behavior)
         if (exitHoverOnPress) {
-            if (mouse.hasNoButtonsPressed && isWithinRootBounds(currentMousePosition)) {
-                mouse.enterHover()
-                mouse.enqueueMove()
+            if (cursor.hasNoButtonsPressed && isWithinRootBounds(currentCursorPosition)) {
+                cursor.enterMouseHover()
+                cursor.enqueueMouseMove()
             }
         }
     }
@@ -487,18 +523,21 @@ internal abstract class InputDispatcher(
      * @param position The new mouse position
      */
     fun enqueueMouseEnter(position: Offset) {
-        val mouse = mouseInputState
+        val cursor = cursorInputState
 
-        check(!mouse.isEntered) { "Cannot send mouse hover enter event, mouse is already hovering" }
-        check(mouse.hasNoButtonsPressed) {
+        check(!cursor.isEntered) {
+            "Cannot send mouse hover enter event, mouse is already hovering"
+        }
+        check(cursor.hasNoButtonsPressed) {
             "Cannot send mouse hover enter event, mouse buttons are down"
         }
         check(isWithinRootBounds(position)) {
             "Cannot send mouse hover enter event, $position is out of bounds"
         }
+        cursor.currentCursorInputSource = CursorInputSource.Mouse
 
         updateMousePosition(position)
-        mouse.enterHover()
+        cursor.enterMouseHover()
     }
 
     /**
@@ -507,12 +546,12 @@ internal abstract class InputDispatcher(
      * @param position The new mouse position
      */
     fun enqueueMouseExit(position: Offset) {
-        val mouse = mouseInputState
+        val cursor = cursorInputState
 
-        check(mouse.isEntered) { "Cannot send mouse hover exit event, mouse is not hovering" }
+        check(cursor.isEntered) { "Cannot send mouse hover exit event, mouse is not hovering" }
 
         updateMousePosition(position)
-        mouse.exitHover()
+        cursor.exitMouseHover()
     }
 
     /**
@@ -520,12 +559,18 @@ internal abstract class InputDispatcher(
      * Sent automatically if a touch event is sent while mouse buttons are down.
      */
     fun enqueueMouseCancel() {
-        val mouse = mouseInputState
-        check(mouse.hasAnyButtonPressed) {
+        val cursor = cursorInputState
+        check(cursor.hasAnyButtonPressed) {
             "Cannot send mouse cancel event, no mouse buttons are pressed"
         }
-        mouse.clearButtonState()
-        mouse.enqueueCancel()
+        check(cursor.currentCursorInputSource == CursorInputSource.Mouse) {
+            "Cannot send mouse cancel event, since the current cursor input isn't a mouse"
+        }
+
+        cursor.clearButtonState()
+        cursor.enqueueMouseCancel()
+
+        cursor.currentCursorInputSource = null
     }
 
     /**
@@ -536,26 +581,224 @@ internal abstract class InputDispatcher(
      * content appears at the top of a column, or at the start of a row).
      */
     fun enqueueMouseScroll(delta: Float, scrollWheel: ScrollWheel) {
-        val mouse = mouseInputState
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Mouse
 
         if (moveOnScroll) {
             // On Android a scroll is always preceded by a move(/hover) event
-            enqueueMouseMove(currentMousePosition)
+            enqueueMouseMove(currentCursorPosition)
         }
-        if (isWithinRootBounds(currentMousePosition)) {
-            mouse.enqueueScroll(delta, scrollWheel)
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueMouseScroll(delta, scrollWheel)
         }
     }
 
     fun enqueueMouseScroll(offset: Offset) {
-        val mouse = mouseInputState
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Mouse
 
         if (moveOnScroll) {
             // On Android a scroll is always preceded by a move(/hover) event
-            enqueueMouseMove(currentMousePosition)
+            enqueueMouseMove(currentCursorPosition)
         }
-        if (isWithinRootBounds(currentMousePosition)) {
-            mouse.enqueueScroll(offset)
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueMouseScroll(offset)
+        }
+    }
+
+    /**
+     * Generates a mouse button pressed event for the given [buttonId]. This will generate all
+     * required associated events as well, such as a down event if it is the first button being
+     * pressed and an optional hover exit event.
+     *
+     * @param buttonId The id of the mouse button. This is platform dependent, use the values
+     *   defined by [MouseButton.buttonId].
+     */
+    fun enqueueTrackpadPress(buttonId: Int) {
+        val cursor = cursorInputState
+
+        check(!cursor.isButtonPressed(buttonId)) {
+            "Cannot send mouse button down event, button $buttonId is already pressed"
+        }
+        check(isWithinRootBounds(currentCursorPosition) || cursor.hasAnyButtonPressed) {
+            "Cannot start a trackpad gesture outside the Compose root bounds, trackpad position " +
+                "is $currentCursorPosition and bounds are ${root.bounds}"
+        }
+        if (cursor.currentCursorInputSource == CursorInputSource.Mouse) {
+            enqueueMouseCancel()
+        }
+        if (partialGesture != null) {
+            enqueueTouchCancel()
+        }
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+
+        // Down time is when the first button is pressed
+        if (cursor.hasNoButtonsPressed) {
+            cursor.downTime = currentTime
+        }
+        cursor.setButtonBit(buttonId)
+
+        // Exit hovering if necessary (Android-specific behavior)
+        if (exitHoverOnPress) {
+            if (cursor.isEntered) {
+                cursor.exitTrackpadHover()
+            }
+        }
+        // down/move + press
+        cursor.enqueueTrackpadPress(buttonId)
+    }
+
+    /**
+     * Generates a mouse move or hover event to the given [position]. If buttons are pressed, a move
+     * event is generated, otherwise generates a hover event.
+     *
+     * @param position The new mouse position
+     */
+    fun enqueueTrackpadMove(position: Offset) {
+        val cursor = cursorInputState
+
+        if (cursor.currentCursorInputSource == CursorInputSource.Mouse) {
+            enqueueMouseCancel()
+        }
+        // Touch needs to be cancelled, even if trackpad is out of bounds
+        if (partialGesture != null) {
+            enqueueTouchCancel()
+        }
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+
+        updateTrackpadPosition(position)
+        val isWithinBounds = isWithinRootBounds(position)
+
+        if (isWithinBounds && !cursor.isEntered && cursor.hasNoButtonsPressed) {
+            // If not yet hovering and no buttons pressed, enter hover state
+            cursor.enterTrackpadHover()
+        } else if (!isWithinBounds && cursor.isEntered) {
+            // If hovering, exit now
+            cursor.exitTrackpadHover()
+        }
+        cursor.enqueueTrackpadMove()
+    }
+
+    /**
+     * Updates the trackpad position without sending an event. Useful if down, up or scroll events
+     * need to be injected on a different location than the preceding move event.
+     *
+     * @param position The new trackpad position
+     */
+    fun updateTrackpadPosition(position: Offset) {
+        cursorInputState.lastPosition = position
+        // Contrary to touch input, we don't need to store that the position has changed, because
+        // all events that are affected send the current position regardless.
+    }
+
+    /**
+     * Generates a mouse button released event for the given [buttonId]. This will generate all
+     * required associated events as well, such as an up and hover enter event if it is the last
+     * button being released.
+     *
+     * @param buttonId The id of the mouse button. This is platform dependent, use the values
+     *   defined by [MouseButton.buttonId].
+     */
+    fun enqueueTrackpadRelease(buttonId: Int) {
+        val cursor = cursorInputState
+
+        check(cursor.isButtonPressed(buttonId)) {
+            "Cannot send mouse button up event, button $buttonId is not pressed"
+        }
+        check(partialGesture == null) {
+            "Touch gesture can't be in progress, mouse buttons are down"
+        }
+
+        cursor.unsetButtonBit(buttonId)
+        cursor.enqueueTrackpadRelease(buttonId)
+
+        if (cursor.hasNoButtonsPressed) {
+            cursor.currentCursorInputSource = null
+        }
+
+        // When no buttons remaining, enter hover state immediately (Android-specific behavior)
+        if (exitHoverOnPress) {
+            if (cursor.hasNoButtonsPressed && isWithinRootBounds(currentCursorPosition)) {
+                cursor.enterTrackpadHover()
+                cursor.enqueueTrackpadMove()
+            }
+        }
+    }
+
+    /**
+     * Generates a trackpad hover enter event on the given [position].
+     *
+     * @param position The new trackpad position
+     */
+    fun enqueueTrackpadEnter(position: Offset) {
+        val cursor = cursorInputState
+
+        check(!cursor.isEntered) {
+            "Cannot send trackpad hover enter event, trackpad is already hovering"
+        }
+        check(cursor.hasNoButtonsPressed) {
+            "Cannot send trackpad hover enter event, mouse buttons are down"
+        }
+        check(isWithinRootBounds(position)) {
+            "Cannot send trackpad hover enter event, $position is out of bounds"
+        }
+
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+
+        updateTrackpadPosition(position)
+        cursor.enterTrackpadHover()
+    }
+
+    /**
+     * Generates a trackpad hover exit event on the given [position].
+     *
+     * @param position The new trackpad position
+     */
+    fun enqueueTrackpadExit(position: Offset) {
+        val cursor = cursorInputState
+
+        check(cursor.isEntered) {
+            "Cannot send trackpad hover exit event, trackpad is not hovering"
+        }
+
+        updateTrackpadPosition(position)
+        cursor.exitTrackpadHover()
+    }
+
+    /**
+     * Generates a trackpad cancel event. Can only be done if no mouse buttons are currently
+     * pressed. Sent automatically if a touch event is sent while mouse buttons are down.
+     */
+    fun enqueueTrackpadCancel() {
+        val cursor = cursorInputState
+        check(cursor.hasAnyButtonPressed) {
+            "Cannot send trackpad cancel event, no mouse buttons are pressed"
+        }
+        check(cursor.currentCursorInputSource == CursorInputSource.Trackpad) {
+            "Cannot send trackpad cancel event, since the current cursor input isn't a trackpad"
+        }
+
+        cursor.clearButtonState()
+        cursor.enqueueTrackpadCancel()
+
+        cursor.currentCursorInputSource = null
+    }
+
+    fun enqueueTrackpadScroll(offset: Offset) {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadScroll(offset)
+        }
+    }
+
+    fun enqueueTrackpadPinch(scaleFactor: Float) {
+        val cursor = cursorInputState
+        cursor.currentCursorInputSource = CursorInputSource.Trackpad
+
+        if (isWithinRootBounds(currentCursorPosition)) {
+            cursor.enqueueTrackpadPinch(scaleFactor)
         }
     }
 
@@ -611,14 +854,28 @@ internal abstract class InputDispatcher(
         rotaryInputState.enqueueRotaryScrollVertically(verticalScrollPixels)
     }
 
-    private fun MouseInputState.enterHover() {
-        enqueueEnter()
+    private fun CursorInputState.enterMouseHover() {
+        enqueueMouseEnter()
         isEntered = true
+        currentCursorInputSource = CursorInputSource.Mouse
     }
 
-    private fun MouseInputState.exitHover() {
-        enqueueExit()
+    private fun CursorInputState.exitMouseHover() {
+        enqueueMouseExit()
         isEntered = false
+        currentCursorInputSource = null
+    }
+
+    private fun CursorInputState.enterTrackpadHover() {
+        enqueueTrackpadEnter()
+        isEntered = true
+        currentCursorInputSource = CursorInputSource.Trackpad
+    }
+
+    private fun CursorInputState.exitTrackpadHover() {
+        enqueueTrackpadExit()
+        isEntered = false
+        currentCursorInputSource = null
     }
 
     /**
@@ -689,17 +946,29 @@ internal abstract class InputDispatcher(
 
     protected abstract fun PartialGesture.enqueueCancel()
 
-    protected abstract fun MouseInputState.enqueuePress(buttonId: Int)
+    protected abstract fun CursorInputState.enqueueMousePress(buttonId: Int)
 
-    protected abstract fun MouseInputState.enqueueMove()
+    protected abstract fun CursorInputState.enqueueMouseMove()
 
-    protected abstract fun MouseInputState.enqueueRelease(buttonId: Int)
+    protected abstract fun CursorInputState.enqueueMouseRelease(buttonId: Int)
 
-    protected abstract fun MouseInputState.enqueueEnter()
+    protected abstract fun CursorInputState.enqueueMouseEnter()
 
-    protected abstract fun MouseInputState.enqueueExit()
+    protected abstract fun CursorInputState.enqueueMouseExit()
 
-    protected abstract fun MouseInputState.enqueueCancel()
+    protected abstract fun CursorInputState.enqueueMouseCancel()
+
+    protected abstract fun CursorInputState.enqueueTrackpadPress(buttonId: Int)
+
+    protected abstract fun CursorInputState.enqueueTrackpadMove()
+
+    protected abstract fun CursorInputState.enqueueTrackpadRelease(buttonId: Int)
+
+    protected abstract fun CursorInputState.enqueueTrackpadEnter()
+
+    protected abstract fun CursorInputState.enqueueTrackpadExit()
+
+    protected abstract fun CursorInputState.enqueueTrackpadCancel()
 
     protected abstract fun KeyInputState.enqueueDown(key: Key)
 
@@ -729,9 +998,16 @@ internal abstract class InputDispatcher(
     protected open val KeyInputState.scrollLockOn: Boolean
         get() = scrollLockState.isLockKeyOnIncludingOffPress
 
-    protected abstract fun MouseInputState.enqueueScroll(delta: Float, scrollWheel: ScrollWheel)
+    protected abstract fun CursorInputState.enqueueMouseScroll(
+        delta: Float,
+        scrollWheel: ScrollWheel,
+    )
 
-    protected abstract fun MouseInputState.enqueueScroll(offset: Offset)
+    protected abstract fun CursorInputState.enqueueMouseScroll(offset: Offset)
+
+    protected abstract fun CursorInputState.enqueueTrackpadScroll(offset: Offset)
+
+    protected abstract fun CursorInputState.enqueueTrackpadPinch(scaleFactor: Float)
 
     protected abstract fun RotaryInputState.enqueueRotaryScrollHorizontally(
         horizontalScrollPixels: Float
@@ -771,15 +1047,17 @@ internal class PartialGesture(val downTime: Long, startPosition: Offset, pointer
 }
 
 /**
- * The current mouse state. Contains the current mouse position, which buttons are pressed, if it is
- * hovering over the current node and the down time of the mouse (which is the time of the last
- * mouse down event).
+ * The current cursor state. Contains the current cursor position, which buttons are pressed, the
+ * type of device that is the current cursor input source, if the cursor is hovering over the
+ * current node and the down time of the cursor (which is the time of the last pointer down event
+ * for the cursor).
  */
-internal class MouseInputState {
+internal class CursorInputState {
     var downTime: Long = 0
     val pressedButtons: MutableSet<Int> = mutableSetOf()
     var lastPosition: Offset = Offset.Zero
     var isEntered: Boolean = false
+    var currentCursorInputSource: CursorInputSource? = null
 
     val hasAnyButtonPressed
         get() = pressedButtons.isNotEmpty()
@@ -805,6 +1083,11 @@ internal class MouseInputState {
     fun clearButtonState() {
         pressedButtons.clear()
     }
+}
+
+internal enum class CursorInputSource {
+    Mouse,
+    Trackpad,
 }
 
 /**
@@ -911,11 +1194,11 @@ internal class RotaryInputState
  *
  * @param partialGesture The state of an incomplete gesture. If no gesture was in progress when the
  *   state of the [InputDispatcher] was saved, this will be `null`.
- * @param mouseInputState The state of the mouse.
+ * @param cursorInputState The state of the cursor.
  * @param keyInputState The state of the keyboard.
  */
 internal data class InputDispatcherState(
     val partialGesture: PartialGesture?,
-    val mouseInputState: MouseInputState,
+    val cursorInputState: CursorInputState,
     val keyInputState: KeyInputState,
 )

@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime.changelist
 
-import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.Composition
@@ -28,8 +27,6 @@ import androidx.compose.runtime.MovableContentStateReference
 import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserverHolder
-import androidx.compose.runtime.SlotTable
-import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.AdvanceSlotsBy
 import androidx.compose.runtime.changelist.Operation.AppendValue
 import androidx.compose.runtime.changelist.Operation.ApplyChangeList
@@ -64,6 +61,9 @@ import androidx.compose.runtime.changelist.Operation.UpdateNode
 import androidx.compose.runtime.changelist.Operation.UpdateValue
 import androidx.compose.runtime.changelist.Operation.Ups
 import androidx.compose.runtime.changelist.Operation.UseCurrentNode
+import androidx.compose.runtime.composer.gapbuffer.Anchor
+import androidx.compose.runtime.composer.gapbuffer.SlotTable
+import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.internal.IntRef
 
 internal class ChangeList : OperationsDebugStringFormattable() {

@@ -25,6 +25,8 @@ import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreati
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 
 /**
  * Abstract base class for all remote bitmap representations in Compose Remote, this class extends
@@ -176,3 +178,9 @@ public fun rememberRemoteBitmap(
         }
     }
 }
+
+/** Extension property to convert a [ImageBitmap] to a [RemoteBitmap]. */
+public val ImageBitmap.rb: RemoteBitmap
+    get() {
+        return RemoteBitmap(this.asAndroidBitmap())
+    }

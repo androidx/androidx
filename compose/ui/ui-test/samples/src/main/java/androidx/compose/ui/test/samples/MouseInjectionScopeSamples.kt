@@ -45,6 +45,7 @@ fun mouseInputAnimateMoveTo() {
         animateMoveTo(bottomRight)
         // Note that an actual user wouldn't be able to instantly
         // move from the bottom right to the top right
+        advanceEventTime()
         moveTo(topRight)
         animateMoveTo(bottomLeft)
     }

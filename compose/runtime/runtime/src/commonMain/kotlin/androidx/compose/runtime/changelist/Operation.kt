@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime.changelist
 
-import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
@@ -29,10 +28,11 @@ import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RecomposeScopeOwner
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserverHolder
-import androidx.compose.runtime.SlotTable
-import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.TestOnly
 import androidx.compose.runtime.composeRuntimeError
+import androidx.compose.runtime.composer.gapbuffer.Anchor
+import androidx.compose.runtime.composer.gapbuffer.SlotTable
+import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.deactivateCurrentGroup
 import androidx.compose.runtime.extractMovableContentAtCurrent
 import androidx.compose.runtime.internal.IntRef

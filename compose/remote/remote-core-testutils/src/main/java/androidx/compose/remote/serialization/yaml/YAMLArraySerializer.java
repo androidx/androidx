@@ -20,27 +20,29 @@ import androidx.compose.remote.serialization.AbstractMapSerializer;
 import androidx.compose.remote.serialization.AbstractSerializer;
 import androidx.compose.remote.serialization.Serializer;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.List;
 import java.util.Vector;
 
 public class YAMLArraySerializer extends AbstractArraySerializer {
 
     @Override
-    public AbstractArraySerializer newArraySerializer() {
+    public @NonNull AbstractArraySerializer newArraySerializer() {
         return new YAMLArraySerializer();
     }
 
     @Override
-    public AbstractMapSerializer newMapSerializer() {
+    public @NonNull AbstractMapSerializer newMapSerializer() {
         return new YAMLMapSerializer();
     }
 
     @Override
-    public AbstractSerializer newSerializer() {
+    public @NonNull AbstractSerializer newSerializer() {
         return new YAMLSerializer();
     }
 
-    List<Object> toList() {
+    @NonNull List<@NonNull Object> toList() {
         List<Object> list = new Vector<>();
         for (Serializer element : mArray) {
             if (element instanceof YAMLSerializer) {

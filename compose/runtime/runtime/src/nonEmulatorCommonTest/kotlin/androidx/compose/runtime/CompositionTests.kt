@@ -18,6 +18,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.composer.gapbuffer.expectError
 import androidx.compose.runtime.mock.Contact
 import androidx.compose.runtime.mock.ContactModel
 import androidx.compose.runtime.mock.Edit

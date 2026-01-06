@@ -41,7 +41,8 @@ public class ScrollModifier implements RecordingModifier.Element {
     public void write(@NonNull RemoteComposeWriter writer) {
         if (mPositionId <= 0f) {
             // direct scrolling, no touch expression
-            writer.addModifierScroll(mDirection);
+            float variable = writer.addFloatConstant(0f);
+            writer.addModifierScroll(mDirection, variable);
         } else if (mNotches <= 0f) {
             writer.addModifierScroll(mDirection, mPositionId);
         } else {

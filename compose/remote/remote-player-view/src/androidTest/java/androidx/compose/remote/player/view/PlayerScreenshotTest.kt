@@ -86,8 +86,10 @@ class PlayerScreenshotTest {
                         BoxLayout.CENTER,
                         BoxLayout.CENTER,
                     ) {
-                        rcDoc.painter.setColor(Color.BLUE).commit()
-                        rcDoc.drawCircle(0f, 0f, 100f)
+                        rcDoc.canvas(RecordingModifier().fillMaxSize()) {
+                            rcDoc.painter.setColor(Color.BLUE).commit()
+                            rcDoc.drawCircle(100f, 100f, 100f)
+                        }
                     }
                 }
             }

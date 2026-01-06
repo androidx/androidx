@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
+
 package androidx.compose.remote.player.compose.test.utils.screenshot.rule
 
 import android.content.Context
@@ -24,14 +26,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RemoteComposeBuffer
 import androidx.compose.remote.creation.CreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.capture.createCreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.heightDp
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
 import androidx.compose.remote.creation.compose.capture.widthDp
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
-import androidx.compose.remote.player.compose.ExperimentalRemoteComposePlayerApi
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.compose.RemoteComposePlayerFlags
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
@@ -69,12 +73,13 @@ import org.junit.runners.model.Statement
  * @param matcher The algorithm to be used to perform the matching. If null, it will let
  *   [androidx.compose.testutils.assertAgainstGolden] use its default.
  */
-@OptIn(ExperimentalRemoteComposePlayerApi::class)
+@OptIn(ExperimentalRemotePlayerApi::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class RemoteComposeScreenshotTestRule(
     moduleDirectory: String,
     private val matcher: BitmapMatcher? = null,
     private val targetPlayer: TargetPlayer,
+    private val profile: Profile = RcPlatformProfiles.ANDROIDX,
 ) : ExternalResource() {
     private val composeTestRule = createComposeRule(StandardTestDispatcher())
     private val screenshotRule = AndroidXScreenshotTestRule(moduleDirectory)
@@ -117,7 +122,9 @@ class RemoteComposeScreenshotTestRule(
         content: @Composable @RemoteComposable () -> Unit,
     ): CoreDocument {
         val document: ByteArray =
-            withContext(Dispatchers.Main) { captureRemoteDocument(context, content = content) }
+            withContext(Dispatchers.Main) {
+                captureSingleRemoteDocument(context, content = content)
+            }
 
         val remoteComposeDocument =
             CoreDocument().apply {
@@ -212,7 +219,7 @@ class RemoteComposeScreenshotTestRule(
                     rememberRemoteDocument(
                         content = content,
                         creationDisplayInfo = creationDisplayInfo,
-                        profile = RcPlatformProfiles.ANDROIDX,
+                        profile = profile,
                     )
                 document?.let { RemoteDocumentPlayer(it, creationDisplayInfo) }
             }

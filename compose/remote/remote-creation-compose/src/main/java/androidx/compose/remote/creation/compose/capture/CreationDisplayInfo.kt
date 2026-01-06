@@ -23,8 +23,8 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -36,16 +36,16 @@ import androidx.compose.ui.unit.dp
  *
  * @param width The width of the display in pixels. Defaults to the system display width.
  * @param height The height of the display in pixels. Defaults to the system display height.
- * @param density The logical density of the display. Defaults to the system display density.
+ * @param densityDpi The logical densityDpi of the display. Defaults to the system display density.
  * @return A [CreationDisplayInfo] object containing the specified display metrics.
  */
 @Composable
 public fun createCreationDisplayInfo(
     width: Int = LocalContext.current.resources.displayMetrics.widthPixels,
     height: Int = LocalContext.current.resources.displayMetrics.heightPixels,
-    density: Float = LocalDensity.current.density,
+    densityDpi: Int = LocalConfiguration.current.densityDpi,
 ): CreationDisplayInfo {
-    return CreationDisplayInfo(width, height, density)
+    return CreationDisplayInfo(width, height, densityDpi)
 }
 
 /**
@@ -62,7 +62,7 @@ public fun createCreationDisplayInfo(context: Context): CreationDisplayInfo {
     return CreationDisplayInfo(
         resources.displayMetrics.widthPixels,
         resources.displayMetrics.heightPixels,
-        resources.displayMetrics.density,
+        context.resources.displayMetrics.densityDpi,
     )
 }
 

@@ -113,6 +113,12 @@ public interface RcPlatformServices {
         float getHeight();
 
         /**
+         * Returns the visible line count of this text layout
+         * @return
+         */
+        int getVisibleLineCount();
+
+        /**
          * Returns true if contains hyphenated text
          * @return
          */

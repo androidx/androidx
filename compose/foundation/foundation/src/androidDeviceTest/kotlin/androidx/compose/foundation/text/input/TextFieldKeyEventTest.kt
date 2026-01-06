@@ -47,7 +47,6 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -76,7 +75,6 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
 class TextFieldKeyEventTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
@@ -951,7 +949,6 @@ class TextFieldKeyEventTest {
         rule.runOnIdle { assertThat(handled).isEqualTo(1) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun singleLineTextField_enterIsNotConsumed_withDefaultKeyboardAction() {
         var keyDownReceived = false

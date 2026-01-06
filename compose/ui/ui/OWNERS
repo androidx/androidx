@@ -2,10 +2,7 @@
 
 # UI Team
 mount@google.com
-ralu@google.com
-tianliu@google.com
-jewalker@google.com
-orui@google.com
+include /MOLECULE_UI_OWNERS
 
 # For Material related files
 andreykulikov@google.com

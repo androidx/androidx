@@ -811,7 +811,7 @@ class MouseEventsTest : InputDispatcherTest() {
 
     private fun AndroidInputDispatcher.verifyMousePosition(expectedPosition: Offset) {
         assertWithMessage("currentMousePosition")
-            .that(currentMousePosition)
+            .that(currentCursorPosition)
             .isEqualTo(expectedPosition)
     }
 

@@ -212,6 +212,26 @@ class TextFieldDragAndDropTest {
         }
     }
 
+    @Test // regression test for 403946433
+    fun draggingNullEvent_doesNotCrash() {
+        // this is a nested scenario where moving a dragging item from receiveContent to
+        // BTF2 area does not send an exit event to receiveContent drag listener
+        lateinit var view: View
+        rule.setContent { // Do not use setTextFieldTestContent for DnD tests.
+            view = LocalView.current
+            BasicTextField(
+                state = rememberTextFieldState(),
+                textStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp),
+                lineLimits = TextFieldLineLimits.SingleLine,
+                modifier = Modifier.width(100.dp).height(40.dp),
+            )
+        }
+
+        testDragAndDrop(view, Density(1f)) { drag(Offset(1f, 1f), null) }
+
+        // completes without crash
+    }
+
     @Test
     fun draggingOntoTextField_keepsWrapperReceiveContentEntered() {
         // this is a nested scenario where moving a dragging item from receiveContent to

@@ -271,7 +271,7 @@ internal class MouseInjectionScopeImpl(private val baseScope: MultiModalInjectio
     private fun localToRoot(position: Offset) = baseScope.localToRoot(position)
 
     override val currentPosition: Offset
-        get() = baseScope.rootToLocal(inputDispatcher.currentMousePosition)
+        get() = baseScope.rootToLocal(inputDispatcher.currentCursorPosition)
 
     override fun moveTo(position: Offset, delayMillis: Long) {
         advanceEventTime(delayMillis)

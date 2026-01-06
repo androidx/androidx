@@ -27,7 +27,7 @@ public class TouchDownActionModifier(public val actions: List<Action>) : RemoteM
     override fun toRemoteComposeElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.TouchActionModifier(
             TouchActionModifier.DOWN,
-            actions.map { it.toRemoteAction() },
+            @Suppress("ListIterator") actions.map { it.toRemoteAction() },
         )
     }
 }

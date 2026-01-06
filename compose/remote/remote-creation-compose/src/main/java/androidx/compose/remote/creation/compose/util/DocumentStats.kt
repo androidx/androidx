@@ -70,6 +70,7 @@ import androidx.compose.remote.core.operations.TextLookupInt
 import androidx.compose.remote.core.operations.TextMeasure
 import androidx.compose.remote.core.operations.TextMerge
 import androidx.compose.remote.core.operations.TextSubtext
+import androidx.compose.ui.util.fastForEach
 
 /** Utility for getting summary information about a [CoreDocument]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -191,9 +192,7 @@ public class DocumentStats {
 
     private fun process(conditionalOperations: ConditionalOperations) {
         numConditionalOperations++
-        for (op in conditionalOperations.mList) {
-            process(op)
-        }
+        conditionalOperations.mList.fastForEach { process(it) }
     }
 
     private fun process(textData: TextData) {
@@ -260,10 +259,6 @@ public class DocumentStats {
     public companion object {
         /** Examines the [document] and produces [DocumentStats]. */
         public fun examineDocument(document: CoreDocument): DocumentStats =
-            DocumentStats().apply {
-                for (op in document.operations) {
-                    process(op)
-                }
-            }
+            DocumentStats().apply { document.operations.fastForEach { process(it) } }
     }
 }

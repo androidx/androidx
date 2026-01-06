@@ -17,11 +17,11 @@
 package androidx.compose.runtime.tooling
 
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.runtime.SlotTable
-import androidx.compose.runtime.group
-import androidx.compose.runtime.grouplessCall
-import androidx.compose.runtime.insert
-import androidx.compose.runtime.nodeGroup
+import androidx.compose.runtime.composer.gapbuffer.SlotTable
+import androidx.compose.runtime.composer.gapbuffer.group
+import androidx.compose.runtime.composer.gapbuffer.grouplessCall
+import androidx.compose.runtime.composer.gapbuffer.insert
+import androidx.compose.runtime.composer.gapbuffer.nodeGroup
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith

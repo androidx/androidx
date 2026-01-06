@@ -40,6 +40,7 @@ public abstract class PaintOperation extends Operation implements Serializable {
                 for (Operation op : ((Container) this).getList()) {
                     if (op.isDirty()) {
                         if (op instanceof VariableSupport) {
+                            op.markNotDirty();
                             ((VariableSupport) op).updateVariables(context);
                         }
                         op.apply(context);

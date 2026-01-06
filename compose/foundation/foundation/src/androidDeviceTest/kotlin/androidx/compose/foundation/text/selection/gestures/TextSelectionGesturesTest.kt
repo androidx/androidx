@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection.gestures
 
+import androidx.compose.foundation.text.contextmenu.test.ContextMenuFlagSuppress
 import androidx.compose.foundation.text.selection.Selection
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.text.selection.gestures.AbstractSelectionGesturesTest.HorizontalDirection.START
@@ -949,6 +950,297 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
     @Test
     fun whenMouse_thenTripleClickInEndPadding_selectsOnlyCurrentParagraph() {
         performMouseGesture {
+            moveTo(position = centerEnd)
+            press()
+            repeat(2) {
+                advanceEventTime()
+                release()
+                advanceEventTime()
+                press()
+            }
+            release()
+        }
+
+        asserter.applyAndAssert { selection = 6 to 23 }
+    }
+
+    // Regression test for a trackpad long click resulting in touch behaviors for selection.
+    @Test
+    fun whenTrackpad_withLongClick_collapsedSelectionAtClick() {
+        performTrackpadGesture { longClick(characterPosition(13)) }
+
+        asserter.applyAndAssert { selection = 13.collapsed }
+    }
+
+    @Test
+    fun whenTrackpad_withClick_collapsedSelectionAtClick() {
+        performTrackpadGesture { click(characterPosition(13)) }
+
+        asserter.applyAndAssert { selection = 13.collapsed }
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClick_collapsedSelection() {
+        performTrackpadGesture {
+            moveTo(position = characterPosition(13))
+            press()
+        }
+
+        asserter.applyAndAssert { selection = 13.collapsed }
+
+        performTrackpadGesture { release() }
+
+        asserter.assert()
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragLeft_selectsCharacters() {
+        trackpadSingleClickThenDragTest(endOffset = characterPosition(8), endSelection = 13 to 8)
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragUp_selectsCharacters() {
+        trackpadSingleClickThenDragTest(endOffset = characterPosition(2), endSelection = 13 to 2)
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragRight_selectsCharacters() {
+        trackpadSingleClickThenDragTest(endOffset = characterPosition(20), endSelection = 13 to 20)
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragDown_selectsCharacters() {
+        trackpadSingleClickThenDragTest(endOffset = characterPosition(26), endSelection = 13 to 26)
+    }
+
+    private fun trackpadSingleClickThenDragTest(endOffset: Offset, endSelection: TextRange?) {
+        trackpadClicksThenDragTest(
+            numClicks = 1,
+            startOffset = characterPosition(13),
+            endOffset = endOffset,
+            startSelection = 13.collapsed,
+            endSelection = endSelection,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClick_selectsWord() {
+        performTrackpadGesture { repeat(2) { click(characterPosition(13)) } }
+
+        asserter.applyAndAssert { selection = 12 to 17 }
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragLeft_selectsWords() {
+        trackpadDoubleClickThenDragTest(endOffset = characterPosition(8), endSelection = 17 to 6)
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragUp_selectsWords() {
+        trackpadDoubleClickThenDragTest(endOffset = characterPosition(2), endSelection = 17 to 0)
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragRight_selectsWords() {
+        trackpadDoubleClickThenDragTest(endOffset = characterPosition(20), endSelection = 12 to 23)
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragDown_selectsWords() {
+        trackpadDoubleClickThenDragTest(endOffset = characterPosition(26), endSelection = 12 to 29)
+    }
+
+    private fun trackpadDoubleClickThenDragTest(endOffset: Offset, endSelection: TextRange?) {
+        trackpadClicksThenDragTest(
+            numClicks = 2,
+            startOffset = characterPosition(13),
+            endOffset = endOffset,
+            startSelection = 12 to 17,
+            endSelection = endSelection,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClick_selectsParagraph() {
+        performTrackpadGesture { repeat(3) { click(characterPosition(13)) } }
+
+        asserter.applyAndAssert { selection = 6 to 23 }
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragLeft_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(endOffset = characterPosition(8), endSelection = 6 to 23)
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragUp_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(endOffset = characterPosition(2), endSelection = 23 to 0)
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragRight_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(endOffset = characterPosition(20), endSelection = 6 to 23)
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragDown_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(endOffset = characterPosition(26), endSelection = 6 to 29)
+    }
+
+    private fun trackpadTripleClickThenDragTest(endOffset: Offset, endSelection: TextRange?) {
+        trackpadClicksThenDragTest(
+            numClicks = 3,
+            startOffset = characterPosition(13),
+            endOffset = endOffset,
+            startSelection = 6 to 23,
+            endSelection = endSelection,
+        )
+    }
+
+    private fun trackpadClicksThenDragTest(
+        numClicks: Int,
+        startOffset: Offset,
+        endOffset: Offset,
+        startSelection: TextRange?,
+        endSelection: TextRange?,
+    ) {
+        check(numClicks > 0) { "Must be at least one click" }
+        performTrackpadGesture {
+            moveTo(startOffset)
+            press()
+            repeat(numClicks - 1) {
+                advanceEventTime()
+                release()
+                advanceEventTime()
+                press()
+            }
+        }
+
+        asserter.applyAndAssert { selection = startSelection }
+
+        trackpadDragTo(endOffset)
+
+        asserter.applyAndAssert { selection = endSelection }
+
+        performTrackpadGesture { release() }
+
+        asserter.assert()
+    }
+
+    @ContextMenuFlagSuppress(false)
+    @Test
+    fun whenTrackpad_thenSingleClickAndDragUpToEndPadding_selectsCharacters() {
+        trackpadClickThenDragUpToPaddingTest(numClicks = 1, endSelection = 13 to 5)
+    }
+
+    @ContextMenuFlagSuppress(false)
+    @Test
+    fun whenTrackpad_thenDoubleClickAndDragUpToEndPadding_selectsWords() {
+        trackpadClickThenDragUpToPaddingTest(numClicks = 2, endSelection = 17 to 0)
+    }
+
+    @ContextMenuFlagSuppress(false)
+    @Test
+    fun whenTrackpad_thenTripleClickAndDragUpToEndPadding_selectsParagraph() {
+        trackpadClickThenDragUpToPaddingTest(numClicks = 3, endSelection = 23 to 0)
+    }
+
+    private fun trackpadClickThenDragUpToPaddingTest(numClicks: Int, endSelection: TextRange?) {
+        performTrackpadGesture {
+            moveTo(position = characterPosition(13))
+            press()
+            repeat(numClicks - 1) {
+                advanceEventTime()
+                release()
+                advanceEventTime()
+                press()
+            }
+        }
+
+        trackpadDragTo(position = topEnd)
+
+        asserter.applyAndAssert { selection = endSelection }
+    }
+
+    @Test
+    fun whenTrackpad_thenTouch_touchBehaviorsAppear() {
+        performTrackpadGesture { repeat(2) { click(characterPosition(13)) } }
+
+        asserter.applyAndAssert { selection = 12 to 17 }
+
+        performTouchGesture { enterTouchMode() }
+
+        asserter.applyAndAssert {
+            selectionHandlesShown = true
+            textToolbarShown = true
+        }
+    }
+
+    @Test
+    fun whenTouch_thenTrackpad_touchBehaviorsDisappear() {
+        performTouchGesture { longClick(characterPosition(13)) }
+
+        asserter.applyAndAssert {
+            selection = 12 to 17
+            selectionHandlesShown = true
+            textToolbarShown = true
+            hapticsCount++
+        }
+
+        enterTrackpadMode()
+
+        asserter.applyAndAssert {
+            selectionHandlesShown = false
+            textToolbarShown = false
+        }
+    }
+
+    // Regression test for when this would result in text toolbar showing instead of the cursor.
+    @Test
+    fun whenTrackpadCollapsedSelection_thenTouch_noUiElements() {
+        performTrackpadGesture { click(characterPosition(13)) }
+
+        asserter.applyAndAssert { selection = 13.collapsed }
+
+        performTouchGesture { enterTouchMode() }
+
+        asserter.assert()
+    }
+
+    @Test
+    fun whenTouchCollapsedSelection_thenTrackpad_noUiElements() {
+        performTouchGesture { click(characterPosition(13)) }
+
+        asserter.assert()
+        enterTrackpadMode()
+        asserter.assert()
+    }
+
+    // this is a collapsed selection in multi-text and a selection of just a newline in single text.
+    @Test
+    open fun whenTrackpadCollapsedSelectionAcrossLines_thenTouch_showUi() {
+        performTrackpadGesture {
+            moveTo(centerEnd)
+            press()
+        }
+
+        asserter.applyAndAssert { selection = 23.collapsed }
+
+        trackpadDragTo(characterPosition(offset = 24))
+
+        asserter.applyAndAssert { selection = 23 to 24 }
+
+        performTouchGesture { enterTouchMode() }
+
+        asserter.applyAndAssert {
+            selectionHandlesShown = true
+            textToolbarShown = true
+        }
+    }
+
+    @Test
+    fun whenTrackpad_thenTripleClickInEndPadding_selectsOnlyCurrentParagraph() {
+        performTrackpadGesture {
             moveTo(position = centerEnd)
             press()
             repeat(2) {

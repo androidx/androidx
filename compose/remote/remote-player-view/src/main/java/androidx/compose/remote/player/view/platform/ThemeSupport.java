@@ -24,6 +24,8 @@ import android.util.TypedValue;
 
 import androidx.annotation.RestrictTo;
 
+import org.jspecify.annotations.NonNull;
+
 import java.util.HashMap;
 
 /** Implement color theme support */
@@ -35,7 +37,7 @@ public class ThemeSupport {
     HashMap<String, Integer> mColorMap = null;
 
     /** Map system colors to document */
-    public void mapColors(Context context, RemoteComposeView view) {
+    public void mapColors(@NonNull Context context, @NonNull RemoteComposeView view) {
         mContext = context;
         mInner = view;
 

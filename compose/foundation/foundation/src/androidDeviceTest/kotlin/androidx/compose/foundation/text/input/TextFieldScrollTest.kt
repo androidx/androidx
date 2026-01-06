@@ -28,11 +28,13 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.FocusedWindowTest
@@ -45,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertPixels
@@ -62,6 +65,7 @@ import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -1027,6 +1031,26 @@ class TextFieldScrollTest : FocusedWindowTest {
 
         rule.waitForIdle()
         assertThat(state.text.toString()).isEmpty()
+    }
+
+    @Test // regression test for b/440964236
+    fun textFieldDoesNotCrash_whenParentScrollableCollapses() {
+        var size by mutableStateOf(150.dp)
+        rule.setContent {
+            Box(
+                Modifier.verticalScroll(remember { ScrollState(0) })
+                    .widthIn(max = size)
+                    .heightIn(max = size)
+            ) {
+                BasicTextField(rememberTextFieldState())
+            }
+        }
+        rule.onNode(hasSetTextAction()).requestFocus()
+
+        size = 0.dp
+
+        // not crashing is enough.
+        rule.onNode(hasSetTextAction()).assertExists()
     }
 
     private fun ComposeContentTestRule.setupHorizontallyScrollableContent(

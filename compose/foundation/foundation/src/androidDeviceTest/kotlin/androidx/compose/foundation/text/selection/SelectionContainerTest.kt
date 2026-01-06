@@ -33,6 +33,11 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.test.assertThatIntRect
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -571,6 +576,47 @@ internal class SelectionContainerTest : AbstractSelectionContainerTest() {
             // Assert.
             rule.runOnIdle { assertThat(selection.value).isNull() }
             rule.runOnIdle { assertThat(clickCounter).isEqualTo(1) }
+        }
+
+    @Test
+    fun selectionContainer_insideDisappearingMovableContent_withActiveSelection() =
+        with(rule.density) {
+            var toggle by mutableStateOf(true)
+            rule.setContent {
+                val content = remember {
+                    movableContentOf {
+                        SelectionContainer(
+                            modifier = Modifier.testTag("selectionContainer"),
+                            selection = selection.value,
+                            onSelectionChange = { selection.value = it },
+                        ) {
+                            TestText(textContent)
+                        }
+                    }
+                }
+                if (toggle) {
+                    content()
+                } else {
+                    TestText("Hello")
+                }
+            }
+            val characterSize = fontSize.toPx()
+            // Act. Long Press "m" in "Demo", and "Demo" should be selected.
+            rule.onSelectionContainer().performTouchInput {
+                longClick(Offset(textContent.indexOf('m') * characterSize, 0.5f * characterSize))
+            }
+
+            // Assert.
+            rule.mainClock.advanceTimeByFrame()
+            assertAnchorInfo(selection.value?.start, offset = 5, selectableId = 1)
+            assertAnchorInfo(selection.value?.end, offset = 9, selectableId = 1)
+
+            // Act 2. Remove movableContentOf from composition
+            toggle = false
+            rule.mainClock.advanceTimeByFrame()
+
+            // Assert. No crash is enough
+            assertThat(selection.value).isNull()
         }
 
     private fun startSelection(tag: String, offset: Int = 0) {

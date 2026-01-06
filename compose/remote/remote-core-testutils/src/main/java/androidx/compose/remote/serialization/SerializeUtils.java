@@ -18,21 +18,21 @@ package androidx.compose.remote.serialization;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 
 public class SerializeUtils {
+    private SerializeUtils() {
+    }
 
     /**
      * Serialize map
-     *
-     * @param serializer
-     * @param map
-     * @param <T>
      */
-    public static <T> void serializeMap(Serializer serializer, @Nullable Map<String, T> map) {
+    public static <T> void serializeMap(@NonNull Serializer serializer,
+            @Nullable Map<@NonNull String, @NonNull T> map) {
         if (map == null) {
             return;
         }
@@ -42,13 +42,10 @@ public class SerializeUtils {
 
     /**
      * Serialize map
-     *
-     * @param serializer
-     * @param map
-     * @param <T>
      */
     @SuppressWarnings("unchecked")
-    public static <T> void serializeMap(MapSerializer serializer, Map<String, T> map) {
+    public static <T> void serializeMap(@NonNull MapSerializer serializer,
+            @NonNull Map<@NonNull String, @NonNull T> map) {
         for (Map.Entry<String, T> entry : map.entrySet()) {
             String key = entry.getKey();
             T value = entry.getValue();
@@ -82,12 +79,9 @@ public class SerializeUtils {
 
     /**
      * Serialize array
-     *
-     * @param serializer
-     * @param value
-     * @param <T>
      */
-    public static <T> void serializeArray(Serializer serializer, @Nullable List<T> value) {
+    public static <T> void serializeArray(@NonNull Serializer serializer,
+            @Nullable List<@NonNull T> value) {
         if (value == null) {
             return;
         }
@@ -97,13 +91,10 @@ public class SerializeUtils {
 
     /**
      * Serialize array
-     *
-     * @param serializer
-     * @param value
-     * @param <T>
      */
     @SuppressWarnings("unchecked")
-    public static <T> void serializeArray(ArraySerializer serializer, List<T> value) {
+    public static <T> void serializeArray(@NonNull ArraySerializer serializer,
+            @NonNull List<@Nullable T> value) {
         for (Object element : value) {
             if (element instanceof Serializable) {
                 serializer.add((Serializable) element);

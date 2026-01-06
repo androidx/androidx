@@ -277,7 +277,7 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         }
 
         return RemoteFloatExpression(constantValue = null) { creationState ->
-            floatArrayOf(*arrayForCreationState(creationState), -1f, AnimatedFloatExpression.MUL)
+            combineToFloatArray(creationState, arrayOf(this), -1f, AnimatedFloatExpression.MUL)
         }
     }
 
@@ -1042,7 +1042,7 @@ internal constructor(
         }
 
         val hash = calcHashID(array, null)
-        val fe = creationState.expressionCache.get(hash)
+        val fe = creationState.expressionCache[hash]
         if (fe != null) {
             // TODO check if contentEquals is safe here with NaN?
             if (
@@ -1097,7 +1097,7 @@ public class AnimatedRemoteFloat(public val input: RemoteFloat, public val anim:
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         val array = input.arrayForCreationState(creationState)
         val hash = calcHashID(array, anim)
-        val fe = creationState.expressionCache.get(hash)
+        val fe = creationState.expressionCache[hash]
         if (fe != null) {
             // TODO check if contentEquals is safe here with NaN?
             if (

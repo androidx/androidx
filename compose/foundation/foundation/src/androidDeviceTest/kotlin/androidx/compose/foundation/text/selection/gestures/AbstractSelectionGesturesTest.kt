@@ -33,6 +33,8 @@ import androidx.compose.foundation.text.selection.gestures.util.mouseDragNodeBy
 import androidx.compose.foundation.text.selection.gestures.util.mouseDragNodeTo
 import androidx.compose.foundation.text.selection.gestures.util.touchDragNodeBy
 import androidx.compose.foundation.text.selection.gestures.util.touchDragNodeTo
+import androidx.compose.foundation.text.selection.gestures.util.trackpadDragNodeBy
+import androidx.compose.foundation.text.selection.gestures.util.trackpadDragNodeTo
 import androidx.compose.foundation.text.selection.withHandlePressed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -47,10 +49,12 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.test.MouseInjectionScope
 import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.TrackpadInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
@@ -218,6 +222,14 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
         mouseDragTo(bounds.center, durationMillis = 50)
     }
 
+    // TODO(b/281584353) When touch mode can be changed globally,
+    //  this should change to a trackpad movement outside of the bounds.
+    internal fun enterTrackpadMode() {
+        trackpadDragTo(bounds.centerLeft, durationMillis = 50)
+        trackpadDragTo(bounds.bottomRight, durationMillis = 50)
+        trackpadDragTo(bounds.center, durationMillis = 50)
+    }
+
     protected fun performTouchGesture(block: TouchInjectionScope.() -> Unit) {
         rule.onNodeWithTag(pointerAreaTag).performTouchInput(block)
         rule.waitForIdle()
@@ -225,6 +237,10 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
 
     protected fun performMouseGesture(block: MouseInjectionScope.() -> Unit) {
         rule.onNodeWithTag(pointerAreaTag).performMouseInput(block)
+    }
+
+    protected fun performTrackpadGesture(block: TrackpadInjectionScope.() -> Unit) {
+        rule.onNodeWithTag(pointerAreaTag).performTrackpadInput(block)
     }
 
     protected fun withHandlePressed(handle: Handle, block: HandlePressedScope.() -> Unit) {
@@ -249,6 +265,16 @@ internal abstract class AbstractSelectionGesturesTest : FocusedWindowTest {
 
     protected fun mouseDragBy(delta: Offset, durationMillis: Long = 100L) {
         rule.onNodeWithTag(pointerAreaTag).mouseDragNodeBy(delta, durationMillis)
+        rule.waitForIdle()
+    }
+
+    protected fun trackpadDragTo(position: Offset, durationMillis: Long = 200L) {
+        rule.onNodeWithTag(pointerAreaTag).trackpadDragNodeTo(position, durationMillis)
+        rule.waitForIdle()
+    }
+
+    protected fun trackpadDragBy(delta: Offset, durationMillis: Long = 100L) {
+        rule.onNodeWithTag(pointerAreaTag).trackpadDragNodeBy(delta, durationMillis)
         rule.waitForIdle()
     }
 }

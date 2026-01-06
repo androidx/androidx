@@ -38,5 +38,32 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".ListActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".widget.ListRCWidget"
+            android:label="RC List"
+            android:exported="false"
+            tools:targetApi="36">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/list_widget_info" />
+        </receiver>
+
     </application>
 </manifest>

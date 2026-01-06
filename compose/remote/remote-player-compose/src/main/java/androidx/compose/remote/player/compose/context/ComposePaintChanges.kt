@@ -96,6 +96,10 @@ internal class ComposePaintChanges(
         }
     }
 
+    override fun setFallbackTypeFace(fontType: Int, weight: Int, italic: Boolean) {
+        // @Todo implement
+    }
+
     override fun setShaderMatrix(matrixId: Float) {
         val id = Utils.idFromNan(matrixId)
         if (id == 0) {

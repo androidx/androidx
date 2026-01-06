@@ -2394,7 +2394,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 if (motionEvent.isFromSource(SOURCE_ROTARY_ENCODER)) {
                     handleRotaryEvent(motionEvent)
                 } else {
-                    handleMotionEvent(motionEvent).dispatchedToAPointerInputModifier
+                    handleMotionEvent(motionEvent).anyChangeConsumed
                 }
             else -> {
                 if (motionEvent.isFromSource(SOURCE_TOUCH_NAVIGATION)) {

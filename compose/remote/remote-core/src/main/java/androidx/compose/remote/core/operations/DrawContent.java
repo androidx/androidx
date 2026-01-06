@@ -38,6 +38,8 @@ public class DrawContent extends PaintOperation implements Serializable {
     private static final String CLASS_NAME = "DrawContent";
     private @Nullable LayoutComponent mComponent;
 
+    boolean mInProcessing = false;
+
     @Override
     public void write(@NonNull WireBuffer buffer) {
         apply(buffer);
@@ -110,7 +112,11 @@ public class DrawContent extends PaintOperation implements Serializable {
     @Override
     public void paint(@NonNull PaintContext context) {
         if (mComponent != null) {
-            mComponent.drawContent(context);
+            if (!mInProcessing) {
+                mInProcessing = true;
+                mComponent.drawContent(context);
+                mInProcessing = false;
+            }
         }
     }
 
