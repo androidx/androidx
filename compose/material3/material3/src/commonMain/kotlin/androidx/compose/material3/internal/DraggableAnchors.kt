@@ -16,13 +16,9 @@
 
 package androidx.compose.material3.internal
 
-/**
- * Material-specific anchor layout logic which considers lookahead. This internal code is expected
- * to remain in the library after androidx.compose.material3.internal.AnchoredDraggable.kt is
- * removed.
- */
-import androidx.compose.foundation.gestures.AnchoredDraggableState as AnchoredDraggableStateV2
-import androidx.compose.foundation.gestures.DraggableAnchors as DraggableAnchorsV2
+/** Material-specific anchor layout logic which considers lookahead. */
+import androidx.compose.foundation.gestures.AnchoredDraggableState
+import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -40,7 +36,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import kotlin.math.roundToInt
 
 /**
- * This Modifier allows configuring an [AnchoredDraggableStateV2]'s anchors based on this layout
+ * This Modifier allows configuring an [AnchoredDraggableState]'s anchors based on this layout
  * node's size and offsetting it. It considers lookahead and reports the appropriate size and
  * measurement for the appropriate phase.
  *
@@ -50,22 +46,21 @@ import kotlin.math.roundToInt
  *   constraints. These can be useful to avoid subcomposition.
  */
 @Stable
-internal fun <T> Modifier.draggableAnchorsV2(
-    state: AnchoredDraggableStateV2<T>,
+internal fun <T> Modifier.draggableAnchors(
+    state: AnchoredDraggableState<T>,
     orientation: Orientation,
-    anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchorsV2<T>, T>,
-) = this then DraggableAnchorsElementV2(state, anchors, orientation)
+    anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
+) = this then DraggableAnchorsElement(state, anchors, orientation)
 
-private class DraggableAnchorsElementV2<T>(
-    private val state: AnchoredDraggableStateV2<T>,
-    private val anchors:
-        (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchorsV2<T>, T>,
+private class DraggableAnchorsElement<T>(
+    private val state: AnchoredDraggableState<T>,
+    private val anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
     private val orientation: Orientation,
-) : ModifierNodeElement<DraggableAnchorsNodeV2<T>>() {
+) : ModifierNodeElement<DraggableAnchorsNode<T>>() {
 
-    override fun create() = DraggableAnchorsNodeV2(state, anchors, orientation)
+    override fun create() = DraggableAnchorsNode(state, anchors, orientation)
 
-    override fun update(node: DraggableAnchorsNodeV2<T>) {
+    override fun update(node: DraggableAnchorsNode<T>) {
         node.state = state
         node.anchors = anchors
         node.orientation = orientation
@@ -74,7 +69,7 @@ private class DraggableAnchorsElementV2<T>(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
 
-        if (other !is DraggableAnchorsElementV2<*>) return false
+        if (other !is DraggableAnchorsElement<*>) return false
 
         if (state != other.state) return false
         if (anchors !== other.anchors) return false
@@ -99,9 +94,9 @@ private class DraggableAnchorsElementV2<T>(
     }
 }
 
-private class DraggableAnchorsNodeV2<T>(
-    var state: AnchoredDraggableStateV2<T>,
-    var anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchorsV2<T>, T>,
+private class DraggableAnchorsNode<T>(
+    var state: AnchoredDraggableState<T>,
+    var anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
     var orientation: Orientation,
 ) : Modifier.Node(), LayoutModifierNode {
     private var didLookahead: Boolean = false

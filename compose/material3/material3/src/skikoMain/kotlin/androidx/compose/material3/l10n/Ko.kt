@@ -94,6 +94,9 @@ internal fun Translations.ko() = mapOf(
     Strings.TimePickerToggleTouch to "시계 모드로 전환",
     Strings.TimePickerDialogTitle to "시간 선택",
     Strings.TimeInputDialogTitle to "시간 입력",
+    Strings.TimePickerMinuteError to "분은 0~59여야 함",
+    Strings.TimePickerHourError to "시간은 1~12여야 함",
+    Strings.TimePicker24HourError to "시간은 0~23이어야 함",
     Strings.CloseRail to "레일 닫기",
     Strings.WideNavigationRailPaneTitle to "탐색 레일",
 )

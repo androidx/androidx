@@ -94,6 +94,9 @@ internal fun Translations.gl() = mapOf(
     Strings.TimePickerToggleTouch to "Cambiar ao modo de reloxo",
     Strings.TimePickerDialogTitle to "Seleccionar a hora",
     Strings.TimeInputDialogTitle to "Indicar a hora",
+    Strings.TimePickerMinuteError to "Valor dos minutos: 0-59",
+    Strings.TimePickerHourError to "Valor da hora: 1-12",
+    Strings.TimePicker24HourError to "Valor da hora: 0-23",
     Strings.CloseRail to "Pechar o raíl",
     Strings.WideNavigationRailPaneTitle to "Raíl de navegación",
 )

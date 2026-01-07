@@ -94,6 +94,9 @@ internal fun Translations.pt() = mapOf(
     Strings.TimePickerToggleTouch to "Mudar para o modo de relógio",
     Strings.TimePickerDialogTitle to "Selecione o horário",
     Strings.TimeInputDialogTitle to "Insira a hora",
+    Strings.TimePickerMinuteError to "Selecione de 0 a 59min",
+    Strings.TimePickerHourError to "Selecione de 1 a 12h",
+    Strings.TimePicker24HourError to "Selecione de 0 a 23h",
     Strings.CloseRail to "Fechar coluna",
     Strings.WideNavigationRailPaneTitle to "Coluna de navegação",
 )
@@ -173,6 +176,9 @@ internal fun Translations.ptBR() = mapOf(
     Strings.TimePickerToggleTouch to "Mudar para o modo de relógio",
     Strings.TimePickerDialogTitle to "Selecione o horário",
     Strings.TimeInputDialogTitle to "Insira a hora",
+    Strings.TimePickerMinuteError to "Selecione de 0 a 59min",
+    Strings.TimePickerHourError to "Selecione de 1 a 12h",
+    Strings.TimePicker24HourError to "Selecione de 0 a 23h",
     Strings.CloseRail to "Fechar coluna",
     Strings.WideNavigationRailPaneTitle to "Coluna de navegação",
 )
@@ -252,6 +258,9 @@ internal fun Translations.ptPT() = mapOf(
     Strings.TimePickerToggleTouch to "Mudar para o modo de relógio",
     Strings.TimePickerDialogTitle to "Selecione uma hora",
     Strings.TimeInputDialogTitle to "Introduza uma hora",
+    Strings.TimePickerMinuteError to "O minuto tem de ser 0-59",
+    Strings.TimePickerHourError to "A hora tem de ser 1-12",
+    Strings.TimePicker24HourError to "A hora tem de ser 0-23",
     Strings.CloseRail to "Fechar barra",
     Strings.WideNavigationRailPaneTitle to "Barra de navegação",
 )

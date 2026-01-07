@@ -94,6 +94,9 @@ internal fun Translations.my() = mapOf(
     Strings.TimePickerToggleTouch to "နာရီမုဒ်သို့ ပြောင်းရန်",
     Strings.TimePickerDialogTitle to "အချိန်ရွေးပါ",
     Strings.TimeInputDialogTitle to "အချိန်ထည့်ပါ",
+    Strings.TimePickerMinuteError to "မိနစ်သည် ၀–၅၉ ဖြစ်ရမည်",
+    Strings.TimePickerHourError to "နာရီသည် ၁–၁၂ ဖြစ်ရမည်",
+    Strings.TimePicker24HourError to "နာရီသည် ၀–၂၃ ဖြစ်ရမည်",
     Strings.CloseRail to "ဘားပိတ်ရန်",
     Strings.WideNavigationRailPaneTitle to "လမ်းကြောင်းပြဘား",
 )

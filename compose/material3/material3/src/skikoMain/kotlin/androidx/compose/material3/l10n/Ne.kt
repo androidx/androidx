@@ -94,6 +94,9 @@ internal fun Translations.ne() = mapOf(
     Strings.TimePickerToggleTouch to "घडी मोड प्रयोग गर्नुहोस्",
     Strings.TimePickerDialogTitle to "समय चयन गर्नुहोस्",
     Strings.TimeInputDialogTitle to "समय हाल्नुहोस्",
+    Strings.TimePickerMinuteError to "मिनेट ० र ५९ का बिचमा हुनु पर्छ",
+    Strings.TimePickerHourError to "घण्टा १ र १२ का बिचमा हुनु पर्छ",
+    Strings.TimePicker24HourError to "घण्टा ० र २३ का बिचमा हुनु पर्छ",
     Strings.CloseRail to "रेल बन्द गर्नुहोस्",
     Strings.WideNavigationRailPaneTitle to "नेभिगेसन रेल",
 )

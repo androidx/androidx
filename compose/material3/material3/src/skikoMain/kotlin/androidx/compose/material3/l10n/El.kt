@@ -94,6 +94,9 @@ internal fun Translations.el() = mapOf(
     Strings.TimePickerToggleTouch to "Εναλλαγή στη λειτουργία ρολογιού",
     Strings.TimePickerDialogTitle to "Επιλογή ώρας",
     Strings.TimeInputDialogTitle to "Εισαγωγή ώρας",
+    Strings.TimePickerMinuteError to "Τα λεπτά πρέπει να είναι μεταξύ 0–59",
+    Strings.TimePickerHourError to "Η ώρα πρέπει να είναι μεταξύ 1–12",
+    Strings.TimePicker24HourError to "Η ώρα πρέπει να είναι μεταξύ 0–23",
     Strings.CloseRail to "Κλείσιμο στήλης",
     Strings.WideNavigationRailPaneTitle to "Στήλη πλοήγησης",
 )

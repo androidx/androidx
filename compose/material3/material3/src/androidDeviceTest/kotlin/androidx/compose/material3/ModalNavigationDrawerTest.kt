@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -75,6 +76,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -502,6 +504,10 @@ class ModalNavigationDrawerTest {
     @SdkSuppress(minSdkVersion = 24)
     // Suppressing due to Float comparison issues in API's below 23, causing Nexus4 emulator errors.
     fun navigationDrawer_currentValueUpdatesOnRelease() {
+        assumeFalse(
+            "Test fails on cuttlefish b/460510611",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         lateinit var drawerState: DrawerState
         rule.setMaterialContent(lightColorScheme()) {
             drawerState = rememberDrawerState(DrawerValue.Closed)

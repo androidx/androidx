@@ -38,7 +38,6 @@ import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -562,7 +561,6 @@ class TooltipTest {
         assertThat(state.isVisible).isFalse()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun plainTooltip_escapeKey_dismissesTooltip() {
         lateinit var state: TooltipState

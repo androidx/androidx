@@ -94,6 +94,9 @@ internal fun Translations.ru() = mapOf(
     Strings.TimePickerToggleTouch to "Перейти в режим часов",
     Strings.TimePickerDialogTitle to "Выберите время",
     Strings.TimeInputDialogTitle to "Укажите время",
+    Strings.TimePickerMinuteError to "Укажите от 0 до 59 мин.",
+    Strings.TimePickerHourError to "Укажите от 1 до 12 ч.",
+    Strings.TimePicker24HourError to "Укажите от 0 до 23 ч.",
     Strings.CloseRail to "Закрыть боковую панель",
     Strings.WideNavigationRailPaneTitle to "Боковая панель навигации",
 )

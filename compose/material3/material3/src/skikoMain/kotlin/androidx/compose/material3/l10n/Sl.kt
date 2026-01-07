@@ -94,6 +94,9 @@ internal fun Translations.sl() = mapOf(
     Strings.TimePickerToggleTouch to "Preklop na način ure",
     Strings.TimePickerDialogTitle to "Izberite uro",
     Strings.TimeInputDialogTitle to "Vnesite uro",
+    Strings.TimePickerMinuteError to "Minuta mora biti 0–59",
+    Strings.TimePickerHourError to "Ura mora biti 1–12",
+    Strings.TimePicker24HourError to "Ura mora biti 0–23",
     Strings.CloseRail to "Zapiranje črte",
     Strings.WideNavigationRailPaneTitle to "Črta za krmarjenje",
 )

@@ -94,6 +94,9 @@ internal fun Translations.vi() = mapOf(
     Strings.TimePickerToggleTouch to "Chuyển sang chế độ đồng hồ",
     Strings.TimePickerDialogTitle to "Chọn thời gian",
     Strings.TimeInputDialogTitle to "Nhập thời gian",
+    Strings.TimePickerMinuteError to "Số phút phải từ 0 đến 59",
+    Strings.TimePickerHourError to "Số giờ phải từ 1 đến 12",
+    Strings.TimePicker24HourError to "Số giờ phải từ 0 đến 23",
     Strings.CloseRail to "Đóng dải điều hướng",
     Strings.WideNavigationRailPaneTitle to "Dải điều hướng",
 )

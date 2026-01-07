@@ -94,6 +94,9 @@ internal fun Translations.km() = mapOf(
     Strings.TimePickerToggleTouch to "ប្ដូរទៅ​មុខងារនាឡិកា",
     Strings.TimePickerDialogTitle to "ជ្រើសរើស​ពេលវេលា",
     Strings.TimeInputDialogTitle to "បញ្ចូលម៉ោង",
+    Strings.TimePickerMinuteError to "នាទីត្រូវតែពី 0–59",
+    Strings.TimePickerHourError to "ម៉ោងត្រូវតែពី 1–12",
+    Strings.TimePicker24HourError to "ម៉ោងត្រូវតែពី 0–23",
     Strings.CloseRail to "បិទខ្សែ",
     Strings.WideNavigationRailPaneTitle to "ខ្សែរុករក",
 )

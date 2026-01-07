@@ -94,6 +94,9 @@ internal fun Translations.bn() = mapOf(
     Strings.TimePickerToggleTouch to "ঘড়ি মোডে পাল্টান",
     Strings.TimePickerDialogTitle to "সময় বেছে নিন",
     Strings.TimeInputDialogTitle to "সময় লিখুন",
+    Strings.TimePickerMinuteError to "মিনিট ০–৫৯-এর মধ্যে হতে হবে",
+    Strings.TimePickerHourError to "ঘণ্টা ১–১২-এর মধ্যে হতে হবে",
+    Strings.TimePicker24HourError to "ঘণ্টা ০–২৩-এর মধ্যে হতে হবে",
     Strings.CloseRail to "রেল বন্ধ করুন",
     Strings.WideNavigationRailPaneTitle to "নেভিগেশন রেল",
 )

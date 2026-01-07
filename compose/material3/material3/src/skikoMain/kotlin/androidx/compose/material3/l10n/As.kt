@@ -94,6 +94,9 @@ internal fun Translations.`as`() = mapOf(
     Strings.TimePickerToggleTouch to "ঘড়ী ম’ডলৈ সলনি কৰক",
     Strings.TimePickerDialogTitle to "সময় বাছনি কৰক",
     Strings.TimeInputDialogTitle to "সময় দিয়ক",
+    Strings.TimePickerMinuteError to "মিনিট ০–৫৯ হ’বই লাগিব",
+    Strings.TimePickerHourError to "ঘণ্টা ১–১২ৰ ভিতৰত হ’বই লাগিব",
+    Strings.TimePicker24HourError to "ঘণ্টা ০–২৩ হ’বই লাগিব",
     Strings.CloseRail to "ৰে’ল কৰক",
     Strings.WideNavigationRailPaneTitle to "নেভিগেশ্বন ৰে’ল",
 )

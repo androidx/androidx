@@ -94,6 +94,9 @@ internal fun Translations.`is`() = mapOf(
     Strings.TimePickerToggleTouch to "Skipta yfir í klukkustillingu",
     Strings.TimePickerDialogTitle to "Veldu tíma",
     Strings.TimeInputDialogTitle to "Sláðu inn tíma",
+    Strings.TimePickerMinuteError to "Mínúta þarf að vera 0–59",
+    Strings.TimePickerHourError to "Klst. þarf að vera 1–12",
+    Strings.TimePicker24HourError to "Klst. þarf að vera 0–23",
     Strings.CloseRail to "Loka stiku",
     Strings.WideNavigationRailPaneTitle to "Yfirlitsstika",
 )

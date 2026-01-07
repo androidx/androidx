@@ -94,6 +94,9 @@ internal fun Translations.ta() = mapOf(
     Strings.TimePickerToggleTouch to "கடிகாரப் பயன்முறைக்கு மாற்றும்",
     Strings.TimePickerDialogTitle to "நேரத்தைத் தேர்ந்தெடுங்கள்",
     Strings.TimeInputDialogTitle to "நேரத்தை டைப் செய்யுங்கள்",
+    Strings.TimePickerMinuteError to "0–59 நிமிடங்கள்",
+    Strings.TimePickerHourError to "1–12 மணிநேரம்",
+    Strings.TimePicker24HourError to "0–23 மணிநேரம்",
     Strings.CloseRail to "பாதையை மூடும்",
     Strings.WideNavigationRailPaneTitle to "வழிசெலுத்தல் பாதை",
 )

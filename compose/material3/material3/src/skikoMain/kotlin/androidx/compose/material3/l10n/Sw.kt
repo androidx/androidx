@@ -94,6 +94,9 @@ internal fun Translations.sw() = mapOf(
     Strings.TimePickerToggleTouch to "Badilisha utumie hali ya saa",
     Strings.TimePickerDialogTitle to "Chagua Muda",
     Strings.TimeInputDialogTitle to "Weka Muda",
+    Strings.TimePickerMinuteError to "Sharti iwe dakika 0–59",
+    Strings.TimePickerHourError to "Ni sharti iwe saa 1–12",
+    Strings.TimePicker24HourError to "Ni sharti iwe saa 0–23",
     Strings.CloseRail to "Funga reli ya usogezaji",
     Strings.WideNavigationRailPaneTitle to "Reli ya usogezaji",
 )

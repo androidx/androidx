@@ -94,6 +94,9 @@ internal fun Translations.zhCN() = mapOf(
     Strings.TimePickerToggleTouch to "切换到时钟模式",
     Strings.TimePickerDialogTitle to "选择时间",
     Strings.TimeInputDialogTitle to "输入时间",
+    Strings.TimePickerMinuteError to "分钟值必须介于 0 到 59 间",
+    Strings.TimePickerHourError to "小时值必须介于 1 到 12 间",
+    Strings.TimePicker24HourError to "小时值必须介于 0 到 23 间",
     Strings.CloseRail to "关闭此栏",
     Strings.WideNavigationRailPaneTitle to "侧边导航栏",
 )
@@ -173,6 +176,9 @@ internal fun Translations.zhHK() = mapOf(
     Strings.TimePickerToggleTouch to "切換至時鐘模式",
     Strings.TimePickerDialogTitle to "選取時間",
     Strings.TimeInputDialogTitle to "輸入時間",
+    Strings.TimePickerMinuteError to "分鐘必須介乎 0 至 59",
+    Strings.TimePickerHourError to "小時必須介乎 1 至 12",
+    Strings.TimePicker24HourError to "小時必須介乎 0 至 23",
     Strings.CloseRail to "閂咗個欄",
     Strings.WideNavigationRailPaneTitle to "導覽欄",
 )
@@ -252,6 +258,9 @@ internal fun Translations.zhTW() = mapOf(
     Strings.TimePickerToggleTouch to "切換到時鐘模式",
     Strings.TimePickerDialogTitle to "選取時間",
     Strings.TimeInputDialogTitle to "輸入時間",
+    Strings.TimePickerMinuteError to "分鐘值須介於 0 至 59 之間",
+    Strings.TimePickerHourError to "小時值須介於 1 至 12 之間",
+    Strings.TimePicker24HourError to "小時值須介於 0 至 23 之間",
     Strings.CloseRail to "關閉邊欄",
     Strings.WideNavigationRailPaneTitle to "導覽邊欄",
 )

@@ -94,6 +94,9 @@ internal fun Translations.it() = mapOf(
     Strings.TimePickerToggleTouch to "Passa alla modalità orologio",
     Strings.TimePickerDialogTitle to "Seleziona l\'ora",
     Strings.TimeInputDialogTitle to "Inserisci l\'ora",
+    Strings.TimePickerMinuteError to "Il minuto deve essere 0-59",
+    Strings.TimePickerHourError to "L\'ora deve essere 1-12",
+    Strings.TimePicker24HourError to "L\'ora deve essere 0-23",
     Strings.CloseRail to "Chiudi modalità laterale",
     Strings.WideNavigationRailPaneTitle to "Modalità di navigazione laterale",
 )

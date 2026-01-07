@@ -94,6 +94,9 @@ internal fun Translations.hr() = mapOf(
     Strings.TimePickerToggleTouch to "Prijeđite na način rada sata",
     Strings.TimePickerDialogTitle to "Odaberite vrijeme",
     Strings.TimeInputDialogTitle to "Unesite vrijeme",
+    Strings.TimePickerMinuteError to "Minuta mora biti 0 – 59",
+    Strings.TimePickerHourError to "Sat mora biti 1 – 12",
+    Strings.TimePicker24HourError to "Sat mora biti 0 – 23",
     Strings.CloseRail to "Zatvorena pruga",
     Strings.WideNavigationRailPaneTitle to "Pruga za navigaciju",
 )

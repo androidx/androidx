@@ -94,6 +94,9 @@ internal fun Translations.ka() = mapOf(
     Strings.TimePickerToggleTouch to "საათის რეჟიმზე გადართვა",
     Strings.TimePickerDialogTitle to "აირჩიეთ დრო",
     Strings.TimeInputDialogTitle to "შეიყვანეთ დრო",
+    Strings.TimePickerMinuteError to "წუთი უნდა იყოს 0-59",
+    Strings.TimePickerHourError to "საათი უნდა იყოს 1-12",
+    Strings.TimePicker24HourError to "საათი უნდა იყოს 0-23",
     Strings.CloseRail to "არხის დახურვა",
     Strings.WideNavigationRailPaneTitle to "ნავიგაციის არხი",
 )

@@ -94,6 +94,9 @@ internal fun Translations.fi() = mapOf(
     Strings.TimePickerToggleTouch to "Vaihda kellotilaan",
     Strings.TimePickerDialogTitle to "Valitse aika",
     Strings.TimeInputDialogTitle to "Lisää aika",
+    Strings.TimePickerMinuteError to "Minuutin on oltava 0–59",
+    Strings.TimePickerHourError to "Tunnin on oltava 1–12",
+    Strings.TimePicker24HourError to "Tunnin on oltava 0–23",
     Strings.CloseRail to "Sulje palkki",
     Strings.WideNavigationRailPaneTitle to "Siirtymispalkki",
 )

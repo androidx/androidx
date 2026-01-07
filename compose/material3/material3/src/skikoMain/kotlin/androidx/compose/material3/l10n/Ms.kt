@@ -94,6 +94,9 @@ internal fun Translations.ms() = mapOf(
     Strings.TimePickerToggleTouch to "Beralih kepada mod jam",
     Strings.TimePickerDialogTitle to "Pilih Masa",
     Strings.TimeInputDialogTitle to "Masukkan Masa",
+    Strings.TimePickerMinuteError to "Minit harus antara 0–59",
+    Strings.TimePickerHourError to "Jam mestilah antara 1–12",
+    Strings.TimePicker24HourError to "Jam mestilah antara 0–23",
     Strings.CloseRail to "Tutup rel",
     Strings.WideNavigationRailPaneTitle to "Rel navigasi",
 )

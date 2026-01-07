@@ -94,6 +94,9 @@ internal fun Translations.da() = mapOf(
     Strings.TimePickerToggleTouch to "Skift til urtilstand",
     Strings.TimePickerDialogTitle to "Vælg tidspunkt",
     Strings.TimeInputDialogTitle to "Angiv tidspunkt",
+    Strings.TimePickerMinuteError to "Minuttal skal være 0-59",
+    Strings.TimePickerHourError to "Timetal skal være 1-12",
+    Strings.TimePicker24HourError to "Timetal skal være 0-23",
     Strings.CloseRail to "Luk bjælke",
     Strings.WideNavigationRailPaneTitle to "Navigationsbjælke",
 )

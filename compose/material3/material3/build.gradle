@@ -134,13 +134,17 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
+            jvmAndAndroidMain.dependsOn(commonMain)
+            desktopMain.dependsOn(jvmAndAndroidMain)
             desktopMain.dependsOn(skikoMain)
 
             nonJvmMain.dependsOn(commonMain)
             nonJvmMain.dependsOn(skikoMain)
 
             nativeMain.dependsOn(nonJvmMain)
-            darwinMain.dependsOn(nativeMain)
+            appleMain.dependsOn(commonMain)
+            appleMain.dependsOn(nativeMain)
+            darwinMain.dependsOn(appleMain)
             webMain.dependsOn(nonJvmMain)
 
             jsMain {
@@ -310,6 +314,9 @@ tasks.register("updateTranslations", UpdateTranslationsTask.class) {
             "m3c_time_input_dialog_title": "TimeInputDialogTitle",
             "m3c_time_picker_toggle_keyboard": "TimePickerToggleKeyboard",
             "m3c_time_picker_toggle_touch": "TimePickerToggleTouch",
+            "m3c_time_picker_minute_error": "TimePickerMinuteError",
+            "m3c_time_picker_hour_error": "TimePickerHourError",
+            "m3c_time_picker_hour_error_24h": "TimePicker24HourError",
             "m3c_floating_toolbar_collapse": "FloatingToolbarCollapse",
             "m3c_floating_toolbar_expand": "FloatingToolbarExpand",
             "m3c_floating_toolbar_more_options": "FloatingToolbarMoreOptions",

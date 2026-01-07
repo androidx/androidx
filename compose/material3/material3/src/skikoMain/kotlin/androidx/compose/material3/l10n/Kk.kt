@@ -94,6 +94,9 @@ internal fun Translations.kk() = mapOf(
     Strings.TimePickerToggleTouch to "Сағат режиміне ауысу",
     Strings.TimePickerDialogTitle to "Уақытты таңдаңыз",
     Strings.TimeInputDialogTitle to "Уақытты енгізіңіз",
+    Strings.TimePickerMinuteError to "Минут 0–59 болуы керек.",
+    Strings.TimePickerHourError to "Сағат 1–12 болуы керек.",
+    Strings.TimePicker24HourError to "Сағат 0–23 болуы керек.",
     Strings.CloseRail to "Жолақты жабу",
     Strings.WideNavigationRailPaneTitle to "Навигация жолағы",
 )

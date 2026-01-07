@@ -94,6 +94,9 @@ internal fun Translations.ur() = mapOf(
     Strings.TimePickerToggleTouch to "گھڑی موڈ پر سوئچ کریں",
     Strings.TimePickerDialogTitle to "وقت منتخب کریں",
     Strings.TimeInputDialogTitle to "وقت درج کریں",
+    Strings.TimePickerMinuteError to "‏منٹ ‎0-59 ہونا چاہیے",
+    Strings.TimePickerHourError to "‏گھنٹہ ‎1-12 ہونا چاہیے",
+    Strings.TimePicker24HourError to "‏گھنٹہ ‎0-23 ہونا چاہیے",
     Strings.CloseRail to "ریل بند کریں",
     Strings.WideNavigationRailPaneTitle to "نیوی گیشن ریل",
 )

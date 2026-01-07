@@ -94,6 +94,9 @@ internal fun Translations.iw() = mapOf(
     Strings.TimePickerToggleTouch to "לעבור למצב שעון?",
     Strings.TimePickerDialogTitle to "בחירת שעה",
     Strings.TimeInputDialogTitle to "הזנת שעה",
+    Strings.TimePickerMinuteError to "הדקה חייבת להיות 0 עד 59",
+    Strings.TimePickerHourError to "השעה חייבת להיות 1 עד 12",
+    Strings.TimePicker24HourError to "השעה חייבת להיות 0 עד 23",
     Strings.CloseRail to "סגירה של פס הניווט",
     Strings.WideNavigationRailPaneTitle to "פס ניווט",
 )

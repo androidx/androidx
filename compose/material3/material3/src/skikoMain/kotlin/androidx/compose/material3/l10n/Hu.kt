@@ -94,6 +94,9 @@ internal fun Translations.hu() = mapOf(
     Strings.TimePickerToggleTouch to "Váltás óra módra",
     Strings.TimePickerDialogTitle to "Időpont kiválasztása",
     Strings.TimeInputDialogTitle to "Időpont megadása",
+    Strings.TimePickerMinuteError to "A perc 0–59 lehet",
+    Strings.TimePickerHourError to "Az óra 1–12 lehet",
+    Strings.TimePicker24HourError to "Az óra 0–23 lehet",
     Strings.CloseRail to "Sáv bezárása",
     Strings.WideNavigationRailPaneTitle to "Navigációs sáv",
 )

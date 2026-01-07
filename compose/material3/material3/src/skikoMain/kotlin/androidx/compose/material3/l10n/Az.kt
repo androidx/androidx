@@ -94,6 +94,9 @@ internal fun Translations.az() = mapOf(
     Strings.TimePickerToggleTouch to "Saat rejiminə keçin",
     Strings.TimePickerDialogTitle to "Vaxt seçin",
     Strings.TimeInputDialogTitle to "Vaxt daxil edin",
+    Strings.TimePickerMinuteError to "Dəqiqə 0-59 aralığında olmalıdır",
+    Strings.TimePickerHourError to "Saat 1-12 aralığında olmalıdır",
+    Strings.TimePicker24HourError to "Saat 0-23 aralığında olmalıdır",
     Strings.CloseRail to "Relsi bağlayın",
     Strings.WideNavigationRailPaneTitle to "Naviqasiya relsi",
 )

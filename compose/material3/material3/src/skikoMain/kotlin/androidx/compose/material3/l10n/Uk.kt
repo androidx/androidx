@@ -94,6 +94,9 @@ internal fun Translations.uk() = mapOf(
     Strings.TimePickerToggleTouch to "Перейти в режим годинника",
     Strings.TimePickerDialogTitle to "Виберіть час",
     Strings.TimeInputDialogTitle to "Введіть час",
+    Strings.TimePickerMinuteError to "Укажіть від 0 до 59 хв",
+    Strings.TimePickerHourError to "Укажіть від 1 до 12 год",
+    Strings.TimePicker24HourError to "Укажіть від 0 до 23 год",
     Strings.CloseRail to "Закрити панель",
     Strings.WideNavigationRailPaneTitle to "Панель навігації",
 )

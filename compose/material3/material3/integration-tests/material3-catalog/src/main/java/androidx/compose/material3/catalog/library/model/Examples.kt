@@ -58,6 +58,8 @@ import androidx.compose.material3.samples.CircularProgressIndicatorSample
 import androidx.compose.material3.samples.CircularWavyProgressIndicatorSample
 import androidx.compose.material3.samples.ClickableCardSample
 import androidx.compose.material3.samples.ClickableElevatedCardSample
+import androidx.compose.material3.samples.ClickableListItemSample
+import androidx.compose.material3.samples.ClickableListItemWithClickableChildSample
 import androidx.compose.material3.samples.ClickableOutlinedCardSample
 import androidx.compose.material3.samples.ContainedLoadingIndicatorSample
 import androidx.compose.material3.samples.CustomTwoRowsTopAppBar
@@ -111,6 +113,7 @@ import androidx.compose.material3.samples.FilledTonalButtonWithAnimatedShapeSamp
 import androidx.compose.material3.samples.FilledTonalIconButtonSample
 import androidx.compose.material3.samples.FilledTonalIconToggleButtonSample
 import androidx.compose.material3.samples.FilterChipSample
+import androidx.compose.material3.samples.FilterChipWithCustomSpacingSample
 import androidx.compose.material3.samples.FilterChipWithLeadingIconSample
 import androidx.compose.material3.samples.FilterChipWithTrailingIconSample
 import androidx.compose.material3.samples.FloatingActionButtonMenuSample
@@ -141,6 +144,7 @@ import androidx.compose.material3.samples.LargeToggleButtonWithIconSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
+import androidx.compose.material3.samples.ListItemWithModeChangeOnLongClickSample
 import androidx.compose.material3.samples.LoadingIndicatorPullToRefreshSample
 import androidx.compose.material3.samples.LoadingIndicatorSample
 import androidx.compose.material3.samples.MediumAnimatedExtendedFloatingActionButtonSample
@@ -159,6 +163,8 @@ import androidx.compose.material3.samples.ModalWideNavigationRailSample
 import androidx.compose.material3.samples.MultiAspectCarouselLazyRowSample
 import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
 import androidx.compose.material3.samples.MultiSelectConnectedButtonGroupWithFlowLayoutSample
+import androidx.compose.material3.samples.MultiSelectionListItemSample
+import androidx.compose.material3.samples.MultiSelectionSegmentedListItemSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
 import androidx.compose.material3.samples.NavigationBarSample
 import androidx.compose.material3.samples.NavigationRailBottomAlignSample
@@ -216,6 +222,7 @@ import androidx.compose.material3.samples.SecondaryIconTabs
 import androidx.compose.material3.samples.SecondaryTextTabs
 import androidx.compose.material3.samples.SegmentedButtonMultiSelectSample
 import androidx.compose.material3.samples.SegmentedButtonSingleSelectSample
+import androidx.compose.material3.samples.SegmentedListItemWithExpansionSample
 import androidx.compose.material3.samples.ShortNavigationBarSample
 import androidx.compose.material3.samples.ShortNavigationBarWithHorizontalItemsSample
 import androidx.compose.material3.samples.SimpleBottomAppBar
@@ -229,6 +236,8 @@ import androidx.compose.material3.samples.SimpleTopAppBar
 import androidx.compose.material3.samples.SimpleTopAppBarWithAdaptiveActions
 import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
 import androidx.compose.material3.samples.SingleSelectConnectedButtonGroupWithFlowLayoutSample
+import androidx.compose.material3.samples.SingleSelectionListItemSample
+import androidx.compose.material3.samples.SingleSelectionSegmentedListItemSample
 import androidx.compose.material3.samples.SliderSample
 import androidx.compose.material3.samples.SliderWithCustomThumbSample
 import androidx.compose.material3.samples.SliderWithCustomTrackAndThumbSample
@@ -790,6 +799,14 @@ val ChipsExamples =
             isExpressive = false,
         ) {
             FilterChipWithTrailingIconSample()
+        },
+        Example(
+            name = "FilterChipWithCustomSpacingSample",
+            description = ChipsExampleDescription,
+            sourceUrl = ChipsExampleSourceUrl,
+            isExpressive = false,
+        ) {
+            FilterChipWithCustomSpacingSample()
         },
         Example(
             name = "InputChipSample",
@@ -1391,6 +1408,70 @@ val ListsExamples =
             isExpressive = false,
         ) {
             ThreeLineListItemWithExtendedSupporting()
+        },
+        Example(
+            name = "ClickableListItemSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            ClickableListItemSample()
+        },
+        Example(
+            name = "ClickableListItemWithClickableChildSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            ClickableListItemWithClickableChildSample()
+        },
+        Example(
+            name = "SingleSelectionListItemSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            SingleSelectionListItemSample()
+        },
+        Example(
+            name = "MultiSelectionListItemSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            MultiSelectionListItemSample()
+        },
+        Example(
+            name = "ListItemWithModeChangeOnLongClickSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            ListItemWithModeChangeOnLongClickSample()
+        },
+        Example(
+            name = "SingleSelectionSegmentedListItemSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            SingleSelectionSegmentedListItemSample()
+        },
+        Example(
+            name = "MultiSelectionSegmentedListItemSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            MultiSelectionSegmentedListItemSample()
+        },
+        Example(
+            name = "SegmentedListItemWithExpansionSample",
+            description = ListsExampleDescription,
+            sourceUrl = ListsExampleSourceUrl,
+            isExpressive = true,
+        ) {
+            SegmentedListItemWithExpansionSample()
         },
     )
 

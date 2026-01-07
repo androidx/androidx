@@ -94,6 +94,9 @@ internal fun Translations.te() = mapOf(
     Strings.TimePickerToggleTouch to "గడియారం మోడ్‌కు మారండి",
     Strings.TimePickerDialogTitle to "సమయాన్ని ఎంచుకోండి",
     Strings.TimeInputDialogTitle to "సమయాన్ని ఎంటర్ చేయండి",
+    Strings.TimePickerMinuteError to "నిమి. 0–59 మధ్య ఉండాలి",
+    Strings.TimePickerHourError to "గంటలు 1–12 మధ్య ఉండాలి",
+    Strings.TimePicker24HourError to "గంటలు 0–23 మధ్య ఉండాలి",
     Strings.CloseRail to "రైలును మూసివేయండి",
     Strings.WideNavigationRailPaneTitle to "నావిగేషన్ రైలు",
 )

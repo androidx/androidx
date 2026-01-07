@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -110,7 +111,10 @@ internal fun TimePickerDialogLayout(
         TimePickerCustomLayout(
             title = title,
             actions = {
-                Row(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     modeToggleButton?.invoke()
                     Spacer(modifier = Modifier.weight(1f))
                     dismissButton?.invoke()

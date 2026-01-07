@@ -94,6 +94,9 @@ internal fun Translations.ca() = mapOf(
     Strings.TimePickerToggleTouch to "Canvia al mode de rellotge",
     Strings.TimePickerDialogTitle to "Selecciona l\'hora",
     Strings.TimeInputDialogTitle to "Introdueix l\'hora",
+    Strings.TimePickerMinuteError to "El minut ha de ser 0-59",
+    Strings.TimePickerHourError to "L\'hora ha de ser 1-12",
+    Strings.TimePicker24HourError to "L\'hora ha de ser 0-23",
     Strings.CloseRail to "Tanca la barra",
     Strings.WideNavigationRailPaneTitle to "Barra de navegació",
 )

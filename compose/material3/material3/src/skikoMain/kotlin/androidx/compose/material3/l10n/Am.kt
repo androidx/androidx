@@ -94,6 +94,9 @@ internal fun Translations.am() = mapOf(
     Strings.TimePickerToggleTouch to "ወደ የሰዓት ሁነታ ቀይር",
     Strings.TimePickerDialogTitle to "ጊዜ ምረጥ",
     Strings.TimeInputDialogTitle to "ጊዜ ያስገቡ",
+    Strings.TimePickerMinuteError to "ደቂቃ ከ0–59 መሆን አለበት",
+    Strings.TimePickerHourError to "ሰዓት ከ1–12 መሆን አለበት",
+    Strings.TimePicker24HourError to "ሰዓት ከ0–23 መሆን አለበት",
     Strings.CloseRail to "ሐዲድ ዝጋ",
     Strings.WideNavigationRailPaneTitle to "የአሰሳ ሐዲድ",
 )

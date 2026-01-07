@@ -171,6 +171,17 @@ class TimePickerScreenshotTest(private val scheme: ColorSchemeWrapper) {
         rule.assertAgainstGolden("timePicker_24h_min${scheme.name}")
     }
 
+    @Test
+    fun timeInput_invalidHour_error() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val state = rememberTimePickerState(is24Hour = true)
+            state.hour = 25
+            Box(Modifier.testTag(TestTag)) { TimeInput(state = state) }
+        }
+
+        rule.assertAgainstGolden("timeInput_invalidHour_error_${scheme.name}")
+    }
+
     private fun ComposeContentTestRule.assertAgainstGolden(goldenName: String) {
         this.onNodeWithTag(TestTag).captureToImage().assertAgainstGolden(screenshotRule, goldenName)
     }

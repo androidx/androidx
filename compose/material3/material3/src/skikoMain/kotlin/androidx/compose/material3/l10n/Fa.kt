@@ -94,6 +94,9 @@ internal fun Translations.fa() = mapOf(
     Strings.TimePickerToggleTouch to "رفتن به حالت ساعت",
     Strings.TimePickerDialogTitle to "انتخاب زمان",
     Strings.TimeInputDialogTitle to "وارد کردن زمان",
+    Strings.TimePickerMinuteError to "‏مقدار مجاز دقیقه: ۰‎–۵۹",
+    Strings.TimePickerHourError to "‏مقدار مجاز ساعت: ۱‎–۱۲",
+    Strings.TimePicker24HourError to "‏مقدار مجاز ساعت: ۰‎–۲۳",
     Strings.CloseRail to "بستن ریل",
     Strings.WideNavigationRailPaneTitle to "ریل پیمایش",
 )

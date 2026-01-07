@@ -126,7 +126,7 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 content = { Text("Content") },
                 supportingContent = { Text("Supporting") },
                 colors =
-                    InteractiveListItemDefaults.colors(
+                    ListItemDefaults.colors(
                         containerColor = Color.Yellow,
                         contentColor = Color.Blue,
                         leadingContentColor = Color.Green,
@@ -221,12 +221,12 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 modifier =
                     Modifier.testTag(ListTestTag)
                         .background(MaterialTheme.colorScheme.surfaceContainer),
-                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 repeat(count) { idx ->
                     SegmentedListItem(
                         onClick = {},
-                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        shapes = ListItemDefaults.segmentedShapes(idx, count),
                         content = { Text("Content") },
                         leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                     )
@@ -245,12 +245,12 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 modifier =
                     Modifier.testTag(ListTestTag)
                         .background(MaterialTheme.colorScheme.surfaceContainer),
-                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 repeat(count) { idx ->
                     SegmentedListItem(
                         onClick = {},
-                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        shapes = ListItemDefaults.segmentedShapes(idx, count),
                         content = { Text("Content") },
                         leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         supportingContent = { Text("Supporting") },
@@ -270,12 +270,12 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 modifier =
                     Modifier.testTag(ListTestTag)
                         .background(MaterialTheme.colorScheme.surfaceContainer),
-                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 repeat(count) { idx ->
                     SegmentedListItem(
                         onClick = {},
-                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        shapes = ListItemDefaults.segmentedShapes(idx, count),
                         content = { Text("Content") },
                         leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         supportingContent = { Text("Supporting 1\nSupporting 2") },
@@ -295,13 +295,13 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 modifier =
                     Modifier.testTag(ListTestTag)
                         .background(MaterialTheme.colorScheme.surfaceContainer),
-                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 repeat(count) { idx ->
                     SegmentedListItem(
                         selected = idx == 0,
                         onClick = {},
-                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        shapes = ListItemDefaults.segmentedShapes(idx, count),
                         content = { Text("Content") },
                         leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         supportingContent = { Text("Supporting") },
@@ -321,13 +321,13 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 modifier =
                     Modifier.testTag(ListTestTag)
                         .background(MaterialTheme.colorScheme.surfaceContainer),
-                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 repeat(count) { idx ->
                     SegmentedListItem(
                         selected = idx == 1,
                         onClick = {},
-                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        shapes = ListItemDefaults.segmentedShapes(idx, count),
                         content = { Text("Content") },
                         leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         supportingContent = { Text("Supporting") },
@@ -347,13 +347,13 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 modifier =
                     Modifier.testTag(ListTestTag)
                         .background(MaterialTheme.colorScheme.surfaceContainer),
-                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 repeat(count) { idx ->
                     SegmentedListItem(
                         selected = idx == 2,
                         onClick = {},
-                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        shapes = ListItemDefaults.segmentedShapes(idx, count),
                         content = { Text("Content") },
                         leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         supportingContent = { Text("Supporting") },
@@ -373,13 +373,13 @@ class InteractiveListScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 modifier =
                     Modifier.testTag(ListTestTag)
                         .background(MaterialTheme.colorScheme.surfaceContainer),
-                verticalArrangement = Arrangement.spacedBy(InteractiveListItemDefaults.SegmentedGap),
+                verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 repeat(count) { idx ->
                     SegmentedListItem(
                         checked = true,
                         onCheckedChange = {},
-                        shapes = InteractiveListItemDefaults.segmentedShapes(idx, count),
+                        shapes = ListItemDefaults.segmentedShapes(idx, count),
                         content = { Text("Content") },
                         leadingContent = { Icon(Icons.Filled.Favorite, contentDescription = null) },
                         supportingContent = { Text("Supporting") },

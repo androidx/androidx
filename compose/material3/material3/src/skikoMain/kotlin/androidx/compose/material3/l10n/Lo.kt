@@ -94,6 +94,9 @@ internal fun Translations.lo() = mapOf(
     Strings.TimePickerToggleTouch to "ສະຫຼັບໄປຫາໂໝດໂມງ",
     Strings.TimePickerDialogTitle to "ເລືອກເວລາ",
     Strings.TimeInputDialogTitle to "ໃສ່ເວລາ",
+    Strings.TimePickerMinuteError to "ນາທີຕ້ອງເປັນ 0–59",
+    Strings.TimePickerHourError to "ຊົ່ວໂມງຕ້ອງເປັນ 1–12",
+    Strings.TimePicker24HourError to "ຊົ່ວໂມງຕ້ອງເປັນ 0–23",
     Strings.CloseRail to "ປິດແຖບຂ້າງ",
     Strings.WideNavigationRailPaneTitle to "ແຖບຂ້າງສຳລັບນຳທາງໄປຫາສ່ວນຕ່າງໆ",
 )

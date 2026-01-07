@@ -94,6 +94,9 @@ internal fun Translations.`in`() = mapOf(
     Strings.TimePickerToggleTouch to "Beralih ke mode jam",
     Strings.TimePickerDialogTitle to "Pilih Waktu",
     Strings.TimeInputDialogTitle to "Masukkan Waktu",
+    Strings.TimePickerMinuteError to "Menit harus antara 0—59",
+    Strings.TimePickerHourError to "Jam harus antara 1—12",
+    Strings.TimePicker24HourError to "Jam harus antara 0—23",
     Strings.CloseRail to "Tutup kolom samping",
     Strings.WideNavigationRailPaneTitle to "Kolom samping navigasi",
 )

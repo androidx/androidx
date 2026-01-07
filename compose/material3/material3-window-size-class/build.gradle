@@ -52,10 +52,11 @@ kotlin {
             dependencies {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(project(":kruth:kruth"))
             }
         }
 
-        jvmMain {
+        jvmAndAndroidMain {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.kotlinStdlib)
@@ -67,7 +68,7 @@ kotlin {
         }
 
         androidMain {
-            dependsOn(jvmMain)
+            dependsOn(jvmAndAndroidMain)
             dependencies {
                 implementation("androidx.window:window:1.0.0")
             }
@@ -75,20 +76,20 @@ kotlin {
 
         desktopMain {
             dependsOn(skikoMain)
-            dependsOn(jvmMain)
+            dependsOn(jvmAndAndroidMain)
             dependencies {
 
             }
         }
 
-        jvmTest {
+        jvmAndAndroidTest {
             dependsOn(commonTest)
             dependencies {
             }
         }
 
         androidInstrumentedTest {
-            dependsOn(jvmTest)
+            dependsOn(jvmAndAndroidTest)
             dependencies {
                 implementation(project(":compose:test-utils"))
                 implementation(project(":compose:foundation:foundation"))
@@ -100,7 +101,7 @@ kotlin {
         }
 
         androidUnitTest {
-            dependsOn(jvmTest)
+            dependsOn(jvmAndAndroidTest)
             dependencies {
                 implementation(libs.kotlinTest)
                 implementation(libs.truth)
@@ -108,7 +109,7 @@ kotlin {
         }
 
         desktopTest {
-            dependsOn(jvmTest)
+            dependsOn(jvmAndAndroidTest)
             dependencies {
 
             }

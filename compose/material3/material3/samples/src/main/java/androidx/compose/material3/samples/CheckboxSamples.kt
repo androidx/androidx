@@ -17,6 +17,7 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -59,6 +60,7 @@ fun CheckboxSample() {
 @Composable
 fun CheckboxWithTextSample() {
     val (checkedState, onStateChange) = remember { mutableStateOf(true) }
+    val interactionSource = remember { MutableInteractionSource() }
     Row(
         Modifier.fillMaxWidth()
             .height(56.dp)
@@ -66,13 +68,16 @@ fun CheckboxWithTextSample() {
                 value = checkedState,
                 onValueChange = { onStateChange(!checkedState) },
                 role = Role.Checkbox,
+                indication = null,
+                interactionSource = interactionSource,
             )
             .padding(horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Checkbox(
             checked = checkedState,
-            onCheckedChange = null, // null recommended for accessibility with screenreaders
+            interactionSource = interactionSource,
+            onCheckedChange = onStateChange,
         )
         Text(
             text = "Option selection",

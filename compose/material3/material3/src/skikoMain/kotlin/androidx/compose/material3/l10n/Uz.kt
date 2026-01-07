@@ -94,6 +94,9 @@ internal fun Translations.uz() = mapOf(
     Strings.TimePickerToggleTouch to "Soat rejimiga oʻtish",
     Strings.TimePickerDialogTitle to "Vaqtni tanlang",
     Strings.TimeInputDialogTitle to "Vaqtni kiriting",
+    Strings.TimePickerMinuteError to "Daqiqa 0–59 boʻlsin",
+    Strings.TimePickerHourError to "Soat 1–12 boʻlsin",
+    Strings.TimePicker24HourError to "Soat 0–23 boʻlsin",
     Strings.CloseRail to "Panelni yopish",
     Strings.WideNavigationRailPaneTitle to "Navigatsiya paneli",
 )
