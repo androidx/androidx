@@ -563,21 +563,21 @@ public class Rc {
         /** TOUCH_EVENT_TIME the time of the touch */
         public static final float TOUCH_EVENT_TIME = RemoteContext.FLOAT_TOUCH_EVENT_TIME;
         /** Stop as soon as touch up */
-        public static final float STOP_INSTANTLY = TouchExpression.STOP_INSTANTLY;
+        public static final int STOP_INSTANTLY = TouchExpression.STOP_INSTANTLY;
         /** Jump to the absolute position of the point */
-        public static final float STOP_ABSOLUTE_POS = TouchExpression.STOP_ABSOLUTE_POS;
+        public static final int STOP_ABSOLUTE_POS = TouchExpression.STOP_ABSOLUTE_POS;
         /** Stop only at the start or end */
-        public static final float STOP_ENDS = TouchExpression.STOP_ENDS;
+        public static final int STOP_ENDS = TouchExpression.STOP_ENDS;
         /** Stop at a series of notch positions expressed as a percent of the range*/
-        public static final float STOP_NOTCHES_PERCENTS = TouchExpression.STOP_NOTCHES_PERCENTS;
+        public static final int STOP_NOTCHES_PERCENTS = TouchExpression.STOP_NOTCHES_PERCENTS;
         /** Stop by decelerating */
-        public static final float STOP_GENTLY = TouchExpression.STOP_GENTLY;
+        public static final int STOP_GENTLY = TouchExpression.STOP_GENTLY;
         /** Stop at a collection of point described in absolute cordnates */
-        public static final float STOP_NOTCHES_ABSOLUTE = TouchExpression.STOP_NOTCHES_ABSOLUTE;
+        public static final int STOP_NOTCHES_ABSOLUTE = TouchExpression.STOP_NOTCHES_ABSOLUTE;
         /** Stop at a series of evenly spaced notches  */
-        public static final float STOP_NOTCHES_EVEN = TouchExpression.STOP_NOTCHES_EVEN;
+        public static final int STOP_NOTCHES_EVEN = TouchExpression.STOP_NOTCHES_EVEN;
         /** Stop at evenly spaced single step notches */
-        public static final float STOP_NOTCHES_SINGLE_EVEN =
+        public static final int STOP_NOTCHES_SINGLE_EVEN =
                 TouchExpression.STOP_NOTCHES_SINGLE_EVEN;
 
     }

@@ -1,0 +1,1641 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+
+    <!-- This is used for Demo purposes -->
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        remember&lt;Any> { Thread.sleep(delay) }"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/SystemUi.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        return color == otherModifier.color &amp;&amp;"
+        errorLine2="                     ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/AnimatedBackground.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="            alpha == otherModifier.alpha &amp;&amp;"
+        errorLine2="                  ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/AnimatedBackground.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        return start == otherModifier.start &amp;&amp;"
+        errorLine2="                     ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="            top == otherModifier.top &amp;&amp;"
+        errorLine2="                ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="            end == otherModifier.end &amp;&amp;"
+        errorLine2="                ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="            bottom == otherModifier.bottom &amp;&amp;"
+        errorLine2="                   ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Padding.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                if (maxWidth != SizeUnspecified) {"
+        errorLine2="                             ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                if (maxHeight != SizeUnspecified) {"
+        errorLine2="                              ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                if (minWidth != SizeUnspecified) {"
+        errorLine2="                             ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                if (minHeight != SizeUnspecified) {"
+        errorLine2="                              ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                        if (minWidth != SizeUnspecified) {"
+        errorLine2="                                     ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                        if (maxWidth != SizeUnspecified) {"
+        errorLine2="                                     ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                        if (minHeight != SizeUnspecified) {"
+        errorLine2="                                      ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="                        if (maxHeight != SizeUnspecified) {"
+        errorLine2="                                      ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="        return minWidth == other.minWidth &amp;&amp;"
+        errorLine2="                        ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="            minHeight == other.minHeight &amp;&amp;"
+        errorLine2="                      ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="            maxWidth == other.maxWidth &amp;&amp;"
+        errorLine2="                     ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="LambdaStructuralEquality"
+        message="Checking lambdas for structural equality, instead of checking for referential equality"
+        errorLine1="            maxHeight == other.maxHeight &amp;&amp;"
+        errorLine2="                      ~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/Size.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="    var enabled: () -> Boolean,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/ui/graphics/DrawInContainer.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="    val onDismissed: () -> Unit,"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/gesture/OverscrollToDismiss.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeElementDataClassWithLambda"
+        message="ModifierNodeElement implementations using a data class with lambda properties will result in incorrect equals implementations"
+        errorLine1="private data class SliderPercentageElement(val percentage: () -> Float) :"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/modifiers/SliderPercentage.kt"/>
+    </issue>
+
+    <issue
+        id="RememberInComposition"
+        message="Calling a @RememberInComposition annotated declaration inside composition without using `remember`"
+        errorLine1="                    ?: movableContentOf { content: @Composable () -> Unit -> content() }"
+        errorLine2="                       ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/MovableElement.kt"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                        Modifier.testTag(key.testTag)"
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/content/Content.kt"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="        .thenIf(layoutImpl.implicitTestTags) { Modifier.testTag(key.testTag) }"
+        errorLine2="                                                                    ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/Element.kt"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                    &quot;No element found in STL layout with key: ${key.testTag}&quot;"
+        errorLine2="                                                                    ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/testing/ElementStateAccess.kt"/>
+    </issue>
+
+    <issue
+        id="VisibleForTests"
+        message="This method should only be accessed from tests or within private scope"
+        errorLine1="                &quot;No state found for given content key: ${content.key.testTag}&quot;"
+        errorLine2="                                                                     ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/testing/ElementStateAccess.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterNaming"
+        message="Composable lambda parameter should be named `content`"
+        errorLine1="    mediaPlayer: @Composable (ContentScope.() -> Unit)?,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/Shade.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="    mediaPlayer: @Composable (ContentScope.() -> Unit)?,"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/Shade.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableLambdaParameterPosition"
+        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
+        errorLine1="    notificationList: @Composable ContentScope.(OverscrollEffect?) -> Unit,"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/Shade.kt"/>
+    </issue>
+
+    <issue
+        id="ComposableNaming"
+        message="Composable functions that return Unit should start with an uppercase letter"
+        errorLine1="    @Composable fun content(content: @Composable ContentScope.() -> Unit)"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                check(transitionState.fromScene == transitionState.currentScene)"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/AnimateToScene.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                check(transitionState.toScene == transitionState.currentScene)"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/AnimateToScene.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            BreakpointKey.MinLimit -> require(position == Float.NEGATIVE_INFINITY)"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/Breakpoint.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            BreakpointKey.MaxLimit -> require(position == Float.POSITIVE_INFINITY)"
+        errorLine2="                                      ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/Breakpoint.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            else -> require(position.fastIsFinite())"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/Breakpoint.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                    check(targetIndex != sourceIndex)"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/impl/Computations.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require("
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/impl/Computations.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        val idleSize = checkNotNull(element.targetSize(content))"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/reveal/ContainerReveal.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="                    val idleSize = checkNotNull(element.targetSize(content))"
+        errorLine2="                                   ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/reveal/ContainerReveal.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(isLookingAhead)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/content/Content.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(maxAgeMillis > 0)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/debug/DebugVisualization.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(mappings.size == breakpoints.size - 1)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(segmentHaptics.size == breakpoints.size - 1)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(mappings.size == breakpoints.size - 1)"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(segmentHaptics.size == breakpoints.size - 1)"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(mappings.size == breakpoints.size)"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(atPosition.isFinite())"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(mappings.size == breakpoints.size - 1)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(segmentHaptics.size == breakpoints.size - 1)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(breakpoints.last() == Breakpoint.maxLimit)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sourceValue.isFinite())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sourceValue.isFinite())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sourceValue.isFinite())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sourceValue.isNaN())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sourceValue.isNaN())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sourceValue.isNaN())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(breakpointPosition.isNaN())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(breakpointKey == null)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(!sourceValue.isNaN())"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="                checkNotNull(breakpointKey),"
+        errorLine2="                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(segmentIndex &lt; values.size)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/DirectionalBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sign != 0f)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/DraggableHandler.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="            val delegate = checkNotNull(currentDelegate)"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/DraggableHandler.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(direction != 0f)"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/DraggableHandler.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="                    checkNotNull(dragController).swipeAnimation.contentByDirection(direction)"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/DraggableHandler.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(layoutImpl == this.layoutImpl &amp;&amp; content == this.content)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/Element.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(isLookingAhead)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/Element.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(states.size == 1)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/Element.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(attachPosition &lt;= detachPosition)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/effects/MagneticDetach.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(placement.type == EffectPlacemenType.After)"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/effects/MagneticDetach.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(value.isFinite())"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/Mapping.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(factor.isFinite())"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/Mapping.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(offset.isFinite())"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/Mapping.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(in0 &lt; in1 &amp;&amp; in1 &lt; in2)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/Mapping.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(position.isFinite())"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(breakpoints.size >= 2)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(breakpoints.first() == Breakpoint.minLimit)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(breakpoints.last() == Breakpoint.maxLimit)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(mappings.size == breakpoints.size - 1)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(position.isFinite())"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(result >= 0)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(result &lt; breakpoints.size - 1)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(sortedEffects.size >= 2)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                        require(measuredPlacement.max.isFinite())"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                        require(measuredPlacement.min.isFinite())"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                    check(previousPlacement.max == Float.POSITIVE_INFINITY)"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                check(actualPlacement.min.isFinite())"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="                val effect = checkNotNull(placedEffects[effectId])"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                require(anchorEffectPlacement.min.isFinite())"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="                val effect = checkNotNull(placedEffects[effectId])"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                require(anchorEffectPlacement.max.isFinite())"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(absoluteEffectPlacements.isNotEmpty())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="            val effect = checkNotNull(placedEffects[effectId])"
+        errorLine2="                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(placedEffects.containsKey(otherEffect.id))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(!relativeEffectPlacements.containsKey(-otherEffect.id))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(placedEffects.containsKey(otherEffect.id))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(!relativeEffectPlacements.containsKey(otherEffect.id))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(!relativeEffectPlacements.containsKey(otherEffect.id))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(!segmentHandlers.containsKey(key))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(minLimitKey != maxLimitKey)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        val effect = checkNotNull(placedEffects[effectId])"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(builder.breakpoints[initialSize - 1].key == minLimitKey)"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(builder.breakpoints.size > initialSize)"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(effect is Effect.PlaceableAt)"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                require(minExtend.isFinite() &amp;&amp; minExtend >= 0)"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                require(maxExtend.isFinite() &amp;&amp; maxExtend >= 0)"
+        errorLine2="                ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(effect is Effect.PlaceableBefore)"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                    require(intrinsicSize >= 0)"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="            require(effect is Effect.PlaceableAfter)"
+        errorLine2="            ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="                    require(intrinsicSize >= 0)"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/builder/MotionSpecBuilderImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        return checkNotNull(impl.debugInspector)"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/MotionValue.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        return checkNotNull(debugInspector)"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/MotionValueCollection.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(nestedScrollController == null)"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/gesture/NestedDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        val startedPosition = checkNotNull(lastFirstDown)"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/gesture/NestedDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                    check(state.fromOrToScene == state.currentScene)"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/ObservableTransitionState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="    val contentOverscrollEffect = checkNotNull(rememberOverscrollEffect())"
+        errorLine2="                                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/PartialShade.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(contentsSize >= 2 &amp;&amp; contentsSize &lt;= 4)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/QuickSettingsGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        repeat(contentsSize) { check(measurables[it].size == 1) }"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/QuickSettingsGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(constraints.minWidth == constraints.maxWidth)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/QuickSettingsGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(constraints.minHeight == constraints.maxHeight)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/QuickSettingsGrid.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="    val defaultEffectFactory = checkNotNull(LocalOverscrollFactory.current)"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayout.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                check(transitionStates.size == 1)"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                check(transitionStates.size == 1)"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                    check(transitionStates.size == 1)"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="                    check(transitionStates[0] is TransitionState.Idle)"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(transitionStates.fastAll { it is TransitionState.Transition })"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(transitionStates.size == 1)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(currentTransitions.isEmpty())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutState.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(measurables.size == 3)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/Shade.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(measurables[2].size == 1)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/Shade.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(isAnimatingOffset())"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SwipeAnimation.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        val fromContentSize = checkNotNull(fromContent.targetSize())"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SwipeAnimation.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="    check(expectedQsSize == quickSettingsTiles.size)"
+        errorLine2="    ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/SystemUi.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(placement.type == EffectPlacemenType.Between)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/effects/Toggle.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(!start.isSpecified() || (start in 0f..1f))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/transformation/Transformation.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(!end.isSpecified() || (end in 0f..1f))"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/transformation/Transformation.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(!start.isSpecified() || !end.isSpecified() || start &lt;= end)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/transformation/Transformation.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="            check(!transition.isInitiatedByUserInput)"
+        errorLine2="            ~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/mechanics/TransitionScopedMechanicsAdapter.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        requireGraphicsContext().releaseGraphicsLayer(checkNotNull(graphicsLayer))"
+        errorLine2="                                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/behavior/VerticalExpandContainerBackground.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        val graphicsLayer = checkNotNull(graphicsLayer)"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/behavior/VerticalExpandContainerBackground.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="                    val revealAlpha = checkNotNull(revealAlpha).output.fastCoerceAtLeast(0f)"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/compose/modifier/VerticalFadeContentRevealModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(phase1HeightMin >= 0.dp)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/effects/VerticalTactileSurfaceRevealEffect.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(phase1HeightMin >= 0.dp)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/effects/VerticalTactileSurfaceRevealEffect.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(phase2HeightPercentStart in 0f..1f)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/effects/VerticalTactileSurfaceRevealEffect.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for require"
+        errorLine1="        require(phase2HeightPercentStart in 0f..1f)"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/effects/VerticalTactileSurfaceRevealEffect.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="                            .constrainHeight(checkNotNull(revealHeight).output.roundToInt())"
+        errorLine2="                                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/compose/modifier/VerticalTactileSurfaceRevealModifier.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for check"
+        errorLine1="        check(impl.isActive)"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/view/ViewMotionValue.kt"/>
+    </issue>
+
+    <issue
+        id="ExceptionMessage"
+        message="Please specify a lazyMessage param for checkNotNull"
+        errorLine1="        return checkNotNull(impl.debugInspector)"
+        errorLine2="               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/view/ViewMotionValue.kt"/>
+    </issue>
+
+    <issue
+        id="LocalContextResourcesRead"
+        message="Reading Resources using LocalContext.current.resources"
+        errorLine1="    val displayMetrics = context.resources.displayMetrics"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/ui/graphics/DrawInOverlay.kt"/>
+    </issue>
+
+    <issue
+        id="NoCollectCallFound"
+        message="You must call collect() on Flow null"
+        errorLine1="    PredictiveBackHandler(enabled = result != null) { events: Flow&lt;BackEventCompat> ->"
+        errorLine2="                                                              ~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/PredictiveBackHandler.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 31"
+        errorLine1="        tools:targetApi=&quot;31&quot;>"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 29"
+        errorLine1="            tools:targetApi=&quot;29&quot; />"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 31"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/ui/graphics/painter/DrawablePainter.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 31"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/SysUiSceneTransitionLayoutDemoActivity.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 31"
+        errorLine1="        get() = Build.VERSION.SDK_INT >= 29 &amp;&amp; window?.isNavigationBarContrastEnforced == true"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/SystemUiController.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; `SDK_INT` is always >= 31"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 29) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/SystemUiController.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v26`) is unnecessary; `minSdkVersion` is 31. Merge all the resources in this folder into `mipmap-anydpi`.">
+        <location
+            file="src/main/res/mipmap-anydpi-v26"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="                spec = { specGetter() },"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/ComposableMotionValue.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="        confirmButton = { Button(onClick = { onDismissRequest() }) { Text(&quot;Done&quot;) } },"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/DemoConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="    CompositionLocalProvider(LocalMotionValueDebugController provides debugger) { content() }"
+        errorLine2="                                                                                  ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/debug/MotionValueDebugger.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="            effect.applyToScroll(delta, source = NestedScrollSource.UserInput) { performScroll(it) }"
+        errorLine2="                                                                                 ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/gesture/NestedDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="            overscrollEffect.applyToFling(orientationVelocity) { performFling(it) }"
+        errorLine2="                                                                 ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/gesture/NestedDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="        content()"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/PlatformButtons.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="        content()"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/PlatformButtons.kt"/>
+    </issue>
+
+    <issue
+        id="UnnecessaryLambdaCreation"
+        message="Creating an unnecessary lambda to emit a captured lambda"
+        errorLine1="    CompositionLocalProvider(LocalHapticPlayer provides hapticPlayer) { content() }"
+        errorLine2="                                                                        ~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/haptics/SpringTensionHapticPlayer.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableIntStateOf` instead of `mutableStateOf`"
+        errorLine1="    private var drawInvalidateTick by mutableStateOf(0)"
+        errorLine2="                                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/ui/graphics/painter/DrawablePainter.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    val scrimOffset = remember { mutableStateOf(0f) }"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/demo/Shade.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable samples with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="    val samples = buildList {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/android/mechanics/debug/DebugVisualization.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field breakpointIndexByKey with type Map&lt;BreakpointKey, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val breakpointIndexByKey: Map&lt;BreakpointKey, Int>"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/spec/MotionSpec.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field pointersDown with type LinkedHashMap&lt;PointerId, PointerType>: replace with LongIntMap"
+        errorLine1="    /** The pointers currently down, in order of which they were done and mapping to their type. */"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/android/compose/gesture/NestedDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="ContentElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ContentElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class ContentElement("
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/content/Content.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="ContainerElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ContainerElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class ContainerElement(private val state: ContainerState) :"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/ui/graphics/DrawInContainer.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="DrawInContainerElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read DrawInContainerElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class DrawInContainerElement("
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/ui/graphics/DrawInContainer.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="ElementModifier does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ElementModifier&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="internal data class ElementModifier("
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/Element.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="NestedDraggableElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read NestedDraggableElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class NestedDraggableElement("
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/gesture/NestedDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="NestedScrollControllerElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read NestedScrollControllerElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class NestedScrollControllerElement("
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/gesture/NestedScrollController.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="LayoutElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read LayoutElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class LayoutElement("
+        errorLine2="                   ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="ContentElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read ContentElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class ContentElement(val zIndex: Float, val isInvisible: Boolean) :"
+        errorLine2="                   ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/SceneTransitionLayoutImpl.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="SizeMatcherSourceNodeElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read SizeMatcherSourceNodeElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class SizeMatcherSourceNodeElement(private val matcher: SizeMatcher) :"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/modifiers/SizeMatcher.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="SizeMatcherDestinationElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read SizeMatcherDestinationElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class SizeMatcherDestinationElement(private val matcher: SizeMatcher) :"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/compose/animation/scene/modifiers/SizeMatcher.kt"/>
+    </issue>
+
+    <issue
+        id="ModifierNodeInspectableProperties"
+        message="EdgeContainerExpansionBackgroundElement does not override inspectableProperties(). The layout inspector will use the default implementation of this function, which will attempt to read EdgeContainerExpansionBackgroundElement&apos;s properties reflectively. Override inspectableProperties() if you&apos;d like to customize this modifier&apos;s presentation in the layout inspector."
+        errorLine1="private data class EdgeContainerExpansionBackgroundElement("
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/android/mechanics/behavior/VerticalExpandContainerBackground.kt"/>
+    </issue>
+
+</issues>

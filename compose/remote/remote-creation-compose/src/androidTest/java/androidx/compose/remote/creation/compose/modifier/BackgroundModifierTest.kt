@@ -39,24 +39,30 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.test.screenshot.matchers.MSSIMMatcher
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 /** Emulator-based screenshot test of [BackgroundModifier]. */
-@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(AndroidJUnit4::class)
 @MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@RunWith(TestParameterInjector::class)
 class BackgroundModifierTest {
+    @TestParameter private lateinit var targetPlayer: TargetPlayer
+
     @get:Rule
-    val remoteComposeTestRule =
+    val remoteComposeTestRule: RemoteComposeScreenshotTestRule by lazy {
         RemoteComposeScreenshotTestRule(
             moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.View,
+            targetPlayer = targetPlayer,
+            matcher = MSSIMMatcher(threshold = 0.999),
         )
+    }
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     val size = Size(200f, 200f)
@@ -64,7 +70,7 @@ class BackgroundModifierTest {
         CreationDisplayInfo(
             size.width.toInt(),
             size.height.toInt(),
-            context.resources.displayMetrics.density,
+            context.resources.displayMetrics.densityDpi,
         )
 
     @SuppressLint("UnrememberedMutableState")

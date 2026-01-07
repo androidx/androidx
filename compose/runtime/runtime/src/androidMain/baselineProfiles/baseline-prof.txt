@@ -14,7 +14,7 @@ HSPLandroidx/compose/runtime/AbstractApplier;->**(**)**
 HSPLandroidx/compose/runtime/ActualJvm_jvmKt;->identityHashCode(Ljava/lang/Object;)I
 HSPLandroidx/compose/runtime/ActualAndroid**->**(**)**
 HSPLandroidx/compose/runtime/Anchor;->**(**)**
-HSPLandroidx/compose/runtime/Applier$DefaultImpls;->**(**)**
+HSPLandroidx/compose/runtime/Applier**->**(**)**
 HSPLandroidx/compose/runtime/BroadcastFrameClock**->**(**)**
 HSPLandroidx/compose/runtime/ComposablesKt;->**(**)**
 HSPLandroidx/compose/runtime/ComposableSingletons**->**(**)**
@@ -31,6 +31,7 @@ HSPLandroidx/compose/runtime/DisposableEffectImpl;->**(**)**
 HSPLandroidx/compose/runtime/DisposableEffectScope;->**(**)**
 HSPLandroidx/compose/runtime/DynamicProvidableCompositionLocal;->**(**)**
 HSPLandroidx/compose/runtime/EffectsKt;->**(**)**
+HSPLandroidx/compose/runtime/GapComposer**->**(**)**
 HSPLandroidx/compose/runtime/GroupInfo;->**(**)**
 HSPLandroidx/compose/runtime/GroupKind**->**(**)**
 HSPLandroidx/compose/runtime/InvalidationResult;->**(**)**
@@ -46,13 +47,17 @@ HSPLandroidx/compose/runtime/ParcelableSnapshotMutableFloatState;->**(**)**
 HSPLandroidx/compose/runtime/ParcelableSnapshotMutableIntState;->**(**)**
 HSPLandroidx/compose/runtime/ParcelableSnapshotMutableLongState;->**(**)**
 HSPLandroidx/compose/runtime/ParcelableSnapshotMutableState**->**(**)**
+HSPLandroidx/compose/runtime/PausedCompositionImpl;->**(**)**
+HSPLandroidx/compose/runtime/PausedCompositionState;->**(**)**
 HSPLandroidx/compose/runtime/PausableMonotonicFrameClock;->**(**)**
 HSPLandroidx/compose/runtime/Pending**->**(**)**
 HSPLandroidx/compose/runtime/ProvidableCompositionLocal;->**(**)**
 HSPLandroidx/compose/runtime/ProvidedValue;->**(**)**
 HSPLandroidx/compose/runtime/RecomposeScopeImpl;->**(**)**
 HSPLandroidx/compose/runtime/Recomposer**->**(**)**
+HSPLandroidx/compose/runtime/RecordingApplier;->**(**)**
 HSPLandroidx/compose/runtime/ReferentialEqualityPolicy;->**(**)**
+HSPLandroidx/compose/runtime/RememberedCoroutineScope;->**(**)**
 HSPLandroidx/compose/runtime/SkippableUpdater;->**(**)**
 HSPLandroidx/compose/runtime/SlotReader;->**(**)**
 HSPLandroidx/compose/runtime/SlotTable;->**(**)**
@@ -74,6 +79,7 @@ HSPLandroidx/compose/runtime/StructuralEqualityPolicy;->**(**)**
 HSPLandroidx/compose/runtime/Trace;->**(**)**
 HSPLandroidx/compose/runtime/Updater**->**(**)**
 HSPLandroidx/compose/runtime/changelist/**->**(**)**
+HSPLandroidx/compose/runtime/composer/**->**(**)**
 HSPLandroidx/compose/runtime/internal/ComposableLambdaImpl**->**(**)**
 HSPLandroidx/compose/runtime/internal/ComposableLambdaKt;->**(**)**
 HSPLandroidx/compose/runtime/internal/IntRef;->**(**)**

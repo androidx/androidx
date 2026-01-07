@@ -95,7 +95,8 @@ object DragAndDropTestUtils {
      * [DragEvent.CREATOR].
      *
      * @param action The action passed to [DragEvent], for example [DragEvent.ACTION_DRAG_ENDED]
-     * @param clipData The [ClipData] associated with the event
+     * @param clipData The [ClipData] associated with the event. This is optional since e.g. WebView
+     *   can create DragEvents that do not carry a ClipData.
      * @param position The position of the drag event
      * @param displayId The display id of the drag event, [Display.DEFAULT_DISPLAY] by default. Only
      *   used on API 36+. This is only relevant for multi-display environments. For technical
@@ -104,7 +105,7 @@ object DragAndDropTestUtils {
      */
     fun makeDragEvent(
         action: Int,
-        clipData: ClipData,
+        clipData: ClipData?,
         position: Offset = Offset.Zero,
         displayId: Int = Display.DEFAULT_DISPLAY,
     ): DragEvent {
@@ -135,11 +136,16 @@ object DragAndDropTestUtils {
         // mDragResult
         parcel.writeInt(0)
         // mClipData
-        parcel.writeInt(1) // 0 = no clip data, 1 = clip data present
-        clipData.writeToParcel(parcel, 0)
-        // mClipDescription
-        parcel.writeInt(1) // 0 = no description, 1 = description present
-        clipData.description.writeToParcel(parcel, 0)
+        if (clipData != null) {
+            parcel.writeInt(1) // 0 = no clip data, 1 = clip data present
+            clipData.writeToParcel(parcel, 0)
+            // mClipDescription
+            parcel.writeInt(1) // 0 = no description, 1 = description present
+            clipData.description.writeToParcel(parcel, 0)
+        } else {
+            parcel.writeInt(0) // ClipData
+            parcel.writeInt(0) // ClipDescription
+        }
         // mDragSurface
         parcel.writeInt(0) // 0 = no SurfaceControl, 1 = SurfaceControl present
         // mDragAndDropPermissions

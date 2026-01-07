@@ -208,7 +208,7 @@ fun plot2(): RemoteComposeWriter {
                                 (minX + maxX) / 2,
                                 min = minX,
                                 max = maxX,
-                                TouchExpression.STOP_INSTANTLY.toInt(),
+                                TouchExpression.STOP_INSTANTLY,
                                 0f,
                                 0,
                                 null,

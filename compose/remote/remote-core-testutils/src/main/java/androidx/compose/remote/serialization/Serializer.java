@@ -17,6 +17,7 @@ package androidx.compose.remote.serialization;
 
 import androidx.compose.remote.core.serialize.MapSerializer;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -43,14 +44,14 @@ public interface Serializer {
      *
      * @return
      */
-    ValueType getValueType();
+    @NonNull ValueType getValueType();
 
     /**
      * Declare this serializer to be an Array
      *
      * @return An ArraySerializer where elements can be added
      */
-    ArraySerializer serializeArray();
+    @NonNull ArraySerializer serializeArray();
 
     /**
      * Declares this serializer to be a list and initializes it with the passed in list
@@ -58,35 +59,35 @@ public interface Serializer {
      * @param value The list to initialize this serializer with
      * @return An ArraySerializer where additional elements can be added
      */
-    <T> ArraySerializer serializeArray(@Nullable List<T> value);
+    <T> @NonNull ArraySerializer serializeArray(@Nullable List<T> value);
 
     /**
      * Declare this serializer to be a Map
      *
      * @return An MapSerializer where entries can be added
      */
-    MapSerializer serializeMap();
+    @NonNull MapSerializer serializeMap();
 
     /**
      * Serializes a float expression array
      *
      * @param value The float expression
      */
-    void serializeFloatExpressionSrc(float[] value);
+    void serializeFloatExpressionSrc(float @NonNull [] value);
 
     /**
      * Serializes an int expression array
      *
      * @param value The int expression
      */
-    void serializeIntExpressionSrc(int[] value, int mask);
+    void serializeIntExpressionSrc(int @NonNull [] value, int mask);
 
     /**
      * Serializes a path
      *
      * @param path The path data
      */
-    void serializePath(float[] path);
+    void serializePath(float @NonNull [] path);
 
     /**
      * Declares this serializer to be a list and initializes it with the passed in list
@@ -94,7 +95,7 @@ public interface Serializer {
      * @param value The list to initialize this serializer with
      * @return A MapSerializer where additional entries can be added
      */
-    <T> MapSerializer serializeMap(@Nullable Map<String, T> value);
+    <T> @NonNull MapSerializer serializeMap(@Nullable Map<String, T> value);
 
     /**
      * Declare this serializer a String

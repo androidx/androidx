@@ -185,13 +185,20 @@ public class MockRemoteContext extends RemoteContext {
                 }
 
                 @Override
+                public int getVisibleLineCount() {
+                    return 1;
+                }
+
+                @Override
                 public boolean isHyphenatedText() {
                     return false;
                 }
             }
+
             @Override
             public RcPlatformServices.ComputedTextLayout layoutComplexText(int textId, int start,
-                    int end, int alignment, int overflow, int maxLines, float maxWidth,
+                    int end, int alignment, int overflow, int maxLines,
+                    float maxWidth, float maxHeight,
                     float letterSpacing, float lineHeightAdd, float lineHeightMultiplier,
                     int lineBreakStrategy, int hyphenationFrequency, int justificationMode,
                     boolean useUnderline, boolean strikethrough, int flags) {

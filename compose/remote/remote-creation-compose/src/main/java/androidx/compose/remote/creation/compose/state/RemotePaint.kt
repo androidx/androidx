@@ -22,11 +22,8 @@ import android.graphics.BlendModeColorFilter
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
-import android.os.Build
 import androidx.annotation.ColorInt
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 
 /** Base type for [ColorFilter]s that are parameterized by expressions. */
@@ -67,7 +64,6 @@ public open class RemotePaint : Paint {
      *
      * @see [Paint]'s copy constructor.
      */
-    @RequiresApi(29)
     public constructor(paint: Paint) : super(paint) {
         if (paint is RemotePaint) {
             if (paint.remoteColorFilter != null) {
@@ -86,7 +82,6 @@ public open class RemotePaint : Paint {
      * then this will also call [setColorFilter] with either the corresponding
      * [BlendModeColorFilter] or null if the [RemoteColor] is not constant.
      */
-    @set:RequiresApi(29)
     public var remoteColorFilter: RemoteColorFilter? = null
         set(remoteColorFilter) {
             field = remoteColorFilter
@@ -110,10 +105,8 @@ public open class RemotePaint : Paint {
         }
 
     override fun setColorFilter(filter: ColorFilter?): ColorFilter? {
-        // We don't want both a ColorFilter and a RemoteColorFilter, however that requires API 29.
-        if (Build.VERSION.SDK_INT >= 29) {
-            remoteColorFilter = null
-        }
+        // We don't want both a ColorFilter and a RemoteColorFilter.
+        remoteColorFilter = null
         return super.setColorFilter(filter)
     }
 

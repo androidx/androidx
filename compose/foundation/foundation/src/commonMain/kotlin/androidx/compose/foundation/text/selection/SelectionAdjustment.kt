@@ -334,8 +334,8 @@ private fun SelectableInfo.anchorOnBoundary(
 }
 
 /**
- * This method adjusts the selection to one character respecting [String.findPrecedingBreak] and
- * [String.findFollowingBreak].
+ * This method adjusts the selection to one character respecting [findPrecedingBreak] and
+ * [findFollowingBreak].
  */
 internal fun Selection.ensureAtLeastOneChar(layout: SelectionLayout): Selection {
     // There already is at least one char in this selection, return this selection unchanged.

@@ -146,4 +146,31 @@ internal class MultiTextWithSpaceSelectionGesturesRegressionTest : AbstractSelec
 
         asserter.assert()
     }
+
+    @Suppress("SameParameterValue")
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragUpAndDown_selectsWords() {
+        performTrackpadGesture {
+            moveTo(position = characterPosition(18))
+            press()
+            advanceEventTime()
+            release()
+            advanceEventTime()
+            press()
+        }
+
+        asserter.applyAndAssert { selection = 18 to 23 }
+
+        trackpadDragTo(topEnd)
+
+        asserter.applyAndAssert { selection = 24 to 6 }
+
+        trackpadDragTo(bottomEnd)
+
+        asserter.applyAndAssert { selection = 18 to 30 }
+
+        performTrackpadGesture { release() }
+
+        asserter.assert()
+    }
 }

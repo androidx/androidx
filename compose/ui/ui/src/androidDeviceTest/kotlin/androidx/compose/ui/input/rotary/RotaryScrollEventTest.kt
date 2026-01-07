@@ -36,7 +36,6 @@ import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.elementFor
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performRotaryScrollInput
@@ -237,7 +236,6 @@ class RotaryScrollEventTest {
         }
 
         // Act.
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput { rotateToScrollHorizontally(3.0f) }
 
         // Assert.
@@ -266,7 +264,6 @@ class RotaryScrollEventTest {
         }
 
         // Act.
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput { rotateToScrollVertically(3.0f) }
 
         // Assert.
@@ -298,7 +295,6 @@ class RotaryScrollEventTest {
         }
 
         // Act.
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput { rotateToScrollVertically(3.0f) }
 
         // Assert.
@@ -323,7 +319,6 @@ class RotaryScrollEventTest {
         }
 
         // Act.
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput { rotateToScrollHorizontally(3.0f) }
 
         // Assert.
@@ -414,7 +409,6 @@ class RotaryScrollEventTest {
         }
 
         // Act.
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput {
             rotateToScrollVertically(3.0f)
             advanceEventTime(TIME_DELTA)
@@ -459,7 +453,6 @@ class RotaryScrollEventTest {
                 true
             }
         }
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput { rotateToScrollVertically(3.0f) }
 
         // Assert.
@@ -499,7 +492,6 @@ class RotaryScrollEventTest {
                 true
             }
         }
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput { rotateToScrollVertically(3.0f) }
 
         // Assert.
@@ -537,7 +529,6 @@ class RotaryScrollEventTest {
         rule.runOnIdle { buttonView.requestFocus() }
 
         // Act.
-        @OptIn(ExperimentalTestApi::class)
         rule.onRoot().performRotaryScrollInput { rotateToScrollVertically(3.0f) }
 
         // Assert.

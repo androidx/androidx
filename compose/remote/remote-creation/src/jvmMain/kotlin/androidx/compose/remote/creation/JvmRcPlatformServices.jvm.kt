@@ -16,23 +16,45 @@
 package androidx.compose.remote.creation
 
 import androidx.compose.remote.core.RcPlatformServices
+import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
+import javax.imageio.ImageIO
 
-/** Implelentation of [RcPlatformServices] intended for multi-platform use. */
+/** Implementation of [RcPlatformServices] intended for multi-platform use on the JVM. */
 public class JvmRcPlatformServices : RcPlatformServices {
     override fun imageToByteArray(image: Any): ByteArray? {
-        TODO("Not yet implemented")
+        if (image is BufferedImage) {
+            val baos = ByteArrayOutputStream()
+            // RemoteComposeBuffer assumes the image is a PNG,
+            // but other file formats also work in the player.
+            // PNG is a safe lossless default
+            if (ImageIO.write(image, "png", baos)) {
+                return baos.toByteArray()
+            }
+        }
+        return null
     }
 
     override fun getImageWidth(image: Any): Int {
-        TODO("Not yet implemented")
+        if (image is BufferedImage) {
+            return image.width
+        }
+        return 0
     }
 
     override fun getImageHeight(image: Any): Int {
-        TODO("Not yet implemented")
+        if (image is BufferedImage) {
+            return image.height
+        }
+        return 0
     }
 
     override fun isAlpha8Image(image: Any): Boolean {
-        TODO("Not yet implemented")
+        if (image is BufferedImage) {
+            // This maps to TYPE_PNG_ALPHA_8
+            return image.type == BufferedImage.TYPE_BYTE_GRAY
+        }
+        return false
     }
 
     override fun pathToFloatArray(path: Any): FloatArray? {

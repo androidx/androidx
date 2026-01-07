@@ -38,7 +38,6 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -80,7 +79,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun clickWithKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -110,7 +108,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun clickWithKey_notInvokedIfFocusIsLostWhilePressed() {
         var counter = 0
         val outerFocusRequester = FocusRequester()
@@ -149,7 +146,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun clickWithKey_notInvokedIfCorrespondingDownEventWasNotReceived() {
         var counter = 0
         val outerFocusRequester = FocusRequester()
@@ -195,7 +191,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun keyPress_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -239,7 +234,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun keyPress_emitsCancelInteractionWhenFocusIsRemovedWhilePressed() {
         val interactionSource = MutableInteractionSource()
         val outerFocusRequester = FocusRequester()
@@ -287,7 +281,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun doubleKeyPress_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -346,7 +339,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -402,7 +394,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun interruptedKeyClick_emitsCancelInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -466,7 +457,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun modifierReusedBetweenKeyDownAndKeyUp_doesNotCallListeners() {
         var counter = 0
         var reuseKey by mutableStateOf(0)

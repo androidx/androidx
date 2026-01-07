@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
+
 package androidx.compose.remote.creation.compose.state
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.captureRemoteDocument
+import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -47,7 +50,7 @@ class RemoteStateTest {
     @Test
     fun cachesRemoteColor() = runTest {
         withContext(Dispatchers.Main) {
-            captureRemoteDocument(context) {
+            captureSingleRemoteDocument(context) {
                 val blue = rememberRemoteColor("blue") { Color.Blue }
                 val red = rememberRemoteColor("red") { Color.Red }
                 val blue2 = rememberRemoteColor("blue") { Color.Blue }
@@ -60,7 +63,7 @@ class RemoteStateTest {
     @Test
     fun cachesRemoteBitmap() = runTest {
         withContext(Dispatchers.Main) {
-            captureRemoteDocument(context) {
+            captureSingleRemoteDocument(context) {
                 val blue =
                     rememberRemoteBitmapValue("blue") {
                         Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888).apply {
@@ -83,7 +86,7 @@ class RemoteStateTest {
     @Test
     fun cachesRemoteInt() = runTest {
         withContext(Dispatchers.Main) {
-            captureRemoteDocument(context) {
+            captureSingleRemoteDocument(context) {
                 val one = rememberRemoteInt("one") { RemoteInt(1) }
                 val two = rememberRemoteInt("two") { RemoteInt(2) }
                 val one2 = rememberRemoteInt("one") { RemoteInt(1) }
@@ -96,7 +99,7 @@ class RemoteStateTest {
     @Test
     fun cachesRemoteLong() = runTest {
         withContext(Dispatchers.Main) {
-            captureRemoteDocument(context) {
+            captureSingleRemoteDocument(context) {
                 val one = rememberRemoteLongValue("one") { 1 }
                 val two = rememberRemoteLongValue("two") { 2 }
                 val one2 = rememberRemoteLongValue("one") { 1 }
@@ -109,7 +112,7 @@ class RemoteStateTest {
     @Test
     fun cachesRemoteString() = runTest {
         withContext(Dispatchers.Main) {
-            captureRemoteDocument(context) {
+            captureSingleRemoteDocument(context) {
                 val blue = rememberRemoteString("blue") { "blue" }
                 val red = rememberRemoteString("red") { "red" }
                 val blue2 = rememberRemoteString("blue") { "blue" }

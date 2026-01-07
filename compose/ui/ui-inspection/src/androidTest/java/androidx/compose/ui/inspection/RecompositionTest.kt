@@ -27,6 +27,7 @@ import androidx.compose.ui.inspection.util.GetUpdateSettingsCommand
 import androidx.compose.ui.inspection.util.filter
 import androidx.compose.ui.inspection.util.flatten
 import androidx.compose.ui.inspection.util.toMap
+import androidx.compose.ui.inspection.validators.DoNotChangeMayRequireChangesInAndroidStudio
 import androidx.compose.ui.inspection.validators.validate
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -49,6 +50,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
 
+@DoNotChangeMayRequireChangesInAndroidStudio
 private const val TRACE_BUTTON_EMPTY_INTERACTIONS =
     """
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
@@ -74,6 +76,18 @@ private const val TRACE_BUTTON_EMPTY_INTERACTIONS =
     ...
     """
 
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val UNFOLDED_TRACE_BUTTON_EMPTY_INTERACTIONS =
+    """
+    at androidx.compose.material3.ButtonElevation.animateElevation(Button.kt:969)
+    at androidx.compose.material3.ButtonElevation.shadowElevation<any>(Button.kt:932)
+    at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:52)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    """
+
+@DoNotChangeMayRequireChangesInAndroidStudio
 private const val TRACE_BUTTON_INTERACTIONS_WITH_PRESS =
     """
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
@@ -98,6 +112,17 @@ private const val TRACE_BUTTON_INTERACTIONS_WITH_PRESS =
     ...
     """
 
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val UNFOLDED_TRACE_BUTTON_INTERACTIONS_WITH_PRESS =
+    """
+    at androidx.compose.material3.ButtonElevation.animateElevation(Button.kt:969)
+    at androidx.compose.material3.ButtonElevation.shadowElevation<any>(Button.kt:932)
+    at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
+    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:31)
+    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:10)
+    """
+
+@DoNotChangeMayRequireChangesInAndroidStudio
 private const val TRACE_BUTTON_EMPTY_SHADOW_ELEVATION =
     """
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
@@ -121,6 +146,17 @@ private const val TRACE_BUTTON_EMPTY_SHADOW_ELEVATION =
     ...
     """
 
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val UNFOLDED_TRACE_BUTTON_EMPTY_SHADOW_ELEVATION =
+    """
+    at androidx.compose.animation.core.AnimationState.getValue(AnimationState.kt:330)
+    at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:52)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    """
+
+@DoNotChangeMayRequireChangesInAndroidStudio
 private const val TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS =
     """
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
@@ -141,6 +177,15 @@ private const val TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS =
     at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1076)
     at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1400)
     ...
+    """
+
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val UNFOLDED_TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS =
+    """
+    at androidx.compose.animation.core.AnimationState.getValue(AnimationState.kt:330)
+    at androidx.compose.material3.ButtonKt.Button(Button.kt:124)
+    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:31)
+    at androidx.compose.material3.ButtonKt<any>.invoke(<any>:10)
     """
 
 private const val TRACE_ITEM_UPDATE_COUNT_STATE =
@@ -164,6 +209,15 @@ private const val TRACE_ITEM_UPDATE_COUNT_STATE =
     ...
     """
 
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val UNFOLDED_TRACE_ITEM_UPDATE_COUNT_STATE =
+    """
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:60)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
+    """
+
+@DoNotChangeMayRequireChangesInAndroidStudio
 private const val TRACE_ITEM_UPDATE_LIST_STATE =
     """
     at androidx.compose.runtime.CompositionImpl.recordReadOf(Composition.kt:1015)
@@ -186,6 +240,14 @@ private const val TRACE_ITEM_UPDATE_LIST_STATE =
     at androidx.compose.runtime.CompositionImpl.recompose(Composition.kt:1076)
     at androidx.compose.runtime.Recomposer.performRecompose(Recomposer.kt:1400)
     ...
+    """
+
+@DoNotChangeMayRequireChangesInAndroidStudio
+private const val UNFOLDED_TRACE_ITEM_UPDATE_LIST_STATE =
+    """
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity.Item(RecompositionTestActivity.kt:60)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:12)
+    at androidx.compose.ui.inspection.testdata.RecompositionTestActivity<any>.invoke(<any>:10)
     """
 
 @LargeTest
@@ -379,10 +441,12 @@ class RecompositionTest {
                         }
                     }
                     trace(TRACE_BUTTON_INTERACTIONS_WITH_PRESS)
+                    folding(UNFOLDED_TRACE_BUTTON_INTERACTIONS_WITH_PRESS)
                 }
                 read {
                     value(Type.DIMENSION_DP, 0.0f)
                     trace(TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS)
+                    folding(UNFOLDED_TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS)
                 }
             }
             recomposition(highRecomposition) {
@@ -390,10 +454,12 @@ class RecompositionTest {
                     invalidated(true)
                     value(Type.ITERABLE, "List[0]")
                     trace(TRACE_BUTTON_EMPTY_INTERACTIONS)
+                    folding(UNFOLDED_TRACE_BUTTON_EMPTY_INTERACTIONS)
                 }
                 read {
                     value(Type.DIMENSION_DP, 0.0f)
                     trace(TRACE_BUTTON_EMPTY_SHADOW_ELEVATION)
+                    folding(UNFOLDED_TRACE_BUTTON_EMPTY_SHADOW_ELEVATION)
                 }
             }
         }
@@ -418,10 +484,12 @@ class RecompositionTest {
                         }
                     }
                     trace(TRACE_BUTTON_INTERACTIONS_WITH_PRESS)
+                    folding(UNFOLDED_TRACE_BUTTON_INTERACTIONS_WITH_PRESS)
                 }
                 read {
                     value(Type.DIMENSION_DP, 0.0f)
                     trace(TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS)
+                    folding(UNFOLDED_TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS)
                 }
             }
             recomposition(highRecomposition - 2) {
@@ -429,10 +497,12 @@ class RecompositionTest {
                     invalidated(true)
                     value(Type.ITERABLE, "List[0]")
                     trace(TRACE_BUTTON_EMPTY_INTERACTIONS)
+                    folding(UNFOLDED_TRACE_BUTTON_EMPTY_INTERACTIONS)
                 }
                 read {
                     value(Type.DIMENSION_DP, 0.0f)
                     trace(TRACE_BUTTON_EMPTY_SHADOW_ELEVATION)
+                    folding(UNFOLDED_TRACE_BUTTON_EMPTY_SHADOW_ELEVATION)
                 }
             }
         }
@@ -541,6 +611,7 @@ class RecompositionTest {
                     value(Type.INT32, 2)
                     invalidated(true)
                     trace(TRACE_ITEM_UPDATE_COUNT_STATE)
+                    folding(UNFOLDED_TRACE_ITEM_UPDATE_COUNT_STATE)
                 }
                 read {
                     value(Type.ITERABLE, "List[6]") {
@@ -551,6 +622,7 @@ class RecompositionTest {
                         parameter("[4]", Type.STRING, "e")
                     }
                     trace(TRACE_ITEM_UPDATE_LIST_STATE)
+                    folding(UNFOLDED_TRACE_ITEM_UPDATE_LIST_STATE)
                 }
             }
             recomposition(3) {
@@ -558,6 +630,7 @@ class RecompositionTest {
                     value(Type.INT32, 3)
                     invalidated(true)
                     trace(TRACE_ITEM_UPDATE_COUNT_STATE)
+                    folding(UNFOLDED_TRACE_ITEM_UPDATE_COUNT_STATE)
                 }
                 read {
                     value(Type.ITERABLE, "List[6]") {
@@ -568,6 +641,7 @@ class RecompositionTest {
                         parameter("[4]", Type.STRING, "e")
                     }
                     trace(TRACE_ITEM_UPDATE_LIST_STATE)
+                    folding(UNFOLDED_TRACE_ITEM_UPDATE_LIST_STATE)
                 }
             }
         }
@@ -634,10 +708,12 @@ class RecompositionTest {
                     }
                     invalidated(true)
                     trace(TRACE_BUTTON_INTERACTIONS_WITH_PRESS)
+                    folding(UNFOLDED_TRACE_BUTTON_INTERACTIONS_WITH_PRESS)
                 }
                 read {
                     value(Type.DIMENSION_DP, 0.0f)
                     trace(TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS)
+                    folding(UNFOLDED_TRACE_BUTTON_SHADOW_ELEVATION_DURING_PRESS)
                 }
             }
         }

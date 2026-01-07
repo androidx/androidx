@@ -238,6 +238,7 @@ internal class ComposePaintContext(
         overflow: Int,
         maxLines: Int,
         maxWidth: Float,
+        maxHeight: Float,
         letterSpacing: Float,
         lineHeightAdd: Float,
         lineHeightMultiplier: Float,
@@ -287,6 +288,7 @@ internal class ComposePaintContext(
             staticLayout,
             staticLayout.width.toFloat(),
             staticLayout.height.toFloat(),
+            staticLayout.getLineCount(),
             false,
         )
     }

@@ -135,6 +135,15 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         defaultPlatform = value.id
     }
 
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-9480 - migrate to applyDefaultHierarchyTemplate, and then the manual wiring will be obsolete
+    private val jvmAndAndroidMain by lazy {
+        val commonMain = kotlinExtension.sourceSets.findByName("commonMain")!!
+        kotlinExtension.sourceSets.findByName("jvmAndAndroidMain")
+            ?: kotlinExtension.sourceSets.create("jvmAndAndroidMain").apply {
+                dependsOn(commonMain)
+            }
+    }
+
     @JvmOverloads
     fun jvm(
         block: Action<KotlinJvmTarget>? = null
@@ -155,6 +164,9 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         return if (project.enableJvm()) {
             kotlinExtension.androidTarget {
                 block?.execute(this)
+
+                kotlinExtension.sourceSets.getByName("androidMain")
+                    .dependsOn(jvmAndAndroidMain)
             }
         } else { null }
     }
@@ -167,6 +179,9 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         return if (project.enableDesktop()) {
             kotlinExtension.jvm("desktop") {
                 block?.execute(this)
+
+                kotlinExtension.sourceSets.getByName("desktopMain")
+                    .dependsOn(jvmAndAndroidMain)
             }
         } else { null }
     }

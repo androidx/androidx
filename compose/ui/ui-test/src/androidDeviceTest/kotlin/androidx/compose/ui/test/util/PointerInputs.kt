@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.util
 
+import android.view.MotionEvent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -44,6 +45,10 @@ data class DataPoint(
     val eventType: PointerEventType,
     val buttons: PointerButtons,
     val keyboardModifiers: PointerKeyboardModifiers,
+    val classification: Int,
+    val axisGestureScrollXDistance: Float?,
+    val axisGestureScrollYDistance: Float?,
+    val axisGesturePinchScaleFactor: Float?,
 ) {
     constructor(
         change: PointerInputChange,
@@ -58,6 +63,10 @@ data class DataPoint(
         event.type,
         event.buttons,
         event.keyboardModifiers,
+        event.classification,
+        event.motionEvent?.getAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_X_DISTANCE),
+        event.motionEvent?.getAxisValue(MotionEvent.AXIS_GESTURE_SCROLL_Y_DISTANCE),
+        event.motionEvent?.getAxisValue(MotionEvent.AXIS_GESTURE_PINCH_SCALE_FACTOR),
     )
 
     val x

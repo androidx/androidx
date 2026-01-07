@@ -413,4 +413,234 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
 
         asserter.assert()
     }
+
+    @Test
+    fun whenTrackpad_withSingleClick_collapsedSelectionAtClick() {
+        performTrackpadGesture { click(characterPosition(26, isRtl = false)) }
+
+        asserter.applyAndAssert { selection = 26.collapsed }
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenRelease_collapsedSelection() {
+        performTrackpadGesture {
+            moveTo(position = characterPosition(26, isRtl = false))
+            press()
+        }
+
+        asserter.applyAndAssert { selection = 26.collapsed }
+
+        performTrackpadGesture { release() }
+
+        asserter.assert()
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragLeft_selectsCharacters() {
+        trackpadSingleClickThenDragTest(
+            endOffset = characterPosition(21, isRtl = true),
+            endSelection = 26 to 21,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragUp_selectsCharacters() {
+        trackpadSingleClickThenDragTest(
+            endOffset = characterPosition(8, isRtl = true),
+            endSelection = 26 to 8,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragRight_selectsCharacters() {
+        trackpadSingleClickThenDragTest(
+            endOffset = characterPosition(32, isRtl = true),
+            endSelection = 26 to 32,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withSingleClickThenDragDown_selectsCharacters() {
+        trackpadSingleClickThenDragTest(
+            endOffset = characterPosition(44, isRtl = true),
+            endSelection = 26 to 44,
+        )
+    }
+
+    private fun trackpadSingleClickThenDragTest(endOffset: Offset, endSelection: TextRange?) {
+        trackpadClicksThenDragTest(
+            numClicks = 1,
+            firstOffset = characterPosition(26, isRtl = false),
+            firstSelection = 26.collapsed,
+            firstStartDirection = ResolvedTextDirection.Ltr,
+            secondOffset = endOffset,
+            secondSelection = endSelection,
+            secondStartDirection = ResolvedTextDirection.Ltr,
+            secondEndDirection = ResolvedTextDirection.Rtl,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClick_selectsWord() {
+        performTrackpadGesture { repeat(2) { click(characterPosition(26, isRtl = false)) } }
+
+        asserter.applyAndAssert { selection = 24 to 29 }
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragLeft_selectsWords() {
+        trackpadDoubleClickThenDragTest(
+            endOffset = characterPosition(21, isRtl = true),
+            endSelection = 29 to 18,
+            endDirection = ResolvedTextDirection.Rtl,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragUp_selectsWords() {
+        trackpadDoubleClickThenDragTest(
+            endOffset = characterPosition(8, isRtl = true),
+            endSelection = 29 to 6,
+            endDirection = ResolvedTextDirection.Rtl,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragRight_selectsWords() {
+        trackpadDoubleClickThenDragTest(
+            endOffset = characterPosition(32, isRtl = true),
+            endSelection = 24 to 35,
+            endDirection = ResolvedTextDirection.Ltr,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withDoubleClickThenDragDown_selectsWords() {
+        trackpadDoubleClickThenDragTest(
+            endOffset = characterPosition(44, isRtl = true),
+            endSelection = 24 to 47,
+            endDirection = ResolvedTextDirection.Ltr,
+        )
+    }
+
+    private fun trackpadDoubleClickThenDragTest(
+        endOffset: Offset,
+        endSelection: TextRange?,
+        endDirection: ResolvedTextDirection,
+    ) {
+        trackpadClicksThenDragTest(
+            numClicks = 2,
+            firstOffset = characterPosition(26, isRtl = false),
+            firstSelection = 24 to 29,
+            firstStartDirection = ResolvedTextDirection.Ltr,
+            secondOffset = endOffset,
+            secondSelection = endSelection,
+            secondStartDirection = ResolvedTextDirection.Ltr,
+            secondEndDirection = endDirection,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClick_selectsParagraph() {
+        performTrackpadGesture { repeat(3) { click(characterPosition(26, isRtl = false)) } }
+
+        asserter.applyAndAssert {
+            selection = 18 to 35
+            startLayoutDirection = ResolvedTextDirection.Rtl
+        }
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragLeft_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(
+            endOffset = characterPosition(21, isRtl = true),
+            endSelection = 18 to 35,
+            startDirection = ResolvedTextDirection.Rtl,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragUp_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(
+            endOffset = characterPosition(8, isRtl = true),
+            endSelection = 35 to 0,
+            startDirection = ResolvedTextDirection.Ltr,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragRight_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(
+            endOffset = characterPosition(32, isRtl = true),
+            endSelection = 18 to 35,
+            startDirection = ResolvedTextDirection.Rtl,
+        )
+    }
+
+    @Test
+    fun whenTrackpad_withTripleClickThenDragDown_selectsParagraphs() {
+        trackpadTripleClickThenDragTest(
+            endOffset = characterPosition(44, isRtl = true),
+            endSelection = 18 to 53,
+            startDirection = ResolvedTextDirection.Rtl,
+        )
+    }
+
+    private fun trackpadTripleClickThenDragTest(
+        endOffset: Offset,
+        endSelection: TextRange?,
+        startDirection: ResolvedTextDirection,
+    ) {
+        trackpadClicksThenDragTest(
+            numClicks = 3,
+            firstOffset = characterPosition(26, isRtl = false),
+            firstSelection = 18 to 35,
+            firstStartDirection = ResolvedTextDirection.Rtl,
+            secondOffset = endOffset,
+            secondSelection = endSelection,
+            secondStartDirection = startDirection,
+            secondEndDirection = ResolvedTextDirection.Ltr,
+        )
+    }
+
+    private fun trackpadClicksThenDragTest(
+        numClicks: Int,
+        firstOffset: Offset,
+        firstSelection: TextRange?,
+        firstStartDirection: ResolvedTextDirection,
+        secondOffset: Offset,
+        secondSelection: TextRange?,
+        secondStartDirection: ResolvedTextDirection,
+        secondEndDirection: ResolvedTextDirection,
+    ) {
+        check(numClicks > 0) { "Must be at least one click" }
+        performTrackpadGesture {
+            moveTo(firstOffset)
+            press()
+            repeat(numClicks - 1) {
+                advanceEventTime()
+                release()
+                advanceEventTime()
+                press()
+            }
+        }
+
+        asserter.applyAndAssert {
+            selection = firstSelection
+            startLayoutDirection = firstStartDirection
+            endLayoutDirection = ResolvedTextDirection.Ltr
+        }
+
+        trackpadDragTo(secondOffset)
+
+        asserter.applyAndAssert {
+            selection = secondSelection
+            startLayoutDirection = secondStartDirection
+            endLayoutDirection = secondEndDirection
+        }
+
+        performTrackpadGesture { release() }
+
+        asserter.assert()
+    }
 }

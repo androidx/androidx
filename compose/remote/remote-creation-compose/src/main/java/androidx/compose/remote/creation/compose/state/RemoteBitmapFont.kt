@@ -43,7 +43,7 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteBitmapFont(
     public val glyphs: List<Glyph>,
-    public val kerningTable: Map<String, Short> = emptyMap(),
+    @Suppress("PrimitiveInCollection") public val kerningTable: Map<String, Short> = emptyMap(),
 ) : BaseRemoteState<Any>() {
     /** A Glyph from a [RemoteBitmapFont] which may represent one or more characters. */
     public class Glyph(

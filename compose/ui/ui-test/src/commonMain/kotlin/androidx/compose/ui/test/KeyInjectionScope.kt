@@ -49,6 +49,7 @@ private const val DefaultPauseDurationBetweenKeyPressesMillis = 50L
  * which is called within the injection scope. As such, no repeat key events will be sent if
  * [MainTestClock.advanceTimeBy] is used to advance the time.
  *
+ * @sample androidx.compose.ui.test.samples.keyInputClick
  * @see InjectionScope
  */
 @JvmDefaultWithCompatibility

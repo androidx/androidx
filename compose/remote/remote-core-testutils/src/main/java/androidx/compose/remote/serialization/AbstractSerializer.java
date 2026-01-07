@@ -27,6 +27,7 @@ import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvalua
 import androidx.compose.remote.core.operations.utilities.NanMap;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -37,17 +38,17 @@ import java.util.Objects;
 /** Optional helper class for concrete implementations */
 public abstract class AbstractSerializer implements Serializer, SerializeFactory {
 
-    protected Object mValue;
+    protected @Nullable Object mValue;
 
-    protected ValueType mValueType = ValueType.NULL;
+    protected @NonNull ValueType mValueType = ValueType.NULL;
 
     @Override
-    public ValueType getValueType() {
+    public @NonNull ValueType getValueType() {
         return mValueType;
     }
 
     @Override
-    public ArraySerializer serializeArray() {
+    public @NonNull ArraySerializer serializeArray() {
         if (mValueType == ValueType.ARRAY && mValue instanceof ArraySerializer) {
             return (ArraySerializer) mValue;
         }
@@ -58,7 +59,7 @@ public abstract class AbstractSerializer implements Serializer, SerializeFactory
     }
 
     @Override
-    public <T> ArraySerializer serializeArray(@Nullable List<T> value) {
+    public <T> @NonNull ArraySerializer serializeArray(@Nullable List<T> value) {
         ArraySerializer arraySerializer = serializeArray();
         if (value != null) {
             SerializeUtils.serializeArray(arraySerializer, value);
@@ -67,7 +68,7 @@ public abstract class AbstractSerializer implements Serializer, SerializeFactory
     }
 
     @Override
-    public MapSerializer serializeMap() {
+    public @NonNull MapSerializer serializeMap() {
         if (mValueType == ValueType.MAP && mValue instanceof MapSerializer) {
             return (MapSerializer) mValue;
         }
@@ -78,7 +79,7 @@ public abstract class AbstractSerializer implements Serializer, SerializeFactory
     }
 
     @Override
-    public <T> MapSerializer serializeMap(@Nullable Map<String, T> map) {
+    public <T> @NonNull MapSerializer serializeMap(@Nullable Map<String, T> map) {
         MapSerializer mapSerializer = serializeMap();
         if (map != null) {
             SerializeUtils.serializeMap(mapSerializer, map);
@@ -87,7 +88,7 @@ public abstract class AbstractSerializer implements Serializer, SerializeFactory
     }
 
     @Override
-    public void serializeFloatExpressionSrc(float[] values) {
+    public void serializeFloatExpressionSrc(float @NonNull [] values) {
         ArraySerializer arraySerializer = serializeArray();
         for (float v : values) {
             if (Float.isNaN(v)) {
@@ -108,7 +109,7 @@ public abstract class AbstractSerializer implements Serializer, SerializeFactory
     }
 
     @Override
-    public void serializeIntExpressionSrc(int[] value, int mask) {
+    public void serializeIntExpressionSrc(int @NonNull [] value, int mask) {
         ArraySerializer arraySerializer = serializeArray();
         for (int i = 0; i < value.length; i++) {
             int v = value[i];
@@ -126,7 +127,7 @@ public abstract class AbstractSerializer implements Serializer, SerializeFactory
     }
 
     @Override
-    public void serializePath(float[] path) {
+    public void serializePath(float @NonNull [] path) {
         ArraySerializer arraySerializer = serializeArray();
         for (float value : path) {
             if (Float.isNaN(value)) {

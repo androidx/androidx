@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.remote.creation.compose.capture.RememberRemoteDocumentInline
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.player.compose.ExperimentalRemoteComposePlayerApi
+import androidx.compose.remote.creation.profile.Profile
+import androidx.compose.remote.creation.profile.RcPlatformProfiles
+import androidx.compose.remote.player.compose.ExperimentalRemotePlayerApi
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,15 +34,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
 /** Display a Remote Compose Composable in the Android Studio Preview. */
-@OptIn(ExperimentalRemoteComposePlayerApi::class)
+@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
-@Suppress("RestrictedApiAndroidX")
-public fun RemotePreview(content: @RemoteComposable @Composable () -> Unit) {
+public fun RemotePreview(
+    profile: Profile = RcPlatformProfiles.ANDROIDX,
+    content: @RemoteComposable @Composable () -> Unit,
+) {
     var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
 
     Box(modifier = Modifier.fillMaxSize()) {
         @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
         RememberRemoteDocumentInline(
+            profile = profile,
             onDocument = { doc ->
                 println("Document generated: $doc")
                 if (documentState == null) {

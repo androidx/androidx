@@ -63,7 +63,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
@@ -99,7 +98,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalTestApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class ToggleableTest {
@@ -801,7 +799,6 @@ class ToggleableTest {
         }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_clickWithEnterKey() {
         val focusRequester = FocusRequester()
         lateinit var inputModeManager: InputModeManager
@@ -835,7 +832,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_clickWithSpaceKey() {
         val focusRequester = FocusRequester()
         lateinit var inputModeManager: InputModeManager
@@ -869,7 +865,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_clickWithNumPadEnterKey() {
         val focusRequester = FocusRequester()
         var toggled by mutableStateOf(false)
@@ -903,7 +898,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_clickWithDpadCenter() {
         val focusRequester = FocusRequester()
         var toggled by mutableStateOf(false)
@@ -937,7 +931,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_clickWithEnterKey_triStateToggleable() {
         val focusRequester = FocusRequester()
         var toggled by mutableStateOf(false)
@@ -969,7 +962,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_enterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1016,7 +1008,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_numPadEnterKey_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1064,7 +1055,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_dpadCenter_emitsIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1112,7 +1102,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_otherKey_doesNotEmitIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1147,7 +1136,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_doubleEnterKey_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1208,7 +1196,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -1269,7 +1256,6 @@ class ToggleableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun toggleableTest_interruptedClick_emitsCancelIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()

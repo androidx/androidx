@@ -37,8 +37,8 @@ import org.jspecify.annotations.NonNull;
  * androidx.core.view.AccessibilityDelegateCompat} to provide accessibility services.
  */
 @RestrictTo(LIBRARY_GROUP)
-public class AndroidxRemoteComposeAccessibilityRegistrar
-        implements RemoteComposeAccessibilityRegistrar {
+public class AndroidxRemoteComposeAccessibilityRegistrar implements
+        RemoteComposeAccessibilityRegistrar {
     /**
      * Creates an {@link AndroidxRemoteComposeTouchHelper} instance for a given {@link View} player
      * and {@link CoreDocument}.
@@ -46,15 +46,14 @@ public class AndroidxRemoteComposeAccessibilityRegistrar
      * <p>This helper will manage accessibility for the remote Compose content displayed in the
      * player.
      *
-     * @param player The View that is displaying the remote Compose content.
+     * @param player       The View that is displaying the remote Compose content.
      * @param coreDocument The CoreDocument representing the remote Compose UI.
      * @return A new instance of AndroidxRemoteComposeTouchHelper.
      */
-    public AndroidxRemoteComposeTouchHelper<
-                    AccessibilityNodeInfoCompat, Component, AccessibilitySemantics>
-            forRemoteComposePlayer(View player, @NonNull CoreDocument coreDocument) {
-        return new AndroidxRemoteComposeTouchHelper<>(
-                player,
+    public @NonNull AndroidxRemoteComposeTouchHelper<AccessibilityNodeInfoCompat, Component,
+            AccessibilitySemantics> forRemoteComposePlayer(
+            @NonNull View player, @NonNull CoreDocument coreDocument) {
+        return new AndroidxRemoteComposeTouchHelper<>(player,
                 new CoreDocumentAccessibility(coreDocument, ((RemoteContextActions) player)),
                 new AndroidxSemanticNodeApplier(player));
     }
@@ -63,13 +62,15 @@ public class AndroidxRemoteComposeAccessibilityRegistrar
      * Set the accessibility delegate on the player
      *
      * @param remoteComposePlayer The View representing the remote compose player.
-     * @param document The CoreDocument containing the accessibility information for the UI
-     *     elements.
+     * @param document            The CoreDocument containing the accessibility information for
+     *                            the UI
+     *                            elements.
      */
     @Override
-    public void setAccessibilityDelegate(View remoteComposePlayer, CoreDocument document) {
-        ViewCompat.setAccessibilityDelegate(
-                remoteComposePlayer, forRemoteComposePlayer(remoteComposePlayer, document));
+    public void setAccessibilityDelegate(@NonNull View remoteComposePlayer,
+            @NonNull CoreDocument document) {
+        ViewCompat.setAccessibilityDelegate(remoteComposePlayer,
+                forRemoteComposePlayer(remoteComposePlayer, document));
     }
 
     /**
@@ -78,7 +79,7 @@ public class AndroidxRemoteComposeAccessibilityRegistrar
      * @param remoteComposePlayer The View representing the remote compose player.
      */
     @Override
-    public void clearAccessibilityDelegate(View remoteComposePlayer) {
+    public void clearAccessibilityDelegate(@NonNull View remoteComposePlayer) {
         ViewCompat.setAccessibilityDelegate(remoteComposePlayer, null);
     }
 }

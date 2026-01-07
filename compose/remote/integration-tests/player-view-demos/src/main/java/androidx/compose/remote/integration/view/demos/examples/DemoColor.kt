@@ -18,13 +18,12 @@ package androidx.compose.remote.integration.view.demos.examples
 
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
+import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.RemoteComposeWriter
-import androidx.compose.remote.creation.minus
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.pingPong
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.remote.creation.times
 
 @Suppress("RestrictedApiAndroidX")
 fun colorButtons(): RemoteComposeWriter {
@@ -78,9 +77,13 @@ fun colorButtons(): RemoteComposeWriter {
                         ) {
                             val w = ComponentWidth() // component.width()
                             val h = ComponentHeight()
-
+                            val version = Rc.System.API_LEVEL
                             painter.setColorId(col.toInt()).commit()
                             drawRoundRect(0, 0, w, h, 2f, 2f)
+                            painter.setColor(0xFFFFFFFF.toInt()).setTextSize(64f).commit()
+
+                            val id = createTextFromFloat(version, 3, 2, 0)
+                            drawTextAnchored(id, (w / 2f).toFloat(), 100f, 0, 0, 0)
                         }
                     }
                 }

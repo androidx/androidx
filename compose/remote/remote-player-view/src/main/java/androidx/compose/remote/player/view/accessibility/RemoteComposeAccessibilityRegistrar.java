@@ -22,6 +22,8 @@ import android.view.View;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Interface for registering and clearing accessibility delegates for remote compose players.
  *
@@ -40,10 +42,12 @@ public interface RemoteComposeAccessibilityRegistrar {
      * assistive technologies to interact with the UI elements rendered by the player.
      *
      * @param remoteComposePlayer The View representing the remote compose player.
-     * @param document The CoreDocument containing the accessibility information for the UI
-     *     elements.
+     * @param document            The CoreDocument containing the accessibility information for
+     *                            the UI
+     *                            elements.
      */
-    void setAccessibilityDelegate(View remoteComposePlayer, CoreDocument document);
+    void setAccessibilityDelegate(@NonNull View remoteComposePlayer,
+            @NonNull CoreDocument document);
 
     /**
      * Clears the accessibility delegate for the given remote compose player. Used when the document
@@ -54,5 +58,5 @@ public interface RemoteComposeAccessibilityRegistrar {
      *
      * @param remoteComposePlayer The View representing the remote compose player.
      */
-    void clearAccessibilityDelegate(View remoteComposePlayer);
+    void clearAccessibilityDelegate(@NonNull View remoteComposePlayer);
 }

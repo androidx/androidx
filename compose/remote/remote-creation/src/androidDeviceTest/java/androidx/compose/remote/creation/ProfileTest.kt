@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalRemoteCreationApi::class)
+
 package androidx.compose.remote.creation
 
 import android.graphics.Color
@@ -29,6 +31,8 @@ import kotlin.test.assertTrue
 import org.junit.Test
 
 class ProfileTest {
+    val creationDisplayInfo = CreationDisplayInfo(100, 100, 160)
+
     @Test
     fun testAndroidx() {
         val androidx = RcPlatformProfiles.ANDROIDX
@@ -36,7 +40,7 @@ class ProfileTest {
         assertEquals(CoreDocument.DOCUMENT_API_LEVEL, androidx.apiLevel)
         assertEquals(RcProfiles.PROFILE_ANDROIDX, androidx.operationsProfiles)
 
-        val writer = androidx.create(CreationDisplayInfo(100, 100, 1f), "test")
+        val writer = androidx.create(creationDisplayInfo, "test")
         assertIs<RemoteComposeWriter>(writer)
 
         assertIs<AndroidxRcPlatformServices>(writer.mPlatform)
@@ -49,7 +53,7 @@ class ProfileTest {
         assertEquals(6, widgets.apiLevel)
         assertEquals(RcProfiles.PROFILE_BASELINE, widgets.operationsProfiles)
 
-        val writer = widgets.create(CreationDisplayInfo(100, 100, 1f), "test")
+        val writer = widgets.create(creationDisplayInfo, "test")
         assertIs<WidgetsProfileWriterV6>(writer)
 
         assertIs<AndroidxRcPlatformServices>(writer.mPlatform)
@@ -59,7 +63,7 @@ class ProfileTest {
     fun testWidgetsv6Text() {
         val widgets = RcPlatformProfiles.WIDGETS_V6
 
-        val writer = widgets.create(CreationDisplayInfo(100, 100, 1f), "test")
+        val writer = widgets.create(creationDisplayInfo, "test")
 
         val hello = writer.textCreateId("Hello")
 
@@ -100,7 +104,7 @@ class ProfileTest {
     fun testAndroidXText() {
         val androidx = RcPlatformProfiles.ANDROIDX
 
-        val writer = androidx.create(CreationDisplayInfo(100, 100, 1f), "test")
+        val writer = androidx.create(creationDisplayInfo, "test")
 
         val hello = writer.textCreateId("Hello")
 

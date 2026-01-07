@@ -938,6 +938,7 @@ public open class RemoteCanvasDrawScope(
         )
     }
 
+    @Suppress("PrimitiveInCollection")
     override fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
@@ -962,6 +963,7 @@ public open class RemoteCanvasDrawScope(
         )
     }
 
+    @Suppress("PrimitiveInCollection")
     override fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,

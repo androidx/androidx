@@ -18,6 +18,7 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
+import androidx.collection.MutableObjectIntMap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
@@ -31,7 +32,7 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StateMachineSpec(public val currentState: RemoteInt, public var states: IntArray) {
 
-    public val statesNames: HashMap<String, Int> = HashMap<String, Int>()
+    public val statesNames: MutableObjectIntMap<String> = MutableObjectIntMap<String>()
     public val values: HashMap<String, RemoteInt> = HashMap<String, RemoteInt>()
 
     public operator fun component1(): Int {

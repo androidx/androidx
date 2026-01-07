@@ -43,7 +43,7 @@ private val referenceHsvColor =
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 29)
 class RemoteColorTest {
     val context =
         AndroidRemoteContext().apply {
@@ -357,6 +357,14 @@ class RemoteColorTest {
 
         assertThat(red).isSameInstanceAs(red2)
         assertThat(red).isNotSameInstanceAs(green)
+    }
+
+    @Test
+    fun extensionFunctionMatches() {
+        assertThat(androidx.compose.ui.graphics.Color.Black.rc.constantValue)
+            .isEqualTo(Color.valueOf(Color.BLACK))
+        assertThat(androidx.compose.ui.graphics.Color.Transparent.rc.constantValue)
+            .isEqualTo(Color.valueOf(Color.TRANSPARENT))
     }
 
     private fun makeAndPaintCoreDocument() =

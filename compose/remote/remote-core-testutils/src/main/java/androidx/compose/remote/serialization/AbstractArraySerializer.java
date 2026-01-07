@@ -18,6 +18,7 @@ package androidx.compose.remote.serialization;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.Serializable;
 
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.Vector;
 /** Optional helper class for concrete implementations */
 public abstract class AbstractArraySerializer implements ArraySerializer, SerializeFactory {
 
-    protected Vector<Serializer> mArray = new Vector<>();
+    protected @NonNull Vector<@NonNull Serializer> mArray = new Vector<>();
 
     @Override
     public <T> void add(@Nullable List<T> value) {

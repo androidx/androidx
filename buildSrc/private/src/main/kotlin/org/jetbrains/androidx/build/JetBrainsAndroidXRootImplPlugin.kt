@@ -40,5 +40,21 @@ class JetBrainsAndroidXRootImplPlugin @Inject constructor(
                 it.outputs.upToDateWhen { false }
             }
         }
+
+        project.rootProject.plugins.withId("org.jetbrains.kotlin.multiplatform") {
+            project.rootProject.extensions.configure(org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension::class.java) {
+                // Manually fixing the version. It's a transitive dependency of karma (web test runner).
+                // It got updated automatically to 4.8.2, and k/js tests started to fail:
+                // Error [ERR_SERVER_NOT_RUNNING]: Server is not running.
+                //   at Server.close (node:net:2261:12)
+                //    at Object.onceWrapper (node:events:634:28)
+                //    at Server.emit (node:events:532:35)
+                //    at emitCloseNT (node:net:2321:8)
+                //    at process.processTicksAndRejections (node:internal/process/task_queues:81:21)
+                it.resolution("socket.io", "4.8.1")
+                // TODO: https://youtrack.jetbrains.com/issue/CMP-9479 - Consider using the newer version, since it has this fix - https://github.com/socketio/socket.io/pull/5344
+                // Then remove the workarounds (delays) in our karma configs. Search in the config.js files for 3413540
+            }
+        }
     }
 }

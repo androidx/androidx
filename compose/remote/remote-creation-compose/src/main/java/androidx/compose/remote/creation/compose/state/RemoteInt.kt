@@ -817,7 +817,7 @@ internal constructor(
             return Utils.idFromLong(array[0]).toInt()
         }
         val hash = calcHashID(array)
-        val ie = creationState.intExpressionCache.get(hash)
+        val ie = creationState.intExpressionCache[hash]
         if (ie != null) {
             if (
                 ie != this &&
@@ -932,3 +932,9 @@ public fun ValueChange(valueId: MutableRemoteInt, value: RemoteInt): Action {
     val id2 = Utils.idFromLong(value.id)
     return ValueIntegerExpressionChange(id1, id2)
 }
+
+/** Extension property to convert a [Int] to a [RemoteInt]. */
+public val Int.ri: RemoteInt
+    get() {
+        return RemoteInt(this)
+    }

@@ -22,9 +22,9 @@ import androidx.compose.runtime.Applier
 import androidx.compose.runtime.EnableDebugRuntimeChecks
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.RememberManager
-import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.changelist.Operation.ObjectParameter
 import androidx.compose.runtime.collection.fastCopyInto
+import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.debugRuntimeCheck
 import androidx.compose.runtime.requirePrecondition
 import kotlin.contracts.ExperimentalContracts

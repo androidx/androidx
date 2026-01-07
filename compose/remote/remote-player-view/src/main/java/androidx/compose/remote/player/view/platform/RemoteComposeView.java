@@ -88,22 +88,21 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     long mLastFrameCall;
 
     private Choreographer mChoreographer;
-    private Choreographer.FrameCallback mFrameCallback =
-            new Choreographer.FrameCallback() {
-                @Override
-                public void doFrame(long frameTimeNanos) {
-                    mARContext.currentTime = frameTimeNanos / 1000000;
-                    mARContext.setDebug(mDebug);
-                    postInvalidateOnAnimation();
-                }
-            };
+    private final Choreographer.FrameCallback mFrameCallback = new Choreographer.FrameCallback() {
+        @Override
+        public void doFrame(long frameTimeNanos) {
+            mARContext.currentTime = frameTimeNanos / 1000000;
+            mARContext.setDebug(mDebug);
+            postInvalidateOnAnimation();
+        }
+    };
 
     /**
      * Constructor for RemoteComposeView.
      *
      * @param context The Context the view is running in.
      */
-    public RemoteComposeView(Context context) {
+    public RemoteComposeView(@NonNull Context context) {
         super(context);
         addOnAttachStateChangeListener(this);
         setClock(new SystemClock());
@@ -115,7 +114,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param context The Context the view is running in.
      * @param attrs   The attributes of the XML tag that is inflating the view.
      */
-    public RemoteComposeView(Context context, AttributeSet attrs) {
+    public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context);
         addOnAttachStateChangeListener(this);
         setClock(new SystemClock());
@@ -129,7 +128,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param defStyleAttr An attribute in the current theme that contains a reference to a style
      *                     resource that supplies default values for the view.
      */
-    public RemoteComposeView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs,
+            int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         setBackgroundColor(Color.WHITE);
         addOnAttachStateChangeListener(this);
@@ -145,7 +145,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *                     resource that supplies default values for the view.
      * @param clock        The {@link Clock} to use for timing.
      */
-    public RemoteComposeView(Context context, AttributeSet attrs, int defStyleAttr, Clock clock) {
+    public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs,
+            int defStyleAttr, @NonNull Clock clock) {
         super(context, attrs, defStyleAttr);
         setBackgroundColor(Color.WHITE);
         addOnAttachStateChangeListener(this);
@@ -158,7 +159,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param clock The {@link Clock} to set.
      */
-    private void setClock(Clock clock) {
+    private void setClock(@NonNull Clock clock) {
         this.mClock = clock;
         mStart = nanoTime(clock);
         mLastFrameCall = clock.millis();
@@ -205,8 +206,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         if (mDocument.getDocument().bitmapMemory() > MAX_BITMAP_MEMORY) {
             mDisable = true;
             mErrorMessage =
-                    "Bitmap memory "
-                            + mDocument.getDocument().bitmapMemory() / (1024 * 1024)
+                    "Bitmap memory " + mDocument.getDocument().bitmapMemory() / (1024 * 1024)
                             + "MB!";
         }
         mARContext.setDocLoadTime();
@@ -229,7 +229,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     }
 
     @Override
-    public void onViewAttachedToWindow(View view) {
+    public void onViewAttachedToWindow(@NonNull View view) {
         if (mChoreographer == null) {
             mChoreographer = Choreographer.getInstance();
             mChoreographer.postFrameCallback(mFrameCallback);
@@ -249,13 +249,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
                     mDocument.getDocument().getClickAreas();
             removeAllViews();
             for (CoreDocument.ClickAreaRepresentation area : clickAreas) {
-                ClickAreaView viewArea =
-                        new ClickAreaView(
-                                getContext(),
-                                mDebug == 1,
-                                area.getId(),
-                                area.getContentDescription(),
-                                area.getMetadata());
+                ClickAreaView viewArea = new ClickAreaView(getContext(), mDebug == 1, area.getId(),
+                        area.getContentDescription(), area.getMetadata());
                 int w = (int) area.width();
                 int h = (int) area.height();
                 FrameLayout.LayoutParams param = new FrameLayout.LayoutParams(w, h);
@@ -264,11 +259,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
                 param.leftMargin = (int) area.getLeft();
                 param.topMargin = (int) area.getTop();
                 viewArea.setOnClickListener(
-                        view1 ->
-                                mDocument
-                                        .getDocument()
-                                        .performClick(
-                                                mARContext, area.getId(), area.getMetadata()));
+                        view1 -> mDocument.getDocument().performClick(mARContext, area.getId(),
+                                area.getMetadata()));
                 addView(viewArea, param);
             }
             if (!clickAreas.isEmpty()) {
@@ -282,12 +274,12 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param engine the HapticEngine
      */
-    public void setHapticEngine(CoreDocument.HapticEngine engine) {
+    public void setHapticEngine(CoreDocument.@NonNull HapticEngine engine) {
         mDocument.getDocument().setHapticEngine(engine);
     }
 
     @Override
-    public void onViewDetachedFromWindow(View view) {
+    public void onViewDetachedFromWindow(@NonNull View view) {
         if (mChoreographer != null) {
             mChoreographer.removeFrameCallback(mFrameCallback);
             mChoreographer = null;
@@ -300,7 +292,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @return array of names or null
      */
-    public String[] getNamedColors() {
+    public String @NonNull [] getNamedColors() {
         return mDocument.getNamedColors();
     }
 
@@ -310,7 +302,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param type the type of variable NamedVariable.COLOR_TYPE, STRING_TYPE, etc
      * @return array of name or null
      */
-    public String[] getNamedVariables(int type) {
+    public String @NonNull [] getNamedVariables(int type) {
         return mDocument.getNamedVariables(type);
     }
 
@@ -320,7 +312,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param colorName  Name of color typically "android.xxx"
      * @param colorValue "the argb value"
      */
-    public void setColor(String colorName, int colorValue) {
+    public void setColor(@NonNull String colorName, int colorValue) {
         mARContext.setNamedColorOverride(colorName, colorValue);
     }
 
@@ -330,7 +322,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param name  Name of color typically "android.xxx"
      * @param value the long value
      */
-    public void setLong(String name, long value) {
+    public void setLong(@NonNull String name, long value) {
         mARContext.setNamedLong(name, value);
     }
 
@@ -339,7 +331,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @return the document
      */
-    public RemoteDocument getDocument() {
+    public @NonNull RemoteDocument getDocument() {
         return mDocument;
     }
 
@@ -349,7 +341,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param name    name of the string
      * @param content value of the string
      */
-    public void setLocalString(String name, String content) {
+    public void setLocalString(@NonNull String name, @NonNull String content) {
         mARContext.setNamedStringOverride(name, content);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -361,7 +353,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param name name to clear
      */
-    public void clearLocalString(String name) {
+    public void clearLocalString(@NonNull String name) {
         mARContext.clearNamedStringOverride(name);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -374,7 +366,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param name    name of the int
      * @param content value of the int
      */
-    public void setLocalInt(String name, int content) {
+    public void setLocalInt(@NonNull String name, int content) {
         mARContext.setNamedIntegerOverride(name, content);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -386,7 +378,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param name name to clear
      */
-    public void clearLocalInt(String name) {
+    public void clearLocalInt(@NonNull String name) {
         mARContext.clearNamedIntegerOverride(name);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -395,11 +387,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
     /**
      * Set a local named color
-     *
-     * @param name
-     * @param content
      */
-    public void setLocalColor(String name, int content) {
+    public void setLocalColor(@NonNull String name, int content) {
         mARContext.setNamedColorOverride(name, content);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -408,10 +397,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
     /**
      * Clear a local named color
-     *
-     * @param name
      */
-    public void clearLocalColor(String name) {
+    public void clearLocalColor(@NonNull String name) {
         mARContext.clearNamedDataOverride(name);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -424,7 +411,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param name    name of the float
      * @param content value of the float
      */
-    public void setLocalFloat(String name, Float content) {
+    public void setLocalFloat(@NonNull String name, @NonNull Float content) {
         mARContext.setNamedFloatOverride(name, content);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -436,7 +423,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param name name to clear
      */
-    public void clearLocalFloat(String name) {
+    public void clearLocalFloat(@NonNull String name) {
         mARContext.clearNamedFloatOverride(name);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -449,7 +436,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      * @param name    name of the bitmap
      * @param content value of the bitmap
      */
-    public void setLocalBitmap(String name, Bitmap content) {
+    public void setLocalBitmap(@NonNull String name, @NonNull Bitmap content) {
         mARContext.setNamedDataOverride(name, content);
         if (mDocument != null) {
             mDocument.invalidate();
@@ -461,14 +448,14 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param name name to clear.
      */
-    public void clearLocalBitmap(String name) {
+    public void clearLocalBitmap(@NonNull String name) {
         mARContext.clearNamedDataOverride(name);
         if (mDocument != null) {
             mDocument.invalidate();
         }
     }
 
-    int copySensorListeners(int[] ids) {
+    int copySensorListeners(int @NonNull [] ids) {
         int count = 0;
         for (int id = RemoteContext.ID_ACCELERATION_X; id <= RemoteContext.ID_LIGHT; id++) {
             if (mARContext.mRemoteComposeState.hasListener(id)) {
@@ -480,9 +467,6 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
     /**
      * set a float externally
-     *
-     * @param id
-     * @param value
      */
     public void setExternalFloat(int id, float value) {
         mARContext.loadFloat(id, value);
@@ -505,14 +489,12 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param shaderControl the callback to validate the shader
      */
-    public void checkShaders(CoreDocument.ShaderControl shaderControl) {
+    public void checkShaders(CoreDocument.@NonNull ShaderControl shaderControl) {
         mDocument.getDocument().checkShaders(mARContext, shaderControl);
     }
 
     /**
      * Set to true to use the choreographer
-     *
-     * @param value
      */
     public void setUseChoreographer(boolean value) {
         mARContext.setUseChoreographer(value);
@@ -520,10 +502,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
 
     /**
      * Returns the current RemoteContext
-     *
-     * @return
      */
-    public RemoteContext getRemoteContext() {
+    public @NonNull RemoteContext getRemoteContext() {
         return mARContext;
     }
 
@@ -532,7 +512,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param document document containing updates
      */
-    public void applyUpdate(RemoteDocument document) {
+    public void applyUpdate(@NonNull RemoteDocument document) {
         mDocument.getDocument().applyUpdate(document.getDocument());
     }
 
@@ -546,7 +526,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
          * @param id       The id for component clicked on.
          * @param metadata Optional metadata for the event.
          */
-        void click(int id, String metadata);
+        void click(int id, @NonNull String metadata);
     }
 
     /**
@@ -554,7 +534,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param callback the callback to process events.
      */
-    public void addIdActionListener(ClickCallbacks callback) {
+    public void addIdActionListener(@NonNull ClickCallbacks callback) {
         if (mDocument == null) {
             return;
         }
@@ -572,7 +552,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     private VelocityTracker mVelocityTracker = null;
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         int index = event.getActionIndex();
         int pointerId = event.getPointerId(index);
         if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
@@ -584,8 +564,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
                 mActionDownPoint.y = (int) event.getY();
                 CoreDocument doc = mDocument.getDocument();
                 if (doc.hasTouchListener()) {
-                    mARContext.loadFloat(
-                            RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
+                    mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME,
+                            mARContext.getAnimationTime());
                     mInActionDown = true;
                     if (mVelocityTracker == null) {
                         mVelocityTracker = VelocityTracker.obtain();
@@ -617,8 +597,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
                 performClick();
                 doc = mDocument.getDocument();
                 if (doc.hasTouchListener()) {
-                    mARContext.loadFloat(
-                            RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
+                    mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME,
+                            mARContext.getAnimationTime());
                     mVelocityTracker.computeCurrentVelocity(1000);
                     float dx = mVelocityTracker.getXVelocity(pointerId);
                     float dy = mVelocityTracker.getYVelocity(pointerId);
@@ -631,8 +611,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
             case MotionEvent.ACTION_MOVE:
                 if (mInActionDown) {
                     if (mVelocityTracker != null) {
-                        mARContext.loadFloat(
-                                RemoteContext.ID_TOUCH_EVENT_TIME, mARContext.getAnimationTime());
+                        mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME,
+                                mARContext.getAnimationTime());
                         mVelocityTracker.addMovement(event);
                         doc = mDocument.getDocument();
                         boolean repaint = doc.touchDrag(mARContext, event.getX(), event.getY());
@@ -652,9 +632,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         if (USE_VIEW_AREA_CLICK && mHasClickAreas) {
             return super.performClick();
         }
-        mDocument
-                .getDocument()
-                .onClick(mARContext, (float) mActionDownPoint.x, (float) mActionDownPoint.y);
+        mDocument.getDocument().onClick(mARContext, (float) mActionDownPoint.x,
+                (float) mActionDownPoint.y);
         super.performClick();
         invalidate();
         return true;
@@ -730,7 +709,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         if (mDocument == null) {
             return;
@@ -742,9 +721,8 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         int theme = (mTheme == Theme.SYSTEM) ? Theme.LIGHT : mTheme;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) { // REMOVE IN PLATFORM
             if (mTheme == Theme.SYSTEM) {
-                int mode =
-                        getResources().getConfiguration().isNightModeActive() ? Theme.DARK
-                                : Theme.LIGHT;
+                int mode = getResources().getConfiguration().isNightModeActive() ? Theme.DARK
+                        : Theme.LIGHT;
                 theme = mode;
             }
         } // REMOVE IN PLATFORM
@@ -783,17 +761,9 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
                 }
                 if (mChoreographer != null) {
                     if (mDebug == 1) {
-                        System.err.println(
-                                "RC : POST CHOREOGRAPHER WITH "
-                                        + mLastFrameDelay
-                                        + " (nextFrame was "
-                                        + nextFrame
-                                        + ", max delay "
-                                        + mMaxFrameDelay
-                                        + ", "
-                                        + " max framerate is "
-                                        + mMaxFrameRate
-                                        + ")");
+                        System.err.println("RC : POST CHOREOGRAPHER WITH " + mLastFrameDelay
+                                + " (nextFrame was " + nextFrame + ", max delay " + mMaxFrameDelay
+                                + ", " + " max framerate is " + mMaxFrameRate + ")");
                     }
                     mChoreographer.postFrameCallbackDelayed(mFrameCallback, mLastFrameDelay);
                 }
@@ -826,17 +796,13 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         }
         if (mDebug == 1) {
             long frameDelay = mClock.millis() - mLastFrameCall;
-            System.err.println(
-                    "RC : Delay since last frame "
-                            + frameDelay
-                            + " ms ("
-                            + (1000f / (float) frameDelay)
-                            + " fps)");
+            System.err.println("RC : Delay since last frame " + frameDelay + " ms (" + (1000f
+                    / (float) frameDelay) + " fps)");
             mLastFrameCall = System.currentTimeMillis();
         }
     }
 
-    private void drawDisable(Canvas canvas, String message) {
+    private void drawDisable(@NonNull Canvas canvas, String message) {
         Rect rect = new Rect();
         canvas.drawColor(Color.BLACK);
         Paint paint = new Paint();

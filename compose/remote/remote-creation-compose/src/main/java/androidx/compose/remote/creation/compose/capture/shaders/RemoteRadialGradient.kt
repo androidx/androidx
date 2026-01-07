@@ -27,9 +27,9 @@ import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.toAndroidTileMode
+import androidx.compose.ui.graphics.toArgb
 
 /**
  * Creates a radial gradient with the given colors at the provided offset defined in the colorstop
@@ -96,6 +96,7 @@ public fun RemoteBrush.Companion.radialGradient(
  *   bounds. Defaults to [TileMode.Clamp] to repeat the edge pixels
  */
 @Stable
+@Suppress("PrimitiveInCollection")
 public fun RemoteBrush.Companion.radialGradient(
     colors: List<Color>,
     center: RemoteOffset? = null,
@@ -112,6 +113,7 @@ public fun RemoteBrush.Companion.radialGradient(
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
+@Suppress("PrimitiveInCollection")
 public data class RemoteRadialGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
@@ -123,20 +125,21 @@ public data class RemoteRadialGradient(
     override fun createShader(size: RemoteSize): Shader {
 
         validateColorStops(colors = colors, colorStops = stops)
-        val numTransparentColors = countTransparentColors(colors = colors)
         val realCenter = center ?: size.center
         val realRadius = radius ?: (size.width.min(size.height) / 2f)
         return RemoteRadialShader(
             realCenter.x.toFloat(),
             realCenter.y.toFloat(),
             realRadius.toFloat(),
-            makeTransparentColors(colors, numTransparentColors),
-            makeTransparentStops(stops, colors, numTransparentColors),
+            // No change for Android O+, map the colors directly to their argb equivalent
+            IntArray(colors.size) { i -> colors[i].toArgb() },
+            stops?.toFloatArray(),
             tileMode.toAndroidTileMode(),
         )
     }
 }
 
+@Suppress("PrimitiveInCollection")
 private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
     if (colorStops == null) {
         if (colors.size < 2) {

@@ -23,9 +23,9 @@ import org.jspecify.annotations.NonNull;
 /** Represents an instruction for either a float or int operation */
 public class InstructionSerializable implements Serializable {
 
-    private final String mInstruction;
+    private final @NonNull String mInstruction;
 
-    public InstructionSerializable(String instruction) {
+    public InstructionSerializable(@NonNull String instruction) {
         this.mInstruction = instruction;
     }
 

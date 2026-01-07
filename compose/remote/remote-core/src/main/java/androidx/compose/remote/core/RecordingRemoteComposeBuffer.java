@@ -303,15 +303,15 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     private void addOperation(@NonNull Operation op, int id) {
         SpanOp spanOp = new SpanOp(op, mInsertPoint);
-        mInsertPoint.mOperations.add(spanOp);
         mOperationMap.put(id, spanOp);
         spanOp.collectDependencies(mDependencyExtractingRemoteContext);
+        mInsertPoint.mOperations.add(spanOp);
     }
 
     private void addOperation(@NonNull Operation op) {
         SpanOp spanOp = new SpanOp(op, mInsertPoint);
-        mInsertPoint.mOperations.add(spanOp);
         spanOp.collectDependencies(mDependencyExtractingRemoteContext);
+        mInsertPoint.mOperations.add(spanOp);
     }
 
     private interface OperationBlock {
@@ -775,7 +775,24 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addList(int id, int @NonNull [] listId) {
-        addOperation(new DataListIds(id, listId), id);
+        // Force the DataListIds and dependents to be in the mSpanTreeRoot because the rust player
+        // doesn't properly support them inside conditional nodes. See b/465085573.
+        SpanOp spanOp = new SpanOp(new DataListIds(id, listId), mSpanTreeRoot);
+        mOperationMap.put(id, spanOp);
+
+        // Override mInsertPoint to ensure recordDependency books the deps as being needed by the
+        // root span.
+        Span previousInsertPoint = mInsertPoint;
+        mInsertPoint = mSpanTreeRoot;
+
+        mDependencyExtractingRemoteContext.setSpanOp(spanOp);
+        for (int id2 : listId) {
+            mDependencyExtractingRemoteContext.recordDependency(id2);
+        }
+
+        mInsertPoint = previousInsertPoint;
+
+        mSpanTreeRoot.mOperations.add(spanOp);
     }
 
     @Override
@@ -1549,6 +1566,16 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             mSpanOp = spanOp;
         }
 
+        public void recordDependency(int id) {
+            // We can expect this lookup to fail for time related IDs.
+            SpanOp dep = mOperationMap.get(id);
+            if (dep == null) {
+                return;
+            }
+            dep.recordUsageBySpan(mInsertPoint);
+            mSpanOp.mDeps.add(dep);
+        }
+
         @Override
         public void loadPathData(int instanceId, int winding, float @NonNull [] floatPath) {
             throw new UnsupportedOperationException("Not yet implemented");
@@ -1750,13 +1777,7 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
         @Override
         public void listensTo(int id, @NonNull VariableSupport variableSupport) {
-            // We can expect this lookup to fail for time related IDs.
-            SpanOp dep = mOperationMap.get(id);
-            if (dep == null) {
-                return;
-            }
-            mSpanOp.mDeps.add(dep);
-            dep.recordUsageBySpan(mInsertPoint);
+            recordDependency(id);
         }
 
         @Override

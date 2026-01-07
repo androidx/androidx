@@ -18,7 +18,6 @@
 package androidx.compose.remote.creation.compose.capture.painter
 
 import android.graphics.BlendMode
-import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
@@ -63,9 +62,7 @@ public abstract class RemotePainter {
         if (blendMode == null) {
             return
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            obtainPaint().blendMode = blendMode
-        }
+        obtainPaint().blendMode = blendMode
     }
 
     /** Update the alpha component of RemoteColor. */

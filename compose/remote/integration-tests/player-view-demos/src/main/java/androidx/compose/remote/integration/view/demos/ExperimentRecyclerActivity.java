@@ -106,8 +106,8 @@ public class ExperimentRecyclerActivity extends Activity {
     static Bitmap sPersonImage3;
     static RemoteComposeBuffer sCurrentBuffer = DemoPaths.pathTest().getBuffer();
     private FrameMetrics mMetrics;
-    private static final String CHANNEL_ID = "custom_notification_channel";
-    private static int sNotificationId = 1;
+    static final String CHANNEL_ID = "custom_notification_channel";
+    static int sNotificationId = 1;
     public static final boolean BACKGROUND = false;
 
     public static @NonNull RemoteComposeBuffer getCurrentDoc() {
@@ -124,7 +124,7 @@ public class ExperimentRecyclerActivity extends Activity {
 
         sPersonImage3 = BitmapFactory.decodeResource(context.getResources(),
                 R.drawable.mostly_cloudy);
-        ArrayList<RCDoc> list = new ArrayList<>(DemosCreation.getDemos());
+        ArrayList<RCDoc> list = new ArrayList<>(DemosCreation.getDemos(this));
         list.addAll(getRemoteComposable(context));
 
         return list;
@@ -878,9 +878,11 @@ public class ExperimentRecyclerActivity extends Activity {
                 mSize = mItem.size();
                 mZipSize = mItem.zipSize();
             }
-            String stats = "  Load time: " + mTimeStr + "\ncmds/fr doc: " + ops + " / " + mDocOps
-                    + "\n       Size: " + mDf2.format(mSize) + "/" + mDf2.format(mZipSize)
-                    + " bytes" + "\n  Per Frame: "
+            float build = mItem.getBuildTime();
+            String stats = "  Load: " + mTimeStr + " bld: " + mDf2.format(build) + "ms\n   cmd: "
+                    + ops + " / " + mDocOps
+                    + "\n  Size: " + mDf2.format(mSize) + "/" + mDf2.format(mZipSize)
+                    + " B" + "\n Frame: "
                     + mDf2.format(evalTime) + " ms";
             mUi.mStats.setText(stats);
         }
@@ -917,6 +919,12 @@ public class ExperimentRecyclerActivity extends Activity {
             @NonNull Supplier<RemoteComposeWriter> writerSupplier) {
         return new RCDoc() {
             private RemoteComposeWriter mWriter;
+            float mBuildTime = 0;
+
+            @Override
+            public float getBuildTime() {
+                return mBuildTime;
+            }
 
             public RemoteComposeWriter writer() {
                 if (mWriter == null) {
@@ -967,9 +975,13 @@ public class ExperimentRecyclerActivity extends Activity {
             @Override
             public RemoteDocument getDoc() {
                 Log.v("perf", "build doc \"" + name + "\"");
+                long time = System.nanoTime();
+
                 mWriter = writer();
-                return new RemoteDocument(
+                RemoteDocument ret = new RemoteDocument(
                         new ByteArrayInputStream(writer().buffer(), 0, writer().bufferSize()));
+                mBuildTime = (System.nanoTime() - time) * 1E-6f;
+                return ret;
             }
         };
     }
@@ -988,6 +1000,12 @@ public class ExperimentRecyclerActivity extends Activity {
         return new RCDoc() {
             private RemoteComposeWriter mWriter;
             private RemoteComposeWriter mWriter2;
+            float mBuildTime = 0;
+
+            @Override
+            public float getBuildTime() {
+                return mBuildTime;
+            }
 
             public RemoteComposeWriter writer() {
                 if (mWriter == null) {
@@ -1052,8 +1070,11 @@ public class ExperimentRecyclerActivity extends Activity {
             @Override
             public RemoteDocument getDoc() {
                 Log.v("perf", "build doc \"" + name + "\"");
-                return new RemoteDocument(
+                long time = System.nanoTime();
+                RemoteDocument ret = new RemoteDocument(
                         new ByteArrayInputStream(writer().buffer(), 0, writer().bufferSize()));
+                mBuildTime = (System.nanoTime() - time) * 1E-6f;
+                return ret;
             }
         };
     }

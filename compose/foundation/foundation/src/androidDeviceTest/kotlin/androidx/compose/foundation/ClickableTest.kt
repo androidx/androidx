@@ -4706,7 +4706,6 @@ class ClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun otherKey_doesNotEmitInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -4871,7 +4870,6 @@ class ClickableTest {
      * still be passed up to a non-focused parent, so we test this scenario here and make sure that
      * this key event bubbling up causes indication to be created.
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun localIndication_noInteractionSource_lazilyCreated_keyInput() {
         var created = false
@@ -5879,7 +5877,6 @@ class ClickableTest {
      * still be passed up to a non-focused parent, so we test this scenario here and make sure that
      * this key event bubbling up causes indication to be created.
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun indicationNodeFactory_noInteractionSource_lazilyCreated_keyInput() {
         var created = false

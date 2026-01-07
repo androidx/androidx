@@ -937,6 +937,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [color] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
+    @Suppress("PrimitiveInCollection")
     public fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,
@@ -966,6 +967,7 @@ interface RemoteDrawScope : Density {
      * @param colorFilter ColorFilter to apply to the [brush] when drawn into the destination
      * @param blendMode Blending algorithm to be applied to the path when it is drawn
      */
+    @Suppress("PrimitiveInCollection")
     public fun drawPoints(
         points: List<Offset>,
         pointMode: PointMode,

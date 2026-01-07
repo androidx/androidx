@@ -132,7 +132,7 @@ package androidx.compose.runtime {
     property public static androidx.compose.runtime.RecomposeScope currentRecomposeScope;
   }
 
-  @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
   }
 
   public interface ComposeNodeLifecycleCallback {
@@ -142,10 +142,8 @@ package androidx.compose.runtime {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final class ComposeRuntimeFlags {
-    property public boolean isMovableContentUsageTrackingEnabled;
     property public boolean isMovingNestedMovableContentEnabled;
     field public static final androidx.compose.runtime.ComposeRuntimeFlags INSTANCE;
-    field public static boolean isMovableContentUsageTrackingEnabled;
     field public static boolean isMovingNestedMovableContentEnabled;
   }
 
@@ -941,7 +939,7 @@ package androidx.compose.runtime.internal {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN rememberComposableLambdaN(int, boolean, int, Object, androidx.compose.runtime.Composer?, int);
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {
     ctor @KotlinOnly public Decoy(String targetName, java.lang.String... signature);
     method @InaccessibleFromKotlin public abstract String[] signature();
     method @InaccessibleFromKotlin public abstract String targetName();
@@ -949,7 +947,7 @@ package androidx.compose.runtime.internal {
     property public abstract String targetName;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface DecoyImplementation {
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface DecoyImplementation {
     ctor @KotlinOnly public DecoyImplementation(String name, long id);
     method @InaccessibleFromKotlin public abstract long id();
     method @InaccessibleFromKotlin public abstract String name();

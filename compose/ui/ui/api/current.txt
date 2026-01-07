@@ -3025,7 +3025,7 @@ package androidx.compose.ui.layout {
     method @BytecodeOnly public static androidx.compose.ui.layout.MeasureResult! layout$default(androidx.compose.ui.layout.MeasureScope!, int, int, java.util.Map!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, int, Object!);
   }
 
-  @kotlin.DslMarker public @interface MeasureScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface MeasureScopeMarker {
   }
 
   public interface Measured {
@@ -3192,7 +3192,7 @@ package androidx.compose.ui.layout {
     property protected abstract int parentWidth;
   }
 
-  @kotlin.DslMarker public @interface PlacementScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface PlacementScopeMarker {
   }
 
   public interface RectRulers {

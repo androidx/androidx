@@ -29,7 +29,6 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -80,7 +79,6 @@ class FocusWappingTest {
         Assume.assumeTrue(inputModeManager.inputMode == InputMode.Keyboard)
 
         rule.onNodeWithTag(tag2).requestFocus()
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(tag2).performKeyInput {
             keyDown(Key.Tab)
             keyUp(Key.Tab)
@@ -122,7 +120,6 @@ class FocusWappingTest {
         Assume.assumeTrue(inputModeManager.inputMode == InputMode.Keyboard)
 
         rule.onNodeWithTag(tag1).requestFocus()
-        @OptIn(ExperimentalTestApi::class)
         rule.onNodeWithTag(tag1).performKeyInput {
             keyDown(Key.ShiftLeft)
             keyDown(Key.Tab)

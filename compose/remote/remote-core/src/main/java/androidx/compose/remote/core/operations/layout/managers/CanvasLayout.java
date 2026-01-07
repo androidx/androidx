@@ -21,20 +21,29 @@ import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
+import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.operations.layout.CanvasContent;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.layout.LayoutComponentContent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
+import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class CanvasLayout extends BoxLayout {
+
+    private boolean mHasCanvasLayoutContent = false;
+
     public CanvasLayout(
             @Nullable Component parent,
             int componentId,
@@ -97,7 +106,7 @@ public class CanvasLayout extends BoxLayout {
     /**
      * Write the operation to the buffer
      *
-     * @param buffer a WireBuffer
+     * @param buffer      a WireBuffer
      * @param componentId the component id
      * @param animationId the component animation id
      */
@@ -110,7 +119,7 @@ public class CanvasLayout extends BoxLayout {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -134,17 +143,97 @@ public class CanvasLayout extends BoxLayout {
                         "id used to match components," + " for animation purposes");
     }
 
+    /**
+     * The structure of a CanvasLayout in previous versions (api <= 7) was:
+     *
+     * CanvasLayout
+     * Modifiers
+     * LayoutComponentContent
+     * CanvasContent
+     * DrawInstructions
+     *
+     * In practice this prevented the use of other child components inside
+     * a Canvas, which is actually quite handy to support. The new structure now
+     * supports the following:
+     *
+     * CanvasLayout
+     * Modifiers
+     * LayoutComponentContent
+     * DrawInstructions
+     * ComponentsA
+     * ComponentsB
+     *
+     * Allowing you to position (via computeLayout modifier) components on top
+     * of a canvas.
+     *
+     * This function check if CanvasContent is present or not.
+     *
+     * @return true if CanvasContent is present
+     */
+    private boolean hasCanvasContent() {
+        for (Operation o : mList) {
+            if (o instanceof LayoutComponentContent) {
+                for (Operation op : ((LayoutComponentContent) o).mList) {
+                    if (op instanceof CanvasContent) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void inflate() {
+        mHasCanvasLayoutContent = hasCanvasContent();
+        super.inflate();
+    }
+
+    @Override
+    protected void getComponentsData(@NonNull LayoutComponentContent content,
+            @NonNull ArrayList<Operation> data) {
+        if (!mHasCanvasLayoutContent) {
+            content.getData(data, true);
+        } else {
+            content.getData(data);
+        }
+    }
+
     @Override
     public void internalLayoutMeasure(@NonNull PaintContext context, @NonNull MeasurePass measure) {
-        ComponentMeasure selfMeasure = measure.get(this);
-        float selfWidth = selfMeasure.getW() - mPaddingLeft - mPaddingRight;
-        float selfHeight = selfMeasure.getH() - mPaddingTop - mPaddingBottom;
-        for (Component child : mChildrenComponents) {
-            ComponentMeasure m = measure.get(child);
-            m.setX(0f);
-            m.setY(0f);
-            m.setW(selfWidth);
-            m.setH(selfHeight);
+        if (mHasCanvasLayoutContent) {
+            // If we have a canvas content, we size it to our component's size.
+            ComponentMeasure selfMeasure = measure.get(this);
+            float selfWidth = selfMeasure.getW() - mPaddingLeft - mPaddingRight;
+            float selfHeight = selfMeasure.getH() - mPaddingTop - mPaddingBottom;
+            for (Component child : mChildrenComponents) {
+                ComponentMeasure m = measure.get(child);
+                m.setX(0f);
+                m.setY(0f);
+                m.setW(selfWidth);
+                m.setH(selfHeight);
+            }
+        } else {
+            super.internalLayoutMeasure(context, measure);
+        }
+    }
+
+    @Override
+    protected void handleOperations(@NonNull RemoteContext context,
+            @NonNull ArrayList<Operation> operations) {
+        if (!mHasCanvasLayoutContent) {
+            for (Operation op : mList) {
+                if (op instanceof ComponentModifiers) {
+                    continue;
+                }
+                if (op instanceof Component) {
+                    continue;
+                }
+                if (op instanceof VariableSupport && op.isDirty()) {
+                    ((VariableSupport) op).updateVariables(context);
+                }
+                op.apply(context);
+            }
         }
     }
 

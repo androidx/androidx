@@ -16,5 +16,6 @@
 
 package androidx.compose.ui.graphics.internal
 
+@OptIn(ExperimentalMultiplatform::class)
 @OptionalExpectation
 expect annotation class IgnoreJs()

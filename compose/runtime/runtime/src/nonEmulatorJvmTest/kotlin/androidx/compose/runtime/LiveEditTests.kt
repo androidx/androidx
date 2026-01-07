@@ -348,22 +348,20 @@ class LiveEditTests {
     @Test
     fun testThrowing_movableContent_recomposition() {
         var recomposeCount = 0
-        // When the error is thrown is different when we are tracking movable content usage
-        val trackingMovableContent = ComposeRuntimeFlags.isMovableContentUsageTrackingEnabled
         liveEditTest(reloadCount = 2, collectSourceInformation = SourceInfo.None) {
             RestartGroup {
                 MarkAsTarget()
 
-                expectError("throwInMovableContent", if (trackingMovableContent) 2 else 1)
+                expectError("throwInMovableContent", 1)
 
                 val content = remember {
                     movableContentOf {
                         Expect(
                             "movable",
                             compose = 3,
-                            onRememberd = if (trackingMovableContent) 1 else 2,
-                            onForgotten = if (trackingMovableContent) 0 else 1,
-                            onAbandoned = if (trackingMovableContent) 2 else 1,
+                            onRememberd = 2,
+                            onForgotten = 1,
+                            onAbandoned = 1,
                         )
 
                         if (recomposeCount == 1) {

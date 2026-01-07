@@ -162,6 +162,15 @@ public interface PaintChanges {
     void setTypeFace(int fontType, int weight, boolean italic);
 
     /**
+     * Set TypeFace to be used as a fallback if the primary font is not available
+     *
+     * @param fontType the type of font 0,1,or 2
+     * @param weight   the weight of the font
+     * @param italic   if the font is italic
+     */
+    void setFallbackTypeFace(int fontType, int weight, boolean italic);
+
+    /**
      * Set the shader matrix
      *
      * @param matrixId the id of the matrix

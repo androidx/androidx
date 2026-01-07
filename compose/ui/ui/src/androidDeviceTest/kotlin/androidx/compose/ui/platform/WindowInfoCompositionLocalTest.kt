@@ -37,6 +37,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -78,6 +79,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.math.roundToInt
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -144,6 +146,10 @@ class WindowInfoCompositionLocalTest {
 
     @Test
     fun windowIsFocused_whenPopupIsDismissed() {
+        assumeFalse(
+            "Test fails on cuttlefish b/465540988",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         // Arrange.
         lateinit var mainWindowInfo: WindowInfo
         var mainWindowFocusGain = CountDownLatch(1)
@@ -179,6 +185,10 @@ class WindowInfoCompositionLocalTest {
 
     @Test
     fun mainWindowIsNotFocused_whenDialogIsVisible() {
+        assumeFalse(
+            "Test fails on cuttlefish b/465540988",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         // Arrange.
         lateinit var mainWindowInfo: WindowInfo
         lateinit var dialogWindowInfo: WindowInfo
@@ -211,6 +221,10 @@ class WindowInfoCompositionLocalTest {
 
     @Test
     fun windowIsFocused_whenDialogIsDismissed() {
+        assumeFalse(
+            "Test fails on cuttlefish b/465540988",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         // Arrange.
         lateinit var mainWindowInfo: WindowInfo
         var mainWindowFocusGain = CountDownLatch(1)
@@ -457,6 +471,10 @@ class WindowInfoCompositionLocalTest {
 
     @Test
     fun windowInfo_containerSize_viewCreatedWithCustomContext() {
+        assumeFalse(
+            "Test fails on cuttlefish b/465540988",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         // Arrange.
         var containerSize = IntSize.Zero
         var drawCount = 0

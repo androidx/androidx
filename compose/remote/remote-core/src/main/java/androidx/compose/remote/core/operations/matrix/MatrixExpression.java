@@ -101,7 +101,9 @@ public class MatrixExpression extends Operation
     @NonNull
     @Override
     public String toString() {
-        return "FloatConstant[" + mMatrixId + "] = " + Arrays.toString(mValues);
+        return "MatrixExpression[" + mMatrixId + "] = "
+                + MatrixOperations.toString(mExpression, null) + "-> "
+                + Arrays.toString(mValues);
     }
 
     /**

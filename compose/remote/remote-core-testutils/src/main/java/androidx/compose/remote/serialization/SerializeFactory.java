@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.serialization;
 
+import org.jspecify.annotations.NonNull;
+
 /**
  * Interface for generating new serializers. To be overridden by concrete serialization
  * implementations
@@ -26,19 +28,19 @@ public interface SerializeFactory {
      *
      * @return a new AbstractArraySerializer
      */
-    AbstractArraySerializer newArraySerializer();
+    @NonNull AbstractArraySerializer newArraySerializer();
 
     /**
      * Creates a new AbstractMapSerializer
      *
      * @return a new AbstractMapSerializer
      */
-    AbstractMapSerializer newMapSerializer();
+    @NonNull AbstractMapSerializer newMapSerializer();
 
     /**
      * Creates a new AbstractSerializer
      *
      * @return a new AbstractSerializer
      */
-    AbstractSerializer newSerializer();
+    @NonNull AbstractSerializer newSerializer();
 }

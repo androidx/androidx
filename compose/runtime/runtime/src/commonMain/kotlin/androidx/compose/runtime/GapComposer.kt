@@ -30,6 +30,11 @@ import androidx.compose.runtime.changelist.ComposerChangeListWriter
 import androidx.compose.runtime.changelist.FixupList
 import androidx.compose.runtime.collection.MultiValueMap
 import androidx.compose.runtime.collection.ScopeMap
+import androidx.compose.runtime.composer.gapbuffer.Anchor
+import androidx.compose.runtime.composer.gapbuffer.KeyInfo
+import androidx.compose.runtime.composer.gapbuffer.SlotReader
+import androidx.compose.runtime.composer.gapbuffer.SlotTable
+import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.invokeComposable
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
@@ -2251,11 +2256,7 @@ internal class GapComposer(
             // Either insert a place-holder to be inserted later (either created new or moved from
             // another location) or (re)compose the movable content. This is forced if a new value
             // needs to be created as a late change.
-            if (
-                inserting &&
-                    !force &&
-                    (!ComposeRuntimeFlags.isMovableContentUsageTrackingEnabled || content.used)
-            ) {
+            if (inserting && !force) {
                 writerHasAProvider = true
 
                 // Create an anchor to the movable group
@@ -2275,7 +2276,6 @@ internal class GapComposer(
             } else {
                 val savedProvidersInvalid = providersInvalid
                 providersInvalid = providersChanged
-                content.used = true
                 invokeComposable(this, { content.content(parameter) })
                 providersInvalid = savedProvidersInvalid
             }

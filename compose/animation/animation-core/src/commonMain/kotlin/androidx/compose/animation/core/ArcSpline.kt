@@ -18,7 +18,6 @@
 
 package androidx.compose.animation.core
 
-import androidx.compose.animation.core.internal.binarySearch
 import androidx.compose.ui.util.fastCoerceIn
 import kotlin.jvm.JvmField
 import kotlin.math.PI
@@ -351,7 +350,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
             val lutLastIndex = (LutSize - 1).toFloat()
             for (i in lut.indices) {
                 val pos = i / lutLastIndex
-                val index = ourPercent.binarySearch(pos)
+                val index = binarySearch(ourPercent, pos)
                 if (index >= 0) {
                     lut[i] = index / lastIndexFloat
                 } else if (index == -1) {
@@ -388,5 +387,6 @@ private const val HalfPi = (PI * 0.5).toFloat()
 
 private val OurPercentCache: FloatArray = FloatArray(91)
 
-private inline fun toRadians(value: Double): Double =
-    value * (PI / 180.0)
+internal expect inline fun toRadians(value: Double): Double
+
+internal expect inline fun binarySearch(array: FloatArray, position: Float): Int

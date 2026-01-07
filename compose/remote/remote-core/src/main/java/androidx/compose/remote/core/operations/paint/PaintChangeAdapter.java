@@ -30,6 +30,9 @@ public class PaintChangeAdapter implements PaintChanges {
     public void setTypeFace(int fontType, int weight, boolean italic) {}
 
     @Override
+    public void setFallbackTypeFace(int fontType, int weight, boolean italic) {}
+
+    @Override
     public void setShaderMatrix(float matrixId) {}
 
     @Override

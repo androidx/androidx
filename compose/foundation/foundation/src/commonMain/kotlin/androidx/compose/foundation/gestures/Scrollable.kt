@@ -491,7 +491,7 @@ internal class ScrollableNode(
 
             val scrollAmount: Offset =
                 if (scrollingLogic.isVertical()) {
-                    val viewportHeight = contentInViewNode.viewportSize.height
+                    val viewportHeight = contentInViewNode.viewportSizeOrZero.height
 
                     val yAmount =
                         if (event.key == Key.PageUp) {
@@ -502,7 +502,7 @@ internal class ScrollableNode(
 
                     Offset(0f, yAmount)
                 } else {
-                    val viewportWidth = contentInViewNode.viewportSize.width
+                    val viewportWidth = contentInViewNode.viewportSizeOrZero.width
 
                     val xAmount =
                         if (event.key == Key.PageUp) {

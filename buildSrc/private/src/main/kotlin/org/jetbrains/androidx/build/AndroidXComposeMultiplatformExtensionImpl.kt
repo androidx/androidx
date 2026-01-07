@@ -62,10 +62,20 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
         skikoVersion = toml.getTable("versions")!!.getString("skiko")!!
     }
 
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-9480 - migrate to applyDefaultHierarchyTemplate, and then the manual wiring will be obsolete
+    private val jvmAndAndroidMain by lazy {
+        val commonMain = multiplatformExtension.sourceSets.findByName("commonMain")!!
+        multiplatformExtension.sourceSets.findByName("jvmAndAndroidMain")
+            ?: multiplatformExtension.sourceSets.create("jvmAndAndroidMain").apply {
+                dependsOn(commonMain)
+            }
+    }
+
     override fun android(): Unit = multiplatformExtension.run {
         androidTarget()
 
         val androidMain = sourceSets.getByName("androidMain")
+        androidMain.dependsOn(jvmAndAndroidMain)
         val jvmMain = getOrCreateJvmMain()
         androidMain.dependsOn(jvmMain)
 
@@ -78,6 +88,7 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
         jvm("desktop")
 
         val desktopMain = sourceSets.getByName("desktopMain")
+        desktopMain.dependsOn(jvmAndAndroidMain)
         val jvmMain = getOrCreateJvmMain()
         desktopMain.dependsOn(jvmMain)
 

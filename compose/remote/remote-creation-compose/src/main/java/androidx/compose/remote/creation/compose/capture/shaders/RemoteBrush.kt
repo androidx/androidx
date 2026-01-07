@@ -51,7 +51,7 @@ public abstract class RemoteBrush {
     public companion object {
         public fun fromComposeUi(brush: Brush): RemoteBrush {
             return when (brush) {
-                is SolidColor -> RemoteBrush.solidColor(Color.Red)
+                is SolidColor -> RemoteBrush.solidColor(brush.value)
                 else -> {
                     println("RemoteBrush.fromComposeUi not implemented for $brush")
                     RemoteBrush.solidColor(Color.Transparent)

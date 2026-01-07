@@ -442,6 +442,15 @@ public class RemotePathBase {
                                 Float.parseFloat(values[i + 3]));
                     }
                     break;
+                case 'Q':
+                    for (int i = 0; i < values.length; i += 4) {
+                        quadTo(
+                                Float.parseFloat(values[i]),
+                                Float.parseFloat(values[i + 1]),
+                                Float.parseFloat(values[i + 2]),
+                                Float.parseFloat(values[i + 3]));
+                    }
+                    break;
                 case 'Z':
                     close();
                     break;

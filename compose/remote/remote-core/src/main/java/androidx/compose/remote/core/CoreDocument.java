@@ -1043,10 +1043,11 @@ public class CoreDocument implements Serializable {
                 ((Component) op).updateVariables(context);
             }
             op.markNotDirty();
-            op.apply(context);
             context.incrementOpCount();
             if (op instanceof Container) {
                 applyOperations(context, ((Container) op).getList());
+            } else {
+                op.apply(context);
             }
         }
     }
@@ -1436,9 +1437,9 @@ public class CoreDocument implements Serializable {
         for (int i = 0; i < operations.size(); i++) {
             Operation op = operations.get(i);
             if (op.isDirty() && op instanceof VariableSupport) {
+                op.markNotDirty();
                 ((VariableSupport) op).updateVariables(context);
                 op.apply(context);
-                op.markNotDirty();
             }
             if (op instanceof Container) {
                 updateVariables(context, theme, ((Container) op).getList());
@@ -1824,7 +1825,10 @@ public class CoreDocument implements Serializable {
             RemoteContext context, ShaderControl ctl, List<Operation> operations) {
         for (Operation op : operations) {
             if (op instanceof TextData) {
-                op.apply(context);
+                if (op.isDirty()) {
+                    op.markNotDirty();
+                    op.apply(context);
+                }
             }
             if (op instanceof Container) {
                 checkShaders(context, ctl, ((Container) op).getList());

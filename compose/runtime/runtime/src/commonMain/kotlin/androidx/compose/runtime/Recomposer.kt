@@ -501,7 +501,9 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             if (_state.value <= State.ShuttingDown) error("Recomposer shut down")
             if (runnerJob != null) error("Recomposer already running")
             runnerJob = callingJob
-            deriveStateLocked()
+            if (deriveStateLocked() != null) {
+                composeImmediateRuntimeError("called outside of runRecomposeAndApplyChanges")
+            }
         }
     }
 
@@ -725,7 +727,11 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                             }
                         }
 
-                        synchronized(stateLock) { deriveStateLocked() }
+                        synchronized(stateLock) {
+                            runtimeCheck(deriveStateLocked() == null) {
+                                "unexpected to get continuation here"
+                            }
+                        }
 
                         // Ensure any state objects that were written during apply changes, e.g.
                         // nodes with state-backed properties, get sent apply notifications to
@@ -767,7 +773,11 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                     recordFailedCompositionLocked(failedInitialComposition)
                 }
 
-                deriveStateLocked()
+                if (deriveStateLocked() != null) {
+                    composeImmediateRuntimeError(
+                        "expected to go to inactive state due to composition error"
+                    )
+                }
             }
         } else {
             // withFrameNanos uses `runCatching` to ensure that crashes are not propagated to
@@ -904,16 +914,18 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
     }
 
     private fun resetErrorState(): RecomposerErrorState? {
-        val errorState =
-            synchronized(stateLock) {
-                val error = errorState
+        var error: RecomposerErrorState? = null
+        synchronized(stateLock) {
+                error = errorState
                 if (error != null) {
                     errorState = null
                     deriveStateLocked()
+                } else {
+                    null
                 }
-                error
             }
-        return errorState
+            ?.resume(Unit)
+        return error
     }
 
     private fun retryFailedCompositions() {
@@ -1029,7 +1041,11 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                     if (runnerJob === callingJob) {
                         runnerJob = null
                     }
-                    deriveStateLocked()
+                    if (deriveStateLocked() != null) {
+                        composeImmediateRuntimeError(
+                            "called outside of runRecomposeAndApplyChanges"
+                        )
+                    }
                 }
                 removeRunning(recomposerInfo)
             }

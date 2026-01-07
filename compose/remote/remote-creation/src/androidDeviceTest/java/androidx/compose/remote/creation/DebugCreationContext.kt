@@ -340,6 +340,7 @@ class DebugCreationContext : RemoteContext() {
                     overflow: Int,
                     maxLines: Int,
                     maxWidth: Float,
+                    maxHeight: Float,
                     letterSpacing: Float,
                     lineHeightAdd: Float,
                     lineHeightMultiplier: Float,

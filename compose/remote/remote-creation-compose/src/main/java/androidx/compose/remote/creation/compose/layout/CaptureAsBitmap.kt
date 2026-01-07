@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.layout
 
 import android.graphics.Bitmap
 import android.graphics.Bitmap.Config
+import android.graphics.Canvas
 import android.graphics.Picture
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.Image

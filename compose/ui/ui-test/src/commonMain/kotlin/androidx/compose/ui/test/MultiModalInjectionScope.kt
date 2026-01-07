@@ -44,6 +44,7 @@ import kotlin.math.roundToInt
  * @see MouseInjectionScope
  * @see KeyInjectionScope
  * @see RotaryInjectionScope
+ * @see TrackpadInjectionScope
  */
 // TODO(fresen): add better multi modal example when we have key input support
 sealed interface MultiModalInjectionScope : InjectionScope {
@@ -54,10 +55,13 @@ sealed interface MultiModalInjectionScope : InjectionScope {
     fun mouse(block: MouseInjectionScope.() -> Unit)
 
     /** Injects all key events sent by the given [block] */
-    @ExperimentalTestApi fun key(block: KeyInjectionScope.() -> Unit)
+    fun key(block: KeyInjectionScope.() -> Unit)
 
     /** Injects all rotary events sent by the given [block] */
-    @ExperimentalTestApi fun rotary(block: RotaryInjectionScope.() -> Unit)
+    fun rotary(block: RotaryInjectionScope.() -> Unit)
+
+    /** Injects all trackpad events sent by the given [block] */
+    fun trackpad(block: TrackpadInjectionScope.() -> Unit)
 }
 
 internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: TestContext) :
@@ -149,10 +153,11 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
 
     private val mouseScope: MouseInjectionScope = MouseInjectionScopeImpl(this)
 
-    @ExperimentalTestApi private val keyScope: KeyInjectionScope = KeyInjectionScopeImpl(this)
+    private val keyScope: KeyInjectionScope = KeyInjectionScopeImpl(this)
 
-    @ExperimentalTestApi
     private val rotaryScope: RotaryInjectionScope = RotaryInjectionScopeImpl(this)
+
+    private val trackpadScope: TrackpadInjectionScope = TrackpadInjectionScopeImpl(this)
 
     override fun touch(block: TouchInjectionScope.() -> Unit) {
         block.invoke(touchScope)
@@ -162,13 +167,15 @@ internal class MultiModalInjectionScopeImpl(node: SemanticsNode, testContext: Te
         block.invoke(mouseScope)
     }
 
-    @ExperimentalTestApi
     override fun key(block: KeyInjectionScope.() -> Unit) {
         block.invoke(keyScope)
     }
 
-    @ExperimentalTestApi
     override fun rotary(block: RotaryInjectionScope.() -> Unit) {
         block.invoke(rotaryScope)
+    }
+
+    override fun trackpad(block: TrackpadInjectionScope.() -> Unit) {
+        block.invoke(trackpadScope)
     }
 }

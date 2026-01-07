@@ -25,10 +25,9 @@ import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.toArgb
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteSweepShader(
@@ -66,6 +65,7 @@ public class RemoteSweepShader(
  *   gradient
  */
 @Stable
+@Suppress("PrimitiveInCollection")
 public fun RemoteBrush.Companion.sweepGradient(
     vararg colorStops: Pair<Float, Color>,
     center: RemoteOffset,
@@ -95,6 +95,7 @@ public fun RemoteBrush.Companion.sweepGradient(
  *   gradient
  */
 @Stable
+@Suppress("PrimitiveInCollection")
 public fun RemoteBrush.Companion.sweepGradient(
     colors: List<Color>,
     center: RemoteOffset? = null,
@@ -102,6 +103,7 @@ public fun RemoteBrush.Companion.sweepGradient(
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
+@Suppress("PrimitiveInCollection")
 public data class RemoteSweepGradient(
     private val colors: List<Color>,
     private val stops: List<Float>? = null,
@@ -111,20 +113,17 @@ public data class RemoteSweepGradient(
     override fun createShader(size: RemoteSize): Shader {
         val realCenter = center ?: size.center
         validateColorStops(colors = colors, colorStops = stops)
-        val numTransparentColors = countTransparentColors(colors = colors)
         return RemoteSweepShader(
             realCenter.x.toFloat(),
             realCenter.y.toFloat(),
-            makeTransparentColors(colors = colors, numTransparentColors = numTransparentColors),
-            makeTransparentStops(
-                stops = stops,
-                colors = colors,
-                numTransparentColors = numTransparentColors,
-            ),
+            // No change for Android O+, map the colors directly to their argb equivalent
+            IntArray(colors.size) { i -> colors[i].toArgb() },
+            stops?.toFloatArray(),
         )
     }
 }
 
+@Suppress("PrimitiveInCollection")
 private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
     if (colorStops == null) {
         if (colors.size < 2) {

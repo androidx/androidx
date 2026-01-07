@@ -586,6 +586,39 @@ class RemoteStringTest {
     }
 
     @Test
+    fun uppercase() {
+        val s = RemoteString("Hello world")
+        val result = s.uppercase()
+        val resultId = result.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(resultId)).isEqualTo("HELLO WORLD")
+    }
+
+    @Test
+    fun lowercase() {
+        val s = RemoteString("Hello world")
+        val result = s.lowercase()
+        val resultId = result.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(resultId)).isEqualTo("hello world")
+    }
+
+    @Test
+    fun trim() {
+        val s = RemoteString(" Hello world ")
+        val result = s.trim()
+        val resultId = result.getIdForCreationState(creationState)
+
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getText(resultId)).isEqualTo("Hello world")
+    }
+
+    @Test
     fun dynamicSubstringWithEnd() {
         val s = RemoteString("Hello world")
         val start = s.length - 6
@@ -725,6 +758,43 @@ class RemoteStringTest {
         val s = namedRemoteString + RemoteString("!")
 
         assertThat(s.computeRequiredCodePointSet(creationState)).isNull()
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_uppercase_dynamic() {
+        // Use a conditional to ensure we have a dynamic string with a known set of code points
+        val s =
+            selectIfLT(namedRemoteFloat, RemoteFloat(0f), RemoteString("abc"), RemoteString("def"))
+        val upper = s.uppercase()
+
+        assertThat(upper.computeRequiredCodePointSet(creationState))
+            .containsExactly("A", "B", "C", "D", "E", "F")
+    }
+
+    @Test
+    fun computeRequiredCodePointSet_lowercase_dynamic() {
+        val s =
+            selectIfLT(namedRemoteFloat, RemoteFloat(0f), RemoteString("ABC"), RemoteString("DEF"))
+        val lower = s.lowercase()
+
+        assertThat(lower.computeRequiredCodePointSet(creationState))
+            .containsExactly("a", "b", "c", "d", "e", "f")
+    }
+
+    @Test
+    fun extensionFunctionMatches() {
+        assertThat("a".rs.constantValue).isEqualTo("a")
+        assertThat("b".rs.constantValue).isEqualTo("b")
+    }
+
+    @Test
+    fun operatorPlusString() {
+        val str = "12345".rs + "678"
+        val len = str.length
+        val lenId = len.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getInteger(lenId)).isEqualTo(8)
     }
 
     private fun makeAndPaintCoreDocument() =

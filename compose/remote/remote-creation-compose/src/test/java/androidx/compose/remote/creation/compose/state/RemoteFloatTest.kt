@@ -35,7 +35,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 29)
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteFloatTest {
@@ -208,6 +208,26 @@ class RemoteFloatTest {
         makeAndPaintCoreDocument()
 
         assertThat(context.getFloat(resultId)).isEqualTo(-2.5f)
+    }
+
+    @Test
+    fun unaryMinus_complexExpression() {
+        // Create a complex float expression
+        var complexFloat = RemoteFloat(0f)
+        for (i in 1..50) {
+            complexFloat += RemoteFloat(i.toFloat())
+        }
+
+        val result = -complexFloat
+
+        // Assertions
+        val finalArray = result.arrayForCreationState(creationState)
+        assertThat(finalArray.size < 20).isTrue()
+
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+        val expected = -((50 * 51) / 2f)
+        assertThat(context.getFloat(resultId)).isEqualTo(expected)
     }
 
     @Test

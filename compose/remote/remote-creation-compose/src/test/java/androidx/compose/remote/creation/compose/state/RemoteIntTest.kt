@@ -442,6 +442,12 @@ class RemoteIntTest {
         assertThat(result.size).isEqualTo(3)
     }
 
+    @Test
+    fun extensionFunctionMatches() {
+        assertThat(10.ri.constantValue).isEqualTo(10)
+        assertThat((-10).ri.constantValue).isEqualTo(-10)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

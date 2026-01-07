@@ -50,11 +50,6 @@ class RecomposerTestsJvm {
     @Test
     fun recompositionOnConcurrentSnapshotInvalidation() =
         runBlocking(AutoTestFrameClock() + Dispatchers.Default) {
-            if (ComposeRuntimeFlags.isMovableContentUsageTrackingEnabled) {
-                // Late changes is not used the same way as this test expects when this flag
-                // is enabled (the applier is only called once, not twice) so this test is skipped.
-                return@runBlocking
-            }
             // The basic idea of this test is to reconstruct the exact conditions of the race
             // by inducing an artificial delay at the right moment so that the otherwise elusive
             // problem reproduces reliably
@@ -133,9 +128,6 @@ class RecomposerTestsJvm {
                     Composition(applier, recomposer).setContent {
                         auxState.value
                         // make `lateChanges` non-empty so that the applier is called again
-
-                        // NOTE: This is not true when isMovableContentUsageTrackingEnabled is
-                        // enabled so this test is not run in this case
                         movableContentOf {}()
                     }
                 }

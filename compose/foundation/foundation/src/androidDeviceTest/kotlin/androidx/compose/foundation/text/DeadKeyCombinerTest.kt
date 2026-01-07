@@ -16,10 +16,12 @@
 
 package androidx.compose.foundation.text
 
+import android.os.Build
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -93,6 +95,10 @@ class DeadKeyCombinerTest {
 
     @Test
     fun testDeadKeyThenSpaceOutputsTheAccent() {
+        assumeFalse(
+            "Test fails on cuttlefish b/466078871",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         test(keyEventUmlaut to null, keyEventSpace to '¨')
     }
 

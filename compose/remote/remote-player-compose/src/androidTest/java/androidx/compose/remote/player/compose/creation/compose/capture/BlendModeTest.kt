@@ -80,7 +80,7 @@ class BlendModeTest {
         runBlocking {
             remoteComposeTestRule.runScreenshotTest(
                 creationDisplayInfo =
-                    CreationDisplayInfo(2000, 2500, context.resources.displayMetrics.density)
+                    CreationDisplayInfo(2000, 2500, context.resources.displayMetrics.densityDpi)
             ) {
                 AllBlendModes()
             }

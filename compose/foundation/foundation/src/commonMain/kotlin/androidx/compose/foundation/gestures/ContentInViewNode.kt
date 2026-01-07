@@ -97,14 +97,23 @@ internal class ContentInViewNode(
      */
     private var trackingFocusedChild = false
 
-    /** The size of the scrollable container. */
-    internal var viewportSize = IntSize.Zero
+    /**
+     * The size of the scrollable container. It is not initialized to [IntSize.Zero] to
+     * differentiate between a never set value and a deliberately shrunk to Zero parent container.
+     * Use [viewportSizeOrZero] if your use case assumes [IntSize.Zero] is an acceptable
+     * uninitialized value.
+     */
+    internal var viewportSize: IntSize = UnspecifiedIntSize
         private set
+
+    /** Returns [viewportSize] but reports [IntSize.Zero] if the viewport has never been placed. */
+    internal val viewportSizeOrZero: IntSize
+        get() = viewportSize.takeOrElse { IntSize.Zero }
 
     private var isAnimationRunning = false
 
     override fun calculateRectForParent(localRect: Rect): Rect {
-        checkPrecondition(viewportSize != IntSize.Zero) {
+        checkPrecondition(viewportSize != UnspecifiedIntSize) {
             "Expected BringIntoViewRequester to not be used before parents are placed."
         }
         // size will only be zero before the initial measurement.
@@ -132,7 +141,7 @@ internal class ContentInViewNode(
     }
 
     override fun onRemeasured(size: IntSize) {
-        val previousViewportSize = viewportSize
+        val previousViewportSize = viewportSizeOrZero
         viewportSize = size
 
         // Don't care if the viewport grew.
@@ -320,7 +329,7 @@ internal class ContentInViewNode(
         bringIntoViewSpec: BringIntoViewSpec,
         viewportAdjustmentForReverseScroll: IntOffset,
     ): Float {
-        if (viewportSize == IntSize.Zero) return 0f
+        val viewportSize = viewportSize ?: return 0f
 
         val rectangleToMakeVisible: Rect =
             findBringIntoViewRequest()
@@ -350,7 +359,7 @@ internal class ContentInViewNode(
         bringIntoViewRequests.forEachFromSmallest { bounds ->
             // Ignore detached requests for now. They'll be removed later.
             if (bounds == null) return@forEachFromSmallest
-            if (bounds.size <= viewportSize.toSize()) {
+            if (bounds.size <= (viewportSizeOrZero).toSize()) {
                 rectangleToMakeVisible = bounds
             } else {
                 // Found a request that doesn't fit, use the next-smallest one.
@@ -377,7 +386,7 @@ internal class ContentInViewNode(
             offset =
                 -relocationOffset(
                     childBounds = childBounds,
-                    containerSize = viewportSize,
+                    containerSize = viewportSizeOrZero,
                     containerOffset = IntOffset.Zero,
                 )
         )
@@ -389,7 +398,7 @@ internal class ContentInViewNode(
      * and already filling the whole viewport.
      */
     private fun Rect.isMaxVisible(
-        size: IntSize = viewportSize,
+        size: IntSize = viewportSizeOrZero,
         containerOffset: IntOffset = IntOffset.Zero,
     ): Boolean {
         val relocationOffset = relocationOffset(this, size, containerOffset)
@@ -482,3 +491,8 @@ internal class ContentInViewNode(
         }
     }
 }
+
+private val UnspecifiedIntSize = IntSize(-1, -1)
+
+private inline fun IntSize.takeOrElse(other: () -> IntSize) =
+    if (this == UnspecifiedIntSize) other() else this

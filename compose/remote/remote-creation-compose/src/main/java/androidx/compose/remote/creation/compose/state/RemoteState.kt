@@ -56,13 +56,7 @@ public abstract class BaseRemoteState<T> : RemoteState<T> {
      * @return The ID of this remote value, for the given [creationState]
      */
     public fun getIdForCreationState(creationState: RemoteComposeCreationState): Int {
-        val currentId = creationState.remoteVariableToId.get(this)
-        if (currentId != null) {
-            return currentId
-        }
-        val id = writeToDocument(creationState)
-        creationState.remoteVariableToId.put(this, id)
-        return id
+        return creationState.remoteVariableToId.getOrPut(this) { writeToDocument(creationState) }
     }
 
     /**

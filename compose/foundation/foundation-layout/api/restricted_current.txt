@@ -310,7 +310,7 @@ package androidx.compose.foundation.layout {
     enum_constant public static final androidx.compose.foundation.layout.IntrinsicSize Min;
   }
 
-  @kotlin.DslMarker public @interface LayoutScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface LayoutScopeMarker {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalLayoutApi public final class MutableWindowInsets implements androidx.compose.foundation.layout.WindowInsets {

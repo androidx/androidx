@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
+
 package androidx.compose.remote
 
 import android.annotation.SuppressLint
@@ -24,6 +26,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.action.ValueChange
 import androidx.compose.remote.creation.compose.capture.rememberAsyncRemoteDocument
@@ -109,13 +112,15 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 26) // b/437958945
+@SdkSuppress(minSdkVersion = 29) // b/437958945
 @RunWith(AndroidJUnit4::class)
 class BasicLayoutTest {
 
     @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
-    val creationDisplayInfo = CreationDisplayInfo((300 * 2.75).toInt(), (300 * 2.75).toInt(), 2.75f)
+    // Cuttlefish tests run on device with 720x1280 at 2.0 density
+    val creationDisplayInfo =
+        CreationDisplayInfo((260 * 2.75).toInt(), (300 * 2.75).toInt(), ((2.75f * 160).toInt()))
 
     @Composable
     fun rememberRemoteDocumentFixedDensity(
@@ -152,7 +157,7 @@ class BasicLayoutTest {
             WithFixedDensity {
                 val doc = rememberRemoteDocumentFixedDensity { content() }
                 Column {
-                    var documentWidth by remember { mutableStateOf(300) }
+                    var documentWidth by remember { mutableStateOf(260) }
                     var documentHeight by remember { mutableStateOf(300) }
                     val documentContent = remember { mutableStateOf("") }
                     val docu = remember(doc.value) { mutableStateOf<RemoteDocument?>(null) }
@@ -222,7 +227,7 @@ class BasicLayoutTest {
             WithFixedDensity {
                 val doc = rememberRemoteDocumentFixedDensity { content() }
                 Column {
-                    var documentWidth by remember { mutableStateOf(300) }
+                    var documentWidth by remember { mutableStateOf(260) }
                     var documentHeight by remember { mutableStateOf(300) }
                     val documentContent = remember { mutableStateOf("") }
                     val docu = remember(doc.value) { mutableStateOf<RemoteDocument?>(null) }
@@ -311,7 +316,7 @@ class BasicLayoutTest {
             WithFixedDensity {
                 val doc = rememberAsyncRemoteDocumentFixedDensity { content(it) }
                 Column {
-                    var documentWidth by remember { mutableStateOf(300) }
+                    var documentWidth by remember { mutableStateOf(260) }
                     var documentHeight by remember { mutableStateOf(300) }
                     val documentContent = remember { mutableStateOf("") }
                     val docu = remember(doc.value) { mutableStateOf<RemoteDocument?>(null) }
@@ -374,23 +379,24 @@ class BasicLayoutTest {
     @SdkSuppress(minSdkVersion = 29)
     @Test
     fun testLayoutAndValues() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    CANVAS [-5:-1] = [0.0, 275.0, 825.0, 275.0] VISIBLE
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+    CANVAS [-5:-1] = [0.0, 275.0, 715.0, 275.0] VISIBLE
       MODIFIERS
         HEIGHT = 100.0 dp
-        BACKGROUND = [0.0, 0.0, 825.0, 275.0] color [1.0, 1.0, 1.0, 1.0] shape [0]
+        BACKGROUND = [0.0, 0.0, 715.0, 275.0] color [1.0, 1.0, 1.0, 1.0] shape [0]
         PADDING = [22.0, 22.0, 22.0, 22.0]
-        BACKGROUND = [0.0, 0.0, 781.0, 231.0] color [0.8, 0.8, 0.8, 1.0] shape [0]
-      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 781.0, 231.0] VISIBLE
+        BACKGROUND = [0.0, 0.0, 671.0, 231.0] color [0.8, 0.8, 0.8, 1.0] shape [0]
+      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 671.0, 231.0] VISIBLE
         ComponentValue value 42 set to WIDTH of Component -7
         ComponentValue value 43 set to HEIGHT of Component -7
-        DrawLine(0.0, 0.0, [42 = 781.0], [43 = 231.0])
-        DrawLine(0.0, [43 = 231.0], [42 = 781.0], 0.0)
+        DrawLine(0.0, 0.0, [42 = 671.0], [43 = 231.0])
+        DrawLine(0.0, [43 = 231.0], [42 = 671.0], 0.0)
 """
         testLayout(result) {
             RemoteColumn(
@@ -423,19 +429,20 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
 
     @Test
     fun testSimple() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    CANVAS [-5:-1] = [0.0, 275.0, 825.0, 275.0] VISIBLE
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+    CANVAS [-5:-1] = [0.0, 275.0, 715.0, 275.0] VISIBLE
       MODIFIERS
         HEIGHT = 100.0 dp
-        BACKGROUND = [0.0, 0.0, 825.0, 275.0] color [1.0, 1.0, 1.0, 1.0] shape [0]
+        BACKGROUND = [0.0, 0.0, 715.0, 275.0] color [1.0, 1.0, 1.0, 1.0] shape [0]
         PADDING = [22.0, 22.0, 22.0, 22.0]
-        BACKGROUND = [0.0, 0.0, 781.0, 231.0] color [0.8, 0.8, 0.8, 1.0] shape [0]
-      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 781.0, 231.0] VISIBLE
+        BACKGROUND = [0.0, 0.0, 671.0, 231.0] color [0.8, 0.8, 0.8, 1.0] shape [0]
+      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 671.0, 231.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
@@ -460,7 +467,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     fun testAsyncLayout() {
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 825.0, 451.0] VISIBLE
     MODIFIERS
     BOX [-5:-1] = [0.0, 0.0, 825.0, 88.0] VISIBLE
@@ -552,10 +559,10 @@ DATA_TEXT<42> = ""
 DATA_TEXT<43> = "Bonjour le monde!"
 DATA_TEXT<44> = "Hello World"
 DATA_TEXT<45> = "Hola Mundo"
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
       PADDING = [55.0, 55.0, 55.0, 55.0]
       BACKGROUND = [0.0, 0.0, 715.0, 715.0] color [0.0, 1.0, 1.0, 1.0] shape [0]
     ROW [-5:-1] = [0.0, 181.5, 715.0, 250.0] VISIBLE
@@ -627,12 +634,12 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
             """
 DATA_TEXT<42> = ""
 DATA_TEXT<43> = "Bonjour Le Monde!"
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     DATA_TEXT<44> = "serif"
     DATA_TEXT<45> = "sans-serif"
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
       PADDING = [55.0, 55.0, 55.0, 55.0]
       BACKGROUND = [0.0, 0.0, 715.0, 715.0] color [0.0, 1.0, 1.0, 1.0] shape [0]
     TEXT_LAYOUT [-5:-1] = [130.0, 51.5, 455.0, 102.0] VISIBLE (43:"Bonjour Le Monde!")
@@ -750,13 +757,14 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
 
     @Test
     fun testBasicClickAction() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-5:-1] = [275.0, 275.0, 275.0, 275.0] VISIBLE
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+    BOX [-5:-1] = [220.0, 275.0, 275.0, 275.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0 dp
         HEIGHT = 100.0 dp
@@ -779,13 +787,14 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
 
     @Test
     fun testBasicClickActionParam() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-5:-1] = [275.0, 275.0, 275.0, 275.0] VISIBLE
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+    BOX [-5:-1] = [220.0, 275.0, 275.0, 275.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0 dp
         HEIGHT = 100.0 dp
@@ -814,10 +823,10 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
         val result =
             """
 DATA_TEXT<42> = ""
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
     STATE_LAYOUT [-5:-1] = [330.0, 330.0, 165.0, 165.0] VISIBLE
       MODIFIERS
       BOX [-7:-1] = [330.0, 330.0, 165.0, 165.0] VISIBLE
@@ -871,10 +880,10 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
         val result =
             """
 DATA_TEXT<42> = ""
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
     STATE_LAYOUT [-5:-1] = [302.5, 302.5, 220.0, 220.0] VISIBLE
       MODIFIERS
       BOX [-7:-1] = [0.0, 0.0, 165.0, 165.0] GONE
@@ -924,13 +933,14 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
 
     @Test
     fun testTouch() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  COLUMN [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    STATE_LAYOUT [-5:-1] = [302.5, 302.5, 220.0, 220.0] VISIBLE
+      BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+    STATE_LAYOUT [-5:-1] = [247.5, 302.5, 220.0, 220.0] VISIBLE
       MODIFIERS
         TOUCH_DOWN_MODIFIER
           VALUE_INTEGER_CHANGE = 42 -> 0
@@ -945,7 +955,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
             WIDTH = 60.0 dp
             HEIGHT = 60.0 dp
             BACKGROUND = [0.0, 0.0, 165.0, 165.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
-      BOX [-11:-1] = [302.5, 302.5, 220.0, 220.0] VISIBLE
+      BOX [-11:-1] = [247.5, 302.5, 220.0, 220.0] VISIBLE
         MODIFIERS
         BOX [-13:-1] = [0.0, 0.0, 220.0, 220.0] VISIBLE
           MODIFIERS
@@ -992,24 +1002,25 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
 
     @Test
     fun testIntrinsics1() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  ROW [-3:-1] = [0.0, 0.0, 825.0, 165.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  ROW [-3:-1] = [0.0, 0.0, 715.0, 165.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 165.0] color [0.0, 1.0, 1.0, 1.0] shape [0]
-    BOX [-5:-1] = [0.0, 0.0, 411.125, 82.5] VISIBLE
+      BACKGROUND = [0.0, 0.0, 715.0, 165.0] color [0.0, 1.0, 1.0, 1.0] shape [0]
+    BOX [-5:-1] = [0.0, 0.0, 356.125, 82.5] VISIBLE
       MODIFIERS
-        BACKGROUND = [0.0, 0.0, 411.125, 82.5] color [1.0, 0.0, 0.0, 1.0] shape [0]
+        BACKGROUND = [0.0, 0.0, 356.125, 82.5] color [1.0, 0.0, 0.0, 1.0] shape [0]
         HEIGHT = 30.0 dp
         PADDING = [11.0, 0.0, 0.0, 0.0]
-    BOX [-7:-1] = [411.125, 0.0, 2.75, 165.0] VISIBLE
+    BOX [-7:-1] = [356.125, 0.0, 2.75, 165.0] VISIBLE
       MODIFIERS
         WIDTH = 1.0 dp
         BACKGROUND = [0.0, 0.0, 2.75, 165.0] color [0.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-9:-1] = [413.875, 0.0, 411.125, 165.0] VISIBLE
+    BOX [-9:-1] = [358.875, 0.0, 356.125, 165.0] VISIBLE
       MODIFIERS
-        BACKGROUND = [0.0, 0.0, 411.125, 165.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
+        BACKGROUND = [0.0, 0.0, 356.125, 165.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
         HEIGHT = 60.0 dp
         PADDING = [0.0, 0.0, 11.0, 0.0]
 """
@@ -1038,30 +1049,31 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
 
     @Test
     fun testIntrinsics2() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
-  ROW [-3:-1] = [0.0, 0.0, 825.0, 165.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
+  ROW [-3:-1] = [0.0, 0.0, 715.0, 165.0] VISIBLE
     MODIFIERS
-      BACKGROUND = [0.0, 0.0, 825.0, 165.0] color [0.0, 1.0, 1.0, 1.0] shape [0]
-    BOX [-5:-1] = [0.0, 0.0, 411.125, 165.0] VISIBLE
+      BACKGROUND = [0.0, 0.0, 715.0, 165.0] color [0.0, 1.0, 1.0, 1.0] shape [0]
+    BOX [-5:-1] = [0.0, 0.0, 356.125, 165.0] VISIBLE
       MODIFIERS
-        BACKGROUND = [0.0, 0.0, 411.125, 165.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
+        BACKGROUND = [0.0, 0.0, 356.125, 165.0] color [1.0, 0.0, 0.0, 1.0] shape [0]
         HEIGHT = 60.0 dp
         PADDING = [11.0, 0.0, 0.0, 0.0]
-    BOX [-7:-1] = [411.125, 0.0, 2.75, 165.0] VISIBLE
+    BOX [-7:-1] = [356.125, 0.0, 2.75, 165.0] VISIBLE
       MODIFIERS
         WIDTH = 1.0 dp
         BACKGROUND = [0.0, 0.0, 2.75, 165.0] color [0.0, 1.0, 0.0, 1.0] shape [0]
-    BOX [-9:-1] = [413.875, 0.0, 411.125, 82.5] VISIBLE
+    BOX [-9:-1] = [358.875, 0.0, 356.125, 82.5] VISIBLE
       MODIFIERS
-        BACKGROUND = [0.0, 0.0, 411.125, 82.5] color [0.0, 0.0, 1.0, 1.0] shape [0]
+        BACKGROUND = [0.0, 0.0, 356.125, 82.5] color [0.0, 0.0, 1.0, 1.0] shape [0]
         HEIGHT = 30.0 dp
         PADDING = [0.0, 0.0, 11.0, 0.0]
-  BOX [-11:-1] = [0.0, 0.0, 825.0, 55.0] VISIBLE
+  BOX [-11:-1] = [0.0, 0.0, 715.0, 55.0] VISIBLE
     MODIFIERS
       HEIGHT = 20.0 dp
-      BACKGROUND = [0.0, 0.0, 825.0, 55.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
+      BACKGROUND = [0.0, 0.0, 715.0, 55.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
 """
         testLayout(result) {
             @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
@@ -1099,20 +1111,21 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     @SdkSuppress(minSdkVersion = 29)
     @Test
     fun testColorFilter1() {
+
         val result =
             """
 DATA_TEXT<42> = "Green"
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
   ComponentValue value 43 set to WIDTH of Component -2
   ComponentValue value 44 set to HEIGHT of Component -2
-  BOX [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+  BOX [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-    CANVAS [-5:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+    CANVAS [-5:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
       MODIFIERS
-      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         ComponentValue value 48 set to WIDTH of Component -7
         ComponentValue value 49 set to HEIGHT of Component -7
-    TEXT_LAYOUT [-8:-1] = [305.0, 364.0, 215.0, 97.0] VISIBLE (42:"Green")
+    TEXT_LAYOUT [-8:-1] = [250.0, 364.0, 215.0, 97.0] VISIBLE (42:"Green")
       MODIFIERS
 """
         testLayout(result) {
@@ -1155,19 +1168,20 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
     @SdkSuppress(minSdkVersion = 29)
     @Test
     fun testColorFilter2() {
+
         val result =
             """
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
   ComponentValue value 42 set to WIDTH of Component -2
   ComponentValue value 43 set to HEIGHT of Component -2
-  BOX [-3:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+  BOX [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-    CANVAS [-5:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+    CANVAS [-5:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
       MODIFIERS
-      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         ComponentValue value 47 set to WIDTH of Component -7
         ComponentValue value 48 set to HEIGHT of Component -7
-    ROW [-8:-1] = [368.5, 368.5, 88.0, 88.0] VISIBLE
+    ROW [-8:-1] = [313.5, 368.5, 88.0, 88.0] VISIBLE
       MODIFIERS
         BACKGROUND = [0.0, 0.0, 88.0, 88.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
       CANVAS [-10:-1] = [0.0, 0.0, 88.0, 88.0] VISIBLE
@@ -1205,7 +1219,7 @@ ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
             """
 DATA_TEXT<42> = ""
 DATA_TEXT<43> = "XYZ"
-ROOT [-2:-1] = [0.0, 0.0, 825.0, 825.0] VISIBLE
+ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
   ROW [-3:-1] = [0.0, 0.0, 176.0, 176.0] VISIBLE
     MODIFIERS
       BACKGROUND = [0.0, 0.0, 176.0, 176.0] color [1.0, 1.0, 0.0, 1.0] shape [0]

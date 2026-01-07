@@ -76,7 +76,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -466,7 +465,6 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun longClickWithEnterKeyThenDPadCenter_triggersListenerTwice() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -503,7 +501,6 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun longClickWithEnterKeyConcurrentlyWithDPadCenter_triggersListenerForEach() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -547,7 +544,6 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun longClickWithEnterKeyConcurrentlyWithShortClickDPadCenter_triggersListenerForEach() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -2724,7 +2720,6 @@ class CombinedClickableTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun otherKey_doesNotEmitIndication() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()

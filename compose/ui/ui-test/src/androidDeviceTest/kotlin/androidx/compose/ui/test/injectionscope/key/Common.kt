@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.injectionscope.key
 
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.junit4.ComposeTestRule
@@ -26,7 +25,6 @@ import androidx.compose.ui.test.util.TestTextField.Tag
 
 object Common {
 
-    @OptIn(ExperimentalTestApi::class)
     fun ComposeTestRule.performKeyInput(block: KeyInjectionScope.() -> Unit) {
         onNodeWithTag(Tag).performKeyInput(block)
     }

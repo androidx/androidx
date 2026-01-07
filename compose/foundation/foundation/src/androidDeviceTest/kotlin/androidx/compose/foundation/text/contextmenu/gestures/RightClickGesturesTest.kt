@@ -33,6 +33,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.rightClick
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
@@ -47,7 +48,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-class OnRightClickDownTest {
+class RightClickGesturesTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val tag = "testTag"
@@ -63,7 +64,7 @@ class OnRightClickDownTest {
     }
 
     @Test
-    fun whenOnRightClickDown_rightClick_doesTriggerWithCorrectOffset() {
+    fun whenOnRightClickDownWithMouse_rightClick_doesTriggerWithCorrectOffset() {
         var clickCount = 0
         val expectedOffset = Offset(10f, 10f)
         rule.setContent {
@@ -77,7 +78,21 @@ class OnRightClickDownTest {
     }
 
     @Test
-    fun whenOnRightClickDown_leftClick_doesNotTrigger() {
+    fun whenOnLongPressWithTrackpad_longPress_doesTriggerWithCorrectOffset() {
+        var clickCount = 0
+        val expectedOffset = Offset(10f, 10f)
+        rule.setContent {
+            TestRightClickBox {
+                assertThatOffset(it).equalsWithTolerance(expectedOffset)
+                clickCount++
+            }
+        }
+        rule.onNodeWithTag(tag).performTrackpadInput { rightClick(expectedOffset) }
+        assertThat(clickCount).isEqualTo(1)
+    }
+
+    @Test
+    fun whenOnRightClickDownWithMouse_leftClick_doesNotTrigger() {
         var clickCount = 0
         rule.setContent { TestRightClickBox { clickCount++ } }
         rule.onNodeWithTag(tag).performMouseInput { click() }
@@ -85,7 +100,15 @@ class OnRightClickDownTest {
     }
 
     @Test
-    fun whenOnRightClickDown_triggersOnPressAndNotOnRelease() {
+    fun whenOnRightClickDownWithTrackpad_leftClick_doesNotTrigger() {
+        var clickCount = 0
+        rule.setContent { TestRightClickBox { clickCount++ } }
+        rule.onNodeWithTag(tag).performTrackpadInput { click() }
+        assertThat(clickCount).isEqualTo(0)
+    }
+
+    @Test
+    fun whenOnRightClickDownWithMouse_triggersOnPressAndNotOnRelease() {
         var clickCount = 0
         rule.setContent { TestRightClickBox { clickCount++ } }
         val interaction = rule.onNodeWithTag(tag)
@@ -101,7 +124,23 @@ class OnRightClickDownTest {
     }
 
     @Test
-    fun whenOnRightClickDown_alreadyConsumed_doesNotTrigger() {
+    fun whenOnRightClickDownWithTrackpad_triggersOnPressAndNotOnRelease() {
+        var clickCount = 0
+        rule.setContent { TestRightClickBox { clickCount++ } }
+        val interaction = rule.onNodeWithTag(tag)
+
+        interaction.performTrackpadInput {
+            updatePointerTo(center)
+            press(MouseButton.Secondary)
+        }
+        assertThat(clickCount).isEqualTo(1)
+
+        interaction.performTrackpadInput { release(MouseButton.Secondary) }
+        assertThat(clickCount).isEqualTo(1)
+    }
+
+    @Test
+    fun whenOnRightClickDownWithMouse_alreadyConsumed_doesNotTrigger() {
         var clickCount = 0
         rule.setContent {
             Box(modifier = Modifier.pointerInput(Unit) { onRightClickDown { clickCount++ } }) {
@@ -125,7 +164,31 @@ class OnRightClickDownTest {
     }
 
     @Test
-    fun whenOnRightClickDown_consumesRightClickPressAndRelease() {
+    fun whenOnRightClickDownWithTrackpad_alreadyConsumed_doesNotTrigger() {
+        var clickCount = 0
+        rule.setContent {
+            Box(modifier = Modifier.pointerInput(Unit) { onRightClickDown { clickCount++ } }) {
+                Box(
+                    modifier =
+                        Modifier.background(Color.LightGray).size(100.dp).testTag(tag).pointerInput(
+                            Unit
+                        ) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    awaitPointerEvent().changes.fastForEach { it.consume() }
+                                }
+                            }
+                        }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(tag).performTrackpadInput { rightClick() }
+        assertThat(clickCount).isEqualTo(0)
+    }
+
+    @Test
+    fun whenOnRightClickDownWithMouse_consumesRightClickPressAndRelease() {
         suspend fun PointerInputScope.assertCorrectlyConsumed() {
             awaitPointerEventScope {
                 while (true) {
@@ -155,5 +218,38 @@ class OnRightClickDownTest {
         }
 
         rule.onNodeWithTag(tag).performMouseInput { rightClick() }
+    }
+
+    @Test
+    fun whenOnRightClickDownWithTrackpad_consumesRightClickPressAndRelease() {
+        suspend fun PointerInputScope.assertCorrectlyConsumed() {
+            awaitPointerEventScope {
+                while (true) {
+                    val event = awaitPointerEvent()
+                    assertThat(event.changes.fastMap { it.isConsumed }.toSet()).run {
+                        when (event.type) {
+                            PointerEventType.Press,
+                            PointerEventType.Release -> containsExactly(true)
+                            else -> containsExactly(false)
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(modifier = Modifier.pointerInput(Unit) { assertCorrectlyConsumed() }) {
+                Box(
+                    modifier =
+                        Modifier.background(Color.LightGray).size(100.dp).testTag(tag).pointerInput(
+                            Unit
+                        ) {
+                            onRightClickDown { /* Nothing */ }
+                        }
+                )
+            }
+        }
+
+        rule.onNodeWithTag(tag).performTrackpadInput { rightClick() }
     }
 }

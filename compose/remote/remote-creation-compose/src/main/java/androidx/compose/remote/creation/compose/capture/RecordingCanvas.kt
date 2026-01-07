@@ -31,7 +31,6 @@ import android.graphics.Region
 import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.ColorInt
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.ConditionalOperations
 import androidx.compose.remote.core.operations.DrawTextOnCircle
@@ -1522,7 +1521,6 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 }
 
-@RequiresApi(29)
 private object Api29ColorLongHelper {
     fun getColorLong(paint: Paint, creationState: RemoteComposeCreationState) =
         if (paint is RemotePaint) {

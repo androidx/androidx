@@ -79,11 +79,37 @@ interface TransformScope {
      * @param panChange panning offset change, in [Offset] pixels
      * @param rotationChange change of the rotation in degrees
      */
+    @Deprecated(
+        "Prefer calling the version of transformBy by that takes a centroid Offset, especially " +
+            "if the zooming or rotation should happen around a particular point. This allow for " +
+            "more natural transformations around a specific point. If there is no appropriate " +
+            "Offset to use, you can pass Offset.Unspecified. Implementations of TransformScope " +
+            "need to support both, and should interpret calls to transformBy without a centroid as " +
+            "equivalent to a call to transformBy with an Offset.Unspecified centroid."
+    )
     fun transformBy(
         zoomChange: Float = 1f,
         panChange: Offset = Offset.Zero,
         rotationChange: Float = 0f,
     )
+
+    /**
+     * Attempts to transform by [zoomChange] in relative multiplied value, by [panChange] in pixels
+     * and by [rotationChange] in degrees.
+     *
+     * @param centroid the centroid around which the transformation is occurring. This may be
+     *   [Offset.Unspecified] if the transformation is not associated with any centroid.
+     * @param zoomChange scale factor multiplier change for zoom
+     * @param panChange panning offset change, in [Offset] pixels
+     * @param rotationChange change of the rotation in degrees
+     */
+    @Suppress("DEPRECATION")
+    fun transformBy(
+        centroid: Offset,
+        zoomChange: Float = 1f,
+        panChange: Offset = Offset.Zero,
+        rotationChange: Float = 0f,
+    ) = transformBy(zoomChange = zoomChange, panChange = panChange, rotationChange = rotationChange)
 }
 
 /**
@@ -99,8 +125,32 @@ interface TransformScope {
  *   change from the previous event. It's relative scale multiplier for zoom, [Offset] in pixels for
  *   pan and degrees for rotation. Callers should update their state in this lambda.
  */
+@Deprecated(
+    "Prefer creating TransformableState with a onTransformation lambda that takes the centroid. " +
+        "This centroid (if specified) is the point at which zooming or rotation should happen " +
+        "around which allows for more natural transformations."
+)
 fun TransformableState(
     onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
+): TransformableState = TransformableState { _, z, p, r -> onTransformation(z, p, r) }
+
+/**
+ * Default implementation of [TransformableState] interface that contains necessary information
+ * about the ongoing transformations and provides smooth transformation capabilities.
+ *
+ * This is the simplest way to set up a [transformable] modifier. When constructing this
+ * [TransformableState], you must provide a [onTransformation] lambda, which will be invoked
+ * whenever pan, zoom or rotation happens (by gesture input or any [TransformableState.transform]
+ * call) with the deltas from the previous event.
+ *
+ * @param onTransformation callback invoked when transformation occurs. The callback receives the
+ *   change from the previous event. The centroid [Offset] refers to where the transformation
+ *   occurs. The changes are a relative scale multiplier for zoom, [Offset] in pixels for pan and
+ *   degrees for rotation. Callers should update their state in this lambda.
+ */
+fun TransformableState(
+    onTransformation:
+        (centroid: Offset, zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState = DefaultTransformableState(onTransformation)
 
 /**
@@ -117,12 +167,38 @@ fun TransformableState(
  *   change from the previous event. It's relative scale multiplier for zoom, [Offset] in pixels for
  *   pan and degrees for rotation. Callers should update their state in this lambda.
  */
+@Deprecated(
+    "Prefer remembering a TransformableState with a onTransformation lambda that takes the " +
+        "centroid. This centroid (if specified) is the point at which zooming or rotation should " +
+        "happen around which allows for more natural transformations."
+)
 @Composable
 fun rememberTransformableState(
     onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
+): TransformableState = rememberTransformableState { _, z, p, r -> onTransformation(z, p, r) }
+
+/**
+ * Create and remember default implementation of [TransformableState] interface that contains
+ * necessary information about the ongoing transformations and provides smooth transformation
+ * capabilities.
+ *
+ * This is the simplest way to set up a [transformable] modifier. When constructing this
+ * [TransformableState], you must provide a [onTransformation] lambda, which will be invoked
+ * whenever pan, zoom or rotation happens (by gesture input or any [TransformableState.transform]
+ * call) with the deltas from the previous event.
+ *
+ * @param onTransformation callback invoked when transformation occurs. The callback receives the
+ *   change from the previous event. The centroid [Offset] refers to where the transformation
+ *   occurs. The changes are a relative scale multiplier for zoom, [Offset] in pixels for pan and
+ *   degrees for rotation. Callers should update their state in this lambda.
+ */
+@Composable
+fun rememberTransformableState(
+    onTransformation:
+        (centroid: Offset, zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ): TransformableState {
     val lambdaState = rememberUpdatedState(onTransformation)
-    return remember { TransformableState { z, p, r -> lambdaState.value.invoke(z, p, r) } }
+    return remember { TransformableState { c, z, p, r -> lambdaState.value.invoke(c, z, p, r) } }
 }
 
 /**
@@ -132,16 +208,38 @@ fun rememberTransformableState(
  *   `3f`, zoom will be increased 3 fold from the current value.
  * @param animationSpec [AnimationSpec] to be used for animation
  */
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 suspend fun TransformableState.animateZoomBy(
     zoomFactor: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+) =
+    animateZoomBy(
+        zoomFactor = zoomFactor,
+        animationSpec = animationSpec,
+        centroid = Offset.Unspecified,
+    )
+
+/**
+ * Animate zoom by a ratio of [zoomFactor] over the current size and suspend until its finished.
+ *
+ * @param zoomFactor ratio over the current size by which to zoom. For example, if [zoomFactor] is
+ *   `3f`, zoom will be increased 3 fold from the current value.
+ * @param animationSpec [AnimationSpec] to be used for animation
+ * @param centroid the [Offset] around which the zoom should occur, if any. The default value is
+ *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
+ *   [TransformableState].
+ */
+suspend fun TransformableState.animateZoomBy(
+    zoomFactor: Float,
+    animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+    centroid: Offset = Offset.Unspecified,
 ) {
     requirePrecondition(zoomFactor > 0) { "zoom value should be greater than 0" }
     var previous = 1f
     transform {
         AnimationState(initialValue = previous).animateTo(zoomFactor, animationSpec) {
             val scaleFactor = if (previous == 0f) 1f else this.value / previous
-            transformBy(zoomChange = scaleFactor)
+            transformBy(centroid = centroid, zoomChange = scaleFactor)
             previous = this.value
         }
     }
@@ -153,15 +251,31 @@ suspend fun TransformableState.animateZoomBy(
  * @param degrees the degrees by which to rotate clockwise
  * @param animationSpec [AnimationSpec] to be used for animation
  */
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 suspend fun TransformableState.animateRotateBy(
     degrees: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+) = animateRotateBy(degrees = degrees, animationSpec = animationSpec, centroid = Offset.Unspecified)
+
+/**
+ * Animate rotate by a ratio of [degrees] clockwise and suspend until its finished.
+ *
+ * @param degrees the degrees by which to rotate clockwise
+ * @param animationSpec [AnimationSpec] to be used for animation
+ * @param centroid the [Offset] around which the rotation should occur, if any. The default value is
+ *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
+ *   [TransformableState].
+ */
+suspend fun TransformableState.animateRotateBy(
+    degrees: Float,
+    animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+    centroid: Offset = Offset.Unspecified,
 ) {
     var previous = 0f
     transform {
         AnimationState(initialValue = previous).animateTo(degrees, animationSpec) {
             val delta = this.value - previous
-            transformBy(rotationChange = delta)
+            transformBy(centroid = centroid, rotationChange = delta)
             previous = this.value
         }
     }
@@ -173,9 +287,25 @@ suspend fun TransformableState.animateRotateBy(
  * @param offset offset to pan, in pixels
  * @param animationSpec [AnimationSpec] to be used for pan animation
  */
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 suspend fun TransformableState.animatePanBy(
     offset: Offset,
     animationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
+) = animatePanBy(offset = offset, animationSpec = animationSpec, centroid = Offset.Unspecified)
+
+/**
+ * Animate pan by [offset] Offset in pixels and suspend until its finished
+ *
+ * @param offset offset to pan, in pixels
+ * @param animationSpec [AnimationSpec] to be used for pan animation
+ * @param centroid the [Offset] around which the pan should occur, if any. The default value is
+ *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
+ *   [TransformableState].
+ */
+suspend fun TransformableState.animatePanBy(
+    offset: Offset,
+    animationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
+    centroid: Offset = Offset.Unspecified,
 ) {
     var previous = Offset.Zero
     transform {
@@ -184,7 +314,7 @@ suspend fun TransformableState.animatePanBy(
             animationSpec,
         ) {
             val delta = this.value - previous
-            transformBy(panChange = delta)
+            transformBy(centroid = centroid, panChange = delta)
             previous = this.value
         }
     }
@@ -208,6 +338,7 @@ suspend fun TransformableState.animatePanBy(
  * @param panAnimationSpec [AnimationSpec] to be used for animating offset
  * @param rotationAnimationSpec [AnimationSpec] to be used for animating rotation
  */
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 suspend fun TransformableState.animateBy(
     zoomFactor: Float,
     panOffset: Offset,
@@ -215,6 +346,46 @@ suspend fun TransformableState.animateBy(
     zoomAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
     panAnimationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
     rotationAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+) =
+    animateBy(
+        zoomFactor = zoomFactor,
+        panOffset = panOffset,
+        rotationDegrees = rotationDegrees,
+        zoomAnimationSpec = zoomAnimationSpec,
+        panAnimationSpec = panAnimationSpec,
+        rotationAnimationSpec = rotationAnimationSpec,
+        centroid = Offset.Unspecified,
+    )
+
+/**
+ * Animate zoom, pan, and rotation simultaneously and suspend until the animation is finished.
+ *
+ * Zoom is animated by a ratio of [zoomFactor] over the current size. Pan is animated by [panOffset]
+ * in pixels. Rotation is animated by the value of [rotationDegrees] clockwise. Any of these
+ * parameters can be set to a no-op value that will result in no animation of that parameter. The
+ * no-op values are the following: `1f` for [zoomFactor], `Offset.Zero` for [panOffset], and `0f`
+ * for [rotationDegrees].
+ *
+ * @sample androidx.compose.foundation.samples.TransformableAnimateBySample
+ * @param zoomFactor ratio over the current size by which to zoom. For example, if [zoomFactor] is
+ *   `3f`, zoom will be increased 3 fold from the current value.
+ * @param panOffset offset to pan, in pixels
+ * @param rotationDegrees the degrees by which to rotate clockwise
+ * @param zoomAnimationSpec [AnimationSpec] to be used for animating zoom
+ * @param panAnimationSpec [AnimationSpec] to be used for animating offset
+ * @param rotationAnimationSpec [AnimationSpec] to be used for animating rotation
+ * @param centroid the [Offset] around which the animation should occur, if any. The default value
+ *   is [Offset.Unspecified], which leaves the behavior up to the implementation of the
+ *   [TransformableState].
+ */
+suspend fun TransformableState.animateBy(
+    zoomFactor: Float,
+    panOffset: Offset,
+    rotationDegrees: Float,
+    zoomAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+    panAnimationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
+    rotationAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
+    centroid: Offset = Offset.Unspecified,
 ) {
     requirePrecondition(zoomFactor > 0) { "zoom value should be greater than 0" }
     var previousState = AnimationData(zoom = 1f, offset = Offset.Zero, degrees = 0f)
@@ -229,6 +400,7 @@ suspend fun TransformableState.animateBy(
             )
             .animateTo(targetState, animationSpec) {
                 transformBy(
+                    centroid = centroid,
                     zoomChange =
                         if (previousState.zoom == 0f) 1f else value.zoom / previousState.zoom,
                     rotationChange = value.degrees - previousState.degrees,
@@ -388,25 +560,76 @@ private data class AnimationData(val zoom: Float, val offset: Offset, val degree
  *
  * @param zoomFactor ratio over the current size by which to zoom
  */
-suspend fun TransformableState.zoomBy(zoomFactor: Float) = transform {
-    transformBy(zoomFactor, Offset.Zero, 0f)
-}
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+suspend fun TransformableState.zoomBy(zoomFactor: Float) =
+    zoomBy(zoomFactor = zoomFactor, centroid = Offset.Unspecified)
+
+/**
+ * Zoom without animation by a ratio of [zoomFactor] over the current size and suspend until it's
+ * set.
+ *
+ * @param zoomFactor ratio over the current size by which to zoom
+ * @param centroid the [Offset] around which the zoom should occur, if any. The default value is
+ *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
+ *   [TransformableState].
+ */
+suspend fun TransformableState.zoomBy(zoomFactor: Float, centroid: Offset = Offset.Unspecified) =
+    transform {
+        transformBy(
+            centroid = centroid,
+            zoomChange = zoomFactor,
+            panChange = Offset.Zero,
+            rotationChange = 0f,
+        )
+    }
 
 /**
  * Rotate without animation by a [degrees] degrees and suspend until it's set.
  *
  * @param degrees degrees by which to rotate
  */
-suspend fun TransformableState.rotateBy(degrees: Float) = transform {
-    transformBy(1f, Offset.Zero, degrees)
-}
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+suspend fun TransformableState.rotateBy(degrees: Float) = rotateBy(degrees, Offset.Unspecified)
+
+/**
+ * Rotate without animation by a [degrees] degrees and suspend until it's set.
+ *
+ * @param degrees degrees by which to rotate
+ * @param centroid the [Offset] around which the rotation should occur, if any. The default value is
+ *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
+ *   [TransformableState].
+ */
+suspend fun TransformableState.rotateBy(degrees: Float, centroid: Offset = Offset.Unspecified) =
+    transform {
+        transformBy(
+            centroid = centroid,
+            zoomChange = 1f,
+            panChange = Offset.Zero,
+            rotationChange = degrees,
+        )
+    }
 
 /**
  * Pan without animation by a [offset] Offset in pixels and suspend until it's set.
  *
  * @param offset offset in pixels by which to pan
  */
-suspend fun TransformableState.panBy(offset: Offset) = transform { transformBy(1f, offset, 0f) }
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+suspend fun TransformableState.panBy(offset: Offset) =
+    panBy(offset = offset, centroid = Offset.Unspecified)
+
+/**
+ * Pan without animation by a [offset] Offset in pixels and suspend until it's set.
+ *
+ * @param offset offset in pixels by which to pan
+ * @param centroid the [Offset] around which the pan should occur, if any. The default value is
+ *   [Offset.Unspecified], which leaves the behavior up to the implementation of the
+ *   [TransformableState].
+ */
+suspend fun TransformableState.panBy(offset: Offset, centroid: Offset = Offset.Unspecified) =
+    transform {
+        transformBy(centroid = centroid, zoomChange = 1f, panChange = offset, rotationChange = 0f)
+    }
 
 /**
  * Stop and suspend until any ongoing [TransformableState.transform] with priority
@@ -423,13 +646,22 @@ suspend fun TransformableState.stopTransformation(
 }
 
 private class DefaultTransformableState(
-    val onTransformation: (zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
+    val onTransformation:
+        (centroid: Offset, zoomChange: Float, panChange: Offset, rotationChange: Float) -> Unit
 ) : TransformableState {
 
     private val transformScope: TransformScope =
         object : TransformScope {
+            @Suppress("OVERRIDE_DEPRECATION")
             override fun transformBy(zoomChange: Float, panChange: Offset, rotationChange: Float) =
-                onTransformation(zoomChange, panChange, rotationChange)
+                transformBy(Offset.Unspecified, zoomChange, panChange, rotationChange)
+
+            override fun transformBy(
+                centroid: Offset,
+                zoomChange: Float,
+                panChange: Offset,
+                rotationChange: Float,
+            ) = onTransformation(centroid, zoomChange, panChange, rotationChange)
         }
 
     private val transformMutex = MutatorMutex()

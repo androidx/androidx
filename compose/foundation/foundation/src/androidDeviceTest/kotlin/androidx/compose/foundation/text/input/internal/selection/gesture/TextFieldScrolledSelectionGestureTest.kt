@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal.selection.gesture
 
+import android.os.Build
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -72,6 +73,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.fail
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -295,6 +297,10 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
 
     @Test
     fun whenVerticalScroll_longPressGesture_selectAndDrag() = runVerticalTest {
+        assumeFalse(
+            "Test fails on cuttlefish b/467125789",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         // select "text8".
         val char50Position = positionForCharacterScrolled(50)
         onTextField.performTouchInput { longPress(char50Position) }
