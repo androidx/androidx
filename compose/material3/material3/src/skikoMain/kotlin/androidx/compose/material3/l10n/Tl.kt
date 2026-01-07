@@ -94,6 +94,9 @@ internal fun Translations.tl() = mapOf(
     Strings.TimePickerToggleTouch to "Lumipat sa clock mode",
     Strings.TimePickerDialogTitle to "Pumili ng Oras",
     Strings.TimeInputDialogTitle to "Maglagay ng Oras",
+    Strings.TimePickerMinuteError to "Dapat 0–59 ang minuto",
+    Strings.TimePickerHourError to "Dapat 1–12 ang oras",
+    Strings.TimePicker24HourError to "Dapat 0–23 ang oras",
     Strings.CloseRail to "Isara ang rail",
     Strings.WideNavigationRailPaneTitle to "Navigation rail",
 )

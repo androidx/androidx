@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmName("DatePicker_jvmKt")
+
 package androidx.compose.material3
 
 import androidx.annotation.RequiresApi

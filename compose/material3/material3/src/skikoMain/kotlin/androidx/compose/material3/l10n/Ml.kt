@@ -94,6 +94,9 @@ internal fun Translations.ml() = mapOf(
     Strings.TimePickerToggleTouch to "ക്ലോക്ക് മോഡിലേക്ക് മാറുക",
     Strings.TimePickerDialogTitle to "സമയം തിരഞ്ഞെടുക്കുക",
     Strings.TimeInputDialogTitle to "സമയം നൽകുക",
+    Strings.TimePickerMinuteError to "മിനിറ്റ് 0–59 ആയിരിക്കണം",
+    Strings.TimePickerHourError to "മണിക്കൂർ 1–12 ആയിരിക്കണം",
+    Strings.TimePicker24HourError to "മണിക്കൂർ 0–23 ആയിരിക്കണം",
     Strings.CloseRail to "റെയിൽ അടയ്ക്കുക",
     Strings.WideNavigationRailPaneTitle to "നാവിഗേഷൻ റെയിൽ",
 )

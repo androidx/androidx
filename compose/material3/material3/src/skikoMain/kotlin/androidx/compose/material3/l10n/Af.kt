@@ -94,6 +94,9 @@ internal fun Translations.af() = mapOf(
     Strings.TimePickerToggleTouch to "Skakel oor na horlosiemodus",
     Strings.TimePickerDialogTitle to "Kies tyd",
     Strings.TimeInputDialogTitle to "Voer tyd in",
+    Strings.TimePickerMinuteError to "Minuut moet 0-59 wees",
+    Strings.TimePickerHourError to "Uur moet 1-12 wees",
+    Strings.TimePicker24HourError to "Uur moet 0-23 wees",
     Strings.CloseRail to "Maak spoor toe",
     Strings.WideNavigationRailPaneTitle to "Navigasiespoor",
 )

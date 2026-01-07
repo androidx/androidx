@@ -34,11 +34,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Mic
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.AppBarWithSearch
 import androidx.compose.material3.ExpandedDockedSearchBarWithGap
+import androidx.compose.material3.ExpandedFullScreenContainedSearchBar
 import androidx.compose.material3.ExpandedFullScreenSearchBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -50,6 +50,7 @@ import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.SearchBarDefaults
+import androidx.compose.material3.SearchBarState
 import androidx.compose.material3.SearchBarValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
@@ -63,9 +64,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Preview
@@ -75,41 +76,17 @@ fun SimpleSearchBarSample() {
     val searchBarState = rememberSearchBarState()
     val textFieldState = rememberTextFieldState()
     val scope = rememberCoroutineScope()
-
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
-                modifier = Modifier,
-                searchBarState = searchBarState,
                 textFieldState = textFieldState,
+                searchBarState = searchBarState,
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = {
-                    Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search...")
+                    Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search")
                 },
-                leadingIcon = {
-                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                        TooltipBox(
-                            positionProvider =
-                                TooltipDefaults.rememberTooltipPositionProvider(
-                                    TooltipAnchorPosition.Above
-                                ),
-                            tooltip = { PlainTooltip { Text("Back") } },
-                            state = rememberTooltipState(),
-                        ) {
-                            IconButton(
-                                onClick = { scope.launch { searchBarState.animateToCollapsed() } }
-                            ) {
-                                Icon(
-                                    Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "Back",
-                                )
-                            }
-                        }
-                    } else {
-                        Icon(Icons.Default.Search, contentDescription = null)
-                    }
-                },
-                trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+                leadingIcon = { SampleLeadingIcon(searchBarState, scope) },
+                trailingIcon = { SampleTrailingIcon() },
             )
         }
 
@@ -124,6 +101,7 @@ fun SimpleSearchBarSample() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
 @Sampled
 @Composable
@@ -132,61 +110,22 @@ fun FullScreenSearchBarScaffoldSample() {
     val searchBarState = rememberSearchBarState()
     val scope = rememberCoroutineScope()
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
-    val appBarWithSearchColors = SearchBarDefaults.appBarWithSearchColors()
-
+    val appBarWithSearchColors =
+        SearchBarDefaults.appBarWithSearchColors(
+            searchBarColors = SearchBarDefaults.containedColors(state = searchBarState)
+        )
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
-                modifier = Modifier,
-                searchBarState = searchBarState,
                 textFieldState = textFieldState,
+                searchBarState = searchBarState,
+                colors = appBarWithSearchColors.searchBarColors.inputFieldColors,
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = {
-                    if (searchBarState.currentValue == SearchBarValue.Collapsed) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth().clearAndSetSemantics {},
-                            text = "Search",
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                    Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search")
                 },
-                leadingIcon = {
-                    if (searchBarState.currentValue == SearchBarValue.Expanded) {
-                        TooltipBox(
-                            positionProvider =
-                                TooltipDefaults.rememberTooltipPositionProvider(
-                                    TooltipAnchorPosition.Above
-                                ),
-                            tooltip = { PlainTooltip { Text("Back") } },
-                            state = rememberTooltipState(),
-                        ) {
-                            IconButton(
-                                onClick = { scope.launch { searchBarState.animateToCollapsed() } }
-                            ) {
-                                Icon(
-                                    Icons.AutoMirrored.Default.ArrowBack,
-                                    contentDescription = "Back",
-                                )
-                            }
-                        }
-                    } else {
-                        Icon(Icons.Default.Search, contentDescription = null)
-                    }
-                },
-                trailingIcon = {
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(
-                                TooltipAnchorPosition.Above
-                            ),
-                        tooltip = { PlainTooltip { Text("Mic") } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(imageVector = Icons.Default.Mic, contentDescription = "Mic")
-                        }
-                    }
-                },
+                leadingIcon = { SampleLeadingIcon(searchBarState, scope) },
+                trailingIcon = { SampleTrailingIcon() },
             )
         }
 
@@ -196,41 +135,16 @@ fun FullScreenSearchBarScaffoldSample() {
             AppBarWithSearch(
                 scrollBehavior = scrollBehavior,
                 state = searchBarState,
-                inputField = inputField,
-                navigationIcon = {
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(
-                                TooltipAnchorPosition.Above
-                            ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
-                        }
-                    }
-                },
-                actions = {
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(
-                                TooltipAnchorPosition.Above
-                            ),
-                        tooltip = { PlainTooltip { Text("Account") } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Default.AccountCircle,
-                                contentDescription = "Account",
-                            )
-                        }
-                    }
-                },
                 colors = appBarWithSearchColors,
+                inputField = inputField,
+                navigationIcon = { SampleNavigationIcon() },
+                actions = { SampleActions() },
             )
-            ExpandedFullScreenSearchBar(state = searchBarState, inputField = inputField) {
+            ExpandedFullScreenContainedSearchBar(
+                state = searchBarState,
+                inputField = inputField,
+                colors = appBarWithSearchColors.searchBarColors,
+            ) {
                 SampleSearchResults(
                     onResultClick = { result ->
                         textFieldState.setTextAndPlaceCursorAtEnd(result)
@@ -262,22 +176,18 @@ fun DockedSearchBarScaffoldSample() {
     val scope = rememberCoroutineScope()
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
     val appBarWithSearchColors = SearchBarDefaults.appBarWithSearchColors()
-
     val inputField =
         @Composable {
             SearchBarDefaults.InputField(
-                searchBarState = searchBarState,
                 textFieldState = textFieldState,
+                searchBarState = searchBarState,
+                colors = appBarWithSearchColors.searchBarColors.inputFieldColors,
                 onSearch = { scope.launch { searchBarState.animateToCollapsed() } },
                 placeholder = {
-                    if (searchBarState.currentValue == SearchBarValue.Collapsed) {
-                        Text(
-                            modifier = Modifier.fillMaxWidth().clearAndSetSemantics {},
-                            text = "Search",
-                            textAlign = TextAlign.Center,
-                        )
-                    }
+                    Text(modifier = Modifier.clearAndSetSemantics {}, text = "Search")
                 },
+                leadingIcon = { SampleLeadingIcon(searchBarState, scope) },
+                trailingIcon = { SampleTrailingIcon() },
             )
         }
 
@@ -287,39 +197,10 @@ fun DockedSearchBarScaffoldSample() {
             AppBarWithSearch(
                 scrollBehavior = scrollBehavior,
                 state = searchBarState,
-                inputField = inputField,
-                navigationIcon = {
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(
-                                TooltipAnchorPosition.Above
-                            ),
-                        tooltip = { PlainTooltip { Text("Menu") } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
-                        }
-                    }
-                },
-                actions = {
-                    TooltipBox(
-                        positionProvider =
-                            TooltipDefaults.rememberTooltipPositionProvider(
-                                TooltipAnchorPosition.Above
-                            ),
-                        tooltip = { PlainTooltip { Text("Account") } },
-                        state = rememberTooltipState(),
-                    ) {
-                        IconButton(onClick = { /* doSomething() */ }) {
-                            Icon(
-                                imageVector = Icons.Default.AccountCircle,
-                                contentDescription = "Account",
-                            )
-                        }
-                    }
-                },
                 colors = appBarWithSearchColors,
+                inputField = inputField,
+                navigationIcon = { SampleNavigationIcon() },
+                actions = { SampleActions() },
             )
             ExpandedDockedSearchBarWithGap(state = searchBarState, inputField = inputField) {
                 SampleSearchResults(
@@ -361,3 +242,59 @@ private fun SampleSearchResults(onResultClick: (String) -> Unit, modifier: Modif
         }
     }
 }
+
+@Composable
+private fun SampleLeadingIcon(searchBarState: SearchBarState, scope: CoroutineScope) =
+    if (searchBarState.currentValue == SearchBarValue.Expanded) {
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltip { Text("Back") } },
+            state = rememberTooltipState(),
+        ) {
+            IconButton(onClick = { scope.launch { searchBarState.animateToCollapsed() } }) {
+                Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = "Back")
+            }
+        }
+    } else {
+        Icon(Icons.Default.Search, contentDescription = null)
+    }
+
+@Composable
+private fun SampleTrailingIcon() =
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Mic") } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(imageVector = Icons.Default.Mic, contentDescription = "Mic")
+        }
+    }
+
+@Composable
+private fun SampleNavigationIcon() =
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Menu") } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+        }
+    }
+
+@Composable
+private fun SampleActions() =
+    TooltipBox(
+        positionProvider =
+            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+        tooltip = { PlainTooltip { Text("Account") } },
+        state = rememberTooltipState(),
+    ) {
+        IconButton(onClick = { /* doSomething() */ }) {
+            Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Account")
+        }
+    }

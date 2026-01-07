@@ -94,6 +94,9 @@ internal fun Translations.mn() = mapOf(
     Strings.TimePickerToggleTouch to "Цагны горим руу сэлгэх",
     Strings.TimePickerDialogTitle to "Цаг сонгох",
     Strings.TimeInputDialogTitle to "Цаг оруулах",
+    Strings.TimePickerMinuteError to "Минут нь 0–59 байх ёстой",
+    Strings.TimePickerHourError to "Цаг нь 1–12 байх ёстой",
+    Strings.TimePicker24HourError to "Цаг нь 0–23 байх ёстой",
     Strings.CloseRail to "Хажуугийн навигацын бүрэлдэхүүнийг хаах",
     Strings.WideNavigationRailPaneTitle to "Хажуугийн навигацын бүрэлдэхүүн",
 )

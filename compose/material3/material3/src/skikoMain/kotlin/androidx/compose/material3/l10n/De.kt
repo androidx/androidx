@@ -94,6 +94,9 @@ internal fun Translations.de() = mapOf(
     Strings.TimePickerToggleTouch to "In den Uhrmodus wechseln",
     Strings.TimePickerDialogTitle to "Uhrzeit auswählen",
     Strings.TimeInputDialogTitle to "Uhrzeit eingeben",
+    Strings.TimePickerMinuteError to "Zulässige Werte: 0–59",
+    Strings.TimePickerHourError to "Zulässige Werte: 1–12",
+    Strings.TimePicker24HourError to "Zulässige Werte: 0–23",
     Strings.CloseRail to "Streifen schließen",
     Strings.WideNavigationRailPaneTitle to "Navigationsstreifen",
 )

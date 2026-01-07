@@ -94,6 +94,9 @@ internal fun Translations.pl() = mapOf(
     Strings.TimePickerToggleTouch to "Przełącz się na tryb zegara",
     Strings.TimePickerDialogTitle to "Wybierz godzinę",
     Strings.TimeInputDialogTitle to "Wpisz godzinę",
+    Strings.TimePickerMinuteError to "Zakres minut to 0–59",
+    Strings.TimePickerHourError to "Zakres godzin to 1–12",
+    Strings.TimePicker24HourError to "Zakres godzin to 0–23",
     Strings.CloseRail to "Zamknij kolumnę",
     Strings.WideNavigationRailPaneTitle to "Kolumna nawigacji",
 )

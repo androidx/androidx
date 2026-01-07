@@ -94,6 +94,9 @@ internal fun Translations.ar() = mapOf(
     Strings.TimePickerToggleTouch to "التبديل إلى وضع \"الساعة\"",
     Strings.TimePickerDialogTitle to "اختيار الوقت",
     Strings.TimeInputDialogTitle to "إدخال الوقت",
+    Strings.TimePickerMinuteError to "الدقيقة: بين 0 و59",
+    Strings.TimePickerHourError to "الساعة: بين 1 و12",
+    Strings.TimePicker24HourError to "الساعة: بين 0 و23",
     Strings.CloseRail to "إغلاق الشريط",
     Strings.WideNavigationRailPaneTitle to "شريط التنقّل",
 )

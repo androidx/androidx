@@ -94,6 +94,9 @@ internal fun Translations.kn() = mapOf(
     Strings.TimePickerToggleTouch to "ಗಡಿಯಾರ ಮೋಡ್‌ಗೆ ಬದಲಿಸಿ",
     Strings.TimePickerDialogTitle to "ಸಮಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ",
     Strings.TimeInputDialogTitle to "ಸಮಯವನ್ನು ನಮೂದಿಸಿ",
+    Strings.TimePickerMinuteError to "ನಿಮಿಷವು 0–59 ಆಗಿರಬೇಕು",
+    Strings.TimePickerHourError to "ಗಂಟೆಯು 1–12 ಆಗಿರಬೇಕು",
+    Strings.TimePicker24HourError to "ಗಂಟೆಯು 0–23 ಆಗಿರಬೇಕು",
     Strings.CloseRail to "ರೇಲ್‌ ಮುಚ್ಚಿರಿ",
     Strings.WideNavigationRailPaneTitle to "ನ್ಯಾವಿಗೇಷನ್ ರೇಲ್‌",
 )

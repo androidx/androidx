@@ -94,6 +94,9 @@ internal fun Translations.nl() = mapOf(
     Strings.TimePickerToggleTouch to "Overschakelen naar klokmodus",
     Strings.TimePickerDialogTitle to "Tijd selecteren",
     Strings.TimeInputDialogTitle to "Tijd invoeren",
+    Strings.TimePickerMinuteError to "Minuut moet 0 - 59 zijn",
+    Strings.TimePickerHourError to "Uur moet 1 - 12 zijn",
+    Strings.TimePicker24HourError to "Uur moet 0 - 23 zijn",
     Strings.CloseRail to "Rail sluiten",
     Strings.WideNavigationRailPaneTitle to "Navigatierail",
 )

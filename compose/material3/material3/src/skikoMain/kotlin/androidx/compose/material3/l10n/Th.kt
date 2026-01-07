@@ -94,6 +94,9 @@ internal fun Translations.th() = mapOf(
     Strings.TimePickerToggleTouch to "เปลี่ยนเป็นโหมดนาฬิกา",
     Strings.TimePickerDialogTitle to "เลือกเวลา",
     Strings.TimeInputDialogTitle to "ป้อนเวลา",
+    Strings.TimePickerMinuteError to "นาทีต้องเป็น 0-59",
+    Strings.TimePickerHourError to "ชั่วโมงต้องเป็น 1-12",
+    Strings.TimePicker24HourError to "ชั่วโมงต้องเป็น 0-23",
     Strings.CloseRail to "ปิดแถบข้าง",
     Strings.WideNavigationRailPaneTitle to "แถบข้างสำหรับไปยังส่วนต่างๆ",
 )

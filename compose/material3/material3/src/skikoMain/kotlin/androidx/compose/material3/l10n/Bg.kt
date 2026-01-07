@@ -94,6 +94,9 @@ internal fun Translations.bg() = mapOf(
     Strings.TimePickerToggleTouch to "Превключване към режима за часовник",
     Strings.TimePickerDialogTitle to "Избиране на час",
     Strings.TimeInputDialogTitle to "Въвеждане на час",
+    Strings.TimePickerMinuteError to "Минута: От 0 до 59",
+    Strings.TimePickerHourError to "Час: От 1 до 12",
+    Strings.TimePicker24HourError to "Час: От 0 до 23",
     Strings.CloseRail to "Затваряне на лентата",
     Strings.WideNavigationRailPaneTitle to "Лента за навигация",
 )

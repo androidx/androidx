@@ -94,6 +94,9 @@ internal fun Translations.mr() = mapOf(
     Strings.TimePickerToggleTouch to "क्लॉक मोडवर स्विच करा",
     Strings.TimePickerDialogTitle to "वेळ निवडा",
     Strings.TimeInputDialogTitle to "वेळ एंटर करा",
+    Strings.TimePickerMinuteError to "मिनिट ० ते ५९ मधील असावे",
+    Strings.TimePickerHourError to "तास १ ते १२ मधील असावा",
+    Strings.TimePicker24HourError to "तास ० ते २३ मधील असावा",
     Strings.CloseRail to "रेल बंद करा",
     Strings.WideNavigationRailPaneTitle to "नेव्हिगेशन रेल",
 )

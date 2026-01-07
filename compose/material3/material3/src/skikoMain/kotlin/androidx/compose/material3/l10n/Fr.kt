@@ -94,6 +94,9 @@ internal fun Translations.fr() = mapOf(
     Strings.TimePickerToggleTouch to "Passer en mode horloge",
     Strings.TimePickerDialogTitle to "Sélectionner l\'heure",
     Strings.TimeInputDialogTitle to "Saisir l\'heure",
+    Strings.TimePickerMinuteError to "Minute : entre 0 et 59",
+    Strings.TimePickerHourError to "Heure : entre 1 et 12",
+    Strings.TimePicker24HourError to "Heure : entre 0 et 23",
     Strings.CloseRail to "Fermer le rail",
     Strings.WideNavigationRailPaneTitle to "Rail de navigation",
 )
@@ -173,6 +176,9 @@ internal fun Translations.frCA() = mapOf(
     Strings.TimePickerToggleTouch to "Passer en mode Horloge",
     Strings.TimePickerDialogTitle to "Sélectionner l\'heure",
     Strings.TimeInputDialogTitle to "Saisir l\'heure",
+    Strings.TimePickerMinuteError to "Minute entre 0 et 59",
+    Strings.TimePickerHourError to "Heure entre 1 et 12",
+    Strings.TimePicker24HourError to "Heure entre 0 et 23",
     Strings.CloseRail to "Fermer le rail",
     Strings.WideNavigationRailPaneTitle to "Rail de navigation",
 )

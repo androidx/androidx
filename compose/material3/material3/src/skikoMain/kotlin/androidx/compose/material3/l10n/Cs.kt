@@ -94,6 +94,9 @@ internal fun Translations.cs() = mapOf(
     Strings.TimePickerToggleTouch to "Přepnout na režim hodin",
     Strings.TimePickerDialogTitle to "Vyberte čas",
     Strings.TimeInputDialogTitle to "Zadejte čas",
+    Strings.TimePickerMinuteError to "Minuta musí být 0–59",
+    Strings.TimePickerHourError to "Hodina musí být 1–12",
+    Strings.TimePicker24HourError to "Hodina musí být 0–23",
     Strings.CloseRail to "Zavřít sloupec",
     Strings.WideNavigationRailPaneTitle to "Navigační sloupec",
 )

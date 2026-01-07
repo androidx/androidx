@@ -94,6 +94,9 @@ internal fun Translations.en() = mapOf(
     Strings.TimePickerToggleTouch to "Switch to clock mode",
     Strings.TimePickerDialogTitle to "Select Time",
     Strings.TimeInputDialogTitle to "Enter Time",
+    Strings.TimePickerMinuteError to "Minute must be 0–59",
+    Strings.TimePickerHourError to "Hour must be 1–12",
+    Strings.TimePicker24HourError to "Hour must be 0–23",
     Strings.CloseRail to "Close rail",
     Strings.WideNavigationRailPaneTitle to "Navigation rail",
 )
@@ -173,6 +176,9 @@ internal fun Translations.enAU() = mapOf(
     Strings.TimePickerToggleTouch to "Switch to clock mode",
     Strings.TimePickerDialogTitle to "Select time",
     Strings.TimeInputDialogTitle to "Enter time",
+    Strings.TimePickerMinuteError to "Minute must be 0–59",
+    Strings.TimePickerHourError to "Hour must be 1–12",
+    Strings.TimePicker24HourError to "Hour must be 0–23",
     Strings.CloseRail to "Close rail",
     Strings.WideNavigationRailPaneTitle to "Navigation rail",
 )
@@ -252,6 +258,9 @@ internal fun Translations.enCA() = mapOf(
     Strings.TimePickerToggleTouch to "Switch to clock mode",
     Strings.TimePickerDialogTitle to "Select Time",
     Strings.TimeInputDialogTitle to "Enter Time",
+    Strings.TimePickerMinuteError to "Minute must be 0–59",
+    Strings.TimePickerHourError to "Hour must be 1–12",
+    Strings.TimePicker24HourError to "Hour must be 0–23",
     Strings.CloseRail to "Close rail",
     Strings.WideNavigationRailPaneTitle to "Navigation rail",
 )
@@ -331,6 +340,9 @@ internal fun Translations.enGB() = mapOf(
     Strings.TimePickerToggleTouch to "Switch to clock mode",
     Strings.TimePickerDialogTitle to "Select time",
     Strings.TimeInputDialogTitle to "Enter time",
+    Strings.TimePickerMinuteError to "Minute must be 0–59",
+    Strings.TimePickerHourError to "Hour must be 1–12",
+    Strings.TimePicker24HourError to "Hour must be 0–23",
     Strings.CloseRail to "Close rail",
     Strings.WideNavigationRailPaneTitle to "Navigation rail",
 )
@@ -410,6 +422,9 @@ internal fun Translations.enIN() = mapOf(
     Strings.TimePickerToggleTouch to "Switch to clock mode",
     Strings.TimePickerDialogTitle to "Select time",
     Strings.TimeInputDialogTitle to "Enter time",
+    Strings.TimePickerMinuteError to "Minute must be 0–59",
+    Strings.TimePickerHourError to "Hour must be 1–12",
+    Strings.TimePicker24HourError to "Hour must be 0–23",
     Strings.CloseRail to "Close rail",
     Strings.WideNavigationRailPaneTitle to "Navigation rail",
 )

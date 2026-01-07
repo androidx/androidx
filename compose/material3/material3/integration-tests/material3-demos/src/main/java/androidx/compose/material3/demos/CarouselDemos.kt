@@ -29,9 +29,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -56,6 +63,104 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MultiAspectCarouselLazyColumnDemo() {
+    data class CarouselItem(
+        val id: Int,
+        @DrawableRes val imageResId: Int,
+        @StringRes val contentDescriptionResId: Int,
+        val mainAxisSize: Dp,
+    )
+
+    val items =
+        listOf(
+            CarouselItem(
+                0,
+                R.drawable.carousel_image_1,
+                R.string.carousel_image_1_description,
+                305.dp,
+            ),
+            CarouselItem(
+                1,
+                R.drawable.carousel_image_2,
+                R.string.carousel_image_2_description,
+                205.dp,
+            ),
+            CarouselItem(
+                2,
+                R.drawable.carousel_image_3,
+                R.string.carousel_image_3_description,
+                275.dp,
+            ),
+            CarouselItem(
+                3,
+                R.drawable.carousel_image_4,
+                R.string.carousel_image_4_description,
+                350.dp,
+            ),
+            CarouselItem(
+                4,
+                R.drawable.carousel_image_5,
+                R.string.carousel_image_5_description,
+                100.dp,
+            ),
+            CarouselItem(
+                5,
+                R.drawable.carousel_image_1,
+                R.string.carousel_image_1_description,
+                100.dp,
+            ),
+            CarouselItem(
+                6,
+                R.drawable.carousel_image_2,
+                R.string.carousel_image_2_description,
+                225.dp,
+            ),
+            CarouselItem(
+                7,
+                R.drawable.carousel_image_3,
+                R.string.carousel_image_3_description,
+                85.dp,
+            ),
+            CarouselItem(
+                8,
+                R.drawable.carousel_image_4,
+                R.string.carousel_image_4_description,
+                175.dp,
+            ),
+            CarouselItem(
+                9,
+                R.drawable.carousel_image_5,
+                R.string.carousel_image_5_description,
+                300.dp,
+            ),
+        )
+
+    MultiAspectCarouselScope {
+        val state = rememberLazyListState()
+        LazyColumn(
+            state = state,
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth().fillMaxHeight(),
+        ) {
+            itemsIndexed(items) { i, item ->
+                val drawInfo = remember { MultiAspectCarouselItemDrawInfo(i, state) }
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = stringResource(item.contentDescriptionResId),
+                    modifier =
+                        Modifier.height(item.mainAxisSize)
+                            .fillMaxWidth()
+                            .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -176,6 +281,173 @@ fun FadingMultiAspectCarouselLazyRowDemo() {
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MultiAspectCarouselLazyHorizontalGridDemo() {
+    data class CarouselItem(
+        val id: Int,
+        @DrawableRes val imageResId: Int,
+        @StringRes val contentDescriptionResId: Int,
+        val mainAxisSize: Dp,
+    )
+
+    val items =
+        listOf(
+            CarouselItem(
+                0,
+                R.drawable.carousel_image_1,
+                R.string.carousel_image_1_description,
+                305.dp,
+            ),
+            CarouselItem(
+                1,
+                R.drawable.carousel_image_2,
+                R.string.carousel_image_2_description,
+                205.dp,
+            ),
+            CarouselItem(
+                2,
+                R.drawable.carousel_image_3,
+                R.string.carousel_image_3_description,
+                275.dp,
+            ),
+            CarouselItem(
+                3,
+                R.drawable.carousel_image_4,
+                R.string.carousel_image_4_description,
+                350.dp,
+            ),
+            CarouselItem(
+                4,
+                R.drawable.carousel_image_5,
+                R.string.carousel_image_5_description,
+                100.dp,
+            ),
+        )
+
+    MultiAspectCarouselScope {
+        val state = rememberLazyGridState()
+        LazyHorizontalGrid(
+            rows = GridCells.Fixed(1),
+            modifier = Modifier.requiredHeight(221.dp),
+            state = state,
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            itemsIndexed(items) { index, item ->
+                val drawInfo = remember { MultiAspectCarouselItemDrawInfo(index, state) }
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = stringResource(item.contentDescriptionResId),
+                    modifier =
+                        Modifier.width(item.mainAxisSize)
+                            .height(205.dp)
+                            .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
+                    contentScale = ContentScale.Crop,
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MultiAspectCarouselLazyVerticalGridDemo() {
+    data class CarouselItem(
+        val id: Int,
+        @DrawableRes val imageResId: Int,
+        @StringRes val contentDescriptionResId: Int,
+        val mainAxisSize: Dp,
+    )
+
+    val items =
+        listOf(
+            CarouselItem(
+                0,
+                R.drawable.carousel_image_1,
+                R.string.carousel_image_1_description,
+                305.dp,
+            ),
+            CarouselItem(
+                1,
+                R.drawable.carousel_image_2,
+                R.string.carousel_image_2_description,
+                205.dp,
+            ),
+            CarouselItem(
+                2,
+                R.drawable.carousel_image_3,
+                R.string.carousel_image_3_description,
+                275.dp,
+            ),
+            CarouselItem(
+                3,
+                R.drawable.carousel_image_4,
+                R.string.carousel_image_4_description,
+                350.dp,
+            ),
+            CarouselItem(
+                4,
+                R.drawable.carousel_image_5,
+                R.string.carousel_image_5_description,
+                100.dp,
+            ),
+            CarouselItem(
+                5,
+                R.drawable.carousel_image_1,
+                R.string.carousel_image_1_description,
+                100.dp,
+            ),
+            CarouselItem(
+                6,
+                R.drawable.carousel_image_2,
+                R.string.carousel_image_2_description,
+                225.dp,
+            ),
+            CarouselItem(
+                7,
+                R.drawable.carousel_image_3,
+                R.string.carousel_image_3_description,
+                85.dp,
+            ),
+            CarouselItem(
+                8,
+                R.drawable.carousel_image_4,
+                R.string.carousel_image_4_description,
+                175.dp,
+            ),
+            CarouselItem(
+                9,
+                R.drawable.carousel_image_5,
+                R.string.carousel_image_5_description,
+                300.dp,
+            ),
+        )
+
+    MultiAspectCarouselScope {
+        val state = rememberLazyGridState()
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(2),
+            state = state,
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            itemsIndexed(items) { index, item ->
+                val drawInfo = remember { MultiAspectCarouselItemDrawInfo(index, state) }
+                Image(
+                    painter = painterResource(id = item.imageResId),
+                    contentDescription = stringResource(item.contentDescriptionResId),
+                    modifier =
+                        Modifier.height(300.dp).maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
+                    contentScale = ContentScale.Crop,
+                )
             }
         }
     }

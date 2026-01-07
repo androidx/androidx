@@ -94,6 +94,9 @@ internal fun Translations.hi() = mapOf(
     Strings.TimePickerToggleTouch to "क्लॉक मोड पर स्विच करें",
     Strings.TimePickerDialogTitle to "समय चुनें",
     Strings.TimeInputDialogTitle to "समय डालें",
+    Strings.TimePickerMinuteError to "यह 0-59 मिनट के बीच हो",
+    Strings.TimePickerHourError to "यह 1-12 घंटे के बीच हो",
+    Strings.TimePicker24HourError to "यह 0-23 घंटे के बीच हो",
     Strings.CloseRail to "मॉडल रेल को बंद करें",
     Strings.WideNavigationRailPaneTitle to "नेविगेशन रेल",
 )

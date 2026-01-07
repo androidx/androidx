@@ -94,6 +94,9 @@ internal fun Translations.et() = mapOf(
     Strings.TimePickerToggleTouch to "Lülita kellarežiimile",
     Strings.TimePickerDialogTitle to "Valige aeg",
     Strings.TimeInputDialogTitle to "Sisestage aeg",
+    Strings.TimePickerMinuteError to "Minutite vahemik on 0–59",
+    Strings.TimePickerHourError to "Tundide vahemik on 1–12",
+    Strings.TimePicker24HourError to "Tundide vahemik on 0–23",
     Strings.CloseRail to "Modaalraja sulgemine",
     Strings.WideNavigationRailPaneTitle to "Navigeerimisrada",
 )

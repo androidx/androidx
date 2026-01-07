@@ -94,6 +94,9 @@ internal fun Translations.lv() = mapOf(
     Strings.TimePickerToggleTouch to "Pārslēgties uz pulksteņa režīmu",
     Strings.TimePickerDialogTitle to "Laika atlase",
     Strings.TimeInputDialogTitle to "Laika ievade",
+    Strings.TimePickerMinuteError to "Minūtes vērtība: 0–59",
+    Strings.TimePickerHourError to "Stundas vērtība: 1–12",
+    Strings.TimePicker24HourError to "Stundas vērtība: 0–23",
     Strings.CloseRail to "Aizvērt joslu",
     Strings.WideNavigationRailPaneTitle to "Navigācijas josla",
 )

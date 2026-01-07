@@ -36,7 +36,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHasNoClickAction
@@ -63,7 +62,7 @@ class FloatingActionButtonMenuTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun fabMenu_childrenCount_collapsed() {
         val items =
@@ -86,7 +85,7 @@ class FloatingActionButtonMenuTest {
         rule.onRoot().performKeyInput { repeat(items.size) { pressKey(Key.Tab) } }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun fabMenu_childrenCount_expanded() {
         val items =
@@ -106,7 +105,7 @@ class FloatingActionButtonMenuTest {
         }
     }
 
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalTestApi::class)
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Test
     fun fabMenu_keyboardNavigation_fromFabToFirstItem() {
         rule.setContent {

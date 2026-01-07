@@ -94,6 +94,9 @@ internal fun Translations.sk() = mapOf(
     Strings.TimePickerToggleTouch to "Prepnúť na režim hodín",
     Strings.TimePickerDialogTitle to "Vyberte čas",
     Strings.TimeInputDialogTitle to "Zadajte čas",
+    Strings.TimePickerMinuteError to "Povinný rozsah min: 0–59",
+    Strings.TimePickerHourError to "Povinný rozsah h: 1 – 12",
+    Strings.TimePicker24HourError to "Povinný rozsah h: 0 – 23",
     Strings.CloseRail to "Zavrieť pruh",
     Strings.WideNavigationRailPaneTitle to "Navigačný pruh",
 )

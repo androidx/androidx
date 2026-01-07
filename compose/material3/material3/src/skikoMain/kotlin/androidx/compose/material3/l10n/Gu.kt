@@ -94,6 +94,9 @@ internal fun Translations.gu() = mapOf(
     Strings.TimePickerToggleTouch to "ઘડિયાળના મોડ પર સ્વિચ કરો",
     Strings.TimePickerDialogTitle to "સમય પસંદ કરો",
     Strings.TimeInputDialogTitle to "સમય દાખલ કરો",
+    Strings.TimePickerMinuteError to "0–59 મિનિટ હોવી જરૂરી છે",
+    Strings.TimePickerHourError to "1–12 કલાક હોવા જરૂરી છે",
+    Strings.TimePicker24HourError to "0–23 કલાક હોવા જરૂરી છે",
     Strings.CloseRail to "રેલ બંધ કરો",
     Strings.WideNavigationRailPaneTitle to "નૅવિગેશન રેલ",
 )

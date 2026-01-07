@@ -56,7 +56,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -493,7 +492,6 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_expands_onEnterKey() {
         var expanded by mutableStateOf(false)
@@ -511,7 +509,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isTrue() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_collapses_onEnterKey() {
         var expanded by mutableStateOf(true)
@@ -529,7 +526,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isFalse() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_expands_onEnterKey() {
         var expanded by mutableStateOf(false)
@@ -548,7 +544,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isTrue() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_collapses_onEnterKey() {
         var expanded by mutableStateOf(true)
@@ -567,7 +562,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isFalse() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_doesNotExpand_onSpacebarKey() {
         var expanded by mutableStateOf(false)
@@ -586,7 +580,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isFalse() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_doesNotCollapse_onSpacebarKey() {
         var expanded by mutableStateOf(true)

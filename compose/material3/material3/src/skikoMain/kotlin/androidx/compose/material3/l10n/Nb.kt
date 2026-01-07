@@ -94,6 +94,9 @@ internal fun Translations.nb() = mapOf(
     Strings.TimePickerToggleTouch to "Bytt til klokkemodus",
     Strings.TimePickerDialogTitle to "Velg et klokkeslett",
     Strings.TimeInputDialogTitle to "Angi et klokkeslett",
+    Strings.TimePickerMinuteError to "Minuttet må være 0–59",
+    Strings.TimePickerHourError to "Timen må være 1–12",
+    Strings.TimePicker24HourError to "Timen må være 0–23",
     Strings.CloseRail to "Lukk linjen",
     Strings.WideNavigationRailPaneTitle to "Navigasjonslinje",
 )

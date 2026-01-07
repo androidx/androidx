@@ -94,6 +94,9 @@ internal fun Translations.si() = mapOf(
     Strings.TimePickerToggleTouch to "ඔරලෝසු ප්‍රකාරයට මාරු වන්න",
     Strings.TimePickerDialogTitle to "වේලාව තෝරන්න",
     Strings.TimeInputDialogTitle to "වේලාව ඇතුළු කරන්න",
+    Strings.TimePickerMinuteError to "මිනිත්තුව 0–59 විය යුතු යි",
+    Strings.TimePickerHourError to "පැය 1–12 විය යුතු යි",
+    Strings.TimePicker24HourError to "පැය 0–23 විය යුතු යි",
     Strings.CloseRail to "පීල්ල වසන්න",
     Strings.WideNavigationRailPaneTitle to "සංචාලන පීල්ල",
 )

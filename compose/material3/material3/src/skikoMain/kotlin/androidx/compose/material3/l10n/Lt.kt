@@ -94,6 +94,9 @@ internal fun Translations.lt() = mapOf(
     Strings.TimePickerToggleTouch to "Perjungti į laikrodžio režimą",
     Strings.TimePickerDialogTitle to "Pasirinkite laiką",
     Strings.TimeInputDialogTitle to "Įveskite laiką",
+    Strings.TimePickerMinuteError to "Minutė turi būti 0–59",
+    Strings.TimePickerHourError to "Valanda turi būti 1–12",
+    Strings.TimePicker24HourError to "Valanda turi būti 0–23",
     Strings.CloseRail to "Uždaryti juostą",
     Strings.WideNavigationRailPaneTitle to "Naršymo juosta",
 )

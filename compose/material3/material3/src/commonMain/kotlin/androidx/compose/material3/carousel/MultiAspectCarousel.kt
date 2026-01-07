@@ -22,6 +22,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridItemInfo
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.annotation.FrequentlyChangingValue
@@ -114,6 +116,60 @@ fun MultiAspectCarouselItemDrawInfo(
 
             override val offset: Float
                 get() = getInfo()?.offset?.toFloat() ?: 0f
+        },
+    )
+
+/**
+ * Create a [MultiAspectCarouselItemDrawInfo] object for an item at the given [index] in a
+ * [androidx.compose.foundation.lazy.grid.LazyHorizontalGrid] or
+ * [androidx.compose.foundation.lazy.grid.LazyVerticalGrid].
+ *
+ * Remember a [MultiAspectCarouselItemDrawInfo] for each item in the LazyList and use
+ * [MultiAspectCarouselScope.maskClip] on the item's outermost container to mask and parallax the
+ * item on scroll.
+ *
+ * @param index the index of the LazyGrid item this draw info is being used for
+ * @param state the [LazyGridState] of the list this item belongs to
+ */
+@ExperimentalMaterial3Api
+fun MultiAspectCarouselItemDrawInfo(
+    index: Int,
+    state: LazyGridState,
+): MultiAspectCarouselItemDrawInfo =
+    MultiAspectCarouselItemDrawInfoImpl(
+        index,
+        object : MultiAspectCarouselContainerState {
+            override val viewportEndOffset: Float
+                get() = state.layoutInfo.viewportEndOffset.toFloat()
+
+            override val viewportStartOffset: Float
+                get() = state.layoutInfo.viewportStartOffset.toFloat()
+
+            override val orientation: Orientation
+                get() = state.layoutInfo.orientation
+        },
+        object : MultiAspectCarouselItemInfoState {
+            private fun getInfo(): LazyGridItemInfo? =
+                state.layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == index }
+
+            private val isHorizontal: Boolean
+                get() = state.layoutInfo.orientation == Orientation.Horizontal
+
+            override val isVisible: Boolean
+                get() = getInfo() != null
+
+            override val crossAxisSize: Float
+                get() =
+                    getInfo()?.size?.let { if (isHorizontal) it.height else it.width }?.toFloat()
+                        ?: 0f
+
+            override val mainAxisSize: Float
+                get() =
+                    getInfo()?.size?.let { if (isHorizontal) it.width else it.height }?.toFloat()
+                        ?: 0f
+
+            override val offset: Float
+                get() = getInfo()?.offset?.let { if (isHorizontal) it.x else it.y }?.toFloat() ?: 0f
         },
     )
 

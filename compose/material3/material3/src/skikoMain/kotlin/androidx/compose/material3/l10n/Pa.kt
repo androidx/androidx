@@ -94,6 +94,9 @@ internal fun Translations.pa() = mapOf(
     Strings.TimePickerToggleTouch to "ਘੜੀ ਮੋਡ \'ਤੇ ਸਵਿੱਚ ਕਰੋ",
     Strings.TimePickerDialogTitle to "ਸਮਾਂ ਚੁਣੋ",
     Strings.TimeInputDialogTitle to "ਸਮਾਂ ਦਾਖਲ ਕਰੋ",
+    Strings.TimePickerMinuteError to "ਮਿੰਟ 0–59 ਹੋਣੇ ਲਾਜ਼ਮੀ ਹਨ",
+    Strings.TimePickerHourError to "ਘੰਟੇ 1–12 ਹੋਣੇ ਲਾਜ਼ਮੀ ਹਨ",
+    Strings.TimePicker24HourError to "ਘੰਟੇ 0–23 ਹੋਣੇ ਲਾਜ਼ਮੀ ਹਨ",
     Strings.CloseRail to "ਰੇਲ ਬੰਦ ਕਰੋ",
     Strings.WideNavigationRailPaneTitle to "ਨੈਵੀਗੇਸ਼ਨ ਰੇਲ",
 )

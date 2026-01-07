@@ -94,6 +94,9 @@ internal fun Translations.ro() = mapOf(
     Strings.TimePickerToggleTouch to "Treci la modul ceas",
     Strings.TimePickerDialogTitle to "Selectează ora",
     Strings.TimeInputDialogTitle to "Introdu ora",
+    Strings.TimePickerMinuteError to "Minut: între 0 și 59",
+    Strings.TimePickerHourError to "Oră: între 1 și 12",
+    Strings.TimePicker24HourError to "Oră: între 0 și 23",
     Strings.CloseRail to "Închide bara",
     Strings.WideNavigationRailPaneTitle to "Bară de navigare",
 )

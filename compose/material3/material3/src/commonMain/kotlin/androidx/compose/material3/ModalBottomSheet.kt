@@ -44,7 +44,7 @@ import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.draggableAnchorsV2
+import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
@@ -273,7 +273,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                         )
                     else Modifier
                 )
-                .draggableAnchorsV2(sheetState.anchoredDraggableState, Orientation.Vertical) {
+                .draggableAnchors(sheetState.anchoredDraggableState, Orientation.Vertical) {
                     sheetSize,
                     constraints ->
                     val fullHeight = constraints.maxHeight.toFloat()
@@ -305,7 +305,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                                 if (newAnchors.hasPositionFor(Expanded)) Expanded else Hidden
                             }
                         }
-                    return@draggableAnchorsV2 newAnchors to newTarget
+                    return@draggableAnchors newAnchors to newTarget
                 }
                 .anchoredDraggable(
                     state = sheetState.anchoredDraggableState,

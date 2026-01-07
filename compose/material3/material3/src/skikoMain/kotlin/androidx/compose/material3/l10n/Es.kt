@@ -94,6 +94,9 @@ internal fun Translations.es() = mapOf(
     Strings.TimePickerToggleTouch to "Cambiar al modo de reloj",
     Strings.TimePickerDialogTitle to "Selecciona la hora",
     Strings.TimeInputDialogTitle to "Introduce la hora",
+    Strings.TimePickerMinuteError to "Los minutos deben estar entre 0 y 59",
+    Strings.TimePickerHourError to "La hora debe estar entre 1 y 12",
+    Strings.TimePicker24HourError to "La hora debe estar entre 0 y 23",
     Strings.CloseRail to "Cerrar barra",
     Strings.WideNavigationRailPaneTitle to "Barra de navegación",
 )
@@ -173,6 +176,9 @@ internal fun Translations.esUS() = mapOf(
     Strings.TimePickerToggleTouch to "Cambiar al modo de reloj",
     Strings.TimePickerDialogTitle to "Selecciona la hora",
     Strings.TimeInputDialogTitle to "Ingresa la hora",
+    Strings.TimePickerMinuteError to "Valor min.: entre 0 y 59",
+    Strings.TimePickerHourError to "Valor hora: entre 1 y 12",
+    Strings.TimePicker24HourError to "Valor hora: entre 0 y 23",
     Strings.CloseRail to "Cerrar riel",
     Strings.WideNavigationRailPaneTitle to "Riel de navegación",
 )

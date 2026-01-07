@@ -18,11 +18,9 @@ package androidx.compose.material3.windowsizeclass
 
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.kruth.assertThat
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 class WindowSizeClassTest {
     @Test
@@ -83,13 +81,13 @@ class WindowSizeClassTest {
             WindowWidthSizeClass.Compact,
             700.dp,
             supportedSizeClasses =
-                setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Expanded)
+                setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Expanded),
         )
 
         assertWidthClass(
             WindowWidthSizeClass.Medium,
             1000.dp,
-            supportedSizeClasses = setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium)
+            supportedSizeClasses = setOf(WindowWidthSizeClass.Compact, WindowWidthSizeClass.Medium),
         )
     }
 
@@ -99,14 +97,14 @@ class WindowSizeClassTest {
             WindowHeightSizeClass.Compact,
             700.dp,
             supportedSizeClasses =
-                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Expanded)
+                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Expanded),
         )
 
         assertHeightClass(
             WindowHeightSizeClass.Medium,
             1000.dp,
             supportedSizeClasses =
-                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Medium)
+                setOf(WindowHeightSizeClass.Compact, WindowHeightSizeClass.Medium),
         )
     }
 
@@ -115,7 +113,7 @@ class WindowSizeClassTest {
         assertWidthClass(
             WindowWidthSizeClass.Medium,
             200.dp,
-            supportedSizeClasses = setOf(WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded)
+            supportedSizeClasses = setOf(WindowWidthSizeClass.Medium, WindowWidthSizeClass.Expanded),
         )
     }
 
@@ -125,143 +123,150 @@ class WindowSizeClassTest {
             WindowHeightSizeClass.Medium,
             200.dp,
             supportedSizeClasses =
-                setOf(WindowHeightSizeClass.Medium, WindowHeightSizeClass.Expanded)
+                setOf(WindowHeightSizeClass.Medium, WindowHeightSizeClass.Expanded),
         )
     }
 
     @Test
     fun widthSizeClassToString() {
-        assertEquals(WindowWidthSizeClass.Compact.toString(), "WindowWidthSizeClass.Compact")
-        assertEquals(WindowWidthSizeClass.Medium.toString(), "WindowWidthSizeClass.Medium")
-        assertEquals(WindowWidthSizeClass.Expanded.toString(), "WindowWidthSizeClass.Expanded")
+        assertThat(WindowWidthSizeClass.Compact.toString())
+            .isEqualTo("WindowWidthSizeClass.Compact")
+        assertThat(WindowWidthSizeClass.Medium.toString()).isEqualTo("WindowWidthSizeClass.Medium")
+        assertThat(WindowWidthSizeClass.Expanded.toString())
+            .isEqualTo("WindowWidthSizeClass.Expanded")
     }
 
     @Test
     fun heightSizeClassToString() {
-        assertEquals(WindowHeightSizeClass.Compact.toString(), "WindowHeightSizeClass.Compact")
-        assertEquals(WindowHeightSizeClass.Medium.toString(), "WindowHeightSizeClass.Medium")
-        assertEquals(WindowHeightSizeClass.Expanded.toString(), "WindowHeightSizeClass.Expanded")
+        assertThat(WindowHeightSizeClass.Compact.toString())
+            .isEqualTo("WindowHeightSizeClass.Compact")
+        assertThat(WindowHeightSizeClass.Medium.toString())
+            .isEqualTo("WindowHeightSizeClass.Medium")
+        assertThat(WindowHeightSizeClass.Expanded.toString())
+            .isEqualTo("WindowHeightSizeClass.Expanded")
     }
 
     @Test
     fun widthSizeClassCompareTo() {
         // Less than
-        assertTrue(WindowWidthSizeClass.Compact < WindowWidthSizeClass.Medium)
-        assertTrue(WindowWidthSizeClass.Compact < WindowWidthSizeClass.Expanded)
-        assertTrue(WindowWidthSizeClass.Medium < WindowWidthSizeClass.Expanded)
+        assertThat(WindowWidthSizeClass.Compact < WindowWidthSizeClass.Medium).isTrue()
+        assertThat(WindowWidthSizeClass.Compact < WindowWidthSizeClass.Expanded).isTrue()
+        assertThat(WindowWidthSizeClass.Medium < WindowWidthSizeClass.Expanded).isTrue()
 
-        assertFalse(WindowWidthSizeClass.Compact < WindowWidthSizeClass.Compact)
-        assertFalse(WindowWidthSizeClass.Medium < WindowWidthSizeClass.Medium)
-        assertFalse(WindowWidthSizeClass.Expanded < WindowWidthSizeClass.Expanded)
+        assertThat(WindowWidthSizeClass.Compact < WindowWidthSizeClass.Compact).isFalse()
+        assertThat(WindowWidthSizeClass.Medium < WindowWidthSizeClass.Medium).isFalse()
+        assertThat(WindowWidthSizeClass.Expanded < WindowWidthSizeClass.Expanded).isFalse()
 
-        assertFalse(WindowWidthSizeClass.Expanded < WindowWidthSizeClass.Medium)
-        assertFalse(WindowWidthSizeClass.Expanded < WindowWidthSizeClass.Compact)
-        assertFalse(WindowWidthSizeClass.Medium < WindowWidthSizeClass.Compact)
+        assertThat(WindowWidthSizeClass.Expanded < WindowWidthSizeClass.Medium).isFalse()
+        assertThat(WindowWidthSizeClass.Expanded < WindowWidthSizeClass.Compact).isFalse()
+        assertThat(WindowWidthSizeClass.Medium < WindowWidthSizeClass.Compact).isFalse()
 
         // Less than or equal to
-        assertTrue(WindowWidthSizeClass.Compact <= WindowWidthSizeClass.Compact)
-        assertTrue(WindowWidthSizeClass.Compact <= WindowWidthSizeClass.Medium)
-        assertTrue(WindowWidthSizeClass.Compact <= WindowWidthSizeClass.Expanded)
-        assertTrue(WindowWidthSizeClass.Medium <= WindowWidthSizeClass.Medium)
-        assertTrue(WindowWidthSizeClass.Medium <= WindowWidthSizeClass.Expanded)
-        assertTrue(WindowWidthSizeClass.Expanded <= WindowWidthSizeClass.Expanded)
+        assertThat(WindowWidthSizeClass.Compact <= WindowWidthSizeClass.Compact).isTrue()
+        assertThat(WindowWidthSizeClass.Compact <= WindowWidthSizeClass.Medium).isTrue()
+        assertThat(WindowWidthSizeClass.Compact <= WindowWidthSizeClass.Expanded).isTrue()
+        assertThat(WindowWidthSizeClass.Medium <= WindowWidthSizeClass.Medium).isTrue()
+        assertThat(WindowWidthSizeClass.Medium <= WindowWidthSizeClass.Expanded).isTrue()
+        assertThat(WindowWidthSizeClass.Expanded <= WindowWidthSizeClass.Expanded).isTrue()
 
-        assertFalse(WindowWidthSizeClass.Expanded <= WindowWidthSizeClass.Medium)
-        assertFalse(WindowWidthSizeClass.Expanded <= WindowWidthSizeClass.Compact)
-        assertFalse(WindowWidthSizeClass.Medium <= WindowWidthSizeClass.Compact)
+        assertThat(WindowWidthSizeClass.Expanded <= WindowWidthSizeClass.Medium).isFalse()
+        assertThat(WindowWidthSizeClass.Expanded <= WindowWidthSizeClass.Compact).isFalse()
+        assertThat(WindowWidthSizeClass.Medium <= WindowWidthSizeClass.Compact).isFalse()
 
         // Greater than
-        assertTrue(WindowWidthSizeClass.Expanded > WindowWidthSizeClass.Medium)
-        assertTrue(WindowWidthSizeClass.Expanded > WindowWidthSizeClass.Compact)
-        assertTrue(WindowWidthSizeClass.Medium > WindowWidthSizeClass.Compact)
+        assertThat(WindowWidthSizeClass.Expanded > WindowWidthSizeClass.Medium).isTrue()
+        assertThat(WindowWidthSizeClass.Expanded > WindowWidthSizeClass.Compact).isTrue()
+        assertThat(WindowWidthSizeClass.Medium > WindowWidthSizeClass.Compact).isTrue()
 
-        assertFalse(WindowWidthSizeClass.Expanded > WindowWidthSizeClass.Expanded)
-        assertFalse(WindowWidthSizeClass.Medium > WindowWidthSizeClass.Medium)
-        assertFalse(WindowWidthSizeClass.Compact > WindowWidthSizeClass.Compact)
+        assertThat(WindowWidthSizeClass.Expanded > WindowWidthSizeClass.Expanded).isFalse()
+        assertThat(WindowWidthSizeClass.Medium > WindowWidthSizeClass.Medium).isFalse()
+        assertThat(WindowWidthSizeClass.Compact > WindowWidthSizeClass.Compact).isFalse()
 
-        assertFalse(WindowWidthSizeClass.Compact > WindowWidthSizeClass.Medium)
-        assertFalse(WindowWidthSizeClass.Compact > WindowWidthSizeClass.Expanded)
-        assertFalse(WindowWidthSizeClass.Medium > WindowWidthSizeClass.Expanded)
+        assertThat(WindowWidthSizeClass.Compact > WindowWidthSizeClass.Medium).isFalse()
+        assertThat(WindowWidthSizeClass.Compact > WindowWidthSizeClass.Expanded).isFalse()
+        assertThat(WindowWidthSizeClass.Medium > WindowWidthSizeClass.Expanded).isFalse()
 
         // Greater than or equal to
-        assertTrue(WindowWidthSizeClass.Expanded >= WindowWidthSizeClass.Expanded)
-        assertTrue(WindowWidthSizeClass.Expanded >= WindowWidthSizeClass.Medium)
-        assertTrue(WindowWidthSizeClass.Expanded >= WindowWidthSizeClass.Compact)
-        assertTrue(WindowWidthSizeClass.Medium >= WindowWidthSizeClass.Medium)
-        assertTrue(WindowWidthSizeClass.Medium >= WindowWidthSizeClass.Compact)
-        assertTrue(WindowWidthSizeClass.Compact >= WindowWidthSizeClass.Compact)
+        assertThat(WindowWidthSizeClass.Expanded >= WindowWidthSizeClass.Expanded).isTrue()
+        assertThat(WindowWidthSizeClass.Expanded >= WindowWidthSizeClass.Medium).isTrue()
+        assertThat(WindowWidthSizeClass.Expanded >= WindowWidthSizeClass.Compact).isTrue()
+        assertThat(WindowWidthSizeClass.Medium >= WindowWidthSizeClass.Medium).isTrue()
+        assertThat(WindowWidthSizeClass.Medium >= WindowWidthSizeClass.Compact).isTrue()
+        assertThat(WindowWidthSizeClass.Compact >= WindowWidthSizeClass.Compact).isTrue()
 
-        assertFalse(WindowWidthSizeClass.Compact >= WindowWidthSizeClass.Medium)
-        assertFalse(WindowWidthSizeClass.Compact >= WindowWidthSizeClass.Expanded)
-        assertFalse(WindowWidthSizeClass.Medium >= WindowWidthSizeClass.Expanded)
+        assertThat(WindowWidthSizeClass.Compact >= WindowWidthSizeClass.Medium).isFalse()
+        assertThat(WindowWidthSizeClass.Compact >= WindowWidthSizeClass.Expanded).isFalse()
+        assertThat(WindowWidthSizeClass.Medium >= WindowWidthSizeClass.Expanded).isFalse()
     }
 
     @Test
     fun heightSizeClassCompareTo() {
         // Less than
-        assertTrue(WindowHeightSizeClass.Compact < WindowHeightSizeClass.Medium)
-        assertTrue(WindowHeightSizeClass.Compact < WindowHeightSizeClass.Expanded)
-        assertTrue(WindowHeightSizeClass.Medium < WindowHeightSizeClass.Expanded)
+        assertThat(WindowHeightSizeClass.Compact < WindowHeightSizeClass.Medium).isTrue()
+        assertThat(WindowHeightSizeClass.Compact < WindowHeightSizeClass.Expanded).isTrue()
+        assertThat(WindowHeightSizeClass.Medium < WindowHeightSizeClass.Expanded).isTrue()
 
-        assertFalse(WindowHeightSizeClass.Compact < WindowHeightSizeClass.Compact)
-        assertFalse(WindowHeightSizeClass.Medium < WindowHeightSizeClass.Medium)
-        assertFalse(WindowHeightSizeClass.Expanded < WindowHeightSizeClass.Expanded)
+        assertThat(WindowHeightSizeClass.Compact < WindowHeightSizeClass.Compact).isFalse()
+        assertThat(WindowHeightSizeClass.Medium < WindowHeightSizeClass.Medium).isFalse()
+        assertThat(WindowHeightSizeClass.Expanded < WindowHeightSizeClass.Expanded).isFalse()
 
-        assertFalse(WindowHeightSizeClass.Expanded < WindowHeightSizeClass.Medium)
-        assertFalse(WindowHeightSizeClass.Expanded < WindowHeightSizeClass.Compact)
-        assertFalse(WindowHeightSizeClass.Medium < WindowHeightSizeClass.Compact)
+        assertThat(WindowHeightSizeClass.Expanded < WindowHeightSizeClass.Medium).isFalse()
+        assertThat(WindowHeightSizeClass.Expanded < WindowHeightSizeClass.Compact).isFalse()
+        assertThat(WindowHeightSizeClass.Medium < WindowHeightSizeClass.Compact).isFalse()
 
         // Less than or equal to
-        assertTrue(WindowHeightSizeClass.Compact <= WindowHeightSizeClass.Compact)
-        assertTrue(WindowHeightSizeClass.Compact <= WindowHeightSizeClass.Medium)
-        assertTrue(WindowHeightSizeClass.Compact <= WindowHeightSizeClass.Expanded)
-        assertTrue(WindowHeightSizeClass.Medium <= WindowHeightSizeClass.Medium)
-        assertTrue(WindowHeightSizeClass.Medium <= WindowHeightSizeClass.Expanded)
-        assertTrue(WindowHeightSizeClass.Expanded <= WindowHeightSizeClass.Expanded)
+        assertThat(WindowHeightSizeClass.Compact <= WindowHeightSizeClass.Compact).isTrue()
+        assertThat(WindowHeightSizeClass.Compact <= WindowHeightSizeClass.Medium).isTrue()
+        assertThat(WindowHeightSizeClass.Compact <= WindowHeightSizeClass.Expanded).isTrue()
+        assertThat(WindowHeightSizeClass.Medium <= WindowHeightSizeClass.Medium).isTrue()
+        assertThat(WindowHeightSizeClass.Medium <= WindowHeightSizeClass.Expanded).isTrue()
+        assertThat(WindowHeightSizeClass.Expanded <= WindowHeightSizeClass.Expanded).isTrue()
 
-        assertFalse(WindowHeightSizeClass.Expanded <= WindowHeightSizeClass.Medium)
-        assertFalse(WindowHeightSizeClass.Expanded <= WindowHeightSizeClass.Compact)
-        assertFalse(WindowHeightSizeClass.Medium <= WindowHeightSizeClass.Compact)
+        assertThat(WindowHeightSizeClass.Expanded <= WindowHeightSizeClass.Medium).isFalse()
+        assertThat(WindowHeightSizeClass.Expanded <= WindowHeightSizeClass.Compact).isFalse()
+        assertThat(WindowHeightSizeClass.Medium <= WindowHeightSizeClass.Compact).isFalse()
 
         // Greater than
-        assertTrue(WindowHeightSizeClass.Expanded > WindowHeightSizeClass.Medium)
-        assertTrue(WindowHeightSizeClass.Expanded > WindowHeightSizeClass.Compact)
-        assertTrue(WindowHeightSizeClass.Medium > WindowHeightSizeClass.Compact)
+        assertThat(WindowHeightSizeClass.Expanded > WindowHeightSizeClass.Medium).isTrue()
+        assertThat(WindowHeightSizeClass.Expanded > WindowHeightSizeClass.Compact).isTrue()
+        assertThat(WindowHeightSizeClass.Medium > WindowHeightSizeClass.Compact).isTrue()
 
-        assertFalse(WindowHeightSizeClass.Expanded > WindowHeightSizeClass.Expanded)
-        assertFalse(WindowHeightSizeClass.Medium > WindowHeightSizeClass.Medium)
-        assertFalse(WindowHeightSizeClass.Compact > WindowHeightSizeClass.Compact)
+        assertThat(WindowHeightSizeClass.Expanded > WindowHeightSizeClass.Expanded).isFalse()
+        assertThat(WindowHeightSizeClass.Medium > WindowHeightSizeClass.Medium).isFalse()
+        assertThat(WindowHeightSizeClass.Compact > WindowHeightSizeClass.Compact).isFalse()
 
-        assertFalse(WindowHeightSizeClass.Compact > WindowHeightSizeClass.Medium)
-        assertFalse(WindowHeightSizeClass.Compact > WindowHeightSizeClass.Expanded)
-        assertFalse(WindowHeightSizeClass.Medium > WindowHeightSizeClass.Expanded)
+        assertThat(WindowHeightSizeClass.Compact > WindowHeightSizeClass.Medium).isFalse()
+        assertThat(WindowHeightSizeClass.Compact > WindowHeightSizeClass.Expanded).isFalse()
+        assertThat(WindowHeightSizeClass.Medium > WindowHeightSizeClass.Expanded).isFalse()
 
         // Greater than or equal to
-        assertTrue(WindowHeightSizeClass.Expanded >= WindowHeightSizeClass.Expanded)
-        assertTrue(WindowHeightSizeClass.Expanded >= WindowHeightSizeClass.Medium)
-        assertTrue(WindowHeightSizeClass.Expanded >= WindowHeightSizeClass.Compact)
-        assertTrue(WindowHeightSizeClass.Medium >= WindowHeightSizeClass.Medium)
-        assertTrue(WindowHeightSizeClass.Medium >= WindowHeightSizeClass.Compact)
-        assertTrue(WindowHeightSizeClass.Compact >= WindowHeightSizeClass.Compact)
+        assertThat(WindowHeightSizeClass.Expanded >= WindowHeightSizeClass.Expanded).isTrue()
+        assertThat(WindowHeightSizeClass.Expanded >= WindowHeightSizeClass.Medium).isTrue()
+        assertThat(WindowHeightSizeClass.Expanded >= WindowHeightSizeClass.Compact).isTrue()
+        assertThat(WindowHeightSizeClass.Medium >= WindowHeightSizeClass.Medium).isTrue()
+        assertThat(WindowHeightSizeClass.Medium >= WindowHeightSizeClass.Compact).isTrue()
+        assertThat(WindowHeightSizeClass.Compact >= WindowHeightSizeClass.Compact).isTrue()
 
-        assertFalse(WindowHeightSizeClass.Compact >= WindowHeightSizeClass.Medium)
-        assertFalse(WindowHeightSizeClass.Compact >= WindowHeightSizeClass.Expanded)
-        assertFalse(WindowHeightSizeClass.Medium >= WindowHeightSizeClass.Expanded)
+        assertThat(WindowHeightSizeClass.Compact >= WindowHeightSizeClass.Medium).isFalse()
+        assertThat(WindowHeightSizeClass.Compact >= WindowHeightSizeClass.Expanded).isFalse()
+        assertThat(WindowHeightSizeClass.Medium >= WindowHeightSizeClass.Expanded).isFalse()
     }
 
     private fun assertWidthClass(
         expectedSizeClass: WindowWidthSizeClass,
         width: Dp,
-        supportedSizeClasses: Set<WindowWidthSizeClass> = WindowWidthSizeClass.DefaultSizeClasses
+        supportedSizeClasses: Set<WindowWidthSizeClass> = WindowWidthSizeClass.DefaultSizeClasses,
     ) {
-        assertEquals(WindowWidthSizeClass.fromWidth(width, supportedSizeClasses), expectedSizeClass)
+        assertThat(WindowWidthSizeClass.fromWidth(width, supportedSizeClasses))
+            .isEqualTo(expectedSizeClass)
     }
 
     private fun assertHeightClass(
         expectedSizeClass: WindowHeightSizeClass,
         height: Dp,
-        supportedSizeClasses: Set<WindowHeightSizeClass> = WindowHeightSizeClass.DefaultSizeClasses
+        supportedSizeClasses: Set<WindowHeightSizeClass> = WindowHeightSizeClass.DefaultSizeClasses,
     ) {
-        assertEquals(WindowHeightSizeClass.fromHeight(height, supportedSizeClasses), expectedSizeClass)
+        assertThat(WindowHeightSizeClass.fromHeight(height, supportedSizeClasses))
+            .isEqualTo(expectedSizeClass)
     }
 }

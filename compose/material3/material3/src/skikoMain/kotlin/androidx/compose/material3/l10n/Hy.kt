@@ -94,6 +94,9 @@ internal fun Translations.hy() = mapOf(
     Strings.TimePickerToggleTouch to "Անցնել ժամացույցի ռեժիմին",
     Strings.TimePickerDialogTitle to "Ընտրեք ժամը",
     Strings.TimeInputDialogTitle to "Մուտքագրեք ժամը",
+    Strings.TimePickerMinuteError to "Րոպեն պետք է լինի 0–59",
+    Strings.TimePickerHourError to "Ժամը պետք է լինի 1–12",
+    Strings.TimePicker24HourError to "Ժամը պետք է լինի 0–23",
     Strings.CloseRail to "Փակել նավիգացիայի գոտին",
     Strings.WideNavigationRailPaneTitle to "Նավիգացիայի գոտի",
 )

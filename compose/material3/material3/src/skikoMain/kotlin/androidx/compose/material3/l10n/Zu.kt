@@ -94,6 +94,9 @@ internal fun Translations.zu() = mapOf(
     Strings.TimePickerToggleTouch to "Shintshela kumodi yewashi",
     Strings.TimePickerDialogTitle to "Khetha Isikhathi",
     Strings.TimeInputDialogTitle to "Faka Isikhathi",
+    Strings.TimePickerMinuteError to "Umzuzu ube ngu-0–59",
+    Strings.TimePickerHourError to "Ihora libe ngu-1–12",
+    Strings.TimePicker24HourError to "Ihora libe ngu-0–23",
     Strings.CloseRail to "Vala ikhalamu lezikhangiso",
     Strings.WideNavigationRailPaneTitle to "Ikhalamu lezikhangiso lokufuna",
 )

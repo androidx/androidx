@@ -94,6 +94,9 @@ internal fun Translations.tr() = mapOf(
     Strings.TimePickerToggleTouch to "Saat moduna geç",
     Strings.TimePickerDialogTitle to "Saat Seçin",
     Strings.TimeInputDialogTitle to "Saat Girin",
+    Strings.TimePickerMinuteError to "Dakika 0-59 arasında olmalıdır",
+    Strings.TimePickerHourError to "Saat 1-12 arasında olmalıdır",
+    Strings.TimePicker24HourError to "Saat 0-23 arasında olmalıdır",
     Strings.CloseRail to "Sütunu kapat",
     Strings.WideNavigationRailPaneTitle to "Gezinme sütunu",
 )

@@ -94,6 +94,9 @@ internal fun Translations.eu() = mapOf(
     Strings.TimePickerToggleTouch to "Aldatu erloju modura",
     Strings.TimePickerDialogTitle to "Hautatu ordua",
     Strings.TimeInputDialogTitle to "Idatzi ordua",
+    Strings.TimePickerMinuteError to "0-59 izan behar du",
+    Strings.TimePickerHourError to "1-12 izan behar du",
+    Strings.TimePicker24HourError to "0-23 izan behar du",
     Strings.CloseRail to "Itxi erraila",
     Strings.WideNavigationRailPaneTitle to "Nabigazio-erraila",
 )

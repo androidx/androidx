@@ -89,7 +89,6 @@ import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -127,7 +126,6 @@ fun HorizontalMultiBrowseCarouselSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -208,7 +206,6 @@ fun HorizontalCenteredHeroCarouselSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -328,7 +325,6 @@ fun FadingHorizontalMultiBrowseCarouselSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

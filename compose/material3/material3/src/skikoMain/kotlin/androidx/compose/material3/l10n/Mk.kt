@@ -94,6 +94,9 @@ internal fun Translations.mk() = mapOf(
     Strings.TimePickerToggleTouch to "Префрли на „Режим за внесување на часовникот“",
     Strings.TimePickerDialogTitle to "Изберете време",
     Strings.TimeInputDialogTitle to "Внесете време",
+    Strings.TimePickerMinuteError to "Опсег на мин.: 0 – 59",
+    Strings.TimePickerHourError to "Опсег на часот: 1 – 12",
+    Strings.TimePicker24HourError to "Опсег на часот: 0 – 23",
     Strings.CloseRail to "Затворање на шината",
     Strings.WideNavigationRailPaneTitle to "Шина за навигација",
 )

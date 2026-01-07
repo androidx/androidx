@@ -94,6 +94,9 @@ internal fun Translations.or() = mapOf(
     Strings.TimePickerToggleTouch to "ଘଣ୍ଟା ମୋଡକୁ ସ୍ୱିଚ କରନ୍ତୁ",
     Strings.TimePickerDialogTitle to "ସମୟ ଚୟନ କରନ୍ତୁ",
     Strings.TimeInputDialogTitle to "ସମୟ ଲେଖନ୍ତୁ",
+    Strings.TimePickerMinuteError to "ମିନିଟ 0–59 ହେବା ଆବଶ୍ୟକ",
+    Strings.TimePickerHourError to "ଘଣ୍ଟା 1–12 ହେବା ଆବଶ୍ୟକ",
+    Strings.TimePicker24HourError to "ଘଣ୍ଟା 0–23 ହେବା ଆବଶ୍ୟକ",
     Strings.CloseRail to "ରେଲ ବନ୍ଦ କରନ୍ତୁ",
     Strings.WideNavigationRailPaneTitle to "ନାଭିଗେସନ ରେଲ",
 )

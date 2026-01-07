@@ -94,6 +94,9 @@ internal fun Translations.sv() = mapOf(
     Strings.TimePickerToggleTouch to "Byt till klockläge",
     Strings.TimePickerDialogTitle to "Välj tid",
     Strings.TimeInputDialogTitle to "Ange tid",
+    Strings.TimePickerMinuteError to "Minuten måste vara 0–59",
+    Strings.TimePickerHourError to "Timmen måste vara 1–12",
+    Strings.TimePicker24HourError to "Timmen måste vara 0–23",
     Strings.CloseRail to "Stäng spår",
     Strings.WideNavigationRailPaneTitle to "Navigeringsspår",
 )

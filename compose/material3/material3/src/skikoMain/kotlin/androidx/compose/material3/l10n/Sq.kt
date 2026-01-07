@@ -94,6 +94,9 @@ internal fun Translations.sq() = mapOf(
     Strings.TimePickerToggleTouch to "Kalo te modaliteti i orës",
     Strings.TimePickerDialogTitle to "Zgjidh orën",
     Strings.TimeInputDialogTitle to "Fut orën",
+    Strings.TimePickerMinuteError to "Min. duhet të jetë 0-59",
+    Strings.TimePickerHourError to "Ora duhet të jetë 1-12",
+    Strings.TimePicker24HourError to "Ora duhet të jetë 0-23",
     Strings.CloseRail to "Mbyll shinën",
     Strings.WideNavigationRailPaneTitle to "Shina e shfletimit",
 )

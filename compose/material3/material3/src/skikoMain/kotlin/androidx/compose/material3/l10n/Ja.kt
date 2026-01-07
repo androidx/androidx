@@ -94,6 +94,9 @@ internal fun Translations.ja() = mapOf(
     Strings.TimePickerToggleTouch to "時計モードに切り替える",
     Strings.TimePickerDialogTitle to "時刻の選択",
     Strings.TimeInputDialogTitle to "時刻の入力",
+    Strings.TimePickerMinuteError to "分は 0～59 の範囲で指定してください",
+    Strings.TimePickerHourError to "時間は 1～12 の範囲で指定してください",
+    Strings.TimePicker24HourError to "時間は 0～23 の範囲で指定してください",
     Strings.CloseRail to "レールを閉じる",
     Strings.WideNavigationRailPaneTitle to "ナビゲーション レール",
 )

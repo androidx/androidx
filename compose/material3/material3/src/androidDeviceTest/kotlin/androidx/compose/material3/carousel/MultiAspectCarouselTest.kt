@@ -22,8 +22,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -57,7 +63,7 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-class CarouselLazyListTest {
+class MultiAspectCarouselTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
@@ -92,6 +98,70 @@ class CarouselLazyListTest {
         }
 
         assertAgainstGolden("default")
+    }
+
+    @Test
+    fun horizontalGrid_singleRow() {
+        rule.setMaterialContent(lightColorScheme()) {
+            MultiAspectCarouselScope {
+                val state = rememberLazyGridState()
+                LazyHorizontalGrid(
+                    rows = GridCells.Fixed(1),
+                    modifier = Modifier.requiredHeight(221.dp).testTag(MultiAspectCarouselTestTag),
+                    state = state,
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    itemsIndexed(items) { i, item ->
+                        val drawInfo = remember { MultiAspectCarouselItemDrawInfo(i, state) }
+                        Image(
+                            painter = painterResource(id = item.imageResId),
+                            contentDescription = stringResource(item.contentDescriptionResId),
+                            modifier =
+                                Modifier.width(item.mainAxisSize)
+                                    .height(205.dp)
+                                    .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("horizontalGrid_singleRow")
+    }
+
+    @Test
+    fun verticalGrid_twoColumns() {
+        rule.setMaterialContent(lightColorScheme()) {
+            MultiAspectCarouselScope {
+                val state = rememberLazyGridState()
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier.testTag(MultiAspectCarouselTestTag),
+                    state = state,
+                    contentPadding = PaddingValues(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    itemsIndexed(items) { i, item ->
+                        val drawInfo = remember { MultiAspectCarouselItemDrawInfo(i, state) }
+                        Image(
+                            painter = painterResource(id = item.imageResId),
+                            contentDescription = stringResource(item.contentDescriptionResId),
+                            modifier =
+                                Modifier.width(item.mainAxisSize)
+                                    .height(300.dp)
+                                    .maskClip(MaterialTheme.shapes.extraLarge, drawInfo),
+                            contentScale = ContentScale.Crop,
+                        )
+                    }
+                }
+            }
+        }
+
+        assertAgainstGolden("verticalGrid_twoColumns")
     }
 
     private fun assertAgainstGolden(goldenIdentifier: String) {
