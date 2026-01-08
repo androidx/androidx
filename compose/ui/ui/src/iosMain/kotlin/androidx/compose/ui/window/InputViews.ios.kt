@@ -562,6 +562,8 @@ internal class OverlayInputView(
 
     override fun canBecomeFirstResponder() = true
 
+    override fun canBecomeFocused(): Boolean = false
+
     override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
         onKeyboardPresses(presses)
         super.pressesBegan(presses, withEvent)
@@ -662,6 +664,8 @@ internal class BackgroundInputView(
             onAppeared?.invoke()
         }
     }
+
+    override fun canBecomeFocused(): Boolean = false
 
     override fun layoutSubviews() {
         super.layoutSubviews()
