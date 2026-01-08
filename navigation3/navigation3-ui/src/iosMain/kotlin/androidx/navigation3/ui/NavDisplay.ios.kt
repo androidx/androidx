@@ -18,6 +18,7 @@ package androidx.navigation3.ui
 
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.spring
@@ -25,6 +26,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleOut
+import androidx.compose.animation.unveilIn
+import androidx.compose.animation.veilOut
 import androidx.navigation3.scene.Scene
 import androidx.navigationevent.NavigationEvent.Companion.EDGE_LEFT
 import androidx.navigationevent.NavigationEvent.SwipeEdge
@@ -32,6 +35,7 @@ import androidx.navigationevent.NavigationEvent.SwipeEdge
 private const val DEFAULT_TRANSITION_DURATION_MILLISECOND = 500
 private val IosTransitionEasing = CubicBezierEasing(0.2833f, 0.99f, 0.31833f, 0.99f)
 
+@OptIn(ExperimentalAnimationApi::class)
 public actual fun <T : Any> defaultTransitionSpec():
     AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = {
     ContentTransform(
@@ -43,10 +47,13 @@ public actual fun <T : Any> defaultTransitionSpec():
             towards = AnimatedContentTransitionScope.SlideDirection.Left,
             targetOffset = { it / 4 },
             animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND, easing = IosTransitionEasing),
+        ) + veilOut(
+            animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND, easing = IosTransitionEasing),
         ),
     )
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 public actual fun <T : Any> defaultPopTransitionSpec():
     AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform = {
     ContentTransform(
@@ -54,6 +61,8 @@ public actual fun <T : Any> defaultPopTransitionSpec():
             towards = AnimatedContentTransitionScope.SlideDirection.Right,
             initialOffset = { it / 4 },
             animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND, easing = IosTransitionEasing),
+        ) + unveilIn(
+            animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND, easing = IosTransitionEasing)
         ),
         slideOutOfContainer(
             towards = AnimatedContentTransitionScope.SlideDirection.Right,
@@ -62,6 +71,7 @@ public actual fun <T : Any> defaultPopTransitionSpec():
     )
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 public actual fun <T : Any> defaultPredictivePopTransitionSpec():
     AnimatedContentTransitionScope<Scene<T>>.(@SwipeEdge Int) -> ContentTransform = { edge ->
     val towards = if (edge == EDGE_LEFT) {
@@ -73,6 +83,8 @@ public actual fun <T : Any> defaultPredictivePopTransitionSpec():
         slideIntoContainer(
             towards = towards,
             initialOffset = { it / 4 },
+            animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND, easing = LinearEasing),
+        ) + unveilIn(
             animationSpec = tween(DEFAULT_TRANSITION_DURATION_MILLISECOND, easing = LinearEasing),
         ),
         slideOutOfContainer(
