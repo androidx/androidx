@@ -429,7 +429,6 @@ private object CachedAccessibilityPropertyKeys {
 @ExportObjCClass
 private class AccessibilityRoot(
     val mediator: AccessibilityMediator,
-    var onKeyboardPresses: (Set<*>) -> Unit = {}
 ) : CMPAccessibilityElement(DUMMY_UI_ACCESSIBILITY_CONTAINER),
     UIFocusItemContainerProtocol {
     var element: AccessibilityElement? = null
@@ -470,16 +469,6 @@ private class AccessibilityRoot(
         } else {
             emptyList<Any>()
         }
-    }
-
-    override fun pressesBegan(presses: Set<*>, withEvent: UIPressesEvent?) {
-        onKeyboardPresses(presses)
-        super.pressesBegan(presses, withEvent)
-    }
-
-    override fun pressesEnded(presses: Set<*>, withEvent: UIPressesEvent?) {
-        onKeyboardPresses(presses)
-        super.pressesEnded(presses, withEvent)
     }
 }
 
@@ -1000,7 +989,6 @@ internal class AccessibilityMediator(
     val owner: SemanticsOwner,
     val coroutineContext: CoroutineContext,
     val performEscape: () -> Boolean,
-    onKeyboardPresses: (Set<*>) -> Unit,
     val onScreenReaderActive: (Boolean) -> Unit,
 ) {
     private var focusMode: AccessibilityElementFocusMode = AccessibilityElementFocusMode.None
@@ -1037,7 +1025,7 @@ internal class AccessibilityMediator(
      */
     private val coroutineScope = CoroutineScope(coroutineContext + job)
 
-    private val root = AccessibilityRoot(mediator = this, onKeyboardPresses = onKeyboardPresses)
+    private val root = AccessibilityRoot(mediator = this)
 
     /**
      * A map of all [AccessibilityElementKey] currently present in the tree to corresponding
@@ -1304,7 +1292,6 @@ internal class AccessibilityMediator(
 
         refocusKeyboardElementIfNeeded()
         view.accessibilityElements = listOf<NSObject>()
-        root.onKeyboardPresses = {}
 
         for (element in accessibilityElementsMap.values) {
             element.dispose()

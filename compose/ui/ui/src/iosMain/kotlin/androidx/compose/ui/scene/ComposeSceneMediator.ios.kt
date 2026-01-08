@@ -127,7 +127,6 @@ private class SemanticsOwnerListenerImpl(
     private val view: UIView,
     private val coroutineContext: CoroutineContext,
     private val performEscape: () -> Boolean,
-    private val onKeyboardPresses: (Set<*>) -> Unit,
     private val onScreenReaderActive: (Boolean) -> Unit,
 ) : PlatformContext.SemanticsOwnerListener {
 
@@ -146,7 +145,6 @@ private class SemanticsOwnerListenerImpl(
                 semanticsOwner,
                 coroutineContext,
                 performEscape,
-                onKeyboardPresses,
                 onScreenReaderActive
             ).also {
                 it.isEnabled = isEnabled
@@ -344,7 +342,6 @@ internal class ComposeSceneMediator(
 
                 down || up
             },
-            onKeyboardPresses = ::onKeyboardPresses,
             onScreenReaderActive = { platformScreenReader.isActive = it }
         )
     }
