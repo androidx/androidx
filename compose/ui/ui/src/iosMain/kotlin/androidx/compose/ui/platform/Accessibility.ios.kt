@@ -31,6 +31,8 @@ import androidx.compose.ui.platform.accessibility.canScroll
 import androidx.compose.ui.platform.accessibility.contentDescription
 import androidx.compose.ui.platform.accessibility.isRTL
 import androidx.compose.ui.platform.accessibility.isScreenReaderFocusable
+import androidx.compose.ui.platform.accessibility.linkTag
+import androidx.compose.ui.platform.accessibility.linkText
 import androidx.compose.ui.platform.accessibility.scrollIfPossible
 import androidx.compose.ui.platform.accessibility.scrollToCenterRectIfNeeded
 import androidx.compose.ui.platform.accessibility.sortFlattenChildren
@@ -224,6 +226,7 @@ private sealed interface AccessibilityNode {
 
         override val accessibilityIdentifier: String?
             get() = cachedConfig.getOrNull(SemanticsProperties.TestTag)
+                ?: semanticsNode.linkTag()
 
         override val accessibilityHint: String?
             get() = cachedConfig.getOrNull(SemanticsActions.OnClick)?.label
@@ -1388,9 +1391,10 @@ internal class AccessibilityMediator(
     ): Pair<AccessibilityElement, AccessibilityElementKey?> {
         val presentIds = MutableIntSet()
         presentIds.add(rootNode.id)
-        val nodes = owner.getAllUncoveredSemanticsNodesToIntObjectMap(rootNode.id) {
-            it.config.contains(SemanticsProperties.LinkTestMarker)
-        }
+        val nodes = owner.getAllUncoveredSemanticsNodesToIntObjectMap(
+            customRootNodeId = rootNode.id,
+            shouldIgnoreNode = { false }
+        )
         keyboardFocusedElementKey?.id?.let {
             if (!nodes.contains(it)) {
                 // The keyboard-focused node is removed. It's important to trigger focus reload
@@ -1889,7 +1893,7 @@ private fun AccessibilityElement.makeAccessibilityLabel(): String? {
         null
     }
 
-    return contentDescription ?: node.contentDescription
+    return contentDescription ?: node.contentDescription ?: node.semanticsNode.linkText()
 }
 
 /**

@@ -61,7 +61,11 @@ import androidx.compose.ui.test.assertAccessibilityTree
 import androidx.compose.ui.test.findNodeWithTag
 import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withAnnotation
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import androidx.compose.ui.viewinterop.UIKitView
@@ -1103,6 +1107,63 @@ class ComponentsAccessibilitySemanticTest {
                     label = "Second Text"
                     isAccessibilityElement = false
                 }
+            }
+        }
+    }
+
+    @Test
+    fun testTextLinks() = runUIKitInstrumentedTest {
+        setContent {
+            Text(text = buildAnnotatedString {
+                append("Text ")
+                withAnnotation(
+                    tag = "annotation tag",
+                    annotation = "annotation"
+                ) {
+                    append("annotation")
+                }
+                append(" ")
+                withLink(
+                    link = LinkAnnotation.Clickable(
+                        tag = "clickable tag",
+                        linkInteractionListener = object : LinkInteractionListener {
+                            override fun onClick(link: LinkAnnotation) {}
+                        }
+                    )
+                ) {
+                    append("clickable")
+                }
+                append(" ")
+                withLink(
+                    link = LinkAnnotation.Url(
+                        url = "https://example.com",
+                        linkInteractionListener = object : LinkInteractionListener {
+                            override fun onClick(link: LinkAnnotation) {}
+                        }
+                    )
+                ) {
+                    append("link")
+                }
+                append(".")
+            })
+        }
+
+        assertAccessibilityTree {
+            node {
+                isAccessibilityElement = true
+                label = "Text annotation clickable link."
+                traits = listOf(UIAccessibilityTraitStaticText)
+            }
+            node {
+                isAccessibilityElement = true
+                label = "clickable"
+                identifier = "clickable tag"
+                traits = listOf(UIAccessibilityTraitButton)
+            }
+            node {
+                isAccessibilityElement = true
+                label = "link"
+                traits = listOf(UIAccessibilityTraitButton)
             }
         }
     }
