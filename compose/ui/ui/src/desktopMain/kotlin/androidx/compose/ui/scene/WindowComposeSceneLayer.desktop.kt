@@ -19,7 +19,6 @@ package androidx.compose.ui.scene
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.awt.JLayeredPaneWithTransparencyHack
 import androidx.compose.ui.awt.RenderSettings
-import androidx.compose.ui.awt.getTransparentWindowBackground
 import androidx.compose.ui.awt.hasMacOsShadow
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.geometry.Rect
@@ -43,7 +42,9 @@ import java.awt.event.ComponentEvent
 import javax.swing.JDialog
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Rect as SkRect
+import org.jetbrains.skiko.DelicateSkikoApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
+import org.jetbrains.skiko.transparentWindowBackgroundHack
 
 internal class WindowComposeSceneLayer(
     composeContainer: ComposeContainer,
@@ -67,10 +68,10 @@ internal class WindowComposeSceneLayer(
         it.isAlwaysOnTop = true
         it.focusableWindowState = focusable
         it.isUndecorated = true
-        it.background = getTransparentWindowBackground(
-            isWindowTransparent = transparent,
-            renderApi = composeContainer.renderApi
-        )
+
+        @OptIn(DelicateSkikoApi::class)
+        it.background =
+            if (transparent) transparentWindowBackgroundHack(composeContainer.renderApi) else null
         if (transparent) {
             it.hasMacOsShadow = false
         }

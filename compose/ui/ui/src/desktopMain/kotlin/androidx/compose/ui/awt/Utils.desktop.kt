@@ -32,7 +32,6 @@ import javax.swing.JLayeredPane
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.roundToInt
-import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 
@@ -86,23 +85,6 @@ internal fun Rect.toAwtRectangleRounded(density: Density): Rectangle {
 }
 
 internal fun Color.toAwtColor() = java.awt.Color(red, green, blue, alpha)
-
-internal fun getTransparentWindowBackground(
-    isWindowTransparent: Boolean,
-    renderApi: GraphicsApi
-): java.awt.Color? {
-    /**
-     * There is a hack inside skiko OpenGL and Software redrawers for Windows that makes current
-     * window transparent without setting `background` to JDK's window. It's done by getting native
-     * component parent and calling `DwmEnableBlurBehindWindow`.
-     *
-     * FIXME: Make OpenGL work inside transparent window (background == Color(0, 0, 0, 0)) without this hack.
-     *
-     * See `enableTransparentWindow` (skiko/src/awtMain/cpp/windows/window_util.cc)
-     */
-    val skikoTransparentWindowHack = hostOs == OS.Windows && renderApi != GraphicsApi.DIRECT3D
-    return if (isWindowTransparent && !skikoTransparentWindowHack) java.awt.Color(0, 0, 0, 0) else null
-}
 
 // See https://developer.apple.com/library/archive/technotes/tn2007/tn2196.html#WINDOW_SHADOW
 private var JComponent.hasMacOsShadow: Boolean
