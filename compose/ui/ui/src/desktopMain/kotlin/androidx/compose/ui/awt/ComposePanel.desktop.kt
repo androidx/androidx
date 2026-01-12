@@ -90,7 +90,6 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
                 " (use SwingUtilities.invokeLater).\n" +
                 "Creating from another thread isn't supported."
         }
-        background = Color.white
         layout = null
         focusTraversalPolicy = object : FocusTraversalPolicy() {
             override fun getComponentAfter(
@@ -212,6 +211,12 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         _composeContainer?.preferredSize ?: Dimension(0, 0)
     }
 
+    override fun setBackground(bg: Color?) {
+        // Note that unless `setOpaque(true)` is called, JLayeredPane will not paint the background
+        super.setBackground(bg)
+        _composeContainer?.contentComponent?.background = bg
+    }
+
     /**
      * Sets Compose content of the ComposePanel.
      *
@@ -300,6 +305,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             setBounds(0, 0, width, height)
             contentComponent.isFocusable = isFocusable
             contentComponent.isRequestFocusEnabled = isRequestFocusEnabled
+            contentComponent.background = background
             exceptionHandler = this@ComposePanel.exceptionHandler
 
             _focusListeners.forEach(contentComponent::addFocusListener)

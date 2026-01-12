@@ -504,6 +504,7 @@ public final class androidx/compose/ui/awt/ComposePanel : javax/swing/JLayeredPa
 	public fun requestFocus (Z)Z
 	public fun requestFocusInWindow ()Z
 	public fun requestFocusInWindow (Ljava/awt/event/FocusEvent$Cause;)Z
+	public fun setBackground (Ljava/awt/Color;)V
 	public fun setBounds (IIII)V
 	public fun setComponentOrientation (Ljava/awt/ComponentOrientation;)V
 	public final fun setContent (Lkotlin/jvm/functions/Function2;)V

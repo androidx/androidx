@@ -897,4 +897,45 @@ class ComposePanelTest {
             window.dispose()
         }
     }
+
+    @Test
+    fun `ComposePanel draws background correctly`() = runApplicationTest {
+        // Show a canvas and a `ComposePanel` with the same background and compare the two colors.
+        // Simply comparing to the set color doesn't work because Robot returns the color after
+        // the OS transforms it to the screen color space (which doesn't seem to be accessible from
+        // the JVM).
+
+        val bgColor = java.awt.Color.RED
+
+        val canvas = java.awt.Canvas().apply {
+            size = Dimension(300, 300)
+            background = bgColor
+        }
+
+        val composePanel = ComposePanel().apply {
+            size = Dimension(300, 300)
+            background = bgColor
+        }
+        composePanel.setContent { }
+
+
+        val frame = JFrame().apply {
+            contentPane.layout = BoxLayout(contentPane, BoxLayout.Y_AXIS)
+            contentPane.add(canvas)
+            contentPane.add(composePanel)
+            size = Dimension(300, 600)
+        }
+
+        try {
+            frame.isVisible = true
+            awaitIdle()
+            val robot = java.awt.Robot()
+            val frameBounds = frame.bounds
+            val canvasPixel = robot.getPixelColor(frameBounds.centerX.toInt(), (0.25 * frameBounds.centerY).toInt())
+            val composePixel = robot.getPixelColor(frameBounds.centerX.toInt(), (0.75 * frameBounds.centerY).toInt())
+            assertThat(composePixel).isEqualTo(canvasPixel)
+        } finally {
+            frame.dispose()
+        }
+    }
 }
