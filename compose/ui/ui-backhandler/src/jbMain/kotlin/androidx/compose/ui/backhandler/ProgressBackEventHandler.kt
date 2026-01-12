@@ -1,5 +1,6 @@
 package androidx.compose.ui.backhandler
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.navigationevent.NavigationEvent
 import androidx.navigationevent.NavigationEventHandler
@@ -13,11 +14,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal class ProgressBackEventHandler(
+    compositeKey: CompositeKeyHashCode,
     enabled: Boolean,
     private val onBack: suspend (progress: Flow<BackEventCompat>) -> Unit,
     private val coroutineScope: CoroutineScope
-) : NavigationEventHandler<NavigationEventInfo.None>(
-    initialInfo = NavigationEventInfo.None,
+) : NavigationEventHandler<NavigationEventInfo>(
+    initialInfo = ProgressBackEventHandlerInfo(compositeKey),
     isBackEnabled = enabled,
 ) {
     private var progressChannel: Channel<BackEventCompat>? = null
@@ -65,3 +67,7 @@ internal class ProgressBackEventHandler(
         }
     }
 }
+
+private data class ProgressBackEventHandlerInfo(
+    val compositeKey: CompositeKeyHashCode,
+) : NavigationEventInfo()

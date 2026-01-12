@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.runtime.CompositeKeyHashCode
 import androidx.navigationevent.NavigationEvent
+import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventHandler
 import androidx.navigationevent.NavigationEventInfo
 
@@ -27,9 +29,10 @@ import androidx.navigationevent.NavigationEventInfo
  * but the [onBack] callback will not be invoked.
  */
 internal class OnBackClickEventHandler(
+    compositeKey: CompositeKeyHashCode,
     private val onBack: () -> Unit,
 ) : NavigationEventHandler<NavigationEventInfo>(
-    initialInfo = NavigationEventInfo.None,
+    initialInfo = BackClickHandlerInfo(compositeKey),
     isBackEnabled = true
 ) {
     private var isProgressEvent = false
@@ -50,3 +53,7 @@ internal class OnBackClickEventHandler(
         isProgressEvent = false
     }
 }
+
+private data class BackClickHandlerInfo(
+    val compositeKey: CompositeKeyHashCode,
+) : NavigationEventInfo()

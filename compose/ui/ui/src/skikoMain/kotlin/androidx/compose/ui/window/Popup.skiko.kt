@@ -22,6 +22,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -380,8 +381,9 @@ fun Popup(
 
     // Any focusable [Popup] must consume all back events
     if (properties.focusable) {
-        val onBackHandler = remember {
-            OnBackClickEventHandler { currentOnDismissRequest?.invoke() }
+        val compositeKey = currentCompositeKeyHashCode
+        val onBackHandler = remember(compositeKey) {
+            OnBackClickEventHandler(compositeKey) { currentOnDismissRequest?.invoke() }
         }
         LaunchedEffect(onBackHandler, properties.dismissOnBackPress) {
             onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
@@ -390,7 +392,7 @@ fun Popup(
             requireNotNull(findDefaultNavigationEventDispatcherOwner()) {
                 error("NavigationEventDispatcherOwner not found")
             }.navigationEventDispatcher
-        DisposableEffect(navigationEventDispatcher) {
+        DisposableEffect(navigationEventDispatcher, onBackHandler) {
             navigationEventDispatcher.addHandler(onBackHandler)
             onDispose { onBackHandler.remove() }
         }

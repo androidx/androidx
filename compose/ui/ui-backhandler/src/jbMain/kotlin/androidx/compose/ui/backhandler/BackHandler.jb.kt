@@ -20,6 +20,7 @@ package androidx.compose.ui.backhandler
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -45,8 +46,9 @@ actual fun PredictiveBackHandler(
     )
     val dispatcher = owner.navigationEventDispatcher
     val coroutineScope = rememberCoroutineScope()
-    val handler = remember(onBack) {
-        ProgressBackEventHandler(enabled, onBack, coroutineScope)
+    val compositeKey = currentCompositeKeyHashCode
+    val handler = remember(compositeKey, onBack) {
+        ProgressBackEventHandler(compositeKey, enabled, onBack, coroutineScope)
     }
     handler.isBackEnabled = enabled
 
@@ -65,8 +67,9 @@ actual fun BackHandler(enabled: Boolean, onBack: () -> Unit) {
         "No NavigationEventDispatcher was provided via LocalCompatNavigationEventDispatcherOwner"
     )
     val dispatcher = owner.navigationEventDispatcher
-    val handler = remember(onBack) {
-        BackEventHandler(enabled, onBack)
+    val compositeKey = currentCompositeKeyHashCode
+    val handler = remember(compositeKey, onBack) {
+        BackEventHandler(compositeKey, enabled, onBack)
     }
     handler.isBackEnabled = enabled
 

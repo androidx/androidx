@@ -21,6 +21,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.currentCompositeKeyHashCode
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -28,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.toLong
 import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -172,8 +174,9 @@ actual fun Dialog(
     content: @Composable () -> Unit
 ) {
     val currentOnDismissRequest by rememberUpdatedState(onDismissRequest)
-    val onBackHandler = remember {
-        OnBackClickEventHandler { currentOnDismissRequest() }
+    val compositeKey = currentCompositeKeyHashCode
+    val onBackHandler = remember(compositeKey) {
+        OnBackClickEventHandler(compositeKey) { currentOnDismissRequest() }
     }
     LaunchedEffect(onBackHandler, properties.dismissOnBackPress) {
         onBackHandler.backClickIsEnabled = properties.dismissOnBackPress
@@ -182,7 +185,7 @@ actual fun Dialog(
         requireNotNull(findDefaultNavigationEventDispatcherOwner()) {
             error("NavigationEventDispatcherOwner not found")
         }.navigationEventDispatcher
-    DisposableEffect(navigationEventDispatcher) {
+    DisposableEffect(navigationEventDispatcher, onBackHandler) {
         navigationEventDispatcher.addHandler(onBackHandler)
         onDispose { onBackHandler.remove() }
     }
