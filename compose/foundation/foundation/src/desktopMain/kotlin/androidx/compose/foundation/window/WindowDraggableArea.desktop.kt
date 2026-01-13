@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.window.WindowScope
+import com.jetbrains.JBR
 import java.awt.MouseInfo
 import java.awt.Point
 import java.awt.Window
@@ -43,18 +44,20 @@ fun WindowScope.WindowDraggableArea(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit = {}
 ) {
-    val handler = remember { DragHandler(window) }
-
+    val windowMoveHandler = remember(window) {
+        // Currently (Jan 2026), isWindowMoveSupported==true only on Linux
+        if (JBR.isWindowMoveSupported()) JbrMoveHandler(window) else StandardMoveHandler(window)
+    }
     Box(
         modifier = modifier.pointerInput(Unit) {
             awaitEachGesture {
                 awaitFirstDown()
-                handler.onDragStarted()
+                windowMoveHandler.startMovingTogetherWithMouse()
             }
-        }
-    ) {
-        content()
-    }
+        },
+        propagateMinConstraints = true,
+        content = { content() }
+    )
 }
 
 /**
@@ -69,9 +72,13 @@ private fun currentPointerLocation(): IntOffset? {
     return MouseInfo.getPointerInfo()?.location?.toComposeOffset()
 }
 
-private class DragHandler(
+private interface WindowMoveHandler {
+    fun startMovingTogetherWithMouse()
+}
+
+private class StandardMoveHandler(
     private val window: Window
-) {
+) : WindowMoveHandler {
     private var windowLocationAtDragStart: IntOffset? = null
     private var dragStartPoint: IntOffset? = null
 
@@ -85,7 +92,7 @@ private class DragHandler(
         }
     }
 
-    fun onDragStarted() {
+    override fun startMovingTogetherWithMouse() {
         dragStartPoint = currentPointerLocation() ?: return
         windowLocationAtDragStart = window.location.toComposeOffset()
 
@@ -100,6 +107,14 @@ private class DragHandler(
         val newLocation = windowLocationAtDragStart + (point - dragStartPoint)
         window.setLocation(newLocation.x, newLocation.y)
     }
+}
 
+private class JbrMoveHandler(
+    private val window: Window
+) : WindowMoveHandler {
+    private val windowMove = JBR.getWindowMove()
 
+    override fun startMovingTogetherWithMouse() {
+        windowMove.startMovingTogetherWithMouse(window, MouseEvent.BUTTON1)
+    }
 }

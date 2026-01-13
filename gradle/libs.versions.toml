@@ -40,6 +40,7 @@ hamcrestCore = "1.3"
 hilt = "2.49"
 incap = "0.2"
 javaxInject = "1"
+jbrApi = "1.9.0"
 jcodec = "0.2.5"
 kotlin = "2.2.20"
 kotlinBenchmark = "0.4.11"
@@ -160,6 +161,7 @@ intellijCore = { module = "com.android.tools.external.com-intellij:intellij-core
 intellijAnnotations = { module = "com.intellij:annotations", version = "12.0" }
 javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 javaxInject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
+jbrApi = { module = "org.jetbrains.runtime:jbr-api", version.ref = "jbrApi" }
 jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
 jcodecJavaSe = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
 johnrengelmanShadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
