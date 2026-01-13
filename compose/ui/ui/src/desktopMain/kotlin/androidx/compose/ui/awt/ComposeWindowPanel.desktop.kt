@@ -53,6 +53,7 @@ internal class ComposeWindowPanel(
     // big objects in memory (like the whole LayoutNode tree of the window)
     private var _composeContainer: ComposeContainer? = ComposeContainer(
         container = this,
+        isWindowLevel = true,
         skiaLayerAnalytics = skiaLayerAnalytics,
         window = window,
         windowContainer = this,

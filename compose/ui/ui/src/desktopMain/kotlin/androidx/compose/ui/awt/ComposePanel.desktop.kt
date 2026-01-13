@@ -297,6 +297,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     private fun createComposeContainer(): ComposeContainer {
         return ComposeContainer(
             container = this,
+            isWindowLevel = false,
             skiaLayerAnalytics = skiaLayerAnalytics,
             savedState = savedState,
             windowContainer = windowContainer,

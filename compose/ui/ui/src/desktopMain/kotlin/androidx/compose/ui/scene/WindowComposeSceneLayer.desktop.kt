@@ -118,6 +118,7 @@ internal class WindowComposeSceneLayer(
         drawBounds = boundsInPx.roundToIntRect()
         mediator = ComposeSceneMediator(
             container = container,
+            isWindowLevel = true,
             windowContext = windowContext,
             exceptionHandler = {
                 composeContainer.exceptionHandler?.onException(it) ?: throw it

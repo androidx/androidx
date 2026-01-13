@@ -54,6 +54,7 @@ import org.jetbrains.skiko.hostOs
  * @see ComposeAccessible
  */
 internal class ComposeSceneAccessible(
+    private val isWindowLevel: Boolean = false,
     private val forceEnableA11y: Boolean = false,
     private val parent: () -> Accessible?,
     private val accessibilityControllersProvider: () -> List<AccessibilityController>,
@@ -173,12 +174,16 @@ internal class ComposeSceneAccessible(
         override fun getAccessibleRole(): AccessibleRole {
             // We want to return a role that makes the ComposeScene container "transparent" to
             // accessibility, as if its contents are inside the parent directly.
-            // On macOS, PANEL is ignored by Java's a11y (see CAccessibility.ignoredRoles), but on
-            // Windows, it makes NVDA read it as "panel" when clicked.
-            // On Windows, NVDA ignores UNKNOWN, but on macOS UNKNOWN causes VoiceOver to highlight
-            // the entire component when traversing via VoiceOver shortcuts.
+            // - On Windows, NVDA ignores UNKNOWN, but on macOS UNKNOWN causes VoiceOver to highlight
+            //   the entire component when traversing via VoiceOver shortcuts.
+            // - On macOS, PANEL is ignored by Java's a11y (see CAccessibility.ignoredRoles), but on
+            //   Windows, it makes NVDA read it as "panel" when clicked. The exception to this is
+            //   when the scene is for the entire window (with, e.g., Composable Window), returning
+            //   PANEL when nothing else is focused makes VoiceOver highlight it because it is
+            //   the focused Swing component. UNKNOWN prevents that, and because it's top-level,
+            //   the case with traversing via VoiceOver shortcuts doesn't apply.
             return when (hostOs) {
-                OS.MacOS -> AccessibleRole.PANEL
+                OS.MacOS -> if (isWindowLevel) AccessibleRole.UNKNOWN else AccessibleRole.PANEL
                 else -> AccessibleRole.UNKNOWN
             }
         }

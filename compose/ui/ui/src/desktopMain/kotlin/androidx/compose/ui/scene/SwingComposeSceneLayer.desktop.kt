@@ -101,6 +101,7 @@ internal class SwingComposeSceneLayer(
         drawBounds = boundsInPx.roundToIntRect()
         mediator = ComposeSceneMediator(
             container = container,
+            isWindowLevel = false,
             windowContext = composeContainer.windowContext,
             exceptionHandler = {
                 composeContainer.exceptionHandler?.onException(it) ?: throw it

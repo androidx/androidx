@@ -116,6 +116,7 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
  */
 internal class ComposeSceneMediator(
     private val container: JComponent,
+    private val isWindowLevel: Boolean,
     private val windowContext: PlatformWindowContext,
     private var exceptionHandler: WindowExceptionHandler?,
     eventListener: AwtEventListener? = null,
@@ -138,6 +139,7 @@ internal class ComposeSceneMediator(
     private val semanticsOwnerManager = DesktopSemanticsOwnerManager()
     var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
     val accessible: ComposeSceneAccessible = ComposeSceneAccessible(
+        isWindowLevel = isWindowLevel,
         parent = { skiaLayerComponent.sceneAccessibleParent },
         accessibilityControllersProvider = { semanticsOwnerManager.accessibilityControllers }
     )

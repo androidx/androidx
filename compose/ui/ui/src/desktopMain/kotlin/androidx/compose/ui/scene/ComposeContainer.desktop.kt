@@ -68,6 +68,8 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * It binds Skia canvas and [ComposeScene] to [container].
  *
  * @property container A container for the [ComposeScene].
+ * @property isWindowLevel Whether the container is for the entire window (e.g.,
+ * [androidx.compose.ui.awt.ComposeWindowPanel], not [androidx.compose.ui.awt.ComposePanel]).
  * @param skiaLayerAnalytics The analytics for the Skia layer.
  * @param window The window ancestor of the [container].
  * @param windowContainer A container used for additional layers and as a reference
@@ -78,6 +80,7 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  */
 internal class ComposeContainer(
     val container: JLayeredPane,
+    private val isWindowLevel: Boolean = false,
     private val skiaLayerAnalytics: SkiaLayerAnalytics,
 
     window: Window? = null,
@@ -129,6 +132,7 @@ internal class ComposeContainer(
 
     private val mediator = ComposeSceneMediator(
         container = container,
+        isWindowLevel = isWindowLevel,
         windowContext = windowContext,
         exceptionHandler = {
             exceptionHandler?.onException(it) ?: throw it
