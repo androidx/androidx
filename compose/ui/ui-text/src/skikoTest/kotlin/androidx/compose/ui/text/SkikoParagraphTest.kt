@@ -20,8 +20,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.em
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -426,6 +428,27 @@ class SkikoParagraphTest {
         )
     }
 
+
+    @Test
+    fun bullet_withEmUnits_shouldNotCrash() {
+        // Regression test for bug where Bullet with Em units caused crash:
+        // "Only Sp can convert to Px" when textIndent used Em units
+        val text = "First item"
+
+        // Create a simple paragraph with textIndent using Em units (like Bullet.DefaultIndentation)
+        val paragraph = Paragraph(
+            text = text,
+            style = TextStyle(
+                textIndent = TextIndent(1.em, 1.em)
+            ),
+            constraints = Constraints(maxWidth = maxWidthConstraint),
+            density = defaultDensity,
+            fontFamilyResolver = fontFamilyResolver
+        )
+
+        // Verify paragraph was created successfully without crashing
+        assertEquals(1, paragraph.lineCount)
+    }
 
     private fun simpleParagraph(text: String, textStyle: TextStyle = TextStyle()) = Paragraph(
         text = text,
