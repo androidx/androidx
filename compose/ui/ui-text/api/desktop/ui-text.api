@@ -1433,6 +1433,7 @@ public final class androidx/compose/ui/text/intl/Locale {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/text/intl/Locale$Companion;
 	public fun <init> (Ljava/lang/String;)V
+	public fun <init> (Ljava/util/Locale;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getLanguage ()Ljava/lang/String;
 	public final fun getPlatformLocale ()Ljava/util/Locale;

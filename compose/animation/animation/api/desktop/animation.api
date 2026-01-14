@@ -175,7 +175,15 @@ public final class androidx/compose/animation/ExitTransition$Companion {
 public abstract interface annotation class androidx/compose/animation/ExperimentalAnimationApi : java/lang/annotation/Annotation {
 }
 
+public abstract interface annotation class androidx/compose/animation/ExperimentalLookaheadAnimationVisualDebugApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class androidx/compose/animation/ExperimentalSharedTransitionApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/animation/LookaheadAnimationVisualDebugHelperKt {
+	public static final fun CustomizedLookaheadAnimationVisualDebugging-Iv8Zu3U (JLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;I)V
+	public static final fun LookaheadAnimationVisualDebugging-gUzqikQ (ZJJJZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class androidx/compose/animation/SharedTransitionDefaults {
