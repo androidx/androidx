@@ -17,42 +17,39 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.app.PendingIntent
-import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.annotation.RestrictTo
+import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntObjectMap
+import androidx.compose.ui.util.fastForEachIndexed
 
 /**
  * A callback interface used during the capture process to write out the captured composable
  * information. This allows the capture system to be pass on types that can't be serialized into the
- * document such asn PendingIntent.
+ * document such as PendingIntent.
  *
  * Implementations of this interface will handle the serialization or transformation of the captured
  * composable tree into a desired output format, such as a binary file, a JSON representation, or a
  * network stream.
  */
-@ExperimentalRemoteCreationComposeApi
-public interface WriterEvents {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class WriterEvents {
+    private val pendingIntentList: MutableList<PendingIntent> = mutableListOf()
 
-    /**
-     * Notifies the producer of the document, that a [PendingIntent] was referenced and should be
-     * associated with a id, that represents this PendingIntent for the lifetime of the capture
-     * session.
-     *
-     * The id scheme is up to the producer of the document, and typically could be the index in a
-     * list.
-     *
-     * @param pendingIntent The [PendingIntent] to store.
-     * @return The id for the host to retrieve the corresponding [PendingIntent].
-     */
-    public fun storePendingIntent(pendingIntent: PendingIntent): Int = INVALID_ID
+    public fun storePendingIntent(pendingIntent: PendingIntent): Int {
+        val existingIndex = pendingIntentList.indexOfFirst { it === pendingIntent }
+        if (existingIndex != -1) {
+            return existingIndex
+        }
 
-    /**
-     * Called when an initial or new version of the document is available.
-     *
-     * @param documentBytes the bytes of the document.
-     */
-    public fun onDocumentAvailable(documentBytes: ByteArray)
-
-    public companion object {
-        /** Sentinel value indicating an invalid or unhandled ID for a stored object. */
-        public const val INVALID_ID: Int = -1
+        pendingIntentList.add(pendingIntent)
+        return pendingIntentList.lastIndex
     }
+
+    public val pendingIntents: IntObjectMap<PendingIntent>
+        get() =
+            MutableIntObjectMap<PendingIntent>().apply {
+                pendingIntentList.fastForEachIndexed { index, pendingIntent ->
+                    this[index] = pendingIntent
+                }
+            }
 }

@@ -1,29 +1,116 @@
 // Signature format: 4.0
 package androidx.compose.remote.creation.compose.capture {
 
-  @SuppressCompatibility public final class CaptureRemoteDocumentKt {
-    method @SuppressCompatibility public static suspend Object? captureSingleRemoteDocument(android.content.Context context, optional androidx.compose.remote.creation.CreationDisplayInfo creationDisplayInfo, optional androidx.compose.remote.creation.profile.Profile profile, optional androidx.compose.remote.creation.compose.capture.WriterEvents? writerEvents, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super byte[]>);
-    method @BytecodeOnly @SuppressCompatibility public static Object? captureSingleRemoteDocument(android.content.Context, androidx.compose.remote.creation.CreationDisplayInfo, androidx.compose.remote.creation.profile.Profile, androidx.compose.remote.creation.compose.capture.WriterEvents?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.coroutines.Continuation<? super byte[]!>);
-    method @BytecodeOnly @SuppressCompatibility public static Object! captureSingleRemoteDocument$default(android.content.Context!, androidx.compose.remote.creation.CreationDisplayInfo!, androidx.compose.remote.creation.profile.Profile!, androidx.compose.remote.creation.compose.capture.WriterEvents!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
+  public final class CaptureRemoteDocumentKt {
+    method public static suspend Object? captureSingleRemoteDocument(android.content.Context context, optional androidx.compose.remote.creation.CreationDisplayInfo creationDisplayInfo, optional androidx.compose.remote.creation.profile.Profile profile, kotlin.jvm.functions.Function0<kotlin.Unit> content, kotlin.coroutines.Continuation<? super androidx.compose.remote.creation.compose.capture.CapturedDocument>);
+    method @BytecodeOnly public static Object? captureSingleRemoteDocument(android.content.Context, androidx.compose.remote.creation.CreationDisplayInfo, androidx.compose.remote.creation.profile.Profile, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, kotlin.coroutines.Continuation<? super androidx.compose.remote.creation.compose.capture.CapturedDocument!>);
+    method @BytecodeOnly public static Object! captureSingleRemoteDocument$default(android.content.Context!, androidx.compose.remote.creation.CreationDisplayInfo!, androidx.compose.remote.creation.profile.Profile!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
-  @SuppressCompatibility public interface WriterEvents {
-    method public void onDocumentAvailable(byte[] documentBytes);
-    method public default int storePendingIntent(android.app.PendingIntent pendingIntent);
-    field public static final androidx.compose.remote.creation.compose.capture.WriterEvents.Companion Companion;
-    field public static final int INVALID_ID = -1; // 0xffffffff
-  }
-
-  @SuppressCompatibility public static final class WriterEvents.Companion {
-    property public static int INVALID_ID;
-    field public static final int INVALID_ID = -1; // 0xffffffff
+  public final class CapturedDocument {
+    method @InaccessibleFromKotlin public byte[] getBytes();
+    method @InaccessibleFromKotlin public androidx.collection.IntObjectMap<android.app.PendingIntent> getPendingIntents();
+    property public byte[] bytes;
+    property public androidx.collection.IntObjectMap<android.app.PendingIntent> pendingIntents;
   }
 
 }
 
 package androidx.compose.remote.creation.compose.layout {
 
+  public final class RemoteAlignment {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical getBottom();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal getCenterHorizontally();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical getCenterVertically();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal getEnd();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal getStart();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical getTop();
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical Bottom;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal CenterHorizontally;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical CenterVertically;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal End;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal Start;
+    property public androidx.compose.remote.creation.compose.layout.RemoteAlignment.Vertical Top;
+    field public static final androidx.compose.remote.creation.compose.layout.RemoteAlignment INSTANCE;
+  }
+
+  public static sealed nonexhaustive interface RemoteAlignment.Horizontal {
+  }
+
+  public static sealed nonexhaustive interface RemoteAlignment.Vertical {
+  }
+
+  public final class RemoteArrangement {
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical getBottom();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical getCenter();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal getCenterHorizontally();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal getEnd();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical getSpaceAround();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical getSpaceBetween();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical getSpaceEvenly();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal getStart();
+    method @InaccessibleFromKotlin public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical getTop();
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical Bottom;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical Center;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal CenterHorizontally;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal End;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical SpaceAround;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical SpaceBetween;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.HorizontalOrVertical SpaceEvenly;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal Start;
+    property public androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical Top;
+    field public static final androidx.compose.remote.creation.compose.layout.RemoteArrangement INSTANCE;
+  }
+
+  public static sealed nonexhaustive interface RemoteArrangement.Horizontal {
+  }
+
+  public static sealed nonexhaustive interface RemoteArrangement.HorizontalOrVertical extends androidx.compose.remote.creation.compose.layout.RemoteArrangement.Horizontal androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical {
+  }
+
+  public static sealed nonexhaustive interface RemoteArrangement.Vertical {
+  }
+
+  public final class RemoteBoxKt {
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBox(optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier);
+    method @KotlinOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBox(optional androidx.compose.remote.creation.compose.modifier.RemoteModifier modifier, optional androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal horizontalAlignment, optional androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical verticalArrangement, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBox(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal?, androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical?, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.remote.creation.compose.layout.RemoteComposable @androidx.compose.runtime.Composable public static void RemoteBox(androidx.compose.remote.creation.compose.modifier.RemoteModifier?, androidx.compose.runtime.Composer?, int, int);
+    method public static androidx.compose.ui.Alignment boxAlignment(androidx.compose.remote.creation.compose.layout.RemoteAlignment.Horizontal horizontal, androidx.compose.remote.creation.compose.layout.RemoteArrangement.Vertical vertical);
+  }
+
   @androidx.compose.runtime.ComposableTargetMarker(description="RemoteCompose Composable") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.TYPE, kotlin.annotation.AnnotationTarget.TYPE_PARAMETER}) public @interface RemoteComposable {
+  }
+
+}
+
+package androidx.compose.remote.creation.compose.modifier {
+
+  public final class BackgroundModifierKt {
+    method @KotlinOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.ui.graphics.Color color);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier background-4WTKRHQ(androidx.compose.remote.creation.compose.modifier.RemoteModifier, long);
+  }
+
+  public final class ClipModifierKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clip(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.ui.graphics.Shape shape, optional androidx.compose.ui.unit.DpSize size);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier clip-USBMPiE(androidx.compose.remote.creation.compose.modifier.RemoteModifier, androidx.compose.ui.graphics.Shape, long, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class PaddingModifierKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional androidx.compose.ui.unit.Dp horizontal, optional androidx.compose.ui.unit.Dp vertical);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.remote.creation.compose.modifier.RemoteModifier padding-WMci_g0(androidx.compose.remote.creation.compose.modifier.RemoteModifier, float, float, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  @androidx.compose.runtime.Stable public sealed nonexhaustive interface RemoteModifier {
+    field public static final androidx.compose.remote.creation.compose.modifier.RemoteModifier.Companion Companion;
+  }
+
+  public static final class RemoteModifier.Companion implements androidx.compose.remote.creation.compose.modifier.RemoteModifier {
+  }
+
+  public final class SizeModifierKt {
+    method public static androidx.compose.remote.creation.compose.modifier.RemoteModifier fillMaxSize(androidx.compose.remote.creation.compose.modifier.RemoteModifier, optional float fraction);
+    method @BytecodeOnly public static androidx.compose.remote.creation.compose.modifier.RemoteModifier! fillMaxSize$default(androidx.compose.remote.creation.compose.modifier.RemoteModifier!, float, int, Object!);
   }
 
 }

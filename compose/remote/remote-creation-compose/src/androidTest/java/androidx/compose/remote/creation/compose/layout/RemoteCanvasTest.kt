@@ -18,17 +18,16 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
-import androidx.compose.remote.creation.compose.capture.shaders.solidColor
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.solidColor
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
-import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.invoke
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
@@ -92,7 +91,7 @@ class RemoteCanvasTest {
     @Composable
     fun TestDrawAnchoredText_colorAndTextSize() {
         val text = RemoteString("Hello")
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteCanvas0(modifier = RemoteModifier.fillMaxSize()) {
             val w = remote.component.width
             drawAnchoredText(
                 text = text,
@@ -119,7 +118,7 @@ class RemoteCanvasTest {
     @Composable
     fun TestDrawAnchoredText_brushAndTextSize() {
         val text = RemoteString("Hello")
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteCanvas0(modifier = RemoteModifier.fillMaxSize()) {
             val w = remote.component.width
             drawAnchoredText(
                 text = text,
@@ -153,7 +152,7 @@ class RemoteCanvasTest {
                 0.9f.rf,
             )
         val text = RemoteString("Invisible Hello")
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteCanvas0(modifier = RemoteModifier.fillMaxSize()) {
             val w = remote.component.width
             // Transparent text is expected since color is not constant.
             drawAnchoredText(
@@ -181,7 +180,7 @@ class RemoteCanvasTest {
     @RemoteComposable
     @Composable
     private fun ClipRectTest(clipOp: ClipOp) {
-        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+        RemoteCanvas0(modifier = RemoteModifier.fillMaxSize()) {
             val clipRect1Left = 20f.rf
             val clipRect1Top = 20f.rf
             val clipRect1Right = 60f.rf

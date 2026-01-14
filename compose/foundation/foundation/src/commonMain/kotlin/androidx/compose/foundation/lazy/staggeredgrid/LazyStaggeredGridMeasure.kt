@@ -122,7 +122,7 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
             coroutineScope = coroutineScope,
             isInLookaheadScope = isInLookaheadScope,
             isLookingAhead = isLookingAhead,
-            approachLayoutInfo = approachLayoutInfo,
+            approachVisibleItems = approachLayoutInfo?.visibleItemsInfo,
             graphicsContext = graphicsContext,
         )
 
@@ -208,7 +208,7 @@ internal class LazyStaggeredGridMeasureContext(
     val coroutineScope: CoroutineScope,
     val isInLookaheadScope: Boolean,
     val isLookingAhead: Boolean,
-    val approachLayoutInfo: LazyStaggeredGridLayoutInfo?,
+    val approachVisibleItems: List<LazyStaggeredGridItemInfo>?,
     val graphicsContext: GraphicsContext,
 ) {
     val measuredItemProvider =
@@ -957,6 +957,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
             currentItemOffsets.any { it > mainAxisAvailableSize } ||
                 currentItemIndices.all { it < itemCount - 1 }
 
+        val reverseLayout = reverseLayout
+        val contentOffset = contentOffset
         return LazyStaggeredGridMeasureResult(
             firstVisibleItemIndices = firstItemIndices,
             firstVisibleItemScrollOffsets = firstItemOffsets,
@@ -970,7 +972,7 @@ private fun LazyStaggeredGridMeasureContext.measure(
                     // animating, to avoid a chasing effect to scrolling.
                     withMotionFrameOfReferencePlacement {
                         positionedItems.fastForEach { item ->
-                            item.place(scope = this, context = this@measure, isLookingAhead)
+                            item.place(scope = this, reverseLayout, contentOffset, isLookingAhead)
                         }
                     }
 
@@ -1052,11 +1054,11 @@ private inline fun LazyStaggeredGridMeasureContext.itemsRetainedForLookahead(
 
     if (isLookingAhead) {
         // Check if there's any item that needs to be composed based on last approachLayoutInfo
-        if (approachLayoutInfo != null && approachLayoutInfo.visibleItemsInfo.isNotEmpty()) {
+        if (approachVisibleItems != null && approachVisibleItems.isNotEmpty()) {
             // Find first item with index > end. Note that `visibleItemsInfo.last()` may not have
             // the largest index as the last few items could be added to animate item placement.
             val firstItem =
-                approachLayoutInfo.visibleItemsInfo.run {
+                approachVisibleItems.run {
                     var found: LazyStaggeredGridItemInfo? = null
                     for (i in size - 1 downTo 0) {
                         if (
@@ -1069,15 +1071,12 @@ private inline fun LazyStaggeredGridMeasureContext.itemsRetainedForLookahead(
                     }
                     found
                 }
-            val lastVisibleItem = approachLayoutInfo.visibleItemsInfo.last()
+            val lastVisibleItem = approachVisibleItems.last()
             if (firstItem != null) {
                 for (i in firstItem.index..min(lastVisibleItem.index, itemsCount - 1)) {
                     if (list?.fastAny { it.index == i } != true) {
                         if (list == null) list = mutableListOf()
-                        val lane =
-                            approachLayoutInfo.visibleItemsInfo
-                                .fastFirstOrNull { it.index == i }
-                                ?.lane ?: 0
+                        val lane = approachVisibleItems.fastFirstOrNull { it.index == i }?.lane ?: 0
                         val spanRange = itemProvider.getSpanRange(i, lane)
                         val item = measuredItemProvider.getAndMeasure(i, spanRange)
                         list.add(item)
@@ -1111,7 +1110,7 @@ private inline fun LazyStaggeredGridMeasureContext.calculateExtraItems(
             }
             val measuredItem = measuredItemProvider.getAndMeasure(index, spanRange)
             position(measuredItem)
-            result?.add(measuredItem)
+            result.add(measuredItem)
         }
     }
 
@@ -1380,66 +1379,66 @@ internal class LazyStaggeredGridMeasuredItem(
 
     fun place(
         scope: Placeable.PlacementScope,
-        context: LazyStaggeredGridMeasureContext,
+        reverseLayout: Boolean,
+        contentOffset: IntOffset,
         isLookingAhead: Boolean,
-    ) =
-        with(context) {
-            requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
-            with(scope) {
-                placeables.fastForEachIndexed { index, placeable ->
-                    val minOffset = minMainAxisOffset - placeable.mainAxisSize
-                    val maxOffset = maxMainAxisOffset
+    ) {
+        requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
+        with(scope) {
+            placeables.fastForEachIndexed { index, placeable ->
+                val minOffset = minMainAxisOffset - placeable.mainAxisSize
+                val maxOffset = maxMainAxisOffset
 
-                    var offset = offset
-                    val animation = animator.getAnimation(key, index)
-                    val layer: GraphicsLayer?
-                    if (animation != null) {
-                        if (isLookingAhead) {
-                            // Skip animation in lookahead pass
-                            animation.lookaheadOffset = offset
-                        } else {
-                            val targetOffset =
-                                if (animation.lookaheadOffset != NotInitialized) {
-                                    animation.lookaheadOffset
-                                } else {
-                                    offset
-                                }
-                            val animatedOffset = targetOffset + animation.placementDelta
-                            // cancel the animation if current and target offsets are both out of
-                            // the
-                            // bounds.
-                            if (
-                                (offset.mainAxis <= minOffset &&
-                                    animatedOffset.mainAxis <= minOffset) ||
-                                    (offset.mainAxis >= maxOffset &&
-                                        animatedOffset.mainAxis >= maxOffset)
-                            ) {
-                                animation.cancelPlacementAnimation()
+                var offset = offset
+                val animation = animator.getAnimation(key, index)
+                val layer: GraphicsLayer?
+                if (animation != null) {
+                    if (isLookingAhead) {
+                        // Skip animation in lookahead pass
+                        animation.lookaheadOffset = offset
+                    } else {
+                        val targetOffset =
+                            if (animation.lookaheadOffset != NotInitialized) {
+                                animation.lookaheadOffset
+                            } else {
+                                offset
                             }
-                            offset = animatedOffset
+                        val animatedOffset = targetOffset + animation.placementDelta
+                        // cancel the animation if current and target offsets are both out of
+                        // the
+                        // bounds.
+                        if (
+                            (offset.mainAxis <= minOffset &&
+                                animatedOffset.mainAxis <= minOffset) ||
+                                (offset.mainAxis >= maxOffset &&
+                                    animatedOffset.mainAxis >= maxOffset)
+                        ) {
+                            animation.cancelPlacementAnimation()
                         }
-                        layer = animation.layer
-                    } else {
-                        layer = null
+                        offset = animatedOffset
                     }
-                    if (reverseLayout) {
-                        offset =
-                            offset.copy { mainAxisOffset ->
-                                mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
-                            }
-                    }
-                    offset += contentOffset
-                    if (!isLookingAhead) {
-                        animation?.finalOffset = offset
-                    }
-                    if (layer != null) {
-                        placeable.placeRelativeWithLayer(offset, layer)
-                    } else {
-                        placeable.placeRelativeWithLayer(offset)
-                    }
+                    layer = animation.layer
+                } else {
+                    layer = null
+                }
+                if (reverseLayout) {
+                    offset =
+                        offset.copy { mainAxisOffset ->
+                            mainAxisLayoutSize - mainAxisOffset - placeable.mainAxisSize
+                        }
+                }
+                offset += contentOffset
+                if (!isLookingAhead) {
+                    animation?.finalOffset = offset
+                }
+                if (layer != null) {
+                    placeable.placeRelativeWithLayer(offset, layer)
+                } else {
+                    placeable.placeRelativeWithLayer(offset)
                 }
             }
         }
+    }
 
     /**
      * Update a [mainAxisLayoutSize] when the size did change after last [position] call. Knowing

@@ -940,7 +940,7 @@ public class DemoPaths {
         }
 
         @SuppressLint("RestrictedApiAndroidX")
-        CustomScroller(int mode, int direction, float touchPosition, float scrollPosition,
+        private CustomScroller(int mode, int direction, float touchPosition, float scrollPosition,
                 int notches, float max) {
             this.mDirection = direction;
             mMode = mode;

@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.espresso.Espresso
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -44,7 +44,6 @@ import java.util.concurrent.Executors
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 
 @LargeTest
@@ -62,82 +61,79 @@ class ComposeIdlingResourceTest {
 
     /** High level test to only verify that [ComposeUiTest.runOnIdle] awaits animations. */
     @Test
-    fun testRunOnIdle() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val animationState = mutableStateOf(AnimationStates.From)
-            setContent { Ui(animationState) }
+    fun testRunOnIdle() = runComposeUiTest {
+        val animationState = mutableStateOf(AnimationStates.From)
+        setContent { Ui(animationState) }
 
-            runOnIdle {
-                // Kick off the animation
-                animationRunning = true
-                animationState.value = AnimationStates.To
-            }
-
-            // Verify that animation is kicked off
-            assertThat(animationRunning).isTrue()
-            // Wait until it is finished
-            runOnIdle {
-                // Verify it was finished
-                assertThat(animationRunning).isFalse()
-            }
+        runOnIdle {
+            // Kick off the animation
+            animationRunning = true
+            animationState.value = AnimationStates.To
         }
 
-    /** High level test to only verify that [Espresso.onIdle] awaits animations. */
-    @Test
-    fun testAnimationIdle_simple() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val animationState = mutableStateOf(AnimationStates.From)
-            setContent { Ui(animationState) }
-
-            runOnIdle {
-                // Kick off the animation
-                animationRunning = true
-                animationState.value = AnimationStates.To
-            }
-
-            // Verify that animation is kicked off
-            assertThat(animationRunning).isTrue()
-            // Wait until it is finished
-            Espresso.onIdle()
+        // Verify that animation is kicked off
+        assertThat(animationRunning).isTrue()
+        // Wait until it is finished
+        runOnIdle {
             // Verify it was finished
             assertThat(animationRunning).isFalse()
         }
+    }
+
+    /** High level test to only verify that [Espresso.onIdle] awaits animations. */
+    @Test
+    fun testAnimationIdle_simple() = runComposeUiTest {
+        val animationState = mutableStateOf(AnimationStates.From)
+        setContent { Ui(animationState) }
+
+        runOnIdle {
+            // Kick off the animation
+            animationRunning = true
+            animationState.value = AnimationStates.To
+        }
+
+        // Verify that animation is kicked off
+        assertThat(animationRunning).isTrue()
+        // Wait until it is finished
+        Espresso.onIdle()
+        // Verify it was finished
+        assertThat(animationRunning).isFalse()
+    }
 
     @Test
-    fun testIdlingResourcesAreQueried() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val idlingResource =
-                object : IdlingResource {
-                    var readCount = MutableStateFlow(0)
+    fun testIdlingResourcesAreQueried() = runComposeUiTest {
+        val idlingResource =
+            object : IdlingResource {
+                var readCount = MutableStateFlow(0)
 
-                    override var isIdleNow: Boolean = false
-                        get() {
-                            readCount.value++
-                            return field
-                        }
+                override var isIdleNow: Boolean = false
+                    get() {
+                        readCount.value++
+                        return field
+                    }
 
-                    // Returns a lambda that suspends until isIdleNow is queried 10 more times
-                    fun delayedTransitionToIdle(): () -> Unit {
-                        return {
-                            runBlocking {
-                                val start = readCount.value
-                                readCount.first { it == start + 10 }
-                                isIdleNow = true
-                            }
+                // Returns a lambda that suspends until isIdleNow is queried 10 more times
+                fun delayedTransitionToIdle(): () -> Unit {
+                    return {
+                        runBlocking {
+                            val start = readCount.value
+                            readCount.first { it == start + 10 }
+                            isIdleNow = true
                         }
                     }
                 }
+            }
 
-            registerIdlingResource(idlingResource)
-            Executors.newSingleThreadExecutor().execute(idlingResource.delayedTransitionToIdle())
+        registerIdlingResource(idlingResource)
+        Executors.newSingleThreadExecutor().execute(idlingResource.delayedTransitionToIdle())
 
-            val startReadCount = idlingResource.readCount.value
-            waitForIdle()
-            val endReadCount = idlingResource.readCount.value
+        val startReadCount = idlingResource.readCount.value
+        waitForIdle()
+        val endReadCount = idlingResource.readCount.value
 
-            assertThat(idlingResource.isIdleNow).isTrue()
-            assertThat(endReadCount - startReadCount).isAtLeast(10)
-        }
+        assertThat(idlingResource.isIdleNow).isTrue()
+        assertThat(endReadCount - startReadCount).isAtLeast(10)
+    }
 
     @Composable
     private fun Ui(animationState: State<AnimationStates>) {

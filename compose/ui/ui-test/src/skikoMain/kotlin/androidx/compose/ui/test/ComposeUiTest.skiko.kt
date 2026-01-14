@@ -208,7 +208,10 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
     private val mainClockImpl = MainTestClockImpl(
         scheduler = coroutineDispatcher.scheduler,
         frameDelayMillis = FRAME_DELAY_MILLIS,
-        isStandardTestDispatcherSupportEnabled = ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled,
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-9519/Implement-ComposeUiTest-v2-APIs-and-migrate-the-tests
+        // It used to be ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled which was true by default
+        // Now it's removed.
+        isStandardTestDispatcherSupportEnabled = true
     )
     override val mainClock: MainTestClock
         get() = mainClockImpl

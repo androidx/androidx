@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.samples
 
-import android.annotation.SuppressLint
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
@@ -31,11 +30,10 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 
-@SuppressLint("ComposeTestRuleDispatcher")
-@Sampled
 @OptIn(ExperimentalTestApi::class)
+@Sampled
 fun RunComposeUiTestSample() = runComposeUiTest {
     var counter by mutableIntStateOf(1)
     setContent {

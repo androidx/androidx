@@ -93,6 +93,15 @@ public class RemoteComposeContextAndroid : RemoteComposeContext {
         content()
     }
 
+    public constructor(
+        platform: RcPlatformServices,
+        apiLevel: Int,
+        vararg tags: RemoteComposeWriter.HTag,
+        content: RemoteComposeContextAndroid.() -> Unit,
+    ) : super(RemoteComposeWriterAndroid(platform, apiLevel, *tags)) {
+        content()
+    }
+
     public fun addBitmap(image: Bitmap): Int {
         return mRemoteWriter.addBitmap(image)
     }

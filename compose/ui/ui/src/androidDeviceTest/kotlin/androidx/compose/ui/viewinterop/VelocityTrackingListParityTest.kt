@@ -39,7 +39,7 @@ import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.tests.R
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle

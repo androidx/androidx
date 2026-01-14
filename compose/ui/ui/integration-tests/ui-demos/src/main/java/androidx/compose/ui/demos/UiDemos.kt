@@ -62,6 +62,7 @@ import androidx.compose.ui.demos.focus.ScrollableLazyRowFocusDemo
 import androidx.compose.ui.demos.focus.ScrollableRowFocusDemo
 import androidx.compose.ui.demos.focus.TwoDimensionalFocusSearchDemo
 import androidx.compose.ui.demos.gestures.ButtonMetaStateDemo
+import androidx.compose.ui.demos.gestures.ConditionallyPlacedUiWithPointerInput
 import androidx.compose.ui.demos.gestures.DetectTapGesturesDemo
 import androidx.compose.ui.demos.gestures.DetectTapPressureGesturesDemo
 import androidx.compose.ui.demos.gestures.DoubleTapGestureFilterDemo
@@ -176,6 +177,9 @@ private val GestureDemos =
                     ComposableDemo("Pointer Input Lambda Stats") { PointerInputLambdaExecutions() },
                     ComposableDemo("Pointer Input Lambda Stats w/ external function") {
                         PointerInputLambdaExecutionsUsingExternalFunctions()
+                    },
+                    ComposableDemo("Conditionally Placed UI with Pointer Input") {
+                        ConditionallyPlacedUiWithPointerInput()
                     },
                 ),
             ),

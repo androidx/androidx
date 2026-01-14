@@ -32,11 +32,10 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
@@ -44,7 +43,7 @@ class MultipleActivitiesClickTest {
 
     @Test
     fun test() =
-        runAndroidComposeUiTest<Activity1>(StandardTestDispatcher()) {
+        runAndroidComposeUiTest<Activity1> {
             val activity1 = activity!!
 
             activity1.startNewActivity()

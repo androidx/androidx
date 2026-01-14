@@ -63,13 +63,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
@@ -77,10 +75,14 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.approachLayout
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ObserverModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.platform.InspectorInfo
@@ -166,8 +168,14 @@ private data class SharedTransitionScopeRootModifierElement(
     }
 }
 
+@OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
 private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitionScopeImpl) :
-    Modifier.Node(), LayoutModifierNode, ObserverModifierNode, DrawModifierNode {
+    Modifier.Node(),
+    LayoutModifierNode,
+    ObserverModifierNode,
+    DrawModifierNode,
+    CompositionLocalConsumerModifierNode {
+
     override fun onAttach() {
         super.onAttach()
         observeReads(sharedScope.observeAnimatingBlock)
@@ -196,6 +204,19 @@ private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitio
             if (coords != null) {
                 if (!isLookingAhead) {
                     sharedScope.root = coords
+                    if (isLookaheadAnimationVisualDebuggingEnabled) {
+                        if (currentValueOf(LocalLookaheadAnimationVisualDebugConfig).isEnabled) {
+                            if (sharedScope.lookaheadAnimationVisualDebugHelper == null) {
+                                sharedScope.lookaheadAnimationVisualDebugHelper =
+                                    LookaheadAnimationVisualDebugHelper()
+                            }
+                            sharedScope.lookaheadAnimationVisualDebugHelper!!
+                                .updateDrawingCoordinates(
+                                    coords.findRootCoordinates().positionInRoot(),
+                                    sharedScope.lookaheadRoot.size,
+                                )
+                        }
+                    }
                 } else {
                     sharedScope.lookaheadRoot = coords
                 }
@@ -211,12 +232,23 @@ private class SharedTransitionScopeRootModifierNode(sharedScope: SharedTransitio
 
     override fun ContentDrawScope.draw() {
         drawContent()
-        sharedScope.drawInOverlay(this)
-        if (VisualDebugging) {
-            drawRect(
-                if (sharedScope.isTransitionActive) Color.Red else Color.Green,
-                style = Stroke(3f),
-            )
+
+        if (isLookaheadAnimationVisualDebuggingEnabled) {
+            val lookaheadAnimationVisualDebugConfig =
+                currentValueOf(LocalLookaheadAnimationVisualDebugConfig)
+            if (lookaheadAnimationVisualDebugConfig.isEnabled && sharedScope.isTransitionActive) {
+                with(sharedScope.lookaheadAnimationVisualDebugHelper!!) {
+                    drawOverlay(lookaheadAnimationVisualDebugConfig.overlayColor)
+                }
+            }
+            sharedScope.drawInOverlay(this)
+            if (lookaheadAnimationVisualDebugConfig.isEnabled && sharedScope.isTransitionActive) {
+                with(sharedScope.lookaheadAnimationVisualDebugHelper!!) {
+                    drawGlobalVisualizations()
+                }
+            }
+        } else {
+            sharedScope.drawInOverlay(this)
         }
     }
 }
@@ -991,6 +1023,8 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
     override var isTransitionActive: Boolean by mutableStateOf(false)
         private set
 
+    internal var lookaheadAnimationVisualDebugHelper: LookaheadAnimationVisualDebugHelper? = null
+
     @VisibleForTesting var testBlockToRun: (() -> Unit)? = null
 
     override fun Modifier.skipToLookaheadSize(enabled: () -> Boolean): Modifier =
@@ -1194,12 +1228,24 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
         sharedElements.any { (_, element) -> element.isAnimating() }
     }
 
+    @OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
     internal fun updateTransitionActiveness() {
         val isActive = sharedElements.any { (_, element) -> element.isAnimating() }
         if (isActive != isTransitionActive) {
             isTransitionActive = isActive
             if (!isActive) {
                 sharedElements.forEach { (_, element) -> element.onSharedTransitionFinished() }
+                if (
+                    isLookaheadAnimationVisualDebuggingEnabled &&
+                        lookaheadAnimationVisualDebugHelper != null
+                ) {
+                    lookaheadAnimationVisualDebugHelper!!.onDetach(coroutineScope)
+                }
+            } else if (
+                isLookaheadAnimationVisualDebuggingEnabled &&
+                    lookaheadAnimationVisualDebugHelper != null
+            ) {
+                lookaheadAnimationVisualDebugHelper!!.onAttach(coroutineScope)
             }
         }
         sharedElements.forEach { (_, element) -> element.updateMatch() }
@@ -1338,17 +1384,18 @@ internal constructor(lookaheadScope: LookaheadScope, val coroutineScope: Corouti
 
     internal var root: LayoutCoordinates
         get() =
-            requireNotNull(_nullableRoot) {
+            requireNotNull(nullableRoot) {
                 "Error: Uninitialized LayoutCoordinates." +
                     " Please make sure when using the SharedTransitionScope composable function," +
                     " the modifier passed to the child content is being used, or use" +
                     " SharedTransitionLayout instead."
             }
         set(value) {
-            _nullableRoot = value
+            nullableRoot = value
         }
 
-    private var _nullableRoot: LayoutCoordinates? = null
+    internal var nullableRoot: LayoutCoordinates? = null
+        private set
 
     internal var lookaheadRoot: LayoutCoordinates
         get() =

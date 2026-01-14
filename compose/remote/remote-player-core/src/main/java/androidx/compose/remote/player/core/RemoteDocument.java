@@ -22,6 +22,7 @@ import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SystemClock;
+import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.serialize.MapSerializer;
 
@@ -31,6 +32,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Map;
 
 /**
@@ -75,7 +77,7 @@ public class RemoteDocument {
      */
     @RestrictTo(LIBRARY_GROUP)
     public void initializeContext(@NonNull RemoteContext context) {
-        mDocument.initializeContext(context, null);
+        mDocument.initializeContext(context);
     }
 
     /**
@@ -86,6 +88,14 @@ public class RemoteDocument {
     public void initializeContext(@NonNull RemoteContext context,
                                   @Nullable Map<Integer, Object> map) {
         mDocument.initializeContext(context, map);
+    }
+
+    /**
+     * Apply operations in data mode. Used in the initialization phase.
+     * @param context
+     */
+    public void applyDataOperations(@NonNull RemoteContext context) {
+        mDocument.applyDataOperations(context);
     }
 
     /**
@@ -155,6 +165,17 @@ public class RemoteDocument {
     @Nullable
     public String[] getNamedColors() {
         return mDocument.getNamedColors();
+    }
+
+    /**
+     * Gets a array of Names of the  Themed Colors defined in the loaded doc.
+     *
+     * @return
+     */
+    @RestrictTo(LIBRARY_GROUP)
+    @NonNull
+    public ArrayList<ColorTheme> getThemedColors() {
+        return mDocument.getThemedColors();
     }
 
     /**
@@ -241,5 +262,14 @@ public class RemoteDocument {
     @RestrictTo(LIBRARY_GROUP)
     public void serialize(@NonNull MapSerializer serializer) {
         mDocument.serialize(serializer);
+    }
+
+    /**
+     * Ask the document for the usage of a feature indicated in the header
+     *
+     * @return
+     */
+    public boolean useFeature(short featureId) {
+        return mDocument.useFeature(featureId);
     }
 }

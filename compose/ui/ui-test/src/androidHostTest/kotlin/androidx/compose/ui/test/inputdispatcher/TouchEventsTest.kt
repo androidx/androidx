@@ -21,6 +21,7 @@ import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
+import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
@@ -851,6 +852,59 @@ class TouchEventsTest : InputDispatcherTest() {
     }
 
     @Test
+    fun enqueueTouchDown_cancelsMouseAfterMove() {
+        // Scenario:
+        // move mouse
+        // press mouse
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueMouseMove(position3)
+        expectedEvents += 2 // enter + hover
+        subject.enqueueMousePress(MouseButton.Primary.buttonId)
+        expectedEvents += 3 // exit + down + press
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // cancel + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // enter + hover
+        var t = 0L
+        var buttonState = 0
+        events.removeFirst(2).let { (enterEvent, hoverEvent) ->
+            enterEvent.verifyMouseEvent(ACTION_HOVER_ENTER, t, position3, buttonState)
+            hoverEvent.verifyMouseEvent(ACTION_HOVER_MOVE, t, position3, buttonState)
+        }
+
+        // exit + down + press
+        buttonState = BUTTON_PRIMARY
+        events.removeFirst(3).let { (exitEvent, downEvent, pressEvent) ->
+            exitEvent.verifyMouseEvent(ACTION_HOVER_EXIT, t, position3, buttonState)
+            downEvent.verifyMouseEvent(ACTION_DOWN, t, position3, buttonState)
+            pressEvent.verifyMouseEvent(ACTION_BUTTON_PRESS, t, position3, buttonState)
+        }
+
+        // cancel
+        t += eventPeriodMillis
+        buttonState = 0
+        events.removeFirst(1).let { (cancelEvent) ->
+            cancelEvent.verifyMouseEvent(ACTION_CANCEL, t, position3, buttonState)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+
+    @Test
     fun enqueueTouchDown_cancelsTrackpad() {
         // Scenario:
         // press trackpad
@@ -881,6 +935,59 @@ class TouchEventsTest : InputDispatcherTest() {
         t += eventPeriodMillis
         events.removeFirst(1).let { (cancelEvent) ->
             cancelEvent.verifyTrackpadEvent(ACTION_CANCEL, t, Offset.Zero, 0)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+
+    @Test
+    fun enqueueTouchDown_cancelsTrackpadAfterMove() {
+        // Scenario:
+        // move trackpad
+        // press trackpad
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueTrackpadMove(position3)
+        expectedEvents += 2 // enter + hover
+        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        expectedEvents += 3 // exit + down + press
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // cancel + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // enter + hover
+        var t = 0L
+        var buttonState = 0
+        events.removeFirst(2).let { (enterEvent, hoverEvent) ->
+            enterEvent.verifyTrackpadEvent(ACTION_HOVER_ENTER, t, position3, buttonState)
+            hoverEvent.verifyTrackpadEvent(ACTION_HOVER_MOVE, t, position3, buttonState)
+        }
+
+        // exit + down + press
+        buttonState = BUTTON_PRIMARY
+        events.removeFirst(3).let { (exitEvent, downEvent, pressEvent) ->
+            exitEvent.verifyTrackpadEvent(ACTION_HOVER_EXIT, t, position3, buttonState)
+            downEvent.verifyTrackpadEvent(ACTION_DOWN, t, position3, buttonState)
+            pressEvent.verifyTrackpadEvent(ACTION_BUTTON_PRESS, t, position3, buttonState)
+        }
+
+        // cancel
+        t += eventPeriodMillis
+        buttonState = 0
+        events.removeFirst(1).let { (cancelEvent) ->
+            cancelEvent.verifyTrackpadEvent(ACTION_CANCEL, t, position3, buttonState)
         }
 
         // down

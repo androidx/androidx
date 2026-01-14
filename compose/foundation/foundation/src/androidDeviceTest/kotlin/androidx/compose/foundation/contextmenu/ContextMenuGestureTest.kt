@@ -29,8 +29,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.changedToDown
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.rightClick
@@ -47,9 +46,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @MediumTest
 class ContextMenuGestureTest {
-    @OptIn(ExperimentalTestApi::class)
-    @get:Rule
-    val rule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     private val tag = "testTag"
 

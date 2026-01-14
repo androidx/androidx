@@ -27,13 +27,12 @@ import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.TrackpadInjectionScope
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTrackpadInput
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.DataPoint
 import androidx.compose.ui.test.util.SinglePointerInputRecorder
 import androidx.compose.ui.test.util.verify
 import androidx.compose.ui.test.util.verifyEvents
-import kotlinx.coroutines.test.StandardTestDispatcher
+import androidx.compose.ui.test.v2.runComposeUiTest
 
 @OptIn(ExperimentalTestApi::class)
 object Common {
@@ -56,16 +55,13 @@ object Common {
     fun runTrackpadInputInjectionTest(
         trackpadInput: TrackpadInjectionScope.() -> Unit,
         vararg eventVerifiers: DataPoint.() -> Unit,
-    ): Unit =
-        runComposeUiTest(StandardTestDispatcher()) {
-            mainClock.autoAdvance = false
-            val recorder = SinglePointerInputRecorder()
-            setContent {
-                WithViewConfiguration(testViewConfiguration) { ClickableTestBox(recorder) }
-            }
-            onNodeWithTag(ClickableTestBox.defaultTag).performTrackpadInput(trackpadInput)
-            runOnIdle { recorder.verifyEvents(*eventVerifiers) }
-        }
+    ): Unit = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val recorder = SinglePointerInputRecorder()
+        setContent { WithViewConfiguration(testViewConfiguration) { ClickableTestBox(recorder) } }
+        onNodeWithTag(ClickableTestBox.defaultTag).performTrackpadInput(trackpadInput)
+        runOnIdle { recorder.verifyEvents(*eventVerifiers) }
+    }
 
     /** Verifies [DataPoint]s for events that are expected to come from a trackpad */
     fun DataPoint.verifyTrackpadEvent(

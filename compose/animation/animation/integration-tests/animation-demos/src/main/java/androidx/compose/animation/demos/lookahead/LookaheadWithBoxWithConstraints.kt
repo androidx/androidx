@@ -18,6 +18,7 @@ package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.demos.gesture.pastelColors
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,93 +48,103 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 
-@Suppress("UnusedBoxWithConstraintsScope")
+@Suppress("DisallowLookaheadAnimationVisualDebug", "UnusedBoxWithConstraintsScope")
 @Composable
 fun LookaheadWithBoxWithConstraints() {
-    Box(Modifier.fillMaxSize()) {
-        LookaheadScope {
-            Column {
-                var halfSize by remember { mutableStateOf(false) }
-                Button(onClick = { halfSize = !halfSize }, Modifier.padding(20.dp).fillMaxWidth()) {
-                    Text(if (halfSize) "Full Size" else "Half Size")
-                }
-                Column(
-                    Modifier.fillMaxHeight()
-                        .animateBounds(
-                            this@LookaheadScope,
-                            if (halfSize) Modifier.fillMaxSize(0.5f) else Modifier.fillMaxWidth(),
-                        )
-                        .background(pastelColors[2]),
-                    verticalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    Column(
-                        Modifier.border(1.dp, Color.Black, RoundedCornerShape(5.dp))
-                            .padding(top = 20.dp, bottom = 20.dp)
+    LookaheadAnimationVisualDebuggingToggle {
+        Box(Modifier.fillMaxSize()) {
+            LookaheadScope {
+                Column {
+                    var halfSize by remember { mutableStateOf(false) }
+                    Button(
+                        onClick = { halfSize = !halfSize },
+                        Modifier.padding(20.dp).fillMaxWidth(),
                     ) {
-                        Text("Regular Row: ")
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly,
-                        ) {
-                            MyButton()
-                            MyButton()
-                        }
+                        Text(if (halfSize) "Full Size" else "Half Size")
                     }
-                    Column {
-                        var animate by remember { mutableStateOf(false) }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { animate = true },
+                    Column(
+                        Modifier.fillMaxHeight()
+                            .animateBounds(
+                                this@LookaheadScope,
+                                if (halfSize) Modifier.fillMaxSize(0.5f)
+                                else Modifier.fillMaxWidth(),
+                            )
+                            .background(pastelColors[2]),
+                        verticalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        Column(
+                            Modifier.border(1.dp, Color.Black, RoundedCornerShape(5.dp))
+                                .padding(top = 20.dp, bottom = 20.dp)
                         ) {
-                            RadioButton(selected = animate, onClick = { animate = true })
-                            Text("Animate Bounds")
-                        }
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.clickable { animate = false },
-                        ) {
-                            RadioButton(selected = !animate, onClick = { animate = false })
-                            Text("No animation")
-                        }
-                        BoxWithConstraints {
-                            Column(
-                                if (animate) {
-                                        Modifier.animateBounds(
-                                            lookaheadScope = this@LookaheadScope,
-                                            Modifier.fillMaxWidth(),
-                                        )
-                                    } else {
-                                        Modifier.fillMaxWidth()
-                                    }
-                                    .then(
-                                        Modifier.border(1.dp, Color.Black, RoundedCornerShape(5.dp))
-                                            .padding(top = 20.dp, bottom = 20.dp)
-                                    )
+                            Text("Regular Row: ")
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly,
                             ) {
-                                Text("SubcomposeLayout: ")
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly,
-                                ) {
-                                    MyButton()
-                                    MyButton()
-                                }
+                                MyButton()
+                                MyButton()
                             }
                         }
-
-                        BoxWithConstraints {
-                            if (maxWidth > 300.dp) {
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceEvenly,
+                        Column {
+                            var animate by remember { mutableStateOf(false) }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable { animate = true },
+                            ) {
+                                RadioButton(selected = animate, onClick = { animate = true })
+                                Text("Animate Bounds")
+                            }
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.clickable { animate = false },
+                            ) {
+                                RadioButton(selected = !animate, onClick = { animate = false })
+                                Text("No animation")
+                            }
+                            BoxWithConstraints {
+                                Column(
+                                    if (animate) {
+                                            Modifier.animateBounds(
+                                                lookaheadScope = this@LookaheadScope,
+                                                Modifier.fillMaxWidth(),
+                                            )
+                                        } else {
+                                            Modifier.fillMaxWidth()
+                                        }
+                                        .then(
+                                            Modifier.border(
+                                                    1.dp,
+                                                    Color.Black,
+                                                    RoundedCornerShape(5.dp),
+                                                )
+                                                .padding(top = 20.dp, bottom = 20.dp)
+                                        )
                                 ) {
-                                    MyButton()
-                                    MyButton()
+                                    Text("SubcomposeLayout: ")
+                                    Row(
+                                        Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                    ) {
+                                        MyButton()
+                                        MyButton()
+                                    }
                                 }
-                            } else {
-                                Column {
-                                    MyButton()
-                                    MyButton()
+                            }
+
+                            BoxWithConstraints {
+                                if (maxWidth > 300.dp) {
+                                    Row(
+                                        Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceEvenly,
+                                    ) {
+                                        MyButton()
+                                        MyButton()
+                                    }
+                                } else {
+                                    Column {
+                                        MyButton()
+                                        MyButton()
+                                    }
                                 }
                             }
                         }

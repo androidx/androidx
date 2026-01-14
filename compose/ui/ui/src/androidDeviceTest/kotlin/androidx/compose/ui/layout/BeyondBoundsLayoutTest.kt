@@ -23,7 +23,7 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.After
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.modifier.modifierLocalProvider
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

@@ -16,6 +16,10 @@
 package androidx.compose.remote.core.operations.layout;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.PaintContext;
+
+import org.jspecify.annotations.NonNull;
+
 /**
  * Represent scroll delegates components.
  *
@@ -57,4 +61,21 @@ public interface ScrollDelegate {
 
     /** Reset the delegate (e.g. the content of the component has changed) */
     void reset();
+
+    /**
+     * Apply an edge effect
+     * @param context
+     * @param component
+     */
+    void applyEdgeEffect(@NonNull PaintContext context, @NonNull Component component, int phase);
+
+    /**
+     * Return current content width
+     */
+    float contentWidth();
+
+    /**
+     * Return current content height
+     */
+    float contentHeight();
 }

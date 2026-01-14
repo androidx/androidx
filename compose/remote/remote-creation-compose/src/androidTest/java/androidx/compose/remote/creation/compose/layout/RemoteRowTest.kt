@@ -18,15 +18,20 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.alignByBaseline
 import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI.Companion.DefaultContainerSize
+import androidx.compose.remote.creation.compose.util.TestProfiles
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.sp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.testing.junit.testparameterinjector.TestParameter
@@ -99,4 +104,36 @@ class RemoteRowTest {
                     .toList()
             )
         }
+
+    @Test
+    fun alignByBaseline() {
+        composeTestRule.runScreenshotTest(profile = TestProfiles.androidXExperimental) {
+            RemoteColumn(modifier = RemoteModifier.fillMaxSize()) {
+                RemoteRow(modifier = RemoteModifier.fillMaxWidth()) {
+                    RemoteText(
+                        text = "Large String",
+                        fontSize = 40.sp,
+                        modifier = RemoteModifier.alignByBaseline(),
+                    )
+                    RemoteText(
+                        text = "Small String",
+                        fontSize = 14.sp,
+                        modifier = RemoteModifier.alignByBaseline(),
+                    )
+                }
+                RemoteRow(modifier = RemoteModifier.fillMaxWidth()) {
+                    RemoteText(
+                        text = "Small String",
+                        fontSize = 14.sp,
+                        modifier = RemoteModifier.alignByBaseline(),
+                    )
+                    RemoteText(
+                        text = "Large String",
+                        fontSize = 40.sp,
+                        modifier = RemoteModifier.alignByBaseline(),
+                    )
+                }
+            }
+        }
+    }
 }

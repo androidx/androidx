@@ -21,14 +21,14 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.compose.state.FallbackCreationState
-import androidx.compose.remote.creation.compose.state.MutableRemoteInt
-import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteString
 
 /** Run the named host action when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HostAction(
-    public val name: String,
+    public val name: RemoteString,
     public val type: Type = Type.INT,
     public var id: Int = -1,
 ) : Action {
@@ -44,22 +44,26 @@ public class HostAction(
 
     // TODO: Add a RemoteFloatArray type and use it here!
     public constructor(
-        name: String,
+        name: RemoteString,
         value: RemoteFloat,
-        type: Type = Type.FLOAT,
-    ) : this(name, type, value.getIdForCreationState(FallbackCreationState.state))
+    ) : this(name, Type.FLOAT, value.getIdForCreationState(FallbackCreationState.state))
 
     public constructor(
-        name: String,
-        value: MutableRemoteInt,
+        name: RemoteString,
+        value: RemoteInt,
     ) : this(name, Type.INT, value.getIdForCreationState(FallbackCreationState.state))
 
     public constructor(
-        name: String,
-        value: MutableRemoteString,
+        name: RemoteString,
+        value: RemoteString,
     ) : this(name, Type.STRING, value.getIdForCreationState(FallbackCreationState.state))
 
     override fun toRemoteAction(): androidx.compose.remote.creation.actions.Action {
-        return HostAction(name, type.ordinal, id)
+        val constantValue = name.constantValue
+        return if (constantValue != null) {
+            HostAction(constantValue, type.ordinal, id)
+        } else {
+            HostAction(name.getIdForCreationState(FallbackCreationState.state), id)
+        }
     }
 }

@@ -48,7 +48,7 @@ import androidx.compose.ui.test.actions.ScrollToTest.StartPosition.PartiallyBefo
 import androidx.compose.ui.test.actions.ScrollToTest.StartPosition.StartAlignedIn
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.util.ClickableTestBox

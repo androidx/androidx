@@ -23,7 +23,7 @@ import androidx.compose.foundation.text.contextmenu.test.TestTextContextMenuData
 import androidx.compose.foundation.text.contextmenu.test.testTextContextMenuDataReader
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule

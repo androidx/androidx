@@ -134,11 +134,6 @@ public fun <T : Any> rememberSaveable(
  */
 @Composable
 public fun <T : Any> rememberSaveable(vararg inputs: Any?, init: () -> T): T {
-    // TODO(mgalhardo): We're planning to support both `autoSaver` and `serializer` in this base
-    //  variant, where neither is explicitly passed. To avoid potential method signature conflicts,
-    //  we're not using default parameters for `saver`.
-    //  This introduces a direct dependency between Compose Runtime and KTX Serialization, which is
-    //  currently under discussion at go/ktx-serialization-in-savedstate.
     @Suppress("DEPRECATION")
     return rememberSaveable(*inputs, saver = autoSaver(), key = null, init = init)
 }

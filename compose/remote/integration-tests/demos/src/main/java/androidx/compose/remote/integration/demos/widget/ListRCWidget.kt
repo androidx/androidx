@@ -63,11 +63,12 @@ class ListRCWidget : AppWidgetProvider() {
     ): ByteArray =
         withContext(Dispatchers.Main) {
             captureSingleRemoteDocument(
-                context,
-                createCreationDisplayInfo(context),
-                RcPlatformProfiles.WIDGETS_V6,
-                content = content,
-            )
+                    context,
+                    createCreationDisplayInfo(context),
+                    RcPlatformProfiles.WIDGETS_V6,
+                    content = content,
+                )
+                .bytes
         }
 
     private fun DrawInstructions(bytes: ByteArray): RemoteViews.DrawInstructions {

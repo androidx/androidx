@@ -19,28 +19,47 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.Color;
+import android.util.Log;
 import android.util.TypedValue;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.operations.ColorTheme;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /** Implement color theme support */
 @RestrictTo(LIBRARY_GROUP)
 public class ThemeSupport {
-
     RemoteComposeView mInner;
     Context mContext;
     HashMap<String, Integer> mColorMap = null;
+    HashMap<String, ColorEngine> mColorEngineMap = new HashMap<>();
+
+    { // This is done this way to simplify injecting other color engines
+        mColorEngineMap.put("android", new AndroidColorEngine());
+    }
 
     /** Map system colors to document */
     public void mapColors(@NonNull Context context, @NonNull RemoteComposeView view) {
         mContext = context;
         mInner = view;
 
+        ArrayList<ColorTheme> colorTheme = mInner.getThemedColors();
+
+        if (!colorTheme.isEmpty()) {
+            for (ColorTheme theme : colorTheme) {
+                ColorEngine colorEngine = mColorEngineMap.get(theme.mColorGroupName);
+                if (colorEngine == null) {
+                    Log.e("THEME", "Color engine not found for " + theme.mColorGroupName);
+                    continue;
+                }
+                colorEngine.getColors(context, theme);
+
+            }
+        }
         String[] name = mInner.getNamedColors();
 
         // make every effort to terminate early
@@ -53,11 +72,11 @@ public class ThemeSupport {
             if (name[i].startsWith(prefix)) {
                 int id = lookupColor(name[i].substring(prefix.length()));
                 if (id != -1) {
-                   // setRColor(name[i], id);
-                    mInner.setColor(name[i], context.getColor(id));
-                    int color = context.getColor(id);
-                    float[]hsb = new float[3];
-                    Color.colorToHSV(color, hsb);
+                    try {
+                        mInner.setColor(name[i], context.getColor(id));
+                    } catch (Exception e) {
+                        Log.e("THEME", "Color " + name[i] + " not found");
+                    }
                 }
             }
         }
@@ -70,7 +89,7 @@ public class ThemeSupport {
         if (!found) {
             return;
         }
-        if (null ==  mContext.getApplicationContext()) {
+        if (null == mContext.getApplicationContext()) {
             return;
         }
         for (int i = 0; i < name.length; i++) {
@@ -252,7 +271,7 @@ public class ThemeSupport {
     }
 
     private void setRColor(String name, int id) {
-        if (null !=  mContext.getApplicationContext()) {
+        if (null != mContext.getApplicationContext()) {
             int color = getColorFromResource(id);
             mInner.setColor(name, color);
         }
@@ -264,7 +283,7 @@ public class ThemeSupport {
             TypedValue typedValue = new TypedValue();
             try (TypedArray arr =
                          mContext.getApplicationContext()
-                            .obtainStyledAttributes(typedValue.data, new int[] {id})) {
+                                 .obtainStyledAttributes(typedValue.data, new int[]{id})) {
                 int color = arr.getColor(0, -1);
                 return color;
             }
@@ -272,9 +291,10 @@ public class ThemeSupport {
         return 0; // REMOVE IN PLATFORM
     }
 
-    private int lookupColor(String name) {
 
-        int[] colors = {
+    static class AndroidColors {
+
+        int[] mId = new int[]{
                 android.R.color.background_dark,
                 android.R.color.background_light,
                 android.R.color.black,
@@ -472,7 +492,9 @@ public class ThemeSupport {
                 android.R.color.system_text_secondary_and_tertiary_inverse_light,
                 android.R.color.tab_indicator_text
         };
-        String[] colorNames = {
+
+
+        String[] mName = {
                 "background_dark",
                 "background_light",
                 "black",
@@ -670,10 +692,15 @@ public class ThemeSupport {
                 "system_text_secondary_and_tertiary_inverse_light",
                 "tab_indicator_text"
         };
+    }
+
+    AndroidColors mAndroid = new AndroidColors();
+
+    private int lookupColor(String name) {
         if (mColorMap == null) {
             mColorMap = new HashMap<>();
-            for (int i = 0; i < colorNames.length; i++) {
-                mColorMap.put(colorNames[i], colors[i]);
+            for (int i = 0; i < mAndroid.mName.length; i++) {
+                mColorMap.put(mAndroid.mName[i], mAndroid.mId[i]);
             }
         }
         Integer ret = mColorMap.get(name);
@@ -681,5 +708,40 @@ public class ThemeSupport {
             return ret;
         }
         return -1;
+    }
+
+    interface ColorEngine {
+        void getColors(Context context, ColorTheme theme);
+    }
+
+    static class AndroidColorEngine implements ColorEngine {
+        AndroidColors mColors = new AndroidColors();
+
+        @Override
+        public void getColors(Context context, ColorTheme theme) {
+            if (theme.mDarkModeIndex >= 0 && theme.mDarkModeIndex < mColors.mId.length) {
+                try {
+                    theme.mDarkMode = context.getColor(mColors.mId[theme.mDarkModeIndex]);
+                } catch (Exception ex) {
+                    Log.e("THEME", "Color " + mColors.mName[theme.mDarkModeIndex] + " not found");
+                }
+            } else {
+                Log.e("THEME", "mDarkModeId " + theme.mDarkModeIndex + " not found "
+                        + theme.mColorGroupName);
+
+            }
+            if (theme.mLightModeIndex >= 0 && theme.mLightModeIndex < mColors.mId.length) {
+                try {
+                    theme.mLightMode = context.getColor(mColors.mId[theme.mLightModeIndex]);
+                } catch (Exception ex) {
+                    Log.e("THEME", "Color " + mColors.mName[theme.mLightModeIndex] + " not found");
+                }
+            } else {
+
+                Log.e("THEME", "mLightMode " + theme.mLightModeIndex + " not found "
+                        + theme.mColorGroupName);
+
+            }
+        }
     }
 }

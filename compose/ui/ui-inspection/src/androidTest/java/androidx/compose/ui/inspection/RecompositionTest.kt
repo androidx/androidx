@@ -29,7 +29,7 @@ import androidx.compose.ui.inspection.util.flatten
 import androidx.compose.ui.inspection.util.toMap
 import androidx.compose.ui.inspection.validators.DoNotChangeMayRequireChangesInAndroidStudio
 import androidx.compose.ui.inspection.validators.validate
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.inspection.testing.InspectorTester

@@ -26,12 +26,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runAndroidComposeUiTest
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 
 @MediumTest
@@ -44,13 +43,12 @@ class FirstDrawTest {
      */
     @LargeTest
     @Test
-    fun waitsForFirstDraw_withoutOnIdle() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            var drawn = false
-            setContent { Canvas(Modifier.fillMaxSize()) { drawn = true } }
-            // waitForIdle() shouldn't be necessary
-            assertThat(drawn).isTrue()
-        }
+    fun waitsForFirstDraw_withoutOnIdle() = runComposeUiTest {
+        var drawn = false
+        setContent { Canvas(Modifier.fillMaxSize()) { drawn = true } }
+        // waitForIdle() shouldn't be necessary
+        assertThat(drawn).isTrue()
+    }
 
     /**
      * Tests that [ComposeUiTest.waitForIdle] doesn't timeout when the compose tree is completely
@@ -58,7 +56,7 @@ class FirstDrawTest {
      */
     @Test
     fun waitsForOutOfBoundsComposeView() =
-        runAndroidComposeUiTest<ComponentActivity>(StandardTestDispatcher()) {
+        runAndroidComposeUiTest<ComponentActivity> {
             var drawn = false
 
             runOnUiThread {

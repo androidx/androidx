@@ -23,6 +23,7 @@ import static androidx.compose.remote.integration.view.demos.examples.RcTickerKt
 import android.app.Activity;
 
 import androidx.compose.remote.integration.view.demos.examples.ColorCheckKt;
+import androidx.compose.remote.integration.view.demos.examples.ColorThemeCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.CountdownKt;
 import androidx.compose.remote.integration.view.demos.examples.Cube3DKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoAnchorText;
@@ -59,12 +60,17 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity) {
         return new ArrayList<>(Arrays.asList(
+
+                getp("0/og/serverClock", ServerSideKt::serverClock),
+
+
                 getp("5/Server/serverClock", ServerSideKt::serverClock),
                 getp("2/Example/spreadSheet", ExampleNumbersKt::spreadSheet),
                 getp("1/Example/color", DemoColorKt::colorButtons),
                 getp("0/Color/colorTable", ColorCheckKt::colorTable),
                 getp("0/alt/clock", MClockKt::MClock),
-                getpc("0/Alt/stock", () -> {
+                getp("0/Alt/ColorTheme", ColorThemeCheckKt::themeList),
+                getpc("0/alt/stock", () -> {
                     return RcTicker(activity.getApplicationContext());
                 }),
 

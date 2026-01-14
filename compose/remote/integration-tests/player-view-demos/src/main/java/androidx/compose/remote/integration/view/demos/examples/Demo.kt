@@ -310,7 +310,6 @@ fun plot4(): RemoteComposeWriter {
     return rc.writer
 }
 
-// Failing to display due to b/450104887
 @Preview @Composable fun Plot1Preview() = RemoteDocPreview(plot1())
 
 @Preview @Composable fun Plot2Preview() = RemoteDocPreview(plot2())

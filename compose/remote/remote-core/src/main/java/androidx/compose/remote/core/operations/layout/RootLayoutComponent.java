@@ -160,6 +160,36 @@ public class RootLayoutComponent extends Component {
         }
     }
 
+    /**
+     * Measure the document and layout the components
+     */
+    public void measure(@NonNull RemoteContext context, float minWidth, float maxWidth,
+            float minHeight, float maxHeight) {
+        mNeedsMeasure = false;
+        context.mLastComponent = this;
+        setWidth(context.mWidth);
+        setHeight(context.mHeight);
+
+        // TODO: reuse MeasurePass
+        MeasurePass measurePass = new MeasurePass();
+        LayoutComponent firstComponent = null;
+        for (Operation op : mList) {
+            if (op instanceof Measurable) {
+                Measurable m = (Measurable) op;
+                if (firstComponent == null && op instanceof LayoutComponent) {
+                    firstComponent = (LayoutComponent) op;
+                }
+                m.measure(context.getPaintContext(), minWidth, maxWidth, minHeight, maxHeight,
+                        measurePass);
+                m.layout(context, measurePass);
+            }
+        }
+        if (firstComponent != null) {
+            setWidth(firstComponent.getWidth());
+            setHeight(firstComponent.getHeight());
+        }
+    }
+
     @Override
     public void paint(@NonNull PaintContext context) {
         mNeedsRepaint = false;
@@ -197,8 +227,8 @@ public class RootLayoutComponent extends Component {
     /**
      * Display the component hierarchy
      *
-     * @param component the current component
-     * @param indent the current indentation level
+     * @param component  the current component
+     * @param indent     the current indentation level
      * @param serializer the serializer we write to
      */
     public void displayHierarchy(
@@ -236,9 +266,6 @@ public class RootLayoutComponent extends Component {
 
     /**
      * Write the operation on the buffer
-     *
-     * @param buffer
-     * @param componentId
      */
     public static void apply(@NonNull WireBuffer buffer, int componentId) {
         buffer.start(Operations.LAYOUT_ROOT);
@@ -248,7 +275,7 @@ public class RootLayoutComponent extends Component {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {

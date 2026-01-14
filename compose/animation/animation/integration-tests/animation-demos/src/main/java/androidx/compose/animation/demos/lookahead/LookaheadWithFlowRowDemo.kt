@@ -19,6 +19,7 @@ package androidx.compose.animation.demos.lookahead
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -53,22 +54,66 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Preview
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun LookaheadWithFlowRowDemo() {
-    Column(modifier = Modifier.padding(10.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        var isHorizontal by remember { mutableStateOf(true) }
-
-        Button(
-            modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-            onClick = { isHorizontal = !isHorizontal },
+    LookaheadAnimationVisualDebuggingToggle {
+        Column(
+            modifier = Modifier.padding(10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("Toggle")
-        }
-        Column(Modifier.background(Color(0xfffdedac), RoundedCornerShape(10)).padding(10.dp)) {
-            Text("LookaheadScope + Modifier.animateBounds")
-            LookaheadScope {
+            var isHorizontal by remember { mutableStateOf(true) }
+
+            Button(
+                modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
+                onClick = { isHorizontal = !isHorizontal },
+            ) {
+                Text("Toggle")
+            }
+            Column(Modifier.background(Color(0xfffdedac), RoundedCornerShape(10)).padding(10.dp)) {
+                Text("LookaheadScope + Modifier.animateBounds")
+                LookaheadScope {
+                    FlowRow(
+                        modifier =
+                            Modifier.height(200.dp)
+                                .fillMaxWidth()
+                                .wrapContentSize(Alignment.CenterStart)
+                    ) {
+                        Box(
+                            Modifier.height(50.dp)
+                                .animateBounds(
+                                    lookaheadScope = this@LookaheadScope,
+                                    Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f),
+                                )
+                                .background(colors[0], RoundedCornerShape(10))
+                        )
+                        Box(
+                            Modifier.height(50.dp)
+                                .animateBounds(
+                                    lookaheadScope = this@LookaheadScope,
+                                    Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f),
+                                )
+                                .background(colors[1], RoundedCornerShape(10))
+                        )
+                        Box(
+                            Modifier.height(50.dp)
+                                .animateBounds(
+                                    lookaheadScope = this@LookaheadScope,
+                                    Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f),
+                                )
+                                .background(colors[2], RoundedCornerShape(10))
+                        )
+                    }
+                    Box(Modifier.size(if (isHorizontal) 100.dp else 60.dp))
+                }
+            }
+
+            Spacer(Modifier.size(50.dp))
+
+            Column(Modifier.background(Color(0xfffdedac), RoundedCornerShape(10)).padding(10.dp)) {
+                Text("Animating Width")
                 FlowRow(
                     modifier =
                         Modifier.height(200.dp)
@@ -77,56 +122,24 @@ fun LookaheadWithFlowRowDemo() {
                 ) {
                     Box(
                         Modifier.height(50.dp)
-                            .animateBounds(
-                                lookaheadScope = this@LookaheadScope,
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.4f else 1f),
-                            )
+                            .fillMaxWidth(animateFloatAsState(if (isHorizontal) 0.4f else 1f).value)
                             .background(colors[0], RoundedCornerShape(10))
                     )
                     Box(
                         Modifier.height(50.dp)
-                            .animateBounds(
-                                lookaheadScope = this@LookaheadScope,
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f),
+                            .fillMaxWidth(
+                                animateFloatAsState(if (isHorizontal) 0.2f else 0.4f).value
                             )
                             .background(colors[1], RoundedCornerShape(10))
                     )
                     Box(
                         Modifier.height(50.dp)
-                            .animateBounds(
-                                lookaheadScope = this@LookaheadScope,
-                                Modifier.fillMaxWidth(if (isHorizontal) 0.2f else 0.4f),
+                            .fillMaxWidth(
+                                animateFloatAsState(if (isHorizontal) 0.2f else 0.4f).value
                             )
                             .background(colors[2], RoundedCornerShape(10))
                     )
                 }
-                Box(Modifier.size(if (isHorizontal) 100.dp else 60.dp))
-            }
-        }
-
-        Spacer(Modifier.size(50.dp))
-
-        Column(Modifier.background(Color(0xfffdedac), RoundedCornerShape(10)).padding(10.dp)) {
-            Text("Animating Width")
-            FlowRow(
-                modifier =
-                    Modifier.height(200.dp).fillMaxWidth().wrapContentSize(Alignment.CenterStart)
-            ) {
-                Box(
-                    Modifier.height(50.dp)
-                        .fillMaxWidth(animateFloatAsState(if (isHorizontal) 0.4f else 1f).value)
-                        .background(colors[0], RoundedCornerShape(10))
-                )
-                Box(
-                    Modifier.height(50.dp)
-                        .fillMaxWidth(animateFloatAsState(if (isHorizontal) 0.2f else 0.4f).value)
-                        .background(colors[1], RoundedCornerShape(10))
-                )
-                Box(
-                    Modifier.height(50.dp)
-                        .fillMaxWidth(animateFloatAsState(if (isHorizontal) 0.2f else 0.4f).value)
-                        .background(colors[2], RoundedCornerShape(10))
-                )
             }
         }
     }

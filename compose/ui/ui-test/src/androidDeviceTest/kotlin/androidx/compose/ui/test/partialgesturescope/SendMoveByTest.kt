@@ -24,7 +24,7 @@ import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
 import androidx.compose.ui.test.cancel
 import androidx.compose.ui.test.down
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.move
 import androidx.compose.ui.test.moveBy
 import androidx.compose.ui.test.movePointerBy

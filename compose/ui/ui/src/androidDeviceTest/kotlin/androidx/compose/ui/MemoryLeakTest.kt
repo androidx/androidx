@@ -22,6 +22,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.createAndroidComposeBenchmarkRunner
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.AndroidUiDispatcher
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -200,70 +207,130 @@ class MemoryLeakTest {
             recomposer.join()
         }
 
-    /**
-     * Runs the given code in a loop for exactly [iterations] times and every [gcFrequency] it will
-     * force garbage collection and check the allocated heap size. Suspending so that we can briefly
-     * yield() to the dispatcher before collecting garbage so that event loop driven cleanup
-     * processes can run before we take measurements.
-     */
-    suspend fun loopAndVerifyMemory(
-        iterations: Int,
-        gcFrequency: Int,
-        ignoreFirstRun: Boolean = false,
-        operationToPerform: suspend () -> Unit,
-    ) {
-        val rawStats = ArrayList<Long>(iterations / gcFrequency)
+    @Test
+    fun scrollLazyStaggeredGrid() {
+        runBlocking(AndroidUiDispatcher.Main) {
+            val immediateClock =
+                object : MonotonicFrameClock {
+                    override suspend fun <R> withFrameNanos(
+                        onFrame: (frameTimeNanos: Long) -> R
+                    ): R {
+                        yield()
+                        return onFrame(0L)
+                    }
+                }
+            val context = coroutineContext + immediateClock
+            val recomposer = Recomposer(context)
 
-        // Collect data
-        repeat(iterations) { i ->
-            if (i % gcFrequency == 0) {
-                // Let any scheduled cleanup processes run before we take measurements
-                yield()
-                Runtime.getRuntime().let {
-                    it.gc() // Run gc
-                    rawStats.add(it.totalMemory() - it.freeMemory()) // Collect memory info
+            suspend fun doFrame() {
+                Snapshot.sendApplyNotifications()
+
+                var pendingCount = 0
+                while (recomposer.hasPendingWork) {
+                    pendingCount++
+                    yield()
+                    if (pendingCount == 10) {
+                        error("Recomposer still pending work after 10 frames.")
+                    }
                 }
             }
-            operationToPerform()
+
+            val state = LazyStaggeredGridState()
+            activityTestRule.activity.setContent(recomposer) {
+                LookaheadScope {
+                    LazyVerticalStaggeredGrid(
+                        StaggeredGridCells.Fixed(2),
+                        Modifier.fillMaxSize(),
+                        state,
+                    ) {
+                        items(100) { Box(Modifier.size(100.dp)) }
+                    }
+                }
+            }
+            launch(context = context, start = CoroutineStart.UNDISPATCHED) {
+                recomposer.runRecomposeAndApplyChanges()
+            }
+            doFrame()
+
+            loopAndVerifyMemory(iterations = 400, gcFrequency = 40) {
+                state.scrollToItem(10)
+                doFrame()
+
+                state.scrollToItem(0)
+                doFrame()
+            }
+
+            recomposer.cancel()
+            recomposer.join()
         }
+    }
 
-        fun Long.formatMemory(): String {
-            return NumberFormat.getNumberInstance(Locale.US).format(this / 1024) + " KiB"
+    companion object {
+        /**
+         * Runs the given code in a loop for exactly [iterations] times and every [gcFrequency] it
+         * will force garbage collection and check the allocated heap size. Suspending so that we
+         * can briefly yield() to the dispatcher before collecting garbage so that event loop driven
+         * cleanup processes can run before we take measurements.
+         */
+        suspend fun loopAndVerifyMemory(
+            iterations: Int,
+            gcFrequency: Int,
+            ignoreFirstRun: Boolean = false,
+            operationToPerform: suspend () -> Unit,
+        ) {
+            val rawStats = ArrayList<Long>(iterations / gcFrequency)
+
+            // Collect data
+            repeat(iterations) { i ->
+                if (i % gcFrequency == 0) {
+                    // Let any scheduled cleanup processes run before we take measurements
+                    yield()
+                    Runtime.getRuntime().let {
+                        it.gc() // Run gc
+                        rawStats.add(it.totalMemory() - it.freeMemory()) // Collect memory info
+                    }
+                }
+                operationToPerform()
+            }
+
+            fun Long.formatMemory(): String {
+                return NumberFormat.getNumberInstance(Locale.US).format(this / 1024) + " KiB"
+            }
+
+            // Throw away the first run if needed
+            val memoryStats = if (ignoreFirstRun) rawStats.drop(1) else rawStats
+            val formattedStats = memoryStats.joinToString(", ") { it.formatMemory() }
+
+            // Verify that memory did not grow
+            val min = memoryStats.minOrNull()
+            val max = memoryStats.maxOrNull()
+
+            if (min == null || max == null) {
+                throw AssertionError("Collected memory data are corrupted")
+            }
+
+            // Check if every iteration the memory grew => that's a bad sign
+            val diffs = memoryStats.zipWithNext().map { (it.second - it.first) / 1024 }
+            val areAllDiffsGrowing = diffs.all { it > 0 }
+            if (areAllDiffsGrowing) {
+                throw AssertionError(
+                    "Possible memory leak detected!. Memory kept " +
+                        "increasing every step. Min: ${min.formatMemory()}, max: " +
+                        "${max.formatMemory()}\nData: [$formattedStats]"
+                )
+            }
+
+            // Check if we have a significant diff across all the data
+            val diff = max - min
+            if (diff > 1024 * 1024) { // 1 MiB tolerance
+                throw AssertionError(
+                    "Possible memory leak detected! Min: " +
+                        "${min.formatMemory()}, max: ${max.formatMemory()}\n" +
+                        "Data: [$formattedStats]"
+                )
+            }
+
+            Log.i("MemoryTest", "Measured memory data: $formattedStats")
         }
-
-        // Throw away the first run if needed
-        val memoryStats = if (ignoreFirstRun) rawStats.drop(1) else rawStats
-        val formattedStats = memoryStats.joinToString(", ") { it.formatMemory() }
-
-        // Verify that memory did not grow
-        val min = memoryStats.minOrNull()
-        val max = memoryStats.maxOrNull()
-
-        if (min == null || max == null) {
-            throw AssertionError("Collected memory data are corrupted")
-        }
-
-        // Check if every iteration the memory grew => that's a bad sign
-        val diffs = memoryStats.zipWithNext().map { (it.second - it.first) / 1024 }
-        val areAllDiffsGrowing = diffs.all { it > 0 }
-        if (areAllDiffsGrowing) {
-            throw AssertionError(
-                "Possible memory leak detected!. Memory kept " +
-                    "increasing every step. Min: ${min.formatMemory()}, max: " +
-                    "${max.formatMemory()}\nData: [$formattedStats]"
-            )
-        }
-
-        // Check if we have a significant diff across all the data
-        val diff = max - min
-        if (diff > 1024 * 1024) { // 1 MiB tolerance
-            throw AssertionError(
-                "Possible memory leak detected! Min: " +
-                    "${min.formatMemory()}, max: ${max.formatMemory()}\n" +
-                    "Data: [$formattedStats]"
-            )
-        }
-
-        Log.i("MemoryTest", "Measured memory data: $formattedStats")
     }
 }

@@ -19,10 +19,10 @@ package androidx.compose.remote.creation.compose.capture
 
 import android.graphics.Path
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.vector.RemotePathBuilder
-import androidx.compose.remote.creation.compose.capture.vector.RemotePathData
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.vector.RemotePathBuilder
+import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -53,7 +53,7 @@ import androidx.compose.ui.graphics.vector.VectorGroup
 /**
  * A base class for defining vector graphics that can be drawn in a remote compose. It could be
  * rendered by passing it as an argument to
- * [androidx.compose.remote.creation.compose.capture.vector.painterRemoteVector]
+ * [androidx.compose.remote.creation.compose.vector.painterRemoteVector]
  *
  * @param name Name of the Vector asset
  * @param viewportWidth Used to define the height of the viewport space. Viewport is basically the

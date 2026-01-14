@@ -29,7 +29,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.injectionscope.trackpad.Common.verifyTrackpadEvent
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.util.ClickableTestBox

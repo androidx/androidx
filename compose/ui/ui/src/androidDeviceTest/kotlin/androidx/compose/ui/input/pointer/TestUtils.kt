@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.input.pointer
 
+import android.os.Handler
+import android.os.Looper
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
@@ -33,11 +35,14 @@ import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import org.junit.Assert
 
 internal fun PointerInputEventData(
@@ -601,3 +606,11 @@ internal fun elementFor(key1: Any? = null, instance: Modifier.Node) =
             return key1?.hashCode() ?: 0
         }
     }
+
+internal fun waitForPointerUpdate(rule: ComposeTestRule, delayMillis: Long = 200L) {
+    rule.waitForIdle()
+    val latch = CountDownLatch(1)
+    Handler(Looper.getMainLooper()).postDelayed({ latch.countDown() }, delayMillis)
+    latch.await(2, TimeUnit.SECONDS)
+    rule.waitForIdle()
+}

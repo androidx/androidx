@@ -71,7 +71,7 @@ public class RemotePathBase {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public float @NonNull[] getPath() {
+    public float @NonNull [] getPath() {
         return mPath;
     }
 
@@ -185,7 +185,9 @@ public class RemotePathBase {
      *           specify the start of a new contour
      */
     public void rMoveTo(float dx, float dy) {
-        add(MOVE, mCx = dx + mCx, mCy = dy + mCy);
+        mCx += dx;
+        mCy += dy;
+        addMove(MOVE, mCx, mCy);
     }
 
     /**
@@ -218,7 +220,7 @@ public class RemotePathBase {
      *            end point of a quadratic curve
      */
     public void rQuadTo(float dx1, float dy1, float dx2, float dy2) {
-        add(QUADRATIC, dx1 + mCx, dy1 + mCx, dx2 + mCx, dy2 + mCx);
+        add(QUADRATIC, dx1 + mCx, dy1 + mCy, dx2 + mCx, dy2 + mCy);
         mCx += dx2;
         mCy += dy2;
     }

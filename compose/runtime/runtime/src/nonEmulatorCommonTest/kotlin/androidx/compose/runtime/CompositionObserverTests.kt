@@ -27,8 +27,6 @@ import androidx.compose.runtime.tooling.setObserver
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlinx.test.IgnoreJsTarget
-import kotlinx.test.IgnoreWasmTarget
 
 @Stable
 @OptIn(ExperimentalComposeRuntimeApi::class)
@@ -67,30 +65,27 @@ class CompositionObserverTests {
     }
 
     @Test
-    // TODO: b/409727436
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-797
-    @IgnoreJsTarget
-    @IgnoreWasmTarget
-    fun observeScope() {
+    fun observeScope() = wrapRunTest {
         val observer = SingleScopeObserver()
         compositionTest {
-            var data by mutableStateOf(0)
-            var scope: RecomposeScope? = null
+                var data by mutableStateOf(0)
+                var scope: RecomposeScope? = null
 
-            compose {
-                scope = currentRecomposeScope
-                Text("$data")
+                compose {
+                    scope = currentRecomposeScope
+                    Text("$data")
+                }
+
+                validate { Text("$data") }
+
+                observer.target = scope
+                composition?.setObserver(observer)
+
+                data++
+                expectChanges()
+                revalidate()
             }
-
-            validate { Text("$data") }
-
-            observer.target = scope
-            composition?.setObserver(observer)
-
-            data++
-            expectChanges()
-            revalidate()
-        }
+            .awaitCompletion()
 
         assertEquals(1, observer.startCount)
         assertEquals(1, observer.endCount)
@@ -98,36 +93,33 @@ class CompositionObserverTests {
     }
 
     @Test
-    // TODO: b/409727436
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-797
-    @IgnoreJsTarget
-    @IgnoreWasmTarget
-    fun observeScope_dispose() {
+    fun observeScope_dispose() = wrapRunTest {
         val observer = SingleScopeObserver()
         compositionTest {
-            var data by mutableStateOf(0)
-            var scope: RecomposeScope? = null
+                var data by mutableStateOf(0)
+                var scope: RecomposeScope? = null
 
-            compose {
-                scope = currentRecomposeScope
-                Text("$data")
+                compose {
+                    scope = currentRecomposeScope
+                    Text("$data")
+                }
+
+                validate { Text("$data") }
+
+                observer.target = scope
+                val handle = composition?.setObserver(observer)
+
+                data++
+                expectChanges()
+                revalidate()
+
+                handle?.dispose()
+
+                data++
+                expectChanges()
+                revalidate()
             }
-
-            validate { Text("$data") }
-
-            observer.target = scope
-            val handle = composition?.setObserver(observer)
-
-            data++
-            expectChanges()
-            revalidate()
-
-            handle?.dispose()
-
-            data++
-            expectChanges()
-            revalidate()
-        }
+            .awaitCompletion()
 
         assertEquals(1, observer.startCount)
         assertEquals(1, observer.endCount)
@@ -136,46 +128,43 @@ class CompositionObserverTests {
     }
 
     @Test
-    // TODO: b/409727436
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-797
-    @IgnoreJsTarget
-    @IgnoreWasmTarget
-    fun observeScope_scopeRemoved() {
+    fun observeScope_scopeRemoved() = wrapRunTest {
         val observer = SingleScopeObserver()
         compositionTest {
-            var data by mutableStateOf(0)
-            var visible by mutableStateOf(true)
-            var scope: RecomposeScope? = null
+                var data by mutableStateOf(0)
+                var visible by mutableStateOf(true)
+                var scope: RecomposeScope? = null
 
-            compose {
-                if (visible) {
-                    Wrap {
-                        scope = currentRecomposeScope
+                compose {
+                    if (visible) {
+                        Wrap {
+                            scope = currentRecomposeScope
+                            Text("$data")
+                        }
+                    }
+                }
+
+                validate {
+                    if (visible) {
                         Text("$data")
                     }
                 }
+
+                observer.target = scope
+                composition?.setObserver(observer)
+
+                data++
+                expectChanges()
+                revalidate()
+
+                assertEquals(0, observer.disposedCount)
+                visible = false
+                expectChanges()
+                revalidate()
+
+                assertEquals(1, observer.disposedCount)
             }
-
-            validate {
-                if (visible) {
-                    Text("$data")
-                }
-            }
-
-            observer.target = scope
-            composition?.setObserver(observer)
-
-            data++
-            expectChanges()
-            revalidate()
-
-            assertEquals(0, observer.disposedCount)
-            visible = false
-            expectChanges()
-            revalidate()
-
-            assertEquals(1, observer.disposedCount)
-        }
+            .awaitCompletion()
 
         assertEquals(1, observer.startCount)
         assertEquals(1, observer.endCount)

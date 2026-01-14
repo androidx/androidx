@@ -1,0 +1,826 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+          - {type: ClipRectModifierOperation, width: 968.0, height: 968.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1032.0, contentDimension: 2000.0, hostDimension: 968.0}
+        - type: CANVAS
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 968.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - {type: ComponentValue, valueId: 45, componentValueType: WIDTH, componentId: -5}
+          - {type: ComponentValue, valueId: 46, componentValueType: HEIGHT, componentId: -5}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Value, value: 0.0}
+            endX: {type: Variable, id: 45, value: 968.0}
+            endY: {type: Variable, id: 46, value: 2000.0}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Variable, id: 46, value: 2000.0}
+            endX: {type: Variable, id: 45, value: 968.0}
+            endY: {type: Value, value: 0.0}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 968.0, height: 2000.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          - type: BOX
+            id: -7
+            x: 334.0
+            y: 900.0
+            width: 300.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 49, text: 'Hello, World!'}
+            - type: ComponentModifiers
+              modifiers:
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0,
+                height: 200.0, color: '0xffffff00', shapeType: RECTANGLE}
+              - type: WidthModifierOperation
+                width: {type: Value, value: 300.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: LayoutComputeOperation
+                list:
+                - {type: DataDynamicListFloat, id: 2097194, values: '[334.0, 900.0,
+                    300.0, 200.0, 968.0, 2000.0]'}
+                - type: FloatExpression
+                  id: 47
+                  srcValues:
+                  - {type: Variable, id: 45}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 0.0}
+                  value: {type: Variable, id: 47, value: 334.0}
+                - type: FloatExpression
+                  id: 48
+                  srcValues:
+                  - {type: Variable, id: 46}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 3.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 1.0}
+                  value: {type: Variable, id: 48, value: 900.0}
+            - type: CORE_TEXT
+              id: -9
+              x: 0.0
+              y: 0.0
+              width: 240.0
+              height: 40.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 49
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 399.5}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 3
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: NONE
+          horizontalPositioning: NONE
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+          - {type: ClipRectModifierOperation, width: 968.0, height: 968.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1032.0, contentDimension: 2000.0, hostDimension: 968.0}
+        - type: CANVAS
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 968.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - {type: ComponentValue, valueId: 45, componentValueType: WIDTH, componentId: -5}
+          - {type: ComponentValue, valueId: 46, componentValueType: HEIGHT, componentId: -5}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Value, value: 0.0}
+            endX: {type: Variable, id: 45, value: 968.0}
+            endY: {type: Variable, id: 46, value: 2000.0}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Variable, id: 46, value: 2000.0}
+            endX: {type: Variable, id: 45, value: 968.0}
+            endY: {type: Value, value: 0.0}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 968.0, height: 2000.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          - type: BOX
+            id: -7
+            x: 334.0
+            y: 900.0
+            width: 300.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 49, text: 'Hello, World!'}
+            - type: ComponentModifiers
+              modifiers:
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0,
+                height: 200.0, color: '0xffffff00', shapeType: RECTANGLE}
+              - type: WidthModifierOperation
+                width: {type: Value, value: 300.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: LayoutComputeOperation
+                list:
+                - {type: DataDynamicListFloat, id: 2097194, values: '[334.0, 900.0,
+                    300.0, 200.0, 968.0, 2000.0]'}
+                - type: FloatExpression
+                  id: 47
+                  srcValues:
+                  - {type: Variable, id: 45}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 0.0}
+                  value: {type: Variable, id: 47, value: 334.0}
+                - type: FloatExpression
+                  id: 48
+                  srcValues:
+                  - {type: Variable, id: 46}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 3.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 1.0}
+                  value: {type: Variable, id: 48, value: 900.0}
+            - type: CORE_TEXT
+              id: -9
+              x: 0.0
+              y: 0.0
+              width: 240.0
+              height: 40.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 49
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 399.5}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 3
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: NONE
+          horizontalPositioning: NONE
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 600
+    height: 800
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 600.0
+      height: 800.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 600.0
+        height: 800.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 800.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+          - {type: ClipRectModifierOperation, width: 568.0, height: 768.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -0.0, maxScrollValue: 1232.0, contentDimension: 2000.0, hostDimension: 768.0}
+        - type: CANVAS
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 568.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - {type: ComponentValue, valueId: 45, componentValueType: WIDTH, componentId: -5}
+          - {type: ComponentValue, valueId: 46, componentValueType: HEIGHT, componentId: -5}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Value, value: 0.0}
+            endX: {type: Variable, id: 45, value: 568.0}
+            endY: {type: Variable, id: 46, value: 2000.0}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Variable, id: 46, value: 2000.0}
+            endX: {type: Variable, id: 45, value: 568.0}
+            endY: {type: Value, value: 0.0}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 568.0, height: 2000.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          - type: BOX
+            id: -7
+            x: 134.0
+            y: 900.0
+            width: 300.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 49, text: 'Hello, World!'}
+            - type: ComponentModifiers
+              modifiers:
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0,
+                height: 200.0, color: '0xffffff00', shapeType: RECTANGLE}
+              - type: WidthModifierOperation
+                width: {type: Value, value: 300.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: LayoutComputeOperation
+                list:
+                - {type: DataDynamicListFloat, id: 2097194, values: '[134.0, 900.0,
+                    300.0, 200.0, 568.0, 2000.0]'}
+                - type: FloatExpression
+                  id: 47
+                  srcValues:
+                  - {type: Variable, id: 45}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 0.0}
+                  value: {type: Variable, id: 47, value: 134.0}
+                - type: FloatExpression
+                  id: 48
+                  srcValues:
+                  - {type: Variable, id: 46}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 3.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 1.0}
+                  value: {type: Variable, id: 48, value: 900.0}
+            - type: CORE_TEXT
+              id: -9
+              x: 0.0
+              y: 0.0
+              width: 240.0
+              height: 40.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 49
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 399.5}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 3
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: NONE
+          horizontalPositioning: NONE
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Apply TouchDown
+  command: {x: 200.0, y: 400.0}
+  result: {}
+- description: Apply TouchDrag
+  command: {x: 200.0, y: 200.0}
+  result: {}
+- description: Apply TouchUp
+  command: {x: 200.0, y: 200.0}
+  result: {}
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 600
+    height: 800
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 600.0
+      height: 800.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 600.0
+        height: 800.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 600.0, height: 800.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+          - {type: ClipRectModifierOperation, width: 568.0, height: 768.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -200.0, maxScrollValue: 1232.0, contentDimension: 2000.0,
+            hostDimension: 768.0}
+        - type: CANVAS
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 568.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - {type: ComponentValue, valueId: 45, componentValueType: WIDTH, componentId: -5}
+          - {type: ComponentValue, valueId: 46, componentValueType: HEIGHT, componentId: -5}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Value, value: 0.0}
+            endX: {type: Variable, id: 45, value: 568.0}
+            endY: {type: Variable, id: 46, value: 2000.0}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Variable, id: 46, value: 2000.0}
+            endX: {type: Variable, id: 45, value: 568.0}
+            endY: {type: Value, value: 0.0}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 568.0, height: 2000.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          - type: BOX
+            id: -7
+            x: 134.0
+            y: 900.0
+            width: 300.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 49, text: 'Hello, World!'}
+            - type: ComponentModifiers
+              modifiers:
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0,
+                height: 200.0, color: '0xffffff00', shapeType: RECTANGLE}
+              - type: WidthModifierOperation
+                width: {type: Value, value: 300.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: LayoutComputeOperation
+                list:
+                - {type: DataDynamicListFloat, id: 2097194, values: '[134.0, 900.0,
+                    300.0, 200.0, 568.0, 2000.0]'}
+                - type: FloatExpression
+                  id: 47
+                  srcValues:
+                  - {type: Variable, id: 45}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 0.0}
+                  value: {type: Variable, id: 47, value: 134.0}
+                - type: FloatExpression
+                  id: 48
+                  srcValues:
+                  - {type: Variable, id: 46}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 3.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 1.0}
+                  value: {type: Variable, id: 48, value: 900.0}
+            - type: CORE_TEXT
+              id: -9
+              x: 0.0
+              y: 0.0
+              width: 240.0
+              height: 40.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 49
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 399.5}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 3
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: NONE
+          horizontalPositioning: NONE
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 800
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 800.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 800.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 800.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+          - {type: ClipRectModifierOperation, width: 768.0, height: 968.0}
+          - {type: ScrollModifierOperation, direction: 0, max: !!float 'NaN', notchMax: !!float 'NaN',
+            scrollValue: -200.0, maxScrollValue: 1032.0, contentDimension: 2000.0,
+            hostDimension: 968.0}
+        - type: CANVAS
+          id: -5
+          x: 0.0
+          y: 0.0
+          width: 768.0
+          height: 2000.0
+          visibility: VISIBLE
+          list:
+          - {type: ComponentValue, valueId: 45, componentValueType: WIDTH, componentId: -5}
+          - {type: ComponentValue, valueId: 46, componentValueType: HEIGHT, componentId: -5}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Value, value: 0.0}
+            endX: {type: Variable, id: 45, value: 768.0}
+            endY: {type: Variable, id: 46, value: 2000.0}
+          - type: DrawLine
+            startX: {type: Value, value: 0.0}
+            startY: {type: Variable, id: 46, value: 2000.0}
+            endX: {type: Variable, id: 45, value: 768.0}
+            endY: {type: Value, value: 0.0}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Variable, id: 0, value: !!float 'NaN'}
+              dimensionModifierType: FILL
+            - type: HeightModifierOperation
+              height: {type: Value, value: 2000.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 768.0, height: 2000.0,
+              color: '0xff0000ff', shapeType: RECTANGLE}
+          - type: BOX
+            id: -7
+            x: 234.0
+            y: 900.0
+            width: 300.0
+            height: 200.0
+            visibility: VISIBLE
+            list:
+            - {type: TextData, textId: 49, text: 'Hello, World!'}
+            - type: ComponentModifiers
+              modifiers:
+              - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0,
+                height: 200.0, color: '0xffffff00', shapeType: RECTANGLE}
+              - type: WidthModifierOperation
+                width: {type: Value, value: 300.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 200.0}
+                dimensionModifierType: EXACT
+              - type: LayoutComputeOperation
+                list:
+                - {type: DataDynamicListFloat, id: 2097194, values: '[234.0, 900.0,
+                    300.0, 200.0, 768.0, 2000.0]'}
+                - type: FloatExpression
+                  id: 47
+                  srcValues:
+                  - {type: Variable, id: 45}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 0.0}
+                  value: {type: Variable, id: 47, value: 234.0}
+                - type: FloatExpression
+                  id: 48
+                  srcValues:
+                  - {type: Variable, id: 46}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Variable, id: 42}
+                  - {type: Value, value: 3.0}
+                  - {type: Instruction, instruction: A_DEREF}
+                  - {type: Value, value: 2.0}
+                  - {type: Instruction, instruction: /}
+                  - {type: Instruction, instruction: '-'}
+                  animation: null
+                - arrayId: 2097194
+                  index: {type: Value, value: 1.0}
+                  value: {type: Variable, id: 48, value: 900.0}
+            - type: CORE_TEXT
+              id: -9
+              x: 0.0
+              y: 0.0
+              width: 240.0
+              height: 40.0
+              visibility: VISIBLE
+              list:
+              - type: ComponentModifiers
+                modifiers: []
+              paddingLeft: 0.0
+              paddingRight: 0.0
+              paddingTop: 0.0
+              paddingBottom: 0.0
+              textId: 49
+              flags: 0
+              color: '0xff000000'
+              fontSize: {type: Value, value: 399.5}
+              fontStyle: 0
+              fontWeight: 400.0
+              fontFamilyId: -1
+              textAlign: 3
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: TOP
+            horizontalPositioning: START
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: NONE
+          horizontalPositioning: NONE
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: TOP
+        horizontalPositioning: START
+        spacedBy: 0.0

@@ -23,8 +23,11 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
+import androidx.compose.remote.creation.compose.v2.RemoteRowV2
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -71,9 +74,16 @@ public fun RemoteRow(
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
     content: @Composable RemoteRowScope.() -> Unit,
 ) {
+    if (currentComposer.applier is RemoteComposeApplierV2) {
+        RemoteRowV2(modifier, horizontalArrangement, verticalAlignment) {
+            // Bridge V1 scope to V2 scope
+            val v1Scope = remember { RemoteRowScope() }
+            v1Scope.content()
+        }
+        return
+    }
 
     val scope = remember { RemoteRowScope() }
-
     val composeModifiers =
         RemoteComposeRowModifier(
                 modifier.toRemoteCompose(),

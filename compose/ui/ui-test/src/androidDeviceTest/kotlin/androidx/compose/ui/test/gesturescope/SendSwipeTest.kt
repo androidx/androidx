@@ -41,7 +41,7 @@ import androidx.compose.ui.test.bottomRight
 import androidx.compose.ui.test.centerX
 import androidx.compose.ui.test.centerY
 import androidx.compose.ui.test.down
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.moveTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performGesture

@@ -17,6 +17,8 @@
 package androidx.compose.remote.core
 
 import androidx.compose.remote.core.layout.ApplyTouchDown
+import androidx.compose.remote.core.layout.ApplyTouchDrag
+import androidx.compose.remote.core.layout.ApplyTouchUp
 import androidx.compose.remote.core.layout.CaptureComponentTree
 import androidx.compose.remote.core.layout.Color
 import androidx.compose.remote.core.layout.LayoutTestPlayer
@@ -387,6 +389,317 @@ class LayoutTest : LayoutTestPlayer() {
                 },
                 CaptureComponentTree(),
                 ResizeDocument(600, 800),
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testScrollComponents() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxSize().background(Color.YELLOW).padding(16).verticalScroll()
+                    ) {
+                        canvas(Modifier.fillMaxWidth().height(2000).background(Color.BLUE)) {
+                            val w = ComponentWidth()
+                            val h = ComponentHeight()
+                            drawLine(0f, 0f, w.toFloat(), h.toFloat())
+                            drawLine(0f, h.toFloat(), w.toFloat(), 0f)
+                            box(
+                                Modifier.background(Color.YELLOW).size(300, 200).computePosition {
+                                    x = w / 2f - width as RFloat / 2f
+                                    y = h / 2f - height as RFloat / 2f
+                                }
+                            ) {
+                                text(
+                                    "Hello, World!",
+                                    autosize = true,
+                                    textAlign = CoreText.TEXT_ALIGN_CENTER,
+                                )
+                            }
+                        }
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(600, 800),
+                CaptureComponentTree(),
+                ApplyTouchDown(200f, 400f),
+                ApplyTouchDrag(200f, 200f),
+                ApplyTouchUp(200f, 200f),
+                CaptureComponentTree(),
+                ResizeDocument(800, 1000),
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testMeasure1() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        box(Modifier.size(300, 200).background(Color.RED))
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(600, 800),
+            )
+        checkLayout(
+            100,
+            100,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testMeasure2() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxWidth().background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        box(Modifier.size(300, 200).background(Color.RED))
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(600, 800),
+            )
+        checkLayout(
+            100,
+            100,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testMeasure3() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxHeight().background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        box(Modifier.size(300, 200).background(Color.RED))
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(600, 800),
+            )
+        checkLayout(
+            100,
+            100,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testMeasure4() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        box(Modifier.size(300, 200).background(Color.RED))
+                    }
+                },
+                CaptureComponentTree(),
+                ResizeDocument(600, 800),
+            )
+        checkLayout(
+            100,
+            100,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testComponentsValues1() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        box(Modifier.size(300, 200).background(Color.RED)) {
+                            val width = ComponentWidth()
+                            val height = ComponentHeight()
+                            box(
+                                Modifier.size(10).computePosition {
+                                    x = width
+                                    y = height
+                                }
+                            )
+                        }
+                    }
+                },
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testComponentsValues2() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        box(Modifier.size(300, 200).background(Color.RED)) {
+                            val cx = ComponentX()
+                            val cy = ComponentY()
+                            val rootX = ComponentRootX()
+                            val rootY = ComponentRootY()
+                            box(
+                                Modifier.size(10).computePosition {
+                                    x = cx
+                                    y = cy
+                                }
+                            )
+                            box(
+                                Modifier.size(10).computePosition {
+                                    x = rootX
+                                    y = rootY
+                                }
+                            )
+                        }
+                    }
+                },
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testComponentsValues3() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        column(Modifier.size(300, 200).background(Color.RED).verticalScroll()) {
+                            for (i in 0..10) {
+                                box(RecordingModifier().size(100))
+                            }
+                            val componentHeight = ComponentHeight()
+                            val contentHeight = ComponentContentHeight()
+                            box(
+                                Modifier.size(10).computePosition {
+                                    x = componentHeight
+                                    y = contentHeight
+                                }
+                            )
+                        }
+                    }
+                },
+                CaptureComponentTree(),
+            )
+        checkLayout(
+            1000,
+            1000,
+            8,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            "Layout",
+            ops,
+            TestClock(1234),
+        )
+    }
+
+    @Test
+    fun testComponentsValues4() {
+        val ops =
+            arrayListOf<TestOperation?>(
+                TestLayout {
+                    column(
+                        Modifier.fillMaxSize().background(Color.YELLOW).padding(16),
+                        horizontal = ColumnLayout.CENTER,
+                        vertical = ColumnLayout.CENTER,
+                    ) {
+                        row(Modifier.size(300, 200).background(Color.RED).horizontalScroll()) {
+                            for (i in 0..10) {
+                                box(RecordingModifier().size(100))
+                            }
+                            val componentHeight = ComponentHeight()
+                            val contentHeight = ComponentContentHeight()
+                            box(
+                                Modifier.size(10).computePosition {
+                                    x = componentHeight
+                                    y = contentHeight
+                                }
+                            )
+                        }
+                    }
+                },
                 CaptureComponentTree(),
             )
         checkLayout(

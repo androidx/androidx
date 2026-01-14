@@ -22,7 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas0
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
@@ -122,7 +122,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                 }
                 var modifier = RemoteModifier.padding(left = 8.rf, right = 8.rf)
                 RemoteColumn(modifier = modifier, horizontalAlignment = RemoteAlignment.End) {
-                    RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
+                    RemoteCanvas0(modifier = RemoteModifier.size(20.rdp)) {
                         drawAnchoredText(
                             "${dayNames[j]}",
                             Color.Black,
@@ -164,7 +164,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                             //                                fontStyle = FontStyle.Italic,
                             //                                fontSize = 20.sp
                             //          )
-                            RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
+                            RemoteCanvas0(modifier = RemoteModifier.size(20.rdp)) {
                                 drawAnchoredText(
                                     "$number",
                                     Color.White,
@@ -175,7 +175,7 @@ fun CanvasCalendarMonth(modifier: RemoteModifier = RemoteModifier, month: Int = 
                                 )
                             }
                         } else {
-                            RemoteCanvas(modifier = RemoteModifier.size(20.rdp)) {
+                            RemoteCanvas0(modifier = RemoteModifier.size(20.rdp)) {
                                 drawAnchoredText(
                                     "$number",
                                     Color.Black,

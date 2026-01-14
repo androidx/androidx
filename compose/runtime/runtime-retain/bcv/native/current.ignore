@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+[iosX64]: Target was removed
+[macosX64]: Target was removed
+[tvosX64]: Target was removed
+[watchosX64]: Target was removed
 [iosArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
 [iosArm64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [iosArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
@@ -7,10 +11,6 @@
 [iosSimulatorArm64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [iosSimulatorArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
 [iosSimulatorArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore
-[iosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
-[iosX64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
-[iosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
-[iosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore
 [linuxArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
 [linuxArm64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [linuxArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
@@ -23,10 +23,6 @@
 [macosArm64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [macosArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
 [macosArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore
-[macosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
-[macosX64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
-[macosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
-[macosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore
 [mingwX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
 [mingwX64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [mingwX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
@@ -39,10 +35,6 @@
 [tvosSimulatorArm64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [tvosSimulatorArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
 [tvosSimulatorArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore
-[tvosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
-[tvosX64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
-[tvosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
-[tvosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore
 [watchosArm32]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
 [watchosArm32]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [watchosArm32]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
@@ -59,7 +51,3 @@
 [watchosSimulatorArm64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
 [watchosSimulatorArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
 [watchosSimulatorArm64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore
-[watchosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/RetainedValuesStore
-[watchosX64]: Added declaration consumeExitedValueOrDefault(kotlin/Any, kotlin/Any?) to androidx.compose.runtime.retain/RetainedValuesStore
-[watchosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ManagedRetainedValuesStore
-[watchosX64]: Removed declaration getExitedValueOrElse(kotlin/Any, kotlin/Any?) from androidx.compose.runtime.retain/ForgetfulRetainedValuesStore

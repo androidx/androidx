@@ -93,19 +93,19 @@ internal class HandwritingTestStylusInjectScope(semanticsNode: SemanticsNode) :
     fun hoverEnter(position: Offset = lastPosition, delayMillis: Long = eventPeriodMillis) {
         advanceEventTime(delayMillis)
         lastPosition = localToRoot(position)
-        sendTouchEvent(MotionEvent.ACTION_HOVER_ENTER)
+        sendGenericEvent(MotionEvent.ACTION_HOVER_ENTER)
     }
 
     fun hoverMoveTo(position: Offset, delayMillis: Long = eventPeriodMillis) {
         advanceEventTime(delayMillis)
         lastPosition = localToRoot(position)
-        sendTouchEvent(MotionEvent.ACTION_HOVER_MOVE)
+        sendGenericEvent(MotionEvent.ACTION_HOVER_MOVE)
     }
 
     fun hoverExit(position: Offset = lastPosition, delayMillis: Long = eventPeriodMillis) {
         advanceEventTime(delayMillis)
         lastPosition = localToRoot(position)
-        sendTouchEvent(MotionEvent.ACTION_HOVER_EXIT)
+        sendGenericEvent(MotionEvent.ACTION_HOVER_EXIT)
     }
 
     override fun cancel(delayMillis: Long) {
@@ -159,6 +159,56 @@ internal class HandwritingTestStylusInjectScope(semanticsNode: SemanticsNode) :
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync {
             root.view.dispatchTouchEvent(motionEvent)
+        }
+    }
+
+    private fun sendGenericEvent(action: Int) {
+        val motionEvent =
+            MotionEvent.obtain(
+                /* downTime = */ downTime,
+                /* eventTime = */ currentTime,
+                /* action = */ action,
+                /* pointerCount = */ 1,
+                /* pointerProperties = */ arrayOf(
+                    MotionEvent.PointerProperties().apply {
+                        id = 0
+                        toolType = MotionEvent.TOOL_TYPE_STYLUS
+                    }
+                ),
+                /* pointerCoords = */ arrayOf(
+                    MotionEvent.PointerCoords().apply {
+                        val startOffset = lastPosition
+
+                        // Allows for non-valid numbers/Offsets to be passed along to Compose to
+                        // test if it handles them properly (versus breaking here and we not knowing
+                        // if Compose properly handles these values).
+                        x =
+                            if (startOffset.isValid()) {
+                                startOffset.x
+                            } else {
+                                Float.NaN
+                            }
+
+                        y =
+                            if (startOffset.isValid()) {
+                                startOffset.y
+                            } else {
+                                Float.NaN
+                            }
+                    }
+                ),
+                /* metaState = */ 0,
+                /* buttonState = */ 0,
+                /* xPrecision = */ 1f,
+                /* yPrecision = */ 1f,
+                /* deviceId = */ 0,
+                /* edgeFlags = */ 0,
+                /* source = */ InputDeviceCompat.SOURCE_STYLUS,
+                /* flags = */ 0,
+            )
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+            root.view.dispatchGenericMotionEvent(motionEvent)
         }
     }
 }

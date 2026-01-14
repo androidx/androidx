@@ -31,6 +31,7 @@ import androidx.compose.remote.core.operations.ClipRect;
 import androidx.compose.remote.core.operations.ColorAttribute;
 import androidx.compose.remote.core.operations.ColorConstant;
 import androidx.compose.remote.core.operations.ColorExpression;
+import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.ConditionalOperations;
 import androidx.compose.remote.core.operations.DataDynamicListFloat;
@@ -295,8 +296,9 @@ public class Operations {
     public static final int ID_LOOKUP = 192;
     public static final int PATH_EXPRESSION = 193;
     public static final int PARTICLE_COMPARE = 194;
+    public static final int UPDATE = 195; // TODO
+    public static final int COLOR_THEME = 196;
     public static final int TEXT_TRANSFORM = 199;
-
     ///////////////////////////////////////// ======================
 
     ////////////////////////////////////////
@@ -468,6 +470,7 @@ public class Operations {
             sMapV7AndroidXExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
             sMapV7AndroidXExperimental.put(CORE_TEXT, CoreText::read);
             sMapV7AndroidXExperimental.put(TEXT_TRANSFORM, TextTransform::read);
+            sMapV7AndroidXExperimental.put(COLOR_THEME, ColorTheme::read);
 
         }
         return sMapV7AndroidXExperimental;
@@ -509,6 +512,8 @@ public class Operations {
             sMapV7WidgetsExperimental.put(LAYOUT_COMPUTE, LayoutComputeOperation::read);
             sMapV7WidgetsExperimental.put(CORE_TEXT, CoreText::read);
             sMapV7WidgetsExperimental.put(TEXT_TRANSFORM, TextTransform::read);
+            sMapV7WidgetsExperimental.put(COLOR_THEME, ColorTheme::read);
+
         }
         return sMapV7WidgetsExperimental;
     }

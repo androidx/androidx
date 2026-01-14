@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.layout
 
@@ -21,45 +20,71 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.ui.unit.dp
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RemoteArrangement {
+/**
+ * In remote-compose, an arrangement is a contract for how to lay out children in a container that
+ * allows for more than one child. This is a mirror of
+ * [androidx.compose.foundation.layout.Arrangement]
+ */
+public object RemoteArrangement {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface Horizontal {
+    /** A contract for laying out children horizontally. */
+    public sealed interface Horizontal {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Horizontal
 
-        public fun toRemoteCompose(): Int
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemoteCompose(): Int
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface Vertical {
+    /** A contract for laying out children vertically. */
+    public sealed interface Vertical {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Vertical
 
-        public fun toRemoteCompose(): Int
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemoteCompose(): Int
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface HorizontalOrVertical : Horizontal, Vertical {
+    /** A contract for laying out children horizontally or vertically. */
+    public sealed interface HorizontalOrVertical : Horizontal, Vertical {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toComposeUi():
             androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical
 
-        override fun toRemoteCompose(): Int
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemoteCompose(): Int
     }
 
-    public companion object {
-        public val Top: RemoteArrangement.Vertical = VerticalArrangement(0)
-        public val Center: RemoteArrangement.Vertical = VerticalArrangement(1)
-        public val Bottom: RemoteArrangement.Vertical = VerticalArrangement(2)
-        public val Start: RemoteArrangement.Horizontal = HorizontalArrangement(3)
-        public val CenterHorizontally: RemoteArrangement.Horizontal = HorizontalArrangement(4)
-        public val End: RemoteArrangement.Horizontal = HorizontalArrangement(5)
-        public val SpaceBetween: RemoteArrangement.HorizontalOrVertical =
-            HorizontalOrVerticalArrangement(6)
-        public val SpaceEvenly: RemoteArrangement.HorizontalOrVertical =
-            HorizontalOrVerticalArrangement(7)
-        public val SpaceAround: RemoteArrangement.HorizontalOrVertical =
-            HorizontalOrVerticalArrangement(8)
-    }
+    /**
+     * Place children vertically such that they are as close as possible to the top of the main
+     * axis.
+     */
+    public val Top: RemoteArrangement.Vertical = VerticalArrangement(0)
+    /** Place children vertically such that they are centered on the main axis. */
+    public val Center: RemoteArrangement.Vertical = VerticalArrangement(1)
+    /**
+     * Place children vertically such that they are as close as possible to the bottom of the main
+     * axis.
+     */
+    public val Bottom: RemoteArrangement.Vertical = VerticalArrangement(2)
+    /**
+     * Place children horizontally such that they are as close as possible to the start of the main
+     * axis.
+     */
+    public val Start: RemoteArrangement.Horizontal = HorizontalArrangement(3)
+    /** Place children horizontally such that they are centered on the main axis. */
+    public val CenterHorizontally: RemoteArrangement.Horizontal = HorizontalArrangement(4)
+    /**
+     * Place children horizontally such that they are as close as possible to the end of the main
+     * axis.
+     */
+    public val End: RemoteArrangement.Horizontal = HorizontalArrangement(5)
+    /** Place children with equal space between them, including the edges. */
+    public val SpaceBetween: RemoteArrangement.HorizontalOrVertical =
+        HorizontalOrVerticalArrangement(6)
+    /** Place children with equal space between them, but not on the edges. */
+    public val SpaceEvenly: RemoteArrangement.HorizontalOrVertical =
+        HorizontalOrVerticalArrangement(7)
+    /** Place children with equal space around them. */
+    public val SpaceAround: RemoteArrangement.HorizontalOrVertical =
+        HorizontalOrVerticalArrangement(8)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

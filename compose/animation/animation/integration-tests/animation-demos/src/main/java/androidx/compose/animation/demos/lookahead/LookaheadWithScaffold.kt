@@ -19,6 +19,7 @@ package androidx.compose.animation.demos.lookahead
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -78,6 +79,7 @@ import kotlinx.coroutines.launch
 private val colors =
     listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff264653), Color(0xff2a9d84))
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Preview
 @Composable
 fun LookaheadWithScaffold() {
@@ -88,34 +90,42 @@ fun LookaheadWithScaffold() {
                 value = !value
             }
         }
-    LookaheadScope {
-        Box(
-            Modifier.fillMaxHeight()
-                .background(Color.Gray)
-                .animateBounds(
-                    this@LookaheadScope,
-                    if (hasPadding) Modifier.padding(bottom = 300.dp) else Modifier,
-                )
-        ) {
-            var state by remember { mutableIntStateOf(0) }
-            val titles =
-                listOf("SimpleScaffold", "W/Cutout", "SimpleSnackbar", "CustomSnackbar", "Backdrop")
-            Column {
-                ScrollableTabRow(selectedTabIndex = state) {
-                    titles.forEachIndexed { index, title ->
-                        Tab(
-                            selected = state == index,
-                            onClick = { state = index },
-                            text = { Text(title) },
-                        )
+    LookaheadAnimationVisualDebuggingToggle {
+        LookaheadScope {
+            Box(
+                Modifier.fillMaxHeight()
+                    .background(Color.Gray)
+                    .animateBounds(
+                        this@LookaheadScope,
+                        if (hasPadding) Modifier.padding(bottom = 300.dp) else Modifier,
+                    )
+            ) {
+                var state by remember { mutableIntStateOf(0) }
+                val titles =
+                    listOf(
+                        "SimpleScaffold",
+                        "W/Cutout",
+                        "SimpleSnackbar",
+                        "CustomSnackbar",
+                        "Backdrop",
+                    )
+                Column {
+                    ScrollableTabRow(selectedTabIndex = state) {
+                        titles.forEachIndexed { index, title ->
+                            Tab(
+                                selected = state == index,
+                                onClick = { state = index },
+                                text = { Text(title) },
+                            )
+                        }
                     }
-                }
-                when (state) {
-                    0 -> SimpleScaffoldWithTopBar()
-                    1 -> ScaffoldWithBottomBarAndCutout()
-                    2 -> ScaffoldWithSimpleSnackbar()
-                    3 -> ScaffoldWithCustomSnackbar()
-                    4 -> BackdropScaffoldSample()
+                    when (state) {
+                        0 -> SimpleScaffoldWithTopBar()
+                        1 -> ScaffoldWithBottomBarAndCutout()
+                        2 -> ScaffoldWithSimpleSnackbar()
+                        3 -> ScaffoldWithCustomSnackbar()
+                        4 -> BackdropScaffoldSample()
+                    }
                 }
             }
         }

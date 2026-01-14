@@ -18,10 +18,13 @@ package androidx.compose.remote.creation
 
 import androidx.annotation.RestrictTo
 
+@Suppress("KmpVisibilityMismatch") // actuals are internal
 public expect class RectF
 
+@Suppress("KmpVisibilityMismatch") // actuals are internal
 public expect class Path
 
+@Suppress("KmpVisibilityMismatch") // actuals are internal
 public expect class Matrix
 
 internal expect val RectF.left: Float

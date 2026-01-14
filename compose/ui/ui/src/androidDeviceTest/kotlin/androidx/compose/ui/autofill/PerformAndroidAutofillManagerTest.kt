@@ -70,7 +70,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertTextEquals
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString

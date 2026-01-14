@@ -23,12 +23,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.isPopup
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,45 +41,42 @@ class WaitingForPopupTest {
     }
 
     @Test
-    fun popupInFirstComposition() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            setContent { ShowPopup() }
-            onNode(isPopup()).assertExists()
-        }
+    fun popupInFirstComposition() = runComposeUiTest {
+        setContent { ShowPopup() }
+        onNode(isPopup()).assertExists()
+    }
 
     @Test
-    fun popupInLaterComposition() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val showPopup = mutableStateOf(false)
-            setContent {
-                if (showPopup.value) {
-                    ShowPopup()
-                }
+    fun popupInLaterComposition() = runComposeUiTest {
+        val showPopup = mutableStateOf(false)
+        setContent {
+            if (showPopup.value) {
+                ShowPopup()
             }
-            onNode(isPopup()).assertDoesNotExist()
-            showPopup.value = true
-            onNode(isPopup()).assertExists()
         }
+        onNode(isPopup()).assertDoesNotExist()
+        showPopup.value = true
+        onNode(isPopup()).assertExists()
+    }
 
     @Test
-    fun popupTogglingRepeatedly() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val showPopup = mutableStateOf(false)
-            setContent {
-                if (showPopup.value) {
-                    ShowPopup()
-                }
-            }
-            onNode(isPopup()).assertDoesNotExist()
-
-            // (no particular reason for 4x, could've been 10x just as well)
-            repeat(4) {
-                showPopup.value = !showPopup.value
-                if (showPopup.value) {
-                    onNode(isPopup()).assertExists()
-                } else {
-                    onNode(isPopup()).assertDoesNotExist()
-                }
+    fun popupTogglingRepeatedly() = runComposeUiTest {
+        val showPopup = mutableStateOf(false)
+        setContent {
+            if (showPopup.value) {
+                ShowPopup()
             }
         }
+        onNode(isPopup()).assertDoesNotExist()
+
+        // (no particular reason for 4x, could've been 10x just as well)
+        repeat(4) {
+            showPopup.value = !showPopup.value
+            if (showPopup.value) {
+                onNode(isPopup()).assertExists()
+            } else {
+                onNode(isPopup()).assertDoesNotExist()
+            }
+        }
+    }
 }

@@ -41,6 +41,12 @@ public class ComponentValue extends Operation implements SerializableToString, S
 
     public static final int WIDTH = 0;
     public static final int HEIGHT = 1;
+    public static final int POS_X = 2;
+    public static final int POS_Y = 3;
+    public static final int POS_ROOT_X = 4;
+    public static final int POS_ROOT_Y = 5;
+    public static final int CONTENT_WIDTH = 6;
+    public static final int CONTENT_HEIGHT = 7;
 
     private int mType = WIDTH;
     private int mComponentID = -1;

@@ -55,6 +55,7 @@ import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.node.add
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.Clipboard
 import androidx.compose.ui.platform.ClipboardManager
@@ -68,6 +69,7 @@ import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -92,10 +94,11 @@ import org.junit.runner.RunWith
 class HitPathTrackerTest {
 
     private lateinit var hitPathTracker: HitPathTracker
-    private val layoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
+    private lateinit var layoutNode: LayoutNode
 
     @Before
     fun setup() {
+        layoutNode = LayoutNode(0, 0, 100, 100).also { it.attach(MockOwner()) }
         hitPathTracker = HitPathTracker(layoutNode.outerCoordinator)
     }
 
@@ -419,7 +422,12 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_hitResultHasSingleMatch_pointerInputHandlerCalled() {
-        val pif = PointerInputNodeMock()
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
@@ -439,9 +447,15 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_hitResultHasMultipleMatches_pointerInputHandlersCalledInCorrectOrder() {
         val log = mutableListOf<LogEntry>()
-        val pif1 = PointerInputNodeMock(log)
-        val pif2 = PointerInputNodeMock(log)
-        val pif3 = PointerInputNodeMock(log)
+
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif1 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif2 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif3 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
@@ -461,9 +475,14 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_hasDownAndUpPath_pointerInputHandlersCalledInCorrectOrder() {
         val log = mutableListOf<LogEntry>()
-        val pif1 = PointerInputNodeMock(log)
-        val pif2 = PointerInputNodeMock(log)
-        val pif3 = PointerInputNodeMock(log)
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif1 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif2 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif3 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
@@ -489,10 +508,16 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_2IndependentBranchesFromRoot_eventsSplitCorrectlyAndCallOrderCorrect() {
         val log = mutableListOf<LogEntry>()
-        val pif1 = PointerInputNodeMock(log)
-        val pif2 = PointerInputNodeMock(log)
-        val pif3 = PointerInputNodeMock(log)
-        val pif4 = PointerInputNodeMock(log)
+
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif1 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif2 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif3 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif4 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
         hitPathTracker.addHitPath(PointerId(3), listOf(pif1, pif2))
         hitPathTracker.addHitPath(PointerId(5), listOf(pif3, pif4))
         val event1 = down(3)
@@ -539,9 +564,25 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_2BranchesWithSharedParent_eventsSplitCorrectlyAndCallOrderCorrect() {
         val log = mutableListOf<LogEntry>()
-        val parent = PointerInputNodeMock(log)
-        val child1 = PointerInputNodeMock(log)
-        val child2 = PointerInputNodeMock(log)
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val child1LayoutNode = LayoutNode(0, 0, 100, 100)
+        val child2LayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(child1LayoutNode)
+        parentLayoutNode.add(child2LayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(child1LayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(child2LayoutNode, Constraints.fixed(100, 100))
+
+        val parent =
+            PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val child1 =
+            PointerInputNodeMock(log = log, coordinator = child1LayoutNode.outerCoordinator)
+        val child2 =
+            PointerInputNodeMock(log = log, coordinator = child2LayoutNode.outerCoordinator)
         hitPathTracker.addHitPath(PointerId(3), listOf(parent, child1))
         hitPathTracker.addHitPath(PointerId(5), listOf(parent, child2))
         val event1 = down(3)
@@ -607,8 +648,18 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_2PointersShareCompletePath_eventsDoNotSplitAndCallOrderCorrect() {
         val log = mutableListOf<LogEntry>()
-        val child1 = PointerInputNodeMock(log)
-        val child2 = PointerInputNodeMock(log)
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val child1LayoutNode = LayoutNode(0, 0, 100, 100)
+        val child2LayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(child1LayoutNode)
+        parentLayoutNode.add(child2LayoutNode)
+
+        val child1 =
+            PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val child2 =
+            PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
         hitPathTracker.addHitPath(PointerId(3), listOf(child1, child2))
         hitPathTracker.addHitPath(PointerId(5), listOf(child1, child2))
         val event1 = down(3)
@@ -653,6 +704,12 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_hitResultHasSingleMatch_changesAreUpdatedCorrectly() {
+
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
         val pif1 =
             PointerInputNodeMock(
                 pointerEventHandler = { pointerEvent, _, _ ->
@@ -660,7 +717,8 @@ class HitPathTrackerTest {
                         if (it.pressed != it.previousPressed) it.consume()
                         it
                     }
-                }
+                },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
 
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1))
@@ -676,6 +734,12 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_hitResultHasMultipleMatchesAndDownAndUpPaths_changesAreUpdatedCorrectly() {
         val log = mutableListOf<LogEntry>()
+
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
         val pif1 =
             PointerInputNodeMock(
                 log = log,
@@ -683,6 +747,7 @@ class HitPathTrackerTest {
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
 
         val pif2 =
@@ -692,6 +757,7 @@ class HitPathTrackerTest {
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
 
         val pif3 =
@@ -701,6 +767,7 @@ class HitPathTrackerTest {
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
 
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
@@ -754,6 +821,12 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_2IndependentBranchesFromRoot_changesAreUpdatedCorrectly() {
         val log = mutableListOf<LogEntry>()
+
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
         val pif1 =
             PointerInputNodeMock(
                 log = log,
@@ -763,6 +836,7 @@ class HitPathTrackerTest {
                     }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
         val pif2 =
             PointerInputNodeMock(
@@ -773,6 +847,7 @@ class HitPathTrackerTest {
                     }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
         val pif3 =
             PointerInputNodeMock(
@@ -781,6 +856,7 @@ class HitPathTrackerTest {
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
         val pif4 =
             PointerInputNodeMock(
@@ -789,6 +865,7 @@ class HitPathTrackerTest {
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
         hitPathTracker.addHitPath(PointerId(3), listOf(pif1, pif2))
         hitPathTracker.addHitPath(PointerId(5), listOf(pif3, pif4))
@@ -863,6 +940,19 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_2BranchesWithSharedParent_changesAreUpdatedCorrectly() {
         val log = mutableListOf<LogEntry>()
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val child1LayoutNode = LayoutNode(0, 0, 100, 100)
+        val child2LayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(child1LayoutNode)
+        parentLayoutNode.add(child2LayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(child1LayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(child2LayoutNode, Constraints.fixed(100, 100))
+
         val parent =
             PointerInputNodeMock(
                 log = log,
@@ -872,6 +962,7 @@ class HitPathTrackerTest {
                     }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
 
         val child1 =
@@ -883,6 +974,7 @@ class HitPathTrackerTest {
                     }
                     pointerEvent.changes
                 },
+                coordinator = child1LayoutNode.outerCoordinator,
             )
 
         val child2 =
@@ -894,6 +986,7 @@ class HitPathTrackerTest {
                     }
                     pointerEvent.changes
                 },
+                coordinator = child2LayoutNode.outerCoordinator,
             )
 
         hitPathTracker.addHitPath(PointerId(3), listOf(parent, child1))
@@ -955,6 +1048,12 @@ class HitPathTrackerTest {
     @Test
     fun dispatchChanges_2PointersShareCompletePath_changesAreUpdatedCorrectly() {
         val log = mutableListOf<LogEntry>()
+
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
         val child1 =
             PointerInputNodeMock(
                 log = log,
@@ -962,6 +1061,7 @@ class HitPathTrackerTest {
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
         val child2 =
             PointerInputNodeMock(
@@ -970,6 +1070,7 @@ class HitPathTrackerTest {
                     pointerEvent.changes.map { it.consume() }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
 
         hitPathTracker.addHitPath(PointerId(3), listOf(child1, child2))
@@ -2332,9 +2433,22 @@ class HitPathTrackerTest {
     // root(5) -> middle(5) -> leaf(5)
     @Test
     fun removeHitPath_2PathsShareNodes1PointerIdRemoved_resultContainsRemainingPath() {
-        val root = PointerInputNodeMock()
-        val middle = PointerInputNodeMock()
-        val leaf = PointerInputNodeMock()
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val middleLayoutNode = LayoutNode(0, 0, 100, 100)
+        val leafLayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(middleLayoutNode)
+        middleLayoutNode.add(leafLayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(middleLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(leafLayoutNode, Constraints.fixed(100, 100))
+
+        val root = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val middle = PointerInputNodeMock(coordinator = middleLayoutNode.outerCoordinator)
+        val leaf = PointerInputNodeMock(coordinator = leafLayoutNode.outerCoordinator)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2367,9 +2481,22 @@ class HitPathTrackerTest {
     // Assert: root(5) -> middle(5)
     @Test
     fun removeHitPath_2PathsShare2NodesLongPathPointerIdRemoved_resultJustHasShortPath() {
-        val root = PointerInputNodeMock()
-        val middle = PointerInputNodeMock()
-        val leaf = PointerInputNodeMock()
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val middleLayoutNode = LayoutNode(0, 0, 100, 100)
+        val leafLayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(middleLayoutNode)
+        middleLayoutNode.add(leafLayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(middleLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(leafLayoutNode, Constraints.fixed(100, 100))
+
+        val root = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val middle = PointerInputNodeMock(coordinator = middleLayoutNode.outerCoordinator)
+        val leaf = PointerInputNodeMock(coordinator = leafLayoutNode.outerCoordinator)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2397,9 +2524,22 @@ class HitPathTrackerTest {
     // Assert: root(3) -> middle(3) -> leaf(3)
     @Test
     fun removeHitPath_2PathsShare2NodesShortPathPointerIdRemoved_resultJustHasLongPath() {
-        val root = PointerInputNodeMock()
-        val middle = PointerInputNodeMock()
-        val leaf = PointerInputNodeMock()
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val middleLayoutNode = LayoutNode(0, 0, 100, 100)
+        val leafLayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(middleLayoutNode)
+        middleLayoutNode.add(leafLayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(middleLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(leafLayoutNode, Constraints.fixed(100, 100))
+
+        val root = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val middle = PointerInputNodeMock(coordinator = middleLayoutNode.outerCoordinator)
+        val leaf = PointerInputNodeMock(coordinator = leafLayoutNode.outerCoordinator)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2432,9 +2572,22 @@ class HitPathTrackerTest {
     // Assert: root(5)
     @Test
     fun removeHitPath_2PathsShare1NodeLongPathPointerIdRemoved_resultJustHasShortPath() {
-        val root = PointerInputNodeMock()
-        val middle = PointerInputNodeMock()
-        val leaf = PointerInputNodeMock()
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val middleLayoutNode = LayoutNode(0, 0, 100, 100)
+        val leafLayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(middleLayoutNode)
+        middleLayoutNode.add(leafLayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(middleLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(leafLayoutNode, Constraints.fixed(100, 100))
+
+        val root = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val middle = PointerInputNodeMock(coordinator = middleLayoutNode.outerCoordinator)
+        val leaf = PointerInputNodeMock(coordinator = leafLayoutNode.outerCoordinator)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2455,9 +2608,22 @@ class HitPathTrackerTest {
     // Assert: root(3) -> middle(3) -> leaf(3)
     @Test
     fun removeHitPath_2PathsShare1NodeShortPathPointerIdRemoved_resultJustHasLongPath() {
-        val root = PointerInputNodeMock()
-        val middle = PointerInputNodeMock()
-        val leaf = PointerInputNodeMock()
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val middleLayoutNode = LayoutNode(0, 0, 100, 100)
+        val leafLayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(middleLayoutNode)
+        middleLayoutNode.add(leafLayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(middleLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(leafLayoutNode, Constraints.fixed(100, 100))
+
+        val root = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val middle = PointerInputNodeMock(coordinator = middleLayoutNode.outerCoordinator)
+        val leaf = PointerInputNodeMock(coordinator = leafLayoutNode.outerCoordinator)
 
         val pointerId1 = PointerId(3)
         val pointerId2 = PointerId(5)
@@ -2644,7 +2810,12 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_1NodeDispatchToNode_reportsWasDispatchedToSomething() {
-        val pif = PointerInputNodeMock()
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif = PointerInputNodeMock(coordinator = layoutNode.outerCoordinator)
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
         val hitSomething = hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
@@ -2688,18 +2859,21 @@ class HitPathTrackerTest {
     private fun dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
         removalPass: PointerEventPass
     ) {
-        val layoutCoordinates = LayoutCoordinatesStub(true)
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
         lateinit var pifRef: PointerInputNodeMock
         val pif =
             PointerInputNodeMock(
                 pointerEventHandler = { pointerEvent, pass, _ ->
                     if (pass == removalPass) {
-                        layoutCoordinates.isAttached = false
-                        pifRef.remove()
+                        layoutNode.detach()
                     }
                     pointerEvent.changes
                 },
-                coordinator = layoutCoordinates,
+                coordinator = parentLayoutNode.outerCoordinator,
             )
         pifRef = pif
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
@@ -2742,19 +2916,31 @@ class HitPathTrackerTest {
         removalPass: PointerEventPass
     ) {
         val log = mutableListOf<LogEntry>()
-        val childLayoutCoordinates = LayoutCoordinatesStub(true)
-        val childPif = PointerInputNodeMock(log, coordinator = childLayoutCoordinates)
+
+        // Create LayoutNodes in a parent-child hierarchy
+        val parentLayoutNode = layoutNode
+        val childLayoutNode = LayoutNode(0, 0, 100, 100)
+
+        parentLayoutNode.add(childLayoutNode)
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+        layoutNode.owner!!.measureAndLayout(childLayoutNode, Constraints.fixed(100, 100))
+
         val parentPif =
             PointerInputNodeMock(
-                log,
+                log = log,
                 pointerEventHandler = { pointerEvent, pass, _ ->
                     if (pass == removalPass) {
-                        childLayoutCoordinates.isAttached = false
-                        childPif.remove()
+                        childLayoutNode.detach()
                     }
                     pointerEvent.changes
                 },
+                coordinator = parentLayoutNode.outerCoordinator,
             )
+
+        val childPif = PointerInputNodeMock(log, coordinator = childLayoutNode.outerCoordinator)
+
         hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
@@ -2775,136 +2961,17 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchChanges_pifRemovedByChildDuringInitial_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Initial
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByChildDuringMain_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Main
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifRemovedByChildDuringFinal_noPassesReceivedAfterwards() {
-        dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.Final
-        )
-    }
-
-    private fun dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-        removalPass: PointerEventPass
-    ) {
-        val log = mutableListOf<LogEntry>()
-        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
-        val parentPif = PointerInputNodeMock(log, coordinator = parentLayoutCoordinates)
-        val childPif =
-            PointerInputNodeMock(
-                log,
-                pointerEventHandler = { pointerEvent, pass, _ ->
-                    if (pass == removalPass) {
-                        parentLayoutCoordinates.isAttached = false
-                        parentPif.remove()
-                    }
-                    pointerEvent.changes
-                },
-            )
-        hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
-
-        hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
-
-        val log1 = log.getOnPointerEventLog().filter { it.pointerInputNode == parentPif }
-        val count =
-            when (removalPass) {
-                PointerEventPass.Initial -> 1
-                PointerEventPass.Main -> 1
-                PointerEventPass.Final -> 3
-            }
-        assertThat(log1).hasSize(count)
-        PointerEventPass.values().forEachIndexed { index, pass ->
-            if (index < count) {
-                assertThat(log1[index].pass).isEqualTo(pass)
-            }
-        }
-    }
-
-    @Test
-    fun dispatchChanges_pifMovesSelfDuringInitial_pointerCoordsCorrectAfterMove() {
-        dispatchChanges_pifMovesSelfDuringDispatch_pointerCoordsCorrectAfterMove(
-            PointerEventPass.Initial
-        )
-    }
-
-    @Test
-    fun dispatchChanges_pifMovesSelfDuringMain_pointerCoordsCorrectAfterMove() {
-        dispatchChanges_pifMovesSelfDuringDispatch_pointerCoordsCorrectAfterMove(
-            PointerEventPass.Main
-        )
-    }
-
-    // This is a bit of a weird test. For performance reasons, HitPathTracker mutates an
-    // InternalPointerEvent with position changes.  Previously there was a bug where during
-    // dispatch, the pointer positions would be offset by the location of the PointerInputFilter,
-    // then they would be dispatched to the PointerInputFilter, that dispatch would move the
-    // PointerInputFilter, and then we'd get the new location of the PointerInputFilter and to
-    // undo the position change that occurred before dispatch.  That position change after
-    // dispatch is simply meant to reset the position back to being global for the next dispatch
-    // to another PointerInputFilter.
-    //
-    // This test makes sure we don't create that bug again accidentally.
-    private fun dispatchChanges_pifMovesSelfDuringDispatch_pointerCoordsCorrectAfterMove(
-        movePass: PointerEventPass
-    ) {
-        val log = mutableListOf<LogEntry>()
-        val layoutCoordinates = LayoutCoordinatesStub(true)
-        val pif =
-            PointerInputNodeMock(
-                log = log,
-                pointerEventHandler = { pointerEvent, pass, _ ->
-                    if (pass == movePass) {
-                        layoutCoordinates.additionalOffset = Offset(500f, 500f)
-                    }
-                    pointerEvent.changes
-                },
-                coordinator = layoutCoordinates,
-            )
-        val parent = PointerInputNodeMock(log)
-        val child = PointerInputNodeMock(log)
-        hitPathTracker.addHitPath(PointerId(13), listOf(parent, pif, child))
-
-        val actual = internalPointerEventOf(down(13, 120, 1.0f, 1.0f))
-        val expected = pointerEventOf(down(13, 120, 1.0f, 1.0f))
-
-        hitPathTracker.dispatchChanges(actual)
-
-        val log1 =
-            log.getOnPointerEventLog().filter {
-                it.pointerInputNode == parent || it.pointerInputNode == child
-            }
-
-        assertThat(log1).hasSize(6)
-        log1.forEach {
-            PointerEventSubject.assertThat(it.pointerEvent).isStructurallyEqualTo(expected)
-        }
-    }
-
-    @Test
-    fun dispatchChanges_pifMovesSelfDuringFinal_pointerCoordsCorrectAfterMove() {
-        dispatchChanges_pifMovesSelfDuringDispatch_pointerCoordsCorrectAfterMove(
-            PointerEventPass.Final
-        )
-    }
-
-    @Test
     fun addHitPath_hoverMove_noChange() {
         val log = mutableListOf<LogEntry>()
-        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
-        val pif1 = PointerInputNodeMock(log = log, coordinator = parentLayoutCoordinates)
-        val pif2 = PointerInputNodeMock(log = log, coordinator = parentLayoutCoordinates)
-        val pif3 = PointerInputNodeMock(log = log, coordinator = parentLayoutCoordinates)
+
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif1 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif2 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
+        val pif3 = PointerInputNodeMock(log = log, coordinator = parentLayoutNode.outerCoordinator)
         val pointerId = PointerId(0)
 
         hitPathTracker.addHitPath(pointerId, listOf(pif1, pif2, pif3))
@@ -3182,10 +3249,14 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChangesClearsStaleIdsPartialHit() {
-        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
-        val pif1 = PointerInputNodeMock(coordinator = parentLayoutCoordinates)
-        val pif2 = PointerInputNodeMock(coordinator = parentLayoutCoordinates)
-        val pif3 = PointerInputNodeMock(coordinator = parentLayoutCoordinates)
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif1 = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val pif2 = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val pif3 = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
         val pointerId1 = PointerId(0)
         val pointerId2 = PointerId(5)
 
@@ -3208,10 +3279,14 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChangesClearsStaleIdsPartialHitWithInvalidHistory() {
-        val parentLayoutCoordinates = LayoutCoordinatesStub(true)
-        val pif1 = PointerInputNodeMock(coordinator = parentLayoutCoordinates)
-        val pif2 = PointerInputNodeMock(coordinator = parentLayoutCoordinates)
-        val pif3 = PointerInputNodeMock(coordinator = parentLayoutCoordinates)
+        val parentLayoutNode = layoutNode
+
+        // Manually "place" LayoutNodes; Ensures `isPlaced` is true (required for pointer input).
+        layoutNode.owner!!.measureAndLayout(parentLayoutNode, Constraints.fixed(100, 100))
+
+        val pif1 = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val pif2 = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
+        val pif3 = PointerInputNodeMock(coordinator = parentLayoutNode.outerCoordinator)
         val pointerId1 = PointerId(0)
         val pointerId2 = PointerId(5)
 
@@ -3286,8 +3361,6 @@ class HitPathTrackerTest {
 internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
     NodeCoordinator(LayoutNode()) {
 
-    var additionalOffset = Offset.Zero
-
     override fun ensureLookaheadDelegateCreated() {
         TODO("Not yet implemented")
     }
@@ -3307,7 +3380,7 @@ internal class LayoutCoordinatesStub(override var isAttached: Boolean = true) :
         TODO("Not yet implemented")
     }
 
-    override val tail: androidx.compose.ui.Modifier.Node = object : Modifier.Node() {}
+    override val tail: Modifier.Node = object : Modifier.Node() {}
 
     override fun measure(constraints: Constraints): Placeable {
         TODO("Not yet implemented")
@@ -3405,6 +3478,9 @@ private class MockOwner(
         get() = TODO("Not yet implemented")
 
     override val softwareKeyboardController: SoftwareKeyboardController
+        get() = TODO("Not yet implemented")
+
+    override val localeList: LocaleList
         get() = TODO("Not yet implemented")
 
     override suspend fun textInputSession(
@@ -3517,7 +3593,10 @@ private class MockOwner(
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {}
 
-    override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {}
+    override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
+        val placeable = layoutNode.outerCoordinator.measure(constraints)
+        with(placementScope) { placeable.place(0, 0) }
+    }
 
     override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {}
 
