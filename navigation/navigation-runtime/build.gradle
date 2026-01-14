@@ -128,6 +128,9 @@ androidXMultiplatform {
         nativeMain.dependsOn(nonJvmMain)
         nativeTest.dependsOn(nonJvmTest)
 
+        webMain.dependencies {
+            implementation(libs.kotlinXw3c)
+        }
         webMain.dependsOn(nonJvmMain)
         webTest.dependsOn(nonJvmTest)
 
@@ -140,12 +143,8 @@ androidXMultiplatform {
                 target.compilations["test"].defaultSourceSet.dependsOn(webTest)
             }
         }
-
-        wasmJsMain.dependencies {
-            implementation(libs.kotlinXw3c)
-        }
-
-        wasmJsTest.kotlin.srcDirs("src/jsTest/kotlin")
+        jsTest.dependsOn(webTest)
+        wasmJsTest.dependsOn(webTest)
     }
 }
 

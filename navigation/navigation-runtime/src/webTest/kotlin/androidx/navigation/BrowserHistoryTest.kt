@@ -61,7 +61,7 @@ class BrowserHistoryTest {
         }
         val appAddress = with(window.location) { origin + pathname }
 
-        val bind = launch { window.bindToNavigation(navController) }
+        val bind = launch { navController.bindToBrowserNavigation() }
         navController.setGraph(navController.createGraph(), null)
         advanceUntilIdle()
 
@@ -112,7 +112,7 @@ class BrowserHistoryTest {
         navController.setGraph(navController.createGraph(), null)
 
         val appAddress = with(window.location) { origin + pathname }
-        val bind = launch { window.bindToNavigation(navController) }
+        val bind = launch { navController.bindToBrowserNavigation() }
         advanceUntilIdle()
 
         assertThat(window.history.length).isEqualTo(initHistoryLength)
@@ -211,7 +211,7 @@ class BrowserHistoryTest {
         navController.setGraph(navController.createGraph(), null)
 
         val appAddress = with(window.location) { origin + pathname }
-        val bind = launch { window.bindToNavigation(navController) { "" } }
+        val bind = launch { navController.bindToBrowserNavigation() { "" } }
         advanceUntilIdle()
 
         assertThat(window.history.length).isEqualTo(initHistoryLength)
@@ -286,7 +286,7 @@ class BrowserHistoryTest {
         val initAddress = "$appAddress#screen_4"
         window.history.replaceState(null, "", initAddress)
 
-        val bind = launch { window.bindToNavigation(navController) }
+        val bind = launch { navController.bindToBrowserNavigation() }
         advanceUntilIdle()
 
         assertThat(window.history.length).isEqualTo(initHistoryLength)
@@ -321,7 +321,7 @@ class BrowserHistoryTest {
         navController.setGraph(navController.createGraph(), null)
 
         val appAddress = with(window.location) { origin + pathname }
-        val bind = launch { window.bindToNavigation(navController) }
+        val bind = launch { navController.bindToBrowserNavigation() }
         advanceUntilIdle()
 
         assertThat(window.history.length).isEqualTo(initHistoryLength)
