@@ -161,10 +161,8 @@ androidXMultiplatform {
 kotlin {
     watchosArm64()
     watchosArm32()
-    watchosX64()
     watchosSimulatorArm64()
     tvosArm64()
-    tvosX64()
     tvosSimulatorArm64()
 }
 

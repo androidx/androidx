@@ -85,18 +85,6 @@ kotlin {
         }
         binaries.executable()
     }
-    macosX64() {
-        binaries {
-            executable() {
-                entryPoint = "androidx.compose.mpp.demo.main"
-                freeCompilerArgs += listOf(
-                    "-linker-option", "-framework", "-linker-option", "Metal"
-                )
-                // TODO: the current release binary surprises LLVM, so disable checks for now.
-                freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
-            }
-        }
-    }
     macosArm64() {
         binaries {
             executable() {
@@ -105,20 +93,6 @@ kotlin {
                     "-linker-option", "-framework", "-linker-option", "Metal"
                 )
                 // TODO: the current release binary surprises LLVM, so disable checks for now.
-                freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
-            }
-        }
-    }
-    iosX64("iosX64") {
-        binaries {
-            executable() {
-                entryPoint = "androidx.compose.mpp.demo.main"
-                freeCompilerArgs += listOf(
-                    "-linker-option", "-framework", "-linker-option", "Metal",
-                    "-linker-option", "-framework", "-linker-option", "CoreText",
-                    "-linker-option", "-framework", "-linker-option", "CoreGraphics"
-                )
-                // TODO: the current compose binary surprises LLVM, so disable checks for now.
                 freeCompilerArgs += "-Xdisable-phases=VerifyBitcode"
             }
         }
@@ -229,12 +203,10 @@ kotlin {
         val nativeMain by creating { dependsOn(skikoMain) }
         val darwinMain by creating { dependsOn(nativeMain) }
         val macosMain by creating { dependsOn(darwinMain) }
-        val macosX64Main by getting { dependsOn(macosMain) }
         val macosArm64Main by getting { dependsOn(macosMain) }
         val iosMain by creating {
             dependsOn(darwinMain)
         }
-        val iosX64Main by getting { dependsOn(iosMain) }
         val iosArm64Main by getting { dependsOn(iosMain) }
         val iosSimArm64Main by getting { dependsOn(iosMain) }
     }
@@ -257,11 +229,11 @@ if (System.getProperty("os.name") == "Mac OS X") {
                 if (System.getProperty("os.arch") == "aarch64") {
                     Target.IOS_SIM_ARM64
                 } else {
-                    Target.IOS_X64
+                    error("x64 host is not supported anymore!")
                 }
             }
 
-            else -> Target.IOS_X64
+            else -> Target.IOS_SIM_ARM64
         }
     }
 

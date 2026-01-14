@@ -193,22 +193,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun mac(
         block: Action<KotlinNativeTarget>? = null
     ): List<KotlinNativeTarget> {
-        return listOfNotNull(
-            macosX64(block),
-            macosArm64(block)
-        )
-    }
-
-    @JvmOverloads
-    fun macosX64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTargetWithHostTests? {
-        requestedPlatforms.add(PlatformIdentifier.MAC_OSX_64)
-        return if (project.enableMac()) {
-            kotlinExtension.macosX64().also {
-                block?.execute(it)
-            }
-        } else { null }
+        return listOfNotNull(macosArm64(block))
     }
 
     @JvmOverloads
@@ -243,21 +228,9 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         block: Action<KotlinNativeTarget>? = null
     ): List<KotlinNativeTarget> {
         return listOfNotNull(
-            iosX64(block),
             iosArm64(block),
             iosSimulatorArm64(block)
         )
-    }
-    @JvmOverloads
-    fun iosX64(
-        block: Action<KotlinNativeTarget>? = null
-    ): KotlinNativeTarget? {
-        requestedPlatforms.add(PlatformIdentifier.IOS_X_64)
-        return if (project.enableMac()) {
-            kotlinExtension.iosX64().also {
-                block?.execute(it)
-            }
-        } else { null }
     }
 
     @JvmOverloads

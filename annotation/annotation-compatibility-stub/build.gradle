@@ -44,10 +44,8 @@ kotlin {
     // NOTE: Keep this list in sync with runtime-saveable's targets.
     watchosArm64()
     watchosArm32()
-    watchosX64()
     watchosSimulatorArm64()
     tvosArm64()
-    tvosX64()
     tvosSimulatorArm64()
     mingwX64()
 

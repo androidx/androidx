@@ -28,23 +28,14 @@ fun KotlinNativeBinaryContainer.configureFramework() {
 }
 
 kotlin {
-    val isArm64Host = System.getProperty("os.arch") == "aarch64"
     iosArm64 {
         binaries {
             configureFramework()
         }
     }
-    if (isArm64Host) {
-        iosSimulatorArm64 {
-            binaries {
-                configureFramework()
-            }
-        }
-    } else {
-        iosX64 {
-            binaries {
-                configureFramework()
-            }
+    iosSimulatorArm64 {
+        binaries {
+            configureFramework()
         }
     }
     sourceSets {
@@ -74,10 +65,6 @@ kotlin {
             dependsOn(darwinMain)
         }
         val iosArm64Main by getting { dependsOn(iosMain) }
-        if (isArm64Host) {
-            val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
-        } else {
-            val iosX64Main by getting { dependsOn(iosMain) }
-        }
+        val iosSimulatorArm64Main by getting { dependsOn(iosMain) }
     }
 }
