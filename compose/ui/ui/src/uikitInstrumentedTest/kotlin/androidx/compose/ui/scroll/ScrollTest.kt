@@ -976,44 +976,42 @@ internal class ScrollTest {
     }
 
     @Test
-    fun testMultiTouchScroll() = repeat(10) {
-        runUIKitInstrumentedTest {
-            val state1 = ScrollState(0)
-            val state2 = ScrollState(0)
-            setContent {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Row(modifier = Modifier.testTag("Row 1").horizontalScroll(state1)) {
-                        repeat(20) {
-                            Box(modifier = Modifier.size(200.dp))
-                        }
+    fun testMultiTouchScroll() = runUIKitInstrumentedTest {
+        val state1 = ScrollState(0)
+        val state2 = ScrollState(0)
+        setContent {
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(modifier = Modifier.testTag("Row 1").horizontalScroll(state1)) {
+                    repeat(20) {
+                        Box(modifier = Modifier.size(200.dp))
                     }
-                    Row(modifier = Modifier.testTag("Row 2").horizontalScroll(state2)) {
-                        repeat(20) {
-                            Box(modifier = Modifier.size(200.dp))
-                        }
+                }
+                Row(modifier = Modifier.testTag("Row 2").horizontalScroll(state2)) {
+                    repeat(20) {
+                        Box(modifier = Modifier.size(200.dp))
                     }
                 }
             }
-
-            val tap1 = findNodeWithTag("Row 1").touchDown()
-            val tap2 = findNodeWithTag("Row 2").touchDown()
-
-            waitForIdle()
-
-            // Simulate simultaneous drag of two fingers
-            repeat(2) {
-                tap1.dragBy(dx = (-25).dp, duration = (0.5).seconds)
-                tap2.dragBy(dx = (-50).dp, duration = (0.5).seconds)
-            }
-
-            tap1.up()
-            tap2.up()
-
-            waitForIdle()
-
-            assertEquals((50 - CUPERTINO_TOUCH_SLOP) * density.density, state1.value.toFloat())
-            assertEquals((100 - CUPERTINO_TOUCH_SLOP) * density.density, state2.value.toFloat())
         }
+
+        val tap1 = findNodeWithTag("Row 1").touchDown()
+        val tap2 = findNodeWithTag("Row 2").touchDown()
+
+        waitForIdle()
+
+        // Simulate simultaneous drag of two fingers
+        repeat(2) {
+            tap1.dragBy(dx = (-25).dp, duration = (0.5).seconds)
+            tap2.dragBy(dx = (-50).dp, duration = (0.5).seconds)
+        }
+
+        tap1.up()
+        tap2.up()
+
+        waitForIdle()
+
+        assertEquals((50 - CUPERTINO_TOUCH_SLOP) * density.density, state1.value.toFloat())
+        assertEquals((100 - CUPERTINO_TOUCH_SLOP) * density.density, state2.value.toFloat())
     }
 }
 

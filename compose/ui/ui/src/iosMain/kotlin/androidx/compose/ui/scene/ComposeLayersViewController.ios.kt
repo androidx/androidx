@@ -32,7 +32,9 @@ import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import kotlinx.cinterop.CValue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
@@ -52,7 +54,7 @@ import platform.UIKit.UIWindowLevelNormal
  */
 internal class ComposeLayersViewController(
     useSeparateRenderThreadWhenPossible: Boolean,
-    private val context: CoroutineContext
+    private val coroutineContext: CoroutineContext
 ): UIViewController(nibName = null, bundle = null) {
     val windowContext = PlatformWindowContext()
 
@@ -75,6 +77,10 @@ internal class ComposeLayersViewController(
             metalView = metalView,
             onLayoutSubviews = { windowContext.updateWindowContainerSize() }
         )
+    }
+
+    init {
+        coroutineContext.job.invokeOnCompletion { dispose() }
     }
 
     fun withLayers(block: (List<UIKitComposeSceneLayer>) -> Unit) = layersCache.withCopy(block)
@@ -115,7 +121,7 @@ internal class ComposeLayersViewController(
         window.setHidden(true)
     }
 
-    fun dispose() {
+    private fun dispose() {
         // `dispose` is called instead of `close`, because `close` is also used imperatively
         // to remove the layer from the array based on user interaction.
         while (this.layers.isNotEmpty()) {
@@ -266,7 +272,8 @@ internal class ComposeLayersViewController(
         duration: Duration,
     ) {
         val displayLinkListener = DisplayLinkListener()
-        val sizeTransitionScope = CoroutineScope(context + displayLinkListener.frameClock)
+        val sizeTransitionScope =
+            CoroutineScope(coroutineContext + displayLinkListener.frameClock + Job())
         displayLinkListener.start()
 
         animateSizeTransition(sizeTransitionScope, duration)
@@ -283,7 +290,7 @@ internal class ComposeLayersViewController(
     private fun crossFadeSizeTransition(
         transitionCoordinator: UIViewControllerTransitionCoordinatorProtocol
     ) {
-        val transitionScope = CoroutineScope(context)
+        val transitionScope = CoroutineScope(coroutineContext + Job())
         val layersAnimationClosure = rootView.animateCrossFadeTransition(transitionScope)
 
         transitionCoordinator.animateAlongsideTransition(

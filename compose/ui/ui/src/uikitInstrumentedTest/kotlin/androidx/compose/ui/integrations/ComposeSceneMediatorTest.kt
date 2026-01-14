@@ -34,9 +34,12 @@ import androidx.compose.ui.unit.center
 import androidx.compose.ui.viewinterop.UIKitInteropAction
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
 import androidx.compose.ui.window.MetalRedrawer
+import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import platform.CoreGraphics.CGRectMake
 import platform.QuartzCore.CAMetalLayer
@@ -44,9 +47,10 @@ import platform.QuartzCore.CAMetalLayer
 class ComposeSceneMediatorTest {
     @Test
     fun testDisposedMediatorShouldNotCrash() = runBlocking {
-        val mediator = makeMediator()
+        val context = Dispatchers.Main + Job()
+        val mediator = makeMediator(coroutineContext = context)
         mediator.setContent {}
-        mediator.dispose()
+        context.cancel()
 
         mediator.composeSceneDensity = Density(2f)
         mediator.layoutDirection = LayoutDirection.Rtl
@@ -83,14 +87,14 @@ class ComposeSceneMediatorTest {
     }
 
     @OptIn(ExperimentalForeignApi::class)
-    private fun makeMediator(): ComposeSceneMediator {
+    private fun makeMediator(coroutineContext: CoroutineContext): ComposeSceneMediator {
         val mediator = ComposeSceneMediator(
             onFocusBehavior = OnFocusBehavior.DoNothing,
             isClearFocusOnMouseDownEnabled = false,
             focusedViewsList = null,
             windowContext = PlatformWindowContext(),
             architectureComponentsOwner = DefaultArchitectureComponentsOwner(),
-            coroutineContext = Dispatchers.Main,
+            coroutineContext = coroutineContext,
             redrawer = MetalRedrawer(
                 metalLayer = CAMetalLayer(),
                 retrieveInteropTransaction = {

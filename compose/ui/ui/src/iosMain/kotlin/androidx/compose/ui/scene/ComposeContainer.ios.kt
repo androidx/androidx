@@ -52,8 +52,11 @@ import androidx.compose.ui.window.SceneActiveStateListener
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.savedstate.SavedState
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.cinterop.CPointed
 import kotlinx.cinterop.CPointer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.OSVersion
 import org.jetbrains.skiko.available
@@ -75,7 +78,7 @@ import platform.UIKit.UIWindowScene
 internal class ComposeContainer(
     private val configuration: ComposeContainerConfiguration,
     private val content: @Composable () -> Unit,
-    coroutineContext: CoroutineContext,
+    private val coroutineContext: CoroutineContext,
     private val lifecycleDelegate: ComposeContainerLifecycleDelegate
 ) {
     private val hapticFeedback = CupertinoHapticFeedback()
@@ -91,8 +94,11 @@ internal class ComposeContainer(
     private val layoutDirection get() = getApplicationLayoutDirection()
     private val motionDurationScale = MotionDurationScaleImpl()
     private var activeStateListener: SceneActiveStateListener? = null
-    val composeCoroutineContext: CoroutineContext = coroutineContext + motionDurationScale
-
+    private var sceneJob: Job = Job().also {
+        // The initial state of the container considered as "not active".
+        // The `initializeComposeScene` must be called to set the active `sceneJob`.
+        it.cancel()
+    }
     private var savedState: SavedState? = null
     private var mediatorComponentsOwner: DefaultArchitectureComponentsOwner? = null
     private val architectureComponentsOwner: DefaultArchitectureComponentsOwner
@@ -124,6 +130,15 @@ internal class ComposeContainer(
         if (configuration.enforceStrictPlistSanityCheck) {
             PlistSanityCheck.performIfNeeded()
         }
+        lifecycleDelegate.runOnDeinit {
+            windowContext.dispose()
+        }
+    }
+
+    fun nestedCoroutineScope(
+        addedContext: CoroutineContext = EmptyCoroutineContext
+    ): CoroutineScope {
+        return CoroutineScope(coroutineContext + addedContext + Job(parent = sceneJob))
     }
 
     fun prepareAndGetSizeTransitionAnimation(withProgress: suspend ((Float) -> Unit) -> Unit): suspend () -> Unit {
@@ -190,6 +205,8 @@ internal class ComposeContainer(
     }
 
     fun initializeComposeScene() {
+        sceneJob = Job()
+        val sceneCoroutineContext = coroutineContext + motionDurationScale + sceneJob
         val metalView = MetalView(
             retrieveInteropTransaction = {
                 mediator?.retrieveInteropTransaction() ?: object : UIKitInteropTransaction {
@@ -205,7 +222,7 @@ internal class ComposeContainer(
         metalView.canBeOpaque = configuration.opaque
         val holder = ComposeLayersHolder(
             useSeparateRenderThreadWhenPossible = configuration.parallelRendering,
-            context = composeCoroutineContext,
+            coroutineContext = sceneCoroutineContext,
             getWindow = { view.window }
         ).also {
             layersHolder = it
@@ -221,10 +238,10 @@ internal class ComposeContainer(
             focusedViewsList = focusedViewsList,
             windowContext = windowContext,
             architectureComponentsOwner = architectureComponentsOwner,
-            coroutineContext = composeCoroutineContext,
+            coroutineContext = sceneCoroutineContext,
             redrawer = metalView.redrawer,
             composeSceneFactory = { invalidate, context ->
-                createComposeScene(invalidate, context, holder)
+                createComposeScene(invalidate, context, holder, sceneCoroutineContext)
             },
             navigationEventInput = navigationEventInput,
             interfaceOrientationState = interfaceOrientationState,
@@ -259,6 +276,7 @@ internal class ComposeContainer(
     }
 
     fun disposeComposeScene() {
+        sceneJob.cancel()
         // Store the current state in the local savedState property. It is used to
         // provide the saved state to the next Compose scene when the container re-enters
         // the window hierarchy.
@@ -269,18 +287,14 @@ internal class ComposeContainer(
         navigationEventInput.onDidMoveToWindow(null, view)
         architectureComponentsOwner.navigationEventDispatcher.removeInput(navigationEventInput)
 
-        mediator?.dispose()
         mediator = null
 
         activeStateListener?.dispose()
         activeStateListener = null
 
-        layersHolder?.disposeIfNeeded()
         layersHolder = null
 
         interfaceOrientationObserver.isObservingEnabled = false
-
-        windowContext.dispose()
     }
 
     private fun createComposeSceneContext(
@@ -308,9 +322,8 @@ internal class ComposeContainer(
                     configuration = configuration,
                     onAccessibilityChanged = ::onAccessibilityChanged,
                     focusedViewsList = if (focusable) focusedViewsList.childFocusedViewsList() else null,
-                    compositionContext = compositionContext,
+                    parentCoroutineContext = compositionContext.effectCoroutineContext,
                     ownerProvider = architectureComponentsOwner,
-                    coroutineContext = composeCoroutineContext,
                     interfaceOrientationState = interfaceOrientationState,
                 )
 
@@ -325,11 +338,12 @@ internal class ComposeContainer(
     private fun createComposeScene(
         invalidate: () -> Unit,
         platformContext: PlatformContext,
-        layersHolder: ComposeLayersHolder
+        layersHolder: ComposeLayersHolder,
+        coroutineContext: CoroutineContext
     ): ComposeScene = PlatformLayersComposeScene(
         density = view.density,
         layoutDirection = layoutDirection,
-        coroutineContext = composeCoroutineContext,
+        coroutineContext = coroutineContext,
         composeSceneContext = createComposeSceneContext(
             platformContext = platformContext,
             layersHolder = layersHolder
@@ -402,7 +416,7 @@ private fun getApplicationLayoutDirection() =
 
 private class ComposeLayersHolder(
     private val useSeparateRenderThreadWhenPossible: Boolean,
-    private val context: CoroutineContext,
+    private val coroutineContext: CoroutineContext,
     private val getWindow: () -> UIWindow?
 ) {
     var layersViewController: ComposeLayersViewController? = null
@@ -412,17 +426,12 @@ private class ComposeLayersHolder(
         return layersViewController ?: run {
             val layers = ComposeLayersViewController(
                 useSeparateRenderThreadWhenPossible = useSeparateRenderThreadWhenPossible,
-                context = context
+                coroutineContext = coroutineContext
             )
             layers.referenceWindow = getWindow()
             layersViewController = layers
             layers
         }
-    }
-
-    fun disposeIfNeeded() {
-        layersViewController?.dispose()
-        layersViewController = null
     }
 }
 

@@ -96,6 +96,8 @@ import kotlinx.cinterop.CValue
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.skiko.OS
@@ -203,7 +205,7 @@ internal class ComposeSceneMediator(
         override var isActive by mutableStateOf(false)
     }
 
-    private var disposed = false
+    private val isActive get() = coroutineContext.isActive
 
     private val viewConfiguration: ViewConfiguration =
         object : ViewConfiguration by PlatformContext.DefaultViewConfiguration {
@@ -224,7 +226,7 @@ internal class ComposeSceneMediator(
     private var size: IntSize?
         get() = scene.size
         set(value) {
-            if (!disposed) {
+            if (isActive) {
                 scene.size = value
                 if (value != null) {
                     windowInsetsManager.sceneSize.value = value
@@ -242,7 +244,7 @@ internal class ComposeSceneMediator(
     var composeSceneDensity: Density
         get() = scene.density
         set(value) {
-            if (!disposed) {
+            if (isActive) {
                 scene.density = value
             }
         }
@@ -258,7 +260,7 @@ internal class ComposeSceneMediator(
     var layoutDirection: LayoutDirection
         get() = scene.layoutDirection
         set(value) {
-            if (!disposed) {
+            if (isActive) {
                 scene.layoutDirection = value
             }
         }
@@ -266,7 +268,7 @@ internal class ComposeSceneMediator(
     var compositionLocalContext: CompositionLocalContext?
         get() = scene.compositionLocalContext
         set(value) {
-            if (!disposed) {
+            if (isActive) {
                 scene.compositionLocalContext = value
             }
         }
@@ -386,6 +388,10 @@ internal class ComposeSceneMediator(
             isLayoutTransitionAnimating ||
             semanticsOwnerListener.hasInvalidations ||
             textInputService.hasInvalidations
+
+    init {
+        coroutineContext.job.invokeOnCompletion { dispose() }
+    }
 
     private fun hitTestInteropView(point: CValue<CGPoint>): UIView? =
         point.useContents {
@@ -622,8 +628,7 @@ internal class ComposeSceneMediator(
         }
     }
 
-    fun dispose() {
-        disposed = true
+    private fun dispose() {
         onPreviewKeyEvent = { false }
         onKeyEvent = { false }
 

@@ -52,6 +52,12 @@ internal class ComposeContainerLifecycleDelegate(
             field = value
             updateLifecycleState()
         }
+
+    private var deinitCallback: (() -> Unit)? = null
+    fun runOnDeinit(block: () -> Unit) {
+        assert(deinitCallback == null) { "runOnDeinit can be called only once" }
+        deinitCallback = block
+    }
     
     private val activeStateListener = SceneActiveStateListener(
         notificationCenter = notificationCenter,
@@ -78,6 +84,7 @@ internal class ComposeContainerLifecycleDelegate(
         activeStateListener.dispose()
         foregroundStateListener.dispose()
         windowScene = null
+        deinitCallback?.invoke()
     }
 
     override fun composeContainerWillAppear() {

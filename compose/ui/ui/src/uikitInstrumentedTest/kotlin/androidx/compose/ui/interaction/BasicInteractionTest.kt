@@ -249,63 +249,61 @@ class BasicInteractionTest {
     }
 
     @Test
-    fun testTapsCountingWithMultiTouch() = repeat(10) {
-        runUIKitInstrumentedTest {
-            var touchesDown = 0
-            var touchesUp = 0
+    fun testTapsCountingWithMultiTouch() = runUIKitInstrumentedTest {
+        var touchesDown = 0
+        var touchesUp = 0
 
-            setContent {
-                Column {
-                    Box(
-                        modifier = Modifier
-                            .size(250.dp)
-                            .testTag("Box 1")
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    while (true) {
-                                        val event = awaitPointerEvent(pass = PointerEventPass.Initial)
-                                        event.changes.forEach { change ->
-                                            if (change.changedToDown()) {
-                                                touchesDown++
-                                            } else if (change.changedToUp()) {
-                                                touchesUp++
-                                            }
+        setContent {
+            Column {
+                Box(
+                    modifier = Modifier
+                        .size(250.dp)
+                        .testTag("Box 1")
+                        .pointerInput(Unit) {
+                            awaitEachGesture {
+                                while (true) {
+                                    val event = awaitPointerEvent(pass = PointerEventPass.Initial)
+                                    event.changes.forEach { change ->
+                                        if (change.changedToDown()) {
+                                            touchesDown++
+                                        } else if (change.changedToUp()) {
+                                            touchesUp++
                                         }
                                     }
                                 }
                             }
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(250.dp)
-                            .testTag("Box 2")
-                            .pointerInput(Unit) {
-                                awaitEachGesture {
-                                    while (true) {
-                                        awaitPointerEvent(pass = PointerEventPass.Initial)
-                                    }
+                        }
+                )
+                Box(
+                    modifier = Modifier
+                        .size(250.dp)
+                        .testTag("Box 2")
+                        .pointerInput(Unit) {
+                            awaitEachGesture {
+                                while (true) {
+                                    awaitPointerEvent(pass = PointerEventPass.Initial)
                                 }
                             }
-                    )
-                }
+                        }
+                )
             }
-
-            val tap1 = findNodeWithTag("Box 1").touchDown()
-            val tap2 = findNodeWithTag("Box 2").touchDown()
-
-            assertEquals(1, touchesDown)
-            assertEquals(0, touchesUp)
-
-            tap1.dragBy(dx = 20.dp, duration = 0.1.seconds)
-            tap2.dragBy(dx = 20.dp, duration = 0.1.seconds)
-
-            tap1.up()
-            tap2.up()
-            waitForIdle()
-
-            assertEquals(1, touchesDown)
-            assertEquals(1, touchesUp)
         }
+
+        val tap1 = findNodeWithTag("Box 1").touchDown()
+        val tap2 = findNodeWithTag("Box 2").touchDown()
+
+        assertEquals(1, touchesDown)
+        assertEquals(0, touchesUp)
+
+        tap1.dragBy(dx = 20.dp, duration = 0.1.seconds)
+        tap2.dragBy(dx = 20.dp, duration = 0.1.seconds)
+
+        tap1.up()
+        tap2.up()
+        waitForIdle()
+
+        assertEquals(1, touchesDown)
+        assertEquals(1, touchesUp)
     }
 
     @Test

@@ -30,7 +30,6 @@ import kotlin.math.abs
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.isActive
@@ -51,7 +50,6 @@ internal class ComposeHostingView(
         coroutineContext = coroutineContext,
         lifecycleDelegate = lifecycleDelegate
     )
-    private val scope = CoroutineScope(container.composeCoroutineContext)
 
     // Used for testing
     val rootRedrawer: MetalRedrawer? get() = container.view.redrawer
@@ -77,7 +75,15 @@ internal class ComposeHostingView(
         container.updateInterfaceOrientationState()
 
         val initialSize = layer.presentationLayer()?.bounds?.dpSize()
-        if (initialSize == null || initialSize == bounds.dpSize() || container.hasInteropViews) {
+        if (initialSize == null ||
+            initialSize == bounds.dpSize() ||
+            container.hasInteropViews) {
+            container.view.setFrame(bounds)
+            return
+        }
+
+        val scope = container.nestedCoroutineScope()
+        if (!scope.isActive) {
             container.view.setFrame(bounds)
             return
         }
@@ -127,13 +133,8 @@ internal class ComposeHostingView(
         isAnimating = true
 
         val displayLinkListener = DisplayLinkListener()
-        val sizeTransitionScope = CoroutineScope(
-            container.composeCoroutineContext + displayLinkListener.frameClock
-        )
+        val sizeTransitionScope = container.nestedCoroutineScope(displayLinkListener.frameClock)
         displayLinkListener.start()
-        if (!container.composeCoroutineContext.isActive) {
-            return
-        }
 
         fun progress(): Float {
             var progress: Float

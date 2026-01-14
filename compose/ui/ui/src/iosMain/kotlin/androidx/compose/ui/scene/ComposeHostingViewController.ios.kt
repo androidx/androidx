@@ -33,7 +33,6 @@ import kotlin.time.toDuration
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import platform.CoreGraphics.CGSize
@@ -172,17 +171,13 @@ internal class ComposeHostingViewController(
         duration: Duration
     ) {
         val displayLinkListener = DisplayLinkListener()
-        val sizeTransitionScope = CoroutineScope(
-            container.composeCoroutineContext + displayLinkListener.frameClock
-        )
+        val sizeTransitionScope = container.nestedCoroutineScope(displayLinkListener.frameClock)
         displayLinkListener.start()
 
         val animations = container.prepareAndGetSizeTransitionAnimation { onFrame ->
             withAnimationProgress(duration, update = onFrame)
         }
-        container.view.animateSizeTransition(sizeTransitionScope) {
-            animations()
-        }
+        container.view.animateSizeTransition(sizeTransitionScope, animations)
 
         transitionCoordinator.animateAlongsideTransition(
             animation = {},
@@ -196,7 +191,7 @@ internal class ComposeHostingViewController(
     private fun animateCrossFadeSizeTransition(
         transitionCoordinator: UIViewControllerTransitionCoordinatorProtocol
     ) {
-        val transitionScope = CoroutineScope(container.composeCoroutineContext)
+        val transitionScope = container.nestedCoroutineScope()
         val viewAnimationClosure = container.view.animateCrossFadeTransition(transitionScope)
 
         transitionCoordinator.animateAlongsideTransition(
