@@ -214,6 +214,46 @@ public class Component extends PaintOperation
                                             + mHeight);
                         }
                         break;
+                    case ComponentValue.POS_X:
+                        context.loadFloat(v.getValueId(), mX);
+                        break;
+                    case ComponentValue.POS_Y:
+                        context.loadFloat(v.getValueId(), mY);
+                        break;
+                    case ComponentValue.POS_ROOT_X:
+                        locationInWindow[0] = 0f;
+                        locationInWindow[1] = 0f;
+                        getLocationInWindow(locationInWindow);
+                        context.loadFloat(v.getValueId(), locationInWindow[0]);
+                        break;
+                    case ComponentValue.POS_ROOT_Y:
+                        locationInWindow[0] = 0f;
+                        locationInWindow[1] = 0f;
+                        getLocationInWindow(locationInWindow);
+                        context.loadFloat(v.getValueId(), locationInWindow[1]);
+                        break;
+                    case ComponentValue.CONTENT_WIDTH:
+                        float contentWidth = mWidth;
+                        if (this instanceof LayoutComponent) {
+                            LayoutComponent layoutComponent = (LayoutComponent) this;
+                            if (layoutComponent.mHorizontalScrollDelegate != null) {
+                                contentWidth =
+                                        layoutComponent.mHorizontalScrollDelegate.contentWidth();
+                            }
+                        }
+                        context.loadFloat(v.getValueId(), contentWidth);
+                        break;
+                    case ComponentValue.CONTENT_HEIGHT:
+                        float contentHeight = mHeight;
+                        if (this instanceof LayoutComponent) {
+                            LayoutComponent layoutComponent = (LayoutComponent) this;
+                            if (layoutComponent.mVerticalScrollDelegate != null) {
+                                contentHeight =
+                                        layoutComponent.mVerticalScrollDelegate.contentHeight();
+                            }
+                        }
+                        context.loadFloat(v.getValueId(), contentHeight);
+                        break;
                 }
             }
         }
@@ -1144,7 +1184,8 @@ public class Component extends PaintOperation
 
     /**
      * Extract child data elements
-     * @param data an ArrayList that will be populated with the Data elements (if any)
+     *
+     * @param data             an ArrayList that will be populated with the Data elements (if any)
      * @param allButComponents if true, all elements other than components will be added.
      */
     public void getData(@NonNull ArrayList<Operation> data, boolean allButComponents) {

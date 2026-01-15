@@ -223,9 +223,8 @@ internal class RectList {
         val value = value and MaxSupportedId
         val items = items
         val size = itemsSize
-        var i = 0
-        while (i < items.size - 2) {
-            if (i >= size) break
+        var i = size - LongsPerItem
+        while (i >= 0) {
             val meta = items[i + 2]
             if (unpackMetaValue(meta) == parentId) {
                 val parentLT = items[i + 0]
@@ -249,7 +248,7 @@ internal class RectList {
                 )
                 return
             }
-            i += LongsPerItem
+            i -= LongsPerItem
         }
     }
 

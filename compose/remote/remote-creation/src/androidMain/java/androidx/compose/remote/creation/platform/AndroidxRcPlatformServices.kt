@@ -100,6 +100,9 @@ public open class AndroidxRcPlatformServices(private val logger: RCLogger = RCLo
     }
 
     override fun pathToFloatArray(path: Any): FloatArray? {
+        if (path is RcPlatformServices.RcPathArrayCreator) {
+            return path.createFloatArray()
+        }
         if (path is RemotePath) {
             return path.createFloatArray()
         }
@@ -116,6 +119,7 @@ public open class AndroidxRcPlatformServices(private val logger: RCLogger = RCLo
         val commands =
             pathData
                 .split("(?=[MmZzLlHhVvCcSsQqTtAa])".toRegex())
+                .dropWhile { it.isBlank() }
                 .dropLastWhile { it.isEmpty() }
                 .toTypedArray()
         for (command in commands) {

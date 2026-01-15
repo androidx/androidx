@@ -94,9 +94,7 @@ private class FocusTargetInteropNode :
 
     private var pinnedHandle: PinnableContainer.PinnedHandle? = null
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun onFocusStateChange(previousState: FocusState, currentState: FocusState) {
-        if (!ComposeUiFlags.isPinningFocusedAndroidViewsEnabled) return
         if (!isAttached) return
         val isFocused = currentState.isFocused
         val wasFocused = previousState.isFocused

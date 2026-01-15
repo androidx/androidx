@@ -68,6 +68,13 @@ import org.jetbrains.skia.IRect
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.currentNanoTime
 
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
 @ExperimentalTestApi
 actual fun runComposeUiTest(
     effectContext: CoroutineContext,
@@ -208,7 +215,10 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
     private val mainClockImpl = MainTestClockImpl(
         scheduler = coroutineDispatcher.scheduler,
         frameDelayMillis = FRAME_DELAY_MILLIS,
-        isStandardTestDispatcherSupportEnabled = ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled,
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-9519/Implement-ComposeUiTest-v2-APIs-and-migrate-the-tests
+        // It used to be ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled which was true by default
+        // Now it's removed.
+        isStandardTestDispatcherSupportEnabled = true
     )
     override val mainClock: MainTestClock
         get() = mainClockImpl

@@ -17,6 +17,7 @@
 package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.animateBounds
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -40,6 +41,7 @@ import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Composable
 fun AnimateBoundsModifierDemo() {
     var height by remember { mutableIntStateOf(200) }
@@ -49,44 +51,46 @@ fun AnimateBoundsModifierDemo() {
     var bottom by remember { mutableIntStateOf(0) }
     var weight by remember { mutableFloatStateOf(2f) }
 
-    LookaheadScope {
-        Column(
-            Modifier.fillMaxSize().clickable {
-                height = Random.nextInt(10, 300)
-                weight = Random.nextDouble(0.5, 4.5).toFloat()
+    LookaheadAnimationVisualDebuggingToggle {
+        LookaheadScope {
+            Column(
+                Modifier.fillMaxSize().clickable {
+                    height = Random.nextInt(10, 300)
+                    weight = Random.nextDouble(0.5, 4.5).toFloat()
 
-                left = Random.nextInt(0, 200)
-                top = Random.nextInt(0, 100)
-                right = Random.nextInt(0, 200)
-                bottom = Random.nextInt(0, 100)
-            }
-        ) {
-            Box(Modifier.fillMaxHeight(0.5f).fillMaxSize()) {
-                Box(
-                    Modifier.background(Color.Gray)
-                        .animateBounds(
-                            this@LookaheadScope,
-                            Modifier.padding(left.dp, top.dp, right.dp, bottom.dp),
-                        )
-                        .background(Color.Red)
-                        .fillMaxSize()
-                )
-            }
-            Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    Modifier.animateBounds(
-                            this@LookaheadScope,
-                            Modifier.weight(weight).height(height.dp),
-                        )
-                        .background(Color(0xffa2d2ff), RoundedCornerShape(5.dp))
-                )
-                Box(
-                    Modifier.animateBounds(
-                            this@LookaheadScope,
-                            Modifier.weight(1f).height(height.dp),
-                        )
-                        .background(Color(0xfffff3b0))
-                )
+                    left = Random.nextInt(0, 200)
+                    top = Random.nextInt(0, 100)
+                    right = Random.nextInt(0, 200)
+                    bottom = Random.nextInt(0, 100)
+                }
+            ) {
+                Box(Modifier.fillMaxHeight(0.5f).fillMaxSize()) {
+                    Box(
+                        Modifier.background(Color.Gray)
+                            .animateBounds(
+                                this@LookaheadScope,
+                                Modifier.padding(left.dp, top.dp, right.dp, bottom.dp),
+                            )
+                            .background(Color.Red)
+                            .fillMaxSize()
+                    )
+                }
+                Row(Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        Modifier.animateBounds(
+                                this@LookaheadScope,
+                                Modifier.weight(weight).height(height.dp),
+                            )
+                            .background(Color(0xffa2d2ff), RoundedCornerShape(5.dp))
+                    )
+                    Box(
+                        Modifier.animateBounds(
+                                this@LookaheadScope,
+                                Modifier.weight(1f).height(height.dp),
+                            )
+                            .background(Color(0xfffff3b0))
+                    )
+                }
             }
         }
     }

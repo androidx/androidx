@@ -26,7 +26,7 @@ import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas0
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
@@ -128,7 +128,7 @@ class BlendModeTest {
             horizontalAlignment = RemoteAlignment.Start,
             verticalArrangement = RemoteArrangement.Top,
         ) {
-            RemoteCanvas(RemoteModifier.size(100.rdp)) {
+            RemoteCanvas0(RemoteModifier.size(100.rdp)) {
                 val w = remoteComponentWidth(remoteComposeCreationState)
                 val h = remoteComponentHeight(remoteComposeCreationState)
 

@@ -35,3 +35,8 @@ public final class androidx/compose/ui/test/junit4/DesktopComposeTestRule_deskto
 	public static final fun createComposeRule ()Landroidx/compose/ui/test/junit4/ComposeContentTestRule;
 }
 
+public final class androidx/compose/ui/test/junit4/v2/ComposeTestRule_desktopKt {
+	public static final fun createComposeRule (Lkotlin/coroutines/CoroutineContext;)Landroidx/compose/ui/test/junit4/ComposeContentTestRule;
+	public static synthetic fun createComposeRule$default (Lkotlin/coroutines/CoroutineContext;ILjava/lang/Object;)Landroidx/compose/ui/test/junit4/ComposeContentTestRule;
+}
+

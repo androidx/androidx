@@ -20,6 +20,7 @@ import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.OperationInterface;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
+import androidx.compose.remote.core.ScrollingEdgeEffect;
 import androidx.compose.remote.core.TouchListener;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.operations.BitmapData;
@@ -456,6 +457,16 @@ public class LayoutComponent extends Component {
         float ty = mPaddingTop + getScrollY();
         context.translate(tx, ty);
         handleOperations(remoteContext, mList);
+        if (mHorizontalScrollDelegate != null) {
+            context.save();
+            mHorizontalScrollDelegate.applyEdgeEffect(context, this,
+                    ScrollingEdgeEffect.PRE_DRAW);
+        }
+        if (mVerticalScrollDelegate != null) {
+            context.save();
+            mVerticalScrollDelegate.applyEdgeEffect(context, this,
+                    ScrollingEdgeEffect.PRE_DRAW);
+        }
         if (mChildrenHaveZIndex) {
             // TODO -- should only sort when something has changed
             ArrayList<Component> sorted = new ArrayList<Component>(mChildrenComponents);
@@ -480,6 +491,16 @@ public class LayoutComponent extends Component {
         }
         if (mGraphicsLayerModifier != null) {
             context.endGraphicsLayer();
+        }
+        if (mHorizontalScrollDelegate != null) {
+            mHorizontalScrollDelegate.applyEdgeEffect(context, this,
+                    ScrollingEdgeEffect.POST_DRAW);
+            context.restore();
+        }
+        if (mVerticalScrollDelegate != null) {
+            mVerticalScrollDelegate.applyEdgeEffect(context, this,
+                    ScrollingEdgeEffect.POST_DRAW);
+            context.restore();
         }
         context.translate(-tx, -ty);
         context.restore();

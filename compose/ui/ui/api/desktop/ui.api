@@ -3607,6 +3607,9 @@ public final class androidx/compose/ui/platform/CompositionLocalsKt {
 	public static final fun getLocalHapticFeedback ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalInputModeManager ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalLayoutDirection ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+	public static final fun getLocalLocale ()Landroidx/compose/runtime/CompositionLocal;
+	public static final fun getLocalLocaleList ()Landroidx/compose/runtime/CompositionLocal;
+	public static final fun getLocalProvidableLocaleList ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalScrollCaptureInProgress ()Landroidx/compose/runtime/CompositionLocal;
 	public static final fun getLocalSoftwareKeyboardController ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 	public static final fun getLocalTextInputService ()Landroidx/compose/runtime/ProvidableCompositionLocal;

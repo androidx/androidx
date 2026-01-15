@@ -48,12 +48,11 @@ import androidx.compose.ui.test.injectionscope.mouse.Common.runMouseInputInjecti
 import androidx.compose.ui.test.injectionscope.mouse.Common.verifyMouseEvent
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.smoothScroll
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -156,77 +155,65 @@ class ScrollTest {
      * Integration test: checks if we are actually seeing lazy column respond to vertical scroll.
      */
     @Test
-    fun smoothScrollLazyColumn() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val items = 200
-            setContent {
-                LazyColumn(listModifier.width(50.dp)) {
-                    items(items) { TestItem(it, items, Modifier.fillParentMaxWidth()) }
-                }
+    fun smoothScrollLazyColumn() = runComposeUiTest {
+        val items = 200
+        setContent {
+            LazyColumn(listModifier.width(50.dp)) {
+                items(items) { TestItem(it, items, Modifier.fillParentMaxWidth()) }
             }
-
-            onNodeWithTag("list").performMouseInput {
-                smoothScroll(100f, 500L, ScrollWheel.Vertical)
-            }
-            onNodeWithTag("item-${items - 1}").assertIsDisplayed()
         }
+
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Vertical) }
+        onNodeWithTag("item-${items - 1}").assertIsDisplayed()
+    }
 
     /**
      * Integration test: checks if we are actually seeing a scrollable column respond to vertical
      * scroll.
      */
     @Test
-    fun smoothScrollColumn() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val items = 200
-            setContent {
-                Column(listModifier.width(50.dp).verticalScroll(rememberScrollState())) {
-                    repeat(items) { TestItem(it, items, Modifier.fillMaxWidth()) }
-                }
+    fun smoothScrollColumn() = runComposeUiTest {
+        val items = 200
+        setContent {
+            Column(listModifier.width(50.dp).verticalScroll(rememberScrollState())) {
+                repeat(items) { TestItem(it, items, Modifier.fillMaxWidth()) }
             }
-
-            onNodeWithTag("list").performMouseInput {
-                smoothScroll(100f, 500L, ScrollWheel.Vertical)
-            }
-            onNodeWithTag("item-${items - 1}").assertIsDisplayed()
         }
+
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Vertical) }
+        onNodeWithTag("item-${items - 1}").assertIsDisplayed()
+    }
 
     /** Integration test: checks if we are actually seeing lazy row respond to horizontal scroll. */
     @Test
-    fun smoothScrollLazyRow() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val items = 200
-            setContent {
-                LazyRow(listModifier.height(50.dp)) {
-                    items(items) { TestItem(it, items, Modifier.fillParentMaxHeight()) }
-                }
+    fun smoothScrollLazyRow() = runComposeUiTest {
+        val items = 200
+        setContent {
+            LazyRow(listModifier.height(50.dp)) {
+                items(items) { TestItem(it, items, Modifier.fillParentMaxHeight()) }
             }
-
-            onNodeWithTag("list").performMouseInput {
-                smoothScroll(100f, 500L, ScrollWheel.Horizontal)
-            }
-            onNodeWithTag("item-${items - 1}").assertIsDisplayed()
         }
+
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Horizontal) }
+        onNodeWithTag("item-${items - 1}").assertIsDisplayed()
+    }
 
     /**
      * Integration test: checks if we are actually seeing a scrollable row respond to horizontal
      * scroll.
      */
     @Test
-    fun smoothScrollRow() =
-        runComposeUiTest(effectContext = StandardTestDispatcher()) {
-            val items = 200
-            setContent {
-                Row(listModifier.height(50.dp).horizontalScroll(rememberScrollState())) {
-                    repeat(items) { TestItem(it, items, Modifier.fillMaxHeight()) }
-                }
+    fun smoothScrollRow() = runComposeUiTest {
+        val items = 200
+        setContent {
+            Row(listModifier.height(50.dp).horizontalScroll(rememberScrollState())) {
+                repeat(items) { TestItem(it, items, Modifier.fillMaxHeight()) }
             }
-
-            onNodeWithTag("list").performMouseInput {
-                smoothScroll(100f, 500L, ScrollWheel.Horizontal)
-            }
-            onNodeWithTag("item-${items - 1}").assertIsDisplayed()
         }
+
+        onNodeWithTag("list").performMouseInput { smoothScroll(100f, 500L, ScrollWheel.Horizontal) }
+        onNodeWithTag("item-${items - 1}").assertIsDisplayed()
+    }
 
     @Composable
     fun TestItem(i: Int, n: Int, modifier: Modifier = Modifier) {

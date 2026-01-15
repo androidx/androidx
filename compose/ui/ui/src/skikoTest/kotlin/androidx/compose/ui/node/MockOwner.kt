@@ -48,6 +48,7 @@ import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -151,6 +152,10 @@ internal class MockOwner(
     override val coroutineContext: CoroutineContext get() = throw IllegalStateException()
     override val dragAndDropManager: DragAndDropManager
         get() = TODO("Not yet implemented")
+
+    // TODO: proper implementation if necessary here - https://youtrack.jetbrains.com/issue/CMP-9514
+    override val localeList: LocaleList
+        get() = LocaleList(emptyList())
 
     override fun onRequestMeasure(
         layoutNode: LayoutNode,

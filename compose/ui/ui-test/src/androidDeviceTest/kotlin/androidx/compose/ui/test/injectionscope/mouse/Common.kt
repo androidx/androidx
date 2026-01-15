@@ -27,13 +27,12 @@ import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.MouseInjectionScope
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.DataPoint
 import androidx.compose.ui.test.util.SinglePointerInputRecorder
 import androidx.compose.ui.test.util.verify
 import androidx.compose.ui.test.util.verifyEvents
-import kotlinx.coroutines.test.StandardTestDispatcher
+import androidx.compose.ui.test.v2.runComposeUiTest
 
 @OptIn(ExperimentalTestApi::class)
 object Common {
@@ -57,16 +56,13 @@ object Common {
     fun runMouseInputInjectionTest(
         mouseInput: MouseInjectionScope.() -> Unit,
         vararg eventVerifiers: DataPoint.() -> Unit,
-    ): Unit =
-        runComposeUiTest(StandardTestDispatcher()) {
-            mainClock.autoAdvance = false
-            val recorder = SinglePointerInputRecorder()
-            setContent {
-                WithViewConfiguration(testViewConfiguration) { ClickableTestBox(recorder) }
-            }
-            onNodeWithTag(ClickableTestBox.defaultTag).performMouseInput(mouseInput)
-            runOnIdle { recorder.verifyEvents(*eventVerifiers) }
-        }
+    ): Unit = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val recorder = SinglePointerInputRecorder()
+        setContent { WithViewConfiguration(testViewConfiguration) { ClickableTestBox(recorder) } }
+        onNodeWithTag(ClickableTestBox.defaultTag).performMouseInput(mouseInput)
+        runOnIdle { recorder.verifyEvents(*eventVerifiers) }
+    }
 
     /** Verifies [DataPoint]s for events that are expected to come from a mouse */
     fun DataPoint.verifyMouseEvent(

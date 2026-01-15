@@ -33,7 +33,7 @@ import androidx.compose.ui.text.TextStyle
  * @see SpanStyle
  */
 @Immutable
-class Locale internal constructor(val platformLocale: PlatformLocale) {
+class Locale(val platformLocale: PlatformLocale) {
     companion object {
         /** Returns a [Locale] object which represents current locale */
         val current: Locale

@@ -29,7 +29,7 @@ import androidx.compose.ui.draw.drawBehind
 /** Break glass mechanism to make calls direct to the RecordingCanvas or document. */
 @Composable
 public fun WriteToDocument(message: String? = null, content: RecordingCanvas.() -> Unit) {
-    RemoteCanvas(modifier = RemoteModifier.size(0.rdp)) { content(canvas) }
+    RemoteCanvas0(modifier = RemoteModifier.size(0.rdp)) { content(canvas) }
 }
 
 @Composable

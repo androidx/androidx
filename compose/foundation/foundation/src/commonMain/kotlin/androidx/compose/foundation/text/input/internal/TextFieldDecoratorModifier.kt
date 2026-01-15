@@ -24,7 +24,6 @@ import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
 import androidx.compose.foundation.content.internal.dragAndDropRequestPermission
 import androidx.compose.foundation.content.internal.getReceiveContentConfiguration
 import androidx.compose.foundation.content.readPlainText
-import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
@@ -271,16 +270,8 @@ internal class TextFieldDecoratorModifierNode(
     /**
      * The last enter event that was submitted to [interactionSource] from [dragAndDropNode]. We
      * need to keep a reference to this event to send a follow-up exit event.
-     *
-     * We are using interaction source hover state as a hacky capsule to carry dragging events to
-     * core modifier node which draws the cursor and shows the magnifier. TextFields are not really
-     * focused when a dragging text hovers over them. Focused TextFields should have active input
-     * connections that is not required in a drag and drop scenario.
-     *
-     * When proper hover events are implemented for [interactionSource], the below code in
-     * [dragAndDropNode] should be revised.
      */
-    private var dragEnterEvent: HoverInteraction.Enter? = null
+    private var dragEnterEvent: DragAndDropHoverInteraction.Enter? = null
 
     /** Special Drag and Drop node for BasicTextField that is also aware of `receiveContent` API. */
     private val dragAndDropNode =
@@ -302,7 +293,8 @@ internal class TextFieldDecoratorModifierNode(
                     }
                 },
                 onEntered = {
-                    dragEnterEvent = HoverInteraction.Enter().also { interactionSource.tryEmit(it) }
+                    dragEnterEvent =
+                        DragAndDropHoverInteraction.Enter().also { interactionSource.tryEmit(it) }
                     // Although BasicTextField itself is not a `receiveContent` node, it should
                     // behave like one. Delegate the enter event to the ancestor nodes just like
                     // `receiveContent` itself would.
@@ -839,7 +831,7 @@ internal class TextFieldDecoratorModifierNode(
 
     private fun emitDragExitEvent() {
         dragEnterEvent?.let {
-            interactionSource.tryEmit(HoverInteraction.Exit(it))
+            interactionSource.tryEmit(DragAndDropHoverInteraction.Exit(it))
             dragEnterEvent = null
         }
     }

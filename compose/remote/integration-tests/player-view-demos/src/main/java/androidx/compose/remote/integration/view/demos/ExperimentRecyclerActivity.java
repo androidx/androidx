@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.integration.view.demos;
 
-
 import static android.widget.LinearLayout.VERTICAL;
 
 import static androidx.compose.remote.integration.view.demos.DemosComposeKt.getRemoteComposable;
@@ -30,6 +29,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
@@ -110,8 +110,15 @@ public class ExperimentRecyclerActivity extends Activity {
     static int sNotificationId = 1;
     public static final boolean BACKGROUND = false;
 
+
     public static @NonNull RemoteComposeBuffer getCurrentDoc() {
         return sCurrentBuffer;
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        paletteChange();
     }
 
     /**
@@ -606,6 +613,23 @@ public class ExperimentRecyclerActivity extends Activity {
     /**
      * Called when the checked state of a compound button has changed.
      *
+     */
+    public void paletteChange() {
+        int off = mLinearLayoutManager.findFirstVisibleItemPosition();
+
+        Card card = (Card) mLinearLayoutManager.findViewByPosition(off);
+        if (card == null) {
+            System.err.println("card is null");
+            return;
+        }
+
+        card.mPlayer.reloadPalette();
+
+    }
+
+    /**
+     * Called when the checked state of a compound button has changed.
+     *
      * @param buttonView The button view whose state has changed.
      * @param isChecked  The new checked state of buttonView.
      */
@@ -678,6 +702,9 @@ public class ExperimentRecyclerActivity extends Activity {
             } else { // landscape
                 Log.v("MAIN", "landscape mode");
                 size = sHeight / 2;
+            }
+            if (size < 200) {
+                size = 1200;
             }
             LayoutParams params = new LayoutParams(size, size);
             // mPlayer.setBackground(sDrawable);

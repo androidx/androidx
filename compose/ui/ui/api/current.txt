@@ -148,12 +148,12 @@ package androidx.compose.ui {
     property public boolean isIndirectPointerNavigationGestureDetectorEnabled;
     property public boolean isInitialFocusOnFocusableAvailable;
     property public boolean isOptimizedFocusEventDispatchEnabled;
-    property public boolean isPinningFocusedAndroidViewsEnabled;
     property public boolean isPre26FocusFinderFixEnabled;
     property public boolean isRectManagerOffsetUsageFromLayoutCoordinatesEnabled;
     property @Deprecated public boolean isRemoveFocusedViewFixEnabled;
     property public boolean isRequestFocusOnNonFocusableFocusTargetEnabled;
     property public boolean isScrollCaptureCenteringEnabled;
+    property public boolean isSharedComposeViewContextEnabled;
     property public boolean isTraversableDelegatesFixEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
@@ -165,12 +165,12 @@ package androidx.compose.ui {
     field public static boolean isIndirectPointerNavigationGestureDetectorEnabled;
     field public static boolean isInitialFocusOnFocusableAvailable;
     field public static boolean isOptimizedFocusEventDispatchEnabled;
-    field public static boolean isPinningFocusedAndroidViewsEnabled;
     field public static boolean isPre26FocusFinderFixEnabled;
     field public static boolean isRectManagerOffsetUsageFromLayoutCoordinatesEnabled;
     field @Deprecated public static boolean isRemoveFocusedViewFixEnabled;
     field public static boolean isRequestFocusOnNonFocusableFocusTargetEnabled;
     field public static boolean isScrollCaptureCenteringEnabled;
+    field public static boolean isSharedComposeViewContextEnabled;
     field public static boolean isTraversableDelegatesFixEnabled;
     field public static boolean isViewFocusFixEnabled;
   }
@@ -3950,6 +3950,8 @@ package androidx.compose.ui.platform {
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> getLocalHapticFeedback();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> getLocalInputModeManager();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> getLocalLayoutDirection();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<androidx.compose.ui.text.intl.Locale> getLocalLocale();
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<androidx.compose.ui.text.intl.LocaleList> getLocalLocaleList();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> getLocalScrollCaptureInProgress();
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> getLocalSoftwareKeyboardController();
     method @InaccessibleFromKotlin @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> getLocalTextInputService();
@@ -3971,6 +3973,8 @@ package androidx.compose.ui.platform {
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.hapticfeedback.HapticFeedback> LocalHapticFeedback;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> LocalInputModeManager;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> LocalLayoutDirection;
+    property public static androidx.compose.runtime.CompositionLocal<androidx.compose.ui.text.intl.Locale> LocalLocale;
+    property public static androidx.compose.runtime.CompositionLocal<androidx.compose.ui.text.intl.LocaleList> LocalLocaleList;
     property public static androidx.compose.runtime.CompositionLocal<java.lang.Boolean> LocalScrollCaptureInProgress;
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController?> LocalSoftwareKeyboardController;
     property @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService?> LocalTextInputService;

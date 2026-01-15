@@ -1672,6 +1672,7 @@ package androidx.compose.ui.text.intl {
 
   @androidx.compose.runtime.Immutable public final class Locale {
     ctor public Locale(String languageTag);
+    ctor public Locale(java.util.Locale platformLocale);
     method @InaccessibleFromKotlin public String getLanguage();
     method @InaccessibleFromKotlin public java.util.Locale getPlatformLocale();
     method @InaccessibleFromKotlin public String getRegion();

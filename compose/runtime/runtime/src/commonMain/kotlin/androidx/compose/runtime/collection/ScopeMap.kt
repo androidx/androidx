@@ -62,6 +62,11 @@ internal value class ScopeMap<Key : Any, Scope : Any>(
     /** Returns true if any scopes are associated with [element] */
     operator fun contains(element: Key): Boolean = map.containsKey(element)
 
+    /** Executes [block] for each key in this map. */
+    fun forEachKey(block: (key: Key) -> Unit) {
+        @Suppress("UNCHECKED_CAST") map.forEachKey(block as (Any) -> Unit)
+    }
+
     /** Executes [block] for all scopes mapped to the given [key]. */
     inline fun forEachScopeOf(key: Key, block: (scope: Scope) -> Unit) {
         when (val value = map[key]) {

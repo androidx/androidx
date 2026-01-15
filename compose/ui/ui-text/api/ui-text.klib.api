@@ -1,7 +1,7 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, macosArm64, macosX64, wasmJs]
-// Alias: apple => [iosArm64, iosSimulatorArm64, iosX64, macosArm64, macosX64]
-// Alias: ios => [iosArm64, iosSimulatorArm64, iosX64]
+// Targets: [iosArm64, iosSimulatorArm64, js, macosArm64, wasmJs]
+// Alias: apple => [iosArm64, iosSimulatorArm64, macosArm64]
+// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -572,6 +572,12 @@ final class androidx.compose.ui.text.intl/Locale { // androidx.compose.ui.text.i
         final val current // androidx.compose.ui.text.intl/Locale.Companion.current|{}current[0]
             final fun <get-current>(): androidx.compose.ui.text.intl/Locale // androidx.compose.ui.text.intl/Locale.Companion.current.<get-current>|<get-current>(){}[0]
     }
+
+    // Targets: [apple]
+    constructor <init>(platform.Foundation/NSLocale) // androidx.compose.ui.text.intl/Locale.<init>|<init>(platform.Foundation.NSLocale){}[0]
+
+    // Targets: [js, wasmJs]
+    constructor <init>(androidx.compose.ui.text.intl/PlatformLocale) // androidx.compose.ui.text.intl/Locale.<init>|<init>(androidx.compose.ui.text.intl.PlatformLocale){}[0]
 }
 
 final class androidx.compose.ui.text.intl/LocaleList : kotlin.collections/Collection<androidx.compose.ui.text.intl/Locale> { // androidx.compose.ui.text.intl/LocaleList|null[0]

@@ -16,8 +16,11 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalLookaheadAnimationVisualDebugApi
 import androidx.compose.animation.animateBounds
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.demos.fancy.AnimatedDotsDemo
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.animation.demos.statetransition.InfiniteProgress
 import androidx.compose.animation.demos.statetransition.InfinitePulsingHeart
 import androidx.compose.foundation.background
@@ -47,92 +50,101 @@ import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
+@OptIn(ExperimentalLookaheadAnimationVisualDebugApi::class)
 @Preview
 @Composable
 fun LookaheadWithMovableContentDemo() {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        var isSingleColumn by remember { mutableStateOf(true) }
+    LookaheadAnimationVisualDebuggingToggle {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            var isSingleColumn by remember { mutableStateOf(true) }
 
-        Column(
-            Modifier.padding(100.dp).fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Row(
-                modifier = Modifier.clickable { isSingleColumn = true },
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                Modifier.padding(100.dp).fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
-                RadioButton(isSingleColumn, { isSingleColumn = true })
-                Text("Single Column")
+                Row(
+                    modifier = Modifier.clickable { isSingleColumn = true },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(isSingleColumn, { isSingleColumn = true })
+                    Text("Single Column")
+                }
+                Row(
+                    modifier = Modifier.clickable { isSingleColumn = false },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    RadioButton(!isSingleColumn, { isSingleColumn = false })
+                    Text("Double Column")
+                }
             }
-            Row(
-                modifier = Modifier.clickable { isSingleColumn = false },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                RadioButton(!isSingleColumn, { isSingleColumn = false })
-                Text("Double Column")
-            }
-        }
 
-        val items = remember {
-            colors.mapIndexed { id, color ->
-                movableContentWithReceiverOf<LookaheadScope, Float> { weight ->
-                    Box(
-                        Modifier.padding(15.dp)
-                            .height(80.dp)
-                            .fillMaxWidth(weight)
-                            .animateBounds(lookaheadScope = this@movableContentWithReceiverOf)
-                            .background(color, RoundedCornerShape(20)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        when (id) {
-                            0 -> CircularProgressIndicator(color = Color.White)
-                            1 ->
-                                Box(
-                                    Modifier.graphicsLayer {
-                                        scaleX = 0.5f
-                                        scaleY = 0.5f
-                                        translationX = 100f
+            val items = remember {
+                colors.mapIndexed { id, color ->
+                    movableContentWithReceiverOf<LookaheadScope, Float> { weight ->
+                        Box(
+                            Modifier.padding(15.dp)
+                                .height(80.dp)
+                                .fillMaxWidth(weight)
+                                .animateBounds(
+                                    lookaheadScope = this@movableContentWithReceiverOf,
+                                    boundsTransform = { _, _ -> tween(durationMillis = 1000) },
+                                )
+                                .background(color, RoundedCornerShape(20)),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            when (id) {
+                                0 -> CircularProgressIndicator(color = Color.White)
+                                1 ->
+                                    Box(
+                                        Modifier.graphicsLayer {
+                                            scaleX = 0.5f
+                                            scaleY = 0.5f
+                                            translationX = 100f
+                                        }
+                                    ) {
+                                        AnimatedDotsDemo()
                                     }
-                                ) {
-                                    AnimatedDotsDemo()
-                                }
-                            2 ->
-                                Box(
-                                    Modifier.graphicsLayer {
-                                        scaleX = 0.5f
-                                        scaleY = 0.5f
+
+                                2 ->
+                                    Box(
+                                        Modifier.graphicsLayer {
+                                            scaleX = 0.5f
+                                            scaleY = 0.5f
+                                        }
+                                    ) {
+                                        InfinitePulsingHeart()
                                     }
-                                ) {
-                                    InfinitePulsingHeart()
-                                }
-                            else -> InfiniteProgress()
+
+                                else -> InfiniteProgress()
+                            }
                         }
                     }
                 }
             }
-        }
-        Box(Modifier.fillMaxSize()) {
-            LookaheadScope {
-                if (isSingleColumn) {
-                    Column(
-                        Modifier.fillMaxSize(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        items.forEach { it(0.8f) }
-                    }
-                } else {
-                    Row {
-                        Column(Modifier.weight(1f)) {
-                            items.forEachIndexed { id, item ->
-                                if (id % 2 == 0) {
-                                    item(1f)
+            Box(Modifier.fillMaxSize()) {
+                LookaheadScope {
+                    if (isSingleColumn) {
+                        Column(
+                            Modifier.fillMaxSize(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            items.forEach { it(0.8f) }
+                        }
+                    } else {
+                        Row {
+                            Column(Modifier.weight(1f)) {
+                                items.forEachIndexed { id, item ->
+                                    if (id % 2 == 0) {
+                                        item(1f)
+                                    }
                                 }
                             }
-                        }
-                        Column(Modifier.weight(1f)) {
-                            items.forEachIndexed { id, item ->
-                                if (id % 2 != 0) {
-                                    item(1f)
+                            Column(Modifier.weight(1f)) {
+                                items.forEachIndexed { id, item ->
+                                    if (id % 2 != 0) {
+                                        item(1f)
+                                    }
                                 }
                             }
                         }

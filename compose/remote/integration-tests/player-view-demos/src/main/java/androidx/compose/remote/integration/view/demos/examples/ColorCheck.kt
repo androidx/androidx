@@ -26,7 +26,6 @@ import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.modifiers.ScrollModifierOperation
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.Rc
-import androidx.compose.remote.creation.Rc.FloatExpression.MUL
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterInterface
@@ -34,7 +33,6 @@ import androidx.compose.remote.creation.actions.ValueFloatExpressionChange
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.ScrollModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.remote.integration.view.demos.examples.DemoPaths.CustomScroller
 
 @Suppress("RestrictedApiAndroidX")
 fun colorList(): RemoteComposeWriter {
@@ -234,10 +232,7 @@ private fun RemoteComposeContextAndroid.makeColorRows(list: Array<String>) {
             val blueTxt = createTextFromFloat(blue, 1, 3, 0)
             endGlobal()
 
-            text("   ", RecordingModifier().background(0xFF_AAAAAA.toInt()), fontSize = dim)
             text(blueTxt, RecordingModifier().backgroundId(c), fontSize = dim)
-            // box(RecordingModifier().padding(8,0,8,0).backgroundId(c).horizontalWeight(1f).height(dim))
-
         }
 
         pad = 4
@@ -250,7 +245,7 @@ private fun RemoteComposeContextAndroid.makeColorList(list: Array<String>): IntA
     beginGlobal()
     for (i in 0 until list.size) {
         val colorName = list[i]
-        retList[i] = addColor(0xFF00FF00.toInt())
+        retList[i] = addColor(0xFF00FF00.toInt()).toInt()
         setColorName(retList[i], "color.$colorName")
     }
     endGlobal()

@@ -108,5 +108,5 @@ object ComposeFoundationFlags {
      * changed. For instance, if C and D are 2 items in the cache window and later they're removed
      * from the dataset, the cache window won't know it until it tries to prefetch them.
      */
-    @field:Suppress("MutableBareField") @JvmField var isCacheWindowRefillFixEnabled = false
+    @field:Suppress("MutableBareField") @JvmField var isCacheWindowRefillFixEnabled = true
 }

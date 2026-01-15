@@ -113,9 +113,9 @@ public class RemoteContext {
     @Composable
     public fun Canvas(
         modifier: RemoteModifier = RemoteModifier,
-        content: RemoteCanvasDrawScope.() -> Unit,
+        content: RemoteCanvasDrawScope0.() -> Unit,
     ) {
-        RemoteCanvas(modifier, content)
+        RemoteCanvas0(modifier, content)
     }
 }
 

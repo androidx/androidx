@@ -47,6 +47,7 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -171,6 +172,8 @@ internal interface Owner : PositionCalculator {
     val fontFamilyResolver: FontFamily.Resolver
 
     val layoutDirection: LayoutDirection
+
+    val localeList: LocaleList
 
     /** `true` when layout should draw debug bounds. */
     var showLayoutBounds: Boolean
@@ -391,6 +394,12 @@ internal interface Owner : PositionCalculator {
      * @param offset Delta scrolled.
      */
     fun dispatchOnScrollChanged(delta: Offset) {}
+
+    /**
+     * Invalidates the layer that the root elements are drawn in. This does not invalidate any child
+     * layers.
+     */
+    fun invalidateRootLayer() {}
 
     companion object {
         /**

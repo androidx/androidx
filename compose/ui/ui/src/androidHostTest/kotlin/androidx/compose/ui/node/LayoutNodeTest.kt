@@ -76,6 +76,7 @@ import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
@@ -2419,6 +2420,9 @@ internal class MockOwner(
 
     override val layoutDirection: LayoutDirection
         get() = LayoutDirection.Ltr
+
+    override val localeList: LocaleList
+        get() = TODO("Not yet implemented")
 
     @InternalCoreApi override var showLayoutBounds: Boolean = false
     override val snapshotObserver = OwnerSnapshotObserver { it.invoke() }

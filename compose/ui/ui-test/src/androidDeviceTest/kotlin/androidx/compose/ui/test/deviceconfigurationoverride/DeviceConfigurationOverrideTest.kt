@@ -30,6 +30,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalLocale
+import androidx.compose.ui.platform.LocalLocaleList
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
@@ -48,7 +50,7 @@ import androidx.compose.ui.test.UiMode
 import androidx.compose.ui.test.WindowSize
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsNotDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.then
 import androidx.compose.ui.text.font.FontFamily
@@ -826,12 +828,16 @@ class DeviceConfigurationOverrideTest {
     @Test
     fun localesOverride_overridesLocales() {
         lateinit var configuration: Configuration
+        lateinit var locale: Locale
+        lateinit var localeList: LocaleList
 
         rule.setContent {
             DeviceConfigurationOverride(
                 DeviceConfigurationOverride.Locales(LocaleList(Locale("es-ES")))
             ) {
                 configuration = LocalConfiguration.current
+                locale = LocalLocale.current
+                localeList = LocalLocaleList.current
             }
         }
 
@@ -839,12 +845,16 @@ class DeviceConfigurationOverrideTest {
             LocaleListCompat.forLanguageTags("es-ES"),
             ConfigurationCompat.getLocales(configuration),
         )
+        assertEquals(LocaleList(Locale("es-ES")), localeList)
+        assertEquals(Locale("es-ES"), locale)
     }
 
     @Test
     fun localesOverride_overridesLayoutDirection() {
         lateinit var layoutDirection: LayoutDirection
         lateinit var configuration: Configuration
+        lateinit var locale: Locale
+        lateinit var localeList: LocaleList
 
         rule.setContent {
             DeviceConfigurationOverride(
@@ -852,6 +862,8 @@ class DeviceConfigurationOverrideTest {
             ) {
                 layoutDirection = LocalLayoutDirection.current
                 configuration = LocalConfiguration.current
+                locale = LocalLocale.current
+                localeList = LocalLocaleList.current
             }
         }
 
@@ -861,6 +873,8 @@ class DeviceConfigurationOverrideTest {
         )
         assertEquals(LayoutDirection.Rtl, layoutDirection)
         assertEquals(View.LAYOUT_DIRECTION_RTL, configuration.layoutDirection)
+        assertEquals(LocaleList(Locale("ar")), localeList)
+        assertEquals(Locale("ar"), locale)
     }
 
     @Test

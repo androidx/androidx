@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -22,13 +21,20 @@ import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifie
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.size(width: RemoteDp, height: RemoteDp): RemoteModifier =
     width(width).height(height)
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.size(size: RemoteDp): RemoteModifier = width(size).height(size)
 
-public fun RemoteModifier.fillMaxSize(fraction: RemoteFloat = RemoteFloat(1f)): RemoteModifier =
+public fun RemoteModifier.fillMaxSize(fraction: Float = 1f): RemoteModifier =
     fillMaxWidth(fraction).fillMaxHeight(fraction)
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteModifier.fillMaxSize(fraction: RemoteFloat): RemoteModifier =
+    fillMaxWidth(fraction).fillMaxHeight(fraction)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.wrapContentSize(): RemoteModifier =
     then(WidthModifier(Type.WRAP, RemoteFloat(1f))).then(HeightModifier(Type.WRAP, RemoteFloat(1f)))

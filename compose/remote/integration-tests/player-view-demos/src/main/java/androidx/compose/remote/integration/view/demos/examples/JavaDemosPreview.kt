@@ -25,5 +25,4 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun DemoAttributedStringPreview() = RemoteDocPreview(DemoAttributedString.demo())
 
-// Failing to display due to b/450104887
 @Preview @Composable fun DemoPathsPreview() = RemoteDocPreview(DemoPaths.pathTest())

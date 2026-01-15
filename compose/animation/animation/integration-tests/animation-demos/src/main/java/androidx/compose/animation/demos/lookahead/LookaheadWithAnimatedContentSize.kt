@@ -19,6 +19,7 @@ package androidx.compose.animation.demos.lookahead
 import androidx.compose.animation.animateBounds
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.demos.gesture.pastelColors
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import kotlinx.coroutines.delay
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Preview
 @Composable
 fun LookaheadWithAnimatedContentSize() {
@@ -45,24 +47,26 @@ fun LookaheadWithAnimatedContentSize() {
                 value = !value
             }
         }
-    LookaheadScope {
-        Column {
-            Column(
-                Modifier.then(if (expanded) Modifier.fillMaxWidth() else Modifier)
-                    .animateContentSize()
-                    .zIndex(2f)
-            ) {
-                Box(Modifier.fillMaxWidth().height(100.dp).background(pastelColors[0]))
-                if (expanded) {
-                    Box(Modifier.fillMaxWidth().height(200.dp).background(Color.White))
+    LookaheadAnimationVisualDebuggingToggle {
+        LookaheadScope {
+            Column {
+                Column(
+                    Modifier.then(if (expanded) Modifier.fillMaxWidth() else Modifier)
+                        .animateContentSize()
+                        .zIndex(2f)
+                ) {
+                    Box(Modifier.fillMaxWidth().height(100.dp).background(pastelColors[0]))
+                    if (expanded) {
+                        Box(Modifier.fillMaxWidth().height(200.dp).background(Color.White))
+                    }
                 }
+                Box(
+                    Modifier.animateBounds(this@LookaheadScope)
+                        .fillMaxWidth()
+                        .height(100.dp)
+                        .background(pastelColors[1])
+                )
             }
-            Box(
-                Modifier.animateBounds(this@LookaheadScope)
-                    .fillMaxWidth()
-                    .height(100.dp)
-                    .background(pastelColors[1])
-            )
         }
     }
 }

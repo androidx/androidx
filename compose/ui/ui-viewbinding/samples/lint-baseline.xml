@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha08" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-alpha08)" variant="all" version="9.0.0-alpha08">
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
 
     <issue
         id="ComposeTestRuleDispatcher"
-        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        message="`TestDispatcher` is required. Add `effectContext = StandardTestDispatcher()` to control coroutine execution."
         errorLine1="    @get:Rule val rule = createComposeRule()"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="ComposeTestRuleDispatcher"
-        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        message="`TestDispatcher` is required. Add `effectContext = StandardTestDispatcher()` to control coroutine execution."
         errorLine1="    @get:Rule val rule = createAndroidComposeRule&lt;EmptyFragmentActivity>()"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="ComposeTestRuleDispatcher"
-        message="`TestDispatcher` is required. Add `StandardTestDispatcher()` to control coroutine execution."
+        message="`TestDispatcher` is required. Add `effectContext = StandardTestDispatcher()` to control coroutine execution."
         errorLine1="    @get:Rule val rule = createAndroidComposeRule&lt;EmptyFragmentActivity>()"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

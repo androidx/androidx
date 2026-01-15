@@ -25,6 +25,7 @@ import android.graphics.Paint
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 
 /** Base type for [ColorFilter]s that are parameterized by expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface RemoteColorFilter
@@ -137,6 +138,9 @@ public open class RemotePaint : Paint {
         remoteColor = null // Note this clears the color to transparent as a sideeffect.
         super.setColor(color)
     }
+
+    /** The [RemoteBrush] to paint with, if any. Currently only used from RemoteCanvas2. */
+    public var remoteBrush: RemoteBrush? = null
 
     internal fun getColorLong(creationState: RemoteComposeCreationState): Long? {
         remoteColor?.let {

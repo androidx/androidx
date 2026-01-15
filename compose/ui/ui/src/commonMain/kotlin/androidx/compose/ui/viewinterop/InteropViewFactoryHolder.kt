@@ -19,6 +19,7 @@ package androidx.compose.ui.viewinterop
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.ui.InternalComposeUiApi
 
+@Suppress("KmpExperimentalMismatch") // android actual is not annotated
 @InternalComposeUiApi
 internal expect class InteropViewFactoryHolder : ComposeNodeLifecycleCallback {
     fun getInteropView(): InteropView?

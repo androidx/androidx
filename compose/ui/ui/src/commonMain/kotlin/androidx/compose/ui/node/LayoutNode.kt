@@ -795,7 +795,7 @@ internal class LayoutNode(
         // measure/layout modifiers on the node
         invalidateMeasurements()
         // draw modifiers on the node
-        parent?.invalidateLayer()
+        parent?.invalidateLayer() ?: owner?.invalidateRootLayer()
         // and draw modifiers after graphics layers on the node
         invalidateLayers()
     }
@@ -918,7 +918,7 @@ internal class LayoutNode(
             innerLayerCoordinator.invalidateLayer()
         } else {
             val parent = this.parent
-            parent?.invalidateLayer()
+            parent?.invalidateLayer() ?: owner?.invalidateRootLayer()
         }
     }
 
@@ -1324,7 +1324,7 @@ internal class LayoutNode(
 
     fun invalidateSubtree(isRootOfInvalidation: Boolean = true) {
         if (isRootOfInvalidation) {
-            parent?.invalidateLayer()
+            parent?.invalidateLayer() ?: owner?.invalidateRootLayer()
         }
         invalidateSemantics()
         requestRemeasure()
@@ -1340,7 +1340,7 @@ internal class LayoutNode(
 
     fun invalidateDrawForSubtree(isRootOfInvalidation: Boolean = true) {
         if (isRootOfInvalidation) {
-            parent?.invalidateLayer()
+            parent?.invalidateLayer() ?: owner?.invalidateRootLayer()
         }
         nodes.headToTail(Nodes.Layout) { it.requireCoordinator(Nodes.Layout).layer?.invalidate() }
         _children.forEach { it.invalidateDrawForSubtree(false) }

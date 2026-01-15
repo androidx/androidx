@@ -24,20 +24,15 @@ import androidx.activity.compose.setContent
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.util.BoundaryNode
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.test.filters.LargeTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 
 @LargeTest
 @OptIn(ExperimentalTestApi::class)
 class LateSetContentTest {
 
-    @Test
-    fun test() =
-        runAndroidComposeUiTest<Activity>(StandardTestDispatcher()) {
-            onNodeWithTag("Node").assertExists()
-        }
+    @Test fun test() = runAndroidComposeUiTest<Activity> { onNodeWithTag("Node").assertExists() }
 
     class Activity : ComponentActivity() {
         private val handler = Handler(Looper.getMainLooper())

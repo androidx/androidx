@@ -656,11 +656,11 @@ class RemoteFloatTest {
 
     @Test
     fun textFromFloatFormatting() {
-        // Should be 0.500?
-        testTextFromFloat("0.5", 0.5f.rf, DecimalFormat("#0.000"))
-        testTextFromFloat("-0.5", (-0.5f).rf, DecimalFormat("#0.000"))
-        testTextFromFloat("0.5", 0.5f.rf, DecimalFormat("#,##0.00;(#,##0.00)"))
-        testTextFromFloat("(0.5)", (-0.5f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("0.500", 0.5f.rf, DecimalFormat("#0.000"))
+        testTextFromFloat("-0.500", (-0.5f).rf, DecimalFormat("#0.000"))
+        testTextFromFloat("0.50", 0.5f.rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("(0.50)", (-0.5f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("(50,000.50)", (-50000.50001f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
         testTextFromFloat("5000000.0", 5000000.rf, DecimalFormat("#0.##"))
 
         //        val indianFormatter = DecimalFormat.getNumberInstance(Locale("hi", "IN")) as

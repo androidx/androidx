@@ -33,14 +33,13 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -74,7 +73,7 @@ class MultipleComposeRootsTest {
      */
     @Test
     fun twoHierarchiesSharingTheSameModel() =
-        runAndroidComposeUiTest<ComponentActivity>(StandardTestDispatcher()) {
+        runAndroidComposeUiTest<ComponentActivity> {
             runOnUiThread {
                 val activity = activity!!
                 val state1 = mutableStateOf(value = ToggleableState.Off)

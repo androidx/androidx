@@ -21,7 +21,6 @@ import android.graphics.Bitmap
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.Path
@@ -38,8 +37,8 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
-import androidx.compose.remote.creation.compose.capture.shaders.RemoteShader
-import androidx.compose.remote.creation.compose.capture.shaders.colorFilterModeToInt
+import androidx.compose.remote.creation.compose.shaders.RemoteShader
+import androidx.compose.remote.creation.compose.shaders.colorFilterModeToInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBitmapFont
@@ -53,6 +52,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.getFloatIdForCreationState
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.toArgb
 
 /**
  * This provides a recording canvas implementation. This is the main way we intercept the output of
@@ -171,9 +171,10 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             }
         val tmpLastStrokeWidth = paint.strokeWidth
         val tmpLastTextSize = paint.textSize
-        val tmpLastStrokeCapOrdinal = paint.strokeCap.ordinal
-        val tmpLastStrokeJoinOrdinal = paint.strokeJoin.ordinal
-        val tmpLastStyleOrdinal = paint.style.ordinal
+        // Handle NPE in Robolectric
+        val tmpLastStrokeCapOrdinal = paint.strokeCap?.ordinal ?: Paint.Cap.BUTT.ordinal
+        val tmpLastStrokeJoinOrdinal = paint.strokeJoin?.ordinal ?: Paint.Join.MITER.ordinal
+        val tmpLastStyleOrdinal = paint.style?.ordinal ?: Paint.Style.FILL.ordinal
         val paintTypeface = paint.typeface
         val tmpTypeface =
             when (paintTypeface) {
@@ -246,17 +247,17 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             send = true
         }
         if (forceSendingPaint || lastStrokeCapOrdinal != tmpLastStrokeCapOrdinal) {
-            paintBundle.setStrokeCap(paint.strokeCap.ordinal)
+            paintBundle.setStrokeCap(tmpLastStrokeCapOrdinal)
             lastStrokeCapOrdinal = tmpLastStrokeCapOrdinal
             send = true
         }
         if (forceSendingPaint || lastStrokeJoinOrdinal != tmpLastStrokeJoinOrdinal) {
-            paintBundle.setStrokeJoin(paint.strokeJoin.ordinal)
+            paintBundle.setStrokeJoin(tmpLastStrokeJoinOrdinal)
             lastStrokeJoinOrdinal = tmpLastStrokeJoinOrdinal
             send = true
         }
         if (forceSendingPaint || lastStyleOrdinal != tmpLastStyleOrdinal) {
-            paintBundle.setStyle(paint.style.ordinal)
+            paintBundle.setStyle(tmpLastStyleOrdinal)
             lastStyleOrdinal = tmpLastStyleOrdinal
             send = true
         }
@@ -341,9 +342,15 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
                 shader.apply(paintBundle)
                 if (usingShaderMatrix || shader.remoteMatrix3x3 != null) {
                     usingShaderMatrix = true
-                    paintBundle.setShaderMatrix(
-                        shader.remoteMatrix3x3?.getFloatIdForCreationState(creationState) ?: 0f
-                    )
+                    val remoteMatrix3x3 = shader.remoteMatrix3x3
+                    if (remoteMatrix3x3 != null) {
+                        paintBundle.setShaderMatrix(
+                            remoteMatrix3x3.getFloatIdForCreationState(creationState)
+                        )
+                    } else {
+                        paintBundle.setShaderMatrix(0f)
+                        usingShaderMatrix = false
+                    }
                 }
             } else {
                 paintBundle.setShader(0)
@@ -553,6 +560,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         document.drawRect(rect.left, rect.top, rect.right, rect.bottom)
     }
 
+    /** For V1 compatibility. */
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
         usePaint(paint)
         document.drawOval(left, top, right, bottom)
@@ -608,6 +616,30 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
+    public fun drawTextOnCircle(
+        text: RemoteString,
+        centerX: RemoteFloat,
+        centerY: RemoteFloat,
+        radius: RemoteFloat,
+        startAngle: RemoteFloat,
+        warpRadiusOffset: RemoteFloat,
+        alignment: DrawTextOnCircle.Alignment,
+        placement: DrawTextOnCircle.Placement,
+        paint: RemotePaint,
+    ) {
+        usePaint(paint)
+        document.drawTextOnCircle(
+            text.getIdForCreationState(creationState),
+            centerX.getFloatIdForCreationState(creationState),
+            centerY.getFloatIdForCreationState(creationState),
+            radius.getFloatIdForCreationState(creationState),
+            startAngle.getFloatIdForCreationState(creationState),
+            warpRadiusOffset.getFloatIdForCreationState(creationState),
+            alignment,
+            placement,
+        )
+    }
+
     override fun drawLine(startX: Float, startY: Float, stopX: Float, stopY: Float, paint: Paint) {
         //        println("NRO drawLine")
         usePaint(paint)
@@ -660,6 +692,15 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         )
     }
 
+    public fun scale(sx: RemoteFloat, sy: RemoteFloat, px: RemoteFloat, py: RemoteFloat) {
+        document.scale(
+            sx.getFloatIdForCreationState(creationState),
+            sy.getFloatIdForCreationState(creationState),
+            px.getFloatIdForCreationState(creationState),
+            py.getFloatIdForCreationState(creationState),
+        )
+    }
+
     override fun drawBitmap(bitmap: Bitmap, left: Float, top: Float, paint: Paint?) {
         // println("NRO drawBitmap 2")
         usePaint(paint!!)
@@ -682,7 +723,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         // println("NRO drawBitmap 2")
         usePaint(paint!!)
         document.drawBitmap(
-            bitmap.id,
+            bitmap.getIdForCreationState(creationState),
             left.getFloatIdForCreationState(creationState),
             top.getFloatIdForCreationState(creationState),
             "",
@@ -706,7 +747,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         // println("NRO drawBitmap 3 ")
         usePaint(paint!!)
         document.drawBitmap(
-            bitmap.id,
+            bitmap.getIdForCreationState(creationState),
             dst.left.toFloat(),
             dst.top.toFloat(),
             dst.right.toFloat(),
@@ -971,6 +1012,12 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
             panx.getFloatIdForCreationState(creationState),
             pany.getFloatIdForCreationState(creationState),
         )
+    }
+
+    public fun drawRPath(path: RemotePath, paint: RemotePaint) {
+        usePaint(paint)
+        val pathId = document.addPathData(path)
+        document.drawPath(pathId)
     }
 
     override fun drawPath(path: Path, paint: Paint) {
@@ -1477,28 +1524,14 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
     }
 
     /**
-     * Instructs the player to draw [drawCommands] into an offscreen [RemoteBitmap] created with the
-     * specified [width] & [height]. The offscreen bitmap will be cleared with [clearColor] before
-     * any [drawCommands] are processed.
+     * Instructs the player to draw [drawCommands] into [bitmap].
      *
-     * @param width The width in pixels for the created offscreen bitmap.
-     * @param height The height in pixels for the created offscreen bitmap.
-     * @param clearColor If non-null the color the created offecreen bitmap will be cleared with.
+     * @param bitmap The [RemoteBitmap] to draw to.
      * @param drawCommands The commands the player will execute in the offscreen buffer.
-     * @return The [RemoteBitmap] the [drawCommands] were drawn into.
      */
-    public fun drawToOffscreenBitmap(
-        width: Int,
-        height: Int,
-        @ColorInt clearColor: Int,
-        drawCommands: () -> Unit,
-    ): RemoteBitmap {
-        val bitmapId = document.createBitmap(width, height)
-        if (clearColor != Color.BLACK) {
-            document.drawOnBitmap(bitmapId, 0, clearColor)
-        } else {
-            document.drawOnBitmap(bitmapId, 1, 0)
-        }
+    public fun drawToOffscreenBitmap(bitmap: RemoteBitmap, drawCommands: () -> Unit) {
+        val bitmapId = bitmap.getIdForCreationState(creationState)
+        document.drawOnBitmap(bitmapId, 1, 0)
 
         forceSendingPaint(true)
         val lastDrawToBitmapId = currentDrawToBitmapId
@@ -1508,11 +1541,32 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap) {
         forceSendingPaint(true)
         // Switch back to the previous canvas without clearing it.
         document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
+    }
 
-        return object : RemoteBitmap(creationState, null) {
-            public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
-                bitmapId
-        }
+    /**
+     * Instructs the player to draw [drawCommands] into [bitmap] which will be cleared with
+     * [clearColor] before any [drawCommands] are processed.
+     *
+     * @param bitmap The [RemoteBitmap] to draw to.
+     * @param clearColor The color the created offscreen bitmap will be cleared with.
+     * @param drawCommands The commands the player will execute in the offscreen buffer.
+     */
+    public fun drawToOffscreenBitmap(
+        bitmap: RemoteBitmap,
+        @ColorInt clearColor: Int,
+        drawCommands: () -> Unit,
+    ) {
+        val bitmapId = bitmap.getIdForCreationState(creationState)
+        document.drawOnBitmap(bitmapId, 0, clearColor)
+
+        forceSendingPaint(true)
+        val lastDrawToBitmapId = currentDrawToBitmapId
+        currentDrawToBitmapId = bitmapId
+        drawCommands()
+        currentDrawToBitmapId = lastDrawToBitmapId
+        forceSendingPaint(true)
+        // Switch back to the previous canvas without clearing it.
+        document.drawOnBitmap(lastDrawToBitmapId, 1, 0)
     }
 
     public companion object {

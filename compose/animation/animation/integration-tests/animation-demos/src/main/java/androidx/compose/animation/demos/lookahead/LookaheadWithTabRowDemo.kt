@@ -17,6 +17,7 @@
 package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.animateBounds
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -51,29 +52,32 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Preview
 @Composable
 fun LookaheadWithTabRowDemo() {
-    LookaheadScope {
-        val isWide by
-            produceState(false) {
-                while (true) {
-                    delay(5000)
-                    value = !value
+    LookaheadAnimationVisualDebuggingToggle {
+        LookaheadScope {
+            val isWide by
+                produceState(false) {
+                    while (true) {
+                        delay(5000)
+                        value = !value
+                    }
                 }
+            Column(
+                Modifier.fillMaxWidth()
+                    .animateBounds(
+                        this@LookaheadScope,
+                        if (isWide) Modifier else Modifier.padding(end = 100.dp),
+                    )
+                    .fillMaxHeight()
+                    .background(Color(0xFFfffbd0))
+            ) {
+                FancyTabs()
+                ScrollingTextTabs()
+                ScrollingFancyIndicatorContainerTabs()
             }
-        Column(
-            Modifier.fillMaxWidth()
-                .animateBounds(
-                    this@LookaheadScope,
-                    if (isWide) Modifier else Modifier.padding(end = 100.dp),
-                )
-                .fillMaxHeight()
-                .background(Color(0xFFfffbd0))
-        ) {
-            FancyTabs()
-            ScrollingTextTabs()
-            ScrollingFancyIndicatorContainerTabs()
         }
     }
 }

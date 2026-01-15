@@ -28,7 +28,6 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.IFELSE
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.SUB
 import androidx.compose.remote.core.operations.utilities.StringUtils
-import androidx.compose.remote.core.operations.utilities.StringUtils.PAD_NONE
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -125,7 +124,6 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
     }
 
     public fun toRemoteString(format: DecimalFormat): RemoteString {
-
         val decimalSeparator = format.decimalFormatSymbols.decimalSeparator
         val groupingSeparator = format.decimalFormatSymbols.groupingSeparator
 
@@ -168,24 +166,18 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
             options = options or TextFromFloat.OPTIONS_ROUNDING
         }
 
-        constantValue?.let {
-            return RemoteString(
-                StringUtils.floatToString(
-                    it,
-                    format.maximumIntegerDigits.coerceAtMost(255),
-                    format.maximumFractionDigits.coerceAtMost(255),
-                    PAD_NONE,
-                    PAD_NONE,
-                    separator.toByte(),
-                    grouping.toByte(),
-                    options shr 8,
-                )
-            )
+        var flags = separator or grouping or options
+        if (format.minimumFractionDigits > 1) {
+            flags = flags or TextFromFloat.PAD_AFTER_ZERO
+        } else {
+            flags = flags or TextFromFloat.PAD_AFTER_NONE
         }
 
-        var flags: Int = TextFromFloat.PAD_PRE_NONE or TextFromFloat.PAD_AFTER_NONE
-
-        flags = flags or separator or grouping or options
+        if (format.minimumIntegerDigits > 1) {
+            flags = flags or TextFromFloat.PAD_PRE_ZERO
+        } else {
+            flags = flags or TextFromFloat.PAD_PRE_NONE
+        }
 
         return toRemoteString(
             before = format.maximumIntegerDigits.coerceAtMost(255),
@@ -552,6 +544,20 @@ internal fun floatToString(v: Float, before: Int, after: Int, flags: Int) =
             TextFromFloat.PAD_AFTER_ZERO -> '0'
             else -> ' '
         },
+        when (flags and (3 shl 6)) {
+            TextFromFloat.SEPARATOR_PERIOD_COMMA -> StringUtils.SEPARATOR_PERIOD_COMMA
+            TextFromFloat.SEPARATOR_COMMA_PERIOD -> StringUtils.SEPARATOR_COMMA_PERIOD
+            TextFromFloat.SEPARATOR_SPACE_COMMA -> StringUtils.SEPARATOR_SPACE_COMMA
+            TextFromFloat.SEPARATOR_UNDER_PERIOD -> StringUtils.SEPARATOR_UNDER_PERIOD
+            else -> StringUtils.SEPARATOR_PERIOD_COMMA
+        }.toByte(),
+        when (flags and (3 shl 4)) {
+            TextFromFloat.GROUPING_BY3 -> StringUtils.GROUPING_BY3
+            TextFromFloat.GROUPING_BY4 -> StringUtils.GROUPING_BY4
+            TextFromFloat.GROUPING_BY32 -> StringUtils.GROUPING_BY32
+            else -> StringUtils.GROUPING_NONE
+        }.toByte(),
+        flags shr 8,
     )
 
 /**

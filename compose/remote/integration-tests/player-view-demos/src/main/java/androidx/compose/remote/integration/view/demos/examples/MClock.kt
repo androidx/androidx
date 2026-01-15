@@ -18,6 +18,7 @@ package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Paint
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.RemoteContext.FLOAT_API_LEVEL
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
@@ -125,6 +126,8 @@ fun MClock(): RemoteComposeWriter {
                             painter.setColorId(color.textColorId.toInt()).commit()
                             drawTextOnPath(date, textPath, 0f, 0f)
                         }
+                        val versionId = writer.createTextFromFloat(FLOAT_API_LEVEL, 2, 2, 0)
+                        drawTextAnchored(versionId, cx, (cy + h) / 2f, 0, 0, 0)
                     }
                 }
             }

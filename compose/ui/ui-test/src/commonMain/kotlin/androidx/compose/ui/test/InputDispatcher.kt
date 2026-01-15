@@ -263,6 +263,7 @@ internal abstract class InputDispatcher(
                 CursorInputSource.Mouse -> cursorInputState.exitMouseHover()
                 CursorInputSource.Trackpad -> cursorInputState.exitTrackpadHover()
             }
+            cursorInputState.currentCursorInputSource = null
         }
 
         // Send a MOVE event if pointers have changed since the last event
@@ -504,16 +505,17 @@ internal abstract class InputDispatcher(
         cursor.unsetButtonBit(buttonId)
         cursor.enqueueMouseRelease(buttonId)
 
-        if (cursor.hasNoButtonsPressed) {
-            cursor.currentCursorInputSource = null
-        }
-
         // When no buttons remaining, enter hover state immediately (Android-specific behavior)
-        if (exitHoverOnPress) {
-            if (cursor.hasNoButtonsPressed && isWithinRootBounds(currentCursorPosition)) {
-                cursor.enterMouseHover()
-                cursor.enqueueMouseMove()
-            }
+        if (
+            exitHoverOnPress &&
+                cursor.hasNoButtonsPressed &&
+                isWithinRootBounds(currentCursorPosition)
+        ) {
+            cursor.enterMouseHover()
+            cursor.enqueueMouseMove()
+        } else {
+            // If we are not entering hover, clear out the current cursor input source
+            cursor.currentCursorInputSource = null
         }
     }
 
@@ -712,16 +714,17 @@ internal abstract class InputDispatcher(
         cursor.unsetButtonBit(buttonId)
         cursor.enqueueTrackpadRelease(buttonId)
 
-        if (cursor.hasNoButtonsPressed) {
-            cursor.currentCursorInputSource = null
-        }
-
         // When no buttons remaining, enter hover state immediately (Android-specific behavior)
-        if (exitHoverOnPress) {
-            if (cursor.hasNoButtonsPressed && isWithinRootBounds(currentCursorPosition)) {
-                cursor.enterTrackpadHover()
-                cursor.enqueueTrackpadMove()
-            }
+        if (
+            exitHoverOnPress &&
+                cursor.hasNoButtonsPressed &&
+                isWithinRootBounds(currentCursorPosition)
+        ) {
+            cursor.enterTrackpadHover()
+            cursor.enqueueTrackpadMove()
+        } else {
+            // If we are not entering hover, clear out the current cursor input source
+            cursor.currentCursorInputSource = null
         }
     }
 
@@ -763,6 +766,8 @@ internal abstract class InputDispatcher(
 
         updateTrackpadPosition(position)
         cursor.exitTrackpadHover()
+
+        cursor.currentCursorInputSource = null
     }
 
     /**
@@ -857,25 +862,21 @@ internal abstract class InputDispatcher(
     private fun CursorInputState.enterMouseHover() {
         enqueueMouseEnter()
         isEntered = true
-        currentCursorInputSource = CursorInputSource.Mouse
     }
 
     private fun CursorInputState.exitMouseHover() {
         enqueueMouseExit()
         isEntered = false
-        currentCursorInputSource = null
     }
 
     private fun CursorInputState.enterTrackpadHover() {
         enqueueTrackpadEnter()
         isEntered = true
-        currentCursorInputSource = CursorInputSource.Trackpad
     }
 
     private fun CursorInputState.exitTrackpadHover() {
         enqueueTrackpadExit()
         isEntered = false
-        currentCursorInputSource = null
     }
 
     /**

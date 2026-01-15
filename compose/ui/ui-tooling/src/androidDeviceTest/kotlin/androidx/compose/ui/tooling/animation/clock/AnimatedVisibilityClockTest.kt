@@ -17,7 +17,7 @@
 package androidx.compose.ui.tooling.animation.clock
 
 import androidx.compose.animation.tooling.ComposeAnimatedProperty
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.Utils.assertEquals
 import androidx.compose.ui.tooling.animation.Utils.createTestAnimatedVisibility
 import androidx.compose.ui.tooling.animation.parseAnimatedVisibility

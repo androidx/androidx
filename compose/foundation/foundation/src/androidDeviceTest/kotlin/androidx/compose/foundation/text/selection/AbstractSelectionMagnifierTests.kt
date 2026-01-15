@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection
 
+import android.os.Build
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -36,7 +37,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -57,6 +58,7 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.sign
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -335,6 +337,10 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     @Test
     fun magnifier_staysAtLineStart_whenDraggedPastStart_rtl() {
+        assumeFalse(
+            "Test fails on cuttlefish b/470140767",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         checkMagnifierConstrainedToLineHorizontalBounds(
             Handle.SelectionStart,
             layoutDirection = LayoutDirection.Rtl,
@@ -343,6 +349,10 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
 
     @Test
     fun magnifier_staysAtLineEnd_whenDraggedPastEnd_rtl() {
+        assumeFalse(
+            "Test fails on cuttlefish b/470140767",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         checkMagnifierConstrainedToLineHorizontalBounds(
             Handle.SelectionEnd,
             layoutDirection = LayoutDirection.Rtl,

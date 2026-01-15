@@ -29,7 +29,7 @@ import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
-import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas0
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
@@ -66,8 +66,9 @@ class CaptureRemoteDocumentTest {
         val document: ByteArray =
             withContext(Dispatchers.Main) {
                 captureSingleRemoteDocument(context) {
-                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red))
-                }
+                        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red))
+                    }
+                    .bytes
             }
 
         val remoteComposeDocument =
@@ -94,27 +95,28 @@ class CaptureRemoteDocumentTest {
         val document: ByteArray =
             withContext(Dispatchers.Main) {
                 captureSingleRemoteDocument(context, profile = customProfile) {
-                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                        val textPaint =
-                            Paint().apply {
-                                isAntiAlias = true
-                                color = Color.LightGray.toArgb()
-                                textSize = 12f
-                            }
+                        RemoteCanvas0(modifier = RemoteModifier.fillMaxSize()) {
+                            val textPaint =
+                                Paint().apply {
+                                    isAntiAlias = true
+                                    color = Color.LightGray.toArgb()
+                                    textSize = 12f
+                                }
 
-                        canvas.drawTextOnCircle(
-                            text = RemoteString("10:09"),
-                            centerX = remote.component.width / 2f,
-                            centerY = remote.component.height / 2f,
-                            radius = remote.component.width / 2f,
-                            startAngle = 0f.rf,
-                            warpRadiusOffset = 0f.rf,
-                            alignment = DrawTextOnCircle.Alignment.CENTER,
-                            placement = DrawTextOnCircle.Placement.INSIDE,
-                            paint = textPaint,
-                        )
+                            canvas.drawTextOnCircle(
+                                text = RemoteString("10:09"),
+                                centerX = remote.component.width / 2f,
+                                centerY = remote.component.height / 2f,
+                                radius = remote.component.width / 2f,
+                                startAngle = 0f.rf,
+                                warpRadiusOffset = 0f.rf,
+                                alignment = DrawTextOnCircle.Alignment.CENTER,
+                                placement = DrawTextOnCircle.Placement.INSIDE,
+                                paint = textPaint,
+                            )
+                        }
                     }
-                }
+                    .bytes
             }
 
         assertTrue(document.isNotEmpty())

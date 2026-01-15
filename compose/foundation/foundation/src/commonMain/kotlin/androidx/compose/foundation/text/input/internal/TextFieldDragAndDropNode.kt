@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.ClipMetadata
 
+@Suppress("KmpExperimentalMismatch") // actuals are not experimental
 @ExperimentalFoundationApi
 internal expect fun textFieldDragAndDropNode(
     hintMediaTypes: () -> Set<MediaType>,

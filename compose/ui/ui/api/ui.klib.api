@@ -1,8 +1,7 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, iosX64, js, macosArm64, macosX64, wasmJs]
-// Alias: apple => [iosArm64, iosSimulatorArm64, iosX64, macosArm64, macosX64]
-// Alias: ios => [iosArm64, iosSimulatorArm64, iosX64]
-// Alias: macos => [macosArm64, macosX64]
+// Targets: [iosArm64, iosSimulatorArm64, js, macosArm64, wasmJs]
+// Alias: apple => [iosArm64, iosSimulatorArm64, macosArm64]
+// Alias: ios => [iosArm64, iosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -984,7 +983,7 @@ abstract interface androidx.compose.ui.platform/Clipboard { // androidx.compose.
         // Targets: [js, wasmJs]
         abstract fun <get-nativeClipboard>(): androidx.compose.ui.platform/W3CTemporaryClipboard // androidx.compose.ui.platform/Clipboard.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
 
-        // Targets: [macos]
+        // Targets: [macosArm64]
         abstract fun <get-nativeClipboard>(): platform.AppKit/NSPasteboard // androidx.compose.ui.platform/Clipboard.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
 
     abstract suspend fun getClipEntry(): androidx.compose.ui.platform/ClipEntry? // androidx.compose.ui.platform/Clipboard.getClipEntry|getClipEntry(){}[0]
@@ -999,7 +998,7 @@ abstract interface androidx.compose.ui.platform/ClipboardManager { // androidx.c
         // Targets: [js, wasmJs]
         open fun <get-nativeClipboard>(): androidx.compose.ui.platform/W3CTemporaryClipboard // androidx.compose.ui.platform/ClipboardManager.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
 
-        // Targets: [macos]
+        // Targets: [macosArm64]
         open fun <get-nativeClipboard>(): platform.AppKit/NSPasteboard // androidx.compose.ui.platform/ClipboardManager.nativeClipboard.<get-nativeClipboard>|<get-nativeClipboard>(){}[0]
 
     abstract fun getText(): androidx.compose.ui.text/AnnotatedString? // androidx.compose.ui.platform/ClipboardManager.getText|getText(){}[0]
@@ -3886,6 +3885,12 @@ final val androidx.compose.ui.platform/LocalLayoutDirection // androidx.compose.
     final fun <get-LocalLayoutDirection>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui.unit/LayoutDirection> // androidx.compose.ui.platform/LocalLayoutDirection.<get-LocalLayoutDirection>|<get-LocalLayoutDirection>(){}[0]
 final val androidx.compose.ui.platform/LocalLifecycleOwner // androidx.compose.ui.platform/LocalLifecycleOwner|{}LocalLifecycleOwner[0]
     final fun <get-LocalLifecycleOwner>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.lifecycle/LifecycleOwner> // androidx.compose.ui.platform/LocalLifecycleOwner.<get-LocalLifecycleOwner>|<get-LocalLifecycleOwner>(){}[0]
+final val androidx.compose.ui.platform/LocalLocale // androidx.compose.ui.platform/LocalLocale|{}LocalLocale[0]
+    final fun <get-LocalLocale>(): androidx.compose.runtime/CompositionLocal<androidx.compose.ui.text.intl/Locale> // androidx.compose.ui.platform/LocalLocale.<get-LocalLocale>|<get-LocalLocale>(){}[0]
+final val androidx.compose.ui.platform/LocalLocaleList // androidx.compose.ui.platform/LocalLocaleList|{}LocalLocaleList[0]
+    final fun <get-LocalLocaleList>(): androidx.compose.runtime/CompositionLocal<androidx.compose.ui.text.intl/LocaleList> // androidx.compose.ui.platform/LocalLocaleList.<get-LocalLocaleList>|<get-LocalLocaleList>(){}[0]
+final val androidx.compose.ui.platform/LocalProvidableLocaleList // androidx.compose.ui.platform/LocalProvidableLocaleList|{}LocalProvidableLocaleList[0]
+    final fun <get-LocalProvidableLocaleList>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.ui.text.intl/LocaleList> // androidx.compose.ui.platform/LocalProvidableLocaleList.<get-LocalProvidableLocaleList>|<get-LocalProvidableLocaleList>(){}[0]
 final val androidx.compose.ui.platform/LocalScrollCaptureInProgress // androidx.compose.ui.platform/LocalScrollCaptureInProgress|{}LocalScrollCaptureInProgress[0]
     final fun <get-LocalScrollCaptureInProgress>(): androidx.compose.runtime/CompositionLocal<kotlin/Boolean> // androidx.compose.ui.platform/LocalScrollCaptureInProgress.<get-LocalScrollCaptureInProgress>|<get-LocalScrollCaptureInProgress>(){}[0]
 final val androidx.compose.ui.platform/LocalSoftwareKeyboardController // androidx.compose.ui.platform/LocalSoftwareKeyboardController|{}LocalSoftwareKeyboardController[0]
@@ -4734,21 +4739,21 @@ final fun androidx.compose.ui.window/androidx_compose_ui_window_KeyboardModeStat
 // Targets: [js, wasmJs]
 final fun androidx.compose.ui.window/androidx_compose_ui_window_KeyboardModeState_Virtual$stableprop_getter(): kotlin/Int // androidx.compose.ui.window/androidx_compose_ui_window_KeyboardModeState_Virtual$stableprop_getter|androidx_compose_ui_window_KeyboardModeState_Virtual$stableprop_getter(){}[0]
 
-// Targets: [macos]
+// Targets: [macosArm64]
 abstract interface androidx.compose.ui.window/WindowScope { // androidx.compose.ui.window/WindowScope|null[0]
     abstract val window // androidx.compose.ui.window/WindowScope.window|{}window[0]
         abstract fun <get-window>(): platform.AppKit/NSWindow // androidx.compose.ui.window/WindowScope.window.<get-window>|<get-window>(){}[0]
 }
 
-// Targets: [macos]
+// Targets: [macosArm64]
 final val androidx.compose.ui.appkit/appkitEventOrNull // androidx.compose.ui.appkit/appkitEventOrNull|@androidx.compose.ui.input.pointer.PointerEvent{}appkitEventOrNull[0]
     final fun (androidx.compose.ui.input.pointer/PointerEvent).<get-appkitEventOrNull>(): platform.AppKit/NSEvent? // androidx.compose.ui.appkit/appkitEventOrNull.<get-appkitEventOrNull>|<get-appkitEventOrNull>@androidx.compose.ui.input.pointer.PointerEvent(){}[0]
 
-// Targets: [macos]
+// Targets: [macosArm64]
 final val androidx.compose.ui.platform/androidx_compose_ui_platform_MacosTextInputService_CurrentInput$stableprop // androidx.compose.ui.platform/androidx_compose_ui_platform_MacosTextInputService_CurrentInput$stableprop|#static{}androidx_compose_ui_platform_MacosTextInputService_CurrentInput$stableprop[0]
 
-// Targets: [macos]
+// Targets: [macosArm64]
 final fun androidx.compose.ui.platform/androidx_compose_ui_platform_MacosTextInputService_CurrentInput$stableprop_getter(): kotlin/Int // androidx.compose.ui.platform/androidx_compose_ui_platform_MacosTextInputService_CurrentInput$stableprop_getter|androidx_compose_ui_platform_MacosTextInputService_CurrentInput$stableprop_getter(){}[0]
 
-// Targets: [macos]
+// Targets: [macosArm64]
 final fun androidx.compose.ui.window/Window(kotlin/String = ..., androidx.compose.ui.unit/DpSize = ..., kotlin/Function3<androidx.compose.ui.window/WindowScope, androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>) // androidx.compose.ui.window/Window|Window(kotlin.String;androidx.compose.ui.unit.DpSize;kotlin.Function3<androidx.compose.ui.window.WindowScope,androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>){}[0]

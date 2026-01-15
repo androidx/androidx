@@ -909,4 +909,600 @@ public class Rc {
                 androidx.compose.remote.core.operations.TextAttribute.TEXT_LENGTH;
     }
 
+    /**
+     *  defining standard system color identifiers.
+     */
+    public static final class AndroidColors {
+        /** The android color group name. */
+        public static final String GROUP = "android";
+
+        /** The dark background color identifier. */
+        public static final short BACKGROUND_DARK = 0;
+
+        /** The light background color identifier. */
+        public static final short BACKGROUND_LIGHT = 1;
+
+        /** The black color identifier. */
+        public static final short BLACK = 2;
+
+        /** The darker gray color identifier. */
+        public static final short DARKER_GRAY = 3;
+
+        /** The bright holo blue color identifier. */
+        public static final short HOLO_BLUE_BRIGHT = 4;
+
+        /** The dark holo blue color identifier. */
+        public static final short HOLO_BLUE_DARK = 5;
+
+        /** The light holo blue color identifier. */
+        public static final short HOLO_BLUE_LIGHT = 6;
+
+        /** The dark holo green color identifier. */
+        public static final short HOLO_GREEN_DARK = 7;
+
+        /** The light holo green color identifier. */
+        public static final short HOLO_GREEN_LIGHT = 8;
+
+        /** The dark holo orange color identifier. */
+        public static final short HOLO_ORANGE_DARK = 9;
+
+        /** The light holo orange color identifier. */
+        public static final short HOLO_ORANGE_LIGHT = 10;
+
+        /** The holo purple color identifier. */
+        public static final short HOLO_PURPLE = 11;
+
+        /** The dark holo red color identifier. */
+        public static final short HOLO_RED_DARK = 12;
+
+        /** The light holo red color identifier. */
+        public static final short HOLO_RED_LIGHT = 13;
+
+        /** The system accent14 0 color identifier. */
+        public static final short SYSTEM_ACCENT14_0 = 14;
+
+        /** The system accent15 150 color identifier. */
+        public static final short SYSTEM_ACCENT15_150 = 15;
+
+        /** The system accent16 1600 color identifier. */
+        public static final short SYSTEM_ACCENT16_1600 = 16;
+
+        /** The system accent17 17000 color identifier. */
+        public static final short SYSTEM_ACCENT17_17000 = 17;
+
+        /** The system accent18 200 color identifier. */
+        public static final short SYSTEM_ACCENT18_200 = 18;
+
+        /** The system accent19 300 color identifier. */
+        public static final short SYSTEM_ACCENT19_300 = 19;
+
+        /** The system accent20 400 color identifier. */
+        public static final short SYSTEM_ACCENT20_400 = 20;
+
+        /** The system accent21 50 color identifier. */
+        public static final short SYSTEM_ACCENT21_50 = 21;
+
+        /** The system accent22 500 color identifier. */
+        public static final short SYSTEM_ACCENT22_500 = 22;
+
+        /** The system accent23 600 color identifier. */
+        public static final short SYSTEM_ACCENT23_600 = 23;
+
+        /** The system accent24 700 color identifier. */
+        public static final short SYSTEM_ACCENT24_700 = 24;
+
+        /** The system accent25 800 color identifier. */
+        public static final short SYSTEM_ACCENT25_800 = 25;
+
+        /** The system accent26 900 color identifier. */
+        public static final short SYSTEM_ACCENT26_900 = 26;
+
+        /** The system accent2 0 color identifier. */
+        public static final short SYSTEM_ACCENT2_0 = 27;
+
+        /** The system accent2 280 color identifier. */
+        public static final short SYSTEM_ACCENT2_280 = 28;
+
+        /** The system accent2 2900 color identifier. */
+        public static final short SYSTEM_ACCENT2_2900 = 29;
+
+        /** The system accent2 30000 color identifier. */
+        public static final short SYSTEM_ACCENT2_30000 = 30;
+
+        /** The system accent2 200 color identifier. */
+        public static final short SYSTEM_ACCENT2_200 = 31;
+
+        /** The system accent2 300 color identifier. */
+        public static final short SYSTEM_ACCENT2_300 = 32;
+
+        /** The system accent2 400 color identifier. */
+        public static final short SYSTEM_ACCENT2_400 = 33;
+
+        /** The system accent2 50 color identifier. */
+        public static final short SYSTEM_ACCENT2_50 = 34;
+
+        /** The system accent2 500 color identifier. */
+        public static final short SYSTEM_ACCENT2_500 = 35;
+
+        /** The system accent2 600 color identifier. */
+        public static final short SYSTEM_ACCENT2_600 = 36;
+
+        /** The system accent2 700 color identifier. */
+        public static final short SYSTEM_ACCENT2_700 = 37;
+
+        /** The system accent2 800 color identifier. */
+        public static final short SYSTEM_ACCENT2_800 = 38;
+
+        /** The system accent2 900 color identifier. */
+        public static final short SYSTEM_ACCENT2_900 = 39;
+
+        /** The system accent3 0 color identifier. */
+        public static final short SYSTEM_ACCENT3_0 = 40;
+
+        /** The system accent3 410 color identifier. */
+        public static final short SYSTEM_ACCENT3_410 = 41;
+
+        /** The system accent3 4200 color identifier. */
+        public static final short SYSTEM_ACCENT3_4200 = 42;
+
+        /** The system accent3 43000 color identifier. */
+        public static final short SYSTEM_ACCENT3_43000 = 43;
+
+        /** The system accent3 200 color identifier. */
+        public static final short SYSTEM_ACCENT3_200 = 44;
+
+        /** The system accent3 300 color identifier. */
+        public static final short SYSTEM_ACCENT3_300 = 45;
+
+        /** The system accent3 400 color identifier. */
+        public static final short SYSTEM_ACCENT3_400 = 46;
+
+        /** The system accent3 50 color identifier. */
+        public static final short SYSTEM_ACCENT3_50 = 47;
+
+        /** The system accent3 500 color identifier. */
+        public static final short SYSTEM_ACCENT3_500 = 48;
+
+        /** The system accent3 600 color identifier. */
+        public static final short SYSTEM_ACCENT3_600 = 49;
+
+        /** The system accent3 700 color identifier. */
+        public static final short SYSTEM_ACCENT3_700 = 50;
+
+        /** The system accent3 800 color identifier. */
+        public static final short SYSTEM_ACCENT3_800 = 51;
+
+        /** The system accent3 900 color identifier. */
+        public static final short SYSTEM_ACCENT3_900 = 52;
+
+        /** The dark system background color identifier. */
+        public static final short SYSTEM_BACKGROUND_DARK = 53;
+
+        /** The light system background color identifier. */
+        public static final short SYSTEM_BACKGROUND_LIGHT = 54;
+
+        /** The dark system control activated color identifier. */
+        public static final short SYSTEM_CONTROL_ACTIVATED_DARK = 55;
+
+        /** The light system control activated color identifier. */
+        public static final short SYSTEM_CONTROL_ACTIVATED_LIGHT = 56;
+
+        /** The dark system control highlight color identifier. */
+        public static final short SYSTEM_CONTROL_HIGHLIGHT_DARK = 57;
+
+        /** The light system control highlight color identifier. */
+        public static final short SYSTEM_CONTROL_HIGHLIGHT_LIGHT = 58;
+
+        /** The dark system control normal color identifier. */
+        public static final short SYSTEM_CONTROL_NORMAL_DARK = 59;
+
+        /** The light system control normal color identifier. */
+        public static final short SYSTEM_CONTROL_NORMAL_LIGHT = 60;
+
+        /** The system error 0 color identifier. */
+        public static final short SYSTEM_ERROR_0 = 61;
+
+        /** The system error 620 color identifier. */
+        public static final short SYSTEM_ERROR_620 = 62;
+
+        /** The system error 6300 color identifier. */
+        public static final short SYSTEM_ERROR_6300 = 63;
+
+        /** The system error 64000 color identifier. */
+        public static final short SYSTEM_ERROR_64000 = 64;
+
+        /** The system error 200 color identifier. */
+        public static final short SYSTEM_ERROR_200 = 65;
+
+        /** The system error 300 color identifier. */
+        public static final short SYSTEM_ERROR_300 = 66;
+
+        /** The system error 400 color identifier. */
+        public static final short SYSTEM_ERROR_400 = 67;
+
+        /** The system error 50 color identifier. */
+        public static final short SYSTEM_ERROR_50 = 68;
+
+        /** The system error 500 color identifier. */
+        public static final short SYSTEM_ERROR_500 = 69;
+
+        /** The system error 600 color identifier. */
+        public static final short SYSTEM_ERROR_600 = 70;
+
+        /** The system error 700 color identifier. */
+        public static final short SYSTEM_ERROR_700 = 71;
+
+        /** The system error 800 color identifier. */
+        public static final short SYSTEM_ERROR_800 = 72;
+
+        /** The system error 900 color identifier. */
+        public static final short SYSTEM_ERROR_900 = 73;
+
+        /** The dark system error container color identifier. */
+        public static final short SYSTEM_ERROR_CONTAINER_DARK = 74;
+
+        /** The light system error container color identifier. */
+        public static final short SYSTEM_ERROR_CONTAINER_LIGHT = 75;
+
+        /** The dark system error color identifier. */
+        public static final short SYSTEM_ERROR_DARK = 76;
+
+        /** The light system error color identifier. */
+        public static final short SYSTEM_ERROR_LIGHT = 77;
+
+        /** The system neutral78 0 color identifier. */
+        public static final short SYSTEM_NEUTRAL78_0 = 78;
+
+        /** The system neutral79 790 color identifier. */
+        public static final short SYSTEM_NEUTRAL79_790 = 79;
+
+        /** The system neutral80 8000 color identifier. */
+        public static final short SYSTEM_NEUTRAL80_8000 = 80;
+
+        /** The system neutral81 81000 color identifier. */
+        public static final short SYSTEM_NEUTRAL81_81000 = 81;
+
+        /** The system neutral82 200 color identifier. */
+        public static final short SYSTEM_NEUTRAL82_200 = 82;
+
+        /** The system neutral83 300 color identifier. */
+        public static final short SYSTEM_NEUTRAL83_300 = 83;
+
+        /** The system neutral84 400 color identifier. */
+        public static final short SYSTEM_NEUTRAL84_400 = 84;
+
+        /** The system neutral85 50 color identifier. */
+        public static final short SYSTEM_NEUTRAL85_50 = 85;
+
+        /** The system neutral86 500 color identifier. */
+        public static final short SYSTEM_NEUTRAL86_500 = 86;
+
+        /** The system neutral87 600 color identifier. */
+        public static final short SYSTEM_NEUTRAL87_600 = 87;
+
+        /** The system neutral88 700 color identifier. */
+        public static final short SYSTEM_NEUTRAL88_700 = 88;
+
+        /** The system neutral89 800 color identifier. */
+        public static final short SYSTEM_NEUTRAL89_800 = 89;
+
+        /** The system neutral90 900 color identifier. */
+        public static final short SYSTEM_NEUTRAL90_900 = 90;
+
+        /** The system neutral2 0 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_0 = 91;
+
+        /** The system neutral2 920 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_920 = 92;
+
+        /** The system neutral2 9300 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_9300 = 93;
+
+        /** The system neutral2 94000 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_94000 = 94;
+
+        /** The system neutral2 200 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_200 = 95;
+
+        /** The system neutral2 300 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_300 = 96;
+
+        /** The system neutral2 400 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_400 = 97;
+
+        /** The system neutral2 50 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_50 = 98;
+
+        /** The system neutral2 500 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_500 = 99;
+
+        /** The system neutral2 600 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_600 = 100;
+
+        /** The system neutral2 700 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_700 = 101;
+
+        /** The system neutral2 800 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_800 = 102;
+
+        /** The system neutral2 900 color identifier. */
+        public static final short SYSTEM_NEUTRAL2_900 = 103;
+
+        /** The dark system on background color identifier. */
+        public static final short SYSTEM_ON_BACKGROUND_DARK = 104;
+
+        /** The light system on background color identifier. */
+        public static final short SYSTEM_ON_BACKGROUND_LIGHT = 105;
+
+        /** The dark system on error container color identifier. */
+        public static final short SYSTEM_ON_ERROR_CONTAINER_DARK = 106;
+
+        /** The light system on error container color identifier. */
+        public static final short SYSTEM_ON_ERROR_CONTAINER_LIGHT = 107;
+
+        /** The dark system on error color identifier. */
+        public static final short SYSTEM_ON_ERROR_DARK = 108;
+
+        /** The light system on error color identifier. */
+        public static final short SYSTEM_ON_ERROR_LIGHT = 109;
+
+        /** The dark system on primary container color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_CONTAINER_DARK = 110;
+
+        /** The light system on primary container color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_CONTAINER_LIGHT = 111;
+
+        /** The dark system on primary color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_DARK = 112;
+
+        /** The system on primary fixed color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_FIXED = 113;
+
+        /** The system on primary fixed variant color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_FIXED_VARIANT = 114;
+
+        /** The light system on primary color identifier. */
+        public static final short SYSTEM_ON_PRIMARY_LIGHT = 115;
+
+        /** The dark system on secondary container color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_CONTAINER_DARK = 116;
+
+        /** The light system on secondary container color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_CONTAINER_LIGHT = 117;
+
+        /** The dark system on secondary color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_DARK = 118;
+
+        /** The system on secondary fixed color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_FIXED = 119;
+
+        /** The system on secondary fixed variant color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_FIXED_VARIANT = 120;
+
+        /** The light system on secondary color identifier. */
+        public static final short SYSTEM_ON_SECONDARY_LIGHT = 121;
+
+        /** The dark system on surface color identifier. */
+        public static final short SYSTEM_ON_SURFACE_DARK = 122;
+
+        /** The system on surface disabled color identifier. */
+        public static final short SYSTEM_ON_SURFACE_DISABLED = 123;
+
+        /** The light system on surface color identifier. */
+        public static final short SYSTEM_ON_SURFACE_LIGHT = 124;
+
+        /** The dark system on surface variant color identifier. */
+        public static final short SYSTEM_ON_SURFACE_VARIANT_DARK = 125;
+
+        /** The light system on surface variant color identifier. */
+        public static final short SYSTEM_ON_SURFACE_VARIANT_LIGHT = 126;
+
+        /** The dark system on tertiary container color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_CONTAINER_DARK = 127;
+
+        /** The light system on tertiary container color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_CONTAINER_LIGHT = 128;
+
+        /** The dark system on tertiary color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_DARK = 129;
+
+        /** The system on tertiary fixed color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_FIXED = 130;
+
+        /** The system on tertiary fixed variant color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_FIXED_VARIANT = 131;
+
+        /** The light system on tertiary color identifier. */
+        public static final short SYSTEM_ON_TERTIARY_LIGHT = 132;
+
+        /** The dark system outline color identifier. */
+        public static final short SYSTEM_OUTLINE_DARK = 133;
+
+        /** The system outline disabled color identifier. */
+        public static final short SYSTEM_OUTLINE_DISABLED = 134;
+
+        /** The light system outline color identifier. */
+        public static final short SYSTEM_OUTLINE_LIGHT = 135;
+
+        /** The dark system outline variant color identifier. */
+        public static final short SYSTEM_OUTLINE_VARIANT_DARK = 136;
+
+        /** The light system outline variant color identifier. */
+        public static final short SYSTEM_OUTLINE_VARIANT_LIGHT = 137;
+
+        /** The dark system palette key color neutral color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_DARK = 138;
+
+        /** The light system palette key color neutral color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_LIGHT = 139;
+
+        /** The dark system palette key color neutral variant color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_VARIANT_DARK = 140;
+
+        /** The light system palette key color neutral variant color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_NEUTRAL_VARIANT_LIGHT = 141;
+
+        /** The dark system palette key color primary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_PRIMARY_DARK = 142;
+
+        /** The light system palette key color primary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_PRIMARY_LIGHT = 143;
+
+        /** The dark system palette key color secondary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_SECONDARY_DARK = 144;
+
+        /** The light system palette key color secondary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_SECONDARY_LIGHT = 145;
+
+        /** The dark system palette key color tertiary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_TERTIARY_DARK = 146;
+
+        /** The light system palette key color tertiary color identifier. */
+        public static final short SYSTEM_PALETTE_KEY_COLOR_TERTIARY_LIGHT = 147;
+
+        /** The dark system primary container color identifier. */
+        public static final short SYSTEM_PRIMARY_CONTAINER_DARK = 148;
+
+        /** The light system primary container color identifier. */
+        public static final short SYSTEM_PRIMARY_CONTAINER_LIGHT = 149;
+
+        /** The dark system primary color identifier. */
+        public static final short SYSTEM_PRIMARY_DARK = 150;
+
+        /** The system primary fixed color identifier. */
+        public static final short SYSTEM_PRIMARY_FIXED = 151;
+
+        /** The system primary fixed dim color identifier. */
+        public static final short SYSTEM_PRIMARY_FIXED_DIM = 152;
+
+        /** The light system primary color identifier. */
+        public static final short SYSTEM_PRIMARY_LIGHT = 153;
+
+        /** The dark system secondary container color identifier. */
+        public static final short SYSTEM_SECONDARY_CONTAINER_DARK = 154;
+
+        /** The light system secondary container color identifier. */
+        public static final short SYSTEM_SECONDARY_CONTAINER_LIGHT = 155;
+
+        /** The dark system secondary color identifier. */
+        public static final short SYSTEM_SECONDARY_DARK = 156;
+
+        /** The system secondary fixed color identifier. */
+        public static final short SYSTEM_SECONDARY_FIXED = 157;
+
+        /** The system secondary fixed dim color identifier. */
+        public static final short SYSTEM_SECONDARY_FIXED_DIM = 158;
+
+        /** The light system secondary color identifier. */
+        public static final short SYSTEM_SECONDARY_LIGHT = 159;
+
+        /** The dark system surface bright color identifier. */
+        public static final short SYSTEM_SURFACE_BRIGHT_DARK = 160;
+
+        /** The light system surface bright color identifier. */
+        public static final short SYSTEM_SURFACE_BRIGHT_LIGHT = 161;
+
+        /** The dark system surface container color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_DARK = 162;
+
+        /** The dark system surface container high color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGH_DARK = 163;
+
+        /** The light system surface container high color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGH_LIGHT = 164;
+
+        /** The dark system surface container highest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGHEST_DARK = 165;
+
+        /** The light system surface container highest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_HIGHEST_LIGHT = 166;
+
+        /** The light system surface container color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LIGHT = 167;
+
+        /** The dark system surface container low color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOW_DARK = 168;
+
+        /** The light system surface container low color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOW_LIGHT = 169;
+
+        /** The dark system surface container lowest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOWEST_DARK = 170;
+
+        /** The light system surface container lowest color identifier. */
+        public static final short SYSTEM_SURFACE_CONTAINER_LOWEST_LIGHT = 171;
+
+        /** The dark system surface color identifier. */
+        public static final short SYSTEM_SURFACE_DARK = 172;
+
+        /** The dark system surface dim color identifier. */
+        public static final short SYSTEM_SURFACE_DIM_DARK = 173;
+
+        /** The light system surface dim color identifier. */
+        public static final short SYSTEM_SURFACE_DIM_LIGHT = 174;
+
+        /** The system surface disabled color identifier. */
+        public static final short SYSTEM_SURFACE_DISABLED = 175;
+
+        /** The light system surface color identifier. */
+        public static final short SYSTEM_SURFACE_LIGHT = 176;
+
+        /** The dark system surface variant color identifier. */
+        public static final short SYSTEM_SURFACE_VARIANT_DARK = 177;
+
+        /** The light system surface variant color identifier. */
+        public static final short SYSTEM_SURFACE_VARIANT_LIGHT = 178;
+
+        /** The dark system tertiary container color identifier. */
+        public static final short SYSTEM_TERTIARY_CONTAINER_DARK = 179;
+
+        /** The light system tertiary container color identifier. */
+        public static final short SYSTEM_TERTIARY_CONTAINER_LIGHT = 180;
+
+        /** The dark system tertiary color identifier. */
+        public static final short SYSTEM_TERTIARY_DARK = 181;
+
+        /** The system tertiary fixed color identifier. */
+        public static final short SYSTEM_TERTIARY_FIXED = 182;
+
+        /** The system tertiary fixed dim color identifier. */
+        public static final short SYSTEM_TERTIARY_FIXED_DIM = 183;
+
+        /** The light system tertiary color identifier. */
+        public static final short SYSTEM_TERTIARY_LIGHT = 184;
+
+        /** The dark system text hint inverse color identifier. */
+        public static final short SYSTEM_TEXT_HINT_INVERSE_DARK = 185;
+
+        /** The light system text hint inverse color identifier. */
+        public static final short SYSTEM_TEXT_HINT_INVERSE_LIGHT = 186;
+
+        /** The dark system text primary inverse color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_DARK = 187;
+
+        /** The dark system text primary inverse disable only color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_DISABLE_ONLY_DARK = 188;
+
+        /** The light system text primary inverse disable only color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_DISABLE_ONLY_LIGHT = 189;
+
+        /** The light system text primary inverse color identifier. */
+        public static final short SYSTEM_TEXT_PRIMARY_INVERSE_LIGHT = 190;
+
+        /** The dark system text secondary and tertiary inverse color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_DARK = 191;
+
+        /** The dark system text secondary and tertiary inverse disabled color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_DISABLED_DARK = 192;
+
+        /** The light system text secondary and tertiary inverse disabled color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_DISABLED_LIGHT = 193;
+
+        /** The light system text secondary and tertiary inverse color identifier. */
+        public static final short SYSTEM_TEXT_SECONDARY_AND_TERTIARY_INVERSE_LIGHT = 194;
+
+        /** The tab indicator text color identifier. */
+        public static final short TAB_INDICATOR_TEXT = 195;
+    }
+
 }

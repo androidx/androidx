@@ -72,8 +72,6 @@ import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import kotlinx.test.IgnoreJsTarget
-import kotlinx.test.IgnoreWasmTarget
 
 @Composable fun Container(content: @Composable () -> Unit) = content()
 
@@ -2565,10 +2563,7 @@ class CompositionTests {
     }
 
     @Test
-    // The test for web is properly implemented in CompositionTests.web.kt
-    @IgnoreJsTarget
-    @IgnoreWasmTarget
-    fun testRememberObserver_Abandon_Recompose() {
+    fun testRememberObserver_Abandon_Recompose() = wrapRunTest {
         val abandonedObjects = mutableListOf<RememberObserver>()
         val observed =
             object : RememberObserver {
@@ -2586,21 +2581,22 @@ class CompositionTests {
             }
         assertFailsWith(IllegalStateException::class, message = "Throw") {
             compositionTest {
-                val rememberObject = mutableStateOf(false)
+                    val rememberObject = mutableStateOf(false)
 
-                compose {
-                    if (rememberObject.value) {
-                        @Suppress("UNUSED_EXPRESSION") remember { observed }
-                        error("Throw")
+                    compose {
+                        if (rememberObject.value) {
+                            @Suppress("UNUSED_EXPRESSION") remember { observed }
+                            error("Throw")
+                        }
                     }
+
+                    assertTrue(abandonedObjects.isEmpty())
+
+                    rememberObject.value = true
+
+                    advance(ignorePendingWork = true)
                 }
-
-                assertTrue(abandonedObjects.isEmpty())
-
-                rememberObject.value = true
-
-                advance(ignorePendingWork = true)
-            }
+                .awaitCompletion()
         }
 
         assertArrayEquals(listOf(observed), abandonedObjects)

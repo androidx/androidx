@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.compose.remote.creation.compose.modifier
 
@@ -29,13 +28,14 @@ import androidx.compose.ui.Modifier
  *
  * This plays the same role as [androidx.compose.ui.Modifier], but for the Remote composables.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Stable
-public interface RemoteModifier {
+public sealed interface RemoteModifier {
 
-    public fun toRemoteCompose(): RecordingModifier
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemoteCompose(): RecordingModifier
 
-    @Composable public fun Modifier.toComposeUi(): Modifier = this
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Composable
+    public fun Modifier.toComposeUi(): Modifier = this
 
     /**
      * Accumulates a value starting with [initial] and applying [operation] to the current value and
@@ -46,6 +46,7 @@ public interface RemoteModifier {
      * elements that appear after it. [foldIn] may be used to accumulate a value starting from the
      * parent or head of the modifier chain to the final wrapped child.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun <R> foldIn(initial: R, operation: (R, Element) -> R): R
 
     /**
@@ -57,15 +58,18 @@ public interface RemoteModifier {
      * elements that appear after it. [foldOut] may be used to accumulate a value starting from the
      * child or tail of the modifier chain up to the parent or head of the chain.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun <R> foldOut(initial: R, operation: (Element, R) -> R): R
 
     /** Returns `true` if [predicate] returns true for any [Element] in this [RemoteModifier]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun any(predicate: (Element) -> Boolean): Boolean
 
     /**
      * Returns `true` if [predicate] returns true for all [Element]s in this [RemoteModifier] or if
      * this [RemoteModifier] contains no [Element]s.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun all(predicate: (Element) -> Boolean): Boolean
 
     /**
@@ -73,12 +77,13 @@ public interface RemoteModifier {
      *
      * Returns a [RemoteModifier] representing this modifier followed by [other] in sequence.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public infix fun then(other: RemoteModifier): RemoteModifier =
         if (other === RemoteModifier) this else CombinedRemoteModifier(this, other)
 
     /** A single element contained within a [RemoteModifier] chain. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public interface Element : RemoteModifier {
+    public sealed interface Element : RemoteModifier {
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R =
             operation(initial, this)
 
@@ -104,27 +109,36 @@ public interface RemoteModifier {
     // The companion object implements `Modifier` so that it may be used  as the start of a
     // modifier extension factory expression.
     public companion object : RemoteModifier {
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun <R> foldIn(initial: R, operation: (R, Element) -> R): R = initial
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun <R> foldOut(initial: R, operation: (Element, R) -> R): R = initial
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun any(predicate: (Element) -> Boolean): Boolean = false
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun all(predicate: (Element) -> Boolean): Boolean = true
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override infix fun then(other: RemoteModifier): RemoteModifier = other
 
         override fun toString(): String = "Modifier"
 
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         override fun toRemoteCompose(): RecordingModifier = RecordingModifier()
 
-        @Composable override fun Modifier.toComposeUi(): Modifier = this
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @Composable
+        override fun Modifier.toComposeUi(): Modifier = this
     }
 }
 
 /** Convert to Compose UI Modifier. */
 @SuppressLint("ModifierFactoryExtensionFunction")
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.toComposeUi(): Modifier {
     return Modifier.toComposeUi()
 }
@@ -134,6 +148,7 @@ public fun RemoteModifier.toComposeUi(): Modifier {
  */
 @SuppressLint("ModifierFactoryExtensionFunction")
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteModifier.toComposeUiLayout(): Modifier {
     return this.foldIn<RemoteModifier>(RemoteModifier) { r, n -> r.then(n) }.toComposeUi()
 }

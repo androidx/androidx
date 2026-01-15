@@ -21,10 +21,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.backhandler.LocalCompatNavigationEventDispatcherOwner
+import androidx.compose.ui.node.Owner
 import androidx.lifecycle.LifecycleOwner
 import androidx.savedstate.compose.LocalSavedStateRegistryOwner
 
@@ -88,6 +91,41 @@ internal fun ProvidePlatformCompositionLocals(
         LocalPlatformWindowInsets provides platformContext.windowInsets,
         *platformContext.architectureComponentsOwner.values,
         LocalSaveableStateRegistry provides saveableStateRegistry,
+        content = content,
+    )
+}
+
+@Composable
+internal fun ProvideCommonCompositionLocals(
+    owner: Owner,
+    uriHandler: UriHandler,
+    content: @Composable () -> Unit,
+) {
+    CompositionLocalProvider(
+        LocalAccessibilityManager provides owner.accessibilityManager,
+        LocalAutofill provides owner.autofill,
+        LocalAutofillManager provides owner.autofillManager,
+        LocalAutofillTree provides owner.autofillTree,
+        LocalClipboardManager provides owner.clipboardManager,
+        LocalClipboard provides owner.clipboard,
+        LocalDensity provides owner.density,
+        LocalFocusManager provides owner.focusOwner,
+        @Suppress("DEPRECATION") LocalFontLoader providesDefault
+            @Suppress("DEPRECATION") owner.fontLoader,
+        LocalFontFamilyResolver providesDefault owner.fontFamilyResolver,
+        LocalHapticFeedback provides owner.hapticFeedBack,
+        LocalInputModeManager provides owner.inputModeManager,
+        LocalLayoutDirection provides owner.layoutDirection,
+        LocalTextInputService provides owner.textInputService,
+        LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
+        LocalTextToolbar provides owner.textToolbar,
+        LocalUriHandler provides uriHandler,
+        LocalViewConfiguration provides owner.viewConfiguration,
+        LocalWindowInfo provides owner.windowInfo,
+        LocalPointerIconService provides owner.pointerIconService,
+        LocalGraphicsContext provides owner.graphicsContext,
+        LocalRetainedValuesStore provides owner.retainedValuesStore,
+        LocalProvidableLocaleList provides owner.localeList,
         content = content,
     )
 }

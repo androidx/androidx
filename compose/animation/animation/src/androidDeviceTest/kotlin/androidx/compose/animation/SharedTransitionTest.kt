@@ -56,6 +56,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -101,7 +102,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
@@ -5149,6 +5150,280 @@ class SharedTransitionTest {
 
         rule.waitForIdle()
         assertEquals(false, scope?.isTransitionActive)
+    }
+
+    @Test
+    fun testDetachingSharedElementAndReattachingBeforeAnimating() {
+        var showMatch by mutableStateOf(false)
+        var scope: SharedTransitionScope? = null
+        val positionRecord = mutableListOf<Offset>()
+        val transitionActiveRecord = mutableListOf<Boolean>()
+        rule.setContent {
+            SharedTransitionLayout {
+                scope = this
+                val initial = remember {
+                    movableContentOf {
+                        Box(
+                            Modifier.offset { IntOffset(200, 100) }
+                                .sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = 1),
+                                    visible = !showMatch,
+                                )
+                                .size(200.dp)
+                                .onGloballyPositioned {
+                                    val positionInRoot = it.positionInRoot()
+                                    positionRecord.add(positionInRoot)
+                                    transitionActiveRecord.add(isTransitionActive)
+                                }
+                        )
+                    }
+                }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (!showMatch) {
+                        initial()
+                    } else {
+                        initial()
+                        Box(
+                            modifier =
+                                Modifier.size(100.dp)
+                                    .then(
+                                        Modifier.sharedElementWithCallerManagedVisibility(
+                                            rememberSharedContentState(key = 1),
+                                            visible = true,
+                                        )
+                                    )
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(false, scope?.isTransitionActive)
+        assertTrue(positionRecord.isNotEmpty())
+        positionRecord.forEach { assertEquals(Offset(200f, 100f), it) }
+
+        positionRecord.clear()
+        showMatch = true
+        rule.waitForIdle()
+
+        // Check animated positions during the transition
+        val inBetweenPositions =
+            positionRecord.count { it.x > 0f && it.x < 200f && it.y > 0f && it.y < 100f }
+        // At least 3 frames of in-between positions. This check verifies that the position was
+        // obtained from before the shared element was detached.
+        assertTrue(inBetweenPositions >= 3)
+
+        val animatingFrames = transitionActiveRecord.count { it }
+        assertTrue(animatingFrames > 3)
+
+        assertEquals(false, scope?.isTransitionActive)
+    }
+
+    @Test
+    fun testDetachingSharedElementAndReattachingInNewPositionBeforeAnimating() {
+        var showMatch by mutableStateOf(false)
+        var scope: SharedTransitionScope? = null
+        val positionRecord = mutableListOf<Offset>()
+        val transitionActiveRecord = mutableListOf<Boolean>()
+        rule.setContent {
+            SharedTransitionLayout {
+                scope = this
+                val initial = remember {
+                    movableContentOf {
+                        Box(
+                            Modifier.sharedElementWithCallerManagedVisibility(
+                                    rememberSharedContentState(key = 1),
+                                    visible = !showMatch,
+                                )
+                                .size(200.dp)
+                                .onGloballyPositioned {
+                                    val positionInRoot = it.positionInRoot()
+                                    positionRecord.add(positionInRoot)
+                                    transitionActiveRecord.add(isTransitionActive)
+                                }
+                        )
+                    }
+                }
+                Box(modifier = Modifier.fillMaxSize()) {
+                    if (!showMatch) {
+                        Box(Modifier.offset { IntOffset(200, 100) }) {
+                            // Before detaching the shared element initial position is at
+                            // (200, 100). After showMatch is set to true, the position becomes
+                            // (0, 0) upon re-attaching. The animation should animate from
+                            // the pre-detachment position to the new position.
+                            initial()
+                        }
+                    } else {
+                        initial()
+                        Box(
+                            modifier =
+                                Modifier.size(100.dp)
+                                    .then(
+                                        Modifier.sharedElementWithCallerManagedVisibility(
+                                            rememberSharedContentState(key = 1),
+                                            visible = true,
+                                        )
+                                    )
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(false, scope?.isTransitionActive)
+        assertTrue(positionRecord.isNotEmpty())
+        positionRecord.forEach { assertEquals(Offset(200f, 100f), it) }
+        transitionActiveRecord.forEach { assertFalse(it) }
+
+        positionRecord.clear()
+        showMatch = true
+        rule.waitForIdle()
+
+        // Check animated positions during the transition
+        val inBetweenPositions =
+            positionRecord.count { it.x > 0f && it.x < 200f && it.y > 0f && it.y < 100f }
+        // At least 3 frames of in-between positions. This check verifies that the initial position
+        // uses the position obtained from before the shared element was detached, rather than
+        // after the shared element is re-attached after the movableContent is re-parented.
+        assertTrue(inBetweenPositions >= 3)
+        assertEquals(Offset.Zero, positionRecord.last())
+
+        val animatingFrames = transitionActiveRecord.count { it }
+        assertTrue(animatingFrames > 3)
+        assertEquals(false, scope?.isTransitionActive)
+    }
+
+    @Test
+    fun removeSharedTransitionLayout() {
+        var removeScope by mutableStateOf(false)
+        rule.setContent {
+            val movable = remember {
+                movableContentOf<SharedTransitionScope?> { scope ->
+                    AnimatedVisibility(true) {
+                        Box(
+                            Modifier.fillMaxSize()
+                                .then(
+                                    if (scope != null) {
+                                        with(scope) {
+                                            Modifier.sharedElement(
+                                                rememberSharedContentState("test"),
+                                                this@AnimatedVisibility,
+                                            )
+                                        }
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                                .size(100.dp)
+                        )
+                    }
+                }
+            }
+            if (!removeScope) {
+                SharedTransitionLayout(modifier = Modifier.fillMaxSize()) { movable(this) }
+            } else {
+                movable(null)
+            }
+        }
+        rule.waitForIdle()
+        removeScope = true
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun testSkipSharedTransitionPlacement() {
+        var state by mutableIntStateOf(0)
+
+        var detach by mutableStateOf(false)
+
+        rule.setContent {
+            SharedTransitionLayout(
+                Modifier.size(100.dp).layout { m, c ->
+                    m.measure(c).run {
+                        layout(width, height) {
+                            // Skip placement.
+                        }
+                    }
+                }
+            ) {
+                if (!detach) {
+                    AnimatedContent(
+                        targetState = state,
+                        transitionSpec = {
+                            // Add a delay to the animation just so that it takes a known time
+                            // to
+                            // complete
+                            fadeIn(snap()).togetherWith(fadeOut(snap()))
+                        },
+                    ) {
+                        Box(
+                            Modifier
+                                // Using shared bounds so that we control when the item enters
+                                // and leaves in every case. Particularly, we want the target to
+                                // show immediately
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "key"),
+                                    animatedVisibilityScope = this,
+                                    enter = fadeIn(tween(500)),
+                                    exit = fadeOut(tween(500)),
+                                )
+                                .fillMaxSize()
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        detach = true
+
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun testSkipSharedBoundsModifierPlacement() {
+        var state by mutableIntStateOf(0)
+        var detach by mutableStateOf(false)
+
+        rule.setContent {
+            SharedTransitionLayout(Modifier.size(100.dp)) {
+                if (!detach) {
+                    AnimatedContent(
+                        targetState = state,
+                        modifier =
+                            Modifier.layout { m, c ->
+                                m.measure(c).run {
+                                    layout(width, height) {
+                                        // Skip placement for the sharedBounds modifier below,
+                                        // to verify that when detach is called, the bounds
+                                        // calculation functions correctly.
+                                    }
+                                }
+                            },
+                        transitionSpec = { fadeIn(snap()).togetherWith(fadeOut(snap())) },
+                    ) {
+                        Box(
+                            Modifier
+                                // Using shared bounds so that we control when the item enters
+                                // and leaves in every case. Particularly, we want the target to
+                                // show immediately
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "key"),
+                                    animatedVisibilityScope = this,
+                                    enter = fadeIn(tween(500)),
+                                    exit = fadeOut(tween(500)),
+                                )
+                                .fillMaxSize()
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        detach = true
+
+        rule.waitForIdle()
     }
 }
 

@@ -624,6 +624,36 @@ public fun RemoteComposeWriter.ComponentHeight(): RFloat {
     return RFloat(this, addComponentHeightValue())
 }
 
+/** Content Width */
+public fun RemoteComposeWriter.ComponentContentWidth(): RFloat {
+    return RFloat(this, addComponentContentWidthValue())
+}
+
+/** Content Height */
+public fun RemoteComposeWriter.ComponentContentHeight(): RFloat {
+    return RFloat(this, addComponentContentHeightValue())
+}
+
+/** X */
+public fun RemoteComposeWriter.ComponentX(): RFloat {
+    return RFloat(this, addComponentXValue())
+}
+
+/** Y */
+public fun RemoteComposeWriter.ComponentY(): RFloat {
+    return RFloat(this, addComponentYValue())
+}
+
+/** ROOT X */
+public fun RemoteComposeWriter.ComponentRootX(): RFloat {
+    return RFloat(this, addComponentRootXValue())
+}
+
+/** ROOT Y */
+public fun RemoteComposeWriter.ComponentRootY(): RFloat {
+    return RFloat(this, addComponentRootYValue())
+}
+
 /** generate random number */
 public fun RemoteComposeWriter.rand(): RFloat {
     return RFloat(this, Rc.FloatExpression.RAND)

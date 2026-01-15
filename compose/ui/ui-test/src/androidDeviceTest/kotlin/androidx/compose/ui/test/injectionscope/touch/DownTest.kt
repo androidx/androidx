@@ -23,7 +23,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerType.Companion.Touch
 import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.injectionscope.touch.Common.performTouchInput
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.MultiPointerInputRecorder
 import androidx.compose.ui.test.util.assertTimestampsAreIncreasing

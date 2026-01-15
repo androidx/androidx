@@ -738,6 +738,11 @@ package androidx.compose.runtime {
     method public static inline operator void setValue(androidx.compose.runtime.MutableDoubleState, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, double value);
   }
 
+  public final class SnapshotFlowManager {
+    ctor public SnapshotFlowManager();
+    method public void dispose();
+  }
+
   public final class SnapshotIntStateKt {
     method public static inline operator int getValue(androidx.compose.runtime.IntState, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableIntState mutableIntStateOf(int value);
@@ -793,6 +798,7 @@ package androidx.compose.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> rememberUpdatedState(T newValue);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> rememberUpdatedState(T!, androidx.compose.runtime.Composer?, int);
     method public static inline operator <T> void setValue(androidx.compose.runtime.MutableState<T>, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, T value);
+    method public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(androidx.compose.runtime.SnapshotFlowManager manager, kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> structuralEqualityPolicy();
     method public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> toMutableStateList(java.util.Collection<? extends T>);

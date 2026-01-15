@@ -61,6 +61,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.LocalDensity
@@ -749,7 +750,20 @@ internal class PopupLayout(
         val coordinates = parentLayoutCoordinates?.takeIf { it.isAttached } ?: return
         val layoutSize = coordinates.size
 
-        val position = coordinates.positionOnScreen()
+        // If the popup is nested, we need to use absolute screen coordinates because the
+        // WindowManager expects absolute coordinates for nested sub-panels.
+        // If the popup is not nested (attached to an Activity or Dialog), the WindowManager
+        // expects coordinates relative to that window. Using absolute coordinates here
+        // and later subtracting the window offset works for full-screen windows, but fails
+        // for floating windows because the PopupPositionProvider receives an absolute
+        // anchor and a relative window size, leading to coordinate space mismatch.
+        // So we use positionInWindow for non-nested cases.
+        val position =
+            if (isNested) {
+                coordinates.positionOnScreen()
+            } else {
+                coordinates.positionInWindow()
+            }
         val layoutPosition = IntOffset(position.x.fastRoundToInt(), position.y.fastRoundToInt())
 
         val newParentBounds = IntRect(layoutPosition, layoutSize)
@@ -767,14 +781,14 @@ internal class PopupLayout(
         val windowSize =
             getVisibleDisplayBounds().let { IntSize(width = it.width, height = it.height) }
 
-        // The PopupPositionProvider returns the desired position of the popup in absolute screen
-        // coordinates.
-        // We need to potentially convert this to the coordinate system expected by the
-        // WindowManager
-        // based on whether the popup is nested or not.
-        var absolutePopupPosition = IntOffset.Zero
+        // The PopupPositionProvider returns the desired position of the popup.
+        // If isNested is true, parentBounds are absolute, so the result is absolute.
+        // If isNested is false, parentBounds are relative to the window, so the result is relative.
+        // In both cases, this result is exactly what we want to pass to WindowManager.params
+        // (because WindowManager expects absolute for nested, and relative for non-nested).
+        var popupPosition = IntOffset.Zero
         snapshotStateObserver.observeReads(this, onCommitAffectingPopupPosition) {
-            absolutePopupPosition =
+            popupPosition =
                 positionProvider.calculatePosition(
                     parentBounds,
                     windowSize,
@@ -783,38 +797,8 @@ internal class PopupLayout(
                 )
         }
 
-        if (isNested) {
-            // For nested popups (a Popup within another Popup), the WindowManager expects
-            // the x and y parameters to be in absolute screen coordinates.
-            // The parent window is another PopupLayout, not a top-level Activity/Dialog window.
-            params.x = absolutePopupPosition.x
-            params.y = absolutePopupPosition.y
-        } else {
-            // For non-nested popups, the parent is typically an Activity or Dialog window.
-            // In this case, the WindowManager expects the x and y parameters to be relative
-            // to the on-screen origin of the parent window.
-
-            // To calculate the on-screen origin of the parent window, we find the difference
-            // between the composeView's location on the screen and its location within its window.
-            // composeView is the root view of the current Compose hierarchy (often an
-            // AndroidComposeView).
-
-            // 1. Get the composeView's top-left position on the physical screen.
-            composeView.getLocationOnScreen(parentLocationOnScreen)
-
-            // 2. Get the composeView's top-left position relative to the start of its own window.
-            composeView.getLocationInWindow(parentLocationInWindow)
-
-            // 3. Calculate the on-screen position of the parent window's top-left corner.
-            // This difference represents the offset of the window itself on the screen.
-            val windowPositionOnScreenX = parentLocationOnScreen[0] - parentLocationInWindow[0]
-            val windowPositionOnScreenY = parentLocationOnScreen[1] - parentLocationInWindow[1]
-
-            // Convert the absolute screen popup position to be relative to the window's origin.
-            // This is what WindowManager expects for non-nested sub-panel windows.
-            params.x = absolutePopupPosition.x - windowPositionOnScreenX
-            params.y = absolutePopupPosition.y - windowPositionOnScreenY
-        }
+        params.x = popupPosition.x
+        params.y = popupPosition.y
 
         if (properties.excludeFromSystemGesture) {
             // Resolve conflict with gesture navigation back when dragging this handle view on the

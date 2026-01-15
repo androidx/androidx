@@ -16,27 +16,34 @@
 
 package androidx.compose.remote.creation.compose.modifier
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
-import androidx.compose.remote.creation.compose.capture.shaders.horizontalGradient
-import androidx.compose.remote.creation.compose.capture.shaders.radialGradient
-import androidx.compose.remote.creation.compose.capture.shaders.sweepGradient
-import androidx.compose.remote.creation.compose.capture.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteText
+import androidx.compose.remote.creation.compose.painter.painterRemoteColor
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.horizontalGradient
+import androidx.compose.remote.creation.compose.shaders.radialGradient
+import androidx.compose.remote.creation.compose.shaders.sweepGradient
+import androidx.compose.remote.creation.compose.shaders.verticalGradient
 import androidx.compose.remote.creation.compose.state.RemoteColor
-import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
+import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rc
+import androidx.compose.remote.creation.compose.state.rememberRemoteColor
+import androidx.compose.remote.creation.compose.state.ri
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
@@ -73,15 +80,78 @@ class BackgroundModifierTest {
             context.resources.displayMetrics.densityDpi,
         )
 
-    @SuppressLint("UnrememberedMutableState")
+    fun RemoteInt.toHexDigit(): RemoteString {
+        return eq(15.ri)
+            .select(
+                "F".rs,
+                eq(14.ri)
+                    .select(
+                        "E".rs,
+                        eq(13.ri)
+                            .select(
+                                "D".rs,
+                                eq(12.ri)
+                                    .select(
+                                        "C".rs,
+                                        eq(11.ri)
+                                            .select(
+                                                "B".rs,
+                                                eq(10.ri)
+                                                    .select("A".rs, absoluteValue.toRemoteString(1)),
+                                            ),
+                                    ),
+                            ),
+                    ),
+            )
+    }
+
+    fun RemoteFloat.toHexString(): RemoteString {
+        return (toRemoteInt() / 16).toHexDigit() + (toRemoteInt() % 16).toHexDigit()
+    }
+
+    fun RemoteColor.toHexString(): RemoteString {
+        return "0x".rs +
+            (alpha * 255f).toHexString() +
+            (red * 255f).toHexString() +
+            (green * 255f).toHexString() +
+            (blue * 255f).toHexString()
+    }
+
+    @Test
+    fun backgroundRemoteColor() {
+        remoteComposeTestRule.runScreenshotTest(
+            creationDisplayInfo = creationDisplayInfo,
+            backgroundColor = Color.Black,
+        ) {
+            val blue = Color.Blue.rc
+            DemoBox("background(".rs + blue.toHexString() + ".rc)") {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
+            }
+        }
+    }
+
+    @Test
+    fun backgroundSolidColorNamedRemote() {
+        remoteComposeTestRule.runScreenshotTest(
+            creationDisplayInfo = creationDisplayInfo,
+            backgroundColor = Color.Black,
+        ) {
+            val blue = rememberRemoteColor("ABC") { Color.Blue }
+            DemoBox("background(".rs + blue.toHexString() + ".rc named)") {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
+            }
+        }
+    }
+
     @Test
     fun backgroundSolidColor() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo = creationDisplayInfo,
             backgroundColor = Color.Black,
         ) {
-            DemoBox("background(Color.Blue)") {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Blue))
+            val blue = Color.Blue
+            DemoBox("background(0x".rs + Integer.toHexString(blue.toArgb()) + ")") {
+                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue))
             }
         }
     }
@@ -92,7 +162,7 @@ class BackgroundModifierTest {
             creationDisplayInfo = creationDisplayInfo,
             backgroundColor = Color.Black,
         ) {
-            DemoBox("verticalGradient(listOf(Color.Blue, Color.Red))") {
+            DemoBox("verticalGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
@@ -108,7 +178,7 @@ class BackgroundModifierTest {
             creationDisplayInfo = creationDisplayInfo,
             backgroundColor = Color.Black,
         ) {
-            DemoBox("horizontalGradient(listOf(Color.Blue, Color.Red))") {
+            DemoBox("horizontalGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
@@ -126,7 +196,7 @@ class BackgroundModifierTest {
             creationDisplayInfo = creationDisplayInfo,
             backgroundColor = Color.Black,
         ) {
-            DemoBox("radialGradient(listOf(Color.Blue, Color.Red))") {
+            DemoBox("radialGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
@@ -142,7 +212,7 @@ class BackgroundModifierTest {
             creationDisplayInfo = creationDisplayInfo,
             backgroundColor = Color.Black,
         ) {
-            DemoBox("sweepGradient(listOf(Color.Blue, Color.Red))") {
+            DemoBox("sweepGradient(listOf(Color.Blue, Color.Red))".rs) {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
@@ -153,29 +223,25 @@ class BackgroundModifierTest {
     }
 
     @Test
-    fun backgroundRemoteColor() {
+    fun backgroundRemotePainter() {
         remoteComposeTestRule.runScreenshotTest(
             creationDisplayInfo = creationDisplayInfo,
             backgroundColor = Color.Black,
         ) {
-            // workaround issue with createNamedRemoteFloat
-            val alpha = rememberRemoteIntValue("a1") { 1 }.toRemoteFloat()
-            val red = rememberRemoteIntValue("r1") { 1 }.toRemoteFloat()
-            val green = rememberRemoteIntValue("g1") { 0 }.toRemoteFloat()
-            val blue = rememberRemoteIntValue("b1") { 0 }.toRemoteFloat()
-
-            val color = RemoteColor.fromARGB(alpha, red, green, blue)
-
-            DemoBox("background(RemoteColor.fromARGB(alpha, red, green, blue))") {
-                RemoteBox(modifier = RemoteModifier.fillMaxSize().background(color))
+            val blue = Color.Blue.rc
+            DemoBox("background(painterRemoteColor(Color.Blue))".rs) {
+                RemoteBox(
+                    modifier =
+                        RemoteModifier.fillMaxSize()
+                            .background(remotePainter = painterRemoteColor(blue))
+                )
             }
         }
     }
 
-    @SuppressLint("UnrememberedMutableState")
     @RemoteComposable
     @Composable
-    private fun DemoBox(title: String, content: @RemoteComposable @Composable () -> Unit) {
+    private fun DemoBox(title: RemoteString, content: @RemoteComposable @Composable () -> Unit) {
         RemoteBox(
             modifier = RemoteModifier.fillMaxSize(),
             horizontalAlignment = RemoteAlignment.CenterHorizontally,

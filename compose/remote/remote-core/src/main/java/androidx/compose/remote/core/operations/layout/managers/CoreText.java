@@ -110,6 +110,9 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
     private static final byte P_AUTOSIZE = 22;
     private static final byte P_FLAGS = 23;
     private static final byte P_TEXT_STYLE_ID = 24;
+
+    private static final byte P_MIN_FONT_SIZE = 25;
+    private static final byte P_MAX_FONT_SIZE = 26;
     private static final CommandParameters PARAMETERS =
             new CommandParameters(
                     param("componentId", P_COMPONENT_ID, -1),
@@ -135,7 +138,9 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                     param("fontAxis", P_FONT_AXIS, PA_INT),
                     param("fontAxisValues", P_FONT_AXIS_VALUES, PA_FLOAT),
                     param("flags", P_FLAGS, 0),
-                    param("textStyleId", P_TEXT_STYLE_ID, -1)
+                    param("textStyleId", P_TEXT_STYLE_ID, -1),
+                    param("minFontSize", P_MIN_FONT_SIZE, -1f),
+                    param("maxFontSize", P_MAX_FONT_SIZE, -1f)
             );
 
     private static final boolean DEBUG = false;
@@ -156,6 +161,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
     private int mColorId = -1;
     private int mColorValue = -1;
     private float mFontSize = 16f;
+    private float mMinFontSize = -1f;
+    private float mMaxFontSize = -1f;
     private float mFontSizeValue = 16f;
     private int mFontStyle = 0;
     private float mFontWeight = 400f;
@@ -284,6 +291,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             int color,
             int colorId,
             float fontSize,
+            float minFontSize,
+            float maxFontSize,
             int fontStyle,
             float fontWeight,
             int fontFamilyId,
@@ -307,6 +316,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         mColor = color;
         mColorId = colorId;
         mFontSize = fontSize;
+        mMinFontSize = minFontSize;
+        mMaxFontSize = maxFontSize;
         if (!Float.isNaN(mFontSize)) {
             mFontSizeValue = fontSize;
         }
@@ -343,6 +354,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             int color,
             int colorId,
             float fontSize,
+            float minFontSize,
+            float maxFontSize,
             int fontStyle,
             float fontWeight,
             int fontFamilyId,
@@ -373,6 +386,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                 color,
                 colorId,
                 fontSize,
+                minFontSize,
+                maxFontSize,
                 fontStyle,
                 fontWeight,
                 fontFamilyId,
@@ -460,7 +475,19 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         }
         int length = mCachedString.length();
         if (mComputedTextLayout != null) {
-            context.drawComplexText(mComputedTextLayout);
+            if (mOverflow != OVERFLOW_VISIBLE) {
+                context.save();
+                context.clipRect(
+                        0f,
+                        0f,
+                        mWidth - mPaddingLeft - mPaddingRight,
+                        mHeight - mPaddingTop - mPaddingBottom);
+                context.translate(getScrollX(), getScrollY());
+                context.drawComplexText(mComputedTextLayout);
+                context.restore();
+            } else {
+                context.drawComplexText(mComputedTextLayout);
+            }
         } else {
             float px = mTextX;
             switch (mTextAlignValue) {
@@ -476,7 +503,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                 default:
             }
 
-            if (mTextW > (mWidth - mPaddingLeft - mPaddingRight)) {
+            if (mOverflow != OVERFLOW_VISIBLE || mTextW > (mWidth - mPaddingLeft - mPaddingRight)) {
                 context.save();
                 context.clipRect(
                         0f,
@@ -621,8 +648,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
 
         if (mAutosize) {
             float stepSize = 0.5f;
-            float minFontSize = 4f;
-            float maxFontSize = 400f;
+            float minFontSize = mMinFontSize <= 0 ? 4f : mMinFontSize;
+            float maxFontSize = mMaxFontSize <= 0 ? 400f : mMaxFontSize;
             float min = minFontSize;
             float max = maxFontSize;
             float current = (min + max) / 2f;
@@ -658,7 +685,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             mMeasureFontSize = current;
             mPaint.setTextSize(mFontSizeValue);
             context.replacePaint(mPaint);
-            textLayout(context, maxWidth, maxHeight, bounds, true, true);
+            textLayout(context, maxWidth, maxHeight, bounds, true, false);
         } else {
             textLayout(context, maxWidth, maxHeight, bounds);
         }
@@ -681,6 +708,9 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
 
     private void textLayout(@NonNull PaintContext context, float maxWidth, float maxHeight,
             float @NonNull [] bounds, boolean forceComplex, boolean inAutosize) {
+        if (maxWidth < 0 || maxHeight < 0) {
+            return;
+        }
         int flags = PaintContext.TEXT_MEASURE_FONT_HEIGHT | PaintContext.TEXT_MEASURE_SPACES;
         if (forceComplex) {
             flags |= PaintContext.TEXT_COMPLEX;
@@ -745,6 +775,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                     bounds[3] = mComputedTextLayout.getHeight();
                 }
                 if (mComputedTextLayout != null
+                        && !inAutosize
                         && mComputedTextLayout.getHeight() > maxHeight
                         && mOverflow == CoreText.OVERFLOW_ELLIPSIS) {
                     // If the text is bigger than the available space *and* we have
@@ -821,6 +852,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
             int color,
             int colorId,
             float fontSize,
+            float minFontSize,
+            float maxFontSize,
             int fontStyle,
             float fontWeight,
             int fontFamilyId,
@@ -847,6 +880,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         count += PARAMETERS.countIfNotDefault(P_COLOR, color);
         count += PARAMETERS.countIfNotDefault(P_COLOR_ID, colorId);
         count += PARAMETERS.countIfNotDefault(P_FONT_SIZE, fontSize);
+        count += PARAMETERS.countIfNotDefault(P_MIN_FONT_SIZE, minFontSize);
+        count += PARAMETERS.countIfNotDefault(P_MAX_FONT_SIZE, maxFontSize);
         count += PARAMETERS.countIfNotDefault(P_FONT_STYLE, fontStyle);
         count += PARAMETERS.countIfNotDefault(P_FONT_WEIGHT, fontWeight);
         count += PARAMETERS.countIfNotDefault(P_FONT_FAMILY, fontFamilyId);
@@ -879,6 +914,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         PARAMETERS.write(buffer, P_COLOR, color);
         PARAMETERS.write(buffer, P_COLOR_ID, colorId);
         PARAMETERS.write(buffer, P_FONT_SIZE, fontSize);
+        PARAMETERS.write(buffer, P_MIN_FONT_SIZE, minFontSize);
+        PARAMETERS.write(buffer, P_MAX_FONT_SIZE, maxFontSize);
         PARAMETERS.write(buffer, P_FONT_STYLE, fontStyle);
         PARAMETERS.write(buffer, P_FONT_WEIGHT, fontWeight);
         PARAMETERS.write(buffer, P_FONT_FAMILY, fontFamilyId);
@@ -912,7 +949,7 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
         int paramsLength = buffer.readShort();
         final int[] intAttributes =
                 {-1, -1, 0xFF000000, -1, 0, -1, 1, 1, Integer.MAX_VALUE, 0, 0, 0, 0, 0, 0, 0};
-        final float[] floatAttributes = {16f, 400f, 0f, 0f, 1f};
+        final float[] floatAttributes = {16f, -1f, -1f, 400f, 0f, 0f, 1f};
         final ArrayList<Integer> fontAxisList = new ArrayList<>();
         final ArrayList<Float> fontAxisValuesList = new ArrayList<>();
         for (int i = 0; i < paramsLength; i++) {
@@ -968,17 +1005,23 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                         case P_FONT_SIZE:
                             floatAttributes[0] = value;
                             break;
-                        case P_FONT_WEIGHT:
+                        case P_MIN_FONT_SIZE:
                             floatAttributes[1] = value;
                             break;
-                        case P_LETTER_SPACING:
+                        case P_MAX_FONT_SIZE:
                             floatAttributes[2] = value;
                             break;
-                        case P_LINE_HEIGHT_ADD:
+                        case P_FONT_WEIGHT:
                             floatAttributes[3] = value;
                             break;
-                        case P_LINE_HEIGHT_MULTIPLIER:
+                        case P_LETTER_SPACING:
                             floatAttributes[4] = value;
+                            break;
+                        case P_LINE_HEIGHT_ADD:
+                            floatAttributes[5] = value;
+                            break;
+                        case P_LINE_HEIGHT_MULTIPLIER:
+                            floatAttributes[6] = value;
                             break;
                     }
                 }
@@ -1055,15 +1098,17 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                         intAttributes[2],
                         intAttributes[3],
                         floatAttributes[0],
-                        intAttributes[4],
                         floatAttributes[1],
+                        floatAttributes[2],
+                        intAttributes[4],
+                        floatAttributes[3],
                         intAttributes[5],
                         intAttributes[6],
                         intAttributes[7],
                         intAttributes[8],
-                        floatAttributes[2],
-                        floatAttributes[3],
                         floatAttributes[4],
+                        floatAttributes[5],
+                        floatAttributes[6],
                         intAttributes[9],
                         intAttributes[10],
                         intAttributes[11],
@@ -1106,6 +1151,8 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
                 mColor,
                 mColorId,
                 mFontSize,
+                mMinFontSize,
+                mMaxFontSize,
                 mFontStyle,
                 mFontWeight,
                 mFontFamilyId,

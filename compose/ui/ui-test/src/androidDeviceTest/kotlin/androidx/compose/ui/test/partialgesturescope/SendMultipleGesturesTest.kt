@@ -17,7 +17,7 @@
 package androidx.compose.ui.test.partialgesturescope
 
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.partialgesturescope.Common.partialGesture
 import androidx.compose.ui.test.util.ClickableTestBox
 import androidx.compose.ui.test.util.SinglePointerInputRecorder

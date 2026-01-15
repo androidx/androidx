@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
 
-    <!-- This is used for Demo purposes -->
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
@@ -1359,24 +1358,6 @@
         errorLine2="                                                              ~~~~">
         <location
             file="src/main/java/com/android/compose/animation/scene/PredictiveBackHandler.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 31"
-        errorLine1="        tools:targetApi=&quot;31&quot;>"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 29"
-        errorLine1="            tools:targetApi=&quot;29&quot; />"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue

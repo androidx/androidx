@@ -29,12 +29,11 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -46,12 +45,105 @@ import org.junit.runner.RunWith
 class SlideUsingKeysTest {
 
     @Test
-    fun slider_ltr_0steps_change_using_keys() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val state = mutableStateOf(0.5f)
-            var sliderFocused = false
+    fun slider_ltr_0steps_change_using_keys() = runComposeUiTest {
+        val state = mutableStateOf(0.5f)
+        var sliderFocused = false
 
-            setContent {
+        setContent {
+            Slider(
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 0f..1f,
+                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
+            )
+        }
+
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.50f + (1 + it) / 100f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
+                )
+            }
+        }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.53f - (1 + it) / 100f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
+                )
+            }
+        }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.50f + (1 + it) / 10f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
+                )
+            }
+        }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.80f - (1 + it) / 10f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
+                )
+            }
+        }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.50f + (1 + it) / 100f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
+                )
+            }
+        }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.53f - (1 + it) / 100f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
+                )
+            }
+        }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(1f, state.value) }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(0f, state.value) }
+    }
+
+    @Test
+    fun slider_rtl_0steps_change_using_keys() = runComposeUiTest {
+        val state = mutableStateOf(0.5f)
+        var sliderFocused = false
+        setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Slider(
                     value = state.value,
                     onValueChange = { state.value = it },
@@ -59,203 +151,107 @@ class SlideUsingKeysTest {
                     modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
                 )
             }
-
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.50f + (1 + it) / 100f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.53f - (1 + it) / 100f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.50f + (1 + it) / 10f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.80f - (1 + it) / 10f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.50f + (1 + it) / 100f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.53f - (1 + it) / 100f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(1f, state.value) }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(0f, state.value) }
         }
 
-    @Test
-    fun slider_rtl_0steps_change_using_keys() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val state = mutableStateOf(0.5f)
-            var sliderFocused = false
-            setContent {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Slider(
-                        value = state.value,
-                        onValueChange = { state.value = it },
-                        valueRange = 0f..1f,
-                        modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
-                    )
-                }
-            }
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
 
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.50f - (1 + it) / 100f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-                runOnIdle {
-                    assertEquals(
-                        (0.47f + (1 + it) / 100f).round2decPlaces(),
-                        (state.value).round2decPlaces(),
-                    )
-                }
-            }
-        }
-
-    @Test
-    fun slider_ltr_29steps_using_keys() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val state = mutableStateOf(15f)
-            var sliderFocused = false
-            setContent {
-                Slider(
-                    value = state.value,
-                    steps = 29,
-                    onValueChange = { state.value = it },
-                    valueRange = 0f..30f,
-                    modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.50f - (1 + it) / 100f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
                 )
             }
-
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-                runOnIdle { assertEquals((15f + (1f + it)), (state.value)) }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-                runOnIdle { assertEquals((18f - (1 + it)), state.value) }
-            }
-
-            runOnIdle { state.value = 0f }
-
-            val page = ((29 + 1) / 10).coerceIn(1, 10) // same logic as in Slider slideOnKeyEvents
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-                runOnIdle { assertEquals((1f + it) * page, state.value) }
-            }
-
-            runOnIdle { state.value = 30f }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-                runOnIdle { assertEquals(30f - (1 + it) * page, state.value) }
-            }
-
-            runOnIdle { state.value = 0f }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-                runOnIdle { assertEquals(1f + it, state.value) }
-            }
-
-            repeat(3) {
-                onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-                onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-                runOnIdle { assertEquals(3f - (1f + it), state.value) }
-            }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(30f, state.value) }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(0f, state.value) }
         }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
+            runOnIdle {
+                assertEquals(
+                    (0.47f + (1 + it) / 100f).round2decPlaces(),
+                    (state.value).round2decPlaces(),
+                )
+            }
+        }
+    }
+
+    @Test
+    fun slider_ltr_29steps_using_keys() = runComposeUiTest {
+        val state = mutableStateOf(15f)
+        var sliderFocused = false
+        setContent {
+            Slider(
+                value = state.value,
+                steps = 29,
+                onValueChange = { state.value = it },
+                valueRange = 0f..30f,
+                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
+            )
+        }
+
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
+            runOnIdle { assertEquals((15f + (1f + it)), (state.value)) }
+        }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
+            runOnIdle { assertEquals((18f - (1 + it)), state.value) }
+        }
+
+        runOnIdle { state.value = 0f }
+
+        val page = ((29 + 1) / 10).coerceIn(1, 10) // same logic as in Slider slideOnKeyEvents
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+            runOnIdle { assertEquals((1f + it) * page, state.value) }
+        }
+
+        runOnIdle { state.value = 30f }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+            runOnIdle { assertEquals(30f - (1 + it) * page, state.value) }
+        }
+
+        runOnIdle { state.value = 0f }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
+            runOnIdle { assertEquals(1f + it, state.value) }
+        }
+
+        repeat(3) {
+            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
+            runOnIdle { assertEquals(3f - (1f + it), state.value) }
+        }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(30f, state.value) }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(0f, state.value) }
+    }
 }
 
 private fun KeyEventType.toNativeAction(): Int {
