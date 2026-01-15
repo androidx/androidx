@@ -352,7 +352,7 @@ private class ThreePaneContentMeasurePolicy(
             val verticalSpacerSize = scaffoldDirective.horizontalPartitionSpacerSize.roundToPx()
             val horizontalSpacerSize = scaffoldDirective.verticalPartitionSpacerSize.roundToPx()
             if (!isLookingAhead) {
-                paneExpansionState.onMeasured(outerBounds.width, this@measure)
+                paneExpansionState.onMeasured(outerBounds.width, this@measure, layoutDirection)
             }
 
             if (!paneExpansionState.isUnspecified() && expandedPanes.size == 2) {

@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"ଘଣ୍ଟା ମୋଡକୁ ସ୍ୱିଚ କରନ୍ତୁ"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"ସମୟ ଚୟନ କରନ୍ତୁ"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"ସମୟ ଲେଖନ୍ତୁ"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"ମିନିଟ 0–59 ହେବା ଆବଶ୍ୟକ"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"ଘଣ୍ଟା 1–12 ହେବା ଆବଶ୍ୟକ"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"ଘଣ୍ଟା 0–23 ହେବା ଆବଶ୍ୟକ"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"ରେଲ ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"ନାଭିଗେସନ ରେଲ"</string>
 </resources>

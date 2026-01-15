@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"နာရီမုဒ်သို့ ပြောင်းရန်"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"အချိန်ရွေးပါ"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"အချိန်ထည့်ပါ"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"မိနစ်သည် ၀–၅၉ ဖြစ်ရမည်"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"နာရီသည် ၁–၁၂ ဖြစ်ရမည်"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"နာရီသည် ၀–၂၃ ဖြစ်ရမည်"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"ဘားပိတ်ရန်"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"လမ်းကြောင်းပြဘား"</string>
 </resources>

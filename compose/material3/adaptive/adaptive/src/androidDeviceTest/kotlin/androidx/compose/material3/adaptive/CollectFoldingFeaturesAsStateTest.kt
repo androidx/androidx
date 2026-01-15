@@ -18,7 +18,7 @@ package androidx.compose.material3.adaptive
 
 import android.graphics.Rect
 import androidx.compose.runtime.State
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.window.layout.DisplayFeature

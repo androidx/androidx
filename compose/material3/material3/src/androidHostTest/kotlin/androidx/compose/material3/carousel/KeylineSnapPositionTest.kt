@@ -61,18 +61,19 @@ class KeylineSnapPositionTest {
             }
         val strategy = Strategy(keylineList, carouselSize, 0f, 0f, 0f)
 
+        // l=100, m=40, s=10
         val expectedSnapPositions =
             arrayListOf(
-                0, // i=0 [l, l, m, m, s, s]
-                40, // i=1 [m, l, l, m, s, s]
-                50, // i=2 [s, m, l, l, m, s]
-                50, // i=3 [s, m, l, l, m, s]
-                50, // i=4 [s, m, l, l, m, s]
-                50, // i=5 [s, m, l, l, m, s]
-                50, // i=6 [s, m, l, l, m, s]
-                50, // i=6 [s, m, l, l, m, s]
-                60, // i=7 [s, s, m, l, l, m]
-                100, // i=8 [s, s, m, m, l, l]
+                /* i=0 [l, l, m, m, s, s] */ 0,
+                /* i=1 [m, l, l, m, s, s] */ 40,
+                /* i=2 [s, m, l, l, m, s] */ 50,
+                /* i=3 [s, m, l, l, m, s] */ 50,
+                /* i=4 [s, m, l, l, m, s] */ 50,
+                /* i=5 [s, m, l, l, m, s] */ 50,
+                /* i=6 [s, m, l, l, m, s] */ 50,
+                /* i=6 [s, m, l, l, m, s] */ 10 + 40 + 100,
+                /* i=7 [s, s, m, l, l, m] */ 10 + 10 + 40 + 100,
+                /* i=8 [s, s, m, m, l, l] */ 10 + 10 + 40 + 40 + 100,
             )
         val actualSnapPositions =
             (0 until itemCount).map { getSnapPositionOffset(strategy, it, itemCount) }
@@ -98,11 +99,11 @@ class KeylineSnapPositionTest {
         // l=400, m=125, s=75
         val expectedSnapPositions =
             arrayListOf(
-                0, // i=0 [l, l, m, s]
-                0, // i=1 [l, l, m, s]
-                0, // i=2 [l, l, m, s]
-                75, // i=3 [s, l, l, m]
-                200, // i=4 [s, m, l, l]
+                /* i=0 [l, l, m, s] */ 0,
+                /* i=1 [l, l, m, s] */ 0,
+                /* i=2 [l, l, m, s] */ 400,
+                /* i=3 [s, l, l, m] */ 75 + 400,
+                /* i=4 [s, m, l, l] */ 75 + 125 + 400,
             )
 
         val actualSnapPositions =
@@ -119,10 +120,10 @@ class KeylineSnapPositionTest {
         // l=400, m=125, s=75
         val expectedSnapPositions =
             arrayListOf(
-                0, // i=0 [l, l, m, s]
-                0, // i=1 [l, l, m, s]
-                75, // i=2 [s, l, l, m]
-                200, // i=3 [s, m, l, l]
+                /* i=0 [l, l, m, s] */ 0,
+                /* i=1 [l, l, m, s] */ 400,
+                /* i=2 [s, l, l, m] */ 75 + 400,
+                /* i=3 [s, m, l, l] */ 75 + 125 + 400,
             )
         val actualSnapPositions =
             (0 until itemCount).map { getSnapPositionOffset(strategy, it, itemCount) }

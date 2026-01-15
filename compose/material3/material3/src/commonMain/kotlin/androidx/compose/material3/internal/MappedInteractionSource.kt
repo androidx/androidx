@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.map
  */
 internal class MappedInteractionSource(
     underlyingInteractionSource: InteractionSource,
-    private val delta: Offset,
+    private val calculateDelta: () -> Offset,
 ) : InteractionSource {
     private val mappedPresses = mutableMapOf<PressInteraction.Press, PressInteraction.Press>()
 
@@ -60,5 +60,5 @@ internal class MappedInteractionSource(
         }
 
     private fun mapPress(press: PressInteraction.Press): PressInteraction.Press =
-        PressInteraction.Press(press.pressPosition - delta)
+        PressInteraction.Press(press.pressPosition - calculateDelta())
 }

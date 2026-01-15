@@ -31,6 +31,7 @@ import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.testutils.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -45,7 +46,7 @@ class NavigationSuiteScaffoldBenchmarkTest {
 
     @Test
     fun expressive_firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(testCaseFactoryExpressive)
+        benchmarkRule.benchmarkToFirstPixel(testCaseFactoryExpressive)
     }
 
     @Test
@@ -63,7 +64,7 @@ class NavigationSuiteScaffoldBenchmarkTest {
 
     @Test
     fun firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(testCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(testCaseFactory)
     }
 
     @Test

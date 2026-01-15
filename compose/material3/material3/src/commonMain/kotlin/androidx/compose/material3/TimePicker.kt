@@ -83,6 +83,7 @@ import androidx.compose.material3.tokens.TimePickerTokens.ContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorContainerShape
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizontalContainerHeight
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizontalContainerWidth
+import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorLabelTextFont
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorOutlineColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedLabelTextColor
@@ -1399,8 +1400,8 @@ private fun PeriodToggleImpl(
 ) {
     val borderStroke =
         BorderStroke(TimePickerTokens.PeriodSelectorOutlineWidth, colors.periodSelectorBorderColor)
-
     val shape = PeriodSelectorContainerShape.value as CornerBasedShape
+    val style = PeriodSelectorLabelTextFont.value
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
     Layout(
         modifier =
@@ -1423,7 +1424,7 @@ private fun PeriodToggleImpl(
                 },
                 colors = colors,
             ) {
-                Text(text = getString(string = Strings.TimePickerAM))
+                Text(style = style, text = getString(string = Strings.TimePickerAM))
             }
             Spacer(
                 Modifier.layoutId("Spacer")
@@ -1441,7 +1442,7 @@ private fun PeriodToggleImpl(
                 },
                 colors = colors,
             ) {
-                Text(getString(string = Strings.TimePickerPM))
+                Text(style = style, text = getString(string = Strings.TimePickerPM))
             }
         },
     )

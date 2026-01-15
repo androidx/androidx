@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Անցնել ժամացույցի ռեժիմին"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Ընտրեք ժամը"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Մուտքագրեք ժամը"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Րոպեն պետք է լինի 0–59"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Ժամը պետք է լինի 1–12"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"Ժամը պետք է լինի 0–23"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Փակել նավիգացիայի գոտին"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"Նավիգացիայի գոտի"</string>
 </resources>

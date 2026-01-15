@@ -23,7 +23,6 @@ import androidx.compose.material3.adaptive.layout.internal.setValue
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.IntSize
-import kotlin.jvm.JvmStatic
 
 /**
  * The class that provides motion settings for three pane scaffolds like [ListDetailPaneScaffold]

@@ -23,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -30,11 +31,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
 
 internal fun ComposeContentTestRule.setContentWithSimulatedSize(
     simulatedWidth: Dp,
     simulatedHeight: Dp,
+    simulatedLayoutDirection: LayoutDirection = LayoutDirection.Ltr,
     content: @Composable () -> Unit,
 ) {
     setContent {
@@ -46,6 +49,7 @@ internal fun ComposeContentTestRule.setContentWithSimulatedSize(
         CompositionLocalProvider(
             LocalDensity provides simulatedDensity,
             LocalWindowInfo provides MockWindowInfo(windowInfo.containerSize, simulatedDensity),
+            LocalLayoutDirection provides simulatedLayoutDirection,
         ) {
             Box(Modifier.fillMaxWidth().height(simulatedHeight)) { content() }
         }

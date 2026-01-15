@@ -281,17 +281,18 @@ internal fun NavigationItem(
             // The entire item is selectable, but only the indicator pill shows the ripple. To
             // achieve this, we re-map the coordinates of the item's InteractionSource into the
             // coordinates of the indicator.
-            val deltaOffset: Offset
-            with(LocalDensity.current) {
-                deltaOffset =
+            val density = LocalDensity.current
+            val calculateDeltaOffset = {
+                with(density) {
                     Offset(
                         (itemWidth - indicatorWidth.roundToPx()).toFloat() / 2,
                         IndicatorVerticalOffset.toPx(),
                     )
+                }
             }
             offsetInteractionSource =
-                remember(interactionSource, deltaOffset) {
-                    MappedInteractionSource(interactionSource, deltaOffset)
+                remember(interactionSource, calculateDeltaOffset) {
+                    MappedInteractionSource(interactionSource, calculateDeltaOffset)
                 }
         }
 
@@ -402,17 +403,18 @@ internal fun AnimatedNavigationItem(
             // The entire item is selectable, but only the indicator pill shows the ripple. To
             // achieve this, we re-map the coordinates of the item's InteractionSource into the
             // coordinates of the indicator.
-            val deltaOffset: Offset
-            with(LocalDensity.current) {
-                deltaOffset =
+            val density = LocalDensity.current
+            val calculateDeltaOffset = {
+                with(density) {
                     Offset(
                         (itemWidth - topIconIndicatorWidth.roundToPx()).toFloat() / 2,
                         IndicatorVerticalOffset.toPx(),
                     )
+                }
             }
             offsetInteractionSource =
-                remember(interactionSource, deltaOffset) {
-                    MappedInteractionSource(interactionSource, deltaOffset)
+                remember(interactionSource, calculateDeltaOffset) {
+                    MappedInteractionSource(interactionSource, calculateDeltaOffset)
                 }
         }
 

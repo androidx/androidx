@@ -73,7 +73,9 @@ public final class androidx/compose/material3/AssistChipDefaults {
 	public final fun elevatedAssistChipColors (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/ChipColors;
 	public final fun elevatedAssistChipColors-oq7We08 (JJJJJJJJLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/ChipColors;
 	public final fun elevatedAssistChipElevation-aqJV_2Y (FFFFFFLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/ChipElevation;
+	public final fun getContentPadding ()Landroidx/compose/foundation/layout/PaddingValues;
 	public final fun getHeight-D9Ej5fM ()F
+	public final fun getHorizontalSpacing-D9Ej5fM ()F
 	public final fun getIconSize-D9Ej5fM ()F
 	public final fun getShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
 }
@@ -298,10 +300,12 @@ public final class androidx/compose/material3/ChipElevation {
 }
 
 public final class androidx/compose/material3/ChipKt {
-	public static final fun AssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun AssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun AssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/material3/ChipBorder;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
-	public static final fun ElevatedAssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun AssistChip-ajgufuY (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final synthetic fun ElevatedAssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun ElevatedAssistChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/material3/ChipBorder;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
+	public static final fun ElevatedAssistChip-ajgufuY (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final synthetic fun ElevatedFilterChip (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final fun ElevatedFilterChip-Qi0uq5o (ZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/SelectableChipColors;Landroidx/compose/material3/SelectableChipElevation;Landroidx/compose/foundation/BorderStroke;FLandroidx/compose/foundation/layout/PaddingValues;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;III)V
 	public static final fun ElevatedSuggestionChip (Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/Modifier;ZLkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/ChipColors;Landroidx/compose/material3/ChipElevation;Landroidx/compose/foundation/BorderStroke;Landroidx/compose/foundation/interaction/MutableInteractionSource;Landroidx/compose/runtime/Composer;II)V
@@ -503,13 +507,6 @@ public final class androidx/compose/material3/ComposableSingletons$TabRowKt {
 	public final fun getLambda$303717663$material3 ()Lkotlin/jvm/functions/Function2;
 }
 
-public final class androidx/compose/material3/ComposableSingletons$TimePickerKt {
-	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$TimePickerKt;
-	public fun <init> ()V
-	public final fun getLambda$-1179219109$material3 ()Lkotlin/jvm/functions/Function3;
-	public final fun getLambda$1425358052$material3 ()Lkotlin/jvm/functions/Function3;
-}
-
 public final class androidx/compose/material3/ContentColorKt {
 	public static final fun getLocalContentColor ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
@@ -589,6 +586,24 @@ public abstract interface class androidx/compose/material3/DatePickerState {
 	public abstract fun setDisplayMode-vCnGnXg (I)V
 	public abstract fun setDisplayedMonthMillis (J)V
 	public abstract fun setSelectedDateMillis (Ljava/lang/Long;)V
+}
+
+public final class androidx/compose/material3/DatePicker_jvmKt {
+	public static final fun DatePickerState-sHin3Bw (Ljava/util/Locale;Ljava/time/LocalDate;Ljava/time/YearMonth;Lkotlin/ranges/IntRange;ILandroidx/compose/material3/SelectableDates;)Landroidx/compose/material3/DatePickerState;
+	public static synthetic fun DatePickerState-sHin3Bw$default (Ljava/util/Locale;Ljava/time/LocalDate;Ljava/time/YearMonth;Lkotlin/ranges/IntRange;ILandroidx/compose/material3/SelectableDates;ILjava/lang/Object;)Landroidx/compose/material3/DatePickerState;
+	public static final fun DateRangePickerState-HVP43zI (Ljava/util/Locale;Ljava/time/LocalDate;Ljava/time/LocalDate;Ljava/time/YearMonth;Lkotlin/ranges/IntRange;ILandroidx/compose/material3/SelectableDates;)Landroidx/compose/material3/DateRangePickerState;
+	public static synthetic fun DateRangePickerState-HVP43zI$default (Ljava/util/Locale;Ljava/time/LocalDate;Ljava/time/LocalDate;Ljava/time/YearMonth;Lkotlin/ranges/IntRange;ILandroidx/compose/material3/SelectableDates;ILjava/lang/Object;)Landroidx/compose/material3/DateRangePickerState;
+	public static final fun getDisplayedMonth (Landroidx/compose/material3/DatePickerState;)Ljava/time/YearMonth;
+	public static final fun getDisplayedMonth (Landroidx/compose/material3/DateRangePickerState;)Ljava/time/YearMonth;
+	public static final fun getSelectedDate (Landroidx/compose/material3/DatePickerState;)Ljava/time/LocalDate;
+	public static final fun getSelectedEndDate (Landroidx/compose/material3/DateRangePickerState;)Ljava/time/LocalDate;
+	public static final fun getSelectedStartDate (Landroidx/compose/material3/DateRangePickerState;)Ljava/time/LocalDate;
+	public static final fun rememberDatePickerState-EU0dCGE (Ljava/time/LocalDate;Ljava/time/YearMonth;Lkotlin/ranges/IntRange;ILandroidx/compose/material3/SelectableDates;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/DatePickerState;
+	public static final fun rememberDateRangePickerState-IlFM19s (Ljava/time/LocalDate;Ljava/time/LocalDate;Ljava/time/YearMonth;Lkotlin/ranges/IntRange;ILandroidx/compose/material3/SelectableDates;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/DateRangePickerState;
+	public static final fun setDisplayedMonth (Landroidx/compose/material3/DatePickerState;Ljava/time/YearMonth;)V
+	public static final fun setDisplayedMonth (Landroidx/compose/material3/DateRangePickerState;Ljava/time/YearMonth;)V
+	public static final fun setSelectedDate (Landroidx/compose/material3/DatePickerState;Ljava/time/LocalDate;)V
+	public static final fun setSelection (Landroidx/compose/material3/DateRangePickerState;Ljava/time/LocalDate;Ljava/time/LocalDate;)V
 }
 
 public final class androidx/compose/material3/DateRangePickerDefaults {

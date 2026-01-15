@@ -166,12 +166,13 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
             val animatingBounds = paneMotion == PaneMotion.AnimateBounds
             val motionProgress = { motionProgress }
             val paneValue = scaffoldStateTransition.targetState[paneRole]
+            val (paneModifier, contentModifier) = modifier.splitPaneAndContentModifiers()
             scaffoldStateTransition.AnimatedVisibility(
                 visible = { value: ScaffoldValue -> value[paneRole] != PaneAdaptedValue.Hidden },
                 modifier =
                     // The size modifiers have to be applied at this level so the scaffold can read
                     // them from the parent data.
-                    extractPaneScaffoldSizeModifiers(modifier)
+                    paneModifier
                         .animatedPane()
                         .animateBounds(
                             animateFraction = motionProgress,
@@ -182,13 +183,15 @@ private object DefaultAnimatedPaneOverride : AnimatedPaneOverride {
                         )
                         .focusRequester(focusRequesters[paneRole]!!)
                         .focusableInWholeTree(isInteractable, paneRole)
+                        // This is a workaround to b/375496210 - shadows cannot be faded so we have
+                        // to apply shadows on AnimatedVisibility instead of the content.
                         .levitatedProperties(paneValue, dragToResizeHandle != null)
                         .then(if (animatingBounds) Modifier else Modifier.clipToBounds()),
                 enter = enterTransition,
                 exit = exitTransition,
             ) {
                 scope.saveableStateHolder.SaveableStateProvider(paneRole.toString()) {
-                    Column(modifier = modifier) {
+                    Column(modifier = contentModifier) {
                         if (
                             paneValue is PaneAdaptedValue.Levitated &&
                                 paneValue.dragToResizeState != null &&

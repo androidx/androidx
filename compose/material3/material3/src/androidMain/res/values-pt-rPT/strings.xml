@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Mudar para o modo de relógio"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Selecione uma hora"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Introduza uma hora"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"O minuto tem de ser 0-59"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"A hora tem de ser 1-12"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"A hora tem de ser 0-23"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Fechar barra"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"Barra de navegação"</string>
 </resources>
