@@ -718,6 +718,11 @@ internal class RootNodeOwner(
             keepScreenOnCount--
             platformContext.isKeepScreenOnEnabled = keepScreenOnCount > 0
         }
+
+        override fun invalidateRootLayer() {
+            // TODO: https://youtrack.jetbrains.com/issue/CMP-9533/Implement-SkikoOwner.invalidateRootLayer
+            super.invalidateRootLayer()
+        }
     }
 
     private inner class PlatformRootForTestImpl : PlatformRootForTest {

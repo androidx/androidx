@@ -68,6 +68,13 @@ import org.jetbrains.skia.IRect
 import org.jetbrains.skia.Surface
 import org.jetbrains.skiko.currentNanoTime
 
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.v2.runComposeUiTest` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
 @ExperimentalTestApi
 actual fun runComposeUiTest(
     effectContext: CoroutineContext,

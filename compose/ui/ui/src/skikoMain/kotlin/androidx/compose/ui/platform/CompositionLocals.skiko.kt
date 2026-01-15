@@ -95,7 +95,6 @@ internal fun ProvidePlatformCompositionLocals(
     )
 }
 
-@ExperimentalComposeUiApi
 @Composable
 internal fun ProvideCommonCompositionLocals(
     owner: Owner,
