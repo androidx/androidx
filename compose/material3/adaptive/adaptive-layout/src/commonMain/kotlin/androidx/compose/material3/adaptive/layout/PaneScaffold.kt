@@ -450,7 +450,7 @@ internal fun Modifier.splitPaneAndContentModifiers(): Pair<Modifier, Modifier> {
                 // shadows on AnimatedVisibility instead of the content, which forces us to apply
                 // graphic layer transformation to AnimatedVisibility as well, so the shadow will be
                 // rendered correctly.
-                element::class.qualifiedName == "androidx.compose.ui.graphics.GraphicsLayerElement"
+                element.isGraphicsLayerElement()
         ) {
             paneModifier = paneModifier.then(element)
         } else {
@@ -460,6 +460,10 @@ internal fun Modifier.splitPaneAndContentModifiers(): Pair<Modifier, Modifier> {
     }
     return Pair(paneModifier, contentModifier)
 }
+
+// TODO: https://youtrack.jetbrains.com/issue/CMP-9538/Upstream-Material3-fun-Modifier.Element.isGraphicsLayerElement
+// element::class.qualifiedName == "androidx.compose.ui.graphics.GraphicsLayerElement"
+internal expect inline fun Modifier.Element.isGraphicsLayerElement(): Boolean
 
 internal fun Modifier.animatedPane(): Modifier {
     return this.then(AnimatedPaneElement)
