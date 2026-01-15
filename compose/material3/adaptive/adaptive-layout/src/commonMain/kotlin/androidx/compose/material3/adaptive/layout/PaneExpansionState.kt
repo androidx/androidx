@@ -54,6 +54,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
@@ -395,6 +396,8 @@ internal constructor(
 
     private var measuredDensity: Density? = null
 
+    private var measuredLayoutDirection: LayoutDirection? = null
+
     private val dragScope =
         object : DragScope, ScrollScope {
             override fun dragBy(pixels: Float): Unit = draggableState.dispatchRawDelta(pixels)
@@ -480,7 +483,7 @@ internal constructor(
         require(anchors.contains(anchor)) { "The provided $anchor is not in the anchor list!" }
         currentAnchor = anchor
         measuredDensity?.apply {
-            val position = anchor.positionIn(maxExpansionWidth, this)
+            val position = anchor.positionIn(maxExpansionWidth, this, measuredLayoutDirection)
             animateToInternal(position, initialVelocity)
         }
     }
@@ -512,6 +515,7 @@ internal constructor(
                         // recalculated.
                         maxExpansionWidth,
                         it,
+                        measuredLayoutDirection,
                     )
             }
             if (!anchors.contains(currentAnchor)) {
@@ -522,17 +526,28 @@ internal constructor(
         }
     }
 
-    internal fun onMeasured(measuredWidth: Int, density: Density) {
-        if (measuredWidth == maxExpansionWidth && measuredDensity == density) {
+    internal fun onMeasured(
+        measuredWidth: Int,
+        density: Density,
+        layoutDirection: LayoutDirection,
+    ) {
+        if (
+            measuredWidth == maxExpansionWidth &&
+                measuredDensity == density &&
+                measuredLayoutDirection == layoutDirection
+        ) {
             return
         }
         maxExpansionWidth = measuredWidth
         measuredDensity = density
+        measuredLayoutDirection = layoutDirection
         Snapshot.withoutReadObservation {
-            measuredAnchorPositions = anchors.toPositions(measuredWidth, density)
+            measuredAnchorPositions =
+                anchors.toPositions(measuredWidth, density, measuredLayoutDirection)
             // Changes will always apply to the ongoing measurement, no need to trigger remeasuring
             if (!isDraggingOrSettling && currentAnchor != null) {
-                currentDraggingOffset = currentAnchor!!.positionIn(measuredWidth, density)
+                currentDraggingOffset =
+                    currentAnchor!!.positionIn(measuredWidth, density, measuredLayoutDirection)
             } else if (currentDraggingOffset != Unspecified) {
                 // To re-coerce the value
                 currentDraggingOffset = currentDraggingOffset
@@ -547,7 +562,8 @@ internal constructor(
     internal fun snapToAnchor(anchor: PaneExpansionAnchor) {
         Snapshot.withoutReadObservation {
             measuredDensity?.let {
-                currentDraggingOffset = anchor.positionIn(maxExpansionWidth, it)
+                currentDraggingOffset =
+                    anchor.positionIn(maxExpansionWidth, it, measuredLayoutDirection)
             }
         }
     }
@@ -682,6 +698,19 @@ internal class PaneExpansionStateData(
  * the set anchors after user releases the drag.
  */
 sealed class PaneExpansionAnchor {
+    internal fun positionIn(
+        totalSizePx: Int,
+        density: Density,
+        layoutDirection: LayoutDirection?,
+    ): Int {
+        val offset = positionIn(totalSizePx, density)
+        return if (layoutDirection == LayoutDirection.Rtl) {
+            totalSizePx - offset
+        } else {
+            offset
+        }
+    }
+
     internal abstract fun positionIn(totalSizePx: Int, density: Density): Int
 
     internal abstract val type: Int
@@ -955,11 +984,17 @@ private const val TwoPaneExpansionStateKey = 1
 private fun List<PaneExpansionAnchor>.toPositions(
     maxExpansionWidth: Int,
     density: Density,
+    layoutDirection: LayoutDirection?,
 ): IndexedAnchorPositionList {
     val anchors = IndexedAnchorPositionList(size)
     @Suppress("ListIterator") // Not necessarily a random-accessible list
     forEachIndexed { index, anchor ->
-        anchors.add(IndexedAnchorPosition(anchor.positionIn(maxExpansionWidth, density), index))
+        anchors.add(
+            IndexedAnchorPosition(
+                anchor.positionIn(maxExpansionWidth, density, layoutDirection),
+                index,
+            )
+        )
     }
     anchors.sort()
     return anchors

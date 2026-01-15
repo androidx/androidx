@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.DefaultNavigationRailOverride.NavigationRail
 import androidx.compose.material3.internal.MappedInteractionSource
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.systemBarsForVisualComponents
@@ -276,15 +277,18 @@ fun NavigationRailItem(
         // The entire item is selectable, but only the indicator pill shows the ripple. To achieve
         // this, we re-map the coordinates of the item's InteractionSource into the coordinates of
         // the indicator.
-        val deltaOffset: Offset
-        with(LocalDensity.current) {
-            val itemWidth = NavigationRailItemWidth.roundToPx()
-            val indicatorWidth = NavigationRailVerticalItemTokens.ActiveIndicatorWidth.roundToPx()
-            deltaOffset = Offset((itemWidth - indicatorWidth).toFloat() / 2, 0f)
+        val density = LocalDensity.current
+        val calculateDeltaOffset = {
+            with(density) {
+                val itemWidth = NavigationRailItemWidth.roundToPx()
+                val indicatorWidth =
+                    NavigationRailVerticalItemTokens.ActiveIndicatorWidth.roundToPx()
+                Offset((itemWidth - indicatorWidth).toFloat() / 2, 0f)
+            }
         }
         val offsetInteractionSource =
-            remember(interactionSource, deltaOffset) {
-                MappedInteractionSource(interactionSource, deltaOffset)
+            remember(interactionSource, calculateDeltaOffset) {
+                MappedInteractionSource(interactionSource, calculateDeltaOffset)
             }
 
         val indicatorShape =

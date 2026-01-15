@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"గడియారం మోడ్‌కు మారండి"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"సమయాన్ని ఎంచుకోండి"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"సమయాన్ని ఎంటర్ చేయండి"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"నిమి. 0–59 మధ్య ఉండాలి"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"గంటలు 1–12 మధ్య ఉండాలి"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"గంటలు 0–23 మధ్య ఉండాలి"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"రైలును మూసివేయండి"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"నావిగేషన్ రైలు"</string>
 </resources>

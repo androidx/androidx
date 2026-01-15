@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"ඔරලෝසු ප්‍රකාරයට මාරු වන්න"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"වේලාව තෝරන්න"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"වේලාව ඇතුළු කරන්න"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"මිනිත්තුව 0–59 විය යුතු යි"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"පැය 1–12 විය යුතු යි"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"පැය 0–23 විය යුතු යි"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"පීල්ල වසන්න"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"සංචාලන පීල්ල"</string>
 </resources>

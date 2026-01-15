@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"Soat rejimiga oʻtish"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"Vaqtni tanlang"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"Vaqtni kiriting"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"Daqiqa 0–59 boʻlsin"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"Soat 1–12 boʻlsin"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"Soat 0–23 boʻlsin"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"Panelni yopish"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"Navigatsiya paneli"</string>
 </resources>

@@ -35,13 +35,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.math.roundToInt
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -53,12 +52,73 @@ import org.junit.runner.RunWith
 class SlideUsingKeysTest {
 
     @Test
-    fun slider_ltr_0steps_change_using_keys() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val state = mutableStateOf(0.5f)
-            var sliderFocused = false
+    fun slider_ltr_0steps_change_using_keys() = runComposeUiTest {
+        val state = mutableStateOf(0.5f)
+        var sliderFocused = false
 
-            setContent {
+        setContent {
+            Slider(
+                value = state.value,
+                onValueChange = { state.value = it },
+                valueRange = 0f..1f,
+                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
+            )
+        }
+
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
+
+        var currentValue = 0.50f
+
+        // Right key should increase value.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue + 1f / 100f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        // Left key should decrease value.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue - 1f / 100f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        // Page down should decrease value.
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue - 1f / 10f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        // Page up should increase value.
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue + 1f / 10f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(1f, state.value) }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(0f, state.value) }
+    }
+
+    @Test
+    fun slider_rtl_0steps_change_using_keys() = runComposeUiTest {
+        val state = mutableStateOf(0.5f)
+        var sliderFocused = false
+        setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 Slider(
                     value = state.value,
                     onValueChange = { state.value = it },
@@ -66,182 +126,245 @@ class SlideUsingKeysTest {
                     modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
                 )
             }
-
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            var currentValue = 0.50f
-
-            // Right key should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue + 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Left key should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue - 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Page down should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue - 1f / 10f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Page up should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue + 1f / 10f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(1f, state.value) }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(0f, state.value) }
         }
+
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
+
+        var currentValue = 0.50f
+
+        // Right key should decrease value.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue - 1f / 100f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        // Left key should increase value.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue + 1f / 100f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        // Page down should decrease value.
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue - 1f / 10f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        // Page up should increase value.
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+        runOnIdle {
+            currentValue = currentValue + 1f / 10f
+            assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
+        }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(1f, state.value) }
+
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(0f, state.value) }
+    }
 
     @Test
-    fun slider_rtl_0steps_change_using_keys() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val state = mutableStateOf(0.5f)
-            var sliderFocused = false
-            setContent {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    Slider(
-                        value = state.value,
-                        onValueChange = { state.value = it },
-                        valueRange = 0f..1f,
-                        modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
-                    )
-                }
-            }
-
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            var currentValue = 0.50f
-
-            // Right key should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue - 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Left key should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue + 1f / 100f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Page down should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue - 1f / 10f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            // Page up should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-            runOnIdle {
-                currentValue = currentValue + 1f / 10f
-                assertEquals(currentValue.round2decPlaces(), (state.value).round2decPlaces())
-            }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(1f, state.value) }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(0f, state.value) }
+    fun slider_ltr_29steps_using_keys() = runComposeUiTest {
+        val state = mutableStateOf(15f)
+        var sliderFocused = false
+        setContent {
+            Slider(
+                value = state.value,
+                steps = 29,
+                onValueChange = { state.value = it },
+                valueRange = 0f..30f,
+                modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
+            )
         }
 
-    @Test
-    fun slider_ltr_29steps_using_keys() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            val state = mutableStateOf(15f)
-            var sliderFocused = false
-            setContent {
-                Slider(
-                    value = state.value,
-                    steps = 29,
-                    onValueChange = { state.value = it },
-                    valueRange = 0f..30f,
-                    modifier = Modifier.onFocusChanged { sliderFocused = it.isFocused },
-                )
-            }
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
 
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
+        var currentValue = state.value
 
-            var currentValue = state.value
+        // Right key should increase value.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
+        currentValue += 1f
+        runOnIdle { assertEquals(currentValue, (state.value)) }
 
-            // Right key should increase value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionRight, KeyEventType.KeyUp))
-            currentValue += 1f
-            runOnIdle { assertEquals(currentValue, (state.value)) }
+        // Left key should decrease value.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
+        currentValue -= 1f
+        runOnIdle { assertEquals(currentValue, state.value) }
 
-            // Left key should decrease value.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionLeft, KeyEventType.KeyUp))
-            currentValue -= 1f
-            runOnIdle { assertEquals(currentValue, state.value) }
+        // Page down should decrease value by 3.
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+        currentValue -= 3f
+        runOnIdle { assertEquals(currentValue, state.value) }
 
-            // Page down should decrease value by 3.
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-            currentValue -= 3f
-            runOnIdle { assertEquals(currentValue, state.value) }
+        // Page up should increase value by 3.
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+        currentValue += 3f
+        runOnIdle { assertEquals(currentValue, state.value) }
 
-            // Page up should increase value by 3.
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-            currentValue += 3f
-            runOnIdle { assertEquals(currentValue, state.value) }
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(30f, state.value) }
 
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveEnd, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(30f, state.value) }
-
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
-            runOnIdle { assertEquals(0f, state.value) }
-        }
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.MoveHome, KeyEventType.KeyUp))
+        runOnIdle { assertEquals(0f, state.value) }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Test
-    fun slider_vertical_keyboardNavigation() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            var sliderFocused = false
-            lateinit var currentValue: MutableFloatState
+    fun slider_vertical_keyboardNavigation() = runComposeUiTest {
+        var sliderFocused = false
+        lateinit var currentValue: MutableFloatState
 
-            setContent {
+        setContent {
+            val state =
+                rememberSliderState(
+                    // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
+                    // there are 9 steps (10, 20, ..., 90).
+                    steps = 9,
+                    valueRange = 0f..100f,
+                )
+            currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
+            state.onValueChange = { newValue -> currentValue.floatValue = newValue }
+
+            VerticalSlider(
+                state = state,
+                modifier =
+                    Modifier.testTag("Slider").height(300.dp).onFocusChanged {
+                        sliderFocused = it.isFocused
+                    },
+                track = {
+                    SliderDefaults.Track(
+                        sliderState = state,
+                        modifier = Modifier.width(36.dp),
+                        trackCornerSize = 12.dp,
+                    )
+                },
+            )
+        }
+
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
+
+        // Press arrow key down.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
+
+        // Press arrow key up.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
+
+        // Press page down.
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
+
+        // Press page up.
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun slider_vertical_reverseDirectionTrue_keyboardNavigation() = runComposeUiTest {
+        var sliderFocused = false
+        lateinit var currentValue: MutableFloatState
+
+        setContent {
+            val state =
+                rememberSliderState(
+                    // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
+                    // there are 9 steps (10, 20, ..., 90).
+                    steps = 9,
+                    valueRange = 0f..100f,
+                )
+            currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
+            state.onValueChange = { newValue -> currentValue.floatValue = newValue }
+
+            VerticalSlider(
+                state = state,
+                modifier =
+                    Modifier.testTag("Slider").height(300.dp).onFocusChanged {
+                        sliderFocused = it.isFocused
+                    },
+                track = {
+                    SliderDefaults.Track(
+                        sliderState = state,
+                        modifier = Modifier.width(36.dp),
+                        trackCornerSize = 12.dp,
+                    )
+                },
+                reverseDirection = true,
+            )
+        }
+
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
+
+        // Press arrow key up.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
+
+        // Press arrow key down.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
+
+        // Press page up.
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
+
+        // Press page down.
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun slider_vertical_rtl_keyboardNavigation() = runComposeUiTest {
+        var sliderFocused = false
+        lateinit var currentValue: MutableFloatState
+
+        setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 val state =
                     rememberSliderState(
                         // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
@@ -267,45 +390,46 @@ class SlideUsingKeysTest {
                     },
                 )
             }
-
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            // Press arrow key down.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key up.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
-            // Press page down.
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press page up.
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
         }
+
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
+
+        // Press arrow key down.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
+
+        // Press arrow key up.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
+
+        // Press page down.
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
+
+        // Press page up.
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
+    }
 
     @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
     @Test
-    fun slider_vertical_reverseDirectionTrue_keyboardNavigation() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            var sliderFocused = false
-            lateinit var currentValue: MutableFloatState
+    fun slider_vertical_rtl_reverseDirectionTrue_keyboardNavigation() = runComposeUiTest {
+        var sliderFocused = false
+        lateinit var currentValue: MutableFloatState
 
-            setContent {
+        setContent {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
                 val state =
                     rememberSliderState(
                         // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
@@ -332,169 +456,37 @@ class SlideUsingKeysTest {
                     reverseDirection = true,
                 )
             }
-
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            // Press arrow key up.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key down.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
-            // Press page up.
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press page down.
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
         }
 
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-    @Test
-    fun slider_vertical_rtl_keyboardNavigation() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            var sliderFocused = false
-            lateinit var currentValue: MutableFloatState
+        // Press tab to focus on Slider
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
+        runOnIdle { assertTrue(sliderFocused) }
 
-            setContent {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    val state =
-                        rememberSliderState(
-                            // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
-                            // there are 9 steps (10, 20, ..., 90).
-                            steps = 9,
-                            valueRange = 0f..100f,
-                        )
-                    currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
-                    state.onValueChange = { newValue -> currentValue.floatValue = newValue }
+        // Press arrow key up.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
 
-                    VerticalSlider(
-                        state = state,
-                        modifier =
-                            Modifier.testTag("Slider").height(300.dp).onFocusChanged {
-                                sliderFocused = it.isFocused
-                            },
-                        track = {
-                            SliderDefaults.Track(
-                                sliderState = state,
-                                modifier = Modifier.width(36.dp),
-                                trackCornerSize = 12.dp,
-                            )
-                        },
-                    )
-                }
-            }
+        // Press arrow key down.
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
 
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
+        // Press page up.
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
+        // Assert went up.
+        runOnIdle { assertEquals(10f, currentValue.floatValue) }
 
-            // Press arrow key down.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key up.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
-            // Press page down.
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press page up.
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-        }
-
-    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-    @Test
-    fun slider_vertical_rtl_reverseDirectionTrue_keyboardNavigation() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            var sliderFocused = false
-            lateinit var currentValue: MutableFloatState
-
-            setContent {
-                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                    val state =
-                        rememberSliderState(
-                            // Only allow multiples of 10. Excluding the endpoints of `valueRange`,
-                            // there are 9 steps (10, 20, ..., 90).
-                            steps = 9,
-                            valueRange = 0f..100f,
-                        )
-                    currentValue = rememberSaveable { mutableFloatStateOf(state.value) }
-                    state.onValueChange = { newValue -> currentValue.floatValue = newValue }
-
-                    VerticalSlider(
-                        state = state,
-                        modifier =
-                            Modifier.testTag("Slider").height(300.dp).onFocusChanged {
-                                sliderFocused = it.isFocused
-                            },
-                        track = {
-                            SliderDefaults.Track(
-                                sliderState = state,
-                                modifier = Modifier.width(36.dp),
-                                trackCornerSize = 12.dp,
-                            )
-                        },
-                        reverseDirection = true,
-                    )
-                }
-            }
-
-            // Press tab to focus on Slider
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.Tab, KeyEventType.KeyUp))
-            runOnIdle { assertTrue(sliderFocused) }
-
-            // Press arrow key up.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press arrow key down.
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.DirectionDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-
-            // Press page up.
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageUp, KeyEventType.KeyUp))
-            // Assert went up.
-            runOnIdle { assertEquals(10f, currentValue.floatValue) }
-
-            // Press page down.
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
-            onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
-            // Assert went down.
-            runOnIdle { assertEquals(0f, currentValue.floatValue) }
-        }
+        // Press page down.
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyDown))
+        onRoot().performKeyPress(KeyEvent(Key.PageDown, KeyEventType.KeyUp))
+        // Assert went down.
+        runOnIdle { assertEquals(0f, currentValue.floatValue) }
+    }
 }
 
 private fun KeyEventType.toNativeAction(): Int {

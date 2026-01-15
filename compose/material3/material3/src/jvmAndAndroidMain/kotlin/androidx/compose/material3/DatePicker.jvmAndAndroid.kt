@@ -64,7 +64,6 @@ internal actual inline fun formatHeadlineDescription(
  */
 @RequiresApi(26)
 @Composable
-@ExperimentalMaterial3Api
 fun rememberDatePickerState(
     initialSelectedDate: LocalDate?,
     initialDisplayedMonth: YearMonth? = initialSelectedDate?.let { YearMonth.from(it) },
@@ -119,7 +118,6 @@ fun rememberDatePickerState(
  * @see rememberDatePickerState
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DatePickerState(
     locale: CalendarLocale,
     initialSelectedDate: LocalDate?,
@@ -168,7 +166,6 @@ fun DatePickerState(
  */
 @RequiresApi(26)
 @Composable
-@ExperimentalMaterial3Api
 fun rememberDateRangePickerState(
     initialSelectedStartDate: LocalDate?,
     initialSelectedEndDate: LocalDate?,
@@ -230,7 +227,6 @@ fun rememberDateRangePickerState(
  * @see rememberDateRangePickerState
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DateRangePickerState(
     locale: CalendarLocale,
     initialSelectedStartDate: LocalDate?,
@@ -259,7 +255,6 @@ fun DateRangePickerState(
  * @param date The [LocalDate] to select, or `null` to clear the selection.
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DatePickerState.setSelectedDate(date: LocalDate?) {
     // The selectedDateMillis setter handles the yearRange validation.
     this.selectedDateMillis = getLocalDateMillisUtc(date)
@@ -272,7 +267,6 @@ fun DatePickerState.setSelectedDate(date: LocalDate?) {
  * @return The selected [LocalDate], or `null` if there is no selection.
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DatePickerState.getSelectedDate(): LocalDate? {
     return getLocalDate(this.selectedDateMillis)
 }
@@ -286,7 +280,6 @@ fun DatePickerState.getSelectedDate(): LocalDate? {
  * @param yearMonth The [YearMonth] to display.
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
     // The displayedMonthMillis setter handles the yearRange validation.
     this.displayedMonthMillis = getYearMonthMillisUtc(yearMonth)
@@ -300,7 +293,6 @@ fun DatePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  * @return The displayed [YearMonth].
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DatePickerState.getDisplayedMonth(): YearMonth =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
@@ -323,7 +315,6 @@ fun DatePickerState.getDisplayedMonth(): YearMonth =
  *   values specified above.
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DateRangePickerState.setSelection(startDate: LocalDate?, endDate: LocalDate?) {
     this.setSelection(getLocalDateMillisUtc(startDate), getLocalDateMillisUtc(endDate))
 }
@@ -335,7 +326,6 @@ fun DateRangePickerState.setSelection(startDate: LocalDate?, endDate: LocalDate?
  * @return The selected start [LocalDate], or `null` if there is no selection.
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DateRangePickerState.getSelectedStartDate(): LocalDate? {
     return getLocalDate(this.selectedStartDateMillis)
 }
@@ -347,7 +337,6 @@ fun DateRangePickerState.getSelectedStartDate(): LocalDate? {
  * @return The selected end [LocalDate], or `null` if there is no selection.
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DateRangePickerState.getSelectedEndDate(): LocalDate? {
     return getLocalDate(this.selectedEndDateMillis)
 }
@@ -361,7 +350,6 @@ fun DateRangePickerState.getSelectedEndDate(): LocalDate? {
  * @param yearMonth The [YearMonth] to display.
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
     // The displayedMonthMillis setter handles the yearRange validation.
     this.displayedMonthMillis = getYearMonthMillisUtc(yearMonth)
@@ -375,7 +363,6 @@ fun DateRangePickerState.setDisplayedMonth(yearMonth: YearMonth) {
  * @return The displayed [YearMonth].
  */
 @RequiresApi(26)
-@ExperimentalMaterial3Api
 fun DateRangePickerState.getDisplayedMonth(): YearMonth =
     getYearMonth(millisUtcFirstOfMonth = this.displayedMonthMillis)
 
@@ -418,7 +405,6 @@ private fun getLocalDate(millisUtc: Long?): LocalDate? {
 
 /** Returns a [LocalDate] in UTC milliseconds from the epoch. */
 @RequiresApi(26)
-@OptIn(ExperimentalMaterial3Api::class)
 private fun getLocalDateMillisUtc(date: LocalDate?): Long? {
     return if (date == null) {
         null

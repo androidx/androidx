@@ -34,6 +34,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.material3.DefaultNavigationBarOverride.NavigationBar
 import androidx.compose.material3.internal.MappedInteractionSource
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.systemBarsForVisualComponents
@@ -274,15 +275,17 @@ fun RowScope.NavigationBarItem(
         // The entire item is selectable, but only the indicator pill shows the ripple. To achieve
         // this, we re-map the coordinates of the item's InteractionSource into the coordinates of
         // the indicator.
-        val deltaOffset: Offset
-        with(LocalDensity.current) {
-            val indicatorWidth = NavigationBarVerticalItemTokens.ActiveIndicatorWidth.roundToPx()
-            deltaOffset =
+        val density = LocalDensity.current
+        val calculateDeltaOffset = {
+            with(density) {
+                val indicatorWidth =
+                    NavigationBarVerticalItemTokens.ActiveIndicatorWidth.roundToPx()
                 Offset((itemWidth - indicatorWidth).toFloat() / 2, IndicatorVerticalOffset.toPx())
+            }
         }
         val offsetInteractionSource =
-            remember(interactionSource, deltaOffset) {
-                MappedInteractionSource(interactionSource, deltaOffset)
+            remember(interactionSource, calculateDeltaOffset) {
+                MappedInteractionSource(interactionSource, calculateDeltaOffset)
             }
 
         // The indicator has a width-expansion animation which interferes with the timing of the
