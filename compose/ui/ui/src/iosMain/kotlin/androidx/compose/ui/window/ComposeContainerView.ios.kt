@@ -24,6 +24,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.launch
 import platform.CoreGraphics.CGPoint
+import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectEqualToRect
 import platform.CoreGraphics.CGRectMake
 import platform.UIKit.UIColor
@@ -132,6 +133,20 @@ internal class ComposeContainerView(
         updateLayout()
     }
 
+    override fun drawRect(rect: CValue<CGRect>) {
+        if (needsSynchronousDraw) {
+            metalView?.redrawer?.draw(waitUntilCompletion = true)
+
+            needsSynchronousDraw = false
+        }
+
+        if (needsDisablePresentWithTransactionOnNextDraw) {
+            needsDisablePresentWithTransactionOnNextDraw = false
+            metalView?.redrawer?.isForcedToPresentWithTransactionEveryFrame = false
+            metalView?.redrawer?.ongoingInteractionEventsCount--
+        }
+    }
+
     override fun safeAreaInsetsDidChange() {
         super.safeAreaInsetsDidChange()
 
@@ -140,6 +155,27 @@ internal class ComposeContainerView(
 
     private fun updateRedrawerState() {
         metalView?.redrawer?.isActive = foregroundStateListener?.isSceneInForeground ?: false
+    }
+
+    /**
+     * Indicates that the view needs to be drawn synchronously with the next layout pass to avoid
+     * flickering.
+     */
+    private var needsSynchronousDraw = true
+
+    /**
+     * Flag indicating whether the `presentWithTransaction` feature of the render pipeline
+     * should be disabled for the next draw operation. It causes a resizing issues when disabling
+     * this feature before the next draw operation.
+     */
+    private var needsDisablePresentWithTransactionOnNextDraw = false
+
+    /**
+     * Raise the flag to indicate that the view needs to be drawn synchronously with the next layout.
+     */
+    private fun setNeedsSynchronousDraw() {
+        needsSynchronousDraw = true
+        setNeedsDisplay()
     }
 
     private fun updateLayout() {
@@ -154,16 +190,16 @@ internal class ComposeContainerView(
                 max(oldSize.height.value, newSize.height.value).toDouble()
             )
             if (!CGRectEqualToRect(metalView.frame, targetRect)) {
+                setNeedsSynchronousDraw()
                 performWithoutAnimation {
                     metalView.setFrame(targetRect)
-                    metalView.setNeedsSynchronousDrawOnNextLayout()
                 }
             }
         } else {
             if (!CGRectEqualToRect(metalView.frame, bounds)) {
+                setNeedsSynchronousDraw()
                 performWithoutAnimation {
                     metalView.setFrame(bounds)
-                    metalView.setNeedsSynchronousDrawOnNextLayout()
                 }
             }
         }
@@ -204,8 +240,8 @@ internal class ComposeContainerView(
                 isAnimating = false
                 updateLayout()
                 metalView.layoutIfNeeded()
-                metalView.redrawer.isForcedToPresentWithTransactionEveryFrame = false
-                metalView.redrawer.ongoingInteractionEventsCount--
+                needsDisablePresentWithTransactionOnNextDraw = true
+                setNeedsSynchronousDraw()
             }
         }
     }

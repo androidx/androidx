@@ -50,7 +50,7 @@ internal class MetalView(
         MTLCreateSystemDefaultDevice()
             ?: throw IllegalStateException("Metal is not supported on this system")
 
-    private val metalLayer: CAMetalLayer get() = layer as CAMetalLayer
+    val metalLayer: CAMetalLayer get() = layer as CAMetalLayer
     private var canvasBackground: Int = Color.TRANSPARENT
 
     val redrawer = MetalRedrawer(
@@ -71,19 +71,6 @@ internal class MetalView(
             redrawer.canBeOpaque = value
             updateCanvasBackgroundColor()
         }
-
-    /**
-     * Indicates that the view needs to be drawn synchronously with the next layout pass to avoid
-     * flickering.
-     */
-    private var needsSynchronousDraw = true
-
-    /**
-     * Raise the flag to indicate that the view needs to be drawn synchronously with the next layout.
-     */
-    fun setNeedsSynchronousDrawOnNextLayout() {
-        needsSynchronousDraw = true
-    }
 
     init {
         userInteractionEnabled = false
@@ -131,8 +118,6 @@ internal class MetalView(
         contentScaleFactor = screen.scale
         redrawer.maximumFramesPerSecond = screen.maximumFramesPerSecond
         redrawer.preferredFramesPerSecond = screen.maximumFramesPerSecond
-
-        updateMetalLayerSize()
     }
 
     override fun layoutSubviews() {
@@ -151,12 +136,6 @@ internal class MetalView(
                 width = size.width * contentScaleFactor,
                 height = size.height * contentScaleFactor
             )
-        }
-
-        if (needsSynchronousDraw) {
-            redrawer.draw(waitUntilCompletion = true)
-
-            needsSynchronousDraw = false
         }
     }
 
