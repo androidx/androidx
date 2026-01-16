@@ -94,4 +94,8 @@ internal fun PlatformInsets.toWindowInsets(): WindowInsets = object : WindowInse
     override fun getTop(density: Density): Int = top
     override fun getRight(density: Density, layoutDirection: LayoutDirection): Int = right
     override fun getBottom(density: Density): Int = bottom
+
+    override fun toString(): String {
+        return "PlatformInsets.toWindowInsets(getLeft=$left, getTop=$top, getRight=$right, getBottom=$bottom)"
+    }
 }
