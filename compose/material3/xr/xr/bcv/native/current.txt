@@ -1,0 +1,140 @@
+// Klib ABI Dump
+// Targets: [linuxX64.linuxx64Stubs]
+// Rendering settings:
+// - Signature version: 2
+// - Show manifest properties: true
+// - Show declarations: true
+
+// Library unique name: <androidx.compose.material3.xr:xr>
+abstract interface androidx.compose.material3.xr.stub/XrHorizontalOrbiterStub { // androidx.compose.material3.xr.stub/XrHorizontalOrbiterStub|null[0]
+    abstract fun Orbiter(androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.material3.xr.stub/XrHorizontalOrbiterStub.Orbiter|Orbiter(androidx.compose.material3.xr.spatial.HorizontalOrbiterProperties;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+}
+
+abstract interface androidx.compose.material3.xr.stub/XrVerticalOrbiterStub { // androidx.compose.material3.xr.stub/XrVerticalOrbiterStub|null[0]
+    abstract fun Orbiter(androidx.compose.material3.xr.spatial/VerticalOrbiterProperties, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.material3.xr.stub/XrVerticalOrbiterStub.Orbiter|Orbiter(androidx.compose.material3.xr.spatial.VerticalOrbiterProperties;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+}
+
+abstract interface androidx.compose.material3.xr/XrStubs { // androidx.compose.material3.xr/XrStubs|null[0]
+    abstract fun horizontalOrbiterStub(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr.stub/XrHorizontalOrbiterStub? // androidx.compose.material3.xr/XrStubs.horizontalOrbiterStub|horizontalOrbiterStub(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    abstract fun verticalOrbiterStub(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr.stub/XrVerticalOrbiterStub? // androidx.compose.material3.xr/XrStubs.verticalOrbiterStub|verticalOrbiterStub(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+
+    final object Companion { // androidx.compose.material3.xr/XrStubs.Companion|null[0]
+        final fun Set(androidx.compose.material3.xr/XrStubs?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.material3.xr/XrStubs.Companion.Set|Set(androidx.compose.material3.xr.XrStubs?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+        final fun get(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr/XrStubs // androidx.compose.material3.xr/XrStubs.Companion.get|get(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    }
+}
+
+sealed interface androidx.compose.material3.xr.spatial/ContentEdge { // androidx.compose.material3.xr.spatial/ContentEdge|null[0]
+    final class Horizontal : androidx.compose.material3.xr.spatial/ContentEdge { // androidx.compose.material3.xr.spatial/ContentEdge.Horizontal|null[0]
+        final fun toString(): kotlin/String // androidx.compose.material3.xr.spatial/ContentEdge.Horizontal.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.material3.xr.spatial/ContentEdge.Horizontal.Companion|null[0]
+            final val Bottom // androidx.compose.material3.xr.spatial/ContentEdge.Horizontal.Companion.Bottom|{}Bottom[0]
+                final fun <get-Bottom>(): androidx.compose.material3.xr.spatial/ContentEdge.Horizontal // androidx.compose.material3.xr.spatial/ContentEdge.Horizontal.Companion.Bottom.<get-Bottom>|<get-Bottom>(){}[0]
+            final val Top // androidx.compose.material3.xr.spatial/ContentEdge.Horizontal.Companion.Top|{}Top[0]
+                final fun <get-Top>(): androidx.compose.material3.xr.spatial/ContentEdge.Horizontal // androidx.compose.material3.xr.spatial/ContentEdge.Horizontal.Companion.Top.<get-Top>|<get-Top>(){}[0]
+        }
+    }
+
+    final class Vertical : androidx.compose.material3.xr.spatial/ContentEdge { // androidx.compose.material3.xr.spatial/ContentEdge.Vertical|null[0]
+        final fun toString(): kotlin/String // androidx.compose.material3.xr.spatial/ContentEdge.Vertical.toString|toString(){}[0]
+
+        final object Companion { // androidx.compose.material3.xr.spatial/ContentEdge.Vertical.Companion|null[0]
+            final val End // androidx.compose.material3.xr.spatial/ContentEdge.Vertical.Companion.End|{}End[0]
+                final fun <get-End>(): androidx.compose.material3.xr.spatial/ContentEdge.Vertical // androidx.compose.material3.xr.spatial/ContentEdge.Vertical.Companion.End.<get-End>|<get-End>(){}[0]
+            final val Start // androidx.compose.material3.xr.spatial/ContentEdge.Vertical.Companion.Start|{}Start[0]
+                final fun <get-Start>(): androidx.compose.material3.xr.spatial/ContentEdge.Vertical // androidx.compose.material3.xr.spatial/ContentEdge.Vertical.Companion.Start.<get-Start>|<get-Start>(){}[0]
+        }
+    }
+
+    final object Companion { // androidx.compose.material3.xr.spatial/ContentEdge.Companion|null[0]
+        final val Bottom // androidx.compose.material3.xr.spatial/ContentEdge.Companion.Bottom|{}Bottom[0]
+            final fun <get-Bottom>(): androidx.compose.material3.xr.spatial/ContentEdge.Horizontal // androidx.compose.material3.xr.spatial/ContentEdge.Companion.Bottom.<get-Bottom>|<get-Bottom>(){}[0]
+        final val End // androidx.compose.material3.xr.spatial/ContentEdge.Companion.End|{}End[0]
+            final fun <get-End>(): androidx.compose.material3.xr.spatial/ContentEdge.Vertical // androidx.compose.material3.xr.spatial/ContentEdge.Companion.End.<get-End>|<get-End>(){}[0]
+        final val Start // androidx.compose.material3.xr.spatial/ContentEdge.Companion.Start|{}Start[0]
+            final fun <get-Start>(): androidx.compose.material3.xr.spatial/ContentEdge.Vertical // androidx.compose.material3.xr.spatial/ContentEdge.Companion.Start.<get-Start>|<get-Start>(){}[0]
+        final val Top // androidx.compose.material3.xr.spatial/ContentEdge.Companion.Top|{}Top[0]
+            final fun <get-Top>(): androidx.compose.material3.xr.spatial/ContentEdge.Horizontal // androidx.compose.material3.xr.spatial/ContentEdge.Companion.Top.<get-Top>|<get-Top>(){}[0]
+    }
+}
+
+abstract class androidx.compose.material3.xr.subspace.layout/SpatialShape // androidx.compose.material3.xr.subspace.layout/SpatialShape|null[0]
+
+final class androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties { // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties|null[0]
+    constructor <init>(androidx.compose.material3.xr.spatial/ContentEdge.Horizontal, androidx.compose.ui.unit/Dp = ..., androidx.compose.material3.xr.spatial/OrbiterOffsetType = ..., androidx.compose.ui/Alignment.Horizontal = ..., androidx.compose.material3.xr.subspace.layout/SpatialShape = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.<init>|<init>(androidx.compose.material3.xr.spatial.ContentEdge.Horizontal;androidx.compose.ui.unit.Dp;androidx.compose.material3.xr.spatial.OrbiterOffsetType;androidx.compose.ui.Alignment.Horizontal;androidx.compose.material3.xr.subspace.layout.SpatialShape;androidx.compose.ui.unit.Dp){}[0]
+
+    final val alignment // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.alignment|{}alignment[0]
+        final fun <get-alignment>(): androidx.compose.ui/Alignment.Horizontal // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.alignment.<get-alignment>|<get-alignment>(){}[0]
+    final val elevation // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.elevation|{}elevation[0]
+        final fun <get-elevation>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.elevation.<get-elevation>|<get-elevation>(){}[0]
+    final val offset // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.offset|{}offset[0]
+        final fun <get-offset>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.offset.<get-offset>|<get-offset>(){}[0]
+    final val offsetType // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.offsetType|{}offsetType[0]
+        final fun <get-offsetType>(): androidx.compose.material3.xr.spatial/OrbiterOffsetType // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.offsetType.<get-offsetType>|<get-offsetType>(){}[0]
+    final val position // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.position|{}position[0]
+        final fun <get-position>(): androidx.compose.material3.xr.spatial/ContentEdge.Horizontal // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.position.<get-position>|<get-position>(){}[0]
+    final val shape // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.shape|{}shape[0]
+        final fun <get-shape>(): androidx.compose.material3.xr.subspace.layout/SpatialShape // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.shape.<get-shape>|<get-shape>(){}[0]
+
+    final fun copy(androidx.compose.material3.xr.spatial/ContentEdge.Horizontal = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.material3.xr.spatial/OrbiterOffsetType = ..., androidx.compose.ui/Alignment.Horizontal = ..., androidx.compose.material3.xr.subspace.layout/SpatialShape = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.copy|copy(androidx.compose.material3.xr.spatial.ContentEdge.Horizontal;androidx.compose.ui.unit.Dp;androidx.compose.material3.xr.spatial.OrbiterOffsetType;androidx.compose.ui.Alignment.Horizontal;androidx.compose.material3.xr.subspace.layout.SpatialShape;androidx.compose.ui.unit.Dp){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.xr.spatial/HorizontalOrbiterProperties.hashCode|hashCode(){}[0]
+}
+
+final class androidx.compose.material3.xr.spatial/VerticalOrbiterProperties { // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties|null[0]
+    constructor <init>(androidx.compose.material3.xr.spatial/ContentEdge.Vertical, androidx.compose.ui.unit/Dp = ..., androidx.compose.material3.xr.spatial/OrbiterOffsetType = ..., androidx.compose.ui/Alignment.Vertical = ..., androidx.compose.material3.xr.subspace.layout/SpatialShape = ..., androidx.compose.ui.unit/Dp = ...) // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.<init>|<init>(androidx.compose.material3.xr.spatial.ContentEdge.Vertical;androidx.compose.ui.unit.Dp;androidx.compose.material3.xr.spatial.OrbiterOffsetType;androidx.compose.ui.Alignment.Vertical;androidx.compose.material3.xr.subspace.layout.SpatialShape;androidx.compose.ui.unit.Dp){}[0]
+
+    final val alignment // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.alignment|{}alignment[0]
+        final fun <get-alignment>(): androidx.compose.ui/Alignment.Vertical // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.alignment.<get-alignment>|<get-alignment>(){}[0]
+    final val elevation // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.elevation|{}elevation[0]
+        final fun <get-elevation>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.elevation.<get-elevation>|<get-elevation>(){}[0]
+    final val offset // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.offset|{}offset[0]
+        final fun <get-offset>(): androidx.compose.ui.unit/Dp // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.offset.<get-offset>|<get-offset>(){}[0]
+    final val offsetType // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.offsetType|{}offsetType[0]
+        final fun <get-offsetType>(): androidx.compose.material3.xr.spatial/OrbiterOffsetType // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.offsetType.<get-offsetType>|<get-offsetType>(){}[0]
+    final val position // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.position|{}position[0]
+        final fun <get-position>(): androidx.compose.material3.xr.spatial/ContentEdge.Vertical // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.position.<get-position>|<get-position>(){}[0]
+    final val shape // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.shape|{}shape[0]
+        final fun <get-shape>(): androidx.compose.material3.xr.subspace.layout/SpatialShape // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.shape.<get-shape>|<get-shape>(){}[0]
+
+    final fun copy(androidx.compose.material3.xr.spatial/ContentEdge.Vertical = ..., androidx.compose.ui.unit/Dp = ..., androidx.compose.material3.xr.spatial/OrbiterOffsetType = ..., androidx.compose.ui/Alignment.Vertical = ..., androidx.compose.material3.xr.subspace.layout/SpatialShape = ..., androidx.compose.ui.unit/Dp = ...): androidx.compose.material3.xr.spatial/VerticalOrbiterProperties // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.copy|copy(androidx.compose.material3.xr.spatial.ContentEdge.Vertical;androidx.compose.ui.unit.Dp;androidx.compose.material3.xr.spatial.OrbiterOffsetType;androidx.compose.ui.Alignment.Vertical;androidx.compose.material3.xr.subspace.layout.SpatialShape;androidx.compose.ui.unit.Dp){}[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.xr.spatial/VerticalOrbiterProperties.hashCode|hashCode(){}[0]
+}
+
+final class androidx.compose.material3.xr.subspace.layout/SpatialRoundedCornerShape : androidx.compose.material3.xr.subspace.layout/SpatialShape { // androidx.compose.material3.xr.subspace.layout/SpatialRoundedCornerShape|null[0]
+    constructor <init>(androidx.compose.foundation.shape/CornerSize) // androidx.compose.material3.xr.subspace.layout/SpatialRoundedCornerShape.<init>|<init>(androidx.compose.foundation.shape.CornerSize){}[0]
+
+    final val size // androidx.compose.material3.xr.subspace.layout/SpatialRoundedCornerShape.size|{}size[0]
+        final fun <get-size>(): androidx.compose.foundation.shape/CornerSize // androidx.compose.material3.xr.subspace.layout/SpatialRoundedCornerShape.size.<get-size>|<get-size>(){}[0]
+}
+
+final value class androidx.compose.material3.xr.spatial/OrbiterOffsetType { // androidx.compose.material3.xr.spatial/OrbiterOffsetType|null[0]
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.compose.material3.xr.spatial/OrbiterOffsetType.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.compose.material3.xr.spatial/OrbiterOffsetType.hashCode|hashCode(){}[0]
+    final fun toString(): kotlin/String // androidx.compose.material3.xr.spatial/OrbiterOffsetType.toString|toString(){}[0]
+
+    final object Companion { // androidx.compose.material3.xr.spatial/OrbiterOffsetType.Companion|null[0]
+        final val InnerEdge // androidx.compose.material3.xr.spatial/OrbiterOffsetType.Companion.InnerEdge|{}InnerEdge[0]
+            final fun <get-InnerEdge>(): androidx.compose.material3.xr.spatial/OrbiterOffsetType // androidx.compose.material3.xr.spatial/OrbiterOffsetType.Companion.InnerEdge.<get-InnerEdge>|<get-InnerEdge>(){}[0]
+        final val OuterEdge // androidx.compose.material3.xr.spatial/OrbiterOffsetType.Companion.OuterEdge|{}OuterEdge[0]
+            final fun <get-OuterEdge>(): androidx.compose.material3.xr.spatial/OrbiterOffsetType // androidx.compose.material3.xr.spatial/OrbiterOffsetType.Companion.OuterEdge.<get-OuterEdge>|<get-OuterEdge>(){}[0]
+        final val Overlap // androidx.compose.material3.xr.spatial/OrbiterOffsetType.Companion.Overlap|{}Overlap[0]
+            final fun <get-Overlap>(): androidx.compose.material3.xr.spatial/OrbiterOffsetType // androidx.compose.material3.xr.spatial/OrbiterOffsetType.Companion.Overlap.<get-Overlap>|<get-Overlap>(){}[0]
+    }
+}
+
+final val androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Horizontal$stableprop // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Horizontal$stableprop|#static{}androidx_compose_material3_xr_spatial_ContentEdge_Horizontal$stableprop[0]
+final val androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Vertical$stableprop // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Vertical$stableprop|#static{}androidx_compose_material3_xr_spatial_ContentEdge_Vertical$stableprop[0]
+final val androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_HorizontalOrbiterProperties$stableprop // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_HorizontalOrbiterProperties$stableprop|#static{}androidx_compose_material3_xr_spatial_HorizontalOrbiterProperties$stableprop[0]
+final val androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_VerticalOrbiterProperties$stableprop // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_VerticalOrbiterProperties$stableprop|#static{}androidx_compose_material3_xr_spatial_VerticalOrbiterProperties$stableprop[0]
+final val androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialRoundedCornerShape$stableprop // androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialRoundedCornerShape$stableprop|#static{}androidx_compose_material3_xr_subspace_layout_SpatialRoundedCornerShape$stableprop[0]
+final val androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialShape$stableprop // androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialShape$stableprop|#static{}androidx_compose_material3_xr_subspace_layout_SpatialShape$stableprop[0]
+
+final fun androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Horizontal$stableprop_getter(): kotlin/Int // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Horizontal$stableprop_getter|androidx_compose_material3_xr_spatial_ContentEdge_Horizontal$stableprop_getter(){}[0]
+final fun androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Vertical$stableprop_getter(): kotlin/Int // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_ContentEdge_Vertical$stableprop_getter|androidx_compose_material3_xr_spatial_ContentEdge_Vertical$stableprop_getter(){}[0]
+final fun androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_HorizontalOrbiterProperties$stableprop_getter(): kotlin/Int // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_HorizontalOrbiterProperties$stableprop_getter|androidx_compose_material3_xr_spatial_HorizontalOrbiterProperties$stableprop_getter(){}[0]
+final fun androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_VerticalOrbiterProperties$stableprop_getter(): kotlin/Int // androidx.compose.material3.xr.spatial/androidx_compose_material3_xr_spatial_VerticalOrbiterProperties$stableprop_getter|androidx_compose_material3_xr_spatial_VerticalOrbiterProperties$stableprop_getter(){}[0]
+final fun androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialRoundedCornerShape$stableprop_getter(): kotlin/Int // androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialRoundedCornerShape$stableprop_getter|androidx_compose_material3_xr_subspace_layout_SpatialRoundedCornerShape$stableprop_getter(){}[0]
+final fun androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialShape$stableprop_getter(): kotlin/Int // androidx.compose.material3.xr.subspace.layout/androidx_compose_material3_xr_subspace_layout_SpatialShape$stableprop_getter|androidx_compose_material3_xr_subspace_layout_SpatialShape$stableprop_getter(){}[0]

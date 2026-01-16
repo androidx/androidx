@@ -60,10 +60,9 @@ public class GltfEntityImplTest {
     private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
     private final EntityManager mEntityManager = new EntityManager();
     private final FakeScheduledExecutorService mExecutor = new FakeScheduledExecutorService();
+    private final GltfFeature mMockGltfFeature = Mockito.mock(GltfFeature.class);
     private ActivitySpaceImpl mActivitySpace;
     private GltfEntityImpl mGltfEntity;
-    private GltfFeature mFakeGltfFeature;
-    private final GltfFeature mMockGltfFeature = Mockito.mock(GltfFeature.class);
 
     @Before
     public void setUp() {
@@ -85,8 +84,7 @@ public class GltfEntityImplTest {
                         () -> mXrExtensions.getSpatialState(activity),
                         /* unscaledGravityAlignedActivitySpace= */ false,
                         mExecutor);
-        mEntityManager.addSystemSpaceActivityPose(
-                new PerceptionSpaceScenePoseImpl(mActivitySpace, mActivitySpace));
+        mEntityManager.addSystemSpaceActivityPose(new PerceptionSpaceScenePoseImpl(mActivitySpace));
 
         mGltfEntity = createGltfEntity(activity);
     }
@@ -99,12 +97,12 @@ public class GltfEntityImplTest {
 
     private GltfEntityImpl createGltfEntity(Activity activity) {
         NodeHolder<?> nodeHolder = new NodeHolder<>(mXrExtensions.createNode(), Node.class);
-        mFakeGltfFeature =
+        GltfFeature fakeGltfFeature =
                 FakeGltfFeature.Companion.createWithMockFeature(mMockGltfFeature, nodeHolder);
 
         return new GltfEntityImpl(
                 activity,
-                mFakeGltfFeature,
+                fakeGltfFeature,
                 mActivitySpace,
                 mXrExtensions,
                 mEntityManager,
@@ -166,7 +164,7 @@ public class GltfEntityImplTest {
     }
 
     @Test
-    public void setMaterialOverrideGltfEntity_materialOverridesNode() throws Exception {
+    public void setMaterialOverrideGltfEntity_materialOverridesNode() {
         MaterialResource material = Mockito.mock(MaterialResource.class);
         String nodeName = "fake_node_name";
         int primitiveIndex = 0;
@@ -177,7 +175,7 @@ public class GltfEntityImplTest {
     }
 
     @Test
-    public void clearMaterialOverrideGltfEntity_clearsMaterialOverride() throws Exception {
+    public void clearMaterialOverrideGltfEntity_clearsMaterialOverride() {
         String nodeName = "fake_node_name";
         int primitiveIndex = 0;
 

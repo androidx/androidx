@@ -178,6 +178,7 @@ public fun ButtonGroup(
                 placeable.measure(constraints.copy(minWidth = widths[ix], maxWidth = widths[ix]))
             }
 
+        @Suppress("ListIterator")
         val height =
             (placeables.fastMap { it.height }.max()).coerceIn(
                 constraints.minHeight,
@@ -478,6 +479,7 @@ private data class ComputeHelper(
  * @param spacingPx the spacing between items, in pixels
  * @param availableWidth the total available space.
  */
+@Suppress("ListIterator")
 @VisibleForTesting
 internal fun computeWidths(
     items: List<Pair<Float, Float>>,

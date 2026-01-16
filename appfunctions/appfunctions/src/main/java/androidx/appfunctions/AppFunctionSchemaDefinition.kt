@@ -23,8 +23,8 @@ import androidx.appfunctions.metadata.AppFunctionSchemaMetadata
  *
  * The provided metadata will be stored in AppSearch when indexing App Functions. Agents can then
  * retrieve this metadata as an [AppFunctionSchemaMetadata] object by calling
- * [AppFunctionManagerCompat.observeAppFunctions]. Agent developers can define and share these
- * annotated App Function schemas as an SDK with app developers.
+ * [AppFunctionManager.observeAppFunctions]. Agent developers can define and share these annotated
+ * App Function schemas as an SDK with app developers.
  *
  * A pre-defined schema outlines an App Function's capabilities, including its parameters and return
  * type. Knowing the schema in advance allows agents to perform tasks like model fine-tuning for

@@ -346,9 +346,11 @@ import java.util.Set;
         mCallbackHandler.post(CallbackHandler.MSG_ROUTER_PARAMS_CHANGED, params);
     }
 
+    // mMr2Provider is not null only for R+ device.
+    @SuppressLint("NewApi")
     /* package */ void setRouteListingPreference(
             @Nullable RouteListingPreference routeListingPreference) {
-        if (mMr2Provider != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        if (mMr2Provider != null) {
             mMr2Provider.setRouteListingPreference(routeListingPreference);
         }
     }

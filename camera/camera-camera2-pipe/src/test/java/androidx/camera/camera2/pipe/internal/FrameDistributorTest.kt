@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.FrameReference
 import androidx.camera.camera2.pipe.FrameReference.Companion.acquire
+import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
@@ -43,13 +44,21 @@ import org.robolectric.annotation.Config
 
 /** Tests for [FrameDistributor] */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.ALL_SDKS])
+@Config(sdk = [Config.NEWEST_SDK])
 class FrameDistributorTest {
 
     private val stream1Config =
-        CameraStream.Config.create(Size(1280, 720), StreamFormat.YUV_420_888)
+        CameraStream.Config.create(
+            Size(1280, 720),
+            StreamFormat.YUV_420_888,
+            imageSourceConfig = ImageSourceConfig(5),
+        )
     private val stream2Config =
-        CameraStream.Config.create(Size(1920, 1080), StreamFormat.YUV_420_888)
+        CameraStream.Config.create(
+            Size(1920, 1080),
+            StreamFormat.YUV_420_888,
+            imageSourceConfig = ImageSourceConfig(5),
+        )
     private val streamConfigs = listOf(stream1Config, stream2Config)
 
     private val imageSimulator = ImageSimulator(streamConfigs)
@@ -73,13 +82,13 @@ class FrameDistributorTest {
     private val fakeFrameBuffer = FakeFrameBuffer()
     private val frameCaptureQueue = FrameCaptureQueue()
     private val frameDistributor =
-        FrameDistributor(imageSimulator.imageSources, frameCaptureQueue).also {
+        FrameDistributor(imageSimulator.streamGraph, frameCaptureQueue, true, 0L).also {
             it.frameStartedListener = fakeFrameBuffer
         }
 
     @Test
     fun frameDistributorSetupVerification() {
-        assertThat(imageSimulator.imageSources.keys).containsExactly(stream1Id, stream2Id)
+        assertThat(imageSimulator.streamGraph.streamIds).containsExactly(stream1Id, stream2Id)
         assertThat(imageSimulator.streamToSurfaceMap.keys).containsExactly(stream1Id, stream2Id)
     }
 

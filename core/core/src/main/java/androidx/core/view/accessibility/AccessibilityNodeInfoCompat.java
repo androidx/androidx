@@ -6297,7 +6297,9 @@ public class AccessibilityNodeInfoCompat {
             List<AccessibilityNodeInfo> labels = info.getLabeledByList();
             List<AccessibilityNodeInfoCompat> compatLabels = new ArrayList<>(labels.size());
             for (AccessibilityNodeInfo labeledByInfo : labels) {
-                compatLabels.add(AccessibilityNodeInfoCompat.wrap(labeledByInfo));
+                if (labeledByInfo != null) {
+                    compatLabels.add(AccessibilityNodeInfoCompat.wrap(labeledByInfo));
+                }
             }
             return compatLabels;
         }

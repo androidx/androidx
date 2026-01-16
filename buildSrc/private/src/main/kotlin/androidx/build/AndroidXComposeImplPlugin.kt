@@ -63,7 +63,8 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
 
     companion object {
         private fun Project.configureAndroidCommonOptions(lint: Lint) {
-            val isPublished = androidXExtension.shouldPublish()
+            val isPublished = androidXExtension.shouldPublish.get()
+            val type = androidXExtension.type.get()
 
             lint.apply {
                 // These lint checks are normally a warning (or lower), but we ignore (in
@@ -95,12 +96,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                     disable.add("ListIterator")
                 }
 
-                // If the ComposeTestRuleDispatcher lint rule isn't disabled in the module's
-                // build.gradle file, it will be added to the error set.
-                if (!disable.contains("ComposeTestRuleDispatcher")) {
-                    error.add("ComposeTestRuleDispatcher")
-                }
-
                 // b/333784604 Disable ConfigurationScreenWidthHeight for wear libraries, it
                 // does not apply to wear
                 if (path.startsWith(":wear:")) {
@@ -108,7 +103,7 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 }
 
                 // These checks are not required for samples projects.
-                if (androidXExtension.type == SoftwareType.SAMPLES) {
+                if (type == SoftwareType.SAMPLES) {
                     disable.add("ListIterator")
                     disable.add("PrimitiveInCollection")
                 }
@@ -116,11 +111,14 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 // Disable lambda creation in subcompose check in projects where we're less
                 // concerned about performance.
                 if (
-                    androidXExtension.type == SoftwareType.TEST_APPLICATION ||
-                        androidXExtension.type == SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY ||
-                        androidXExtension.type == SoftwareType.PUBLISHED_TEST_LIBRARY ||
-                        androidXExtension.type == SoftwareType.SAMPLES ||
-                        androidXExtension.type == SoftwareType.UNSET
+                    type in
+                        setOf(
+                            SoftwareType.TEST_APPLICATION,
+                            SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY,
+                            SoftwareType.PUBLISHED_TEST_LIBRARY,
+                            SoftwareType.SAMPLES,
+                            SoftwareType.UNSET,
+                        )
                 ) {
                     disable.add("ComposableLambdaInMeasurePolicy")
                 }

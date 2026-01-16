@@ -61,6 +61,10 @@ androidXMultiplatform {
             implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
         }
 
+        nonAndroidMain.dependsOn(commonMain)
+        jvmStubsMain.dependsOn(nonAndroidMain)
+        linuxx64StubsMain.dependsOn(nonAndroidMain)
+
         commonTest.dependencies {
             implementation(project(":kruth:kruth"))
         }

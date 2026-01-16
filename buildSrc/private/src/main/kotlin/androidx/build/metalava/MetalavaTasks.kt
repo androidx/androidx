@@ -56,11 +56,13 @@ internal object MetalavaTasks {
         // implemented by excluding APIs with this annotation from the restricted API file.
         val generateRestrictToLibraryGroupAPIs = !extension.mavenGroup!!.requireSameVersion
         val kotlinSourceLevel: Provider<KotlinVersion> = extension.kotlinApiVersion
-        val targetsJavaConsumers = !extension.type.targetsKotlinConsumersOnly
+        val targetsJavaConsumers = extension.type.map { !it.targetsKotlinConsumersOnly }
         // For a KMP project, only use multiplatform metalava if K2 is also used as K1 metalava does
         // not support multiplatform.
         val multiplatform =
-            compilationInputs is MultiplatformCompilationInputs && extension.metalavaK2UastEnabled
+            extension.metalavaK2UastEnabled.map {
+                it && compilationInputs is MultiplatformCompilationInputs
+            }
         val generateApi =
             project.tasks.register("generateApi", GenerateApiTask::class.java) { task ->
                 task.group = "API"

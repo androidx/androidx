@@ -28,10 +28,14 @@ import javax.crypto.Cipher;
 import javax.crypto.Mac;
 
 /**
- * Stubs for FingerprintManager.
+ * THIS IS A STUB. DO NOT USE.
+ *
+ * <p>These are not the real APIs. These stubs are used only for compilation of the biometric
+ * library and not to be used by apps.
  */
 public class FingerprintManager {
     /** stub */
+    @SuppressWarnings({"ListenerLast", "ExecutorRegistration"}) // override framework API
     public void authenticate(@Nullable CryptoObject crypto, @Nullable CancellationSignal cancel,
             int flags, @NonNull AuthenticationCallback callback, @Nullable Handler handler) {
         throw new UnsupportedOperationException();
@@ -47,7 +51,12 @@ public class FingerprintManager {
         throw new UnsupportedOperationException();
     }
 
-    /** stub */
+    /**
+     * THIS IS A STUB. DO NOT USE.
+     *
+     * <p>These are not the real APIs. These stubs are used only for compilation of the biometric
+     * library and not to be used by apps.
+     */
     public static final class CryptoObject {
         /** stub */
         public CryptoObject(@NonNull Signature signature) {
@@ -80,7 +89,12 @@ public class FingerprintManager {
         }
     }
 
-    /** stub */
+    /**
+     * THIS IS A STUB. DO NOT USE.
+     *
+     * <p>These are not the real APIs. These stubs are used only for compilation of the biometric
+     * library and not to be used by apps.
+     */
     public static class AuthenticationResult {
         /** stub */
         @NonNull
@@ -89,7 +103,12 @@ public class FingerprintManager {
         }
     }
 
-    /** stub */
+    /**
+     * THIS IS A STUB. DO NOT USE.
+     *
+     * <p>These are not the real APIs. These stubs are used only for compilation of the biometric
+     * library and not to be used by apps.
+     */
     public abstract static class AuthenticationCallback {
         /** stub */
         public void onAuthenticationError(int errorCode, @NonNull CharSequence errString) {

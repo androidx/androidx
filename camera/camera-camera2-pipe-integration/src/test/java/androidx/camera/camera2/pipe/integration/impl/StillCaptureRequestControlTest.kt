@@ -88,7 +88,8 @@ class StillCaptureRequestControlTest {
 
     private val fakeState3AControl: State3AControl =
         FakeState3AControlCreator.createState3AControl(
-            requestControl = FakeUseCaseCameraRequestControl()
+            requestControl = FakeUseCaseCameraRequestControl(),
+            threads = fakeUseCaseThreads,
         )
 
     private lateinit var useCaseCameraRequestControl: UseCaseCameraRequestControl
@@ -464,7 +465,7 @@ class StillCaptureRequestControlTest {
             )
         useCaseCameraRequestControl =
             UseCaseCameraRequestControlImpl(
-                capturePipeline =
+                capturePipelineProvider = {
                     CapturePipelineImpl(
                         configAdapter = fakeConfigAdapter,
                         cameraProperties = fakeCameraProperties,
@@ -472,7 +473,7 @@ class StillCaptureRequestControlTest {
                         threads = fakeUseCaseThreads,
                         torchControl = torchControl,
                         useCaseGraphContext = fakeUseCaseGraphContext,
-                        useCaseCameraState = fakeUseCaseCameraState,
+                        useCaseCameraStateProvider = { fakeUseCaseCameraState },
                         useTorchAsFlash = NotUseTorchAsFlash,
                         flashControl =
                             FlashControl(
@@ -483,10 +484,11 @@ class StillCaptureRequestControlTest {
                                 useFlashModeTorchFor3aUpdate = NotUseFlashModeTorchFor3aUpdate,
                             ),
                         videoUsageControl = VideoUsageControl(),
-                    ),
-                state = fakeUseCaseCameraState,
+                    )
+                },
+                useCaseCameraStateProvider = { fakeUseCaseCameraState },
                 useCaseGraphContext = fakeUseCaseGraphContext,
-                useCaseSurfaceManager = useCaseSurfaceManager,
+                useCaseSurfaceManagerProvider = { useCaseSurfaceManager },
                 threads = fakeUseCaseThreads,
             )
     }

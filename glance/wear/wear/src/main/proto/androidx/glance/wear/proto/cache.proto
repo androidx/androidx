@@ -1,0 +1,39 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto3";
+
+package androidx.glance.wear.proto;
+
+
+// The spec for a widget container.
+message WidgetContainerSpecProto {
+  // The width of the content area in dp.
+  float width_dp = 1;
+
+  // The height of the content area in dp.
+  float height_dp = 2;
+}
+
+// A cache of widget container specs, keyed by container type.
+message WearWidgetCacheProto {
+  // The cached specs for widget containers.
+  map<int32, WidgetContainerSpecProto> container_type_to_spec = 1;
+
+  // The cached association between instanceId (flattened) to containerType.
+  map<string, int32> instance_id_to_type = 2;
+}
+

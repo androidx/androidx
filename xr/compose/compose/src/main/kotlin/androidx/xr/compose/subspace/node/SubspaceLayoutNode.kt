@@ -370,8 +370,8 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
         override val pose: Pose
             get() = layoutPose ?: Pose.Identity
 
-        override val poseInParentEntity: Pose
-            get() = coordinatesInParentEntity?.poseInParentEntity?.compose(pose) ?: pose
+        override val poseInParent: Pose
+            get() = coordinatesInParentEntity?.poseInParent?.compose(pose) ?: pose
 
         /** The position of this node relative to the root of this Compose hierarchy, in pixels. */
         override val poseInRoot: Pose
@@ -507,14 +507,13 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
 
             subspaceMeasureResult?.placeChildren(
                 object : SubspacePlacementScope() {
+                    override val parentLayoutDirection = this@SubspaceLayoutNode.layoutDirection
                     override val coordinates = this@SubspaceMeasurableLayout
                 }
             )
 
             // Call coordinates-aware callbacks after the node and its children are placed.
-            nodes.getAll<LayoutCoordinatesAwareModifierNode>().forEach {
-                it.onLayoutCoordinates(this)
-            }
+            nodes.getAll<SubspaceLayoutAwareModifierNode>().forEach { it.onPlaced(this) }
 
             this@SubspaceLayoutNode.layoutPending = false
             layoutState = LayoutState.Idle

@@ -19,9 +19,6 @@ package androidx.webgpu
 import dalvik.annotation.optimization.FastNative
 import java.nio.ByteBuffer
 import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Used to submit recorded command buffers to the GPU for execution. */
 public class GPUQueue private constructor(public val handle: Long) : AutoCloseable {
@@ -30,24 +27,13 @@ public class GPUQueue private constructor(public val handle: Long) : AutoCloseab
     @JvmName("onSubmittedWorkDone")
     public external fun onSubmittedWorkDone(
         callbackExecutor: java.util.concurrent.Executor,
-        callback: QueueWorkDoneCallback,
+        callback: GPURequestCallback<Unit>,
     ): Unit
 
     /** Registers a callback to be invoked when all previously submitted work completes. */
     @Throws(WebGpuException::class)
-    public suspend fun onSubmittedWorkDone(): Unit = suspendCancellableCoroutine {
-        onSubmittedWorkDone(
-            Executor(Runnable::run),
-            { status, message ->
-                if (!it.isActive) {
-                    // Coroutine was aborted.
-                } else if (status != Status.Success) {
-                    it.resumeWithException(WebGpuException(status = status, reason = message))
-                } else {
-                    it.resume(Unit)
-                }
-            },
-        )
+    public suspend fun onSubmittedWorkDone(): Unit = awaitGPURequest { callback ->
+        onSubmittedWorkDone(Executor(Runnable::run), callback)
     }
 
     /**

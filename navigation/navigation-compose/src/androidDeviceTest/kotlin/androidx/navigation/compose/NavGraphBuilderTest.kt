@@ -19,7 +19,7 @@ package androidx.navigation.compose
 import android.net.Uri
 import android.os.Bundle
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.core.net.toUri
 import androidx.navigation.NavDeepLinkRequest
 import androidx.navigation.NavGraph

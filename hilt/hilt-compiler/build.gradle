@@ -43,7 +43,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     // TODO(b/438455972): Use ToT of compiler-processing-testing
-    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0")
     testImplementation(libs.hiltCore)
     testImplementationAarAsJar(project(":hilt:hilt-work"))
     testImplementation(SdkHelperKt.getSdkDependency(project))

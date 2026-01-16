@@ -30,8 +30,7 @@ public abstract class Material extends BindingsResource implements MaterialResou
         super(
                 impressApi.getBindingsResourceManager(),
                 nativeMaterial,
-                (handle) -> impressApi.destroyNativeObject(handle)
-        );
+                impressApi::destroyNativeObject);
         mImpressApi = impressApi;
     }
 

@@ -1,6 +1,6 @@
 // Baseline format: 1.0
 DefaultValueChange: androidx.navigation.NavController#popBackStack(boolean, boolean) parameter #1:
-    Source breaking change: Attempted to remove default value from parameter saveState in androidx.navigation.NavController.popBackStack
+    Source breaking change: Attempted to remove default value from parameter saveState in androidx.navigation.NavController.popBackStack(boolean inclusive, boolean saveState)
 
 
 RemovedFromBytecode: androidx.navigation.ActivityNavArgsLazyKt#navArgs(android.app.Activity):
@@ -87,3 +87,13 @@ RemovedFromKotlin: androidx.navigation.NavController#setGraph(androidx.navigatio
     Source breaking change: method androidx.navigation.NavController.setGraph(androidx.navigation.NavGraph) can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.navigation.NavHost#getNavController():
     Source breaking change: method androidx.navigation.NavHost.getNavController() can no longer be resolved from Kotlin source
+
+
+RemovedProperty: androidx.navigation.NavController.Companion#KEY_DEEP_LINK_ARGS:
+    Source breaking change: Removed property androidx.navigation.NavController.Companion#KEY_DEEP_LINK_ARGS
+RemovedProperty: androidx.navigation.NavController.Companion#KEY_DEEP_LINK_EXTRAS:
+    Source breaking change: Removed property androidx.navigation.NavController.Companion#KEY_DEEP_LINK_EXTRAS
+RemovedProperty: androidx.navigation.NavController.Companion#KEY_DEEP_LINK_HANDLED:
+    Source breaking change: Removed property androidx.navigation.NavController.Companion#KEY_DEEP_LINK_HANDLED
+RemovedProperty: androidx.navigation.NavController.Companion#KEY_DEEP_LINK_IDS:
+    Source breaking change: Removed property androidx.navigation.NavController.Companion#KEY_DEEP_LINK_IDS

@@ -19,11 +19,13 @@ package androidx.pdf.adapter
 import android.os.ParcelFileDescriptor
 
 class FakePdfDocumentRenderer(
-    override val isLinearized: Boolean,
-    override val pageCount: Int,
-    override val formType: Int,
+    override val isLinearized: Boolean = false,
+    override val pageCount: Int = 10,
+    override val formType: Int = 0,
 ) : PdfDocumentRenderer {
-    private val fakePagesMap = mutableMapOf<Int, PdfPage>()
+    val fakePagesMap = mutableMapOf<Int, FakePdfPage>()
+
+    var isClosed = false
 
     init {
         for (pageNum in 0 until pageCount) fakePagesMap[pageNum] = FakePdfPage(pageNum, 100, 100)
@@ -40,6 +42,6 @@ class FakePdfDocumentRenderer(
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        isClosed = true
     }
 }

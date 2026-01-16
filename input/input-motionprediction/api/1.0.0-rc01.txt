@@ -1,0 +1,11 @@
+// Signature format: 4.0
+package androidx.input.motionprediction {
+
+  public interface MotionEventPredictor {
+    method public static androidx.input.motionprediction.MotionEventPredictor newInstance(android.view.View);
+    method public android.view.MotionEvent? predict();
+    method public void record(android.view.MotionEvent);
+  }
+
+}
+

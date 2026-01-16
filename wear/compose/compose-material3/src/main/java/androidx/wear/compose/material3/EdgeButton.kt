@@ -85,12 +85,18 @@ import kotlin.math.sqrt
  *
  * The [EdgeButton] has a special shape designed for the bottom of the screen, as it almost follows
  * the screen's curvature, so it should be allowed to take the full width and touch the bottom of
- * the screen. It has 4 standard sizes, taking 1 line of text for the extra small, 2 for small and
- * medium, and 3 for the large. See the standard values on [ButtonDefaults], and specify it using
- * the buttonSize parameter. Optionally, a single icon can be used instead of the text.
+ * the screen.
  *
  * This button represents the most important action on the screen, and must take the whole width of
  * the screen as well as being anchored to the screen bottom.
+ *
+ * When used with a list, such as [TransformingLazyColumn] or [ScalingLazyColumn], it is recommended
+ * to pass [EdgeButton] into the [ScreenScaffold]'s edgeButton slot, which grows and shrinks to take
+ * the available space after the scrollable content.
+ *
+ * [EdgeButton] has 4 standard sizes, taking 1 line of text for the extra small, 2 for small and
+ * medium, and 3 for the large. See the standard values on [ButtonDefaults], and specify it using
+ * the buttonSize parameter. Optionally, a single icon can be used instead of the text.
  *
  * [EdgeButton] takes the [ButtonDefaults.buttonColors] color scheme by default, with colored
  * background, contrasting content color and no border. This is a high-emphasis button for the
@@ -107,7 +113,12 @@ import kotlin.math.sqrt
  *
  * @sample androidx.wear.compose.material3.samples.EdgeButtonSample
  *
- * For a sample integrating with ScalingLazyColumn, see:
+ * Example of an EdgeButton with [TransformingLazyColumn] and [ScreenScaffold]:
+ *
+ * @sample androidx.wear.compose.material3.samples.ScaffoldWithTLCEdgeButtonSample
+ *
+ * Example of [EdgeButton] integrating with [ScalingLazyColumn], where it is recommended to pass
+ * autoCentering = null to achieve the correct spacing above the [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.EdgeButtonListSample
  * @param onClick Will be called when the user clicks the button

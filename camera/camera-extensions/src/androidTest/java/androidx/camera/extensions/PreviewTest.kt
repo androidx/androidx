@@ -24,7 +24,6 @@ import android.util.Size
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.Preview
-import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -56,7 +55,6 @@ import org.junit.runners.Parameterized
 class PreviewTest(
     private val implName: String,
     private val cameraXConfig: CameraXConfig,
-    private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
@@ -123,7 +121,6 @@ class PreviewTest(
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
@@ -152,9 +149,7 @@ class PreviewTest(
         val context: Context = ApplicationProvider.getApplicationContext()
 
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "cameraXConfig = {0}, implType = {2}, mode = {3}, facing = {4}"
-        )
+        @Parameterized.Parameters(name = "cameraXConfig = {0}, mode = {2}, facing = {3}")
         fun data(): Collection<Array<Any>> {
             return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
         }

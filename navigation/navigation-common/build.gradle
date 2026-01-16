@@ -68,6 +68,7 @@ androidXMultiplatform {
         commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(project(":kruth:kruth"))
+            implementation(project(":navigation:navigation-testing"))
         }
 
         nonAndroidMain.dependsOn(commonMain)
@@ -85,7 +86,6 @@ androidXMultiplatform {
         }
 
         androidHostTest.dependencies {
-            implementation(project(":navigation:navigation-testing"))
             implementation("androidx.arch.core:core-testing:2.2.0")
             implementation(libs.junit)
             implementation(libs.mockitoCore4)

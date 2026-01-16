@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo;
 import org.jspecify.annotations.NonNull;
 
 import java.util.concurrent.atomic.AtomicBoolean;
-
 import java.util.function.Consumer;
 
 /** Parent class for common bindings resource operations. */
@@ -47,9 +46,11 @@ public abstract class BindingsResource {
                 () -> {
                     if (sharedDestroyedState.compareAndSet(false, true)) {
                         // Not using mTAG to avoid holding a reference of the class in the callback.
-                        Log.d("BindingsResource", "Bindings resource with handle "
-                                + nativeHandle
-                                + " is destroyed via GC");
+                        Log.d(
+                                "BindingsResource",
+                                "Bindings resource with handle "
+                                        + nativeHandle
+                                        + " is destroyed via GC");
 
                         destroyer.accept(nativeHandle);
                     }
@@ -61,9 +62,9 @@ public abstract class BindingsResource {
     public final void destroy() {
         throwIfDestroyed();
         if (mIsDestroyed.compareAndSet(false, true)) {
-            Log.d(mTAG, "Bindings resource with handle "
-                    + mNativeHandle
-                    + " is explicitly destroyed");
+            Log.d(
+                    mTAG,
+                    "Bindings resource with handle " + mNativeHandle + " is explicitly destroyed");
             releaseBindingsResource(mNativeHandle);
         }
     }

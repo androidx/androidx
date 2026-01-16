@@ -258,7 +258,7 @@ internal class SubspaceModifierNodeChain(private val subspaceLayoutNode: Subspac
             subspaceLayoutNode.requestLayout()
         }
 
-        if (node is LayoutCoordinatesAwareModifierNode) {
+        if (node is SubspaceLayoutAwareModifierNode) {
             if (phase != Remove) {
                 // TODO(mrw): Don't do a full relayout, just dispatch the callbacks.
                 subspaceLayoutNode.requestLayout()

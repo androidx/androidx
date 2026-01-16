@@ -15,7 +15,7 @@
  */
 package androidx.wear.compose.material.samples
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.wear.compose.material.MaterialTheme
 import org.junit.Rule
 import org.junit.Test

@@ -34,8 +34,8 @@ package androidx.annotation {
     property public abstract String suggest;
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.FIELD}) public @interface ChecksAconfigFlag {
-    ctor @KotlinOnly public ChecksAconfigFlag(String value);
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.FIELD}) public @interface ChecksFlag {
+    ctor @KotlinOnly public ChecksFlag(String value);
     method @InaccessibleFromKotlin public abstract String value();
     property public abstract String value;
   }
@@ -150,8 +150,8 @@ package androidx.annotation {
   @Deprecated @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER}) public @interface InspectableProperty {
     ctor @KotlinOnly @Deprecated public InspectableProperty(optional String name, optional int attributeId, optional boolean hasAttributeId, optional androidx.annotation.InspectableProperty.ValueType valueType, optional androidx.annotation.InspectableProperty.EnumEntry[] enumMapping, optional androidx.annotation.InspectableProperty.FlagEntry[] flagMapping);
     method @InaccessibleFromKotlin @Deprecated public abstract int attributeId() default 0;
-    method @InaccessibleFromKotlin @Deprecated public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping();
-    method @InaccessibleFromKotlin @Deprecated public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping();
+    method @InaccessibleFromKotlin @Deprecated public abstract androidx.annotation.InspectableProperty.EnumEntry[] enumMapping() default {};
+    method @InaccessibleFromKotlin @Deprecated public abstract androidx.annotation.InspectableProperty.FlagEntry[] flagMapping() default {};
     method @InaccessibleFromKotlin @Deprecated public abstract boolean hasAttributeId() default true;
     method @InaccessibleFromKotlin @Deprecated public abstract String name() default "";
     method @InaccessibleFromKotlin @Deprecated public abstract androidx.annotation.InspectableProperty.ValueType valueType() default androidx.annotation.InspectableProperty.ValueType.INFERRED;
@@ -195,7 +195,7 @@ package androidx.annotation {
     ctor @KotlinOnly public IntDef(optional int... value, optional boolean flag, optional boolean open);
     method @InaccessibleFromKotlin public abstract boolean flag() default false;
     method @InaccessibleFromKotlin public abstract boolean open() default false;
-    method @InaccessibleFromKotlin public abstract int[] value();
+    method @InaccessibleFromKotlin public abstract int[] value() default {};
     property public abstract boolean flag;
     property public abstract boolean open;
     property public abstract int[] value;
@@ -225,7 +225,7 @@ package androidx.annotation {
     ctor @KotlinOnly public LongDef(optional long... value, optional boolean flag, optional boolean open);
     method @InaccessibleFromKotlin public abstract boolean flag() default false;
     method @InaccessibleFromKotlin public abstract boolean open() default false;
-    method @InaccessibleFromKotlin public abstract long[] value();
+    method @InaccessibleFromKotlin public abstract long[] value() default {};
     property public abstract boolean flag;
     property public abstract boolean open;
     property public abstract long[] value;
@@ -264,15 +264,9 @@ package androidx.annotation {
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface ReplaceWith {
     ctor @KotlinOnly public ReplaceWith(String expression, optional java.lang.String... imports);
     method @InaccessibleFromKotlin public abstract String expression();
-    method @InaccessibleFromKotlin public abstract String[] imports();
+    method @InaccessibleFromKotlin public abstract String[] imports() default {};
     property public abstract String expression;
     property public abstract String[] imports;
-  }
-
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FILE}) public @interface RequiresAconfigFlag {
-    ctor @KotlinOnly public RequiresAconfigFlag(String value);
-    method @InaccessibleFromKotlin public abstract String value();
-    property public abstract String value;
   }
 
   @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.CONSTRUCTOR, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.PACKAGE}) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FILE}) public @interface RequiresApi {
@@ -303,10 +297,16 @@ package androidx.annotation {
     property public abstract String name;
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.FILE}) public @interface RequiresFlag {
+    ctor @KotlinOnly public RequiresFlag(String value);
+    method @InaccessibleFromKotlin public abstract String value();
+    property public abstract String value;
+  }
+
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface RequiresPermission {
     ctor @KotlinOnly public RequiresPermission(optional String value, optional String[] allOf, optional String[] anyOf, optional boolean conditional);
-    method @InaccessibleFromKotlin public abstract String[] allOf();
-    method @InaccessibleFromKotlin public abstract String[] anyOf();
+    method @InaccessibleFromKotlin public abstract String[] allOf() default {};
+    method @InaccessibleFromKotlin public abstract String[] anyOf() default {};
     method @InaccessibleFromKotlin public abstract boolean conditional() default false;
     method @InaccessibleFromKotlin public abstract String value() default "";
     property public abstract String[] allOf;
@@ -360,7 +360,7 @@ package androidx.annotation {
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS) public @interface StringDef {
     ctor @KotlinOnly public StringDef(optional java.lang.String... value, optional boolean open);
     method @InaccessibleFromKotlin public abstract boolean open() default false;
-    method @InaccessibleFromKotlin public abstract String[] value();
+    method @InaccessibleFromKotlin public abstract String[] value() default {};
     property public abstract boolean open;
     property public abstract String[] value;
   }

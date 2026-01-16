@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.platform.AndroidComposeView
@@ -52,7 +53,7 @@ import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isRoot
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -853,6 +854,109 @@ class PopupTest {
             // resulting in the popup appearing at desiredScreenPos on the screen.
             assertThat(actualPopupScreenOffset.x).isEqualTo(desiredScreenPos.x)
             assertThat(actualPopupScreenOffset.y).isEqualTo(desiredScreenPos.y)
+        }
+    }
+
+    /**
+     * Verifies that for a non-nested popup (standard case), the PopupPositionProvider receives
+     * coordinates relative to the window, not absolute screen coordinates. This ensures that
+     * floating windows (which are smaller than the screen) don't confuse the provider into thinking
+     * the anchor is off-screen or positioned incorrectly relative to the window content.
+     */
+    @Test
+    fun popupPositionProvider_receivesWindowRelativeCoordinates_whenNotNested() {
+        val anchorTag = "anchor"
+        var suppliedAnchorBounds: IntRect? = null
+        var anchorPositionInWindow: Offset? = null
+
+        val capturingProvider =
+            object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize,
+                ): IntOffset {
+                    suppliedAnchorBounds = anchorBounds
+                    return IntOffset.Zero
+                }
+            }
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Box(
+                    Modifier.align(Alignment.Center)
+                        .size(50.dp)
+                        .testTag(anchorTag)
+                        .onGloballyPositioned { anchorPositionInWindow = it.positionInWindow() }
+                ) {
+                    Popup(popupPositionProvider = capturingProvider) { Box(Modifier.size(10.dp)) }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(suppliedAnchorBounds).isNotNull()
+            assertThat(anchorPositionInWindow).isNotNull()
+
+            val anchorPos = anchorPositionInWindow!!
+            // Verification: The bounds passed to the provider must match the window-relative
+            // coordinates, NOT absolute screen coordinates.
+            assertThat(suppliedAnchorBounds!!.left).isEqualTo(anchorPos.x.roundToInt())
+            assertThat(suppliedAnchorBounds.top).isEqualTo(anchorPos.y.roundToInt())
+        }
+    }
+
+    /**
+     * Verifies that for a nested popup (a popup inside another popup), the PopupPositionProvider
+     * receives absolute screen coordinates. This is required because nested popups are implemented
+     * as sub-panels which the WindowManager expects to be positioned in absolute screen
+     * coordinates.
+     */
+    @Test
+    fun popupPositionProvider_receivesScreenCoordinates_whenNested() {
+        val anchorTag = "anchor"
+        var suppliedAnchorBounds: IntRect? = null
+        var anchorPositionOnScreen: Offset? = null
+
+        val capturingProvider =
+            object : PopupPositionProvider {
+                override fun calculatePosition(
+                    anchorBounds: IntRect,
+                    windowSize: IntSize,
+                    layoutDirection: LayoutDirection,
+                    popupContentSize: IntSize,
+                ): IntOffset {
+                    suppliedAnchorBounds = anchorBounds
+                    return IntOffset.Zero
+                }
+            }
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize()) {
+                Popup(alignment = Alignment.Center) {
+                    Box(
+                        Modifier.size(50.dp).testTag(anchorTag).onGloballyPositioned {
+                            anchorPositionOnScreen = it.positionOnScreen()
+                        }
+                    ) {
+                        Popup(popupPositionProvider = capturingProvider) {
+                            Box(Modifier.size(10.dp))
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(suppliedAnchorBounds).isNotNull()
+            assertThat(anchorPositionOnScreen).isNotNull()
+
+            val anchorPos = anchorPositionOnScreen!!
+            // Verification: The bounds passed to the provider must match the absolute screen
+            // coordinates.
+            assertThat(suppliedAnchorBounds!!.left).isEqualTo(anchorPos.x.roundToInt())
+            assertThat(suppliedAnchorBounds.top).isEqualTo(anchorPos.y.roundToInt())
         }
     }
 

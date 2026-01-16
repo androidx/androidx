@@ -18,7 +18,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
@@ -28,8 +27,6 @@ import androidx.compose.runtime.Composable
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteLong : BaseRemoteState<Long>() {
-
-    public abstract val id: Int
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
@@ -85,16 +82,6 @@ public class MutableRemoteLong(
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
-
-    @Deprecated("Use getIdForCreationState directly")
-    public override val id: Int
-        get() {
-            FallbackCreationState.state.platform.log(
-                RcPlatformServices.LogCategory.TODO,
-                "Use RemoteLong.getIdForCreationState directly",
-            )
-            return getIdForCreationState(FallbackCreationState.state)
-        }
 
     public override fun toString(): String {
         return "MutableRemoteLong@${this.hashCode()} =" + constantValue

@@ -47,15 +47,14 @@ class FormWidgetInfoTest {
         val fontSize = 12.0f
 
         val widgetInfo =
-            FormWidgetInfo(
-                widgetType,
+            FormWidgetInfo.createTextField(
                 widgetIndex,
                 widgetRect,
                 textValue,
                 accessibilityLabel,
                 readOnly,
                 editableText,
-                multiLineText = multiLineText,
+                isMultiLineText = multiLineText,
                 maxLength = maxLength,
                 fontSize = fontSize,
             )
@@ -65,10 +64,10 @@ class FormWidgetInfoTest {
         assertEquals(widgetRect, widgetInfo.widgetRect)
         assertEquals(textValue, widgetInfo.textValue)
         assertEquals(accessibilityLabel, widgetInfo.accessibilityLabel)
-        assertEquals(readOnly, widgetInfo.readOnly)
-        assertEquals(editableText, widgetInfo.editableText)
-        assertFalse(widgetInfo.multiSelect)
-        assertEquals(multiLineText, widgetInfo.multiLineText)
+        assertEquals(readOnly, widgetInfo.isReadOnly)
+        assertEquals(editableText, widgetInfo.isEditableText)
+        assertFalse(widgetInfo.isMultiSelect)
+        assertEquals(multiLineText, widgetInfo.isMultiLineText)
         assertEquals(maxLength, widgetInfo.maxLength)
         assertEquals(fontSize, widgetInfo.fontSize, 0.0f)
         assertEquals(0, widgetInfo.listItems.size)
@@ -84,12 +83,13 @@ class FormWidgetInfoTest {
         val listItems = listOf(ListItem("Option 1", true), ListItem("Option 2", false))
 
         val widgetInfo =
-            FormWidgetInfo(
-                widgetType,
+            FormWidgetInfo.createListBox(
                 widgetIndex,
                 widgetRect,
                 textValue,
                 accessibilityLabel,
+                false,
+                isMultiSelect = false,
                 listItems = listItems,
             )
         assertEquals(widgetType, widgetInfo.widgetType)
@@ -99,25 +99,25 @@ class FormWidgetInfoTest {
 
     @Test
     fun formWidgetInfo_textField_writeToParcelAndCreateFromParcel_equals() {
-        val widgetType = FormWidgetInfo.WIDGET_TYPE_TEXTFIELD
         val widgetIndex = 1
         val widgetRect = Rect(10, 10, 110, 60)
         val textValue = "Initial Text"
         val accessibilityLabel = "Combo Box Label"
         val readOnly = true
         val editableText = true
+        val multiLineText = false
         val maxLength = 20
         val fontSize = 14.0f
 
         val originalWidgetInfo =
-            FormWidgetInfo(
-                widgetType,
+            FormWidgetInfo.createTextField(
                 widgetIndex,
                 widgetRect,
                 textValue,
                 accessibilityLabel,
                 readOnly,
                 editableText,
+                multiLineText,
                 maxLength = maxLength,
                 fontSize = fontSize,
             )
@@ -134,14 +134,28 @@ class FormWidgetInfoTest {
 
     @Test
     fun formWidgetInfo_radioButton_writeToParcelAndCreateFromParcel_equals() {
-        val widgetType = FormWidgetInfo.WIDGET_TYPE_TEXTFIELD
         val widgetIndex = 1
         val widgetRect = Rect(10, 10, 110, 60)
         val textValue = "Initial Text"
         val accessibilityLabel = "TextField Label"
+        val readOnly = true
+        val editableText = true
+        val multiLineText = false
+        val maxLength = 20
+        val fontSize = 14.0f
 
         val originalWidgetInfo =
-            FormWidgetInfo(widgetType, widgetIndex, widgetRect, textValue, accessibilityLabel)
+            FormWidgetInfo.createTextField(
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                readOnly,
+                editableText,
+                multiLineText,
+                maxLength,
+                fontSize,
+            )
 
         val parcel = Parcel.obtain()
         originalWidgetInfo.writeToParcel(parcel, 0)
@@ -155,20 +169,24 @@ class FormWidgetInfoTest {
 
     @Test
     fun formWidgetInfo_combobox_writeToParcelAndCreateFromParcel_equals() {
-        val widgetType = FormWidgetInfo.WIDGET_TYPE_COMBOBOX
         val widgetIndex = 1
         val widgetRect = Rect(10, 10, 110, 60)
         val textValue = "Initial Text"
         val accessibilityLabel = "TextField Label"
         val listItems = listOf(ListItem("Option 1", true), ListItem("Option 2", false))
+        val readOnly = false
+        val isEditableText = true
+        val fontSize = 10f
 
         val originalWidgetInfo =
-            FormWidgetInfo(
-                widgetType,
+            FormWidgetInfo.createComboBox(
                 widgetIndex,
                 widgetRect,
                 textValue,
                 accessibilityLabel,
+                readOnly,
+                isEditableText,
+                fontSize,
                 listItems = listItems,
             )
 
@@ -184,34 +202,53 @@ class FormWidgetInfoTest {
 
     @Test
     fun formWidgetInfo_equals_sameObject_returnsTrue() {
+        val widgetIndex = 0
+        val widgetRect = Rect(0, 0, 100, 50)
+        val textValue = "Test Text"
+        val accessibilityLabel = "Test Label"
+        val listItems = listOf(ListItem("Option 1", true), ListItem("Option 2", false))
+
         val widgetInfo =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
+            FormWidgetInfo.createListBox(
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                false,
+                isMultiSelect = false,
+                listItems = listItems,
             )
+
         assertEquals(widgetInfo, widgetInfo)
     }
 
     @Test
     fun formWidgetInfo_equals_sameValues_returnsTrue() {
+        val widgetIndex = 0
+        val widgetRect = Rect(0, 0, 100, 50)
+        val textValue = "Test Text"
+        val accessibilityLabel = "Test Label"
+        val listItems = listOf(ListItem("Option 1", true), ListItem("Option 2", false))
+
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
+            FormWidgetInfo.createListBox(
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                false,
+                isMultiSelect = false,
+                listItems = listItems,
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
+            FormWidgetInfo.createListBox(
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                false,
+                isMultiSelect = false,
+                listItems = listItems,
             )
         assertEquals(widgetInfo1, widgetInfo2)
     }
@@ -219,85 +256,47 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentWidgetType_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createRadioButton(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
 
     @Test
     fun formWidgetInfo_equals_differentWidgetIndex_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                1,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(1, Rect(0, 0, 100, 50), "Text", "Label", false)
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
 
     @Test
     fun formWidgetInfo_equals_differentWidgetRect_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(10, 10, 110, 60),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(10, 10, 110, 60), "Text", "Label", false)
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
 
     @Test
     fun formWidgetInfo_equals_differentReadOnly_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                readOnly = false,
+                isReadOnly = false,
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                readOnly = true,
+                isReadOnly = true,
             )
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
@@ -305,64 +304,44 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentTextValue_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text1",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text1", "Label", false)
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text2",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text2", "Label", false)
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
 
     @Test
     fun formWidgetInfo_equals_differentAccessibilityLabel_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label1",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label1", false)
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label2",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label2", false)
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
 
     @Test
     fun formWidgetInfo_equals_differentEditableText_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_COMBOBOX,
+            FormWidgetInfo.createComboBox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                editableText = false,
+                isReadOnly = false,
+                isEditableText = false,
+                fontSize = 10f,
+                listItems = emptyList(),
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_COMBOBOX,
+            FormWidgetInfo.createComboBox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                editableText = true,
+                false,
+                isEditableText = true,
+                fontSize = 10f,
+                listItems = emptyList(),
             )
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
@@ -370,22 +349,24 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentMultiSelect_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_LISTBOX,
+            FormWidgetInfo.createListBox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                multiSelect = false,
+                isReadOnly = false,
+                isMultiSelect = false,
+                listItems = listOf(ListItem("Apple", false)),
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_LISTBOX,
+            FormWidgetInfo.createListBox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                multiSelect = true,
+                isReadOnly = false,
+                isMultiSelect = true,
+                listItems = listOf(ListItem("Apple", false)),
             )
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
@@ -393,22 +374,28 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentMultiLineText_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            FormWidgetInfo.createTextField(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                multiLineText = false,
+                isReadOnly = false,
+                isEditableText = true,
+                isMultiLineText = false,
+                maxLength = 10,
+                fontSize = 12.0f,
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            FormWidgetInfo.createTextField(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
-                multiLineText = true,
+                isReadOnly = false,
+                isEditableText = true,
+                isMultiLineText = true,
+                maxLength = 10,
+                fontSize = 12.0f,
             )
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
@@ -416,22 +403,28 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentMaxLength_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            FormWidgetInfo.createTextField(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
+                isReadOnly = false,
+                isEditableText = false,
+                isMultiLineText = false,
                 maxLength = 10,
+                fontSize = 12.0f,
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            FormWidgetInfo.createTextField(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
+                isReadOnly = false,
+                isEditableText = false,
+                isMultiLineText = false,
                 maxLength = 20,
+                fontSize = 12.0f,
             )
         assertNotEquals(widgetInfo1, widgetInfo2)
     }
@@ -439,21 +432,27 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentFontSize_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            FormWidgetInfo.createTextField(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
+                isReadOnly = false,
+                isEditableText = false,
+                isMultiLineText = false,
+                maxLength = 10,
                 fontSize = 12.0f,
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            FormWidgetInfo.createTextField(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
+                isReadOnly = false,
+                isEditableText = false,
+                isMultiLineText = false,
+                maxLength = 10,
                 fontSize = 14.0f,
             )
         assertNotEquals(widgetInfo1, widgetInfo2)
@@ -462,22 +461,24 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentListItems_returnsFalse() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_COMBOBOX,
+            FormWidgetInfo.createComboBox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
+                isReadOnly = false,
+                isEditableText = false,
                 fontSize = 10.5f,
                 listItems = listOf(ListItem("Option 1", true)),
             )
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_COMBOBOX,
+            FormWidgetInfo.createComboBox(
                 0,
                 Rect(0, 0, 100, 50),
                 "Text",
                 "Label",
+                isReadOnly = false,
+                isEditableText = false,
                 fontSize = 10.5f,
                 listItems = listOf(ListItem("Option 2", false)),
             )
@@ -487,13 +488,7 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_differentClass_returnsFalse() {
         val widgetInfo =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         val other = "Not a FormWidgetInfo"
         assertNotEquals(widgetInfo, other)
     }
@@ -501,55 +496,30 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_equals_null_returnsFalse() {
         val widgetInfo =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         assertNotEquals(widgetInfo, null)
     }
 
     @Test
     fun formWidgetInfo_hashCode_equalObjects_equalHashCodes() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         assertEquals(widgetInfo1.hashCode(), widgetInfo2.hashCode())
     }
 
     @Test
     fun formWidgetInfo_hashCode_differentObjects_differentHashCodes() {
         val widgetInfo1 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         val widgetInfo2 =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 1,
                 Rect(10, 10, 110, 60),
                 "Other Text",
                 "Other Label",
-                readOnly = true,
+                isReadOnly = true,
             )
         assertNotEquals(widgetInfo1.hashCode(), widgetInfo2.hashCode())
     }
@@ -557,13 +527,7 @@ class FormWidgetInfoTest {
     @Test
     fun formWidgetInfo_describeContents_returnsZero() {
         val widgetInfo =
-            FormWidgetInfo(
-                FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
-                0,
-                Rect(0, 0, 100, 50),
-                "Text",
-                "Label",
-            )
+            FormWidgetInfo.createCheckbox(0, Rect(0, 0, 100, 50), "Text", "Label", false)
         assertEquals(0, widgetInfo.describeContents())
     }
 
@@ -575,98 +539,32 @@ class FormWidgetInfoTest {
     }
 
     @Test(expected = IllegalArgumentException::class)
-    fun formWidgetInfo_editableTextNotComboboxOrTextField_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
-            0,
-            Rect(0, 0, 100, 50),
-            "Text",
-            "Label",
-            editableText = true,
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun formWidgetInfo_multiSelectNotListbox_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
-            0,
-            Rect(0, 0, 100, 50),
-            "Text",
-            "Label",
-            multiSelect = true,
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun formWidgetInfo_multiLineTextNotTextField_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
-            0,
-            Rect(0, 0, 100, 50),
-            "Text",
-            "Label",
-            multiLineText = true,
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun formWidgetInfo_maxLengthNotTextField_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
-            0,
-            Rect(0, 0, 100, 50),
-            "Text",
-            "Label",
-            maxLength = 10,
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun formWidgetInfo_fontSizeNotComboboxOrTextField_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
-            0,
-            Rect(0, 0, 100, 50),
-            "Text",
-            "Label",
-            fontSize = 10f,
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun formWidgetInfo_listItemsNotComboboxOrListbox_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
-            0,
-            Rect(0, 0, 100, 50),
-            "Text",
-            "Label",
-            listItems = listOf(ListItem("Option 1", true)),
-        )
-    }
-
-    @Test(expected = IllegalArgumentException::class)
     fun formWidgetInfo_invalidMaxLength_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+        FormWidgetInfo.createTextField(
             0,
             Rect(0, 0, 100, 50),
             "Text",
             "Label",
-            maxLength = 0,
+            isReadOnly = false,
+            isEditableText = false,
+            isMultiLineText = false,
+            maxLength = -10,
+            fontSize = 1f,
         )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun formWidgetInfo_invalidFontSize_throwsException() {
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+        FormWidgetInfo.createTextField(
             0,
             Rect(0, 0, 100, 50),
             "Text",
             "Label",
-            fontSize = 0f,
+            isReadOnly = false,
+            isEditableText = false,
+            isMultiLineText = false,
+            maxLength = 10,
+            fontSize = -1f,
         )
     }
 }

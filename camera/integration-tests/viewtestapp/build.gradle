@@ -23,7 +23,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
         applicationId = "androidx.camera.integration.view"
     }
@@ -53,7 +53,7 @@ dependencies {
     implementation(project(":camera:camera-effects"))
     implementation(project(":camera:media3:media3-effect"))
     implementation(libs.guavaAndroid)
-    implementation(project(":exifinterface:exifinterface"))
+    implementation("androidx.exifinterface:exifinterface:1.4.2")
     implementation(libs.mlkitBarcode)
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.

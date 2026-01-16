@@ -149,6 +149,23 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
             }
         }
 
+    /**
+     * Checks if boundary consent has been granted, which is a key safety prerequisite before
+     * showing immersive content(i.e.,content that fully or substantially obscures the passthrough
+     * view).
+     *
+     * @return `true` if the user has granted consent. Returns `false` otherwise, in which case
+     *   showing immersive content is strongly discouraged.
+     *
+     * **Note:** Advanced users may disable the entire boundary system in developer settings. If the
+     * boundary system is disabled, this method will also return `true`, as this is treated as an
+     * **implicit** form of consent. However, in this specific scenario, the system will not present
+     * the boundary line to the user upon approach.
+     */
+    public val isBoundaryConsentGranted: Boolean
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        get() = sceneRuntime.isBoundaryConsentGranted
+
     private var _keyEntity: Entity? = null
     private var lastRecommendedPose: Pose? = null
     private var lastRecommendedScale: Vector3? = null
@@ -226,6 +243,51 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
             field = value
             sceneRuntime.enablePanelDepthTest(value.isDepthTestEnabled)
         }
+
+    /**
+     * Adds the given [Consumer] as a listener to be invoked when the boundary consent state
+     * changes.
+     *
+     * The listener will be invoked asynchronously on the **main thread executor**.
+     *
+     * @param listener The [Consumer] to be invoked with the new boundary consent state (`true` if
+     *   granted, `false` otherwise). Refer to [Scene.isBoundaryConsentGranted] for a detailed
+     *   explanation of the states.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun addOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+        addOnBoundaryConsentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
+    }
+
+    /**
+     * Adds the given [Consumer] as a listener to be invoked when the boundary consent state
+     * changes.
+     *
+     * @param callbackExecutor The [Executor] on which to invoke the listener.
+     * @param listener The [Consumer] to be invoked asynchronously on the given [callbackExecutor]
+     *   with the new boundary consent state (`true` if granted, `false` otherwise). Refer to
+     *   [Scene.isBoundaryConsentGranted] for a detailed explanation of the states.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun addOnBoundaryConsentChangedListener(
+        callbackExecutor: Executor,
+        listener: Consumer<Boolean>,
+    ) {
+        sceneRuntime.addOnBoundaryConsentChangedListener(callbackExecutor, listener)
+    }
+
+    /**
+     * Releases the given [Consumer] from receiving updates when the boundary consent state changes.
+     *
+     * The listeners are automatically released at the end of the Scene's lifecycle even if this
+     * method is not explicitly called.
+     *
+     * @param listener The [Consumer] to be removed. It will no longer receive change events.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+        sceneRuntime.removeOnBoundaryConsentChangedListener(listener)
+    }
 
     /**
      * Adds the given [Consumer] as a listener to be invoked when this

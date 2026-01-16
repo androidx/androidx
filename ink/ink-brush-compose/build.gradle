@@ -24,7 +24,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.ink.brush.compose"
-        compileSdk = 35
+        compileSdk { version = release(35) }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)

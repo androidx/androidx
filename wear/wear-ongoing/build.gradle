@@ -28,7 +28,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 25
+        minSdk { version = release(25) }
     }
     namespace = "androidx.wear.ongoing"
 }

@@ -28,8 +28,6 @@ import androidx.xr.scenecore.testing.FakeSpatialEnvironment
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.util.function.Consumer
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test

@@ -17,10 +17,10 @@
 package androidx.work.multiprocess
 
 import android.content.Context
+import androidx.concurrent.futures.SuspendToFutureAdapter.launchFuture
 import androidx.concurrent.futures.await
 import androidx.work.Data
 import androidx.work.WorkerParameters
-import androidx.work.launchFuture
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -53,7 +53,9 @@ public abstract class RemoteCoroutineWorker(context: Context, parameters: Worker
     public abstract suspend fun doRemoteWork(): Result
 
     override fun startRemoteWork(): ListenableFuture<Result> {
-        return launchFuture(Dispatchers.Default + Job()) { doRemoteWork() }
+        return launchFuture(Dispatchers.Default + Job(), launchUndispatched = false) {
+            doRemoteWork()
+        }
     }
 
     /**

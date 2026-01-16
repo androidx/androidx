@@ -22,6 +22,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.ScrollModifier as CoreScrollModifier
 import androidx.compose.runtime.Composable
@@ -52,8 +53,8 @@ public fun rememberRemoteScrollState(evenNotches: Int = 0): RemoteScrollState {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class ScrollModifier(val direction: Int, val state: RemoteScrollState) :
     RemoteModifier.Element {
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
-        return CoreScrollModifier(direction, state.positionState.id, state.notches)
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
+        return CoreScrollModifier(direction, state.positionState.floatId, state.notches)
     }
 }
 

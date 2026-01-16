@@ -1,12 +1,4 @@
 // Baseline format: 1.0
-AcronymName: androidx.webgpu.AdapterInfo#getDeviceID():
-    Acronyms should not be capitalized in method names: was `getDeviceID`, should this be `getDeviceId`?
-AcronymName: androidx.webgpu.AdapterInfo#getVendorID():
-    Acronyms should not be capitalized in method names: was `getVendorID`, should this be `getVendorId`?
-AcronymName: androidx.webgpu.AdapterInfo#setDeviceID(int):
-    Acronyms should not be capitalized in method names: was `setDeviceID`, should this be `setDeviceId`?
-AcronymName: androidx.webgpu.AdapterInfo#setVendorID(int):
-    Acronyms should not be capitalized in method names: was `setVendorID`, should this be `setVendorId`?
 AcronymName: androidx.webgpu.GPU:
     Acronyms should not be capitalized in class names: was `GPU`, should this be `Gpu`?
 AcronymName: androidx.webgpu.GPUAdapter:
@@ -143,6 +135,12 @@ AcronymName: androidx.webgpu.GPURequestAdapterOptions#setRequestAdapterWebXROpti
     Acronyms should not be capitalized in method names: was `setRequestAdapterWebXROptions`, should this be `setRequestAdapterWebXrOptions`?
 AcronymName: androidx.webgpu.GPURequestAdapterWebXROptions:
     Acronyms should not be capitalized in class names: was `GPURequestAdapterWebXROptions`, should this be `GpuRequestAdapterWebXrOptions`?
+AcronymName: androidx.webgpu.GPURequestCallback:
+    Acronyms should not be capitalized in class names: was `GPURequestCallback`, should this be `GpuRequestCallback`?
+AcronymName: androidx.webgpu.GPURequestCallbackKt:
+    Acronyms should not be capitalized in class names: was `GPURequestCallbackKt`, should this be `GpuRequestCallbackKt`?
+AcronymName: androidx.webgpu.GPURequestCallbackKt#awaitGPURequest(kotlin.jvm.functions.Function1<? super androidx.webgpu.GPURequestCallback<T>,kotlin.Unit>, kotlin.coroutines.Continuation<? super T>):
+    Acronyms should not be capitalized in method names: was `awaitGPURequest`, should this be `awaitGpuRequest`?
 AcronymName: androidx.webgpu.GPUSampler:
     Acronyms should not be capitalized in class names: was `GPUSampler`, should this be `GpuSampler`?
 AcronymName: androidx.webgpu.GPUSamplerBindingLayout:
@@ -215,6 +213,10 @@ AcronymName: androidx.webgpu.GPUVertexBufferLayout:
     Acronyms should not be capitalized in class names: was `GPUVertexBufferLayout`, should this be `GpuVertexBufferLayout`?
 AcronymName: androidx.webgpu.GPUVertexState:
     Acronyms should not be capitalized in class names: was `GPUVertexState`, should this be `GpuVertexState`?
+AcronymName: androidx.webgpu.helper.ExtensionsKt#toGPUColor(int):
+    Acronyms should not be capitalized in method names: was `toGPUColor`, should this be `toGpuColor`?
+AcronymName: androidx.webgpu.helper.ExtensionsKt#toGPUColor(long):
+    Acronyms should not be capitalized in method names: was `toGPUColor`, should this be `toGpuColor`?
 
 
 ArrayReturn: androidx.webgpu.GPUBindGroupDescriptor#GPUBindGroupDescriptor(androidx.webgpu.GPUBindGroupLayout, String, androidx.webgpu.GPUBindGroupEntry[]) parameter #2:
@@ -303,6 +305,14 @@ ArrayReturn: androidx.webgpu.GPUVertexState#setConstants(androidx.webgpu.GPUCons
     Method parameter should be Collection<GPUConstantEntry> (or subclass) instead of raw array; was `androidx.webgpu.GPUConstantEntry[]`
 
 
+FacadeClassJvmName: androidx.webgpu.helper.ExtensionsKt:
+    Use `@file:JvmName` to provide a name for this file facade class for Java callers
+
+
+GenericCallbacks: androidx.webgpu.GPURequestCallback:
+    GPURequestCallback can be replaced with OutcomeReceiver<R,E> (platform) or suspend fun / ListenableFuture (AndroidX).
+
+
 GetterSetterNames: androidx.webgpu.GPUBufferBindingLayout#getHasDynamicOffset():
     Getter for boolean property `hasDynamicOffset` is named `getHasDynamicOffset` but should match the property name. Use `@get:JvmName` to rename.
 GetterSetterNames: androidx.webgpu.GPUBufferDescriptor#mappedAtCreation:
@@ -327,6 +337,8 @@ GetterSetterNames: androidx.webgpu.GPUTextureBindingLayout#multisampled:
     Invalid name for boolean property `multisampled`. Should start with one of `has`, `can`, `should`, `is`.
 
 
+KotlinDefaultParameterOrder: androidx.webgpu.GPUAdapter#requestDevice(java.util.concurrent.Executor, androidx.webgpu.GPUDeviceDescriptor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUDevice>) parameter #1:
+    Parameter `descriptor` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescriptor(java.util.concurrent.Executor, java.util.concurrent.Executor, String, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #2:
     Parameter `label` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescriptor(java.util.concurrent.Executor, java.util.concurrent.Executor, String, int[], androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #2:
@@ -347,6 +359,8 @@ KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescri
     Parameter `requiredLimits` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 KotlinDefaultParameterOrder: androidx.webgpu.GPUDeviceDescriptor#GPUDeviceDescriptor(java.util.concurrent.Executor, java.util.concurrent.Executor, String, int[], androidx.webgpu.GPULimits, androidx.webgpu.GPUQueueDescriptor, androidx.webgpu.DeviceLostCallback, androidx.webgpu.UncapturedErrorCallback) parameter #5:
     Parameter `defaultQueue` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
+KotlinDefaultParameterOrder: androidx.webgpu.GPUInstance#requestAdapter(java.util.concurrent.Executor, androidx.webgpu.GPURequestAdapterOptions, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUAdapter>) parameter #1:
+    Parameter `options` has a default value and should come after all parameters without default values (except for a trailing lambda parameter)
 
 
 MethodNameUnits: androidx.webgpu.GPUSurfaceColorManagement#getColorSpace():

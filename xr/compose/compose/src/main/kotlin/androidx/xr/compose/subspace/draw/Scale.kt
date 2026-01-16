@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.subspace.draw
 
+import androidx.annotation.FloatRange
 import androidx.xr.compose.subspace.layout.CoreEntityNode
 import androidx.xr.compose.subspace.layout.CoreEntityScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -29,7 +30,9 @@ import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
  *
  * @param scale Multiplier to scale content along vertical, horizontal, depth axes.
  */
-public fun SubspaceModifier.scale(scale: Float): SubspaceModifier = this.then(ScaleElement(scale))
+public fun SubspaceModifier.scale(
+    @FloatRange(from = 0.0, fromInclusive = false) scale: Float
+): SubspaceModifier = this.then(ScaleElement(scale))
 
 private class ScaleElement(private val scale: Float) : SubspaceModifierNodeElement<ScaleNode>() {
 

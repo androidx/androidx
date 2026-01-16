@@ -4,7 +4,7 @@
     <string name="title_activity_media_player">Video in Spatial Panel Test Case</string>
     <string name="title_activity_rotation">Panel/Layout rotation Test Case</string>
     <string name="mode_change_test">Compose Mode Change Test Case</string>
-    <string name="anchored_subspace_app_test">Anchored Subspace Test Case</string>
+    <string name="anchor_subspace_app_test">Anchor FollowingSubspace Test Case</string>
     <string name="panel_rotation_test">Panel/Layout rotation Test Case</string>
     <string name="media_player_panel_test">CUJ: Media Player Panel Test</string>
     <string name="enable_permission_dialog_test">Dialog Permissions Test Case</string>
@@ -27,7 +27,7 @@
     <string name="fragment_compatibility_test">Fragment Compatibility Test Case</string>
     <string name="depthstacking_modifier_order_test_case">DepthStacking and ModifierOrder Layout Test Case</string>
     <string name="panel_embedded_subspace_test_case">Panel Embedded Subspace Layout Test Case</string>
-    <string name="user_subspace_test_case">User Subspace Layout Test Case</string>
+    <string name="ardevice_subspace_test_case">AR Device FollowingSubspace Layout Test Case</string>
     <string name="panel_volume_test_case">Panel Volume Layout Test Case</string>
     <string name="resizable_panel_test_case">Resizable Panel Test Case</string>
     <string name="spatial_alignment_usage_test_case">Spatial Alignment Usage Test Case</string>
@@ -41,7 +41,7 @@
     <string name="lifecycle_runtime_session_test">Runtime Session Test Case</string>
     <string name="pose_test">Pose Test Case</string>
     <string name="gravity_aligned_test_case">Gravity Aligned Test Case</string>
-    <string name="lookatuser_test_case">LookAtUser and Billboard Test Case</string>
+    <string name="lookatuser_test_case">LookAtUser Test Case</string>
     <string name="hello_android_xr">Hello Android XR.</string>
     <string name="switch_to_home_space_mode">Switch to Home Space Mode</string>
     <string name="switch_to_full_space_mode">Switch to Full Space Mode</string>

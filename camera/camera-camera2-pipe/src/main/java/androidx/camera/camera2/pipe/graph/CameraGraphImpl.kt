@@ -28,7 +28,9 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Session
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
@@ -55,9 +57,12 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.sync.Mutex
 
 @CameraGraphScope
@@ -132,6 +137,20 @@ constructor(
 
     override val graphState: StateFlow<GraphState>
         get() = graphProcessor.graphState
+
+    override val latestFrameNumber: Flow<FrameNumber>
+        get() = callbackFlow {
+            val listener = LatestFrameNumberListener { trySend(it) }
+            listeners.add(listener)
+            awaitClose { listeners.remove(listener) }
+        }
+
+    override val latestFrameInfo: Flow<FrameInfo>
+        get() = callbackFlow {
+            val listener = LatestFrameInfoListener { trySend(it) }
+            listeners.add(listener)
+            awaitClose { listeners.remove(listener) }
+        }
 
     override var isForeground: Boolean = true
         set(value) {

@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+AddedAbstractMethod: androidx.health.connect.client.HealthConnectClient#getChanges(String, int, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>):
+    Binary breaking change: Added method androidx.health.connect.client.HealthConnectClient.getChanges(String,int,kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>)
+
+
 BecameUnchecked: androidx.health.connect.client.feature:
     Removed package androidx.health.connect.client.feature from compatibility checked API surface
 

@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.material3
 
+import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rf
@@ -25,8 +26,11 @@ import androidx.compose.ui.graphics.SolidColor
 
 internal object TestImageVectors {
 
+    val testRemoteStateScope = NoRemoteCompose()
+
     val VolumeUp =
         RemoteImageVector.Builder(
+                testRemoteStateScope,
                 name = "Volume up",
                 viewportWidth = 24.0f.rf,
                 viewportHeight = 24.0f.rf,
@@ -34,7 +38,7 @@ internal object TestImageVectors {
                 autoMirror = true,
             )
             .addPath(
-                RemotePathData {
+                RemotePathData(testRemoteStateScope) {
                     moveTo(3.0f.rf, 9.0f.rf)
                     verticalLineToRelative(6.0f.rf)
                     horizontalLineToRelative(4.0f.rf)

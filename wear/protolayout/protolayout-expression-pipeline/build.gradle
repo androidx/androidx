@@ -52,7 +52,7 @@ android {
     namespace = "androidx.wear.protolayout.expression.pipeline"
 
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
 }
 

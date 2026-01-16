@@ -33,7 +33,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.animation.core"
         optimization {
             it.consumerKeepRules.publish = true

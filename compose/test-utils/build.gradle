@@ -31,7 +31,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.testutils"
         androidResources.enable = true
     }

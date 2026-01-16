@@ -136,7 +136,7 @@ object FakeCameraInfoAdapterCreator {
             createCameraQuirks(cameraProperties.metadata, fakeStreamConfigurationMap)
         val fakeEncoderProfilesProvider = FakeEncoderProfilesProvider.Builder().build()
         val state3AControl =
-            State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler).apply {
+            State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler, useCaseThreads).apply {
                 requestControl = fakeRequestControl
             }
         return CameraInfoAdapter(

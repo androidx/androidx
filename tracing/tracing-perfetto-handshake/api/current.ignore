@@ -5,6 +5,22 @@ AddedMethod: androidx.tracing.perfetto.handshake.PerfettoSdkHandshake#enableTrac
     Added method androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.enableTracingImmediate$default(androidx.tracing.perfetto.handshake.PerfettoSdkHandshake,androidx.tracing.perfetto.handshake.PerfettoSdkHandshake.LibrarySource,int,Object)
 
 
+AddedProperty: androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ALREADY_ENABLED:
+    Added property androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ALREADY_ENABLED
+AddedProperty: androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_CANCELLED:
+    Added property androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_CANCELLED
+AddedProperty: androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_BINARY_MISSING:
+    Added property androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_BINARY_MISSING
+AddedProperty: androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR:
+    Added property androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_BINARY_VERIFICATION_ERROR
+AddedProperty: androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH:
+    Added property androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_BINARY_VERSION_MISMATCH
+AddedProperty: androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_OTHER:
+    Added property androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_ERROR_OTHER
+AddedProperty: androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_SUCCESS:
+    Added property androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes#RESULT_CODE_SUCCESS
+
+
 RemovedFromKotlin: androidx.tracing.perfetto.handshake.protocol.Response#getMessage():
     Source breaking change: method androidx.tracing.perfetto.handshake.protocol.Response.getMessage() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.tracing.perfetto.handshake.protocol.Response#getRequiredVersion():

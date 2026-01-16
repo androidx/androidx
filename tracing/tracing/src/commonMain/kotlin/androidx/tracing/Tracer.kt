@@ -40,6 +40,14 @@ public abstract class Tracer(
     @field:Suppress("MutableBareField") // public / mutable to minimize overhead
     public val isEnabled: Boolean,
 ) : AutoCloseable {
+
+    /**
+     * Creates a [PropagationToken] that can be used for manual context propagation in
+     * [androidx.tracing.Tracer].
+     */
+    @ExperimentalContextPropagation
+    public abstract fun tokenForManualPropagation(): PropagationToken
+
     /**
      * This gives the ability to control how context propagation works for a
      * [androidx.tracing.Tracer].

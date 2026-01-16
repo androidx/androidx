@@ -18,6 +18,7 @@ package androidx.biometric.samples
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import androidx.activity.ComponentActivity
 import androidx.annotation.Sampled
 import androidx.biometric.AuthenticationRequest
 import androidx.biometric.AuthenticationRequest.Biometric
@@ -27,13 +28,12 @@ import androidx.biometric.AuthenticationResultCallback
 import androidx.biometric.PromptContentItemBulletedText
 import androidx.biometric.registerForAuthenticationResult
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 
 private const val TAG = "AuthenticationSamples"
 
 @Sampled
 fun activitySample() {
-    class MyActivityForBiometricAuth : FragmentActivity() {
+    class MyActivityForBiometricAuth : ComponentActivity() {
         val requestAuthentication =
             registerForAuthenticationResult(
                 object : AuthenticationResultCallback {

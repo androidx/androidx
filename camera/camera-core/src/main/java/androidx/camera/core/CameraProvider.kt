@@ -152,7 +152,4 @@ public interface CameraProvider {
     public fun removeCameraPresenceListener(listener: CameraPresenceListener) {
         throw UnsupportedOperationException("The camera provider is not implemented properly.")
     }
-
-    /** Returns the [CameraXConfig] implementation type. */
-    @get:RestrictTo(Scope.LIBRARY_GROUP) @CameraXConfig.ImplType public val configImplType: Int
 }

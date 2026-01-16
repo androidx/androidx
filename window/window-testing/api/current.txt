@@ -9,6 +9,19 @@ package androidx.window.testing {
 
 }
 
+package androidx.window.testing.area {
+
+  public final class TestWindowArea {
+    method @KotlinOnly public static androidx.window.area.WindowArea TestWindowArea(optional androidx.window.layout.WindowMetrics metrics, optional androidx.window.area.WindowArea.Type type, optional android.os.IBinder token);
+    method @InaccessibleFromKotlin public static androidx.window.area.WindowArea createTestWindowArea();
+    method @InaccessibleFromKotlin public static androidx.window.area.WindowArea createTestWindowArea(optional androidx.window.layout.WindowMetrics metrics);
+    method @InaccessibleFromKotlin public static androidx.window.area.WindowArea createTestWindowArea(optional androidx.window.layout.WindowMetrics metrics, optional androidx.window.area.WindowArea.Type type);
+    method @InaccessibleFromKotlin public static androidx.window.area.WindowArea createTestWindowArea(optional androidx.window.layout.WindowMetrics metrics, optional androidx.window.area.WindowArea.Type type, optional android.os.IBinder token);
+    method @BytecodeOnly public static androidx.window.area.WindowArea! createTestWindowArea$default(androidx.window.layout.WindowMetrics!, androidx.window.area.WindowArea.Type!, android.os.IBinder!, int, Object!);
+  }
+
+}
+
 package androidx.window.testing.embedding {
 
   public final class ActivityEmbeddingRule implements org.junit.rules.TestRule {

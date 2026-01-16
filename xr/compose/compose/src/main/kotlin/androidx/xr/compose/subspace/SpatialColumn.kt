@@ -22,8 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceLayout
@@ -38,7 +36,6 @@ import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.GroupEntity
 
 /**
  * A layout composable that arranges its children in a vertical sequence.
@@ -52,23 +49,45 @@ import androidx.xr.scenecore.GroupEntity
  */
 @Composable
 @SubspaceComposable
-public fun SpatialColumn(
+public inline fun SpatialColumn(
     modifier: SubspaceModifier = SubspaceModifier,
     alignment: SpatialAlignment = SpatialAlignment.Center,
     verticalArrangement: SpatialArrangement.Vertical = SpatialArrangement.Center,
-    content: @Composable @SubspaceComposable SpatialColumnScope.() -> Unit,
+    crossinline content: @Composable @SubspaceComposable SpatialColumnScope.() -> Unit,
 ) {
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-    val coreGroupEntity = remember {
-        CoreGroupEntity(GroupEntity.create(session, name = "SpatialColumn", pose = Pose.Identity))
-    }
+    val measurePolicy =
+        spatialColumnMeasurePolicy(alignment = alignment, verticalArrangement = verticalArrangement)
+
     SubspaceLayout(
         modifier = modifier,
         content = { SpatialColumnScopeInstance.content() },
-        coreEntity = coreGroupEntity,
-        measurePolicy = SpatialColumnMeasurePolicy(alignment, verticalArrangement),
+        coreEntityName = "SpatialColumn",
+        measurePolicy = measurePolicy,
     )
 }
+
+internal val DefaultSpatialColumnMeasurePolicy: SubspaceMeasurePolicy =
+    SpatialColumnMeasurePolicy(
+        alignment = SpatialAlignment.Center,
+        verticalArrangement = SpatialArrangement.Center,
+    )
+
+@PublishedApi
+@Composable
+internal fun spatialColumnMeasurePolicy(
+    alignment: SpatialAlignment,
+    verticalArrangement: SpatialArrangement.Vertical,
+): SubspaceMeasurePolicy =
+    if (alignment == SpatialAlignment.Center && verticalArrangement == SpatialArrangement.Center) {
+        DefaultSpatialColumnMeasurePolicy
+    } else {
+        remember(alignment, verticalArrangement) {
+            SpatialColumnMeasurePolicy(
+                alignment = alignment,
+                verticalArrangement = verticalArrangement,
+            )
+        }
+    }
 
 /**
  * Measure policy for [SpatialColumn] layouts. Handles the measurement and placement of children in
@@ -255,6 +274,7 @@ public interface SpatialColumnScope {
 }
 
 /** Default implementation of the [SpatialColumnScope] interface. */
+@PublishedApi
 internal object SpatialColumnScopeInstance : SpatialColumnScope {
     override fun SubspaceModifier.weight(weight: Float, fill: Boolean): SubspaceModifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }

@@ -115,8 +115,7 @@ constructor(
             }
 
             _updateSignal = signal
-            state3AControl.flashMode = flashMode
-            state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
+            state3AControl.setFlashModeAsync(flashMode).propagateTo(signal)
         }
             ?: run {
                 signal.completeExceptionally(
@@ -214,8 +213,7 @@ constructor(
             return null
         }
 
-        state3AControl.tryExternalFlashAeMode = true
-        return state3AControl.updateSignal?.also {
+        return state3AControl.setTryExternalFlashAeModeAsync(true).also {
             Camera2Logger.debug {
                 "setExternalFlashAeModeAsync: need to wait for state3AControl.updateSignal"
             }
@@ -266,7 +264,7 @@ constructor(
 
         if (cameraProperties.metadata.isExternalFlashAeModeSupported()) {
             // Disable external flash AE mode, ok to complete whenever
-            state3AControl.tryExternalFlashAeMode = false
+            state3AControl.setTryExternalFlashAeModeAsync(false)
         }
 
         if (useFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {

@@ -26,8 +26,7 @@ import androidx.lifecycle.ViewModelStore
  * from a navigation host via [NavHost.navController] or by using one of the utility methods on the
  * [Navigation] class.
  */
-@Suppress("KmpModifierMismatch") // actuals are open
-public expect class NavHostController : NavController {
+public expect open class NavHostController : NavController {
     /**
      * Sets the host's [LifecycleOwner].
      *

@@ -20,7 +20,9 @@ import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Parcel
 import android.os.Parcelable
+import androidx.annotation.FloatRange
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.core.os.ParcelCompat
 import java.util.Objects
@@ -33,63 +35,66 @@ import java.util.Objects
  *   32000-1:2008</a>
  */
 @SuppressLint("BanParcelableUsage")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class FormWidgetInfo(
+public class FormWidgetInfo
+private constructor(
+    /** The [WidgetType] of this widget */
     @WidgetType public val widgetType: Int,
+    /** The index of this widget among all form widgets on the page */
     public val widgetIndex: Int,
+    /** The bounds of this widget in PDF coordinates */
     public val widgetRect: Rect,
+    /**
+     * The text value of this widget, if present. Comes from the "V" value in the annotation
+     * dictionary.
+     *
+     * See PDF spec 1.7 Table 8.69
+     */
     public val textValue: String?,
+    /**
+     * The accessibility label for this widget, if present. Comes from the "TU" or "T" value in the
+     * annotation dictionary.
+     *
+     * See PDF spec 1.7 Table 8.69
+     */
     public val accessibilityLabel: String?,
-    public val readOnly: Boolean = false,
-    public val editableText: Boolean = false,
-    public val multiSelect: Boolean = false,
-    public val multiLineText: Boolean = false,
-    maxLength: Int? = null,
-    fontSize: Float? = null,
-    listItems: List<ListItem>? = null,
+    /** True if this widget is read-only and accepts changes */
+    public val isReadOnly: Boolean = false,
+    /**
+     * True if this widget has editable text. Only applicable to [WIDGET_TYPE_COMBOBOX] or
+     * [WIDGET_TYPE_TEXTFIELD]. Defaults to 'false' for other widget types.
+     */
+    public val isEditableText: Boolean = false,
+    /**
+     * True if this widget supports selecting multiple [ListItem]s. Only applicable to
+     * [WIDGET_TYPE_LISTBOX]. Defaults to 'false' for other widget types.
+     */
+    public val isMultiSelect: Boolean = false,
+    /**
+     * True if this widget supports multi-line text input. Only applicable to
+     * [WIDGET_TYPE_TEXTFIELD]. Defaults to 'false' for other widget types.
+     */
+    public val isMultiLineText: Boolean = false,
+    /**
+     * The configured maximum text length for a form widget of type [WIDGET_TYPE_TEXTFIELD]), or -1
+     * for widgets this does not apply to.
+     */
+    public val maxLength: Int = -1,
+    /**
+     * The configured font size for a form widget that accepts text input ([WIDGET_TYPE_COMBOBOX] or
+     * [WIDGET_TYPE_TEXTFIELD]), or 0 for widgets this does not apply to.
+     */
+    public val fontSize: Float = 0.0f,
+    /**
+     * The set of choice options in a form widget of type [WIDGET_TYPE_COMBOBOX] or
+     * [WIDGET_TYPE_LISTBOX], or an empty list for other widget types.
+     */
+    public val listItems: List<ListItem> = emptyList(),
 ) : Parcelable {
+
     init {
-        if (editableText) {
-            require(widgetType == WIDGET_TYPE_COMBOBOX || widgetType == WIDGET_TYPE_TEXTFIELD) {
-                "Editable text is only supported on combo-boxes and text fields"
-            }
-        }
-
-        if (multiSelect) {
-            require(widgetType == WIDGET_TYPE_LISTBOX) {
-                "Multi-select is only supported on text fields"
-            }
-        }
-
-        if (multiLineText) {
-            require(widgetType == WIDGET_TYPE_TEXTFIELD) {
-                "Multiline text is only supported on text fields"
-            }
-        }
+        require(widgetIndex >= 0) { "widgetIndex must be non-negative" }
+        require(fontSize >= 0f) { "fontSize must be non-negative" }
     }
-
-    public val maxLength: Int =
-        maxLength?.also {
-            require(it > 0) { "Invalid max Length" }
-            require(widgetType == WIDGET_TYPE_TEXTFIELD) {
-                "Max length is only supported on text fields"
-            }
-        } ?: Int.MIN_VALUE
-
-    public val fontSize: Float =
-        fontSize?.also {
-            require(it > 0) { "Invalid font size" }
-            require(widgetType == WIDGET_TYPE_COMBOBOX || widgetType == WIDGET_TYPE_TEXTFIELD) {
-                "Font size is only supported on combo-boxes and text fields"
-            }
-        } ?: Float.MIN_VALUE
-
-    public val listItems: List<ListItem> =
-        listItems?.also {
-            require(widgetType == WIDGET_TYPE_COMBOBOX || widgetType == WIDGET_TYPE_LISTBOX) {
-                "Choice options are only supported on combo-boxes and list boxes"
-            }
-        } ?: emptyList()
 
     private constructor(
         parcel: Parcel
@@ -100,14 +105,13 @@ public class FormWidgetInfo(
             ParcelCompat.readParcelable(parcel, Rect::class.java.classLoader, Rect::class.java)!!,
         textValue = parcel.readString(),
         accessibilityLabel = parcel.readString(),
-        readOnly = parcel.readBoolean(),
-        editableText = parcel.readBoolean(),
-        multiSelect = parcel.readBoolean(),
-        multiLineText = parcel.readBoolean(),
-        maxLength = parcel.readInt().takeIf { it != Int.MIN_VALUE },
-        fontSize = parcel.readFloat().takeIf { it != Float.MIN_VALUE },
-        listItems =
-            parcel.createTypedArrayList(ListItem.CREATOR).takeIf { it?.isNotEmpty() == true },
+        isReadOnly = parcel.readBoolean(),
+        isEditableText = parcel.readBoolean(),
+        isMultiSelect = parcel.readBoolean(),
+        isMultiLineText = parcel.readBoolean(),
+        maxLength = parcel.readInt(),
+        fontSize = parcel.readFloat(),
+        listItems = parcel.createTypedArrayList(ListItem.CREATOR)?.toList() ?: emptyList(),
     )
 
     override fun describeContents(): Int = 0
@@ -118,10 +122,10 @@ public class FormWidgetInfo(
         dest.writeParcelable(widgetRect, flags)
         dest.writeString(textValue)
         dest.writeString(accessibilityLabel)
-        dest.writeBoolean(readOnly)
-        dest.writeBoolean(editableText)
-        dest.writeBoolean(multiSelect)
-        dest.writeBoolean(multiLineText)
+        dest.writeBoolean(isReadOnly)
+        dest.writeBoolean(isEditableText)
+        dest.writeBoolean(isMultiSelect)
+        dest.writeBoolean(isMultiLineText)
         dest.writeInt(maxLength)
         dest.writeFloat(fontSize)
         dest.writeTypedList(listItems)
@@ -132,12 +136,12 @@ public class FormWidgetInfo(
             widgetType,
             widgetIndex,
             widgetRect,
-            readOnly,
+            isReadOnly,
             textValue,
             accessibilityLabel,
-            editableText,
-            multiSelect,
-            multiLineText,
+            isEditableText,
+            isMultiSelect,
+            isMultiLineText,
             maxLength,
             fontSize,
             listItems,
@@ -151,18 +155,19 @@ public class FormWidgetInfo(
         return widgetType == other.widgetType &&
             widgetIndex == other.widgetIndex &&
             Objects.equals(widgetRect, other.widgetRect) &&
-            readOnly == other.readOnly &&
+            isReadOnly == other.isReadOnly &&
             Objects.equals(textValue, other.textValue) &&
             Objects.equals(accessibilityLabel, other.accessibilityLabel) &&
-            editableText == other.editableText &&
-            multiSelect == other.multiSelect &&
-            multiLineText == other.multiLineText &&
+            isEditableText == other.isEditableText &&
+            isMultiSelect == other.isMultiSelect &&
+            isMultiLineText == other.isMultiLineText &&
             maxLength == other.maxLength &&
             fontSize == other.fontSize &&
             listItems == other.listItems
     }
 
     /** Represents the type of a form widget */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         WIDGET_TYPE_UNKNOWN,
@@ -193,6 +198,153 @@ public class FormWidgetInfo(
         public const val WIDGET_TYPE_TEXTFIELD: Int = 6
         /** Represents a signature type form widget */
         public const val WIDGET_TYPE_SIGNATURE: Int = 7
+
+        /** Factory method for creating form widget of type [WIDGET_TYPE_PUSHBUTTON]. */
+        @JvmStatic
+        public fun createPushButton(
+            @IntRange(from = 0) widgetIndex: Int,
+            widgetRect: Rect,
+            textValue: String?,
+            accessibilityLabel: String?,
+            isReadOnly: Boolean,
+        ): FormWidgetInfo =
+            FormWidgetInfo(
+                WIDGET_TYPE_PUSHBUTTON,
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                isReadOnly,
+            )
+
+        /** Factory method for creating form widget of type [WIDGET_TYPE_CHECKBOX]. */
+        @JvmStatic
+        public fun createCheckbox(
+            @IntRange(from = 0) widgetIndex: Int,
+            widgetRect: Rect,
+            textValue: String?,
+            accessibilityLabel: String?,
+            isReadOnly: Boolean,
+        ): FormWidgetInfo =
+            FormWidgetInfo(
+                WIDGET_TYPE_CHECKBOX,
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                isReadOnly,
+            )
+
+        /** Factory method for creating form widget of type [WIDGET_TYPE_RADIOBUTTON]. */
+        @JvmStatic
+        public fun createRadioButton(
+            @IntRange(from = 0) widgetIndex: Int,
+            widgetRect: Rect,
+            textValue: String?,
+            accessibilityLabel: String?,
+            isReadOnly: Boolean,
+        ): FormWidgetInfo =
+            FormWidgetInfo(
+                WIDGET_TYPE_RADIOBUTTON,
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                isReadOnly,
+            )
+
+        /** Factory method for creating form widget of type [WIDGET_TYPE_SIGNATURE]. */
+        @JvmStatic
+        public fun createSignature(
+            @IntRange(from = 0) widgetIndex: Int,
+            widgetRect: Rect,
+            textValue: String?,
+            accessibilityLabel: String?,
+            isReadOnly: Boolean,
+        ): FormWidgetInfo =
+            FormWidgetInfo(
+                WIDGET_TYPE_SIGNATURE,
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                isReadOnly,
+            )
+
+        /** Factory method for creating form widget of type [WIDGET_TYPE_COMBOBOX]. */
+        @JvmStatic
+        public fun createComboBox(
+            @IntRange(from = 0) widgetIndex: Int,
+            widgetRect: Rect,
+            textValue: String?,
+            accessibilityLabel: String?,
+            isReadOnly: Boolean,
+            isEditableText: Boolean,
+            @FloatRange(from = 0.0) fontSize: Float,
+            listItems: List<ListItem>,
+        ): FormWidgetInfo =
+            FormWidgetInfo(
+                WIDGET_TYPE_COMBOBOX,
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                isReadOnly,
+                isEditableText,
+                fontSize = fontSize,
+                listItems = listItems,
+            )
+
+        /** Factory method for creating form widget of type [WIDGET_TYPE_TEXTFIELD]. */
+        @JvmStatic
+        public fun createTextField(
+            @IntRange(from = 0) widgetIndex: Int,
+            widgetRect: Rect,
+            textValue: String?,
+            accessibilityLabel: String?,
+            isReadOnly: Boolean,
+            isEditableText: Boolean,
+            isMultiLineText: Boolean,
+            @IntRange(from = 0) maxLength: Int,
+            @FloatRange(from = 0.0) fontSize: Float,
+        ): FormWidgetInfo {
+            require(maxLength >= 0)
+            require(fontSize >= 0)
+
+            return FormWidgetInfo(
+                WIDGET_TYPE_TEXTFIELD,
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                isReadOnly,
+                isEditableText = isEditableText,
+                isMultiLineText = isMultiLineText,
+                maxLength = maxLength,
+                fontSize = fontSize,
+            )
+        }
+
+        @JvmStatic
+        public fun createListBox(
+            @IntRange(from = 0) widgetIndex: Int,
+            widgetRect: Rect,
+            textValue: String?,
+            accessibilityLabel: String?,
+            isReadOnly: Boolean,
+            isMultiSelect: Boolean,
+            listItems: List<ListItem>,
+        ): FormWidgetInfo =
+            FormWidgetInfo(
+                WIDGET_TYPE_LISTBOX,
+                widgetIndex,
+                widgetRect,
+                textValue,
+                accessibilityLabel,
+                isReadOnly,
+                isMultiSelect = isMultiSelect,
+                listItems = listItems,
+            )
 
         @JvmField
         public val CREATOR: Parcelable.Creator<FormWidgetInfo> =

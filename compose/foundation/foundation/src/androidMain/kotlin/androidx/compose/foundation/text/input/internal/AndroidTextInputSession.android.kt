@@ -203,7 +203,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
  */
 private val ALL_MIME_TYPES = arrayOf("*/*", "image/*", "video/*")
 
-private fun logDebug(tag: String = TIA_TAG, content: () -> String) {
+private inline fun logDebug(tag: String = TIA_TAG, content: () -> String) {
     if (TIA_DEBUG) {
         Log.d(tag, content())
     }

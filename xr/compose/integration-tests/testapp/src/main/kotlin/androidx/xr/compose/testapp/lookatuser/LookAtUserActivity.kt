@@ -26,9 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -46,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.spatial.Subspace
+import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialExternalSurface
 import androidx.xr.compose.subspace.SpatialPanel
@@ -54,12 +53,13 @@ import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.billboard
 import androidx.xr.compose.subspace.layout.fillMaxSize
+import androidx.xr.compose.subspace.layout.gravityAligned
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.lookAtUser
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
+import androidx.xr.compose.subspace.layout.rotate
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.ui.components.TopBarWithBackArrow
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
@@ -67,13 +67,31 @@ import androidx.xr.compose.testapp.ui.theme.Purple40
 import androidx.xr.compose.testapp.ui.theme.PurpleGrey40
 import androidx.xr.compose.testapp.ui.theme.PurpleGrey80
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
 
 /**
- * Test Activity for the [billboard] modifier. This activity demonstrates the effect of applying
- * [billboard] to various spatial containers, including [SpatialPanel], [SpatialRow], and
- * [SpatialColumn]. The modifier ensures the spatial composable's content always rotates to face the
- * user's current head position, regardless of the user's movement or the composable's initial
- * placement.
+ * Integration test activity for the [lookAtUser] modifier.
+ *
+ * This activity provides a visual test bed to validate how spatial entities track the user's head
+ * pose across different container types and modifier combinations.
+ *
+ * Test Scenarios
+ * 1. Standard lookAtUser: Validates full 3D orientation tracking (pitch, yaw, and roll) applied to
+ *    a [SpatialPanel], [SpatialRow], [SpatialColumn], and [SpatialExternalSurface].
+ * 2. Nested Hierarchies: Validates that the tracking logic correctly handles coordinate
+ *    transformations when the child tracks the user inside a rotated [SpatialBox].
+ * 3. Custom Up Vector: Validates tracking behavior when a specific 'up' orientation is provided,
+ *    useful for tilted or non-standard tracking requirements.
+ * 4. Billboard: Demonstrates and validates the "Billboard" effect, achieved by chaining
+ *    [lookAtUser] with [gravityAligned]. This should result in horizontal-only tracking while the
+ *    panel remains vertically upright.
+ *
+ * Usage
+ * - Use the global switch in the top control panel to toggle the tracking behavior for all test
+ *   cases simultaneously.
+ * - Move the headset or camera around the spatial environment to verify that all panels actively
+ *   rotate to maintain a front-facing orientation toward the user.
  */
 class LookAtUserActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,42 +104,24 @@ class LookAtUserActivity : ComponentActivity() {
     @Composable
     private fun MainContent() {
         val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-        // Ensure head tracking is enabled
         session.configure(
             config = session.config.copy(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN)
         )
 
-        // Global state for billboard toggling
-        var isBillboardOn by remember { mutableStateOf(true) }
-        // Global state for lookAtUser toggling
         var isLookAtUserOn by remember { mutableStateOf(true) }
 
         IntegrationTestsAppTheme {
-            Subspace(modifier = SubspaceModifier.width(1200.dp).height(1400.dp)) {
-                SpatialRow() {
-                    SpatialColumn(
-                        verticalArrangement = SpatialArrangement.spacedBy(20.dp),
-                        // Offset the entire column slightly away from the user for better viewing
-                        modifier = SubspaceModifier.offset(y = 100.dp, z = (-100).dp),
-                    ) {
+            Subspace(modifier = SubspaceModifier.width(1600.dp).height(1400.dp)) {
+                SpatialRow(
+                    modifier = SubspaceModifier.offset(y = 100.dp),
+                    horizontalArrangement = SpatialArrangement.spacedBy(40.dp),
+                ) {
+                    SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
                         ControlPanel(
-                            feature = "Billboard",
-                            isFeatureOn = isBillboardOn,
-                            onToggle = { isBillboardOn = it },
-                        )
-                        TestGrid(feature = "Billboard", isFeatureOn = isBillboardOn)
-                    }
-                    SpatialColumn(
-                        verticalArrangement = SpatialArrangement.spacedBy(20.dp),
-                        // Offset the entire column slightly away from the user for better viewing
-                        modifier = SubspaceModifier.offset(y = 100.dp, z = (-100).dp),
-                    ) {
-                        ControlPanel(
-                            feature = "LookAtUser",
-                            isFeatureOn = isLookAtUserOn,
+                            isLookAtUserOn = isLookAtUserOn,
                             onToggle = { isLookAtUserOn = it },
                         )
-                        TestGrid(feature = "LookAtUser", isFeatureOn = isLookAtUserOn)
+                        TestGrid(isFeatureOn = isLookAtUserOn)
                     }
                 }
             }
@@ -131,8 +131,7 @@ class LookAtUserActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     @SubspaceComposable
     @Composable
-    private fun ControlPanel(feature: String, isFeatureOn: Boolean, onToggle: (Boolean) -> Unit) {
-        // SpatialPanel container for the controls
+    private fun ControlPanel(isLookAtUserOn: Boolean, onToggle: (Boolean) -> Unit) {
         SpatialPanel(modifier = SubspaceModifier.width(550.dp).height(200.dp).padding(25.dp)) {
             Column(
                 modifier = Modifier.fillMaxSize().background(PurpleGrey80),
@@ -143,7 +142,7 @@ class LookAtUserActivity : ComponentActivity() {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     TopBarWithBackArrow(
                         scrollBehavior = null,
-                        title = "$feature Modifier Test",
+                        title = "Look At User Modifier Test",
                         onClick = { finish() },
                     )
                 }
@@ -155,41 +154,44 @@ class LookAtUserActivity : ComponentActivity() {
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        "Enable $feature Modifier:",
+                        "Enable Look At User Modifier:",
                         color = PurpleGrey40,
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(end = 20.dp),
                     )
-                    Switch(checked = isFeatureOn, onCheckedChange = onToggle)
+                    Switch(checked = isLookAtUserOn, onCheckedChange = onToggle)
                 }
             }
         }
     }
 
     /**
-     * A reusable container that encapsulates a spatial composable and applies the billboard
+     * A reusable container that encapsulates a spatial composable and applies the lookAtUser
      * modifier based on the global state.
      */
     @SubspaceComposable
     @Composable
     private fun TestPanelContainer(
         title: String,
-        feature: String,
         isFeatureOn: Boolean,
-        extraContent: (@Composable () -> Unit)? = null,
+        upVector: Vector3? = null,
+        width: Int = 400,
+        height: Int = 200,
         container:
             @Composable
             @SubspaceComposable
             (SubspaceModifier, @Composable () -> Unit) -> Unit,
     ) {
-        var finalModifier = SubspaceModifier.width(400.dp).height(200.dp)
+        var finalModifier = SubspaceModifier.width(width.dp).height(height.dp)
         if (isFeatureOn) {
-            if (feature == "Billboard") finalModifier = finalModifier.billboard()
-            if (feature == "LookAtUser") finalModifier = finalModifier.lookAtUser()
+            finalModifier =
+                when {
+                    upVector != null -> finalModifier.lookAtUser(up = upVector)
+                    else -> finalModifier.lookAtUser()
+                }
         }
 
-        // The inner content function (passed to the container)
         val innerContent: @Composable () -> Unit = {
             @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
             Box(
@@ -199,18 +201,13 @@ class LookAtUserActivity : ComponentActivity() {
                         .padding(16.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                // Use Column to stack the title and the optional content
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        text = title,
-                        color = Color.White,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        textAlign = TextAlign.Center,
-                    )
-                    // Conditionally display the optional content
-                    extraContent?.invoke()
-                }
+                Text(
+                    text = title,
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    textAlign = TextAlign.Center,
+                )
             }
         }
 
@@ -219,86 +216,87 @@ class LookAtUserActivity : ComponentActivity() {
 
     @SubspaceComposable
     @Composable
-    private fun TestGrid(feature: String, isFeatureOn: Boolean) {
-        SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
-            // SpatialPanel
-            TestPanelContainer(
-                title = "SpatialPanel",
-                feature = feature,
-                isFeatureOn = isFeatureOn,
-            ) { modifier, content ->
-                SpatialPanel(modifier = modifier, content = content)
-            }
+    private fun TestGrid(isFeatureOn: Boolean) {
+        SpatialRow(horizontalArrangement = SpatialArrangement.spacedBy(20.dp)) {
+            // Column 1: Standard Composables
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(20.dp)) {
+                TestPanelContainer(title = "SpatialPanel", isFeatureOn = isFeatureOn) {
+                    modifier,
+                    content ->
+                    SpatialPanel(modifier = modifier, content = content)
+                }
 
-            // SpatialRow
-            TestPanelContainer(
-                title = "SpatialRow",
-                feature = feature,
-                isFeatureOn = isFeatureOn,
-                extraContent = {
-                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-                    Row(
-                        modifier = Modifier.padding(top = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        StaticBox("1")
-                        StaticBox("2")
+                TestPanelContainer(title = "SpatialExternalSurface", isFeatureOn = isFeatureOn) {
+                    modifier,
+                    content ->
+                    SpatialExternalSurface(modifier = modifier, stereoMode = StereoMode.Mono) {
+                        SpatialPanel(modifier = SubspaceModifier.fillMaxSize(), content = content)
                     }
-                },
-            ) { modifier, content ->
-                SpatialRow(modifier = modifier) {
-                    SpatialPanel(modifier = SubspaceModifier.fillMaxSize(), content = content)
                 }
-            }
 
-            // SpatialColumn
-            TestPanelContainer(
-                title = "SpatialColumn",
-                feature = feature,
-                isFeatureOn = isFeatureOn,
-                extraContent = {
-                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-                    Column(
-                        modifier = Modifier.padding(top = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                    ) {
-                        StaticBox("1")
-                        StaticBox("2")
+                TestPanelContainer(title = "SpatialRow", isFeatureOn = isFeatureOn) {
+                    modifier,
+                    content ->
+                    SpatialRow(modifier = modifier) {
+                        SpatialPanel(modifier = SubspaceModifier.fillMaxSize(), content = content)
                     }
-                },
-            ) { modifier, content ->
-                SpatialColumn(modifier = modifier) {
-                    SpatialPanel(modifier = SubspaceModifier.fillMaxSize(), content = content)
+                }
+
+                TestPanelContainer(title = "SpatialColumn", isFeatureOn = isFeatureOn) {
+                    modifier,
+                    content ->
+                    SpatialColumn(modifier = modifier) {
+                        SpatialPanel(modifier = SubspaceModifier.fillMaxSize(), content = content)
+                    }
                 }
             }
 
-            // SpatialExternalSurface
-            TestPanelContainer(
-                title = "SpatialExternalSurface",
-                feature = feature,
-                isFeatureOn = isFeatureOn,
-            ) { modifier, content ->
-                SpatialExternalSurface(modifier = modifier, stereoMode = StereoMode.Mono) {
-                    SpatialPanel(modifier = SubspaceModifier.fillMaxSize(), content = content)
-                }
-            }
-        }
-    }
+            // Column 2: Advanced Configurations
+            SpatialColumn(verticalArrangement = SpatialArrangement.spacedBy(60.dp)) {
+                // Nested rotation test: Demonstrates a tracking child within a fixed rotated parent
+                val parentRotation = Quaternion.fromEulerAngles(pitch = 0f, yaw = 0f, roll = 10f)
+                SpatialBox(
+                    modifier = SubspaceModifier.width(400.dp).height(200.dp).rotate(parentRotation)
+                ) {
+                    SpatialPanel(modifier = SubspaceModifier.fillMaxSize()) {
+                        Box(modifier = Modifier.fillMaxSize().background(PurpleGrey40)) {
+                            Text(
+                                "PARENT (FIXED ROTATION)",
+                                color = Color.White,
+                                fontSize = 12.sp,
+                                modifier = Modifier.padding(8.dp).align(Alignment.TopStart),
+                            )
+                        }
+                    }
 
-    @Composable
-    private fun StaticBox(title: String) {
-        Box(
-            modifier = Modifier.width(100.dp).height(50.dp).background(PurpleGrey80),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    text = title,
-                    color = PurpleGrey40,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    textAlign = TextAlign.Center,
-                )
+                    TestPanelContainer(
+                        title = "CHILD (TRACKING)",
+                        isFeatureOn = isFeatureOn,
+                        width = 300,
+                        height = 100,
+                    ) { modifier, content ->
+                        // Offset by 5dp on Z axis to prevent clipping with parent panel
+                        SpatialPanel(modifier = modifier.offset(z = 5.dp), content = content)
+                    }
+                }
+
+                // Custom up vector: Tracking with a specific 'up' orientation
+                TestPanelContainer(
+                    title = "Custom Up Vector (1, 0, 0)",
+                    isFeatureOn = isFeatureOn,
+                    upVector = Vector3(1f, 0f, 0f),
+                    width = 300,
+                ) { modifier, content ->
+                    SpatialPanel(modifier = modifier, content = content)
+                }
+
+                // Billboard: Horizontal tracking only (upright)
+                TestPanelContainer(
+                    title = "Billboard (Look + Gravity)",
+                    isFeatureOn = isFeatureOn,
+                ) { modifier, content ->
+                    SpatialPanel(modifier = modifier.gravityAligned(), content = content)
+                }
             }
         }
     }

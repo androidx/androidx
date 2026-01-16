@@ -27,10 +27,10 @@ public interface SceneRuntimeFactory : Service {
      *
      * @param activity Current [Activity] instance.
      * @param unscaledGravityAlignedActivitySpace whether to use the un-scaled & gravity aligned
-     *   activity space. Defaults to false.
+     *   activity space. Defaults to true.
      */
     public fun create(
         activity: Activity,
-        unscaledGravityAlignedActivitySpace: Boolean = false,
+        unscaledGravityAlignedActivitySpace: Boolean = true,
     ): JxrRuntime
 }

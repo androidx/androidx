@@ -16,7 +16,7 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.xr.compose.subspace.node.LayoutCoordinatesAwareModifierNode
+import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 
 /**
@@ -61,8 +61,8 @@ private class OnGloballyPositionedVolumeElement(
 
 /** Node associated with [onGloballyPositioned]. */
 private class OnGloballyPositionedNode(public var callback: (SubspaceLayoutCoordinates) -> Unit) :
-    SubspaceModifier.Node(), LayoutCoordinatesAwareModifierNode {
-    override fun onLayoutCoordinates(coordinates: SubspaceLayoutCoordinates) {
+    SubspaceModifier.Node(), SubspaceLayoutAwareModifierNode {
+    override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         callback(coordinates)
     }
 }

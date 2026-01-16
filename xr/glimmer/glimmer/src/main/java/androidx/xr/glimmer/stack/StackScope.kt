@@ -133,16 +133,6 @@ internal class StackItemHolder(private val state: StackState, content: StackScop
                 localIntervalIndex = localIntervalIndex,
             )
         }
-
-    internal fun getItemScope(globalIndex: Int): StackItemScopeImpl? =
-        withInterval(globalIndex) { localIntervalIndex, itemInterval ->
-            val key =
-                itemInterval.getKeyOrDefault(
-                    globalIndex = globalIndex,
-                    localIntervalIndex = localIntervalIndex,
-                )
-            itemInterval.getItemScope(key)
-        }
 }
 
 /** Represents an interval of stack items. */
@@ -152,8 +142,6 @@ internal class StackItemInterval(
     val item: @Composable StackItemScope.(index: Int) -> Unit,
 ) {
     private val itemScopes = MutableScatterMap<Any, StackItemScopeImpl>()
-
-    internal fun getItemScope(key: Any): StackItemScopeImpl? = itemScopes.get(key)
 
     internal fun getOrCreateItemScope(key: Any): StackItemScopeImpl =
         itemScopes.getOrPut(key, defaultValue = { StackItemScopeImpl(state) })

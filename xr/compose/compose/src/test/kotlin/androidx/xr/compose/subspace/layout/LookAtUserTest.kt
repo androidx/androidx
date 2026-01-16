@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.xr.compose.subspace.layout
 
 import androidx.activity.ComponentActivity
@@ -22,20 +23,24 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.arcore.testing.FakePerceptionManager
 import androidx.xr.arcore.testing.FakePerceptionRuntime
-import androidx.xr.compose.spatial.ExperimentalUserSubspaceApi
+import androidx.xr.compose.spatial.ExperimentalFollowingSubspaceApi
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertRotationInRootIsEqualTo
-import androidx.xr.compose.testing.configureFakeSession
 import androidx.xr.compose.testing.onSubspaceNodeWithTag
+import androidx.xr.compose.testing.session
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Quaternion.Companion.fromRotation
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.Space
+import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -49,58 +54,21 @@ import org.robolectric.android.controller.ActivityController
 @RunWith(AndroidJUnit4::class)
 class LookAtUserTest {
     private val testDispatcher = StandardTestDispatcher()
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
     private lateinit var activityController: ActivityController<ComponentActivity>
     private lateinit var activity: ComponentActivity
 
     @Before
-    @OptIn(ExperimentalUserSubspaceApi::class)
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
     fun setUp() {
         activityController = Robolectric.buildActivity(ComponentActivity::class.java)
         activity = activityController.get()
     }
-
-    @Test
-    fun billboard_userTranslationChanges_contentTurnsTowardsUser() =
-        runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
-
-            composeTestRule.setContent {
-                Subspace {
-                    SpatialPanel(SubspaceModifier.testTag("TheWatcher").billboard()) {
-                        Text(text = "Panel")
-                    }
-                }
-            }
-
-            composeTestRule
-                .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(Quaternion.Identity)
-
-            val watcherEntity =
-                assertNotNull(
-                    composeTestRule
-                        .onSubspaceNodeWithTag("TheWatcher")
-                        .fetchSemanticsNode()
-                        .semanticsEntity
-                )
-
-            val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
-
-            testDispatcher.scheduler.advanceUntilIdle()
-            composeTestRule.waitForIdle()
-
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
-            val expectedRotation =
-                getBillboardRotationNeeded(watcherWorldPose.translation, userLocation)
-
-            composeTestRule
-                .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
-        }
 
     @Test
     fun lookAtUser_userTranslationChanges_contentTurnsTowardsUser() =
@@ -139,28 +107,35 @@ class LookAtUserTest {
         }
 
     @Test
-    fun billboard_withRotationModifier_retainsOffsetAfterBillboard() =
+    fun lookAtUser_withGravityAligned_ignoresPitchRotation_andContentTurnsTowardsUser() =
         runTest(testDispatcher) {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
-            val fixedRotateOffset = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
 
             composeTestRule.setContent {
                 Subspace {
                     SpatialPanel(
                         SubspaceModifier.testTag("TheWatcher")
-                            .billboard()
-                            .rotate(pitch = 40f, yaw = 30f, roll = 20f)
+                            // Apply an initial pitch rotation to test billboard behavior
+                            .rotate(pitch = 30f)
+                            .lookAtUser()
+                            .gravityAligned()
                     ) {
                         Text(text = "Panel")
                     }
                 }
             }
 
-            val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
-
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(fixedRotateOffset)
+                .assertRotationInRootIsEqualTo(Quaternion.Identity)
+
+            val watcherEntity =
+                assertNotNull(
+                    composeTestRule
+                        .onSubspaceNodeWithTag("TheWatcher")
+                        .fetchSemanticsNode()
+                        .semanticsEntity
+                )
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
             fakePerceptionManager.arDevice.apply {
@@ -171,9 +146,8 @@ class LookAtUserTest {
             composeTestRule.waitForIdle()
 
             val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
-            val billboardRotationTowardsUser =
+            val expectedRotation =
                 getBillboardRotationNeeded(watcherWorldPose.translation, userLocation)
-            val expectedRotation = billboardRotationTowardsUser * fixedRotateOffset
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
@@ -181,7 +155,7 @@ class LookAtUserTest {
         }
 
     @Test
-    fun lookAtUser_withRotationModifier_retainsOffsetAfterLookAt() =
+    fun lookAtUser_withRotation_retainsOffset() =
         runTest(testDispatcher) {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
             val fixedRotateOffset = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
@@ -224,29 +198,31 @@ class LookAtUserTest {
         }
 
     @Test
-    fun billboard_precededByRotation_ignoresRotation() =
+    fun lookAtUser_withGravityAlignedAndRotation_retainsOffset() =
         runTest(testDispatcher) {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
-            val localRotation = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
+            val fixedRotateOffset = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
 
             composeTestRule.setContent {
                 Subspace {
                     SpatialPanel(
-                        SubspaceModifier.testTag("TheWatcher").rotate(localRotation).billboard()
+                        SubspaceModifier.testTag("TheWatcher")
+                            // Apply an initial pitch rotation to test billboard behavior
+                            .rotate(pitch = 30f)
+                            .lookAtUser()
+                            .gravityAligned()
+                            .rotate(pitch = 40f, yaw = 30f, roll = 20f)
                     ) {
                         Text(text = "Panel")
                     }
                 }
             }
 
-            val yawOnlyRotation =
-                Quaternion.fromEulerAngles(pitch = 0f, yaw = localRotation.eulerAngles.y, roll = 0f)
+            val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(yawOnlyRotation)
-
-            val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
+                .assertRotationInRootIsEqualTo(fixedRotateOffset)
 
             val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
             fakePerceptionManager.arDevice.apply {
@@ -257,8 +233,9 @@ class LookAtUserTest {
             composeTestRule.waitForIdle()
 
             val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
-            val expectedRotation =
+            val billboardRotationTowardsUser =
                 getBillboardRotationNeeded(watcherWorldPose.translation, userLocation)
+            val expectedRotation = billboardRotationTowardsUser * fixedRotateOffset
 
             composeTestRule
                 .onSubspaceNodeWithTag("TheWatcher")
@@ -305,105 +282,6 @@ class LookAtUserTest {
         }
 
     @Test
-    fun lookAtUser_followedByBillboard_behavesAsBillboard() =
-        runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
-
-            composeTestRule.setContent {
-                Subspace {
-                    SpatialPanel(SubspaceModifier.testTag("TheWatcher").lookAtUser().billboard()) {
-                        Text(text = "Panel")
-                    }
-                }
-            }
-
-            val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
-
-            val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
-
-            testDispatcher.scheduler.advanceUntilIdle()
-            composeTestRule.waitForIdle()
-
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
-            val expectedRotation =
-                getBillboardRotationNeeded(watcherWorldPose.translation, userLocation)
-
-            composeTestRule
-                .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
-        }
-
-    @Test
-    fun billboard_followedByLookAtUser_behavesAsLookAtUser() =
-        runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
-
-            composeTestRule.setContent {
-                Subspace {
-                    SpatialPanel(SubspaceModifier.testTag("TheWatcher").billboard().lookAtUser()) {
-                        Text(text = "Panel")
-                    }
-                }
-            }
-
-            val watcherEntity = composeTestRule.getTaggedEntity("TheWatcher")
-
-            val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
-
-            testDispatcher.scheduler.advanceUntilIdle()
-            composeTestRule.waitForIdle()
-
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
-            val targetVector = (userLocation - watcherWorldPose.translation).toNormalized()
-            val expectedRotation = Quaternion.fromLookTowards(targetVector, Vector3(0f, 1f, 0f))
-
-            composeTestRule
-                .onSubspaceNodeWithTag("TheWatcher")
-                .assertRotationInRootIsEqualTo(expectedRotation, tolerance = 0.04f)
-        }
-
-    @Test
-    fun billboard_withRotatedParent_ignoresParentRotation() =
-        runTest(testDispatcher) {
-            val fakePerceptionManager = createSessionAndGetPerceptionManager()
-            val parentRotation = Quaternion.fromEulerAngles(pitch = 40f, yaw = 30f, roll = 20f)
-
-            composeTestRule.setContent {
-                Subspace {
-                    SpatialBox(SubspaceModifier.rotate(parentRotation)) {
-                        SpatialPanel(SubspaceModifier.testTag("child").billboard()) {
-                            Text(text = "Panel")
-                        }
-                    }
-                }
-            }
-
-            val watcherEntity = composeTestRule.getTaggedEntity("child")
-
-            val userLocation = Vector3(x = 1F, y = 2F, z = 3F)
-            fakePerceptionManager.arDevice.apply {
-                devicePose = devicePose.translate(translation = userLocation)
-            }
-
-            testDispatcher.scheduler.advanceUntilIdle()
-            composeTestRule.waitForIdle()
-
-            val watcherWorldPose = watcherEntity.getPose(Space.REAL_WORLD)
-            val expectedWorldRotation =
-                getBillboardRotationNeeded(watcherWorldPose.translation, userLocation)
-
-            composeTestRule
-                .onSubspaceNodeWithTag("child")
-                .assertRotationInRootIsEqualTo(expectedWorldRotation, tolerance = 0.04f)
-        }
-
-    @Test
     fun lookAtUser_withRotatedParent_ignoresParentRotation() =
         runTest(testDispatcher) {
             val fakePerceptionManager = createSessionAndGetPerceptionManager()
@@ -444,10 +322,13 @@ class LookAtUserTest {
         }
 
     private fun createSessionAndGetPerceptionManager(): FakePerceptionManager {
-        val session = composeTestRule.configureFakeSession()
+        val sessionCreateResult = Session.create(composeTestRule.activity, testDispatcher)
+        assertThat(sessionCreateResult).isInstanceOf(SessionCreateSuccess::class.java)
+        val session = (sessionCreateResult as SessionCreateSuccess).session
         session.configure(
             config = session.config.copy(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN)
         )
+        composeTestRule.session = session
         val fakeRuntime = session.runtimes.filterIsInstance<FakePerceptionRuntime>().first()
         return fakeRuntime.perceptionManager
     }

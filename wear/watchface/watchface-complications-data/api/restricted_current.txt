@@ -643,11 +643,11 @@ package androidx.wear.watchface.complications.data.parser {
 
   public final class PreviewData {
     method public operator androidx.wear.watchface.complications.data.ComplicationData? get(androidx.wear.watchface.complications.data.ComplicationType type);
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) @kotlin.jvm.Throws(exceptionClasses={XmlPullParserException::class, IOException::class}) public static androidx.wear.watchface.complications.data.parser.PreviewData inflate(android.content.Context providerContext, android.content.res.XmlResourceParser parser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) @RequiresPermission("com.google.wear.permission.SET_COMPLICATION_EXTRAS") @kotlin.jvm.Throws(exceptionClasses={XmlPullParserException::class, IOException::class}) public static androidx.wear.watchface.complications.data.parser.PreviewData inflate(android.content.Context providerContext, android.content.res.XmlResourceParser parser) throws java.io.IOException, org.xmlpull.v1.XmlPullParserException;
   }
 
   public final class StaticPreviewDataParser {
-    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public static androidx.wear.watchface.complications.data.parser.PreviewData? parsePreviewData(android.content.Context context, android.content.ComponentName providerComponent);
+    method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) @RequiresPermission("com.google.wear.permission.SET_COMPLICATION_EXTRAS") public static androidx.wear.watchface.complications.data.parser.PreviewData? parsePreviewData(android.content.Context context, android.content.ComponentName providerComponent);
     field public static final androidx.wear.watchface.complications.data.parser.StaticPreviewDataParser INSTANCE;
   }
 

@@ -52,6 +52,9 @@ public interface PdfLoader {
      * @param fileDescriptor a [ParcelFileDescriptor] pointing at the PDF content to be opened. Must
      *   be seekable.
      * @param password (Optional) The password to unlock the document if it is encrypted.
+     * @param renderParams (Optional) Represents a set of parameters that will be used to render a
+     *   page of the document. If not provided, the default [RenderParams] with
+     *   [RenderParams.renderMode] = [RenderParams.RENDER_MODE_FOR_DISPLAY] will be used.
      * @return The opened [PdfDocument].
      * @throws PdfPasswordException If the provided password is incorrect.
      * @throws IOException If an error occurs while opening the document.
@@ -61,5 +64,6 @@ public interface PdfLoader {
         uri: Uri,
         fileDescriptor: ParcelFileDescriptor,
         password: String? = null,
+        renderParams: RenderParams = RenderParams(renderMode = RenderParams.RENDER_MODE_FOR_DISPLAY),
     ): PdfDocument
 }

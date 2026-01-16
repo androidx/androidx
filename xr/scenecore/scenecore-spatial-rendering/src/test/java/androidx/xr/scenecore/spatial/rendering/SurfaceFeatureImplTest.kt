@@ -70,7 +70,7 @@ class SurfaceFeatureImplTest {
         `when`(splitEngineSubspaceManager.createSubspace(anyString(), anyInt()))
             .thenReturn(expectedSubspaceNode)
 
-        createDefaultSurfaceFeature(SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f)))
+        createDefaultSurfaceFeature(SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f), 0.0f))
     }
 
     @After
@@ -106,14 +106,15 @@ class SurfaceFeatureImplTest {
     @Ignore // b/428211243 this test currently leaks android.view.Surface
     @Test
     fun setShape_setsShape() {
-        var expectedShape: SurfaceEntity.Shape = SurfaceEntity.Shape.Quad(FloatSize2d(12f, 12f))
+        var expectedShape: SurfaceEntity.Shape =
+            SurfaceEntity.Shape.Quad(FloatSize2d(12f, 12f), 0.0f)
         surfaceFeature.shape = expectedShape
         var shape = surfaceFeature.shape
 
         assertThat(shape.javaClass).isEqualTo(expectedShape.javaClass)
         assertThat(shape.dimensions).isEqualTo(expectedShape.dimensions)
         verify(impressApi)
-            .setStereoSurfaceEntityCanvasShapeQuad(surfaceFeature.entityImpressNode, 12f, 12f)
+            .setStereoSurfaceEntityCanvasShapeQuad(surfaceFeature.entityImpressNode, 12f, 12f, 0.0f)
 
         expectedShape = SurfaceEntity.Shape.Sphere(11f)
         surfaceFeature.shape = expectedShape
@@ -157,7 +158,7 @@ class SurfaceFeatureImplTest {
     @Ignore // b/428211243 this test currently leaks android.view.Surface
     @Test
     fun dispose_supports_reentry() {
-        val quadShape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)) // 1m x 1m local
+        val quadShape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), 0.0f) // 1m x 1m local
         surfaceFeature = createDefaultSurfaceFeature(quadShape)
 
         // Note that we don't test that dispose prevents manipulating other properties because that
@@ -223,7 +224,7 @@ class SurfaceFeatureImplTest {
                 splitEngineSubspaceManager,
                 xrExtensions,
                 SurfaceEntity.StereoMode.SIDE_BY_SIDE,
-                SurfaceEntity.Shape.Quad(FloatSize2d(kTestWidth, kTestHeight)),
+                SurfaceEntity.Shape.Quad(FloatSize2d(kTestWidth, kTestHeight), 0.0f),
                 SurfaceEntity.SurfaceProtection.NONE,
                 SurfaceEntity.SuperSampling.DEFAULT,
             )
@@ -315,7 +316,7 @@ class SurfaceFeatureImplTest {
         val protectedSurfaceFeature =
             createSurfaceFeature(
                 SurfaceEntity.SurfaceProtection.PROTECTED,
-                SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f)),
+                SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f), 0.0f),
             )
         var exceptionThrown = false
         try {

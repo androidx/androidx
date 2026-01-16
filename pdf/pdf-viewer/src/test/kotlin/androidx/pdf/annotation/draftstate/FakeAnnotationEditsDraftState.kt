@@ -16,14 +16,11 @@
 
 package androidx.pdf.annotation.draftstate
 
+import androidx.pdf.EditsDraft
 import androidx.pdf.annotation.AnnotationHandleIdGenerator
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.composeAnnotationId
 import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.annotation.models.PdfEdits
-import androidx.pdf.annotation.models.TestPdfAnnotation
 
 class FakeAnnotationEditsDraftState : AnnotationEditsDraftState {
     private val drafts = mutableMapOf<Int, MutableMap<String, PdfAnnotation>>()
@@ -46,12 +43,6 @@ class FakeAnnotationEditsDraftState : AnnotationEditsDraftState {
         return drafts[pageNum]?.get(handleId)
     }
 
-    override fun getEdits(pageNum: Int): List<PdfAnnotationData> {
-        return drafts[pageNum]?.map { (handle, annot) ->
-            PdfAnnotationData(EditId(pageNum, handle), annot)
-        } ?: emptyList()
-    }
-
     override fun removeAnnotation(pageNum: Int, annotationId: String): PdfAnnotation {
         return drafts[pageNum]?.remove(annotationId)!!
     }
@@ -72,16 +63,9 @@ class FakeAnnotationEditsDraftState : AnnotationEditsDraftState {
             ?: emptyList()
     }
 
-    override fun addEditById(id: EditId, annotation: PdfAnnotation) {}
-
-    override fun addEdit(annotation: PdfAnnotation): EditId = EditId(0, "")
-
-    override fun removeEdit(editId: EditId): PdfAnnotation = TestPdfAnnotation(editId.pageNum)
-
-    override fun updateEdit(editId: EditId, annotation: PdfAnnotation): PdfAnnotation =
-        TestPdfAnnotation(editId.pageNum)
-
-    override fun toPdfEdits(): PdfEdits = PdfEdits(emptyMap())
+    override fun getModificationsSnapshot(): EditsDraft {
+        TODO("Not yet implemented")
+    }
 
     override fun clear() {}
 }

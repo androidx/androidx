@@ -30,12 +30,12 @@ import android.os.Parcelable
  * @see Activity.onActivityResult
  */
 @SuppressLint("BanParcelableUsage")
-class ActivityResult(
+public class ActivityResult(
     /** Status to indicate the success of the operation */
-    val resultCode: Int,
+    public val resultCode: Int,
 
     /** The intent that carries the result data */
-    val data: Intent?,
+    public val data: Intent?,
 ) : Parcelable {
 
     internal constructor(
@@ -55,16 +55,16 @@ class ActivityResult(
         data?.writeToParcel(dest, flags)
     }
 
-    override fun describeContents() = 0
+    override fun describeContents(): Int = 0
 
-    companion object {
+    public companion object {
         /**
          * A readable representation of standard activity result codes for the given [resultCode]
          *
          * @return RESULT_OK, RESULT_CANCELED, or the number otherwise
          */
         @JvmStatic
-        fun resultCodeToString(resultCode: Int): String {
+        public fun resultCodeToString(resultCode: Int): String {
             return when (resultCode) {
                 Activity.RESULT_OK -> "RESULT_OK"
                 Activity.RESULT_CANCELED -> "RESULT_CANCELED"
@@ -74,7 +74,7 @@ class ActivityResult(
 
         @Suppress("unused")
         @JvmField
-        val CREATOR =
+        public val CREATOR: Parcelable.Creator<ActivityResult> =
             object : Parcelable.Creator<ActivityResult> {
                 override fun createFromParcel(parcel: Parcel) = ActivityResult(parcel)
 
@@ -88,11 +88,11 @@ class ActivityResult(
  *
  * @return the resultCode of the [ActivityResult]
  */
-operator fun ActivityResult.component1(): Int = resultCode
+public operator fun ActivityResult.component1(): Int = resultCode
 
 /**
  * Destructuring declaration for [ActivityResult] to provide the intent
  *
  * @return the intent of the [ActivityResult]
  */
-operator fun ActivityResult.component2(): Intent? = data
+public operator fun ActivityResult.component2(): Intent? = data

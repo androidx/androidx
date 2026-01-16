@@ -82,7 +82,7 @@ internal sealed class CoreEntity(initialEntity: Entity? = null) : OpaqueEntity {
         get() = layout?.density
 
     open val layoutPoseInPixels: Pose
-        get() = layout?.measurableLayout?.poseInParentEntity ?: Pose.Identity
+        get() = layout?.measurableLayout?.poseInParent ?: Pose.Identity
 
     internal open var poseInMeters: Pose
         get() = entity?.getPose() ?: Pose.Identity

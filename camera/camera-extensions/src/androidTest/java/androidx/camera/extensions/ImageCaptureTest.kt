@@ -30,7 +30,6 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
-import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -71,7 +70,6 @@ import org.mockito.Mockito
 class ImageCaptureTest(
     private val implName: String,
     private val cameraXConfig: CameraXConfig,
-    private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int,
 ) {
@@ -110,7 +108,6 @@ class ImageCaptureTest(
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
         assumeTrue(
@@ -141,9 +138,7 @@ class ImageCaptureTest(
         val context: Context = ApplicationProvider.getApplicationContext()
 
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "cameraXConfig = {0}, impl = {2}, mode = {3}, facing = {4}"
-        )
+        @Parameterized.Parameters(name = "cameraXConfig = {0}, mode = {2}, facing = {3}")
         fun data(): Collection<Array<Any>> {
             return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
         }

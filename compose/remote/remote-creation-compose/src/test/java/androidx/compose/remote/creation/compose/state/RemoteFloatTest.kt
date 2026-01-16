@@ -34,10 +34,11 @@ import java.time.ZoneOffset
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
+@Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RemoteFloatTest {
     val context =
         AndroidRemoteContext().apply {
@@ -605,7 +606,8 @@ class RemoteFloatTest {
 
         val constantStringId = constantFloatString.getIdForCreationState(creationState)
 
-        val variableFloat = MutableRemoteFloat { state -> value.getFloatIdForCreationState(state) }
+        // ensure we have an id to look up
+        val variableFloat = value.createReference()
         val variableFloatId = variableFloat.getIdForCreationState(creationState)
         val variableFloatString = variableFloat.toRemoteString(before, after, flags)
         val variableStringId = variableFloatString.getIdForCreationState(creationState)
@@ -642,7 +644,8 @@ class RemoteFloatTest {
 
         val constantStringId = constantFloatString.getIdForCreationState(creationState)
 
-        val variableFloat = MutableRemoteFloat { state -> value.getFloatIdForCreationState(state) }
+        // ensure we have an id to look up
+        val variableFloat = value.createReference()
         val variableFloatId = variableFloat.getIdForCreationState(creationState)
         val variableFloatString = variableFloat.toRemoteString(formatter)
         val variableStringId = variableFloatString.getIdForCreationState(creationState)
@@ -656,11 +659,11 @@ class RemoteFloatTest {
 
     @Test
     fun textFromFloatFormatting() {
-        // Should be 0.500?
-        testTextFromFloat("0.5", 0.5f.rf, DecimalFormat("#0.000"))
-        testTextFromFloat("-0.5", (-0.5f).rf, DecimalFormat("#0.000"))
-        testTextFromFloat("0.5", 0.5f.rf, DecimalFormat("#,##0.00;(#,##0.00)"))
-        testTextFromFloat("(0.5)", (-0.5f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("0.500", 0.5f.rf, DecimalFormat("#0.000"))
+        testTextFromFloat("-0.500", (-0.5f).rf, DecimalFormat("#0.000"))
+        testTextFromFloat("0.50", 0.5f.rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("(0.50)", (-0.5f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
+        testTextFromFloat("(50,000.50)", (-50000.50001f).rf, DecimalFormat("#,##0.00;(#,##0.00)"))
         testTextFromFloat("5000000.0", 5000000.rf, DecimalFormat("#0.##"))
 
         //        val indianFormatter = DecimalFormat.getNumberInstance(Locale("hi", "IN")) as
@@ -722,6 +725,52 @@ class RemoteFloatTest {
         val expr = RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC) / 4f * 2f
         val array = expr.arrayForCreationState(creationState)
         assertThat(AnimatedFloatExpression.toString(array, null)).isEqualTo("[1] 2.0 / ")
+    }
+
+    @Test
+    fun createReference_resolvesToSameValue() {
+        val rf = RemoteFloat(10f)
+        val ref = rf.createReference()
+
+        assertThat(rf.constantValue).isEqualTo(10f)
+        // createReference preserves constantValue for optimization
+        assertThat(ref.constantValue).isEqualTo(10f)
+
+        val refId = ref.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(refId)).isEqualTo(10f)
+    }
+
+    @Test
+    fun createReference_forcedResolvesToSameValue() {
+        val rf = RemoteFloat(10f)
+        val ref = rf.createReference(forceRemote = true)
+
+        assertThat(rf.constantValue).isEqualTo(10f)
+        assertThat(ref.constantValue).isNull()
+
+        val refId = ref.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        assertThat(context.getFloat(refId)).isEqualTo(10f)
+    }
+
+    @Test
+    fun animateRemoteFloat_smokeTest() {
+        val rf1 = RemoteFloat(10f).createReference(forceRemote = true)
+        val rf2 = RemoteFloat(5f).createReference(forceRemote = true)
+        val animated = animateRemoteFloat(duration = 2f, type = CUBIC_DECELERATE) { rf1 / rf2 }
+
+        assertThat(animated).isInstanceOf(AnimatedRemoteFloat::class.java)
+
+        val animatedId = animated.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+
+        val floatId = animated.getFloatIdForCreationState(creationState)
+        assertThat(floatId).isNaN()
+
+        assertThat(context.getFloat(animatedId)).isEqualTo(2f)
     }
 
     private fun makeAndPaintCoreDocument() =

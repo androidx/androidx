@@ -105,6 +105,7 @@ class ActivityPanelActivity : AppCompatActivity() {
                     val resizeableComponent =
                         ResizableComponent.create(session!!, resizeEventListener = resizeListener)
                     activityPanelEntity.addComponent(resizeableComponent)
+                    activityPanelEntity.parent = session!!.scene.keyEntity
 
                     secondaryPanelLaunched = true
                 }

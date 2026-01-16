@@ -60,13 +60,23 @@ internal class FrameBufferImpl(
     override val frameFlow: SharedFlow<FrameReference> = _frameFlow.asSharedFlow()
 
     init {
-        require(capacity > 0) { "FrameBuffer capacity must be greater than 0" }
+        require(capacity >= 0) { "FrameBuffer capacity must be greater than or equal to 0" }
     }
 
     private val _size = MutableStateFlow(0)
     override val size: StateFlow<Int> = _size.asStateFlow()
 
     override fun onFrameStarted(frameReference: FrameReference) {
+        // If capacity is 0, emit the reference and exit early.
+        if (capacity == 0) {
+            synchronized(lock) {
+                if (!closed) {
+                    _frameFlow.tryEmit(frameReference)
+                }
+            }
+            return
+        }
+
         val acquiredFrame = frameReference.tryAcquire()
 
         val entryToAdd: BufferEntry =

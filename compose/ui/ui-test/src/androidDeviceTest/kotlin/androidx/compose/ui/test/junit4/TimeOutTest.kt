@@ -26,7 +26,7 @@ import androidx.compose.testutils.expectError
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.android.ComposeNotIdleException
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingPolicy
@@ -35,7 +35,6 @@ import androidx.test.espresso.IdlingResource
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -85,80 +84,75 @@ class TimeOutTest {
     }
 
     @Test(timeout = 10_000)
-    fun infiniteRecompositions_resourceTimeout() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.MILLISECONDS)
+    fun infiniteRecompositions_resourceTimeout() = runComposeUiTest {
+        IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.MILLISECONDS)
 
-            expectError<ComposeNotIdleException>(expectedMessage = idlingResourceTimeOut) {
-                setContent { InfiniteRecompositionCase() }
+        expectError<ComposeNotIdleException>(expectedMessage = idlingResourceTimeOut) {
+            setContent { InfiniteRecompositionCase() }
+        }
+    }
+
+    @Test(timeout = 10_000)
+    fun infiniteRecompositions_masterTimeout() = runComposeUiTest {
+        IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
+
+        expectError<ComposeNotIdleException>(expectedMessage = globalTimeOut) {
+            setContent { InfiniteRecompositionCase() }
+        }
+    }
+
+    @Test(timeout = 10_000)
+    fun delayInfiniteTrigger() = runComposeUiTest {
+        // This test checks that we properly time out on infinite recompositions that happen
+        // later down the road (not right during setContent).
+        val count = mutableStateOf(0)
+        setContent {
+            Text("Hello ${count.value}")
+            if (count.value > 0) {
+                count.value++
             }
         }
 
-    @Test(timeout = 10_000)
-    fun infiniteRecompositions_masterTimeout() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
+        onNodeWithText("Hello 0").assertExists()
 
-            expectError<ComposeNotIdleException>(expectedMessage = globalTimeOut) {
-                setContent { InfiniteRecompositionCase() }
-            }
+        count.value++ // Start infinite re-compositions
+
+        IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
+        expectError<ComposeNotIdleException>(expectedMessage = globalTimeOut) {
+            onNodeWithText("Hello").assertExists()
         }
+    }
 
     @Test(timeout = 10_000)
-    fun delayInfiniteTrigger() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            // This test checks that we properly time out on infinite recompositions that happen
-            // later down the road (not right during setContent).
-            val count = mutableStateOf(0)
-            setContent {
-                Text("Hello ${count.value}")
-                if (count.value > 0) {
-                    count.value++
+    fun emptyComposition_masterTimeout_fromIndependentIdlingResource() = runComposeUiTest {
+        // This test checks that if we fail to sync on some unrelated idling resource we don't
+        // override the vanilla errors from Espresso.
+
+        IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
+        IdlingRegistry.getInstance().register(InfiniteResource)
+
+        expectError<AppNotIdleException> { setContent {} }
+    }
+
+    @Test(timeout = 10_000)
+    fun checkIdlingResource_causesTimeout() = runComposeUiTest {
+        // Block idleness with an IdlingResource
+        registerIdlingResource(
+            object : androidx.compose.ui.test.IdlingResource {
+                override val isIdleNow: Boolean = false
+
+                override fun getDiagnosticMessageIfBusy(): String {
+                    return "Never IDLE"
                 }
             }
-
-            onNodeWithText("Hello 0").assertExists()
-
-            count.value++ // Start infinite re-compositions
-
-            IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
-            expectError<ComposeNotIdleException>(expectedMessage = globalTimeOut) {
-                onNodeWithText("Hello").assertExists()
-            }
+        )
+        IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.MILLISECONDS)
+        expectError<ComposeNotIdleException>(
+            expectedMessage = ".*\\[busy\\] Never IDLE.*\\[idle\\] .*ComposeIdlingResource.*"
+        ) {
+            waitForIdle()
         }
-
-    @Test(timeout = 10_000)
-    fun emptyComposition_masterTimeout_fromIndependentIdlingResource() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            // This test checks that if we fail to sync on some unrelated idling resource we don't
-            // override the vanilla errors from Espresso.
-
-            IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
-            IdlingRegistry.getInstance().register(InfiniteResource)
-
-            expectError<AppNotIdleException> { setContent {} }
-        }
-
-    @Test(timeout = 10_000)
-    fun checkIdlingResource_causesTimeout() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            // Block idleness with an IdlingResource
-            registerIdlingResource(
-                object : androidx.compose.ui.test.IdlingResource {
-                    override val isIdleNow: Boolean = false
-
-                    override fun getDiagnosticMessageIfBusy(): String {
-                        return "Never IDLE"
-                    }
-                }
-            )
-            IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.MILLISECONDS)
-            expectError<ComposeNotIdleException>(
-                expectedMessage = ".*\\[busy\\] Never IDLE.*\\[idle\\] .*ComposeIdlingResource.*"
-            ) {
-                waitForIdle()
-            }
-        }
+    }
 
     /**
      * This test is here to guarantee that even if we crash on infinite recompositions during
@@ -171,13 +165,11 @@ class TimeOutTest {
 
         // Test 1: set an infinite composition and expect it to crash
         expectError<ComposeNotIdleException> {
-            runComposeUiTest(StandardTestDispatcher()) {
-                setContent { InfiniteRecompositionCase() }
-            }
+            runComposeUiTest { setContent { InfiniteRecompositionCase() } }
         }
 
         // Test 2: normal composition, should not time out
-        runComposeUiTest(StandardTestDispatcher()) {
+        runComposeUiTest {
             setContent { Text("Hello") }
             // No timeout should happen this time
             onNodeWithText("Hello").assertExists()

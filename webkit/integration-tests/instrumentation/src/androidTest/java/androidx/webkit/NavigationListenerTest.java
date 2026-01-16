@@ -32,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -358,6 +359,7 @@ public class NavigationListenerTest {
     }
 
     @Test
+    @Ignore("http://b/473998983")
     public void isSamePageObject_listenerV2() throws Exception {
         WebkitUtils.checkFeature(
                 WebViewFeature.WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2);

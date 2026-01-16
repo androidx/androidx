@@ -17,7 +17,6 @@
 package androidx.xr.compose.subspace
 
 import android.view.Surface
-import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -46,11 +45,10 @@ import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 
 /** Contains default values used by SpatialExternalSurface. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public object SpatialExternalSurfaceDefaults {
+internal object SpatialExternalSurfaceDefaults {
 
     /** Default radius for spheres. */
-    public val sphereRadius: Dp = Meter(15f).toDp()
+    internal val sphereRadius: Dp = Meter(15f).toDp()
 }
 
 /**

@@ -86,7 +86,6 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
     @GuardedBy("mLock")
     private val cameraInfoMap: MutableMap<CameraIdentifier, AdapterCameraInfo> = HashMap()
     private val lifecycleCameraKeys = HashSet<LifecycleCameraRepository.Key>()
-    override var configImplType = CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_UNKNOWN
 
     internal fun initAsync(
         context: Context,
@@ -100,7 +99,6 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
             }
             cameraXConfig?.let { configure(it) }
             val cameraX = CameraX(context, cameraXConfigProvider)
-            configImplType = cameraX.configImplType
 
             val initFuture: ListenableFuture<Void> =
                 FutureChain.from(cameraXShutdownFuture)
@@ -686,6 +684,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider, CameraPres
                                 primaryCompositionSettings,
                                 secondaryCompositionSettings,
                             ),
+                        cameraX!!.rotationProvider,
                     )
             }
 

@@ -1756,15 +1756,14 @@ private fun HorizontalFloatingToolbarWithFabLayout(
             toolbarMeasurable.maxIntrinsicWidth(
                 height = FloatingToolbarDefaults.ContainerSize.roundToPx()
             )
+        val targetWidth = (maxToolbarPlaceableWidth * expandedProgress.value).toInt()
+        val targetHeight = FloatingToolbarDefaults.ContainerSize.roundToPx()
         // Constraint the toolbar to the available width while taking into account the FAB width.
         val toolbarPlaceable =
             toolbarMeasurable.measure(
                 constraints.copy(
-                    maxWidth =
-                        (maxToolbarPlaceableWidth * expandedProgress.value)
-                            .coerceAtLeast(0f)
-                            .toInt(),
-                    minHeight = FloatingToolbarDefaults.ContainerSize.roundToPx(),
+                    maxWidth = targetWidth.coerceIn(0, constraints.maxWidth),
+                    minHeight = targetHeight.coerceIn(0, constraints.minHeight),
                 )
             )
 
@@ -1988,15 +1987,15 @@ private fun VerticalFloatingToolbarWithFabLayout(
             toolbarMeasurable.maxIntrinsicHeight(
                 width = FloatingToolbarDefaults.ContainerSize.roundToPx()
             )
+        val targetHeight =
+            (maxToolbarPlaceableHeight * expandedProgress.value).coerceAtLeast(0f).toInt()
+        val targetWidth = FloatingToolbarDefaults.ContainerSize.roundToPx()
         // Constraint the toolbar to the available height while taking into account the FAB height.
         val toolbarPlaceable =
             toolbarMeasurable.measure(
                 constraints.copy(
-                    maxHeight =
-                        (maxToolbarPlaceableHeight * expandedProgress.value)
-                            .coerceAtLeast(0f)
-                            .toInt(),
-                    minWidth = FloatingToolbarDefaults.ContainerSize.roundToPx(),
+                    maxHeight = targetHeight.coerceIn(0, constraints.maxHeight),
+                    minWidth = targetWidth.coerceIn(0, constraints.minWidth),
                 )
             )
 

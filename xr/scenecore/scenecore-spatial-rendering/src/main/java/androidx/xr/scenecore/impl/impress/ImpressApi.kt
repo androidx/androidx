@@ -366,6 +366,7 @@ public interface ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     )
 
     /**

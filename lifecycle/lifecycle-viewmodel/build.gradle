@@ -88,9 +88,9 @@ androidXMultiplatform {
             implementation(libs.testRunner)
         }
 
-        unixMain.dependsOn(nativeMain)
-        appleMain.dependsOn(unixMain)
-        linuxMain.dependsOn(unixMain)
+        nativeMain.dependencies {
+            implementation(libs.atomicFu)
+        }
 
         webTest.dependencies {
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")

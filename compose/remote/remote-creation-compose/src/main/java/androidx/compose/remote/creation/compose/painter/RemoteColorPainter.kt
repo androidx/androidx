@@ -17,11 +17,10 @@
 package androidx.compose.remote.creation.compose.painter
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemotePaint
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Color
 
 /**
@@ -35,15 +34,9 @@ public class RemoteColorPainter(private val color: RemoteColor) : RemotePainter(
     override val intrinsicSize: RemoteSize? = null
 
     override fun RemoteDrawScope.onDraw() {
-        val size = componentSize()
-        val paint = RemotePaint().apply { remoteColor = this@RemoteColorPainter.color }
-        canvas.drawRect(
-            left = 0.rf,
-            top = 0.rf,
-            right = size.width,
-            bottom = size.height,
-            paint = paint,
-        )
+        val paint = RemotePaint()
+        paint.remoteColor = color
+        drawRect(paint = paint)
     }
 }
 

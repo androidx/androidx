@@ -780,6 +780,19 @@ package androidx.wear.tiles {
     method @Deprecated public androidx.wear.tiles.LayoutElementBuilders.VerticalAlignmentProp.Builder setValue(int);
   }
 
+  public abstract class Material3TileService extends androidx.wear.tiles.TileService {
+    ctor public Material3TileService();
+    ctor public Material3TileService(optional boolean allowDynamicTheme);
+    ctor public Material3TileService(optional boolean allowDynamicTheme, optional androidx.wear.protolayout.material3.ColorScheme defaultColorScheme);
+    ctor public Material3TileService(optional boolean allowDynamicTheme, optional androidx.wear.protolayout.material3.ColorScheme defaultColorScheme, optional kotlinx.coroutines.CoroutineScope? serviceScope);
+    ctor @BytecodeOnly public Material3TileService(boolean, androidx.wear.protolayout.material3.ColorScheme!, kotlinx.coroutines.CoroutineScope!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void onTileEnterEvent(androidx.wear.tiles.EventBuilders.TileEnterEvent requestParams);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void onTileLeaveEvent(androidx.wear.tiles.EventBuilders.TileLeaveEvent requestParams);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.tiles.TileBuilders.Tile> onTileRequest(androidx.wear.tiles.RequestBuilders.TileRequest requestParams);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final com.google.common.util.concurrent.ListenableFuture<androidx.wear.protolayout.ResourceBuilders.Resources> onTileResourcesRequest(androidx.wear.tiles.RequestBuilders.ResourcesRequest requestParams);
+    method protected abstract suspend Object? tileResponse(androidx.wear.protolayout.material3.MaterialScope, androidx.wear.tiles.RequestBuilders.TileRequest requestParams, kotlin.coroutines.Continuation<? super androidx.wear.tiles.TileBuilders.Tile>);
+  }
+
   @Deprecated public final class ModifiersBuilders {
   }
 

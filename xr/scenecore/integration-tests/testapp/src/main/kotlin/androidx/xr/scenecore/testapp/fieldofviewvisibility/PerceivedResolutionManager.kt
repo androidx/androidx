@@ -182,8 +182,8 @@ class PerceivedResolutionManager(
 
         buttonDestroyPerceivedResolutionPanel.setOnClickListener {
             destroyPerceivedResolutionPanel()
-            updateButtonStates()
         }
+        updateButtonStates()
     }
 
     private fun updateButtonStates() {
@@ -208,11 +208,13 @@ class PerceivedResolutionManager(
             mMovableComponent = MovableComponent.createSystemMovable(session)
             mPanelEntity!!.addComponent(mMovableComponent!!)
         }
+        updateButtonStates()
     }
 
     private fun destroyPerceivedResolutionPanel() {
         mPanelEntity?.dispose()
         mPanelEntity = null
+        updateButtonStates()
     }
 
     private fun distanceToCamera(cameraPose: ScenePose?, pose: ScenePose?): String {

@@ -22,7 +22,7 @@
     <string name="keep_editing_button" msgid="1452730992602657656">"Terus Edit"</string>
     <string name="discard_button" msgid="8907718452026370630">"Hapus"</string>
     <string name="annotation_pen_button_content_desc" msgid="2505660264801773100">"Pena"</string>
-    <string name="annotation_highlighter_button_content_desc" msgid="1162019976938296458">"Stabilo"</string>
+    <string name="annotation_highlighter_button_content_desc" msgid="1162019976938296458">"Penyorot"</string>
     <string name="annotation_eraser_button_content_desc" msgid="7325793170289162803">"Penghapus"</string>
     <string name="annotation_color_palette_button_content_desc" msgid="539501218178172386">"Palet Warna"</string>
     <string name="annotation_undo_button_content_desc" msgid="479267370046825819">"Urungkan"</string>

@@ -22,6 +22,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresPermission
 
 /**
  * Parses static complication preview data from a provider's `AndroidManifest.xml` metadata.
@@ -78,6 +79,7 @@ object StaticPreviewDataParser {
      *   occurs during parsing.
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresPermission("com.google.wear.permission.SET_COMPLICATION_EXTRAS")
     @JvmStatic
     fun parsePreviewData(context: Context, providerComponent: ComponentName): PreviewData? {
         val packageManager = context.packageManager
@@ -96,7 +98,7 @@ object StaticPreviewDataParser {
                     Context.CONTEXT_IGNORE_SECURITY,
                 )
             providerContext.resources.getXml(xmlResId).use { parser ->
-                return PreviewData.inflate(providerContext, parser)
+                return PreviewData.inflate(context, providerContext, parser)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Error parsing complication preview data for $providerComponent", e)

@@ -36,8 +36,6 @@ public abstract class PdfAnnotation(public open val pageNum: Int) : Parcelable, 
 
     /** Flattens this object in to a Parcel. */
     override fun writeToParcel(dest: Parcel, flags: Int) {
-        // Write the type of the annotation first so that it can be identified
-        // when unparceling.
         when (this) {
             is StampAnnotation -> {
                 dest.writeInt(STAMP_ANNOTATION_TYPE)

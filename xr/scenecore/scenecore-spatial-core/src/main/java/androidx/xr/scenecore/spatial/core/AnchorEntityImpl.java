@@ -47,37 +47,15 @@ import java.util.concurrent.ScheduledExecutorService;
 @SuppressWarnings("BanSynchronizedMethods")
 class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
     public static final String ANCHOR_NODE_NAME = "AnchorNode";
-    private static final String TAG = "AnchorEntityImpl";
     private final ActivitySpaceImpl mActivitySpace;
-    private final AndroidXrEntity mActivitySpaceRoot;
+    private final OpenXrScenePoseHelper mOpenXrScenePoseHelper;
     private OnStateChangedListener mOnStateChangedListener;
     private @State int mState = State.UNANCHORED;
-
-    private final OpenXrScenePoseHelper mOpenXrScenePoseHelper;
-
-    static AnchorEntityImpl create(
-            Context context,
-            Node node,
-            ActivitySpace activitySpace,
-            Entity activitySpaceRoot,
-            XrExtensions extensions,
-            EntityManager entityManager,
-            ScheduledExecutorService executor) {
-        return new AnchorEntityImpl(
-                context,
-                node,
-                activitySpace,
-                activitySpaceRoot,
-                extensions,
-                entityManager,
-                executor);
-    }
 
     protected AnchorEntityImpl(
             Context context,
             Node node,
             ActivitySpace activitySpace,
-            Entity activitySpaceRoot,
             XrExtensions extensions,
             EntityManager entityManager,
             ScheduledExecutorService executor) {
@@ -94,25 +72,22 @@ class AnchorEntityImpl extends SystemSpaceEntityImpl implements AnchorEntity {
             mActivitySpace = null;
         }
 
-        if (activitySpaceRoot instanceof AndroidXrEntity) {
-            mActivitySpaceRoot = (AndroidXrEntity) activitySpaceRoot;
-        } else {
-            mState = State.ERROR;
-            mActivitySpaceRoot = null;
-        }
-
-        if (mActivitySpace != null && mActivitySpaceRoot != null) {
-            mOpenXrScenePoseHelper =
-                    new OpenXrScenePoseHelper(
-                            (ActivitySpaceImpl) activitySpace, (AndroidXrEntity) activitySpaceRoot);
+        if (mActivitySpace != null) {
+            mOpenXrScenePoseHelper = new OpenXrScenePoseHelper((ActivitySpaceImpl) activitySpace);
         } else {
             mOpenXrScenePoseHelper = null;
         }
+    }
 
-        // Return early if the state is already in an error state.
-        if (mState == State.ERROR) {
-            return;
-        }
+    static AnchorEntityImpl create(
+            Context context,
+            Node node,
+            ActivitySpace activitySpace,
+            XrExtensions extensions,
+            EntityManager entityManager,
+            ScheduledExecutorService executor) {
+        return new AnchorEntityImpl(
+                context, node, activitySpace, extensions, entityManager, executor);
     }
 
     @Override

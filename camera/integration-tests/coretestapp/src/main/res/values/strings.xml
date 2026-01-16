@@ -43,4 +43,5 @@
     <string name="record_button_recording">Recording</string>
     <string name="duration_label">Duration (ms)</string>
     <string name="switch_time_label">Switch Time (ms)</string>
+    <string name="enable_auto_rotation">Enable auto rotation</string>
 </resources>

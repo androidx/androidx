@@ -41,10 +41,10 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
 
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
     namespace = "androidx.wear.compose.remote.material3.samples"
 }

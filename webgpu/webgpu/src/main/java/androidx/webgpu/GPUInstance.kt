@@ -18,9 +18,6 @@ package androidx.webgpu
 
 import dalvik.annotation.optimization.FastNative
 import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** The entry point for the WebGPU API; used for adapter and surface discovery/creation. */
 public class GPUInstance private constructor(public val handle: Long) : AutoCloseable {
@@ -62,7 +59,7 @@ public class GPUInstance private constructor(public val handle: Long) : AutoClos
     public external fun requestAdapter(
         callbackExecutor: java.util.concurrent.Executor,
         options: GPURequestAdapterOptions? = null,
-        callback: RequestAdapterCallback,
+        callback: GPURequestCallback<GPUAdapter>,
     ): Unit
 
     /**
@@ -72,24 +69,8 @@ public class GPUInstance private constructor(public val handle: Long) : AutoClos
      */
     @Throws(WebGpuException::class)
     public suspend fun requestAdapter(options: GPURequestAdapterOptions? = null): GPUAdapter =
-        suspendCancellableCoroutine {
-            requestAdapter(
-                Executor(Runnable::run),
-                options,
-                { status, message, adapter ->
-                    if (!it.isActive) {
-                        // Coroutine was aborted.
-                    } else if (status != Status.Success) {
-                        it.resumeWithException(WebGpuException(status = status, reason = message))
-                    } else if (adapter == null) {
-                        it.resumeWithException(
-                            WebGpuException(status = status, reason = "Null value returned")
-                        )
-                    } else {
-                        it.resume(adapter)
-                    }
-                },
-            )
+        awaitGPURequest { callback ->
+            requestAdapter(Executor(Runnable::run), options, callback)
         }
 
     external override fun close()

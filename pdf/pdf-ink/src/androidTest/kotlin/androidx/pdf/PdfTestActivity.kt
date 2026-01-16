@@ -33,13 +33,14 @@ open class PdfTestActivity : Activity() {
         container = FrameLayout(this)
         setContentView(container)
 
-        // With targetSdk of AndroidX = 35, UI is drawn beneath the top system bars,
-        // which causes click interactions to be blocked and not being propagated
-        // properly to PdfView. Hence we add padding to offset the PdfView so that it lies
-        // below the system bars.
+        // With targetSdk of AndroidX = 35, UI is drawn beneath the top system bars and the
+        // bottom nav bars which causes interactions to be blocked and not being propagated
+        // properly to test views. Hence we add padding to offset the container so that it lies
+        // below the system bars and above nav bars.
         ViewCompat.setOnApplyWindowInsetsListener(container) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.updatePadding(top = systemBars.top)
+            val navBars = insets.getInsets(WindowInsetsCompat.Type.navigationBars())
+            v.updatePadding(top = systemBars.top, bottom = navBars.bottom)
             insets
         }
 

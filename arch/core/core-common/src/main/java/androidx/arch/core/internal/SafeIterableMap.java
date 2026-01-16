@@ -31,7 +31,9 @@ import java.util.WeakHashMap;
  *
  * @param <K> Key type
  * @param <V> Value type
+ * @deprecated These are internal legacy utilities and should not be used.
  */
+@Deprecated
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class SafeIterableMap<K, V> implements Iterable<Map.Entry<K, V>> {
 

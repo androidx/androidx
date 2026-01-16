@@ -24,7 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.ComposeTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.test.StandardTestDispatcher
 
@@ -91,7 +91,6 @@ private class ParameterizedComposeTestRuleImpl<T>(private val rule: ComposeConte
 }
 
 /** Creates a [ParameterizedComposeTestRule] to simulate input parameterization in tests. */
-@Suppress("ComposeTestRuleDispatcher")
 fun <T> createParameterizedComposeTestRule(
     effectContext: CoroutineContext = StandardTestDispatcher()
 ): ParameterizedComposeTestRule<T> {

@@ -27,7 +27,7 @@ import androidx.core.app.ActivityOptionsCompat
  * start the process of executing an [ActivityResultContract] that takes an [I] as its required
  * input.
  */
-abstract class ActivityResultLauncher<I> {
+public abstract class ActivityResultLauncher<I> {
     /**
      * Executes an [ActivityResultContract] given the required [input].
      *
@@ -36,7 +36,7 @@ abstract class ActivityResultLauncher<I> {
      *
      * @throws android.content.ActivityNotFoundException
      */
-    open fun launch(input: I) {
+    public open fun launch(input: I) {
         launch(input, null)
     }
 
@@ -49,7 +49,7 @@ abstract class ActivityResultLauncher<I> {
      *
      * @throws android.content.ActivityNotFoundException
      */
-    abstract fun launch(input: I, options: ActivityOptionsCompat?)
+    public abstract fun launch(input: I, options: ActivityOptionsCompat?)
 
     /**
      * Unregisters this launcher, releasing the underlying result callback, and any references
@@ -58,19 +58,19 @@ abstract class ActivityResultLauncher<I> {
      * You should call this if the registry may live longer than the callback registered for this
      * launcher.
      */
-    @MainThread abstract fun unregister()
+    @MainThread public abstract fun unregister()
 
     /** Returns the [ActivityResultContract] that was used to create this launcher. */
-    abstract val contract: ActivityResultContract<I, *>
+    public abstract val contract: ActivityResultContract<I, *>
 }
 
 /** Convenience method to launch a no-argument registered call without needing to pass in `null`. */
-fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? = null) {
+public fun ActivityResultLauncher<Void?>.launch(options: ActivityOptionsCompat? = null) {
     launch(null, options)
 }
 
 /** Convenience method to launch a no-argument registered call without needing to pass in `Unit`. */
 @JvmName("launchUnit")
-fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) {
+public fun ActivityResultLauncher<Unit>.launch(options: ActivityOptionsCompat? = null) {
     launch(Unit, options)
 }

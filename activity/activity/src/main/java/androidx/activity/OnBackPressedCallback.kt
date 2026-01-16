@@ -39,7 +39,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * @param enabled The default enabled state for this callback.
  * @see OnBackPressedDispatcher
  */
-abstract class OnBackPressedCallback(enabled: Boolean) {
+public abstract class OnBackPressedCallback(enabled: Boolean) {
 
     /**
      * This [OnBackPressedCallback] class will delegate all interactions to [eventHandlers], which
@@ -60,7 +60,7 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
      */
     @get:MainThread
     @set:MainThread
-    var isEnabled: Boolean = enabled
+    public var isEnabled: Boolean = enabled
         set(value) {
             field = value
             for (callback in eventHandlers) {
@@ -74,7 +74,7 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
 
     /** Removes this callback from any [OnBackPressedDispatcher] it is currently added to. */
     @MainThread
-    fun remove() {
+    public fun remove() {
         for (closeable in closeables) {
             closeable.close()
         }
@@ -93,7 +93,7 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
      */
     @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
     @MainThread
-    open fun handleOnBackStarted(backEvent: BackEventCompat) {}
+    public open fun handleOnBackStarted(backEvent: BackEventCompat) {}
 
     /**
      * Callback for handling the system UI generated equivalent to
@@ -103,10 +103,10 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
      */
     @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
     @MainThread
-    open fun handleOnBackProgressed(backEvent: BackEventCompat) {}
+    public open fun handleOnBackProgressed(backEvent: BackEventCompat) {}
 
     /** Callback for handling the [OnBackPressedDispatcher.onBackPressed] event. */
-    @MainThread abstract fun handleOnBackPressed()
+    @MainThread public abstract fun handleOnBackPressed()
 
     /**
      * Callback for handling the system UI generated equivalent to
@@ -116,7 +116,7 @@ abstract class OnBackPressedCallback(enabled: Boolean) {
      */
     @Suppress("CallbackMethodName") /* mirror handleOnBackPressed local style */
     @MainThread
-    open fun handleOnBackCancelled() {}
+    public open fun handleOnBackCancelled() {}
 
     internal fun addCloseable(closeable: AutoCloseable) {
         closeables += closeable

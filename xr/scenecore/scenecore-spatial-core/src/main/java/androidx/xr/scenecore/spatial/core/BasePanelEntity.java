@@ -84,7 +84,7 @@ abstract class BasePanelEntity extends AndroidXrEntity implements PanelEntity {
         // the two dimensions as the corner radius.
         if (mPixelDimensions != null
                 && (widthDp < DEFAULT_CORNER_RADIUS_DP * 2
-                || heightDp < DEFAULT_CORNER_RADIUS_DP * 2)) {
+                        || heightDp < DEFAULT_CORNER_RADIUS_DP * 2)) {
             radiusDp = min(widthDp / 2, heightDp / 2);
         }
 
@@ -142,17 +142,6 @@ abstract class BasePanelEntity extends AndroidXrEntity implements PanelEntity {
                 PanelDistanceToCameraInActivitySpace);
     }
 
-    @Override
-    public void setCornerRadius(float value) {
-        if (value < 0.0f) {
-            throw new IllegalArgumentException("Corner radius can't be negative: " + value);
-        }
-        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
-            transaction.setCornerRadius(mNode, value).apply();
-            mCornerRadius = value;
-        }
-    }
-
     // Sets just the value of the corner radius, without updating the node. This should be only be
     // used when constructing the entity so that the stored value is consistent with the value set
     // in the node transaction.
@@ -163,6 +152,17 @@ abstract class BasePanelEntity extends AndroidXrEntity implements PanelEntity {
     @Override
     public float getCornerRadius() {
         return mCornerRadius;
+    }
+
+    @Override
+    public void setCornerRadius(float value) {
+        if (value < 0.0f) {
+            throw new IllegalArgumentException("Corner radius can't be negative: " + value);
+        }
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction.setCornerRadius(mNode, value).apply();
+            mCornerRadius = value;
+        }
     }
 
     @Override

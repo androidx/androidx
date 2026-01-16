@@ -17,11 +17,8 @@
 package androidx.xr.glimmer.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.ListItem
 import androidx.xr.glimmer.Text
@@ -29,11 +26,8 @@ import androidx.xr.glimmer.list.VerticalList
 
 @Sampled
 @Composable
-private fun VerticalListSample() {
-    VerticalList(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-    ) {
+fun VerticalListSample() {
+    VerticalList {
         item { ListItem { Text("Header") } }
         items(count = 10) { index -> ListItem { Text("Item-$index") } }
         item { ListItem { Text("Footer") } }

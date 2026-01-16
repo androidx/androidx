@@ -231,7 +231,7 @@ internal class PdfViewAccessibilityManager(
             val formWidgetIndex = pair.second
             pageManager.pages[pageNum].formWidgetIndexToInfoMap?.get(formWidgetIndex)?.let {
                 formWidgetInfo ->
-                if (formWidgetInfo.readOnly) return true
+                if (formWidgetInfo.isReadOnly) return true
 
                 val pdfTouchPoint =
                     PdfPoint(
@@ -322,7 +322,7 @@ internal class PdfViewAccessibilityManager(
                 setBoundsInScreenFromBoundsInParent(node, bounds)
                 isFocusable = true
             }
-            if (!formWidgetInfo.readOnly) {
+            if (!formWidgetInfo.isReadOnly) {
                 node.addAction(AccessibilityNodeInfoCompat.ACTION_CLICK)
             }
         }

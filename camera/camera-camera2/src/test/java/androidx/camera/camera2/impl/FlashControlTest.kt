@@ -110,9 +110,8 @@ class FlashControlTest {
         val cameraProperties = FakeCameraProperties(metadata)
 
         state3AControl =
-            State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler).apply {
-                requestControl = fakeRequestControl
-            }
+            State3AControl(cameraProperties, NoOpAutoFlashAEModeDisabler, fakeUseCaseThreads)
+                .apply { requestControl = fakeRequestControl }
 
         torchControl =
             TorchControl(cameraProperties, state3AControl, fakeUseCaseThreads).apply {
@@ -143,9 +142,7 @@ class FlashControlTest {
         val flashControl =
             FlashControl(
                 fakeCameraProperties,
-                State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
-                    requestControl = fakeRequestControl
-                },
+                state3AControl,
                 fakeUseCaseThreads,
                 TorchControl(fakeCameraProperties, state3AControl, fakeUseCaseThreads),
                 NotUseFlashModeTorchFor3aUpdate,

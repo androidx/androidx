@@ -127,6 +127,19 @@ class QualitySelectorTest {
     }
 
     @Test
+    fun getPrioritizedQualities_withNoneSelector_returnsEmpty() {
+        // Arrange.
+        val qualitySelector = QualitySelector.NONE
+
+        // Act.
+        val supportedQualities = videoCapabilities.getSupportedQualities(SDR)
+        val selectedQualities = qualitySelector.getPrioritizedQualities(supportedQualities)
+
+        // Assert.
+        assertThat(selectedQualities).isEmpty()
+    }
+
+    @Test
     fun getPrioritizedQualities_selectSingleQuality() {
         // Arrange.
         // SDR supports 2160P(UHD) and 720P(HD)

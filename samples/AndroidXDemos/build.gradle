@@ -40,7 +40,7 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
     }

@@ -142,6 +142,10 @@ package androidx.xr.runtime {
     property public kotlin.time.ComparableTimeMark timeMark;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalXrDeviceLifecycleApi {
+    ctor @KotlinOnly public ExperimentalXrDeviceLifecycleApi();
+  }
+
   public final class FieldOfView {
     ctor public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
     method public androidx.xr.runtime.FieldOfView copy();

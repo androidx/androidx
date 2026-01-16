@@ -303,7 +303,7 @@ class PdfDocumentViewModelTest {
                     latch.countDown()
                 }
             }
-        document.addOnPdfContentInvalidatedListener(listener)
+        document.addOnPdfContentInvalidatedListener({ command -> command.run() }, listener)
 
         // Bounds in content coordinates of the widget on which the edit is applied
         val widgetArea = Rect(135, 70, 155, 90)
@@ -364,31 +364,28 @@ class PdfDocumentViewModelTest {
         val document = (loadedState as PdfFragmentUiState.DocumentLoaded).pdfDocument
         val formWidgetInfos = document.getFormWidgetInfos(0)
         val expectedFormWidgetInfoIndex1 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = 1,
                 widgetRect = Rect(135, 70, 155, 90),
                 textValue = "true",
                 accessibilityLabel = "checkbox",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedFormWidgetInfoIndex5 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 widgetIndex = 5,
                 widgetRect = Rect(85, 230, 105, 250),
                 textValue = "true",
                 accessibilityLabel = "",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedFormWidgetInfoIndex7 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 widgetIndex = 7,
                 widgetRect = Rect(185, 230, 205, 250),
                 textValue = "false",
                 accessibilityLabel = "",
-                readOnly = false,
+                isReadOnly = false,
             )
 
         for (widget: FormWidgetInfo in formWidgetInfos) {

@@ -20,9 +20,9 @@ import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.platform.ViewRootForTest
-import androidx.compose.ui.test.AndroidComposeUiTestEnvironment
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.v2.AndroidComposeUiTestEnvironment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat

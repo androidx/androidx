@@ -45,6 +45,8 @@ import androidx.xr.arcore.testing.FakePerceptionRuntime
 import androidx.xr.arcore.testing.FakeRuntimeAnchor
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.SceneManager
+import androidx.xr.compose.subspace.FollowBehavior
+import androidx.xr.compose.subspace.FollowTarget
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
@@ -57,8 +59,8 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
-import androidx.xr.compose.subspace.layout.testTag
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import androidx.xr.compose.testing.assertDepthIsAtLeast
 import androidx.xr.compose.testing.assertDepthIsEqualTo
@@ -109,7 +111,12 @@ import org.junit.runner.RunWith
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
 class SubspaceTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     private object DefaultTestRecommendedBoxSize {
         const val WIDTH_METERS: Float = 1.73f
@@ -914,10 +921,11 @@ class SubspaceTest {
     // TODO(b/449821552) Improve unit testing for PlanarEmbeddedSubspace.
 
     // ---------------------------------------------------------------------------------------------
-    //                                    AnchoredSubspace Tests
+    //                                    FollowingSubspace Tests
     // ---------------------------------------------------------------------------------------------
     @Test
-    fun anchoredSubspace_whenCreated_isParentedToAnchor() {
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenCreated_isParentedToAnchor() {
         val session = composeTestRule.configureFakeSession()
 
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
@@ -925,7 +933,10 @@ class SubspaceTest {
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
 
         composeTestRule.setContent {
-            AnchoredSubspace(lockTo = anchorEntity) {
+            FollowingSubspace(
+                target = FollowTarget.Anchor(anchorEntity),
+                behavior = FollowBehavior.Tight,
+            ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -934,7 +945,8 @@ class SubspaceTest {
     }
 
     @Test
-    fun anchoredSubspace_withContent_positionsAtOrigin() {
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_withContent_positionsAtOrigin() {
         val session = composeTestRule.configureFakeSession()
 
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
@@ -942,7 +954,10 @@ class SubspaceTest {
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
 
         composeTestRule.setContent {
-            AnchoredSubspace(lockTo = anchorEntity) {
+            FollowingSubspace(
+                target = FollowTarget.Anchor(anchorEntity),
+                behavior = FollowBehavior.Tight,
+            ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -954,7 +969,8 @@ class SubspaceTest {
     }
 
     @Test
-    fun anchoredSubspace_whenNested_positionsRelativeToAnchor() {
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenNested_positionsRelativeToAnchor() {
         val session = composeTestRule.configureFakeSession()
 
         session.configure(Config(planeTracking = PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
@@ -964,14 +980,19 @@ class SubspaceTest {
         composeTestRule.setContent {
             Subspace(modifier = SubspaceModifier.offset(x = 40.dp, y = 50.dp, z = 60.dp)) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("subspacePanel")) {}
-                AnchoredSubspace(lockTo = anchorEntity) {
-                    SpatialPanel(SubspaceModifier.fillMaxSize().testTag("anchoredSubspacePanel")) {}
+                FollowingSubspace(
+                    target = FollowTarget.Anchor(anchorEntity),
+                    behavior = FollowBehavior.Tight,
+                ) {
+                    SpatialPanel(
+                        SubspaceModifier.fillMaxSize().testTag("followingSubspacePanel")
+                    ) {}
                 }
             }
         }
 
         composeTestRule
-            .onSubspaceNodeWithTag("anchoredSubspacePanel")
+            .onSubspaceNodeWithTag("followingSubspacePanel")
             .assertExists()
             .assertPositionIsEqualTo(0.dp, 0.dp, 0.dp)
             .assertPositionInRootIsEqualTo(0.dp, 0.dp, 0.dp)
@@ -984,7 +1005,8 @@ class SubspaceTest {
     }
 
     @Test
-    fun anchoredSubspace_whenAnchoredToIdentity_positionsAtOrigin() {
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenAnchoredToIdentity_positionsAtOrigin() {
         val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
         composeTestRule.session = session.session
 
@@ -993,7 +1015,10 @@ class SubspaceTest {
         val anchorEntity = AnchorEntity.create(session.session, anchor = success.anchor)
 
         composeTestRule.setContent {
-            AnchoredSubspace(lockTo = anchorEntity) {
+            FollowingSubspace(
+                target = FollowTarget.Anchor(anchorEntity),
+                behavior = FollowBehavior.Tight,
+            ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -1005,7 +1030,8 @@ class SubspaceTest {
     }
 
     @Test
-    fun anchoredSubspace_whenLocked_isPositionedCorrectly() {
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenLocked_isPositionedCorrectly() {
         val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
         composeTestRule.session = session.session
 
@@ -1014,7 +1040,10 @@ class SubspaceTest {
         val anchorEntity = AnchorEntity.create(session.session, anchor = success.anchor)
 
         composeTestRule.setContent {
-            AnchoredSubspace(lockTo = anchorEntity) {
+            FollowingSubspace(
+                target = FollowTarget.Anchor(anchorEntity),
+                behavior = FollowBehavior.Tight,
+            ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -1035,7 +1064,8 @@ class SubspaceTest {
     }
 
     @Test
-    fun anchoredSubspace_whenAnchorChanges_repositions() {
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenAnchorChanges_repositions() {
         val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
         composeTestRule.session = session.session
 
@@ -1059,7 +1089,10 @@ class SubspaceTest {
 
         composeTestRule.setContent {
             val lockEntity = assertNotNull(currentAnchorState.value)
-            AnchoredSubspace(lockTo = lockEntity) {
+            FollowingSubspace(
+                target = FollowTarget.Anchor(lockEntity),
+                behavior = FollowBehavior.Tight,
+            ) {
                 SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
             }
         }
@@ -1078,7 +1111,8 @@ class SubspaceTest {
     }
 
     @Test
-    fun anchoredSubspace_whenAnchorPoseChanges_repositions() {
+    @OptIn(ExperimentalFollowingSubspaceApi::class)
+    fun followingSubspace_whenAnchorPoseChanges_repositions() {
         runBlocking {
             val session = assertIs<SessionCreateSuccess>(Session.create(composeTestRule.activity))
             composeTestRule.session = session.session
@@ -1097,7 +1131,10 @@ class SubspaceTest {
 
             composeTestRule.setContent {
                 val lockEntity = assertNotNull(anchorEntity)
-                AnchoredSubspace(lockTo = lockEntity) {
+                FollowingSubspace(
+                    target = FollowTarget.Anchor(lockEntity),
+                    behavior = FollowBehavior.Tight,
+                ) {
                     SpatialPanel(SubspaceModifier.fillMaxSize().testTag("panel")) {}
                 }
             }

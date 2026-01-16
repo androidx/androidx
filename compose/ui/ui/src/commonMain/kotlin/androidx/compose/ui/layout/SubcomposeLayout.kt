@@ -1454,6 +1454,11 @@ internal class LayoutNodeSubcompositionsState(
             if (nodeState?.forceRecompose == true) {
                 subcompose(node, slotId, pausable = false, content)
             }
+
+            // Finish pausable composition if it has not been completed yet
+            if (nodeState?.pausedComposition != null) {
+                nodeState.applyPausedPrecomposition(shouldComplete = true)
+            }
         }
 
         return precomposeMap[slotId]?.run {

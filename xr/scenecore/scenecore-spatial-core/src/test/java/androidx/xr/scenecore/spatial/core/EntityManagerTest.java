@@ -82,11 +82,7 @@ public class EntityManagerTest {
         }
         mSpatialSceneRuntime =
                 SpatialSceneRuntime.create(
-                        mActivity,
-                        mFakeExecutor,
-                        mXrExtensions,
-                        mEntityManager,
-                        false);
+                        mActivity, mFakeExecutor, mXrExtensions, mEntityManager, false);
         Node taskNode = mXrExtensions.createNode();
         mActivitySpace =
                 new ActivitySpaceImpl(
@@ -200,7 +196,7 @@ public class EntityManagerTest {
     }
 
     @Test
-    public void getAllSystemSpaceScenePoses_returnsAllSystemSpaceScenePoses() throws Exception {
+    public void getAllSystemSpaceScenePoses_returnsAllSystemSpaceScenePoses() {
         assertThat(mEntityManager.getAllSystemSpaceActivityPoses().size()).isAtLeast(2);
         assertThat(mEntityManager.getAllSystemSpaceActivityPoses())
                 .containsAtLeast(
@@ -209,7 +205,7 @@ public class EntityManagerTest {
     }
 
     @Test
-    public void getSystemSpaceScenePoseOfType_returnsSystemSpaceScenePoseOfType() throws Exception {
+    public void getSystemSpaceScenePoseOfType_returnsSystemSpaceScenePoseOfType() {
         assertThat(mEntityManager.getSystemSpaceActivityPoseOfType(ActivitySpace.class).get(0))
                 .isInstanceOf(ActivitySpaceImpl.class);
         assertThat(
@@ -312,7 +308,6 @@ public class EntityManagerTest {
                         mActivity,
                         mAnchorEntityNode,
                         mActivitySpace,
-                        mActivitySpaceRoot,
                         mXrExtensions,
                         mEntityManager,
                         mExecutor);

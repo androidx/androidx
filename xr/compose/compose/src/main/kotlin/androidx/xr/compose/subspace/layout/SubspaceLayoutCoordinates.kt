@@ -19,23 +19,19 @@ package androidx.xr.compose.subspace.layout
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
 
-/**
- * A holder of the measured bounds.
- *
- * Based on [androidx.compose.ui.layout.LayoutCoordinates].
- */
+/** A holder of the measured bounds. */
 public interface SubspaceLayoutCoordinates {
     /** The pose of this layout in the local coordinates space, with translation in pixels. */
     public val pose: Pose
 
     /**
-     * The pose of this layout relative to its parent entity in the Compose hierarchy, with
-     * translation in pixels.
+     * The pose of this layout relative to its parent in the Compose hierarchy, with translation in
+     * pixels.
      */
-    public val poseInParentEntity: Pose
+    public val poseInParent: Pose
 
     /**
-     * The pose of this layout relative to the root entity of the Compose for XR's hierarchy with
+     * The pose of this layout relative to the root of the Compose for XR's hierarchy with
      * translation values in pixels.
      */
     public val poseInRoot: Pose
@@ -63,8 +59,8 @@ public interface SubspaceLayoutCoordinates {
     /**
      * The size of this layout in the local coordinates space.
      *
-     * This is also useful for providing the size of the node to the
-     * [OnGloballyPositionedModifier][androidx.xr.compose.subspace.layout.OnGloballyPositionedNode].
+     * This is also useful for providing the size of the node to the [onGloballyPositioned] subspace
+     * modifier.
      */
     public val size: IntVolumeSize
 }
@@ -72,6 +68,6 @@ public interface SubspaceLayoutCoordinates {
 /** Returns information on pose, position and size. */
 internal fun SubspaceLayoutCoordinates.toDebugString(): String = buildString {
     appendLine("pose: $pose")
-    appendLine("poseInParentEntity: $poseInParentEntity")
+    appendLine("poseInParent: $poseInParent")
     appendLine("size: $size")
 }

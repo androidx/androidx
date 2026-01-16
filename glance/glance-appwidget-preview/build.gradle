@@ -48,7 +48,7 @@ dependencies {
 
 android {
     namespace = "androidx.glance.appwidget.preview"
-    compileSdk = 35
+    compileSdk { version = release(35) }
 }
 
 androidx {

@@ -27,6 +27,7 @@ data class Version(
     val minor: Int,
     val patch: Int,
     val preRelease: String? = null,
+    val preReleaseIteration: Int? = null,
     val buildMetadata: String? = null, // Used in JetBrains fork
 ) : Comparable<Version>, java.io.Serializable {
 
@@ -37,6 +38,17 @@ data class Version(
         minor = Integer.parseInt(checkedMatcher(versionString).group(2)),
         patch = Integer.parseInt(checkedMatcher(versionString).group(3)),
         preRelease = checkedMatcher(versionString).group(4)?.ifEmpty { null },
+        preReleaseIteration =
+            when (
+                val preRelease =
+                    checkedMatcher(versionString).group(4)?.lowercase(Locale.getDefault())
+            ) {
+                ALPHA -> preRelease.substring(ALPHA.length).toIntOrNull()
+                BETA -> preRelease.substring(BETA.length).toIntOrNull()
+                DEV -> preRelease.substring(DEV.length).toIntOrNull()
+                RC -> preRelease.substring(RC.length).toIntOrNull()
+                else -> null
+            },
         buildMetadata = checkedMatcher(versionString).group(5)?.ifEmpty { null },
     )
 
@@ -45,13 +57,13 @@ data class Version(
     fun isPrereleasePrefix(prefix: String): Boolean =
         preRelease?.lowercase(Locale.getDefault())?.startsWith(prefix) ?: false
 
-    fun isAlpha(): Boolean = isPrereleasePrefix("alpha")
+    fun isAlpha(): Boolean = isPrereleasePrefix(ALPHA)
 
-    fun isBeta(): Boolean = isPrereleasePrefix("beta")
+    fun isBeta(): Boolean = isPrereleasePrefix(BETA)
 
-    fun isDev(): Boolean = isPrereleasePrefix("dev")
+    fun isDev(): Boolean = isPrereleasePrefix(DEV)
 
-    fun isRC(): Boolean = isPrereleasePrefix("rc")
+    fun isRC(): Boolean = isPrereleasePrefix(RC)
 
     fun isStable(): Boolean = (preRelease == null)
 
@@ -83,6 +95,11 @@ data class Version(
 
     companion object {
         private const val serialVersionUID = 345435634563L
+
+        private const val ALPHA = "alpha"
+        private const val BETA = "beta"
+        private const val DEV = "dev"
+        private const val RC = "rc"
 
         private val VERSION_FILE_REGEX = Pattern.compile("^(res-)?(.*).txt$")
         private val SEMVER_VERSION_REGEX =

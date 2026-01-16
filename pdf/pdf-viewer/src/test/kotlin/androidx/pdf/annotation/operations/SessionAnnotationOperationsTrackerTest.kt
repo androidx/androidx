@@ -18,6 +18,7 @@ package androidx.pdf.annotation.operations
 
 import androidx.pdf.annotation.models.PdfAnnotation
 import androidx.pdf.annotation.operations.KeyedAnnotationOperation.OperationType
+import androidx.pdf.annotation.registry.FakeAnnotationHandleRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -34,6 +35,7 @@ import org.robolectric.RobolectricTestRunner
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SessionAnnotationOperationsTrackerTest {
 
+    private lateinit var registry: FakeAnnotationHandleRegistry
     private lateinit var tracker: SessionAnnotationOperationsTracker
 
     // Mocks/Fakes
@@ -45,7 +47,8 @@ class SessionAnnotationOperationsTrackerTest {
 
     @Before
     fun setup() {
-        tracker = SessionAnnotationOperationsTracker()
+        registry = FakeAnnotationHandleRegistry()
+        tracker = SessionAnnotationOperationsTracker(registry)
     }
 
     // region 1. BASIC CRUD & SQUASHING LOGIC

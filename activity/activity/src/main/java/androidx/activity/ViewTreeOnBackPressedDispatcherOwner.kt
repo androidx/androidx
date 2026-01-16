@@ -33,7 +33,7 @@ import androidx.core.viewtree.getParentOrViewTreeDisjointParent
  * @param onBackPressedDispatcherOwner [OnBackPressedDispatcherOwner] associated with the [View]
  */
 @JvmName("set")
-fun View.setViewTreeOnBackPressedDispatcherOwner(
+public fun View.setViewTreeOnBackPressedDispatcherOwner(
     onBackPressedDispatcherOwner: OnBackPressedDispatcherOwner
 ) {
     setTag(R.id.view_tree_on_back_pressed_dispatcher_owner, onBackPressedDispatcherOwner)
@@ -47,7 +47,7 @@ fun View.setViewTreeOnBackPressedDispatcherOwner(
  *   ancestors
  */
 @JvmName("get")
-fun View.findViewTreeOnBackPressedDispatcherOwner(): OnBackPressedDispatcherOwner? {
+public fun View.findViewTreeOnBackPressedDispatcherOwner(): OnBackPressedDispatcherOwner? {
     var currentView: View? = this
     while (currentView != null) {
         val dispatchOwner =

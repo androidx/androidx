@@ -82,7 +82,8 @@ public fun RemoteCornerSize(@IntRange(from = 0, to = 100) percent: Int): RemoteC
  * @param percent the corner size defined in float percents of the shape's smaller side. Can't be
  *   negative or larger then 100 percents.
  */
-private data class RemotePercentCornerSize(private val percent: Int) : RemoteCornerSize {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public data class RemotePercentCornerSize(public val percent: Int) : RemoteCornerSize {
     override fun toString(): String = "CornerSize(size = $percent%)"
 
     override fun toPx(shapeSize: RemoteSize): RemoteFloat {

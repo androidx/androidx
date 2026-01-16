@@ -1,3 +1,5 @@
+# androidx/datastore/preferences
+
 Landroidx/datastore/preferences/PreferenceDataStoreDelegateKt;
 HSPLandroidx/datastore/preferences/PreferenceDataStoreDelegateKt;->$r8$lambda$M8wy2jP_OP2ZhUCev6CMnhPDA50(Landroid/content/Context;)Ljava/util/List;
 HSPLandroidx/datastore/preferences/PreferenceDataStoreDelegateKt;->preferencesDataStore$default(Ljava/lang/String;Landroidx/datastore/core/handlers/ReplaceFileCorruptionHandler;Lkotlin/jvm/functions/Function1;Lkotlinx/coroutines/CoroutineScope;ILjava/lang/Object;)Lkotlin/properties/ReadOnlyProperty;

@@ -78,14 +78,9 @@ androidXMultiplatform {
         desktopMain.dependsOn(nonAndroidMain)
         desktopTest.dependsOn(nonAndroidTest)
 
-        unixMain.dependsOn(nativeMain)
-        unixTest.dependsOn(nativeTest)
-
-        appleMain.dependsOn(unixMain)
-        appleTest.dependsOn(unixTest)
-
-        linuxMain.dependsOn(unixMain)
-        linuxTest.dependsOn(unixTest)
+        nativeMain.dependencies {
+            implementation(libs.atomicFu)
+        }
 
         webTest.dependencies {
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")

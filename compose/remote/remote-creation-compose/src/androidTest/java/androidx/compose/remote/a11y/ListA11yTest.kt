@@ -34,6 +34,7 @@ import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollSta
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
@@ -134,7 +135,7 @@ class ListA11yTest {
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(192.rdp)
-                            .border(1.rdp, Color.LightGray)
+                            .border(1.rdp, Color.LightGray.rc)
                             // Must be direct child of the scrollable item
                             .semantics(mergeDescendants = true) {},
                     horizontalAlignment = RemoteAlignment.CenterHorizontally,

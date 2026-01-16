@@ -413,6 +413,7 @@ public class CameraXActivity extends AppCompatActivity {
     private boolean mForceEnableStreamSharing;
     private boolean mDisableViewPort = true;
     private boolean mEnableTorchAsFlash;
+    private boolean mAutoRotationEnabled = true;
 
     SessionMediaUriSet mSessionImagesUriSet = new SessionMediaUriSet();
     SessionMediaUriSet mSessionVideosUriSet = new SessionMediaUriSet();
@@ -1856,6 +1857,7 @@ public class CameraXActivity extends AppCompatActivity {
         menu.findItem(R.id.stream_sharing).setEnabled(
                 mPreviewToggle.isChecked() && mVideoToggle.isChecked());
 
+        menu.findItem(R.id.auto_rotation).setChecked(mAutoRotationEnabled);
         menu.findItem(R.id.view_port).setChecked(mDisableViewPort);
         menu.findItem(R.id.torch_as_flash).setChecked(mEnableTorchAsFlash);
     }
@@ -1893,6 +1895,8 @@ public class CameraXActivity extends AppCompatActivity {
             }
         } else if (itemId == R.id.stream_sharing) {
             mForceEnableStreamSharing = !mForceEnableStreamSharing;
+        } else if (itemId == R.id.auto_rotation) {
+            mAutoRotationEnabled = !mAutoRotationEnabled;
         } else if (itemId == R.id.view_port) {
             mDisableViewPort = !mDisableViewPort;
         } else if (itemId == R.id.torch_as_flash) {
@@ -2283,6 +2287,7 @@ public class CameraXActivity extends AppCompatActivity {
     /**
      * Binds use cases to the current lifecycle.
      */
+    @SuppressLint("RestrictedApiAndroidX")
     private Camera bindToLifecycleSafely(List<UseCase> useCases) {
         Log.d(TAG, "bindToLifecycleSafely: mDisableViewPort = " + mDisableViewPort
                 + ", mForceEnableStreamSharing = " + mForceEnableStreamSharing);
@@ -2299,10 +2304,11 @@ public class CameraXActivity extends AppCompatActivity {
 
         // Force-enable stream sharing
         if (mForceEnableStreamSharing) {
-            @SuppressLint("RestrictedApiAndroidX")
             StreamSharingForceEnabledEffect effect = new StreamSharingForceEnabledEffect();
             sessionConfigBuilder.addEffect(effect);
         }
+
+        sessionConfigBuilder.setAutoRotationEnabled(mAutoRotationEnabled);
 
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
                 sessionConfigBuilder.build());

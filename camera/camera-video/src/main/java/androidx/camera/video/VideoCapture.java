@@ -322,6 +322,12 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         }
     }
 
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    protected void onProviderRotationChanged(int rotation) {
+        setTargetRotation(rotation);
+    }
+
     /**
      * Returns information about the selected resolution.
      *
@@ -1909,6 +1915,17 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         VideoCapabilities videoCapabilities = getVideoCapabilities(cameraInfo,
                 SESSION_TYPE_REGULAR);
         return videoCapabilities.getSupportedDynamicRanges();
+    }
+
+    /**
+     * Returns whether the use case supports auto-rotation.
+     *
+     * @return true if the use case supports auto-rotation, false otherwise.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public boolean isAutoRotationSupported() {
+        return true;
     }
 
     /**

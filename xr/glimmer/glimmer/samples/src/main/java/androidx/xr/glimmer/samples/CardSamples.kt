@@ -18,8 +18,6 @@ package androidx.xr.glimmer.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -30,7 +28,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.xr.glimmer.Button
 import androidx.xr.glimmer.Card
 import androidx.xr.glimmer.GlimmerTheme
@@ -40,10 +37,7 @@ import androidx.xr.glimmer.list.VerticalList
 
 @Composable
 fun CardSampleUsage() {
-    VerticalList(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-    ) {
+    VerticalList {
         item { CardSample() }
         item { CardWithTrailingIconSample() }
         item { CardWithTitleAndSubtitleAndLeadingIconSample() }

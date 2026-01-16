@@ -18,6 +18,8 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.padding
@@ -40,6 +42,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalRemoteCreationComposeApi::class)
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 @RunWith(JUnit4::class)
@@ -54,6 +57,16 @@ class RemoteIconFromResTest {
 
     private val creationDisplayInfo =
         CreationDisplayInfo(500, 500, context.resources.displayMetrics.densityDpi)
+
+    @org.junit.Before
+    fun setup() {
+        RemoteComposeCreationComposeFlags.isRemoteApplierEnabled = true
+    }
+
+    @org.junit.After
+    fun tearDown() {
+        RemoteComposeCreationComposeFlags.isRemoteApplierEnabled = false
+    }
 
     @Test
     fun iconsFromRes() {

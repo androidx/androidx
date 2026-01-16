@@ -68,11 +68,11 @@ public class PanelEntityImplTest {
     private final FakeScheduledExecutorService mMakeFakeExecutor =
             new FakeScheduledExecutorService();
     private final EntityManager mEntityManager = new EntityManager();
+    private final NodeRepository mNodeRepository = NodeRepository.getInstance();
+    private final PixelDimensions mViewPlaneResolution = new PixelDimensions(2000, 1000);
     private SpatialSceneRuntime mRuntime;
     private FakeScenePose mRenderViewScenePose;
     private FieldOfView mRenderViewFov;
-    private final NodeRepository mNodeRepository = NodeRepository.getInstance();
-    private final PixelDimensions mViewPlaneResolution = new PixelDimensions(2000, 1000);
 
     @Before
     public void setUp() {
@@ -89,11 +89,12 @@ public class PanelEntityImplTest {
         mRenderViewScenePose = new FakeScenePose();
         mRenderViewScenePose.setActivitySpacePose(
                 new Pose(new Vector3(0f, 0f, 0f), Quaternion.Identity));
-        mRenderViewFov = new FieldOfView(
-                (float) Math.atan(1.0),
-                (float) Math.atan(1.0),
-                (float) Math.atan(1.0),
-                (float) Math.atan(1.0));
+        mRenderViewFov =
+                new FieldOfView(
+                        (float) Math.atan(1.0),
+                        (float) Math.atan(1.0),
+                        (float) Math.atan(1.0),
+                        (float) Math.atan(1.0));
     }
 
     @After
@@ -213,8 +214,8 @@ public class PanelEntityImplTest {
         // So, panelEntity.getScale(Space.ACTIVITY) should be (1,1,1).
         panelEntity.setPose(new Pose(new Vector3(0f, 0f, -2f), Quaternion.Identity));
 
-        PerceivedResolutionResult result = panelEntity.getPerceivedResolution(mRenderViewScenePose,
-                mRenderViewFov);
+        PerceivedResolutionResult result =
+                panelEntity.getPerceivedResolution(mRenderViewScenePose, mRenderViewFov);
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success.class);
 
@@ -245,8 +246,8 @@ public class PanelEntityImplTest {
         float veryCloseDistance = PerceivedResolutionUtils.PERCEIVED_RESOLUTION_EPSILON / 2f;
         panelEntity.setPose(new Pose(new Vector3(0f, 0f, -veryCloseDistance), Quaternion.Identity));
 
-        PerceivedResolutionResult result = panelEntity.getPerceivedResolution(mRenderViewScenePose,
-                mRenderViewFov);
+        PerceivedResolutionResult result =
+                panelEntity.getPerceivedResolution(mRenderViewScenePose, mRenderViewFov);
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.EntityTooClose.class);
     }
@@ -261,8 +262,8 @@ public class PanelEntityImplTest {
                         new Vector3(0f, 0f, -PerceivedResolutionUtils.PERCEIVED_RESOLUTION_EPSILON),
                         Quaternion.Identity));
 
-        PerceivedResolutionResult result = panelEntity.getPerceivedResolution(mRenderViewScenePose,
-                mRenderViewFov);
+        PerceivedResolutionResult result =
+                panelEntity.getPerceivedResolution(mRenderViewScenePose, mRenderViewFov);
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.EntityTooClose.class);
     }
@@ -275,8 +276,8 @@ public class PanelEntityImplTest {
         panelEntity.setPose(new Pose(new Vector3(0f, 0f, -2f), Quaternion.Identity));
         panelEntity.setScale(new Vector3(2f, 3f, 1f)); // Scale the panel
 
-        PerceivedResolutionResult result = panelEntity.getPerceivedResolution(mRenderViewScenePose,
-                mRenderViewFov);
+        PerceivedResolutionResult result =
+                panelEntity.getPerceivedResolution(mRenderViewScenePose, mRenderViewFov);
 
         assertThat(result).isInstanceOf(PerceivedResolutionResult.Success.class);
 

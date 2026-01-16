@@ -18,14 +18,12 @@
 package androidx.compose.remote.creation.compose.action
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.actions.Action
 import androidx.compose.remote.creation.actions.ValueFloatChange
 import androidx.compose.remote.creation.actions.ValueFloatExpressionChange
 import androidx.compose.remote.creation.actions.ValueIntegerChange
 import androidx.compose.remote.creation.actions.ValueIntegerExpressionChange
 import androidx.compose.remote.creation.actions.ValueStringChange
-import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.compose.state.MutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.MutableRemoteInt
 import androidx.compose.remote.creation.compose.state.MutableRemoteState
@@ -34,9 +32,9 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.isLiteral
-import androidx.compose.runtime.MutableState
 
 // TODO fix up types after RemoteType refactor
 /** Update a value on click. */
@@ -45,35 +43,23 @@ public class ValueChangeAction<T>(
     public val remoteValue: MutableRemoteState<T>,
     public val updatedValue: RemoteState<T>,
 ) : androidx.compose.remote.creation.compose.action.Action {
-    public override fun toRemoteAction(): Action {
+    public override fun RemoteStateScope.toRemoteAction(): Action {
         return if (remoteValue is MutableRemoteInt) {
             updatedValue as RemoteInt
-            val array = updatedValue.arrayForCreationState(FallbackCreationState.state)
+            val array = updatedValue.arrayForCreationState(creationState)
 
             if (array.isLiteral()) {
-                ValueIntegerChange(
-                    remoteValue.getIdForCreationState(FallbackCreationState.state),
-                    array[0].toInt(),
-                )
+                ValueIntegerChange(remoteValue.id, array[0].toInt())
             } else {
                 // TODO validate why these are direct ids as a Long.
-                ValueIntegerExpressionChange(
-                    remoteValue.getIdForCreationState(FallbackCreationState.state).toLong(),
-                    updatedValue.getIdForCreationState(FallbackCreationState.state).toLong(),
-                )
+                ValueIntegerExpressionChange(remoteValue.longId, updatedValue.longId)
             }
         } else if (remoteValue is MutableRemoteFloat) {
             updatedValue as RemoteFloat
-            ValueFloatExpressionChange(
-                remoteValue.getIdForCreationState(FallbackCreationState.state),
-                updatedValue.getIdForCreationState(FallbackCreationState.state),
-            )
+            ValueFloatExpressionChange(remoteValue.id, updatedValue.id)
         } else if (remoteValue is RemoteString) {
             updatedValue as RemoteString
-            ValueStringChange(
-                remoteValue.getIdForCreationState(FallbackCreationState.state),
-                updatedValue.constantValue!!,
-            )
+            ValueStringChange(remoteValue.id, updatedValue.constantValue!!)
         } else {
             TODO("println unsupported type in ValueChange $remoteValue")
         }
@@ -82,11 +68,11 @@ public class ValueChangeAction<T>(
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ValueFloatChangeAction(
-    public val value: MutableState<RemoteFloat>,
+    public val value: MutableRemoteFloat,
     public val updatedValue: Float,
 ) : androidx.compose.remote.creation.compose.action.Action {
-    public override fun toRemoteAction(): Action {
-        val id = Utils.idFromNan(value.value.internalAsFloat())
+    public override fun RemoteStateScope.toRemoteAction(): Action {
+        val id = value.id
         return ValueFloatChange(id, updatedValue)
     }
 }
@@ -94,8 +80,8 @@ public class ValueFloatChangeAction(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ValueFloatDpChangeAction(public val value: RemoteDp, public val updatedValue: Float) :
     androidx.compose.remote.creation.compose.action.Action {
-    public override fun toRemoteAction(): Action {
-        val id = Utils.idFromNan(value.value.internalAsFloat())
+    public override fun RemoteStateScope.toRemoteAction(): Action {
+        val id = value.value.id
         return ValueFloatChange(id, updatedValue)
     }
 }
@@ -104,14 +90,14 @@ public fun ValueChange(
     value: MutableRemoteFloat,
     updatedValue: Float,
 ): androidx.compose.remote.creation.compose.action.Action {
-    return ValueChangeAction<Float>(value, RemoteFloat(updatedValue))
+    return ValueChangeAction(value, RemoteFloat(updatedValue))
 }
 
 public fun ValueChange(
     value: MutableRemoteFloat,
     updatedValue: RemoteFloat,
 ): androidx.compose.remote.creation.compose.action.Action {
-    return ValueChangeAction<Float>(value, updatedValue)
+    return ValueChangeAction(value, updatedValue)
 }
 
 public fun ValueChange(
@@ -129,14 +115,14 @@ public fun ValueChange(
 }
 
 public fun ValueChange(remoteState: MutableRemoteInt, updatedValue: Int): ValueChangeAction<Int> =
-    ValueChangeAction<Int>(remoteState, RemoteInt(v = updatedValue))
+    ValueChangeAction(remoteState, RemoteInt(v = updatedValue))
 
 public fun ValueChange(
     remoteState: MutableRemoteInt,
     updatedValue: RemoteInt,
-): ValueChangeAction<Int> = ValueChangeAction<Int>(remoteState, updatedValue)
+): ValueChangeAction<Int> = ValueChangeAction(remoteState, updatedValue)
 
 public fun ValueChange(
     remoteState: MutableRemoteString,
     updatedValue: String,
-): ValueChangeAction<String> = ValueChangeAction<String>(remoteState, RemoteString(updatedValue))
+): ValueChangeAction<String> = ValueChangeAction(remoteState, RemoteString(updatedValue))

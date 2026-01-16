@@ -26,7 +26,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         namespace = "androidx.navigation.compose"
         androidResources.enable = true
     }

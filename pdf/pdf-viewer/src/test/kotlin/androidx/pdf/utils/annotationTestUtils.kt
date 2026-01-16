@@ -15,6 +15,8 @@
  */
 
 import android.graphics.RectF
+import androidx.pdf.annotation.AnnotationHandleIdGenerator
+import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PdfAnnotationData
@@ -23,6 +25,12 @@ import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+
+fun createDummyKeyedPdfAnnotation(pageNum: Int, id: String): KeyedPdfAnnotation {
+    val annotation = createStampAnnotationWithPath(pageNum, pathSize = 10)
+    val key = AnnotationHandleIdGenerator.composeAnnotationId(pageNum, id)
+    return KeyedPdfAnnotation(key, annotation)
+}
 
 fun createDummyPdfAnnotationData(editId: EditId): PdfAnnotationData {
     val annotation = createStampAnnotationWithPath(editId.pageNum, pathSize = 10)

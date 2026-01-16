@@ -36,6 +36,7 @@ import org.junit.Test
 class BufferTest {
     private lateinit var device: GPUDevice
     private lateinit var webGpu: WebGpu
+
     @get:Rule val apiSkipRule = ApiLevelSkipRule()
 
     @Before

@@ -34,7 +34,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.animation"
-        compileSdk = 35
+        compileSdk { version = release(35) }
         // Define rules for R8 to strip out AnimationVisualDebug classes and methods in release builds
         optimization {
             it.consumerKeepRules.publish = true

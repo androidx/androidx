@@ -46,7 +46,16 @@ fun MovableContentColumnRowSample(content: @Composable () -> Unit, vertical: Boo
 fun MovableContentMultiColumnSample(items: List<Item>) {
     val itemMap = remember { mutableMapOf<Item, @Composable () -> Unit>() }
     val movableItems =
-        items.map { item -> itemMap.getOrPut(item) { movableContentOf { ItemView(item) } } }
+        remember(items) {
+            val itemsToRemove = itemMap.keys.toMutableSet()
+            val movableItems =
+                items.map { item ->
+                    itemsToRemove.remove(item)
+                    itemMap.getOrPut(item) { movableContentOf { ItemView(item) } }
+                }
+            itemsToRemove.forEach { itemMap.remove(it) }
+            movableItems
+        }
 
     val itemsPerColumn = 10
     val columns = items.size / itemsPerColumn + (if (items.size % itemsPerColumn == 0) 0 else 1)

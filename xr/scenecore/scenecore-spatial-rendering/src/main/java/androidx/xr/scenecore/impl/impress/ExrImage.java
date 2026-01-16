@@ -29,8 +29,7 @@ public final class ExrImage extends BindingsResource implements ExrImageResource
         super(
                 builder.mImpressapi.getBindingsResourceManager(),
                 builder.mNativeExrImage,
-                (handle) -> builder.mImpressapi.releaseImageBasedLightingAsset(handle)
-        );
+                (handle) -> builder.mImpressapi.releaseImageBasedLightingAsset(handle));
         mImpressApi = builder.mImpressapi;
     }
 

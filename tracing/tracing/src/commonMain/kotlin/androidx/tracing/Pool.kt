@@ -47,8 +47,11 @@ internal class Pool<T>(
     }
 
     /** Obtain an instance of the object from the pool if possible. */
-    internal fun obtain(): T? {
-        val element = scrapPool.removeFirstOrNull()
+    internal fun obtain(): T {
+        // Fallback to allocations when the scrap pool is empty.
+        // It's not safe to drop trace packets the way given we might drop the packet which
+        // represents ending the trace section. This will result in unmatched begin and ends.
+        val element = scrapPool.removeFirstOrNull() ?: factory(this)
         if (isDebug && element != null) {
             counter?.incrementAndGet()
         }

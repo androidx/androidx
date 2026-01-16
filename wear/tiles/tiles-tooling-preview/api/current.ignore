@@ -15,3 +15,15 @@ RemovedFromKotlin: androidx.wear.tiles.tooling.preview.TilePreviewData#getOnTile
     Source breaking change: method androidx.wear.tiles.tooling.preview.TilePreviewData.getOnTileResourceRequest() can no longer be resolved from Kotlin source
 RemovedFromKotlin: androidx.wear.tiles.tooling.preview.TilePreviewData#getPlatformDataValues():
     Source breaking change: method androidx.wear.tiles.tooling.preview.TilePreviewData.getPlatformDataValues() can no longer be resolved from Kotlin source
+
+
+RemovedProperty: androidx.wear.tiles.tooling.preview.Preview.Container#device:
+    Source breaking change: Removed property androidx.wear.tiles.tooling.preview.Preview.Container#device
+RemovedProperty: androidx.wear.tiles.tooling.preview.Preview.Container#fontScale:
+    Source breaking change: Removed property androidx.wear.tiles.tooling.preview.Preview.Container#fontScale
+RemovedProperty: androidx.wear.tiles.tooling.preview.Preview.Container#group:
+    Source breaking change: Removed property androidx.wear.tiles.tooling.preview.Preview.Container#group
+RemovedProperty: androidx.wear.tiles.tooling.preview.Preview.Container#locale:
+    Source breaking change: Removed property androidx.wear.tiles.tooling.preview.Preview.Container#locale
+RemovedProperty: androidx.wear.tiles.tooling.preview.Preview.Container#name:
+    Source breaking change: Removed property androidx.wear.tiles.tooling.preview.Preview.Container#name

@@ -172,7 +172,7 @@ constructor(
                 return signal.asListenableFuture()
             }
             if (afRectangles.isNotEmpty()) {
-                state3AControl.preferredFocusMode = CaptureRequest.CONTROL_AF_MODE_AUTO
+                state3AControl.setPreferredFocusModeAsync(CaptureRequest.CONTROL_AF_MODE_AUTO)
             }
 
             val aeRegions =
@@ -383,7 +383,7 @@ constructor(
         signalToCancel: CompletableDeferred<FocusMeteringResult>?,
     ): Deferred<Result3A> {
         signalToCancel?.setCancelException("Cancelled by cancelFocusAndMetering()")
-        state3AControl.preferredFocusMode = null
+        state3AControl.setPreferredFocusModeAsync(null)
         return requestControl.cancelFocusAndMeteringAsync()
     }
 

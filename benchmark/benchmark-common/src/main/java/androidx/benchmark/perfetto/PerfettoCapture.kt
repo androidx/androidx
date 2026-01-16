@@ -18,16 +18,17 @@ package androidx.benchmark.perfetto
 
 import android.os.Build
 import android.util.JsonReader
+import android.util.Log
 import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.BenchmarkState
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.ShellFile
 import androidx.benchmark.UserFile
 import androidx.benchmark.UserInfo
 import androidx.benchmark.inMemoryTrace
-import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.tracing.perfetto.handshake.PerfettoSdkHandshake
@@ -124,6 +125,7 @@ public class PerfettoCapture(
             PerfettoSdkHandshake(
                 targetPackage = targetPackage,
                 parseJsonMap = { jsonString: String ->
+                    Log.d(BenchmarkState.TAG, "Handshake Result: $jsonString")
                     sequence {
                             JsonReader(StringReader(jsonString)).use { reader ->
                                 reader.beginObject()
@@ -136,6 +138,7 @@ public class PerfettoCapture(
                         .toMap()
                 },
                 executeShellCommand = { cmd ->
+                    Log.d(BenchmarkState.TAG, "Executing Command: $cmd")
                     val (stdout, stderr) = Shell.executeScriptCaptureStdoutStderr(cmd)
                     listOf(stdout, stderr)
                         .filter { it.isNotBlank() }

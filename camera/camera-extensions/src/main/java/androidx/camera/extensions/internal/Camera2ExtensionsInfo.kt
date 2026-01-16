@@ -27,12 +27,13 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.Logger
 
 /**
- * Provides Camera2Extensions related info.
+ * A Camera2ExtensionsInfoProvider implementation to provide Camera2Extensions related info.
  *
  * This class will cache [CameraExtensionCharacteristics] and some other support information for
  * performance improvement.
  */
-public class Camera2ExtensionsInfo(private val cameraManager: CameraManager) {
+public class Camera2ExtensionsInfo(private val cameraManager: CameraManager) :
+    Camera2ExtensionsInfoProvider {
     private val lock = Any()
     @GuardedBy("lock")
     private val cachedCharacteristics: MutableMap<String, CameraExtensionCharacteristics> =
@@ -44,7 +45,7 @@ public class Camera2ExtensionsInfo(private val cameraManager: CameraManager) {
 
     /** Retrieves [CameraExtensionCharacteristics] for the specified camera. */
     @RequiresApi(31)
-    public fun getExtensionCharacteristics(cameraId: String): CameraExtensionCharacteristics =
+    override fun getExtensionCharacteristics(cameraId: String): CameraExtensionCharacteristics =
         synchronized(lock) {
             cachedCharacteristics[cameraId]
                 ?: cameraManager.getCameraExtensionCharacteristics(cameraId).also {
@@ -56,7 +57,7 @@ public class Camera2ExtensionsInfo(private val cameraManager: CameraManager) {
      * Returns true if the specified camera supports the specific extension mode. Otherwise, returns
      * false.
      */
-    public fun isExtensionAvailable(cameraId: String, mode: Int): Boolean =
+    override fun isExtensionAvailable(cameraId: String, mode: Int): Boolean =
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             false
         } else {
@@ -73,7 +74,7 @@ public class Camera2ExtensionsInfo(private val cameraManager: CameraManager) {
         }
 
     /** Retrieves supported output sizes for the specified camera, extension mode and format. */
-    public fun getSupportedOutputSizes(cameraId: String, mode: Int, format: Int): List<Size> {
+    override fun getSupportedOutputSizes(cameraId: String, mode: Int, format: Int): List<Size> {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             return emptyList()
         }

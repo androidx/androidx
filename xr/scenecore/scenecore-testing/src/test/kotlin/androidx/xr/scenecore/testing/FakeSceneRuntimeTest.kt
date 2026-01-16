@@ -301,6 +301,59 @@ class FakeSceneRuntimeTest {
         assertThat(fakeSceneRuntime.lastSetPreferredAspectRatioRatio).isEqualTo(preferredRatio)
     }
 
+    @Test
+    fun onBoundaryConsentChanged_listenersAreCalledAndInternalStateUpdates() {
+        var listenerCalledWith: Boolean? = null
+        val listener = Consumer<Boolean> { granted -> listenerCalledWith = granted }
+        val executor = Executor { command -> command.run() }
+
+        assertThat(fakeSceneRuntime.isBoundaryConsentGranted).isFalse()
+
+        fakeSceneRuntime.addOnBoundaryConsentChangedListener(executor, listener)
+
+        assertThat(listenerCalledWith).isNull()
+
+        // Change to true
+        fakeSceneRuntime.onBoundaryConsentChanged(true)
+
+        assertThat(fakeSceneRuntime.isBoundaryConsentGranted).isTrue()
+        assertThat(listenerCalledWith).isTrue()
+
+        // Change to false
+        listenerCalledWith = null
+        fakeSceneRuntime.onBoundaryConsentChanged(false)
+
+        assertThat(fakeSceneRuntime.isBoundaryConsentGranted).isFalse()
+        assertThat(listenerCalledWith).isFalse()
+    }
+
+    @Test
+    fun addOnBoundaryConsentChangedListener_addsListenerAndExecutorToMap() {
+        val listener = Consumer<Boolean> {}
+        val executor = Executor { command -> command.run() }
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).isEmpty()
+
+        fakeSceneRuntime.addOnBoundaryConsentChangedListener(executor, listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).hasSize(1)
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).containsEntry(listener, executor)
+    }
+
+    @Test
+    fun removeOnBoundaryConsentChangedListener_removesListenerFromMap() {
+        val listener = Consumer<Boolean> {}
+        val executor = Executor { command -> command.run() }
+
+        fakeSceneRuntime.addOnBoundaryConsentChangedListener(executor, listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).isNotEmpty() //
+
+        fakeSceneRuntime.removeOnBoundaryConsentChangedListener(listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).isEmpty()
+    }
+
     private class TestInputEventListener : InputEventListener {
         override fun onInputEvent(event: InputEvent) {}
     }

@@ -19,6 +19,7 @@ package androidx.camera.lifecycle
 import android.content.Context
 import android.os.Build
 import androidx.camera.core.LegacySessionConfig
+import androidx.camera.core.RotationProvider
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.StreamSpecsCalculatorImpl
 import androidx.camera.testing.fakes.FakeCamera
@@ -183,6 +184,7 @@ class LifecycleCameraRepositoriesTest {
                 ),
                 FakeUseCaseConfigFactory(),
             ),
+            RotationProvider(context),
         )
 
     private fun LifecycleCameraRepository.lazyBindToLifecycleCamera(

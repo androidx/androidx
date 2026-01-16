@@ -39,11 +39,11 @@ dependencies {
 
 android {
     namespace = "androidx.glance.wear.samples"
-    compileSdk = 36
+    compileSdk { version = release(36) }
 
     defaultConfig {
         applicationId = "androidx.glance.wear.samples"
-        minSdk = 29
+        minSdk { version = release(29) }
     }
 }
 

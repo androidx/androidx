@@ -27,7 +27,7 @@ import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionUnitTypeMetadata
 import androidx.appfunctions.metadata.CompileTimeAppFunctionMetadata
 
-/** Test implementation for [androidx.appfunctions.AppFunctionManagerCompatTest] */
+/** Test implementation for [androidx.appfunctions.AppFunctionManagerTest] */
 @RequiresApi(Build.VERSION_CODES.S)
 class `$AggregatedAppFunctionInventory_Impl` : AggregatedAppFunctionInventory() {
     override val inventories: List<AppFunctionInventory>

@@ -89,7 +89,7 @@ androidx {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.profileinstaller.integration.profileverification"
 }
 

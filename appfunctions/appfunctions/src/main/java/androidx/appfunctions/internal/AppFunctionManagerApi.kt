@@ -17,7 +17,7 @@
 package androidx.appfunctions.internal
 
 import androidx.annotation.RestrictTo
-import androidx.appfunctions.AppFunctionManagerCompat
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
 
@@ -52,6 +52,6 @@ public interface AppFunctionManagerApi {
      */
     public suspend fun setAppFunctionEnabled(
         functionId: String,
-        @AppFunctionManagerCompat.EnabledState newEnabledState: Int,
+        @AppFunctionManager.EnabledState newEnabledState: Int,
     )
 }

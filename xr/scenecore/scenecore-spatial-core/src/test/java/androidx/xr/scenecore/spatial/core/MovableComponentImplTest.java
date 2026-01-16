@@ -92,25 +92,24 @@ import java.util.List;
 @Config(sdk = {Config.TARGET_SDK})
 public class MovableComponentImplTest {
 
+    @Rule public final Expect expect = Expect.create();
     private final ActivityController<Activity> mActivityController =
             Robolectric.buildActivity(Activity.class);
     private final Activity mActivity = mActivityController.create().start().get();
     private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
     private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
     private final EntityManager mEntityManager = new EntityManager();
-
-    private SpatialSceneRuntime mFakeRuntime;
-    private ActivitySpaceImpl mActivitySpaceImpl;
-    private Node mActivitySpaceNode;
     private final PanelShadowRenderer mPanelShadowRenderer =
             Mockito.mock(PanelShadowRenderer.class);
     private final NodeRepository mNodeRepository = NodeRepository.getInstance();
 
-    @Rule public final Expect expect = Expect.create();
-
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
             GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING");
+
+    private SpatialSceneRuntime mFakeRuntime;
+    private ActivitySpaceImpl mActivitySpaceImpl;
+    private Node mActivitySpaceNode;
 
     @Before
     public void setUp() {

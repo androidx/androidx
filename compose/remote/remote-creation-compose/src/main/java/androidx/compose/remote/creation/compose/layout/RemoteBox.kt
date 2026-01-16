@@ -19,7 +19,11 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
+import androidx.compose.remote.creation.compose.v2.RemoteBoxV2
+import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.unit.IntOffset
@@ -36,9 +40,9 @@ public class RemoteComposeBoxModifier(
     override fun ContentDrawScope.draw() {
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startBox(
-                modifier.toRemoteCompose(),
-                horizontalAlignment.toRemoteCompose(),
-                verticalArrangement.toRemoteCompose(),
+                canvas.toRecordingModifier(modifier),
+                horizontalAlignment.toRemote(),
+                verticalArrangement.toRemote(),
             )
             this@draw.drawContent()
             canvas.document.endBox()
@@ -59,6 +63,10 @@ public fun RemoteBox(
     verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
     content: @Composable () -> Unit,
 ) {
+    if (currentComposer.applier is RemoteComposeApplierV2) {
+        RemoteBoxV2(modifier, horizontalAlignment, verticalArrangement) { content() }
+        return
+    }
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     androidx.compose.foundation.layout.Box(
         RemoteComposeBoxModifier(modifier, horizontalAlignment, verticalArrangement)
@@ -108,5 +116,9 @@ private class CombinedAlignment(
 @RemoteComposable
 @Composable
 public fun RemoteBox(modifier: RemoteModifier = RemoteModifier) {
+    if (currentComposer.applier is RemoteComposeApplierV2) {
+        RemoteBoxV2(modifier)
+        return
+    }
     RemoteBox(modifier) {}
 }

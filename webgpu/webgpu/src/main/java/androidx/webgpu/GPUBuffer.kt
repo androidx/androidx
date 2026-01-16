@@ -19,9 +19,6 @@ package androidx.webgpu
 import dalvik.annotation.optimization.FastNative
 import java.nio.ByteBuffer
 import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** A chunk of memory allocated on the GPU, used for vertex data, uniforms, storage, etc. */
 public class GPUBuffer private constructor(public val handle: Long) : AutoCloseable {
@@ -99,7 +96,7 @@ public class GPUBuffer private constructor(public val handle: Long) : AutoClosea
         offset: Long,
         size: Long,
         callbackExecutor: java.util.concurrent.Executor,
-        callback: BufferMapCallback,
+        callback: GPURequestCallback<Unit>,
     ): Unit
 
     /**
@@ -111,22 +108,8 @@ public class GPUBuffer private constructor(public val handle: Long) : AutoClosea
      */
     @Throws(WebGpuException::class)
     public suspend fun mapAndAwait(@MapMode mode: Int, offset: Long, size: Long): Unit =
-        suspendCancellableCoroutine {
-            mapAsync(
-                mode,
-                offset,
-                size,
-                Executor(Runnable::run),
-                { status, message ->
-                    if (!it.isActive) {
-                        // Coroutine was aborted.
-                    } else if (status != Status.Success) {
-                        it.resumeWithException(WebGpuException(status = status, reason = message))
-                    } else {
-                        it.resume(Unit)
-                    }
-                },
-            )
+        awaitGPURequest { callback ->
+            mapAsync(mode, offset, size, Executor(Runnable::run), callback)
         }
 
     /**

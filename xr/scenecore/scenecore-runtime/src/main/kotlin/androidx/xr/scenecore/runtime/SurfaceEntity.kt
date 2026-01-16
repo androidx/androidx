@@ -20,6 +20,7 @@ import android.view.Surface
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.math.FloatSize2d
+import kotlin.jvm.JvmOverloads
 
 /**
  * Interface for a spatialized Entity which manages an Android Surface. Applications can render to
@@ -288,10 +289,13 @@ public interface SurfaceEntity : Entity {
         public val dimensions: Dimensions
 
         /**
-         * A 2D rectangle-shaped canvas. Width and height are represented in the local spatial
-         * coordinate system of the entity. (0,0,0) is the center of the canvas.
+         * A 2D rectangle-shaped canvas. Width, height and corner radius are represented in the
+         * local spatial coordinate system of the entity. (0,0,0) is the center of the canvas.
          */
-        public class Quad(public val extents: FloatSize2d) : Shape {
+        public class Quad
+        @JvmOverloads
+        constructor(public val extents: FloatSize2d, public val cornerRadius: Float = 0.0f) :
+            Shape {
             override val dimensions: Dimensions = Dimensions(extents.width, extents.height, 0f)
         }
 

@@ -72,6 +72,14 @@ public interface SceneRuntime : JxrRuntime {
     public val mediaPlayerExtensionsWrapper: MediaPlayerExtensionsWrapper
 
     /**
+     * The current state of the boundary consent from the underlying system.
+     *
+     * This is `true` if consent has been explicitly granted or the boundary system has been
+     * disabled by the user (implicit consent). Otherwise, this is `false`.
+     */
+    public val isBoundaryConsentGranted: Boolean
+
+    /**
      * Returns an [ScenePose] based off of a position within the perception space.
      *
      * @param pose The pose with respect to the perception space [ActivitySpace].
@@ -446,4 +454,25 @@ public interface SceneRuntime : JxrRuntime {
      * @see BoundsComponent
      */
     public fun createBoundsComponent(): BoundsComponent
+
+    /**
+     * Adds the given [Consumer] as a listener to be invoked when the boundary consent state
+     * changes.
+     *
+     * @param callbackExecutor The [Executor] on which to invoke the listener.
+     * @param listener The [Consumer] to be invoked asynchronously on the given [callbackExecutor]
+     *   with the new boundary consent state (`true` if granted, `false` otherwise). Refer to
+     *   [isBoundaryConsentGranted] for a detailed explanation of the states.
+     */
+    public fun addOnBoundaryConsentChangedListener(
+        callbackExecutor: Executor,
+        listener: Consumer<Boolean>,
+    )
+
+    /**
+     * Releases the given [Consumer] from receiving updates when the boundary consent state changes.
+     *
+     * @param listener The [Consumer] to be removed. It will no longer receive change events.
+     */
+    public fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>)
 }

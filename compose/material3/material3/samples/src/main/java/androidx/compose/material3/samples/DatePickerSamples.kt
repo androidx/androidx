@@ -98,7 +98,6 @@ fun DatePickerSample() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -371,7 +370,6 @@ fun DatePickerCustomLocaleSample() {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable

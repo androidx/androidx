@@ -105,9 +105,6 @@ const val ALLOW_MISSING_LINT_CHECKS_PROJECT = "androidx.allow.missing.lint"
  */
 const val XCODEGEN_DOWNLOAD_URI = "androidx.benchmark.darwin.xcodeGenDownloadUri"
 
-/** If true, don't restrict usage of compileSdk property. */
-const val ALLOW_CUSTOM_COMPILE_SDK = "androidx.allowCustomCompileSdk"
-
 /** If true, yarn dependencies are fetched from an offline mirror */
 const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
 
@@ -139,7 +136,6 @@ val ALL_ANDROIDX_PROPERTIES =
         ENABLED_KMP_TARGET_PLATFORMS,
         ALLOW_MISSING_LINT_CHECKS_PROJECT,
         XCODEGEN_DOWNLOAD_URI,
-        ALLOW_CUSTOM_COMPILE_SDK,
         FilteredAnchorTask.PROP_TASK_NAME,
         FilteredAnchorTask.PROP_PATH_PREFIX,
         YARN_OFFLINE_MODE,
@@ -221,10 +217,6 @@ fun Project.useYarnOffline() = findBooleanProperty(YARN_OFFLINE_MODE) ?: false
  */
 fun Project.allowMissingLintProject() =
     findBooleanProperty(ALLOW_MISSING_LINT_CHECKS_PROJECT) ?: false
-
-/** Whether libraries are allowed to customize the value of the compileSdk property. */
-fun Project.isCustomCompileSdkAllowed(): Boolean =
-    findBooleanProperty(ALLOW_CUSTOM_COMPILE_SDK) ?: true
 
 fun Project.findBooleanProperty(propName: String): Boolean? =
     project.providers.gradleProperty(propName).map { it.toBoolean() }.getOrNull()

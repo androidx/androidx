@@ -49,11 +49,6 @@ public class BoundsComponentImplTest {
     private Executor mExecutor;
     private Consumer<BoundingBox> mListener;
 
-    private static class TestConsumer implements Consumer<BoundingBox> {
-        @Override
-        public void accept(BoundingBox boundingBox) { }
-    }
-
     @Before
     public void setUp() {
         mBoundsComponent = new BoundsComponentImpl();
@@ -186,5 +181,10 @@ public class BoundsComponentImplTest {
         frameListener.accept(boundingBox2);
         verify(listener1, times(1)).accept(boundingBox2);
         verify(listener2, times(1)).accept(boundingBox2);
+    }
+
+    private static class TestConsumer implements Consumer<BoundingBox> {
+        @Override
+        public void accept(BoundingBox boundingBox) {}
     }
 }

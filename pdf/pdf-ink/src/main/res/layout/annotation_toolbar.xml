@@ -21,19 +21,42 @@
     android:animateLayoutChanges="true"
     android:padding="@dimen/padding_8dp">
 
-    <LinearLayout
-        android:id="@+id/toolbar"
+    <ScrollView
+        android:id="@+id/scrollable_tool_tray_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
+        android:scrollbars="none"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <!-- add in predefined tools supported -->
-        <include layout="@layout/annotation_tools" />
+        <LinearLayout
+            android:id="@+id/tool_tray"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:divider="@drawable/annotation_tool_spacer"
+            android:gravity="center"
+            android:showDividers="middle">
 
-    </LinearLayout>
+            <!-- add in predefined tools supported -->
+            <include layout="@layout/annotation_tools" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+    <androidx.pdf.ink.view.tool.AnnotationToolView
+        android:id="@+id/collapsed_tool"
+        android:layout_width="@dimen/annotation_tool_width"
+        android:layout_height="@dimen/annotation_tool_height"
+        android:contentDescription="@string/annotation_pen_button_content_desc"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:backgroundTint="@color/annotation_tool_background_color_state"
+        app:iconTint="?attr/colorOnSurfaceVariant"
+        app:icon="@drawable/pen_state_drawable"/>
 
     <androidx.pdf.ink.view.brush.BrushSizeSelectorView
         android:id="@+id/brush_size_selector"
@@ -41,9 +64,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_16dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/toolbar"
-        app:layout_constraintEnd_toEndOf="@+id/toolbar"
-        app:layout_constraintStart_toStartOf="@+id/toolbar"
+        app:layout_constraintBottom_toTopOf="@+id/tool_tray"
+        app:layout_constraintEnd_toEndOf="@+id/tool_tray"
+        app:layout_constraintStart_toStartOf="@+id/tool_tray"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.pdf.ink.view.colorpalette.ColorPaletteView
@@ -52,8 +75,8 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="@dimen/margin_16dp"
         android:visibility="gone"
-        app:layout_constraintBottom_toTopOf="@+id/toolbar"
-        app:layout_constraintEnd_toEndOf="@id/toolbar"
-        app:layout_constraintStart_toStartOf="@id/toolbar"
+        app:layout_constraintBottom_toTopOf="@+id/tool_tray"
+        app:layout_constraintEnd_toEndOf="@id/tool_tray"
+        app:layout_constraintStart_toStartOf="@id/tool_tray"
         app:layout_constraintTop_toTopOf="parent" />
 </merge>

@@ -33,12 +33,17 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.Settings;
 import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup;
@@ -118,6 +123,7 @@ import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowContentResolver;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -129,28 +135,33 @@ import java.util.function.Consumer;
 @Config(sdk = {Config.TARGET_SDK})
 public class SpatialSceneRuntimeTest {
     private static final int OPEN_XR_REFERENCE_SPACE_TYPE = 1;
-    Activity mActivity;
-    private SpatialSceneRuntime mRuntime;
+    private static final String GUARDIAN_CONSENT_GRANTED = "guardian_consent_granted";
+    private static final String TOGGLE_GUARDIAN = "toggle_guardian";
+    private static final Uri IS_EXPLICITLY_BOUNDARY_CONSENT_GRANTED_URI =
+            Settings.Secure.getUriFor(GUARDIAN_CONSENT_GRANTED);
+    private static final Uri IS_BOUNDARY_ENABLED_IN_DEVELOPER_OPTIONS_URI =
+            Settings.System.getUriFor(TOGGLE_GUARDIAN);
     private final EntityManager mEntityManager = new EntityManager();
     private final NodeRepository mNodeRepository = NodeRepository.getInstance();
     private final @NonNull XrExtensions mXrExtensions =
             Objects.requireNonNull(XrExtensionsProvider.getXrExtensions());
     private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
+    private final GltfFeature mMockGltfFeature = Mockito.mock(GltfFeature.class);
+    Activity mActivity;
+    private SpatialSceneRuntime mRuntime;
+    private ContentResolver mContentResolver;
+    private ShadowContentResolver mShadowContentResolver;
 
     @Before
     public void setUp() {
         mActivity = Robolectric.buildActivity(Activity.class).create().start().get();
-
+        mShadowContentResolver = shadowOf(mActivity.getContentResolver());
+        mContentResolver = mActivity.getContentResolver();
         ShadowXrExtensions.extract(mXrExtensions)
                 .setOpenXrWorldSpaceType(OPEN_XR_REFERENCE_SPACE_TYPE);
-
         mRuntime =
                 SpatialSceneRuntime.create(
-                        mActivity,
-                        mFakeExecutor,
-                        mXrExtensions,
-                        mEntityManager,
-                        false);
+                        mActivity, mFakeExecutor, mXrExtensions, mEntityManager, false);
     }
 
     @After
@@ -160,18 +171,14 @@ public class SpatialSceneRuntimeTest {
         mRuntime = null;
     }
 
-    private final GltfFeature mMockGltfFeature = Mockito.mock(GltfFeature.class);
-
-    private GltfFeature mFakeGltfFeature;
-
     private GltfEntityImpl createGltfEntity() {
         NodeHolder<?> nodeHolder = new NodeHolder<>(mXrExtensions.createNode(), Node.class);
-        mFakeGltfFeature =
+        GltfFeature fakeGltfFeature =
                 FakeGltfFeature.Companion.createWithMockFeature(mMockGltfFeature, nodeHolder);
 
         return new GltfEntityImpl(
                 mActivity,
-                mFakeGltfFeature,
+                fakeGltfFeature,
                 mRuntime.getActivitySpace(),
                 mXrExtensions,
                 mEntityManager,
@@ -182,6 +189,11 @@ public class SpatialSceneRuntimeTest {
         GltfEntity gltfEntity = createGltfEntity();
         gltfEntity.setPose(pose);
         return gltfEntity;
+    }
+
+    private SpatialSceneRuntime createRuntime() {
+        return SpatialSceneRuntime.create(
+                mActivity, mFakeExecutor, mXrExtensions, mEntityManager, false);
     }
 
     @Test
@@ -977,9 +989,7 @@ public class SpatialSceneRuntimeTest {
     @Test
     public void createPointerCaptureComponent_returnsComponent() {
         PointerCaptureComponent pointerCaptureComponent =
-                mRuntime.createPointerCaptureComponent(null, (inputEvent) -> {
-                }, (state) -> {
-                });
+                mRuntime.createPointerCaptureComponent(null, (inputEvent) -> {}, (state) -> {});
 
         assertThat(pointerCaptureComponent).isNotNull();
     }
@@ -1005,12 +1015,12 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void createGltfEntity_returnsEntity() throws Exception {
+    public void createGltfEntity_returnsEntity() {
         assertThat(createGltfEntity()).isNotNull();
     }
 
     @Test
-    public void animateGltfEntity_gltfEntityIsAnimating() throws Exception {
+    public void animateGltfEntity_gltfEntityIsAnimating() {
         GltfEntity gltfEntity = createGltfEntity();
         gltfEntity.startAnimation(false, "animation_name");
 
@@ -1018,7 +1028,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void animateLoopGltfEntity_gltfEntityIsAnimatingInLoop() throws Exception {
+    public void animateLoopGltfEntity_gltfEntityIsAnimatingInLoop() {
         GltfEntity gltfEntity = createGltfEntity();
         gltfEntity.startAnimation(true, "animation_name");
 
@@ -1026,7 +1036,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void stopAnimateGltfEntity_gltfEntityStopsAnimating() throws Exception {
+    public void stopAnimateGltfEntity_gltfEntityStopsAnimating() {
         GltfEntity gltfEntity = createGltfEntity();
         gltfEntity.startAnimation(true, "animation_name");
         gltfEntity.stopAnimation();
@@ -1035,9 +1045,9 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void gltfEntitySetParent() throws Exception {
-        GltfEntity childEntity = createGltfEntity();
-        GltfEntity parentEntity = createGltfEntity();
+    public void gltfEntitySetParent() {
+        GltfEntityImpl childEntity = createGltfEntity();
+        GltfEntityImpl parentEntity = createGltfEntity();
 
         childEntity.setParent(parentEntity);
 
@@ -1047,17 +1057,16 @@ public class SpatialSceneRuntimeTest {
         assertThat(parentEntity.getChildren()).containsExactly(childEntity);
 
         // Verify that there is an underlying extension node relationship.
-        Node childNode = ((GltfEntityImpl) childEntity).getNode();
+        Node childNode = childEntity.getNode();
 
-        assertThat(mNodeRepository.getParent(childNode))
-                .isEqualTo(((GltfEntityImpl) parentEntity).getNode());
+        assertThat(mNodeRepository.getParent(childNode)).isEqualTo(parentEntity.getNode());
     }
 
     @Test
-    public void gltfEntityUpdateParent() throws Exception {
-        GltfEntity childEntity = createGltfEntity();
-        GltfEntity parentEntity1 = createGltfEntity();
-        GltfEntity parentEntity2 = createGltfEntity();
+    public void gltfEntityUpdateParent() {
+        GltfEntityImpl childEntity = createGltfEntity();
+        GltfEntityImpl parentEntity1 = createGltfEntity();
+        GltfEntityImpl parentEntity2 = createGltfEntity();
 
         childEntity.setParent(parentEntity1);
 
@@ -1065,25 +1074,23 @@ public class SpatialSceneRuntimeTest {
         assertThat(parentEntity1.getChildren()).containsExactly(childEntity);
         assertThat(parentEntity2.getChildren()).isEmpty();
 
-        Node childNode = ((GltfEntityImpl) childEntity).getNode();
+        Node childNode = childEntity.getNode();
 
-        assertThat(mNodeRepository.getParent(childNode))
-                .isEqualTo(((GltfEntityImpl) parentEntity1).getNode());
+        assertThat(mNodeRepository.getParent(childNode)).isEqualTo(parentEntity1.getNode());
 
         childEntity.setParent(parentEntity2);
 
         assertThat(childEntity.getParent()).isEqualTo(parentEntity2);
         assertThat(parentEntity2.getChildren()).containsExactly(childEntity);
         assertThat(parentEntity1.getChildren()).isEmpty();
-        assertThat(mNodeRepository.getParent(childNode))
-                .isEqualTo(((GltfEntityImpl) parentEntity2).getNode());
+        assertThat(mNodeRepository.getParent(childNode)).isEqualTo(parentEntity2.getNode());
     }
 
     @Test
-    public void gltfEntityAddChildren() throws Exception {
-        GltfEntity childEntity1 = createGltfEntity();
-        GltfEntity childEntity2 = createGltfEntity();
-        GltfEntity parentEntity = createGltfEntity();
+    public void gltfEntityAddChildren() {
+        GltfEntityImpl childEntity1 = createGltfEntity();
+        GltfEntityImpl childEntity2 = createGltfEntity();
+        GltfEntityImpl parentEntity = createGltfEntity();
 
         parentEntity.addChild(childEntity1);
 
@@ -1095,31 +1102,29 @@ public class SpatialSceneRuntimeTest {
         assertThat(childEntity2.getParent()).isEqualTo(parentEntity);
         assertThat(parentEntity.getChildren()).containsExactly(childEntity1, childEntity2);
 
-        Node childNode1 = ((GltfEntityImpl) childEntity1).getNode();
+        Node childNode1 = childEntity1.getNode();
 
-        assertThat(mNodeRepository.getParent(childNode1))
-                .isEqualTo(((GltfEntityImpl) parentEntity).getNode());
+        assertThat(mNodeRepository.getParent(childNode1)).isEqualTo(parentEntity.getNode());
 
-        Node childNode2 = ((GltfEntityImpl) childEntity2).getNode();
+        Node childNode2 = childEntity2.getNode();
 
-        assertThat(mNodeRepository.getParent(childNode2))
-                .isEqualTo(((GltfEntityImpl) parentEntity).getNode());
+        assertThat(mNodeRepository.getParent(childNode2)).isEqualTo(parentEntity.getNode());
     }
 
     @Test
-    public void createPanelEntity_returnsEntity() throws Exception {
+    public void createPanelEntity_returnsEntity() {
         assertThat(createPanelEntity()).isNotNull();
     }
 
     @Test
-    public void allPanelEnities_haveActivitySpaceRootImplAsParentByDefault() throws Exception {
+    public void allPanelEntities_haveActivitySpaceRootImplAsParentByDefault() {
         PanelEntity panelEntity = createPanelEntity();
 
         assertThat(panelEntity.getParent()).isEqualTo(mRuntime.getActivitySpace());
     }
 
     @Test
-    public void panelEntitySetParent_setsParent() throws Exception {
+    public void panelEntitySetParent_setsParent() {
         PanelEntity childEntity = createPanelEntity();
         PanelEntity parentEntity = createPanelEntity();
 
@@ -1136,7 +1141,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void panelEntityUpdateParent_updatesParent() throws Exception {
+    public void panelEntityUpdateParent_updatesParent() {
         PanelEntity childEntity = createPanelEntity();
         PanelEntity parentEntity1 = createPanelEntity();
         PanelEntity parentEntity2 = createPanelEntity();
@@ -1160,7 +1165,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void panelEntityAddChildren_addsChildren() throws Exception {
+    public void panelEntityAddChildren_addsChildren() {
         PanelEntity childEntity1 = createPanelEntity();
         PanelEntity childEntity2 = createPanelEntity();
         PanelEntity parentEntity = createPanelEntity();
@@ -1185,12 +1190,12 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getMainPanelEntity_returnsPanelEntity() throws Exception {
+    public void getMainPanelEntity_returnsPanelEntity() {
         assertThat(mRuntime.getMainPanelEntity()).isNotNull();
     }
 
     @Test
-    public void getMainPanelEntity_usesWindowLeashNode() throws Exception {
+    public void getMainPanelEntity_usesWindowLeashNode() {
         PanelEntity mainPanel = mRuntime.getMainPanelEntity();
 
         assertThat(((MainPanelEntityImpl) mainPanel).getNode())
@@ -1198,7 +1203,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getPose_returnsSetPose() throws Exception {
+    public void getPose_returnsSetPose() {
         Pose pose = new Pose(new Vector3(1f, 2f, 3f), new Quaternion(1f, 2f, 3f, 4f));
         Pose identityPose = new Pose();
         PanelEntity panelEntity = createPanelEntity();
@@ -1237,8 +1242,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getPoseInActivitySpace_withParentChainTranslation_returnsOffsetPositionFromRoot()
-            throws Exception {
+    public void getPoseInActivitySpace_withParentChainTranslation_returnsOffsetPositionFromRoot() {
         // Create a simple pose with only a small translation on all axes
         Pose pose = new Pose(new Vector3(1f, 2f, 3f), Quaternion.Identity);
 
@@ -1260,8 +1264,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getPoseInActivitySpace_withParentChainRotation_returnsOffsetRotationFromRoot()
-            throws Exception {
+    public void getPoseInActivitySpace_withParentChainRotation_returnsOffsetRotationFromRoot() {
         // Create a pose with a translation and one with 90 degree rotation around the y axis.
         Vector3 parentTranslation = new Vector3(1f, 2f, 3f);
         Pose translatedPose = new Pose(parentTranslation, Quaternion.Identity);
@@ -1291,8 +1294,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getPoseInActivitySpace_withParentChainPoseOffsets_returnsOffsetPoseFromRoot()
-            throws Exception {
+    public void getPoseInActivitySpace_withParentChainPoseOffsets_returnsOffsetPoseFromRoot() {
         // Create a pose with a 1D translation and a 90 degree rotation around the z axis.
         Vector3 parentTranslation = new Vector3(1f, 0f, 0f);
         Quaternion quaternion = Quaternion.fromAxisAngle(new Vector3(0f, 0f, 1f), 90f);
@@ -1410,8 +1412,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getActivitySpacePose_withParentChainTranslation_returnsOffsetPositionFromRoot()
-            throws Exception {
+    public void getActivitySpacePose_withParentChainTranslation_returnsOffsetPositionFromRoot() {
         // Create a simple pose with only a small translation on all axes
         Pose pose = new Pose(new Vector3(1f, 2f, 3f), Quaternion.Identity);
 
@@ -1432,8 +1433,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getActivitySpacePose_withParentChainRotation_returnsOffsetRotationFromRoot()
-            throws Exception {
+    public void getActivitySpacePose_withParentChainRotation_returnsOffsetRotationFromRoot() {
         // Create a pose with a translation and one with 90 degree rotation around the y axis.
         Vector3 parentTranslation = new Vector3(1f, 0f, 0f);
         Pose translatedPose = new Pose(parentTranslation, Quaternion.Identity);
@@ -1457,8 +1457,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getActivitySpacePose_withParentChainPoseOffsets_returnsOffsetPoseFromRoot()
-            throws Exception {
+    public void getActivitySpacePose_withParentChainPoseOffsets_returnsOffsetPoseFromRoot() {
         // Create a pose with a 1D translation and a 90 degree rotation around the z axis.
         Vector3 parentTranslation = new Vector3(1f, 0f, 0f);
         Quaternion quaternion = Quaternion.fromAxisAngle(new Vector3(0f, 0f, 1f), 90f);
@@ -1560,10 +1559,9 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void transformPoseTo_withOnlyTranslationOffset_returnsTranslationDifference()
-            throws Exception {
+    public void transformPoseTo_withOnlyTranslationOffset_returnsTranslationDifference() {
         PanelEntityImpl sourceEntity = (PanelEntityImpl) createPanelEntity();
-        GltfEntityImpl destinationEntity = (GltfEntityImpl) createGltfEntity();
+        GltfEntityImpl destinationEntity = createGltfEntity();
         sourceEntity.setPose(
                 new Pose(new Vector3(1f, 2f, 3f), sourceEntity.getPose().getRotation()));
         destinationEntity.setPose(
@@ -1581,10 +1579,9 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void transformPoseTo_withOnlyRotationOffset_returnsRotationDifference()
-            throws Exception {
+    public void transformPoseTo_withOnlyRotationOffset_returnsRotationDifference() {
         PanelEntityImpl sourceEntity = (PanelEntityImpl) createPanelEntity();
-        GltfEntityImpl destinationEntity = (GltfEntityImpl) createGltfEntity();
+        GltfEntityImpl destinationEntity = createGltfEntity();
 
         sourceEntity.setPose(
                 new Pose(
@@ -1672,7 +1669,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void getAlpha_returnsSetAlpha() throws Exception {
+    public void getAlpha_returnsSetAlpha() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         Entity groupEntity = createGroupEntity();
@@ -1688,12 +1685,12 @@ public class SpatialSceneRuntimeTest {
         assertThat(panelEntity.getAlpha()).isEqualTo(0.5f);
         assertThat(gltfEntity.getAlpha()).isEqualTo(0.5f);
         assertThat(groupEntity.getAlpha()).isEqualTo(0.5f);
-        assertThat(mNodeRepository.map((metadata) -> metadata.getAlpha()))
+        assertThat(mNodeRepository.map(NodeRepository.NodeMetadata::getAlpha))
                 .containsAtLeast(0.5f, 0.5f, 0.5f);
     }
 
     @Test
-    public void getActivitySpaceAlpha_returnsTotalAncestorAlpha() throws Exception {
+    public void getActivitySpaceAlpha_returnsTotalAncestorAlpha() {
         PanelEntity grandparent = createPanelEntity();
         GltfEntity parent = createGltfEntity();
         Entity entity = createGroupEntity();
@@ -1711,14 +1708,14 @@ public class SpatialSceneRuntimeTest {
         assertThat(grandparent.getAlpha(Space.ACTIVITY)).isEqualTo(0.5f);
         assertThat(parent.getAlpha(Space.ACTIVITY)).isEqualTo(0.25f);
         assertThat(entity.getAlpha(Space.ACTIVITY)).isEqualTo(0.125f);
-        assertThat(mNodeRepository.map((metadata) -> metadata.getAlpha()))
+        assertThat(mNodeRepository.map(NodeRepository.NodeMetadata::getAlpha))
                 .containsAtLeast(0.5f, 0.5f, 0.5f);
     }
 
     @Test
-    public void transformPoseTo_withScaleAndNoOffset_returnsPose() throws Exception {
+    public void transformPoseTo_withScaleAndNoOffset_returnsPose() {
         PanelEntityImpl sourceEntity = (PanelEntityImpl) createPanelEntity();
-        GltfEntityImpl destinationEntity = (GltfEntityImpl) createGltfEntity();
+        GltfEntityImpl destinationEntity = createGltfEntity();
         sourceEntity.setPose(new Pose(new Vector3(0f, 0f, 1f), Quaternion.Identity));
         sourceEntity.setScale(new Vector3(2f, 2f, 2f));
         destinationEntity.setPose(new Pose(new Vector3(1f, 0f, 0f), Quaternion.Identity));
@@ -1730,9 +1727,9 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void transformPoseTo_withScale_returnsPose() throws Exception {
+    public void transformPoseTo_withScale_returnsPose() {
         PanelEntityImpl sourceEntity = (PanelEntityImpl) createPanelEntity();
-        GltfEntityImpl destinationEntity = (GltfEntityImpl) createGltfEntity();
+        GltfEntityImpl destinationEntity = createGltfEntity();
         sourceEntity.setPose(new Pose(new Vector3(0f, 0f, 1f), Quaternion.Identity));
         sourceEntity.setScale(new Vector3(2f, 2f, 2f));
         destinationEntity.setPose(new Pose(new Vector3(1f, 0f, 0f), Quaternion.Identity));
@@ -1746,9 +1743,9 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void transformPoseTo_withNonUniformScalesAndTranslations_returnsPose() throws Exception {
+    public void transformPoseTo_withNonUniformScalesAndTranslations_returnsPose() {
         PanelEntityImpl sourceEntity = (PanelEntityImpl) createPanelEntity();
-        GltfEntityImpl destinationEntity = (GltfEntityImpl) createGltfEntity();
+        GltfEntityImpl destinationEntity = createGltfEntity();
         sourceEntity.setPose(new Pose(new Vector3(0f, 0f, 1f), Quaternion.Identity));
         sourceEntity.setScale(new Vector3(0.5f, 2f, -3f));
         destinationEntity.setPose(new Pose(new Vector3(1f, 1f, 0f), Quaternion.Identity));
@@ -1770,7 +1767,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void addComponent_callsOnAttach() throws Exception {
+    public void addComponent_callsOnAttach() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -1788,7 +1785,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void addComponent_failsIfOnAttachFails() throws Exception {
+    public void addComponent_failsIfOnAttachFails() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -1806,7 +1803,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void removeComponent_callsOnDetach() throws Exception {
+    public void removeComponent_callsOnDetach() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -1836,7 +1833,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void addingSameComponentTypeAgain_addsComponent() throws Exception {
+    public void addingSameComponentTypeAgain_addsComponent() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -1862,7 +1859,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void addingDifferentComponentType_addComponentSucceeds() throws Exception {
+    public void addingDifferentComponentType_addComponentSucceeds() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -1888,7 +1885,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void removeAll_callsOnDetachOnAll() throws Exception {
+    public void removeAll_callsOnDetachOnAll() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -1929,7 +1926,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void addSameComponentTwice_callsOnAttachTwice() throws Exception {
+    public void addSameComponentTwice_callsOnAttachTwice() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -1949,7 +1946,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void removeSameComponentTwice_callsOnDetachOnce() throws Exception {
+    public void removeSameComponentTwice_callsOnDetachOnce() {
         PanelEntity panelEntity = createPanelEntity();
         GltfEntity gltfEntity = createGltfEntity();
         LoggingEntity loggingEntity = mRuntime.createLoggingEntity(new Pose());
@@ -2182,7 +2179,7 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void isHidden_returnsSetHidden() throws Exception {
+    public void isHidden_returnsSetHidden() {
         PanelEntity parentEntity = createPanelEntity();
 
         assertThat(parentEntity.isHidden(true)).isFalse();
@@ -2225,15 +2222,15 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
-    public void setHidden_modifiesReforms() throws Exception {
+    public void setHidden_modifiesReforms() {
         PanelEntity testEntity = createPanelEntity();
 
         assertThat(
-                testEntity.addComponent(
-                        mRuntime.createMovableComponent(
-                                /* systemMovable= */ true,
-                                /* scaleInZ= */ true,
-                                /* userAnchorable */ false)))
+                        testEntity.addComponent(
+                                mRuntime.createMovableComponent(
+                                        /* systemMovable= */ true,
+                                        /* scaleInZ= */ true,
+                                        /* userAnchorable */ false)))
                 .isTrue();
 
         testEntity.setHidden(true);
@@ -2247,13 +2244,163 @@ public class SpatialSceneRuntimeTest {
     }
 
     @Test
+    public void constructor_initializesBoundaryConsentCacheCorrectly() {
+        mRuntime.destroy();
+        Settings.System.putInt(mContentResolver, TOGGLE_GUARDIAN, 1);
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 1);
+        mRuntime = createRuntime();
+
+        boolean result = mRuntime.isBoundaryConsentGranted();
+
+        assertThat(result).isTrue();
+
+        mRuntime.destroy();
+        Settings.System.putInt(mContentResolver, TOGGLE_GUARDIAN, 0);
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 1);
+        mRuntime = createRuntime();
+
+        result = mRuntime.isBoundaryConsentGranted();
+
+        assertThat(result).isTrue();
+
+        mRuntime.destroy();
+        Settings.System.putInt(mContentResolver, TOGGLE_GUARDIAN, 0);
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 0);
+        mRuntime = createRuntime();
+
+        result = mRuntime.isBoundaryConsentGranted();
+
+        assertThat(result).isTrue();
+
+        mRuntime.destroy();
+        Settings.System.putInt(mContentResolver, TOGGLE_GUARDIAN, 1);
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 0);
+        mRuntime = createRuntime();
+
+        result = mRuntime.isBoundaryConsentGranted();
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    public void constructor_registerBoundaryConsentStateListener() {
+        assertThat(
+                        mShadowContentResolver.getContentObservers(
+                                IS_BOUNDARY_ENABLED_IN_DEVELOPER_OPTIONS_URI))
+                .hasSize(1);
+        assertThat(
+                        mShadowContentResolver.getContentObservers(
+                                IS_EXPLICITLY_BOUNDARY_CONSENT_GRANTED_URI))
+                .hasSize(1);
+    }
+
+    @Test
+    public void isBoundaryConsentGranted_returnsCachedValue() {
+        // Set initial state to GRANTED = false
+        Settings.System.putInt(mContentResolver, TOGGLE_GUARDIAN, 1);
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 0);
+        // Recreate runtime to pick up the new initial state
+        mRuntime.destroy();
+        mRuntime = createRuntime();
+        assertThat(mRuntime.isBoundaryConsentGranted()).isFalse();
+
+        // Directly change the underlying setting without notifying the observer
+        // This simulates a situation where the cache should NOT be updated.
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 1);
+
+        // The method should still return the old, cached value.
+        assertThat(mRuntime.isBoundaryConsentGranted()).isFalse();
+    }
+
+    @Test
+    @SuppressWarnings(value = "unchecked")
+    public void addOnBoundaryConsentChangedListener_contentResolverChange_notifiesListeners() {
+        Consumer<Boolean> listener1 = (Consumer<Boolean>) mock(Consumer.class);
+        Consumer<Boolean> listener2 = (Consumer<Boolean>) mock(Consumer.class);
+        mRuntime.addOnBoundaryConsentChangedListener(directExecutor(), listener1);
+        mRuntime.addOnBoundaryConsentChangedListener(directExecutor(), listener2);
+
+        // Simulate initial state of system settings
+        Settings.System.putInt(mContentResolver, TOGGLE_GUARDIAN, 1);
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 0);
+        shadowOf(Looper.getMainLooper()).idle();
+        mFakeExecutor.runAll();
+
+        // Change setting
+        Settings.Secure.putInt(mActivity.getContentResolver(), GUARDIAN_CONSENT_GRANTED, 1);
+        shadowOf(Looper.getMainLooper()).idle();
+        mFakeExecutor.runAll();
+
+        verify(listener1, times(1)).accept(true);
+        verify(listener2, times(1)).accept(true);
+
+        Mockito.clearInvocations(listener1, listener2);
+        // Change setting again
+        Settings.Secure.putInt(mActivity.getContentResolver(), GUARDIAN_CONSENT_GRANTED, 0);
+        shadowOf(Looper.getMainLooper()).idle();
+        mFakeExecutor.runAll();
+        verify(listener1, times(1)).accept(false);
+        verify(listener2, times(1)).accept(false);
+    }
+
+    @Test
+    @SuppressWarnings(value = "unchecked")
+    public void removeOnBoundaryConsentChangedListener_stopsReceivingEvents() {
+        // Recreate the runtime to ensure a clean initial state.
+        mRuntime.destroy();
+        // Set an explicit initial state (GRANTED = false).
+        Settings.System.putInt(mContentResolver, TOGGLE_GUARDIAN, 1);
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 0);
+        mRuntime = createRuntime(); // Recreate the runtime to ensure a clean state for the test.
+
+        Consumer<Boolean> listener1 = (Consumer<Boolean>) mock(Consumer.class);
+        Consumer<Boolean> listener2 = (Consumer<Boolean>) mock(Consumer.class);
+        mRuntime.addOnBoundaryConsentChangedListener(directExecutor(), listener1);
+        mRuntime.addOnBoundaryConsentChangedListener(directExecutor(), listener2);
+
+        mRuntime.removeOnBoundaryConsentChangedListener(listener1);
+
+        // Trigger a state change (from false to true).
+        Settings.Secure.putInt(mContentResolver, GUARDIAN_CONSENT_GRANTED, 1);
+        shadowOf(Looper.getMainLooper()).idle();
+        mFakeExecutor.runAll();
+
+        verify(listener2).accept(true);
+        verify(listener1, never()).accept(any());
+    }
+
+    @Test
+    public void destroy_unregisterBoundaryConsentStateListener() {
+        // A runtime is created in setUp(), which registers the observer.
+        assertThat(
+                        mShadowContentResolver.getContentObservers(
+                                IS_BOUNDARY_ENABLED_IN_DEVELOPER_OPTIONS_URI))
+                .isNotEmpty();
+        assertThat(
+                        mShadowContentResolver.getContentObservers(
+                                IS_EXPLICITLY_BOUNDARY_CONSENT_GRANTED_URI))
+                .isNotEmpty();
+
+        mRuntime.destroy();
+
+        assertThat(
+                        mShadowContentResolver.getContentObservers(
+                                IS_BOUNDARY_ENABLED_IN_DEVELOPER_OPTIONS_URI))
+                .isEmpty();
+        assertThat(
+                        mShadowContentResolver.getContentObservers(
+                                IS_EXPLICITLY_BOUNDARY_CONSENT_GRANTED_URI))
+                .isEmpty();
+    }
+
+    @Test
     public void dispose_clearsReformOptions() {
         AndroidXrEntity entity = (AndroidXrEntity) createGroupEntity();
         ReformOptions reformOptions = entity.getReformOptions();
 
         assertThat(reformOptions).isNotNull();
 
-        ReformOptions unused = reformOptions.setEnabledReform(ALLOW_MOVE | ALLOW_RESIZE);
+        reformOptions.setEnabledReform(ALLOW_MOVE | ALLOW_RESIZE);
         entity.dispose();
 
         assertThat(mNodeRepository.getReformOptions(entity.getNode())).isNull();

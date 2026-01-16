@@ -18,40 +18,14 @@ package androidx.camera.integration.extensions.util
 
 import android.content.Context
 import android.content.Intent
-import android.graphics.ImageFormat
-import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import android.util.Size
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
-import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl
-import androidx.camera.extensions.impl.AutoPreviewExtenderImpl
-import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl
-import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl
-import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl
-import androidx.camera.extensions.impl.BokehPreviewExtenderImpl
-import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl
-import androidx.camera.extensions.impl.HdrPreviewExtenderImpl
-import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
-import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl
-import androidx.camera.extensions.impl.NightPreviewExtenderImpl
-import androidx.camera.extensions.impl.PreviewExtenderImpl
-import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl
-import androidx.camera.extensions.impl.advanced.AutoAdvancedExtenderImpl
-import androidx.camera.extensions.impl.advanced.BeautyAdvancedExtenderImpl
-import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl
-import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl
-import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl
-import androidx.camera.extensions.internal.ExtensionVersion
-import androidx.camera.extensions.internal.ExtensionsUtils
-import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA2_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
@@ -66,7 +40,6 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
-import junit.framework.AssertionFailedError
 import org.junit.Assume.assumeTrue
 
 object CameraXExtensionsTestUtil {
@@ -144,88 +117,10 @@ object CameraXExtensionsTestUtil {
         }
 
     /**
-     * Creates an [ImageCaptureExtenderImpl] object for specific [ExtensionMode] and camera id.
-     *
-     * @param extensionMode The extension mode for the created object.
-     * @param cameraId The target camera id.
-     * @param cameraCharacteristics The camera characteristics of the target camera.
-     * @return An [ImageCaptureExtenderImpl] object.
-     */
-    @JvmStatic
-    fun createImageCaptureExtenderImpl(
-        @ExtensionMode.Mode extensionMode: Int,
-        cameraId: String,
-        cameraCharacteristics: CameraCharacteristics,
-    ): ImageCaptureExtenderImpl =
-        when (extensionMode) {
-            ExtensionMode.HDR -> HdrImageCaptureExtenderImpl()
-            ExtensionMode.BOKEH -> BokehImageCaptureExtenderImpl()
-            ExtensionMode.FACE_RETOUCH -> BeautyImageCaptureExtenderImpl()
-            ExtensionMode.NIGHT -> NightImageCaptureExtenderImpl()
-            ExtensionMode.AUTO -> AutoImageCaptureExtenderImpl()
-            else -> throw AssertionFailedError("No such ImageCapture extender implementation")
-        }.apply { init(cameraId, cameraCharacteristics) }
-
-    /**
-     * Creates a [PreviewExtenderImpl] object for specific [ExtensionMode] and camera id.
-     *
-     * @param extensionMode The extension mode for the created object.
-     * @param cameraId The target camera id.
-     * @param cameraCharacteristics The camera characteristics of the target camera.
-     * @return A [PreviewExtenderImpl] object.
-     */
-    @JvmStatic
-    fun createPreviewExtenderImpl(
-        @ExtensionMode.Mode extensionMode: Int,
-        cameraId: String,
-        cameraCharacteristics: CameraCharacteristics,
-    ): PreviewExtenderImpl =
-        when (extensionMode) {
-            ExtensionMode.HDR -> HdrPreviewExtenderImpl()
-            ExtensionMode.BOKEH -> BokehPreviewExtenderImpl()
-            ExtensionMode.FACE_RETOUCH -> BeautyPreviewExtenderImpl()
-            ExtensionMode.NIGHT -> NightPreviewExtenderImpl()
-            ExtensionMode.AUTO -> AutoPreviewExtenderImpl()
-            else -> throw AssertionFailedError("No such Preview extender implementation")
-        }.apply { init(cameraId, cameraCharacteristics) }
-
-    /**
-     * Creates a [AdvancedExtenderImpl] object for specific [ExtensionMode] and camera id.
-     *
-     * @param extensionMode The extension mode for the created object.
-     * @param cameraId The target camera id.
-     * @param cameraCharacteristics The camera characteristics of the target camera.
-     * @return A [AdvancedExtenderImpl] object.
-     */
-    @JvmStatic
-    fun createAdvancedExtenderImpl(
-        @ExtensionMode.Mode extensionMode: Int,
-        cameraId: String,
-        cameraInfo: CameraInfo,
-    ): AdvancedExtenderImpl =
-        when (extensionMode) {
-            ExtensionMode.HDR -> HdrAdvancedExtenderImpl()
-            ExtensionMode.BOKEH -> BokehAdvancedExtenderImpl()
-            ExtensionMode.FACE_RETOUCH -> BeautyAdvancedExtenderImpl()
-            ExtensionMode.NIGHT -> NightAdvancedExtenderImpl()
-            ExtensionMode.AUTO -> AutoAdvancedExtenderImpl()
-            else -> throw AssertionFailedError("No such Preview extender implementation")
-        }.apply {
-            val cameraCharacteristicsMap =
-                ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo as CameraInfoInternal)
-            init(cameraId, cameraCharacteristicsMap)
-        }
-
-    /**
      * Returns whether the target camera device can support the test for a specific extension mode.
      */
     @JvmStatic
     fun isTargetDeviceAvailableForExtensions(): Boolean {
-        // Runtime version must be non-null if the device supports extensions.
-        if (ExtensionVersion.getRuntimeVersion() == null) {
-            return false
-        }
-
         // Skips Cuttlefish device since actually it is not a real marketing device which supports
         // extensions and it will cause pre-submit failures.
         return !Build.MODEL.contains("Cuttlefish", true)
@@ -301,18 +196,6 @@ object CameraXExtensionsTestUtil {
     }
 
     @JvmStatic
-    fun isAdvancedExtenderImplemented(): Boolean {
-        if (!isTargetDeviceAvailableForExtensions()) {
-            return false
-        }
-        if (ExtensionVersion.getRuntimeVersion()!! < Version.VERSION_1_2) {
-            return false
-        }
-
-        return ExtensionVersion.isAdvancedExtenderSupported()
-    }
-
-    @JvmStatic
     fun launchCameraExtensionsActivity(
         cameraId: String,
         extensionMode: Int,
@@ -351,58 +234,6 @@ object CameraXExtensionsTestUtil {
         }
 
         return activityScenario
-    }
-
-    /**
-     * Obtains the ImageCapture supported resolutions according to the provided
-     * ImageCaptureExtenderImpl.
-     */
-    @JvmStatic
-    fun getImageCaptureSupportedResolutions(
-        impl: ImageCaptureExtenderImpl,
-        cameraCharacteristics: CameraCharacteristics,
-    ): List<Size> {
-        // Returns the supported resolutions list from ImageCaptureExtenderImpl if it provides the
-        // info.
-        impl.supportedResolutions?.forEach {
-            // When there is no capture processor, the image format is JPEG.
-            // When there is capture processor for post-processing, the image format is YUV_420_888.
-            if (
-                (impl.captureProcessor == null && it.first == ImageFormat.JPEG) ||
-                    (impl.captureProcessor != null && it.first == ImageFormat.YUV_420_888)
-            ) {
-                return it.second.toList()
-            }
-        }
-
-        // Returns the supported resolutions list from StreamConfigurationMap if
-        // ImageCaptureExtenderImpl doesn't provide the info.
-        val map = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        return map!!.getOutputSizes(ImageFormat.JPEG).toList()
-    }
-
-    /**
-     * Obtains the ImageCapture supported resolutions according to the provided
-     * AdvancedExtenderImpl.
-     */
-    @JvmStatic
-    fun getImageCaptureSupportedResolutions(
-        impl: AdvancedExtenderImpl,
-        cameraId: String,
-        cameraCharacteristics: CameraCharacteristics,
-    ): List<Size> {
-        // Returns the supported resolutions list from AdvancedExtenderImpl if it provides the
-        // info.
-        impl.getSupportedCaptureOutputResolutions(cameraId).forEach {
-            if (it.key == ImageFormat.JPEG) {
-                return it.value
-            }
-        }
-
-        // Returns the supported resolutions list from StreamConfigurationMap if
-        // ImageCaptureExtenderImpl doesn't provide the info.
-        val map = cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        return map!!.getOutputSizes(ImageFormat.JPEG).toList()
     }
 
     @JvmStatic

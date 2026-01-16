@@ -97,6 +97,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
     private val movableEntityOffset = Pose(Vector3(0f, 0.75f, -1.3f))
     private val uuids = MutableStateFlow<List<UUID>>(emptyList())
     private var anchorOffset = MutableStateFlow<Float>(0f)
+    private lateinit var arDevice: ArDevice
     private lateinit var renderViewpoints: List<RenderViewpoint>
     private val panelInViewStatus = MutableStateFlow<List<Pair<String, Boolean>>>(emptyList())
 
@@ -112,6 +113,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
                 ),
                 onSessionAvailable = { session ->
                     this.session = session
+                    this.arDevice = ArDevice.getInstance(session)
                     this.renderViewpoints = buildList {
                         RenderViewpoint.left(session)?.let { add(it) }
                         RenderViewpoint.right(session)?.let { add(it) }
@@ -134,9 +136,12 @@ class PersistentAnchorsActivity : ComponentActivity() {
                     startPanelInViewStatusUpdates()
 
                     lifecycleScope.launch {
-                        ArDevice.getInstance(session).state.collect { arDeviceState ->
-                            updatePlaneEntity(arDeviceState)
-                        }
+                        arDevice.state.collect { arDeviceState -> updatePanelEntity(arDeviceState) }
+                    }
+
+                    session.scene.activitySpace.addOnSpaceUpdatedListener {
+                        updatePanelEntity(arDevice.state.value)
+                        updatePanelInViewStatusUpdates(renderViewpoints.map { it.state.value })
                     }
                 },
             )
@@ -148,36 +153,40 @@ class PersistentAnchorsActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             combine(cameraStateFlows) { cameraStates ->
-                    val mainPanelEntity = session.scene.mainPanelEntity
-                    val panelPoseInActivitySpace = mainPanelEntity.getPose()
-                    val panelPoseInPerceptionSpace =
-                        session.scene.activitySpace.transformPoseTo(
-                            panelPoseInActivitySpace,
-                            session.scene.perceptionSpace,
-                        )
-                    val panelSizeInMeters = mainPanelEntity.size
-                    val newStatus =
-                        cameraStates.mapIndexed { index, cameraState ->
-                            val isInView =
-                                isPanelInView(
-                                    cameraPoseInPerceptionSpace = cameraState.pose,
-                                    cameraFov = cameraState.fieldOfView,
-                                    panelPoseInPerceptionSpace = panelPoseInPerceptionSpace,
-                                    panelSizeInMeters = panelSizeInMeters,
-                                )
-                            val cameraName =
-                                when {
-                                    renderViewpoints.size == 1 -> "CameraView"
-                                    index == 0 -> "Left Eye CameraView"
-                                    index == 1 -> "Right Eye CameraView"
-                                    else -> "CameraView ${index + 1}"
-                                }
-                            cameraName to isInView
-                        }
-                    panelInViewStatus.value = newStatus
+                    updatePanelInViewStatusUpdates(cameraStates.asList())
                 }
                 .collect {}
         }
+    }
+
+    private fun updatePanelInViewStatusUpdates(cameraStates: List<RenderViewpoint.State>) {
+        val mainPanelEntity = session.scene.mainPanelEntity
+        val panelPoseInActivitySpace = mainPanelEntity.getPose()
+        val panelPoseInPerceptionSpace =
+            session.scene.activitySpace.transformPoseTo(
+                panelPoseInActivitySpace,
+                session.scene.perceptionSpace,
+            )
+        val panelSizeInMeters = mainPanelEntity.size
+        val newStatus =
+            cameraStates.mapIndexed { index, cameraState ->
+                val isInView =
+                    isPanelInView(
+                        cameraPoseInPerceptionSpace = cameraState.pose,
+                        cameraFov = cameraState.fieldOfView,
+                        panelPoseInPerceptionSpace = panelPoseInPerceptionSpace,
+                        panelSizeInMeters = panelSizeInMeters,
+                    )
+                val cameraName =
+                    when {
+                        renderViewpoints.size == 1 -> "CameraView"
+                        index == 0 -> "Left Eye CameraView"
+                        index == 1 -> "Right Eye CameraView"
+                        else -> "CameraView ${index + 1}"
+                    }
+                cameraName to isInView
+            }
+        panelInViewStatus.value = newStatus
     }
 
     private fun createTargetPanel() {
@@ -195,7 +204,7 @@ class PersistentAnchorsActivity : ComponentActivity() {
         configureComposeView(composeView, this)
     }
 
-    private fun updatePlaneEntity(arDeviceState: ArDevice.State) {
+    private fun updatePanelEntity(arDeviceState: ArDevice.State) {
         arDeviceState.devicePose.let { headPose ->
             val headScenePose =
                 session.scene.perceptionSpace.getScenePoseFromPerceptionPose(headPose)

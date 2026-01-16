@@ -72,7 +72,7 @@ import androidx.compose.ui.graphics.Color
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("RestrictedApiAndroidX")
 public fun RemoteIconButton(
-    vararg onClick: Action,
+    onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteIconButtonColors = RemoteIconButtonDefaults.iconButtonColors(),
     enabled: RemoteBoolean = true.rb,

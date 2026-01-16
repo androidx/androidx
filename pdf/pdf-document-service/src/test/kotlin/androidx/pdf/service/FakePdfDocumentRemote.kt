@@ -17,6 +17,7 @@
 package androidx.pdf.service
 
 import android.graphics.Bitmap
+import android.graphics.PointF
 import android.graphics.Rect
 import android.graphics.pdf.content.PdfPageGotoLinkContent
 import android.graphics.pdf.content.PdfPageImageContent
@@ -28,18 +29,28 @@ import android.graphics.pdf.models.PageMatchBounds
 import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
 import android.os.ParcelFileDescriptor
+import androidx.pdf.DraftEditOperation
+import androidx.pdf.DraftEditResult
 import androidx.pdf.PdfDocumentRemote
-import androidx.pdf.annotation.models.AddEditResult
-import androidx.pdf.annotation.models.AnnotationResult
-import androidx.pdf.annotation.models.EditId
-import androidx.pdf.annotation.models.JetpackAospIdPair
-import androidx.pdf.annotation.models.ModifyEditResult
+import androidx.pdf.RenderParams
+import androidx.pdf.TestDraftEditOperation
 import androidx.pdf.annotation.models.PaginatedAnnotations
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
+import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.models.Dimensions
 
 class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
+    private val behaviors = ArrayDeque<DraftEditResult>()
+
+    fun setBehavior(result: DraftEditResult) {
+        behaviors.clear()
+        behaviors.add(result)
+    }
+
+    fun setSequentialBehaviors(vararg results: DraftEditResult) {
+        behaviors.clear()
+        behaviors.addAll(results)
+    }
+
     override fun openPdfDocument(pfd: ParcelFileDescriptor?, password: String?): Int {
         TODO("Not yet implemented")
     }
@@ -52,7 +63,12 @@ class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
         TODO("Not yet implemented")
     }
 
-    override fun getPageBitmap(pageNum: Int, width: Int, height: Int): Bitmap? {
+    override fun getPageBitmap(
+        pageNum: Int,
+        width: Int,
+        height: Int,
+        renderParams: RenderParams?,
+    ): Bitmap? {
         TODO("Not yet implemented")
     }
 
@@ -64,6 +80,7 @@ class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
         pageHeight: Int,
         offsetX: Int,
         offsetY: Int,
+        renderParams: RenderParams?,
     ): Bitmap? {
         TODO("Not yet implemented")
     }
@@ -128,42 +145,29 @@ class FakePdfDocumentRemote : PdfDocumentRemote.Stub() {
         TODO("Not yet implemented")
     }
 
-    override fun addAnnotations(pfd: ParcelFileDescriptor?): AnnotationResult? {
-        TODO("Not yet implemented")
-    }
-
-    override fun getPageAnnotations(pageNum: Int): List<PdfAnnotation?>? {
-        TODO("Not yet implemented")
-    }
-
-    override fun applyEdits(annots: List<PdfAnnotationData>): AnnotationResult {
-        val (success, failures) = annots.partition { it.editId.pageNum >= 0 }
-        return AnnotationResult(success, failures.map { it.annotation })
-    }
-
-    override fun addEdit(annots: List<PdfAnnotationData>): AddEditResult {
-        val (success, failures) = annots.partition { it.editId.pageNum >= 0 }
-        return AddEditResult(
-            success.map { JetpackAospIdPair(it.editId, it.editId) },
-            failures.map { it.editId },
-        )
-    }
-
-    override fun updateEdit(annots: List<PdfAnnotationData>): ModifyEditResult {
-        val (success, failures) = annots.partition { it.editId.pageNum >= 0 }
-        return ModifyEditResult(success.map { it.editId }, failures.map { it.editId })
-    }
-
-    override fun removeEdit(editIds: List<EditId>): ModifyEditResult {
-        val (success, failures) = editIds.partition { it.pageNum >= 0 }
-        return ModifyEditResult(success.map { it }, failures.map { it })
-    }
-
-    override fun getAllPageAnnotations(pageNum: Int): PaginatedAnnotations? {
+    override fun getPageAnnotations(pageNum: Int): PaginatedAnnotations? {
         TODO("Not yet implemented")
     }
 
     override fun getBatchedPageAnnotations(pageNum: Int, batchIndex: Int): PaginatedAnnotations? {
+        TODO("Not yet implemented")
+    }
+
+    override fun applyDraftEdits(operations: List<DraftEditOperation>): DraftEditResult {
+        if (behaviors.isEmpty()) {
+            // Default fallback if not set (or create default Success)
+            val ids = operations.map { (it as TestDraftEditOperation).id }
+            return DraftEditResult.Success(ids)
+        }
+        // Return next behavior, or reuse last one if we run out (or throw)
+        return if (behaviors.size > 1) behaviors.removeFirst() else behaviors.first()
+    }
+
+    override fun getTopPageObjectAtPosition(
+        pageNum: Int,
+        point: PointF?,
+        types: IntArray?,
+    ): PdfObject? {
         TODO("Not yet implemented")
     }
 }

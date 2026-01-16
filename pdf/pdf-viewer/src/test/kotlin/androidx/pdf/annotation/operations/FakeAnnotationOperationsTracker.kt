@@ -16,6 +16,7 @@
 
 package androidx.pdf.annotation.operations
 
+import androidx.pdf.EditsDraft
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfAnnotation
 
@@ -40,6 +41,10 @@ class FakeAnnotationOperationsTracker : AnnotationOperationsTracker {
     }
 
     override fun getSnapshot(): List<KeyedAnnotationOperation> = operations.values.toList()
+
+    override fun getModificationsSnapshot(): EditsDraft {
+        TODO("Not yet implemented")
+    }
 
     override fun clear() = operations.clear()
 

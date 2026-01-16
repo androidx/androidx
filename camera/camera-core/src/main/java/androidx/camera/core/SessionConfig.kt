@@ -113,6 +113,8 @@ constructor(
     public open val requireNonEmptyUseCases: Boolean = true
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val cameraFilter: CameraFilter? = null
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open val isAutoRotationEnabled: Boolean = false
 
     /**
      * Gets the feature selection listener set to this session config.
@@ -302,8 +304,25 @@ constructor(
         private var frameRateRange: Range<Int> = FRAME_RATE_RANGE_UNSPECIFIED
         private val requiredFeatureGroup = mutableListOf<GroupableFeature>()
         private val preferredFeatureGroup = mutableListOf<GroupableFeature>()
+        private var isAutoRotationEnabled = false
+        private var cameraFilter: CameraFilter? = null
+        private var sessionType: Int = SESSION_TYPE_REGULAR
+        private var requireNonEmptyUseCases: Boolean = true
 
         public constructor(vararg useCases: UseCase) : this(useCases.toList())
+
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public constructor(sessionConfig: SessionConfig) : this(sessionConfig.useCases) {
+            viewPort = sessionConfig.viewPort
+            effects = sessionConfig.effects.toMutableList()
+            frameRateRange = sessionConfig.frameRateRange
+            requiredFeatureGroup.addAll(sessionConfig.requiredFeatureGroup)
+            preferredFeatureGroup.addAll(sessionConfig.preferredFeatureGroup)
+            isAutoRotationEnabled = sessionConfig.isAutoRotationEnabled
+            cameraFilter = sessionConfig.cameraFilter
+            sessionType = sessionConfig.sessionType
+            requireNonEmptyUseCases = sessionConfig.requireNonEmptyUseCases
+        }
 
         /** Sets the [ViewPort] to be applied on the camera session. */
         public fun setViewPort(viewPort: ViewPort): Builder {
@@ -396,16 +415,34 @@ constructor(
             return this
         }
 
+        /**
+         * Sets whether to use auto rotation.
+         *
+         * When enabled, CameraX will monitor the device motion sensor and set the target rotation
+         * for ImageCapture, VideoCapture and ImageAnalysis.
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public fun setAutoRotationEnabled(isAutoRotationEnabled: Boolean): Builder {
+            this.isAutoRotationEnabled = isAutoRotationEnabled
+            return this
+        }
+
         /** Builds a [SessionConfig] from the current configuration. */
         public fun build(): SessionConfig {
-            return SessionConfig(
-                useCases = useCases,
-                viewPort = viewPort,
-                effects = effects.toList(),
-                frameRateRange = frameRateRange,
-                requiredFeatureGroup = requiredFeatureGroup.toSet(),
-                preferredFeatureGroup = preferredFeatureGroup.toList(),
-            )
+            return object :
+                SessionConfig(
+                    useCases = useCases,
+                    viewPort = viewPort,
+                    effects = effects.toList(),
+                    frameRateRange = frameRateRange,
+                    requiredFeatureGroup = requiredFeatureGroup.toSet(),
+                    preferredFeatureGroup = preferredFeatureGroup.toList(),
+                ) {
+                override val isAutoRotationEnabled: Boolean = this@Builder.isAutoRotationEnabled
+                override val cameraFilter: CameraFilter? = this@Builder.cameraFilter
+                override val sessionType: Int = this@Builder.sessionType
+                override val requireNonEmptyUseCases: Boolean = this@Builder.requireNonEmptyUseCases
+            }
         }
     }
 }

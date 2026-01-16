@@ -34,6 +34,7 @@ import dagger.Module
 import java.util.concurrent.CancellationException
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Job
@@ -73,20 +74,23 @@ public class UseCaseCameraImpl
 @Inject
 constructor(
     private val useCaseGraphContext: UseCaseGraphContext,
-    private val useCases: java.util.ArrayList<UseCase>,
-    private val useCaseSurfaceManager: UseCaseSurfaceManager,
     private val threads: UseCaseThreads,
-    private val sessionConfigAdapter: SessionConfigAdapter,
-    override val requestControl: UseCaseCameraRequestControl,
-    private val capturePipeline: CapturePipeline,
     private val sessionProcessor: SessionProcessor?,
+    override val requestControl: UseCaseCameraRequestControl,
+    private val useCaseSurfaceManagerProvider: Provider<UseCaseSurfaceManager>,
+    private val sessionConfigAdapterProvider: Provider<SessionConfigAdapter>,
+    private val capturePipelineProvider: Provider<CapturePipeline>,
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
 
     init {
-        Camera2Logger.debug { "Configured $this for $useCases" }
+        Camera2Logger.debug { "Configured $this" }
     }
+
+    private val useCaseSurfaceManager by lazy { useCaseSurfaceManagerProvider.get() }
+    private val sessionConfigAdapter by lazy { sessionConfigAdapterProvider.get() }
+    private val capturePipeline by lazy { capturePipelineProvider.get() }
 
     override fun start() {
         threads.confineLaunch {

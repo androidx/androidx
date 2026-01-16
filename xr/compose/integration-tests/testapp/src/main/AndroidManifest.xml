@@ -37,9 +37,9 @@
             android:label="@string/title_activity_mode_change"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
-            android:name=".anchoredsubspace.AnchoredSubspaceApp"
+            android:name=".followingsubspace.AnchorFollowingSubspaceActivity"
             android:exported="true"
-            android:label="@string/anchored_subspace_app_test"
+            android:label="@string/anchor_subspace_app_test"
             android:theme="@style/Theme.IntegrationTestsApp" />
        <activity
            android:name=".movable.MovableActivity"
@@ -130,7 +130,7 @@
             android:label="PanelEmbeddedSubspace"
             android:theme="@style/Theme.IntegrationTestsApp" />
         <activity
-            android:name=".usersubspace.UserSubspaceActivity"
+            android:name=".followingsubspace.UserSubspaceActivity"
             android:exported="true"
             android:label="UserSubspace"
             android:theme="@style/Theme.IntegrationTestsApp" />

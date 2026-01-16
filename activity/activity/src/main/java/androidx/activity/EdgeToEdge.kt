@@ -24,10 +24,8 @@ import android.graphics.Color
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.Window
 import android.view.WindowManager
-import android.view.WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
 import androidx.activity.SystemBarStyle.Companion.dark
 import androidx.activity.SystemBarStyle.Companion.light
 import androidx.annotation.ColorInt
@@ -35,8 +33,12 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsCompat.Side.BOTTOM
+import androidx.core.view.WindowInsetsCompat.Side.LEFT
+import androidx.core.view.WindowInsetsCompat.Side.RIGHT
+import androidx.core.view.WindowInsetsCompat.Side.TOP
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.core.view.children
 import androidx.core.view.insets.ColorProtection
 import androidx.core.view.insets.ProtectionLayout
 
@@ -74,13 +76,11 @@ private var Impl: EdgeToEdgeImpl? = null
  */
 @JvmName("enable")
 @JvmOverloads
-fun ComponentActivity.enableEdgeToEdge(
+public fun ComponentActivity.enableEdgeToEdge(
     statusBarStyle: SystemBarStyle = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT),
     navigationBarStyle: SystemBarStyle = SystemBarStyle.auto(DefaultLightScrim, DefaultDarkScrim),
 ) {
     val view = window.decorView
-    val statusBarIsDark = statusBarStyle.detectDarkMode(view.resources)
-    val navigationBarIsDark = navigationBarStyle.detectDarkMode(view.resources)
     val impl =
         Impl
             ?: (if (Build.VERSION.SDK_INT >= 35) {
@@ -97,19 +97,39 @@ fun ComponentActivity.enableEdgeToEdge(
                     EdgeToEdgeApi23()
                 })
                 .also { Impl = it }
-    impl.setUp(
-        statusBarStyle,
-        navigationBarStyle,
-        window,
-        view,
-        statusBarIsDark,
-        navigationBarIsDark,
-    )
+    val setup = Runnable {
+        impl.setUp(
+            statusBarStyle,
+            navigationBarStyle,
+            window,
+            view,
+            statusBarStyle.detectDarkMode(view.resources),
+            navigationBarStyle.detectDarkMode(view.resources),
+        )
+    }
+    (view as ViewGroup).apply {
+        if (!children.any { it.tag is EdgeToEdgeImpl }) {
+            // Adds a view to listen to configuration changes.
+            addView(
+                object : View(view.context) {
+                        override fun onConfigurationChanged(newConfig: Configuration) {
+                            setup.run()
+                        }
+                    }
+                    .apply {
+                        tag = impl
+                        visibility = View.GONE
+                        setWillNotDraw(true)
+                    }
+            )
+        }
+    }
+    setup.run()
     impl.adjustLayoutInDisplayCutoutMode(window)
 }
 
 /** The style for the status bar or the navigation bar used in [enableEdgeToEdge]. */
-class SystemBarStyle
+public class SystemBarStyle
 private constructor(
     private val lightScrim: Int,
     internal val darkScrim: Int,
@@ -117,7 +137,7 @@ private constructor(
     internal val detectDarkMode: (Resources) -> Boolean,
 ) {
 
-    companion object {
+    public companion object {
 
         /**
          * Creates a new instance of [SystemBarStyle]. This style detects the dark mode
@@ -141,7 +161,7 @@ private constructor(
          */
         @JvmStatic
         @JvmOverloads
-        fun auto(
+        public fun auto(
             @ColorInt lightScrim: Int,
             @ColorInt darkScrim: Int,
             detectDarkMode: (Resources) -> Boolean = { resources ->
@@ -165,7 +185,7 @@ private constructor(
          *   the contrast against the light system icons.
          */
         @JvmStatic
-        fun dark(@ColorInt scrim: Int): SystemBarStyle {
+        public fun dark(@ColorInt scrim: Int): SystemBarStyle {
             return SystemBarStyle(
                 lightScrim = scrim,
                 darkScrim = scrim,
@@ -184,7 +204,7 @@ private constructor(
          *   system icon color is always light. It is expected to be dark.
          */
         @JvmStatic
-        fun light(@ColorInt scrim: Int, @ColorInt darkScrim: Int): SystemBarStyle {
+        public fun light(@ColorInt scrim: Int, @ColorInt darkScrim: Int): SystemBarStyle {
             return SystemBarStyle(
                 lightScrim = scrim,
                 darkScrim = darkScrim,
@@ -329,31 +349,45 @@ private class EdgeToEdgeApi35 : EdgeToEdgeApi30() {
         navigationBarIsDark: Boolean,
     ) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        // TODO(b/438675320): Remove the attributes check after `activity` depends on a version of
-        //                    `core` which doesn't have b/434987937.
-        // The attributes check is safe because when the window size is WRAP_CONTENT, DecorView
-        // would consume the system window insets, and the protection is not necessary.
-        val attrs = window.attributes
-        if (
-            (attrs.flags and FLAG_LAYOUT_IN_SCREEN) != 0 ||
-                attrs.width != WRAP_CONTENT ||
-                attrs.height != WRAP_CONTENT
-        ) {
-            window.statusBarColor = Color.TRANSPARENT
-            window.navigationBarColor = Color.TRANSPARENT
-            val statusBarColor = statusBarStyle.getScrimWithEnforcedContrast(statusBarIsDark)
-            val navBarColor = navigationBarStyle.getScrimWithEnforcedContrast(navigationBarIsDark)
-            (view as ViewGroup).addView(
-                ProtectionLayout(
-                    view.context,
-                    listOf(
-                        ColorProtection(WindowInsetsCompat.Side.TOP, statusBarColor),
-                        ColorProtection(WindowInsetsCompat.Side.LEFT, navBarColor),
-                        ColorProtection(WindowInsetsCompat.Side.RIGHT, navBarColor),
-                        ColorProtection(WindowInsetsCompat.Side.BOTTOM, navBarColor),
-                    ),
-                )
-            )
+        window.statusBarColor = Color.TRANSPARENT
+        window.navigationBarColor = Color.TRANSPARENT
+        val statusBarColor = statusBarStyle.getScrimWithEnforcedContrast(statusBarIsDark)
+        val navBarColor = navigationBarStyle.getScrimWithEnforcedContrast(navigationBarIsDark)
+        (view as? ViewGroup)?.apply {
+            if (
+                !children.any {
+                    it.tag.run {
+                        if (this is List<*> && size == 4 && get(0) is ColorProtection) {
+                            forEach { protection ->
+                                (protection as? ColorProtection)?.apply {
+                                    when (protection.side) {
+                                        TOP -> protection.color = statusBarColor
+                                        LEFT -> protection.color = navBarColor
+                                        RIGHT -> protection.color = navBarColor
+                                        BOTTOM -> protection.color = navBarColor
+                                    }
+                                }
+                            }
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                }
+            ) {
+                // A child view with the tag, a list of 4 ColorProtections, doesn't exist.
+                // Let's add the protections if any protection is not transparent.
+                if (statusBarColor != Color.TRANSPARENT || navBarColor != Color.TRANSPARENT) {
+                    val protections =
+                        listOf(
+                            ColorProtection(TOP, statusBarColor),
+                            ColorProtection(LEFT, navBarColor),
+                            ColorProtection(RIGHT, navBarColor),
+                            ColorProtection(BOTTOM, navBarColor),
+                        )
+                    addView(ProtectionLayout(view.context, protections).apply { tag = protections })
+                }
+            }
         }
         window.isNavigationBarContrastEnforced =
             navigationBarStyle.nightMode == UiModeManager.MODE_NIGHT_AUTO

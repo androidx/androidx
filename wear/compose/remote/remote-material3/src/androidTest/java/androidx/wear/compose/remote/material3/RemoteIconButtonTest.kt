@@ -18,6 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -29,6 +30,7 @@ import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
@@ -76,7 +78,7 @@ class RemoteIconButtonTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             Center(RemoteModifier.fillMaxSize()) {
-                RemoteIconButton(enabled = RemoteBoolean(false)) {
+                RemoteIconButton(testAction, enabled = RemoteBoolean(false)) {
                     RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
                 }
             }
@@ -100,7 +102,11 @@ class RemoteIconButtonTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             Center(RemoteModifier.fillMaxSize()) {
-                RemoteIconButton(enabled = RemoteBoolean(false), colors = FILLED_TONAL_COLOR) {
+                RemoteIconButton(
+                    testAction,
+                    enabled = RemoteBoolean(false),
+                    colors = FILLED_TONAL_COLOR,
+                ) {
                     RemoteIcon(
                         modifier = RemoteModifier.size(RemoteIconButtonDefaults.SmallIconSize),
                         imageVector = TestImageVectors.VolumeUp,
@@ -129,6 +135,7 @@ class RemoteIconButtonTest {
         ) {
             Center(RemoteModifier.fillMaxSize()) {
                 RemoteIconButton(
+                    testAction,
                     border = 1.rdp,
                     borderColor = RemoteMaterialTheme.colorScheme.outline,
                     enabled = RemoteBoolean(false),
@@ -182,3 +189,5 @@ private fun Center(modifier: RemoteModifier, content: @Composable @RemoteComposa
         content = content,
     )
 }
+
+private val testAction = HostAction("testAction".rs, 1.rf)

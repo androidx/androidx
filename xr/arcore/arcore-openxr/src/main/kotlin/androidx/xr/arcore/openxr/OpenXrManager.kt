@@ -57,14 +57,16 @@ internal constructor(
      * A pointer to the native XrSession. Only valid after [create] and before [stop] have been
      * called.
      */
-    internal var sessionPointer: Long = 0L
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override var sessionPointer: Long = 0L
         private set
 
     /**
      * A pointer to the native XrInstance. Only valid after [create] and before [stop] have been
      * called.
      */
-    internal var instancePointer: Long = 0L
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override var instancePointer: Long = 0L
         private set
 
     override fun create() {
@@ -73,6 +75,8 @@ internal constructor(
         check(nativeInit(activity, startPollingThread = false))
         activityList.add(activity)
         setAuthentication(activity)
+        sessionPointer = nativeGetXrSessionHandle()
+        instancePointer = nativeGetXrInstanceHandle()
     }
 
     /** The current state of the runtime configuration for the session. */
@@ -258,6 +262,8 @@ internal constructor(
         if (activityList.isEmpty()) {
             nativeDeInit()
             nativePointer = 0L
+            sessionPointer = 0L
+            instancePointer = 0L
             perceptionManager.clear()
         }
     }
@@ -298,6 +304,10 @@ internal constructor(
     }
 
     private external fun nativeGetPointer(): Long
+
+    private external fun nativeGetXrSessionHandle(): Long
+
+    private external fun nativeGetXrInstanceHandle(): Long
 
     private external fun nativeInit(context: Context, startPollingThread: Boolean): Boolean
 

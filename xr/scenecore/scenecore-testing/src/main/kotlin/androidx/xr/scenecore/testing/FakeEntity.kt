@@ -72,6 +72,12 @@ public open class FakeEntity() : FakeScenePose(), Entity {
 
     private var hidden = false
 
+    private val activitySpaceAlpha: Float
+        get() {
+            val parent = _parent ?: return alpha
+            return parent.getAlpha(Space.ACTIVITY) * alpha
+        }
+
     /**
      * Sets the local hidden state of this Entity. When true, this Entity and all descendants will
      * not be rendered in the scene. When the hidden state is false, an entity will be rendered if
@@ -158,16 +164,21 @@ public open class FakeEntity() : FakeScenePose(), Entity {
      * @param relativeTo The space in which to evaluate the alpha.
      */
     override fun getAlpha(@SpaceValue relativeTo: Int): Float {
-        return alpha
+        return when (relativeTo) {
+            Space.REAL_WORLD,
+            Space.ACTIVITY -> activitySpaceAlpha
+            Space.PARENT -> alpha
+            else -> throw IllegalArgumentException("Unsupported relativeTo value: $relativeTo")
+        }
     }
 
     /**
-     * Sets the alpha transparency for the given Entity, relative to the given space.
+     * Sets the alpha transparency for the given Entity, relative to the parent space. Values are in
+     * the range [0, 1] with 0 being fully transparent and 1 being fully opaque.
      *
      * @param alpha Alpha transparency level for the Entity.
-     * @param relativeTo The space in which to set the alpha.
      */
-    override fun setAlpha(alpha: Float, @SpaceValue relativeTo: Int) {
+    override fun setAlpha(alpha: Float) {
         // make sure input alpha with in range [0, 1]
         val clampedAlpha = alpha.coerceIn(0f, 1f)
         this.alpha = clampedAlpha

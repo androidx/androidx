@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,13 +21,11 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
-import androidx.pdf.EditablePdfDocument
 import androidx.pdf.FakeEditablePdfDocument
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.annotation.models.AnnotationsDisplayState
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
 import androidx.pdf.annotation.models.StampAnnotation
 import androidx.pdf.coroutines.collectTill
 import androidx.pdf.ink.EditableDocumentViewModel
@@ -40,41 +38,76 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
-import java.io.File
-import java.util.concurrent.Executors
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@ExperimentalCoroutinesApi
 class EditableDocumentViewModelTest {
 
     private lateinit var annotationsViewModel: EditableDocumentViewModel
     private lateinit var savedStateHandle: SavedStateHandle
+    private lateinit var fakeDocument: FakeEditablePdfDocument
 
     private val appContext =
         InstrumentationRegistry.getInstrumentation().targetContext.applicationContext
-    val dispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
+    private val dispatcher = UnconfinedTestDispatcher()
 
-    private var defaultDocumentUri: Uri? = null
-    private var editablePdfDocument: EditablePdfDocument? = null
+    private val defaultDocumentUri = Uri.parse("content://test/document.pdf")
 
     @Before
     fun setup() {
-        defaultDocumentUri = Uri.fromFile(File("test1.pdf"))
-        editablePdfDocument = FakeEditablePdfDocument(uri = requireNotNull(defaultDocumentUri))
+        Dispatchers.setMain(dispatcher)
+
+        fakeDocument =
+            FakeEditablePdfDocument(
+                uri = defaultDocumentUri,
+                pages = listOf(android.graphics.Point(100, 200), android.graphics.Point(100, 200)),
+            )
+
         savedStateHandle = SavedStateHandle()
         annotationsViewModel =
             EditableDocumentViewModel(savedStateHandle, SandboxedPdfLoader(appContext, dispatcher))
 
-        annotationsViewModel.maybeInitialiseForDocument(requireNotNull(editablePdfDocument))
+        annotationsViewModel.maybeInitialiseForDocument(fakeDocument)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun statePersistence_restoresEditMode_afterRecreation() = runTest {
+        annotationsViewModel.isEditModeEnabled = true
+
+        val newViewModel =
+            EditableDocumentViewModel(savedStateHandle, SandboxedPdfLoader(appContext, dispatcher))
+
+        assertThat(newViewModel.isEditModeEnabled).isTrue()
+        assertThat(newViewModel.isEditModeEnabledFlow.first()).isTrue()
+    }
+
+    @Test
+    fun statePersistence_restoresAnnotationVisibility_afterRecreation() = runTest {
+        annotationsViewModel.areAnnotationsVisible = false
+
+        val newViewModel =
+            EditableDocumentViewModel(savedStateHandle, SandboxedPdfLoader(appContext, dispatcher))
+
+        assertThat(newViewModel.areAnnotationsVisible).isFalse()
+        assertThat(newViewModel.areAnnotationsVisibleFlow.first()).isFalse()
     }
 
     @Test
@@ -86,24 +119,81 @@ class EditableDocumentViewModelTest {
         annotationsViewModel.resetState()
 
         assertThat(annotationsViewModel.isEditModeEnabledFlow.first()).isFalse()
-        assertThat(annotationsViewModel.annotationsDisplayStateFlow.first())
-            .isEqualTo(AnnotationsDisplayState.EMPTY)
+        val annotationsDisplayState = annotationsViewModel.annotationsDisplayStateFlow.first()
+        assertThat(annotationsDisplayState).isEqualTo(AnnotationsDisplayState.EMPTY)
+        assertThat(annotationsViewModel.applyEditsStatus.value).isEqualTo(ApplyEditsState.Ready)
     }
+
+    @Test
+    fun maybeInitialiseForDocument_resetsState_whenDocumentUriChanges() = runTest {
+        val initialAnnotation = createAnnotation(pageNum = 0)
+        annotationsViewModel.addDraftAnnotation(initialAnnotation)
+
+        val initialDocUri = Uri.parse("content://test/test1.pdf")
+        savedStateHandle[EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY] = initialDocUri
+
+        assertThat(
+                annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                    .pageAnnotations
+            )
+            .isNotEmpty()
+
+        val newDocUri = Uri.parse("content://test/test2.pdf")
+        val newFakeDoc = FakeEditablePdfDocument(uri = newDocUri)
+
+        annotationsViewModel.maybeInitialiseForDocument(newFakeDoc)
+
+        assertThat(
+                annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                    .pageAnnotations
+            )
+            .isEmpty()
+        assertThat(savedStateHandle.get<Uri>(EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY))
+            .isEqualTo(newDocUri)
+    }
+
+    @Test
+    fun maybeInitialiseForDocument_doesNotResetState_whenDocumentUriIsTheSame() = runTest {
+        val docUri = Uri.parse("content://test/same.pdf")
+        savedStateHandle[EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY] = docUri
+
+        // Initialize first time
+        annotationsViewModel.maybeInitialiseForDocument(FakeEditablePdfDocument(uri = docUri))
+
+        val initialAnnotation = createAnnotation(pageNum = 0)
+        annotationsViewModel.addDraftAnnotation(initialAnnotation)
+        val initialEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations
+
+        // Call again with same URI
+        annotationsViewModel.maybeInitialiseForDocument(FakeEditablePdfDocument(uri = docUri))
+
+        // State should remain
+        assertThat(
+                annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                    .pageAnnotations
+            )
+            .isEqualTo(initialEdits)
+        assertThat(savedStateHandle.get<Uri>(EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY))
+            .isEqualTo(docUri)
+    }
+
+    // --- Annotation Editing Tests ---
 
     @Test
     fun addDraftAnnotation_updatesDraftState_forSingleAnnotation() = runTest {
         val annotation = createAnnotation(pageNum = 0)
 
         annotationsViewModel.addDraftAnnotation(annotation)
-        val firstPageEdits: List<PdfAnnotationData>? =
-            annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage[0]
-                ?.filterIsInstance<PdfAnnotationData>()
+
+        val firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
 
         assertThat(firstPageEdits).isNotNull()
         assertThat(firstPageEdits).hasSize(1)
-
-        val addedAnnotationData = firstPageEdits!!.first()
-        assertThat(addedAnnotationData.annotation).isEqualTo(annotation)
+        assertThat(firstPageEdits!!.first().annotation).isEqualTo(annotation)
     }
 
     @Test
@@ -114,9 +204,10 @@ class EditableDocumentViewModelTest {
         annotationsViewModel.addDraftAnnotation(annotation1)
         annotationsViewModel.addDraftAnnotation(annotation2)
 
-        val firstPageEdits: List<PdfAnnotationData>? =
-            annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage[0]
-                ?.filterIsInstance<PdfAnnotationData>()
+        val firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
+
         assertThat(firstPageEdits).isNotNull()
         assertThat(firstPageEdits).hasSize(2)
 
@@ -125,58 +216,107 @@ class EditableDocumentViewModelTest {
     }
 
     @Test
-    fun addAnnotations_updatesDraftState_forMultipleDraftAnnotationOnDifferentPages() = runTest {
-        val annotationPage0 = createAnnotation(pageNum = 0)
-        val annotationPage1 = createAnnotation(pageNum = 1)
+    fun undo_removesLastAddedAnnotation_andUpdatesState() = runTest {
+        val annotation = createAnnotation(pageNum = 0)
+        annotationsViewModel.addDraftAnnotation(annotation)
 
-        annotationsViewModel.addDraftAnnotation(annotationPage0)
-        annotationsViewModel.addDraftAnnotation(annotationPage1)
+        assertThat(annotationsViewModel.canUndo.first()).isTrue()
 
-        val firstPageEdits: List<PdfAnnotationData>? =
-            annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage[0]
-                ?.filterIsInstance<PdfAnnotationData>()
+        annotationsViewModel.undo()
+
+        val page0Edits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
+        assertThat(page0Edits).isNull() // Should be removed/null
+        assertThat(annotationsViewModel.canUndo.first()).isFalse()
+        assertThat(annotationsViewModel.canRedo.first()).isTrue()
+    }
+
+    @Test
+    fun redo_restoresLastUndoneAnnotation() = runTest {
+        val annotation = createAnnotation(pageNum = 0)
+        annotationsViewModel.addDraftAnnotation(annotation)
+        annotationsViewModel.undo()
+        annotationsViewModel.redo()
+
+        val firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
+        assertThat(firstPageEdits).hasSize(1)
+        assertThat(annotationsViewModel.canUndo.first()).isTrue()
+        assertThat(annotationsViewModel.canRedo.first()).isFalse()
+    }
+
+    @Test
+    fun removeAnnotation_removesNewlyDrawnAnnotation() = runTest {
+        val annotation = createAnnotation(pageNum = 0)
+        annotationsViewModel.addDraftAnnotation(annotation)
+        annotationsViewModel.addDraftAnnotation(annotation)
+
+        // The annotations should be added and pageAnnotations List size should be 2.
+        var firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
+        assertThat(firstPageEdits).isNotNull()
+        assertThat(firstPageEdits).hasSize(2)
+
+        annotationsViewModel.removeAnnotation(firstPageEdits!!.first().key)
+
+        // The annotation should be removed and pageAnnotations List size should now be 1.
+        firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
         assertThat(firstPageEdits).isNotNull()
         assertThat(firstPageEdits).hasSize(1)
-        assertThat(firstPageEdits!!.first().annotation).isEqualTo(annotationPage0)
-
-        val secondPageEdits: List<PdfAnnotationData>? =
-            annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage[1]
-                ?.filterIsInstance<PdfAnnotationData>()
-        assertThat(secondPageEdits).isNotNull()
-        assertThat(secondPageEdits).hasSize(1)
-        assertThat(secondPageEdits!!.first().annotation).isEqualTo(annotationPage1)
     }
 
     @Test
-    fun updateTransformationMatrices_updatesFlow() = runTest {
-        val matrixPage0 = Matrix().apply { setScale(1f, 1f) }
-        val matrixPage1 = Matrix().apply { setTranslate(10f, 10f) }
-        val newMatrices =
-            HashMap<Int, Matrix>().apply {
-                put(0, matrixPage0)
-                put(1, matrixPage1)
-            }
-
-        annotationsViewModel.updateTransformationMatrices(newMatrices)
-        val emittedState = annotationsViewModel.annotationsDisplayStateFlow.first()
-
-        assertThat(emittedState.transformationMatrices.size).isEqualTo(2)
-        assertThat(emittedState.transformationMatrices.get(0)).isEqualTo(matrixPage0)
-        assertThat(emittedState.transformationMatrices.get(1)).isEqualTo(matrixPage1)
-    }
-
-    @Test
-    fun fetchAnnotationsForPageRange_updatesStateWithExistingAnnotations() = runTest {
+    fun removeAnnotation_removesExistingAnnotation() = runTest {
         val existingAnnotation = createAnnotation(pageNum = 0)
+        val newUri = Uri.parse("content://test/new_doc.pdf")
         val documentWithAnnotation =
-            FakeEditablePdfDocument(initialEdits = listOf(existingAnnotation))
+            FakeEditablePdfDocument(
+                uri = newUri,
+                initialEdits = listOf(existingAnnotation, existingAnnotation),
+            )
+
         annotationsViewModel.maybeInitialiseForDocument(documentWithAnnotation)
 
         annotationsViewModel.fetchAnnotationsForPageRange(0, 0)
 
-        val firstPageEdits: List<PdfAnnotationData>? =
-            annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage[0]
-                ?.filterIsInstance<PdfAnnotationData>()
+        // The annotations should be present and pageAnnotations List size should be 2.
+        var firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
+        assertThat(firstPageEdits).isNotNull()
+        assertThat(firstPageEdits).hasSize(2)
+
+        annotationsViewModel.removeAnnotation(firstPageEdits!!.first().key)
+
+        // The annotation should be removed and pageAnnotations List size should now be 1.
+        firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
+        assertThat(firstPageEdits).isNotNull()
+        assertThat(firstPageEdits).hasSize(1)
+    }
+
+    // --- Visible Page Range & Refresh Tests ---
+
+    @Test
+    fun fetchAnnotationsForPageRange_updatesStateWithExistingAnnotations() = runTest {
+        val existingAnnotation = createAnnotation(pageNum = 0)
+        val newUri = Uri.parse("content://test/new_doc.pdf")
+        val documentWithAnnotation =
+            FakeEditablePdfDocument(uri = newUri, initialEdits = listOf(existingAnnotation))
+
+        annotationsViewModel.maybeInitialiseForDocument(documentWithAnnotation)
+
+        annotationsViewModel.fetchAnnotationsForPageRange(0, 0)
+
+        val firstPageEdits =
+            annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                .pageAnnotations[0]
 
         assertThat(firstPageEdits).isNotNull()
         assertThat(firstPageEdits).hasSize(1)
@@ -184,44 +324,74 @@ class EditableDocumentViewModelTest {
     }
 
     @Test
-    fun maybeInitialiseForDocument_resetsState_whenDocumentUriChanges() = runTest {
-        val initialAnnotation = createAnnotation(pageNum = 0)
-        annotationsViewModel.addDraftAnnotation(initialAnnotation)
+    fun updateVisiblePageRange_usedByUndoRedo_toRefeshCorrectPages() = runTest {
+        val annotationPage1 = createAnnotation(pageNum = 1)
+        annotationsViewModel.visiblePageRange = 1..1
+        annotationsViewModel.addDraftAnnotation(annotationPage1)
 
-        val initialDocUri = Uri.fromFile(File("test1.pdf"))
-        savedStateHandle[EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY] = initialDocUri
+        assertThat(
+                annotationsViewModel.annotationsDisplayStateFlow.value.visiblePageAnnotations
+                    .pageAnnotations[1]
+            )
+            .hasSize(1)
 
-        assertThat(annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage)
-            .isNotEmpty()
+        annotationsViewModel.undo()
 
-        // Change document URI
-        val newDocUri = Uri.fromFile(File("test2.pdf"))
-        annotationsViewModel.maybeInitialiseForDocument(FakeEditablePdfDocument(uri = newDocUri))
+        val state = annotationsViewModel.annotationsDisplayStateFlow.value
+        assertThat(state.visiblePageAnnotations.pageAnnotations[1]).isNull()
+    }
 
-        // Verify state reset
-        assertThat(annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage)
-            .isEmpty()
-        assertThat(savedStateHandle.get<Uri>(EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY))
-            .isEqualTo(newDocUri)
+    // --- Display State Tests ---
+
+    @Test
+    fun updateTransformationMatrices_updatesFlow() = runTest {
+        val matrixPage0 = Matrix().apply { setScale(1f, 1f) }
+        val matrixPage1 = Matrix().apply { setTranslate(10f, 10f) }
+        val newMatrices = mapOf(0 to matrixPage0, 1 to matrixPage1)
+
+        annotationsViewModel.updateTransformationMatrices(newMatrices)
+        val emittedState = annotationsViewModel.annotationsDisplayStateFlow.first()
+
+        assertThat(emittedState.transformationMatrices.size).isEqualTo(2)
+        assertThat(emittedState.transformationMatrices[0]).isEqualTo(matrixPage0)
+        assertThat(emittedState.transformationMatrices[1]).isEqualTo(matrixPage1)
+    }
+
+    // --- Interaction State Tests ---
+
+    @Test
+    fun initialAreAnnotationsEnabled_isTrue() = runTest {
+        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isFalse()
+        annotationsViewModel.isEditModeEnabled = true
+        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isTrue()
     }
 
     @Test
-    fun maybeInitialiseForDocument_doesNotResetState_whenDocumentUriIsTheSame() = runTest {
-        val docUri = Uri.fromFile(File("test.pdf"))
-        savedStateHandle[EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY] = docUri
+    fun setAnnotationVisibility_updatesIsAnnotationInteractionEnabled() = runTest {
+        annotationsViewModel.isEditModeEnabled = true
+        annotationsViewModel.areAnnotationsVisible = false
+        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isFalse()
 
-        annotationsViewModel.maybeInitialiseForDocument(FakeEditablePdfDocument(uri = docUri))
-
-        val initialAnnotation = createAnnotation(pageNum = 0)
-        annotationsViewModel.addDraftAnnotation(initialAnnotation)
-
-        val initialEdits = annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage
-
-        assertThat(annotationsViewModel.annotationsDisplayStateFlow.value.edits.editsByPage)
-            .isEqualTo(initialEdits)
-        assertThat(savedStateHandle.get<Uri>(EditableDocumentViewModel.LOADED_DOCUMENT_URI_KEY))
-            .isEqualTo(docUri)
+        annotationsViewModel.areAnnotationsVisible = true
+        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isTrue()
     }
+
+    @Test
+    fun isPdfViewGestureActive_updatesIsAnnotationInteractionEnabled() = runTest {
+        annotationsViewModel.isEditModeEnabled = true
+        annotationsViewModel.areAnnotationsVisible = true
+        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isTrue()
+
+        // Disable interaction by activating gesture
+        annotationsViewModel.isPdfViewGestureActive = true
+        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isFalse()
+
+        // Re-enable interaction by deactivating gesture
+        annotationsViewModel.isPdfViewGestureActive = false
+        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isTrue()
+    }
+
+    // --- Apply Edits Tests ---
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
@@ -236,26 +406,31 @@ class EditableDocumentViewModelTest {
                     state is ApplyEditsState.Success
                 }
             }
-        // Force the collector to start and capture the initial 'Ready' state
         testScheduler.advanceUntilIdle()
 
         annotationsViewModel.applyDraftEdits()
-        // Assert annotation interactions is disabled while applying edits
+
         assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isFalse()
+
         collectJob.join()
 
         assertThat(applyStates).isNotEmpty()
         assertThat(applyStates.first()).isEqualTo(ApplyEditsState.Ready)
         assertThat(applyStates).contains(ApplyEditsState.InProgress)
         assertThat(applyStates.last()).isInstanceOf(ApplyEditsState.Success::class.java)
+
+        assertThat(annotationsViewModel.hasUnsavedChanges()).isFalse()
+        assertThat(annotationsViewModel.canUndo.value).isFalse()
+
+        val savedAnnotations = fakeDocument.getAnnotationsForPage(0)
+        assertThat(savedAnnotations).hasSize(1)
+        assertThat(savedAnnotations.first().annotation).isEqualTo(annotation)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun applyDraftEdits_updatesStatusFlow_onFailure_whenDocumentIsNull() = runTest {
-        // Reset state forces editablePdfDocument to be null and throw exception when trying to
-        // apply edits
-        annotationsViewModel.resetState()
+        annotationsViewModel.resetState() // Forces document null
 
         val applyStates = mutableListOf<ApplyEditsState>()
         val collectJob =
@@ -265,21 +440,20 @@ class EditableDocumentViewModelTest {
                 }
             }
 
-        // Force the collector to start and capture the initial 'Ready' state
         testScheduler.advanceUntilIdle()
 
         annotationsViewModel.applyDraftEdits()
-        // Assert annotation interactions is disabled while applying edits
         assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isFalse()
         collectJob.join()
 
-        // Verify the sequence of states
         assertThat(applyStates).isNotEmpty()
-        assertThat(applyStates.first()).isEqualTo(ApplyEditsState.Ready)
         assertThat(applyStates.last()).isInstanceOf(ApplyEditsState.Failure::class.java)
+        // Note: The message string comes from your ViewModel implementation
         assertThat((applyStates.last() as ApplyEditsState.Failure).error.message)
-            .isEqualTo("Document not available for saving.")
+            .contains("Document not available")
     }
+
+    // --- Tool Selection Tests ---
 
     @Test
     fun setCurrentToolInfo_updatesDrawingMode_whenPenSelected() = runTest {
@@ -288,8 +462,8 @@ class EditableDocumentViewModelTest {
 
         val drawingMode = annotationsViewModel.drawingMode.first()
         assertThat(drawingMode).isInstanceOf(AnnotationDrawingMode.PenMode::class.java)
-        assertThat((drawingMode as AnnotationDrawingMode.PenMode).brush.size).isEqualTo(2.0f)
-        assertThat(drawingMode.brush.colorIntArgb).isEqualTo(Color.RED)
+        assertThat((drawingMode as AnnotationDrawingMode.PenMode).size).isEqualTo(2.0f)
+        assertThat(drawingMode.color).isEqualTo(Color.RED)
     }
 
     @Test
@@ -299,75 +473,18 @@ class EditableDocumentViewModelTest {
 
         val drawingMode = annotationsViewModel.drawingMode.first()
         assertThat(drawingMode).isInstanceOf(AnnotationDrawingMode.HighlighterMode::class.java)
-        assertThat((drawingMode as AnnotationDrawingMode.HighlighterMode).brush.size)
-            .isEqualTo(10.0f)
-        assertThat(drawingMode.brush.colorIntArgb).isEqualTo(Color.YELLOW)
+        assertThat((drawingMode as AnnotationDrawingMode.HighlighterMode).size).isEqualTo(10.0f)
+        assertThat(drawingMode.color).isEqualTo(Color.YELLOW)
     }
 
     @Test
     fun setCurrentToolInfo_updatesDrawingMode_whenEraserSelected() = runTest {
         annotationsViewModel.setCurrentToolInfo(Eraser)
-
         val drawingMode = annotationsViewModel.drawingMode.first()
         assertThat(drawingMode).isEqualTo(AnnotationDrawingMode.EraserMode)
     }
 
-    @Test
-    fun setAnnotationVisibility_updatesIsAnnotationInteractionEnabled() = runTest {
-        // Enable edit mode for this test
-        annotationsViewModel.isEditModeEnabled = true
-        // Hide annotations
-        annotationsViewModel.areAnnotationsVisible = false
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isFalse()
-
-        annotationsViewModel.areAnnotationsVisible = true
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isTrue()
-    }
-
-    @Test
-    fun updateEditMode_updatesIsAnnotationInteractionEnabled() = runTest {
-        // Mark annotations visible throughout test
-        annotationsViewModel.areAnnotationsVisible = true
-
-        // Exit edit mode
-        annotationsViewModel.isEditModeEnabled = false
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isFalse()
-        // Enter edit mode
-        annotationsViewModel.isEditModeEnabled = true
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isTrue()
-    }
-
-    @Test
-    fun initialDrawingMode_isPenWithDefaultBrush() = runTest {
-        val drawingMode = annotationsViewModel.drawingMode.first()
-        assertThat(drawingMode).isInstanceOf(AnnotationDrawingMode.PenMode::class.java)
-    }
-
-    @Test
-    fun initialAreAnnotationsEnabled_isTrue() = runTest {
-        // Enter edit mode
-        annotationsViewModel.isEditModeEnabled = true
-
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.first()).isTrue()
-    }
-
-    @Test
-    fun isPdfViewGestureActive_updatesIsAnnotationInteractionEnabled() = runTest {
-        // Enable edit mode and mark annotations visible to allow interaction
-        annotationsViewModel.isEditModeEnabled = true
-        annotationsViewModel.areAnnotationsVisible = true
-
-        assertThat(annotationsViewModel.isPdfViewGestureActive).isFalse()
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isTrue()
-
-        // Disable interaction by activating gesture
-        annotationsViewModel.isPdfViewGestureActive = true
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isFalse()
-
-        // Re-enable interaction by deactivating gesture
-        annotationsViewModel.isPdfViewGestureActive = false
-        assertThat(annotationsViewModel.isAnnotationInteractionEnabled.value).isTrue()
-    }
+    // --- Helpers ---
 
     fun createAnnotation(
         pageNum: Int = 0,

@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.node.CompositionLocalConsumerSubspaceModifierNode
-import androidx.xr.compose.subspace.node.LayoutCoordinatesAwareModifierNode
+import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.currentValueOf
@@ -255,7 +255,7 @@ internal class MovableNode(
     SubspaceModifier.Node(),
     CompositionLocalConsumerSubspaceModifierNode,
     CoreEntityNode,
-    LayoutCoordinatesAwareModifierNode,
+    SubspaceLayoutAwareModifierNode,
     EntityMoveListener,
     SubspaceLayoutModifierNode {
     private inline val density: Density
@@ -295,7 +295,7 @@ internal class MovableNode(
         }
     }
 
-    override fun onLayoutCoordinates(coordinates: SubspaceLayoutCoordinates) {
+    override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         // Update the size of the component to match the final size of the layout.
         component?.size = coordinates.size.toDimensionsInMeters(density)
     }

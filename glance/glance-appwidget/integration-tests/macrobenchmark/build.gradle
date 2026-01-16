@@ -21,7 +21,7 @@ plugins {
 
 android {
     defaultConfig {
-        compileSdk = 35
+        compileSdk { version = release(35) }
     }
     namespace = "androidx.glance.appwidget.macrobenchmark"
     targetProjectPath = ":glance:glance-appwidget:integration-tests:macrobenchmark-target"

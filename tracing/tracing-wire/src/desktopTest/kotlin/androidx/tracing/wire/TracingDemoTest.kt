@@ -16,8 +16,10 @@
 
 package androidx.tracing.wire
 
+import androidx.tracing.ExperimentalContextPropagation
 import androidx.tracing.TraceDriver
 import java.io.File
+import kotlin.concurrent.thread
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlinx.coroutines.Deferred
@@ -89,6 +91,36 @@ class TracingDemoTest {
                     }
                 }
             }
+        }
+    }
+
+    @Test
+    // The amount of time spent sleeping does not affect the outcome of the test.
+    @Suppress("BanThreadSleep")
+    @OptIn(ExperimentalContextPropagation::class)
+    internal fun testManualContextPropagation() {
+        driver.use {
+            val token = tracer.tokenForManualPropagation()
+            val threads = mutableListOf<Thread>()
+            threads += thread {
+                tracer.trace(category = "category", name = "first", token = token) {
+                    Thread.sleep(100L)
+                    tracer.trace(category = "category", name = "second", token = token) {
+                        Thread.sleep(200L)
+
+                        runBlocking {
+                            tracer.traceCoroutine(
+                                category = "category",
+                                name = "third",
+                                token = token,
+                            ) {
+                                delay(200L)
+                            }
+                        }
+                    }
+                }
+            }
+            threads.forEach { it.join() }
         }
     }
 

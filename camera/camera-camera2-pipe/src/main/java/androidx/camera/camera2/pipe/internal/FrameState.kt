@@ -210,7 +210,7 @@ internal class FrameState(
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
-            outputSequence: Long,
+            cameraOutputSequence: Long,
             outputNumber: Long,
             outputResult: OutputResult<FrameInfo>,
         ) {
@@ -232,7 +232,7 @@ internal class FrameState(
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
-            outputSequence: Long,
+            cameraOutputSequence: Long,
             outputNumber: Long,
             outputResult: OutputResult<OutputImage>,
         ) {

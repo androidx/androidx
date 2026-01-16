@@ -22,9 +22,13 @@ import android.graphics.BlendModeColorFilter
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.RemoteSolidColor
 
 /** Base type for [ColorFilter]s that are parameterized by expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface RemoteColorFilter
@@ -72,6 +76,12 @@ public open class RemotePaint : Paint {
             if (paint.remoteColor != null) {
                 remoteColor = paint.remoteColor
             }
+        }
+    }
+
+    init {
+        if (typeface == null) {
+            typeface = Typeface.DEFAULT
         }
     }
 
@@ -138,10 +148,21 @@ public open class RemotePaint : Paint {
         super.setColor(color)
     }
 
+    public fun RemoteStateScope.applyRemoteBrush(remoteBrush: RemoteBrush, size: RemoteSize) {
+        if (remoteBrush.hasShader) {
+            shader = with(remoteBrush) { createShader(size) }
+            remoteColor = null
+        } else if (remoteBrush is RemoteSolidColor) {
+            remoteColor = remoteBrush.color
+            shader = null
+        } else {
+            throw UnsupportedOperationException("Unsupported brush type: $remoteBrush")
+        }
+    }
+
     internal fun getColorLong(creationState: RemoteComposeCreationState): Long? {
         remoteColor?.let {
-            return it.constantValue?.let { it.pack() }
-                ?: it.getIdForCreationState(creationState).toLong()
+            return it.constantValue?.pack() ?: it.getIdForCreationState(creationState).toLong()
         }
         return null
     }

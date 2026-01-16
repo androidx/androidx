@@ -34,7 +34,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdk = 31
+        minSdk { version = release(31) }
     }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.arcore.testapp"

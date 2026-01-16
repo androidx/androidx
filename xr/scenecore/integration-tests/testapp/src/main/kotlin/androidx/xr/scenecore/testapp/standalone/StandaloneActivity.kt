@@ -83,7 +83,7 @@ class StandaloneActivity : AppCompatActivity() {
                 "panel_entity",
                 Pose(Vector3(0f, -0.25f, 0.5f)),
             )
-        panelEntity.parent = session!!.scene.activitySpace
+        panelEntity.parent = session!!.scene.keyEntity
 
         lifecycleScope.launch {
             // load 3D Model
@@ -98,7 +98,7 @@ class StandaloneActivity : AppCompatActivity() {
 
     private fun createModelSolarSystem(session: Session, model: GltfModel) {
         val sunEntity = GltfModelEntity.create(session, model, Pose(Vector3(-0.5f, 0.5f, -0.5f)))
-        sunEntity.parent = session.scene.activitySpace
+        sunEntity.parent = session.scene.keyEntity
         // Each child is scaled down relative to the parent to make it more visually clear which
         // entities are the "sun", "planet", and "moon".
         sunEntity.setScale(0.50f) // Scale down the sun entity so everything fits in the FOV better

@@ -44,12 +44,17 @@ import kotlinx.coroutines.withContext
  * updated as they are added and removed from the state. This work is kicked off on the
  * [coroutineDispatcher].
  */
-public class TestNavigatorState
+public actual class TestNavigatorState
 @JvmOverloads
 constructor(
     private val context: Context? = null,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
 ) : NavigatorState() {
+
+    public actual constructor(
+        coroutineDispatcher: CoroutineDispatcher
+    ) : this(null, coroutineDispatcher)
+
     internal val navContext = NavContext(context)
 
     private val viewModelStoreProvider =
@@ -63,7 +68,7 @@ constructor(
     private val savedStates = mutableMapOf<String, SavedState>()
     private val entrySavedState = mutableMapOf<NavBackStackEntry, Boolean>()
 
-    override fun createBackStackEntry(
+    public actual override fun createBackStackEntry(
         destination: NavDestination,
         arguments: SavedState?,
     ): NavBackStackEntry =
@@ -79,7 +84,9 @@ constructor(
      * Restore a previously saved [NavBackStackEntry]. You must have previously called [pop] with
      * [previouslySavedEntry] and `true`.
      */
-    public fun restoreBackStackEntry(previouslySavedEntry: NavBackStackEntry): NavBackStackEntry {
+    public actual fun restoreBackStackEntry(
+        previouslySavedEntry: NavBackStackEntry
+    ): NavBackStackEntry {
         val savedState =
             checkNotNull(savedStates[previouslySavedEntry.id]) {
                 "restoreBackStackEntry(previouslySavedEntry) must be passed a NavBackStackEntry " +

@@ -150,34 +150,20 @@ public interface Entity : ScenePose {
     @FloatRange(from = 0.0) public fun getScale(): Float = getScale(Space.PARENT)
 
     /**
-     * Sets the alpha transparency of the Entity relative to given Space. Values are in the range
-     * [0, 1] with 0 being fully transparent and 1 being fully opaque.
+     * Sets the alpha transparency of the Entity relative to the parent Space. Values are in the
+     * range [0, 1] with 0 being fully transparent and 1 being fully opaque.
      *
      * This value will affect the rendering of this Entity's children. Children of this node will
-     * have their alpha levels multiplied by this value and any alpha of this entity's ancestors.
+     * have their alpha levels multiplied by this value and any alpha of this Entity's ancestors. As
+     * a result, the effective alpha of a child cannot exceed the effective alpha of its parent.
      *
      * Usage restrictions:
      * - If the provided `alpha` is outside the [0, 1] range, it will be clamped automatically to
      *   [0, 1].
      *
      * @param alpha Alpha transparency level for the Entity.
-     * @param relativeTo Sets alpha relative to given Space. Default value is the parent Space.
      */
-    // TODO - b/421456320: Can a child have an alpha greater than its parent?
-    public fun setAlpha(
-        @FloatRange(from = 0.0, to = 1.0) alpha: Float,
-        relativeTo: Space = Space.PARENT,
-    )
-
-    /**
-     * Sets the alpha transparency of the Entity and its children. Values are in the range [0, 1]
-     * with 0 being fully transparent and 1 being fully opaque.
-     *
-     * This value will affect the rendering of this Entity's children. Children of this node will
-     * have their alpha levels multiplied by this value and any alpha of this Entity's ancestors.
-     */
-    public fun setAlpha(@FloatRange(from = 0.0, to = 1.0) alpha: Float): Unit =
-        setAlpha(alpha, Space.PARENT)
+    public fun setAlpha(@FloatRange(from = 0.0, to = 1.0) alpha: Float): Unit
 
     /**
      * Returns the alpha transparency set for this Entity, relative to given Space.
@@ -369,9 +355,9 @@ internal constructor(rtEntity: RtEntityType, private val entityManager: EntityMa
         return rtEntity!!.getScale(relativeTo.toRtSpace()).x
     }
 
-    override fun setAlpha(alpha: Float, relativeTo: Space) {
+    override fun setAlpha(alpha: Float) {
         checkNotDisposed()
-        rtEntity!!.setAlpha(alpha, relativeTo.toRtSpace())
+        rtEntity!!.setAlpha(alpha)
     }
 
     override fun getAlpha(relativeTo: Space): Float {

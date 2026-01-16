@@ -17,7 +17,7 @@
 package androidx.wear.compose.material3.test
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
 import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
 import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState

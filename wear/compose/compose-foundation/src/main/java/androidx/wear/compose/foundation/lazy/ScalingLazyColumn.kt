@@ -863,8 +863,8 @@ public object ScalingLazyColumnDefaults {
      * central item as the fling decays.
      *
      * @param state the state of the [ScalingLazyColumn]
-     * @param snapOffset an optional offset to be applied when snapping the item. After the snap the
-     *   snapped items offset will be [snapOffset].
+     * @param snapOffset an optional offset to be applied when snapping the item. Defines the
+     *   distance from the center of the scrollable to the center of the snapped item.
      * @param decay the decay to use
      */
     @Composable

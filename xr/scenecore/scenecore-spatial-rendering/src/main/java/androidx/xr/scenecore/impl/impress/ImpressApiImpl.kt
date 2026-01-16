@@ -505,12 +505,14 @@ public class ImpressApiImpl : ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     ): Unit =
         nSetStereoSurfaceEntityCanvasShapeQuad(
             getViewNativeHandle(view),
             impressNode.handle,
             width,
             height,
+            cornerRadius,
         )
 
     override fun setStereoSurfaceEntityCanvasShapeSphere(
@@ -1527,6 +1529,7 @@ public class ImpressApiImpl : ImpressApi {
         impressNode: Int,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     )
 
     private external fun nSetStereoSurfaceEntityCanvasShapeSphere(

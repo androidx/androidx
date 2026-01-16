@@ -17,7 +17,6 @@
 package androidx.wear.compose.remote.material3
 
 import androidx.compose.remote.creation.compose.action.Action
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -36,7 +35,7 @@ import androidx.compose.runtime.Composable
 @RemoteComposable
 @Suppress("RestrictedApiAndroidX")
 internal fun RemoteRoundButton(
-    vararg onClick: Action,
+    onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
     backgroundColor: RemoteColor,
     enabled: RemoteBoolean,
@@ -45,8 +44,6 @@ internal fun RemoteRoundButton(
     shape: RemoteShape,
     content: @Composable @RemoteComposable () -> Unit,
 ) {
-    val state = LocalRemoteComposeCreationState.current
-
     RemoteBox(
         horizontalAlignment = RemoteAlignment.CenterHorizontally,
         verticalArrangement = RemoteArrangement.Center,
@@ -61,11 +58,10 @@ internal fun RemoteRoundButton(
                         disabledContainerPainter = null,
                         borderColor = borderColor,
                         borderStrokeWidth = border?.value,
-                        state = state,
                     )
                     drawContent()
                 }
-                .clickable(*onClick, enabled = enabled.constantValue ?: false),
+                .clickable(onClick, enabled = enabled.constantValue ?: false),
         content = content,
     )
 }

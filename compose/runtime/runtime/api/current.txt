@@ -910,7 +910,7 @@ package androidx.compose.runtime.internal {
     method @androidx.compose.runtime.ComposeCompilerApi public static Void illegalDecoyCallException(String fName);
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
     ctor @KotlinOnly public FunctionKeyMeta(int key, int startOffset, int endOffset);
     method @InaccessibleFromKotlin public abstract int endOffset();
     method @InaccessibleFromKotlin public abstract int key();
@@ -920,7 +920,7 @@ package androidx.compose.runtime.internal {
     property public abstract int startOffset;
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
     method public abstract androidx.compose.runtime.internal.FunctionKeyMeta[] value();
   }
 

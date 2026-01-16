@@ -174,9 +174,11 @@ class FrameBufferImplTest {
         assertThat(frameBuffer.size.value).isEqualTo(0)
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun initialization_zeroCapacity_throwsException() {
-        createFrameBuffer(capacity = 0)
+    @Test
+    fun initialization_zeroCapacity_initializeSuccessfully() {
+        val frameBuffer = createFrameBuffer(capacity = 0)
+
+        assertThat(frameBuffer.capacity).isEqualTo(0)
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -226,10 +228,34 @@ class FrameBufferImplTest {
     }
 
     @Test
+    fun onFrameStarted_zeroCapacity_doesNotBufferFrame() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+            val frameReference = createTestFrame(1)
+
+            // Simulate onFrameStarted being called.
+            frameBuffer.onFrameStarted(frameReference)
+            advanceUntilIdle()
+
+            // Assert that the buffer size remains 0.
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+            assertThat(frameBuffer.peekFirstReference()).isNull()
+            assertThat(frameBuffer.peekAllReferences()).isEmpty()
+        }
+
+    @Test
     fun removeFirstReference_emptyBuffer_returnsNull() =
         testScope.runTest {
             assertThat(frameBuffer.removeFirstReference()).isNull()
             assertThat(frameBuffer.size.value).isEqualTo(0)
+        }
+
+    @Test
+    fun removeFirstReference_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeFirstReference()).isNull()
         }
 
     @Test
@@ -270,6 +296,14 @@ class FrameBufferImplTest {
         }
 
     @Test
+    fun removeLastReference_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.removeLastReference()).isNull()
+        }
+
+    @Test
     fun removeLastReference_removesCorrectFrame_updatesSize() =
         testScope.runTest {
             val frameRef1 = createTestFrame(1)
@@ -307,6 +341,14 @@ class FrameBufferImplTest {
         }
 
     @Test
+    fun removeAllReference_zeroCapacityBuffer_doesNotThowErrors() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            frameBuffer.removeAllReferences()
+        }
+
+    @Test
     fun removeAllReferences_returnsAllFramesInOrder_updatesSize() =
         testScope.runTest {
             val frameRef1 = createTestFrame(1)
@@ -339,6 +381,14 @@ class FrameBufferImplTest {
         testScope.runTest { assertThat(frameBuffer.peekFirstReference()).isNull() }
 
     @Test
+    fun peekFirstReference_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.peekFirstReference()).isNull()
+        }
+
+    @Test
     fun peekFirstReference_returnsFrame_doesNotChangeSize() =
         testScope.runTest {
             val frameRef1 = createTestFrame(1)
@@ -365,6 +415,14 @@ class FrameBufferImplTest {
     @Test
     fun peekLastReference_emptyBuffer_returnsNull() =
         testScope.runTest { assertThat(frameBuffer.peekLastReference()).isNull() }
+
+    @Test
+    fun peekLastReference_zeroCapacityBuffer_returnsNull() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.peekLastReference()).isNull()
+        }
 
     @Test
     fun peekLastReference_returnsFrame_doesNotChangeSize() =
@@ -397,6 +455,14 @@ class FrameBufferImplTest {
         testScope.runTest { assertThat(frameBuffer.peekAllReferences()).isEmpty() }
 
     @Test
+    fun peekAllReference_zeroCapacityBuffer_returnsEmptyList() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+
+            assertThat(frameBuffer.peekAllReferences()).isEmpty()
+        }
+
+    @Test
     fun peekAllReferences_returnsAllFramesInOrder_doesNotChangeSize() =
         testScope.runTest {
             val frameRef1 = createTestFrame(1)
@@ -422,6 +488,32 @@ class FrameBufferImplTest {
             advanceUntilIdle()
 
             assertThat(frameBuffer.peekAllReferences()).isEmpty()
+        }
+
+    @Test
+    fun onFrameAvailable_zeroCapacity_flowEmitted() =
+        testScope.runTest {
+            val frameBuffer = createFrameBuffer(capacity = 0)
+            val frameRef1 = createTestFrame(1)
+            val ready = CompletableDeferred<Unit>()
+            val resultsChannel = Channel<FrameReference>(Channel.UNLIMITED)
+
+            val job =
+                backgroundScope.launch {
+                    frameBuffer.frameFlow
+                        .onStart { ready.complete(Unit) }
+                        .collect { frame -> resultsChannel.send(frame) }
+                }
+
+            ready.await()
+            frameBuffer.onFrameStarted(frameRef1)
+            advanceUntilIdle()
+
+            val receivedFrame = resultsChannel.receive()
+            assertThat(receivedFrame.frameNumber).isEqualTo(frameRef1.frameNumber)
+            assertThat(frameBuffer.size.value).isEqualTo(0)
+            assertThat(frameBuffer.peekFirstReference()).isNull()
+            job.cancel()
         }
 
     @Test

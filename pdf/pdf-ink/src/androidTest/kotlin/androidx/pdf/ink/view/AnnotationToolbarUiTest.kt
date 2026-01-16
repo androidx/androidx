@@ -17,11 +17,20 @@
 package androidx.pdf.ink.view
 
 import ANNOTATION_TOOLBAR
+import ANNOTATION_TOOLBAR_COLLAPSED
+import ANNOTATION_TOOLBAR_DOCKED_END_WITH_BRUSH_SIZE
+import ANNOTATION_TOOLBAR_DOCKED_END_WITH_COLOR_PALETTE
+import ANNOTATION_TOOLBAR_DOCKED_START_WITH_BRUSH_SIZE
+import ANNOTATION_TOOLBAR_DOCKED_START_WITH_COLOR_PALETTE
+import ANNOTATION_TOOLBAR_IN_DARK_MODE
+import ANNOTATION_TOOLBAR_IN_LIGHT_MODE
 import ANNOTATION_TOOLBAR_WITH_COLOR_PALETTE_VISIBLE
 import ANNOTATION_TOOLBAR_WITH_PEN_SELECTED
 import ANNOTATION_TOOLBAR_WITH_SLIDER_VISIBLE
 import SCREENSHOT_GOLDEN_DIRECTORY
 import android.content.Context
+import android.content.res.Configuration
+import android.view.ContextThemeWrapper
 import android.view.View
 import android.view.ViewGroup.LayoutParams
 import androidx.pdf.PdfTestActivity
@@ -29,6 +38,8 @@ import androidx.pdf.ink.R
 import androidx.pdf.ink.util.clickItemAt
 import androidx.pdf.ink.util.setSliderValue
 import androidx.pdf.ink.view.colorpalette.ColorPaletteAdapter
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
 import androidx.pdf.ink.view.tool.AnnotationToolView
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
@@ -113,26 +124,151 @@ class AnnotationToolbarUiTest {
         )
     }
 
-    private fun setupAnnotationToolbar(callback: (AnnotationToolbar) -> Unit = {}) {
+    @Test
+    fun test_annotation_toolbar_in_light_mode() {
+        setupAnnotationToolbar(isDarkMode = false)
+        // select white color in light mode to test the color palette icon
+        onView(withId(R.id.color_palette_button)).perform(click())
+        clickItemAt<ColorPaletteAdapter.PaletteItemViewHolder>(21)
+        // Hide color palette
+        onView(withId(R.id.color_palette_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_IN_LIGHT_MODE,
+        )
+    }
+
+    @Test
+    fun test_annotation_toolbar_in_dark_mode() {
+        setupAnnotationToolbar(isDarkMode = true)
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_IN_DARK_MODE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_expanded_after_collapsed() {
+        var annotationToolbar: AnnotationToolbar? = null
+        setupAnnotationToolbar { annotationToolbar = it }
+
+        if (annotationToolbar == null) return
+
+        onView(withId(R.id.color_palette_button)).perform(click())
+
+        annotationToolbar.collapseToolbar()
+
+        assertScreenshot(ANNOTATION_TOOLBAR_VIEW_ID, screenshotRule, ANNOTATION_TOOLBAR_COLLAPSED)
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedStart_withBrushSlider() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_START }
+        // Open brush slider
+        onView(withId(R.id.pen_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_START_WITH_BRUSH_SIZE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedStart_withColorPalette() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_START }
+        // Open color palette
+        onView(withId(R.id.color_palette_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_START_WITH_COLOR_PALETTE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedEnd_withBrushSlider() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_END }
+        // Open brush slider
+        onView(withId(R.id.pen_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_END_WITH_BRUSH_SIZE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedEnd_withColorPalette() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_END }
+        // Open color palette
+        onView(withId(R.id.color_palette_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_END_WITH_COLOR_PALETTE,
+        )
+    }
+
+    private fun setupAnnotationToolbar(
+        isDarkMode: Boolean = false,
+        callback: (AnnotationToolbar) -> Unit = {},
+    ) {
         activityRule.scenario.onActivity { activity ->
+            // 1. Create a context that matches the desired mode
+            val themedContext =
+                if (isDarkMode) {
+                    createDarkModeContext(activity)
+                } else activity
+
+            // 2. Instantiate and configure the view
             val annotationToolbar =
-                AnnotationToolbar(activity).apply {
+                AnnotationToolbar(themedContext).apply {
                     id = ANNOTATION_TOOLBAR_VIEW_ID
-                    elevation = context.resources.getDimension(R.dimen.annotation_toolbar_elevation)
-                    val defaultPadding =
-                        context.resources.getDimensionPixelSize(R.dimen.padding_8dp)
-                    setPadding(defaultPadding, defaultPadding, defaultPadding, defaultPadding)
+                    applyDefaultStyling()
                     areAnimationsEnabled = false
                 }
+
+            // 3. Add to hierarchy
             activity.container.addView(
                 annotationToolbar,
                 LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT),
             )
-            // allow caller to do additional setup
-            callback(annotationToolbar)
 
-            onIdle()
+            callback(annotationToolbar)
         }
+
+        onIdle()
+    }
+
+    /** Creates a context wrapper that forces Dark Mode and applies Material3 styling. */
+    private fun createDarkModeContext(baseContext: Context): Context {
+        val configuration =
+            Configuration(baseContext.resources.configuration).apply {
+                uiMode =
+                    (uiMode and Configuration.UI_MODE_NIGHT_MASK.inv()) or
+                        Configuration.UI_MODE_NIGHT_YES
+            }
+
+        val darkModeContext = baseContext.createConfigurationContext(configuration)
+        return ContextThemeWrapper(
+            darkModeContext,
+            com.google.android.material.R.style.Theme_Material3_DynamicColors_DayNight,
+        )
+    }
+
+    /** Extension function to keep the setup logic clean. */
+    private fun AnnotationToolbar.applyDefaultStyling() {
+        val padding = context.resources.getDimensionPixelSize(R.dimen.padding_8dp)
+        setPadding(padding, padding, padding, padding)
+        elevation = context.resources.getDimension(R.dimen.annotation_toolbar_elevation)
     }
 
     private fun Int.toPx(context: Context): Float =

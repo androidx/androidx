@@ -19,10 +19,8 @@ package androidx.compose.remote.creation.compose.painter
 
 import android.graphics.BlendMode
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.layout.remoteComponentHeight
-import androidx.compose.remote.creation.compose.layout.remoteComponentWidth
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
@@ -74,9 +72,7 @@ public abstract class RemotePainter {
     /** Returns the size of the component that this painter is drawing on. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteDrawScope.componentSize(): RemoteSize {
-        val w = remoteComponentWidth(canvas.creationState)
-        val h = remoteComponentHeight(canvas.creationState)
-        return RemoteSize(w, h)
+        return remoteSize
     }
 
     /**
@@ -85,12 +81,11 @@ public abstract class RemotePainter {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun RemoteDrawScope.draw(
-        blendMode: BlendMode? = null,
+        blendMode: android.graphics.BlendMode? = null,
         alpha: RemoteFloat = DefaultAlpha.rf,
     ) {
         configureBlendMode(blendMode)
         configureAlpha(alpha)
-        canvas.usePaint(obtainPaint())
-        onDraw()
+        usePaint(obtainPaint()) { onDraw() }
     }
 }

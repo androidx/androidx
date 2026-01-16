@@ -197,6 +197,10 @@ package androidx.xr.runtime {
     property public kotlin.time.ComparableTimeMark timeMark;
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This is an experimental API. It may be changed or removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalXrDeviceLifecycleApi {
+    ctor @KotlinOnly public ExperimentalXrDeviceLifecycleApi();
+  }
+
   public final class FieldOfView {
     ctor public FieldOfView(float angleLeft, float angleRight, float angleUp, float angleDown);
     method public androidx.xr.runtime.FieldOfView copy();
@@ -552,11 +556,15 @@ package androidx.xr.runtime.internal {
     method public void configure(androidx.xr.runtime.Config config);
     method public void create();
     method @InaccessibleFromKotlin public androidx.xr.runtime.Config getConfig();
+    method @InaccessibleFromKotlin public default Long? getInstancePointer();
+    method @InaccessibleFromKotlin public default Long? getSessionPointer();
     method public void pause();
     method public void resume();
     method public void stop();
     method public suspend Object? update(kotlin.coroutines.Continuation<? super kotlin.time.ComparableTimeMark>);
     property public abstract androidx.xr.runtime.Config config;
+    property public default Long? instancePointer;
+    property public default Long? sessionPointer;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface PerceptionRuntimeFactory extends androidx.xr.runtime.internal.Service {
@@ -579,6 +587,15 @@ package androidx.xr.runtime.internal {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class UnsupportedDeviceException extends androidx.xr.runtime.internal.LifecycleException {
     ctor public UnsupportedDeviceException();
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrDeviceCapabilityProvider extends androidx.lifecycle.LifecycleOwner {
+    method @InaccessibleFromKotlin public android.content.Context getContext();
+    property public abstract android.content.Context context;
+  }
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface XrDeviceCapabilityProviderFactory extends androidx.xr.runtime.internal.Service {
+    method public androidx.xr.runtime.internal.XrDeviceCapabilityProvider create(android.content.Context context, kotlin.coroutines.CoroutineContext coroutineContext);
   }
 
 }

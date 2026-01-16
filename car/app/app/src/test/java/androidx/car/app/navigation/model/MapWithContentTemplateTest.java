@@ -31,6 +31,8 @@ import androidx.car.app.model.MessageTemplate;
 import androidx.car.app.model.Pane;
 import androidx.car.app.model.PaneTemplate;
 import androidx.car.app.model.Row;
+import androidx.car.app.model.RowSection;
+import androidx.car.app.model.SectionedItemTemplate;
 import androidx.car.app.model.signin.PinSignInMethod;
 import androidx.car.app.model.signin.SignInTemplate;
 import androidx.test.core.app.ApplicationProvider;
@@ -98,6 +100,16 @@ public class MapWithContentTemplateTest {
                 .build();
     }
 
+    private static SectionedItemTemplate createSectionedItemTemplate() {
+        RowSection rowSection = new RowSection.Builder()
+                .addItem(new Row.Builder().setTitle("Row 1").build())
+                .setTitle("Section 1")
+                .build();
+
+        return new SectionedItemTemplate.Builder()
+                .addSection(rowSection).build();
+    }
+
     @Test
     public void createInstance_noContentTemplate_throws() {
         assertThrows(IllegalArgumentException.class, () -> new MapWithContentTemplate.Builder()
@@ -138,6 +150,13 @@ public class MapWithContentTemplateTest {
         new MapWithContentTemplate.Builder()
             .setContentTemplate(createMessageTemplate())
             .build();
+    }
+
+    @Test
+    public void createInstance_sectionedItemTemplate_doesNotThrow() {
+        new MapWithContentTemplate.Builder()
+                .setContentTemplate(createSectionedItemTemplate())
+                .build();
     }
 
     @Test

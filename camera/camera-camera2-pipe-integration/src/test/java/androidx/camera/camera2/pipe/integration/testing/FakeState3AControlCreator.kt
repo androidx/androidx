@@ -20,13 +20,15 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashA
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
+import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 
 object FakeState3AControlCreator {
     fun createState3AControl(
         properties: CameraProperties = FakeCameraProperties(),
         requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
+        threads: UseCaseThreads,
     ) =
-        State3AControl(properties, NoOpAutoFlashAEModeDisabler).apply {
+        State3AControl(properties, NoOpAutoFlashAEModeDisabler, threads).apply {
             this.requestControl = requestControl
         }
 }

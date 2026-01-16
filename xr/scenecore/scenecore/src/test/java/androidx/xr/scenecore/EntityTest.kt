@@ -426,18 +426,56 @@ class EntityTest {
         val alpha = 0.1f
 
         panelEntity.setAlpha(alpha)
-        gltfModelEntity.setAlpha(alpha, Space.PARENT)
-        anchorEntity.setAlpha(alpha, Space.ACTIVITY)
-        activityPanelEntity.setAlpha(alpha, Space.REAL_WORLD)
+        gltfModelEntity.setAlpha(alpha)
+        anchorEntity.setAlpha(alpha)
+        activityPanelEntity.setAlpha(alpha)
         groupEntity.setAlpha(alpha)
         activitySpace.setAlpha(alpha)
 
         assertThat(panelEntity.getAlpha()).isEqualTo(alpha)
-        assertThat(gltfModelEntity.getAlpha(Space.PARENT)).isEqualTo(alpha)
-        assertThat(anchorEntity.getAlpha(Space.ACTIVITY)).isEqualTo(alpha)
-        assertThat(activityPanelEntity.getAlpha(Space.REAL_WORLD)).isEqualTo(alpha)
+        assertThat(gltfModelEntity.getAlpha()).isEqualTo(alpha)
+        assertThat(anchorEntity.getAlpha()).isEqualTo(alpha)
+        assertThat(activityPanelEntity.getAlpha()).isEqualTo(alpha)
         assertThat(groupEntity.getAlpha()).isEqualTo(alpha)
         assertThat(activitySpace.getAlpha()).isEqualTo(alpha)
+    }
+
+    @Test
+    fun getAlpha_inActivitySpace_isProductOfParentAndChildAlphas() {
+        val parentAlpha1 = 1.0f
+        val childAlphaInParentSpace = 0.8f
+        val parent = groupEntity
+        val child = panelEntity
+        parent.setAlpha(parentAlpha1)
+        child.setAlpha(childAlphaInParentSpace)
+
+        assertThat(parent.getAlpha(Space.ACTIVITY)).isEqualTo(parentAlpha1)
+        assertThat(child.getAlpha(Space.ACTIVITY)).isEqualTo(childAlphaInParentSpace)
+
+        parent.addChild(child)
+
+        // Child's alpha in ACTIVITY space changes after attached to parent.
+        assertThat(child.getAlpha(Space.ACTIVITY)).isEqualTo(parentAlpha1 * childAlphaInParentSpace)
+
+        val parentAlpha2 = 0.5f
+        parent.setAlpha(parentAlpha2)
+
+        // Child's alpha changes after parent's alpha changed.
+        assertThat(child.getAlpha(Space.ACTIVITY)).isEqualTo(parentAlpha2 * childAlphaInParentSpace)
+    }
+
+    @Test
+    fun setAlpha_withValueGreaterThanOne_isClampedToOne() {
+        val entity = groupEntity
+        entity.setAlpha(5.0f)
+        assertThat(entity.getAlpha()).isEqualTo(1.0f)
+    }
+
+    @Test
+    fun setAlpha_withNegativeValue_isClampedToZero() {
+        val entity = panelEntity
+        entity.setAlpha(-2.0f)
+        assertThat(entity.getAlpha()).isEqualTo(0.0f)
     }
 
     @Test
@@ -955,6 +993,45 @@ class EntityTest {
         val successResult = scenecoreResult as PerceivedResolutionResult.Success
         assertThat(successResult.perceivedResolution.width).isEqualTo(100)
         assertThat(successResult.perceivedResolution.height).isEqualTo(200)
+    }
+
+    @Test
+    fun surfaceEntity_setShapeWithCornerRadius() {
+        val quad = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), 0.5f)
+        surfaceEntity.shape = quad
+
+        val rtSurfaceEntity = surfaceEntity.rtEntity as FakeSurfaceEntity
+        assertThat(rtSurfaceEntity.shape).isInstanceOf(RtSurfaceEntity.Shape.Quad::class.java)
+
+        val rtShape = rtSurfaceEntity.shape as RtSurfaceEntity.Shape.Quad
+        assertThat(rtShape.cornerRadius).isEqualTo(0.5f)
+    }
+
+    @Test
+    fun surfaceEntity_setShapeWithInvalidCornerRadius_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), -0.5f)
+        }
+    }
+
+    @Test
+    fun surfaceEntity_createQuadWithInvalidExtents_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            SurfaceEntity.Shape.Quad(FloatSize2d(-1.0f, 1.0f))
+        }
+        assertThrows(IllegalArgumentException::class.java) {
+            SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, -1.0f))
+        }
+    }
+
+    @Test
+    fun surfaceEntity_createSphereWithInvalidRadius_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) { SurfaceEntity.Shape.Sphere(-1.0f) }
+    }
+
+    @Test
+    fun surfaceEntity_createHemisphereWithInvalidRadius_throwsException() {
+        assertThrows(IllegalArgumentException::class.java) { SurfaceEntity.Shape.Hemisphere(-1.0f) }
     }
 
     @Test

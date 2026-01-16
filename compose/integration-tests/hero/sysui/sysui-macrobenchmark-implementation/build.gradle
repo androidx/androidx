@@ -30,9 +30,9 @@ plugins {
 
 android {
     namespace = "androidx.compose.integration.hero.sysui.macrobenchmark.implementation"
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
-        minSdk = 31 // This benchmark does not run below API 31
+        minSdk { version = release(31) } // This benchmark does not run below API 31
     }
     lint {
         baseline = file("lint-baseline.xml")

@@ -109,13 +109,19 @@ private fun TextToolbar.assertShown(shown: Boolean = true) {
         .isEqualTo(if (shown) TextToolbarStatus.Shown else TextToolbarStatus.Hidden)
 }
 
-private fun FakeHapticFeedback.assertPerformedAtLeastThenClear(times: Int) {
-    assertThat(invocationCountMap[HapticFeedbackType.TextHandleMove] ?: 0).isAtLeast(times)
-    invocationCountMap.clear()
+private fun FakeHapticFeedback.assertPerformedAtLeast(
+    hapticFeedbackType: HapticFeedbackType,
+    times: Int,
+) {
+    assertThat(invocationCountMap[hapticFeedbackType] ?: 0).isAtLeast(times)
 }
 
 internal class FakeHapticFeedback : HapticFeedback {
     val invocationCountMap = mutableMapOf<HapticFeedbackType, Int>().withDefault { 0 }
+
+    fun clear() {
+        invocationCountMap.clear()
+    }
 
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
         invocationCountMap[hapticFeedbackType] = 1 + (invocationCountMap[hapticFeedbackType] ?: 0)
@@ -152,7 +158,8 @@ internal abstract class SelectionAsserter<S>(
     var endSelectionHandleShown: Boolean? = null
     var textToolbarShown = false
     var magnifierShown = false
-    var hapticsCount = 0
+    var hapticsTextHandleMoveCount = 0
+    var hapticsLongPressCount = 0
     var startLayoutDirection = ResolvedTextDirection.Ltr
     var endLayoutDirection = ResolvedTextDirection.Ltr
 
@@ -177,7 +184,13 @@ internal abstract class SelectionAsserter<S>(
         rule.assertMagnifierShown(magnifierShown)
         // reset haptics every assert.
         // with gestures, we could get multiple haptics per tested move
-        hapticFeedback.assertPerformedAtLeastThenClear(hapticsCount).also { hapticsCount = 0 }
+        hapticFeedback
+            .assertPerformedAtLeast(HapticFeedbackType.TextHandleMove, hapticsTextHandleMoveCount)
+            .also { hapticsTextHandleMoveCount = 0 }
+        hapticFeedback
+            .assertPerformedAtLeast(HapticFeedbackType.LongPress, hapticsLongPressCount)
+            .also { hapticsLongPressCount = 0 }
+        hapticFeedback.clear()
     }
 
     protected abstract fun subAssert()

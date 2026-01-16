@@ -36,8 +36,9 @@ internal object LifecycleCameraRepositories {
      * @see android.content.Context.getDeviceId
      */
     @JvmStatic
-    @Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
-    fun getInstance(deviceId: Int = ContextUtil.getDefaultDeviceId()): LifecycleCameraRepository {
+    internal fun getInstance(
+        deviceId: Int = ContextUtil.getDefaultDeviceId()
+    ): LifecycleCameraRepository {
         return synchronized(repositoryMap) {
             repositoryMap.getOrPut(deviceId) { LifecycleCameraRepository(deviceId) }
         }

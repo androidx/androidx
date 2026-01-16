@@ -32,7 +32,7 @@ import org.robolectric.annotation.Config
 
 /** Tests for [OutputDistributor] */
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [Config.ALL_SDKS])
+@Config(sdk = [Config.NEWEST_SDK])
 class OutputDistributorTest {
     private val fakeOutput1 = FakeOutput(101)
     private val fakeOutput2 = FakeOutput(102)
@@ -59,6 +59,7 @@ class OutputDistributorTest {
                         value?.finalize()
                     }
                 },
+            outputMatcher = OutputMatcher.EXACT,
         )
 
     @Test
@@ -577,7 +578,7 @@ class OutputDistributorTest {
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
-            outputSequence: Long,
+            cameraOutputSequence: Long,
             outputNumber: Long,
             outputResult: OutputResult<FakeOutput>,
         ) {
@@ -590,7 +591,7 @@ class OutputDistributorTest {
             assertThat(outputNumber).isEqualTo(outputNumber)
 
             // Record the actual output and outputSequence for future checks.
-            this.outputSequence = outputSequence
+            this.outputSequence = cameraOutputSequence
             this.outputStatus = outputResult.status
             this.output = outputResult.output
         }

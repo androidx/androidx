@@ -19,7 +19,6 @@ package androidx.pdf.adapter
 import android.graphics.Bitmap
 import android.graphics.PointF
 import android.graphics.Rect
-import android.graphics.pdf.RenderParams
 import android.graphics.pdf.component.PdfAnnotation
 import android.graphics.pdf.component.PdfPageObject
 import android.graphics.pdf.content.PdfPageGotoLinkContent
@@ -33,6 +32,7 @@ import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
 import android.util.Pair
 import androidx.annotation.RestrictTo
+import androidx.pdf.RenderParams
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 /**
@@ -54,7 +54,7 @@ public interface PdfPage : AutoCloseable {
      *
      * @param bitmap The [Bitmap] to render the page onto.
      */
-    public fun renderPage(bitmap: Bitmap)
+    public fun renderPage(bitmap: Bitmap, renderParams: RenderParams)
 
     /**
      * Renders a specific tile of the page onto the provided [Bitmap].
@@ -74,6 +74,7 @@ public interface PdfPage : AutoCloseable {
         top: Int,
         scaledPageWidth: Int,
         scaledPageHeight: Int,
+        renderParams: RenderParams,
     )
 
     /**
@@ -139,15 +140,6 @@ public interface PdfPage : AutoCloseable {
      * @return A list of [PdfPageGotoLinkContent] objects representing the "Go to" links.
      */
     public fun getPageGotoLinks(): List<PdfPageGotoLinkContent>
-
-    /**
-     * Returns the [RenderParams] used for rendering the page.
-     *
-     * By default, this includes rendering flags for highlighting and text annotations.
-     *
-     * @return The [RenderParams] for this page.
-     */
-    public fun getRenderParams(): RenderParams
 
     /**
      * Applies a [FormEditRecord] to the given PDF.

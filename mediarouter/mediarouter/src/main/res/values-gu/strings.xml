@@ -34,8 +34,7 @@
     <string name="mr_controller_expand_group" msgid="4521419834052044261">"વિસ્તાર કરો"</string>
     <string name="mr_controller_collapse_group" msgid="2585048604188129749">"સંકુચિત કરો"</string>
     <string name="mr_controller_album_art" msgid="3330502667672708728">"આલ્બમ આર્ટ"</string>
-    <!-- no translation found for mr_controller_volume_slider (824254108076730845) -->
-    <skip />
+    <string name="mr_controller_volume_slider" msgid="824254108076730845">"વૉલ્યૂમ"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"કોઈ મીડિયા પસંદ કરેલ નથી"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"કોઈ માહિતી ઉપલબ્ધ નથી"</string>
     <string name="mr_controller_casting_screen" msgid="9171231064758955152">"સ્ક્રીનને કાસ્ટ કરી રહ્યાં છીએ"</string>

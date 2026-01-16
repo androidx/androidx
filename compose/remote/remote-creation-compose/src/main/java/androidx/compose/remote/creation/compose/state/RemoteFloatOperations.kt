@@ -102,7 +102,7 @@ public fun log(a: RemoteFloat): RemoteFloat =
 public fun ln(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.LN) { a -> ln(a) }
 
 public fun round(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(AnimatedFloatExpression.ROUND) { a -> round(a) }
+    a.unaryOp(AnimatedFloatExpression.ROUND) { a -> Math.round(a).toFloat() }
 
 public fun sin(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.SIN) { a -> sin(a) }
 

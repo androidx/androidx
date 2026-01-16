@@ -43,6 +43,46 @@ public interface ScenePose {
      */
     public fun transformPoseTo(pose: Pose, destination: ScenePose): Pose
 
+    /**
+     * Transforms a position from this ScenePose's local space to the destination ScenePose's local
+     * space.
+     *
+     * This operation is affected by both ScenePose's position, rotation, and scale.
+     *
+     * @param position The position in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned position will be relative to.
+     * @return The position in the destination ScenePose's local space.
+     */
+    public fun transformPositionTo(position: Vector3, destination: ScenePose): Vector3
+
+    /**
+     * Transforms a vector from this ScenePose's local space to the destination ScenePose's local
+     * space. This operation accounts for scale. The magnitude of the output vector might be
+     * different from the magnitude of the input vector.
+     *
+     * This operation is not affected by either ScenePose's position.
+     *
+     * @param vector The vector in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned vector will be relative to.
+     * @return The vector in the destination ScenePose's local space. The returned magnitude will be
+     *   affected by destination scale.
+     */
+    public fun transformVectorTo(vector: Vector3, destination: ScenePose): Vector3
+
+    /**
+     * Transforms a direction from this ScenePose's local space to the destination ScenePose's local
+     * space. This operation ignores relative scaling; the output vector will have the same
+     * magnitude as [direction].
+     *
+     * This operation is not affected by either ScenePose's scale or position.
+     *
+     * @param direction The direction in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned direction will be relative to.
+     * @return The direction in the destination ScenePose's local space. It will have the same
+     *   magnitude as the input direction.
+     */
+    public fun transformDirectionTo(direction: Vector3, destination: ScenePose): Vector3
+
     /** A filter for which Scenes to hit test with [ScenePose.hitTest]. */
     public object HitTestFilter {
 
@@ -106,6 +146,30 @@ protected constructor(internal val rtScenePose: RtScenePoseType) : ScenePose {
             return Pose.Identity
         }
         return rtScenePose.transformPoseTo(pose, destination.rtScenePose)
+    }
+
+    override fun transformPositionTo(position: Vector3, destination: ScenePose): Vector3 {
+        if (destination !is BaseScenePose<RtScenePose>) {
+            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
+            return Vector3.Zero
+        }
+        return rtScenePose.transformPositionTo(position, destination.rtScenePose)
+    }
+
+    override fun transformVectorTo(vector: Vector3, destination: ScenePose): Vector3 {
+        if (destination !is BaseScenePose<RtScenePose>) {
+            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
+            return Vector3.Zero
+        }
+        return rtScenePose.transformVectorTo(vector, destination.rtScenePose)
+    }
+
+    override fun transformDirectionTo(direction: Vector3, destination: ScenePose): Vector3 {
+        if (destination !is BaseScenePose<RtScenePose>) {
+            Log.e(TAG, "Destination must be a subclass of BaseScenePose!")
+            return Vector3.Zero
+        }
+        return rtScenePose.transformDirectionTo(direction, destination.rtScenePose)
     }
 
     override suspend fun hitTest(

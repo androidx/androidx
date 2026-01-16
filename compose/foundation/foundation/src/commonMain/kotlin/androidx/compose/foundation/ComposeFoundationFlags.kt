@@ -83,8 +83,7 @@ object ComposeFoundationFlags {
      * can only perform the composition for parts of the LazyColumn's next item during one ui frame,
      * and then continue composing the rest of it in the next frames.
      */
-    // TODO: b/469669851 - re-enable
-    @field:Suppress("MutableBareField") @JvmField var isPausableCompositionInPrefetchEnabled = false
+    @field:Suppress("MutableBareField") @JvmField var isPausableCompositionInPrefetchEnabled = true
 
     /**
      * With this flag on, Pager will use Cache Window as the default prefetching strategy, instead

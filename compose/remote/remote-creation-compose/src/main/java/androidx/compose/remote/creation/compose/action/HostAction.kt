@@ -20,9 +20,10 @@ package androidx.compose.remote.creation.compose.action
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.actions.HostAction
-import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 
 /** Run the named host action when invoked. */
@@ -30,7 +31,7 @@ import androidx.compose.remote.creation.compose.state.RemoteString
 public class HostAction(
     public val name: RemoteString,
     public val type: Type = Type.INT,
-    public var id: Int = -1,
+    public val value: RemoteState<*>? = null,
 ) : Action {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -43,27 +44,20 @@ public class HostAction(
     }
 
     // TODO: Add a RemoteFloatArray type and use it here!
-    public constructor(
-        name: RemoteString,
-        value: RemoteFloat,
-    ) : this(name, Type.FLOAT, value.getIdForCreationState(FallbackCreationState.state))
+    public constructor(name: RemoteString, value: RemoteFloat) : this(name, Type.FLOAT, value)
 
-    public constructor(
-        name: RemoteString,
-        value: RemoteInt,
-    ) : this(name, Type.INT, value.getIdForCreationState(FallbackCreationState.state))
+    public constructor(name: RemoteString, value: RemoteInt) : this(name, Type.INT, value)
 
-    public constructor(
-        name: RemoteString,
-        value: RemoteString,
-    ) : this(name, Type.STRING, value.getIdForCreationState(FallbackCreationState.state))
+    public constructor(name: RemoteString, value: RemoteString) : this(name, Type.STRING, value)
 
-    override fun toRemoteAction(): androidx.compose.remote.creation.actions.Action {
+    override fun RemoteStateScope.toRemoteAction():
+        androidx.compose.remote.creation.actions.Action {
+        val valueId = value?.id ?: -1
         val constantValue = name.constantValue
         return if (constantValue != null) {
-            HostAction(constantValue, type.ordinal, id)
+            HostAction(constantValue, type.ordinal, valueId)
         } else {
-            HostAction(name.getIdForCreationState(FallbackCreationState.state), id)
+            HostAction(name.id, valueId)
         }
     }
 }

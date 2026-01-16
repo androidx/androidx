@@ -203,7 +203,6 @@ internal fun List(
                     userScrollEnabled = scrollEnabled,
                     reverseScrolling = reverseLayout,
                 )
-                // TODO: b/433235501 - Behavior conflicts between the AutoFocus and BeyondBounds.
                 .then(beyondBoundsModifier)
                 .edgeScrim(
                     state = state,

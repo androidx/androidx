@@ -18,6 +18,7 @@ package androidx.pdf
 
 import android.os.Build
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,6 +26,7 @@ import androidx.annotation.RequiresExtension
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.idlingresource.PdfIdlingResource
 import androidx.pdf.ink.EditablePdfViewerFragment
 import androidx.pdf.testapp.R
@@ -56,6 +58,7 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
     var onExitEditModeCalled = false
 
     private var gestureStateChangedListener: PdfView.OnGestureStateChangedListener? = null
+    private var writeHandle: PdfWriteHandle? = null
 
     fun getPdfViewInstance(): PdfView = pdfView
 
@@ -109,6 +112,7 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
 
     override fun onApplyEditsSuccess(handle: PdfWriteHandle) {
         super.onApplyEditsSuccess(handle)
+        writeHandle = handle
         onApplyEditsSuccessCalled = true
         pdfApplyEditsIdlingResource.decrement()
     }
@@ -131,6 +135,14 @@ internal class TestEditablePdfViewerFragment : EditablePdfViewerFragment {
 
     fun setIsAnnotationIntentResolvable(value: Boolean) {
         setAnnotationIntentResolvability(value)
+    }
+
+    suspend fun fetchAnnotations(pageNum: Int): List<KeyedPdfAnnotation> {
+        return pdfDocument?.getAnnotationsForPage(pageNum) ?: emptyList()
+    }
+
+    suspend fun writeTo(destination: ParcelFileDescriptor) {
+        writeHandle?.writeTo(destination)
     }
 
     companion object {

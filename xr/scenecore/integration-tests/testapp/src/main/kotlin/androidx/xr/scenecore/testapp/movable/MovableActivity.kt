@@ -83,7 +83,7 @@ class MovableActivity : AppCompatActivity() {
             return
         }
         session!!.configure(Config(Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
-        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
+        session!!.scene.keyEntity = session!!.scene.mainPanelEntity
 
         // Enable passthrough by default to allow interaction with the real world,
         // which is necessary for testing anchoring functionality.
@@ -118,7 +118,7 @@ class MovableActivity : AppCompatActivity() {
                 "stationaryPanel",
                 Pose(Vector3(0.9f, 0f, 0f)),
             )
-
+        stationaryPanelEntity.parent = session!!.scene.keyEntity
         // Create a single panel with text
         @SuppressLint("InflateParams")
         val movablePanelContentView = layoutInflater.inflate(R.layout.panel_movable, null)
@@ -130,6 +130,7 @@ class MovableActivity : AppCompatActivity() {
                 "panel",
                 Pose(Vector3(0f, 0f, 0.1f)),
             )
+        movablePanelEntity.parent = session!!.scene.keyEntity
         val sysMovSwitch = movablePanelContentView.findViewById<MaterialSwitch>(R.id.sys_mov_switch)
         sysMovSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
             systemMovable = isChecked
@@ -165,7 +166,7 @@ class MovableActivity : AppCompatActivity() {
         parentSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
             when (isChecked) {
                 true -> movablePanelEntity.parent = stationaryPanelEntity
-                false -> movablePanelEntity.parent = session!!.scene.activitySpace
+                false -> movablePanelEntity.parent = session!!.scene.keyEntity
             }
             movablePanelEntity.setPose(Pose(Vector3(0f, 0f, 0.1f)))
         }

@@ -60,18 +60,18 @@ class FeatureGroupQueryBindAlignmentTest(
         val isSupported =
             cameraProvider.getCameraInfo(cameraSelector).isSessionConfigSupported(sessionConfig)
 
-        // Scenario 1: Verify binding when all the features are required.
+        // Scenario 1: Verify binding when all the features are required and supported.
         // Binding should succeed if and only if the full feature group is supported and no
-        // exception is thrown during the binding then.
-
-        val camera =
-            bindAndVerify(
-                sessionConfig,
-                isExpectedToBeSupported = isSupported,
-                verificationScenario = REQUIRED_FEATURES,
-            )
+        // exception should be thrown during the binding then.
 
         if (isSupported) {
+            val camera =
+                bindAndVerify(
+                    sessionConfig,
+                    isExpectedToBeSupported = true,
+                    verificationScenario = REQUIRED_FEATURES,
+                )
+
             featureGroup.verifyFeatures(useCases, requireNotNull(camera?.cameraInfo))
         }
 

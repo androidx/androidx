@@ -251,7 +251,8 @@ public fun materialScopeFromLayout(
         .layout()
 
 /** Creates default [MaterialScope] from the given parameters and with proper default values. */
-internal fun createMaterialScope(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public fun createMaterialScope(
     context: Context,
     deviceConfiguration: DeviceParameters,
     allowDynamicTheme: Boolean,

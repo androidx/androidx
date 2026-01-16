@@ -1911,6 +1911,11 @@ public final class ProtoLayoutInflater {
                     hidden -> hidden ? INVISIBLE : VISIBLE);
         }
 
+        if (modifiers.hasMetadata() && modifiers.getMetadata().getTagData().size() > 0) {
+            byte[] tagData = modifiers.getMetadata().getTagData().toByteArray();
+            view.setTag(R.id.element_metadata_tag, tagData);
+        }
+
         if (modifiers.hasClickable()) {
             applyClickable(view, wrapper, modifiers.getClickable(), /* extendTouchTarget= */ true);
         }

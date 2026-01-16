@@ -137,9 +137,8 @@ constructor(
     @GuardedBy("lock")
     private val pendingUseCasesToNotifyCameraControlReady = mutableSetOf<UseCase>()
 
-    private val meteringRepeating by lazy {
+    private val meteringRepeating =
         MeteringRepeating.Builder(cameraProperties, displayInfoManager).build()
-    }
 
     private val supportedSurfaceCombination =
         SupportedSurfaceCombination(
@@ -340,14 +339,16 @@ constructor(
         when {
             shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
             shouldRemoveRepeatingUseCase(runningUseCases) -> removeRepeatingUseCase()
-            else -> {
-                camera?.let {
-                    it.updateRepeatingRequestAsync(isPrimary, runningUseCases)
-                    for (control in allControls) {
-                        if (control is RunningUseCasesChangeListener) {
-                            control.onRunningUseCasesChanged(runningUseCases)
-                        }
-                    }
+            else -> updateRunningUseCases(runningUseCases)
+        }
+    }
+
+    private fun updateRunningUseCases(runningUseCases: Set<UseCase>) {
+        camera?.let {
+            it.updateRepeatingRequestAsync(isPrimary, runningUseCases)
+            for (control in allControls) {
+                if (control is RunningUseCasesChangeListener) {
+                    control.onRunningUseCasesChanged(runningUseCases)
                 }
             }
         }
@@ -390,7 +391,6 @@ constructor(
         }
         tryResumeUseCaseManager(
             createUseCaseCameraConfig(
-                newUseCases = useCases,
                 graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
                 sessionConfigAdapter = sessionConfigAdapter,
                 isExtensions = useCamera2Extension,
@@ -400,13 +400,11 @@ constructor(
 
     @VisibleForTesting
     internal fun createUseCaseCameraConfig(
-        newUseCases: List<UseCase>,
         sessionConfigAdapter: SessionConfigAdapter,
         graphStateToCameraStateAdapter: GraphStateToCameraStateAdapter,
         isExtensions: Boolean = false,
     ): UseCaseCameraConfig {
         return UseCaseCameraConfig.create(
-            useCases = newUseCases,
             cameraGraphConfigProvider = cameraGraphConfigProvider,
             sessionConfigAdapter = sessionConfigAdapter,
             graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
@@ -466,7 +464,7 @@ constructor(
 
         newUseCaseCamera.setActiveResumeMode(activeResumeEnabled)
 
-        refreshRunningUseCases()
+        updateRunningUseCases(getRunningUseCases())
 
         Camera2Logger.debug {
             "Notifying $pendingUseCasesToNotifyCameraControlReady camera control ready"
@@ -556,6 +554,10 @@ constructor(
 
     @GuardedBy("lock")
     private fun shouldAddRepeatingUseCase(runningUseCases: Set<UseCase>): Boolean {
+        if (!cameraXConfig.isRepeatingStreamForced) {
+            return false
+        }
+
         val isMeteringEnabled = attachedUseCases.contains(meteringRepeating)
         return !isMeteringEnabled && isMeteringRepeatingRequired(runningUseCases)
     }

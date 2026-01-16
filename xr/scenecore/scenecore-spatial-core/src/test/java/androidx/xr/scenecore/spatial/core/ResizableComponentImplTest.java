@@ -81,22 +81,17 @@ public class ResizableComponentImplTest {
 
     private static final Dimensions MIN_DIMENSIONS = new Dimensions(0f, 0f, 0f);
     private static final Dimensions MAX_DIMENSIONS = new Dimensions(10f, 10f, 10f);
-    private static final Dimensions DEFAULT_SIZE = new Dimensions(1.0f, 1.0f, 1.0f);
     private final ActivityController<Activity> mActivityController =
             Robolectric.buildActivity(Activity.class);
     private final Activity mActivity = mActivityController.create().start().get();
     private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
     private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
     private final EntityManager mEntityManager = new EntityManager();
-    private ActivitySpaceImpl mActivitySpaceImpl;
-    private final AndroidXrEntity mActivitySpaceRoot = Mockito.mock(AndroidXrEntity.class);
-    private final PerceptionSpaceScenePoseImpl mPerceptionSpaceScenePose =
-            new PerceptionSpaceScenePoseImpl(mActivitySpaceImpl, mActivitySpaceRoot);
     private final PanelShadowRenderer mPanelShadowRenderer =
             Mockito.mock(PanelShadowRenderer.class);
-
-    private SpatialSceneRuntime mFakeRuntime;
     private final NodeRepository mNodeRepository = NodeRepository.getInstance();
+    private ActivitySpaceImpl mActivitySpaceImpl;
+    private SpatialSceneRuntime mFakeRuntime;
 
     @Before
     public void setUp() {
@@ -148,11 +143,13 @@ public class ResizableComponentImplTest {
                 mFakeRuntime.getActivitySpace());
     }
 
-    private SurfaceEntity createTestSurfaceEntity(Pose pose, SurfaceEntity.Shape shape) {
+    private SurfaceEntity createTestSurfaceEntity(SurfaceEntity.Shape shape) {
         NodeHolder<?> nodeHolder = new NodeHolder<>(mXrExtensions.createNode(), Node.class);
         SurfaceEntity surface =
                 mFakeRuntime.createSurfaceEntity(
-                        new FakeSurfaceFeature(nodeHolder), pose, mFakeRuntime.getActivitySpace());
+                        new FakeSurfaceFeature(nodeHolder),
+                        Pose.Identity,
+                        mFakeRuntime.getActivitySpace());
         surface.setShape(shape);
         return surface;
     }
@@ -220,17 +217,16 @@ public class ResizableComponentImplTest {
 
         // case for preset size
         Dimensions inputSize = new Dimensions(0f, 5f, 40f);
-        Dimensions expectSize = panelSize;
 
         resizableComponent.setSize(inputSize);
         assertThat(entity.addComponent(resizableComponent)).isTrue();
 
-        assertThat(options.getCurrentSize().x).isEqualTo(expectSize.width);
-        assertThat(options.getCurrentSize().y).isEqualTo(expectSize.height);
-        assertThat(options.getCurrentSize().z).isEqualTo(expectSize.depth);
-        assertThat(resizableComponent.getSize().width).isEqualTo(expectSize.width);
-        assertThat(resizableComponent.getSize().height).isEqualTo(expectSize.height);
-        assertThat(resizableComponent.getSize().depth).isEqualTo(expectSize.depth);
+        assertThat(options.getCurrentSize().x).isEqualTo(panelSize.width);
+        assertThat(options.getCurrentSize().y).isEqualTo(panelSize.height);
+        assertThat(options.getCurrentSize().z).isEqualTo(panelSize.depth);
+        assertThat(resizableComponent.getSize().width).isEqualTo(panelSize.width);
+        assertThat(resizableComponent.getSize().height).isEqualTo(panelSize.height);
+        assertThat(resizableComponent.getSize().depth).isEqualTo(panelSize.depth);
     }
 
     @Test
@@ -245,20 +241,18 @@ public class ResizableComponentImplTest {
         AndroidXrEntity entity =
                 (AndroidXrEntity)
                         createTestSurfaceEntity(
-                                Pose.Identity,
                                 new SurfaceEntity.Shape.Quad(
                                         new FloatSize2d(quadSize.width, quadSize.height)));
         assertThat(entity.addComponent(resizableComponent)).isTrue();
 
         ReformOptions options = mNodeRepository.getReformOptions(entity.getNode());
-        Dimensions expectSize = quadSize;
 
-        assertThat(options.getCurrentSize().x).isEqualTo(expectSize.width);
-        assertThat(options.getCurrentSize().y).isEqualTo(expectSize.height);
-        assertThat(options.getCurrentSize().z).isEqualTo(expectSize.depth);
-        assertThat(resizableComponent.getSize().width).isEqualTo(expectSize.width);
-        assertThat(resizableComponent.getSize().height).isEqualTo(expectSize.height);
-        assertThat(resizableComponent.getSize().depth).isEqualTo(expectSize.depth);
+        assertThat(options.getCurrentSize().x).isEqualTo(quadSize.width);
+        assertThat(options.getCurrentSize().y).isEqualTo(quadSize.height);
+        assertThat(options.getCurrentSize().z).isEqualTo(quadSize.depth);
+        assertThat(resizableComponent.getSize().width).isEqualTo(quadSize.width);
+        assertThat(resizableComponent.getSize().height).isEqualTo(quadSize.height);
+        assertThat(resizableComponent.getSize().depth).isEqualTo(quadSize.depth);
 
         entity.removeComponent(resizableComponent);
 
@@ -268,12 +262,12 @@ public class ResizableComponentImplTest {
         resizableComponent.setSize(inputSize);
         assertThat(entity.addComponent(resizableComponent)).isTrue();
 
-        assertThat(options.getCurrentSize().x).isEqualTo(expectSize.width);
-        assertThat(options.getCurrentSize().y).isEqualTo(expectSize.height);
-        assertThat(options.getCurrentSize().z).isEqualTo(expectSize.depth);
-        assertThat(resizableComponent.getSize().width).isEqualTo(expectSize.width);
-        assertThat(resizableComponent.getSize().height).isEqualTo(expectSize.height);
-        assertThat(resizableComponent.getSize().depth).isEqualTo(expectSize.depth);
+        assertThat(options.getCurrentSize().x).isEqualTo(quadSize.width);
+        assertThat(options.getCurrentSize().y).isEqualTo(quadSize.height);
+        assertThat(options.getCurrentSize().z).isEqualTo(quadSize.depth);
+        assertThat(resizableComponent.getSize().width).isEqualTo(quadSize.width);
+        assertThat(resizableComponent.getSize().height).isEqualTo(quadSize.height);
+        assertThat(resizableComponent.getSize().depth).isEqualTo(quadSize.depth);
     }
 
     @Test

@@ -20,11 +20,11 @@ package androidx.compose.runtime
 
 import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
-import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.composer.gapbuffer.Anchor
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
+import androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList
 import androidx.compose.runtime.internal.AtomicReference
 import androidx.compose.runtime.internal.RememberEventDispatcher
 import androidx.compose.runtime.internal.trace

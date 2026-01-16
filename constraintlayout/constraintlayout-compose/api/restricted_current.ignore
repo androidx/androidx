@@ -435,3 +435,9 @@ RemovedMethod: androidx.constraintlayout.compose.State#setRootIncomingConstraint
     Binary breaking change: Removed method androidx.constraintlayout.compose.State.setRootIncomingConstraints(long)
 RemovedMethod: androidx.constraintlayout.compose.VerticalAnchorable#linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor, float, float):
     Binary breaking change: Removed method androidx.constraintlayout.compose.VerticalAnchorable.linkTo(androidx.constraintlayout.compose.ConstraintLayoutBaseScope.VerticalAnchor,float,float)
+
+
+RemovedProperty: androidx.constraintlayout.compose.ConstrainedLayoutReference#id:
+    Source breaking change: Removed property androidx.constraintlayout.compose.ConstrainedLayoutReference#id
+RemovedProperty: androidx.constraintlayout.compose.ToolingUtilsKt#designInfoProvider:
+    Source breaking change: Removed property androidx.constraintlayout.compose.ToolingUtilsKt#designInfoProvider

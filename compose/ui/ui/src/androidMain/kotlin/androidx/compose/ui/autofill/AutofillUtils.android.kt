@@ -23,6 +23,9 @@ import android.view.autofill.AutofillManager
 import android.view.autofill.AutofillValue
 import androidx.annotation.RequiresApi
 
+/** The max length of the text passed to AutoFillValue to prevent sending too much data. */
+internal const val MAX_AUTOFILL_TEXT_LENGTH = 5000
+
 /**
  * This class is here to ensure that the classes that use this API will get verified and can be AOT
  * compiled. It is expected that this class will soft-fail verification, but the classes which use
@@ -179,11 +182,24 @@ internal object AutofillApi26Helper {
 
     @RequiresApi(26)
     fun getAutofillTextValue(value: String): AutofillValue {
-        return AutofillValue.forText(value)
+        return AutofillValue.forText(trimToSafeLength(value))
     }
 
     @RequiresApi(26)
     fun getAutofillToggleValue(value: Boolean): AutofillValue {
         return AutofillValue.forToggle(value)
     }
+}
+
+/** Trim the text to a safe length to prevent sending too much data, which will cause crash . */
+private fun trimToSafeLength(text: String): String {
+    val size = MAX_AUTOFILL_TEXT_LENGTH
+    if (text.length < size) {
+        return text
+    }
+    // Don't break a surrogate pair when trimming the text.
+    if (Character.isHighSurrogate(text[size - 1]) && Character.isLowSurrogate(text[size])) {
+        return text.take(size - 1)
+    }
+    return text.take(size)
 }

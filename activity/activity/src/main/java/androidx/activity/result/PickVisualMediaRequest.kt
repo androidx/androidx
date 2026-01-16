@@ -28,8 +28,7 @@ import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 
 /**
- * Creates a request for a
- * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * Creates a request for a [PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  *
  * @param mediaType type to go into the PickVisualMediaRequest
@@ -39,12 +38,12 @@ import androidx.annotation.RequiresApi
     "Superseded by PickVisualMediaRequest that takes an optional maxItems",
     level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
-fun PickVisualMediaRequest(mediaType: VisualMediaType = ImageAndVideo) =
-    PickVisualMediaRequest.Builder().setMediaType(mediaType).build()
+public fun PickVisualMediaRequest(
+    mediaType: VisualMediaType = ImageAndVideo
+): PickVisualMediaRequest = PickVisualMediaRequest.Builder().setMediaType(mediaType).build()
 
 /**
- * Creates a request for a
- * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * Creates a request for a [PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  *
  * @param mediaType type to go into the PickVisualMediaRequest
@@ -56,14 +55,14 @@ fun PickVisualMediaRequest(mediaType: VisualMediaType = ImageAndVideo) =
     level = DeprecationLevel.HIDDEN,
 ) // Binary API compatibility.
 @Suppress("MissingJvmstatic")
-fun PickVisualMediaRequest(
+public fun PickVisualMediaRequest(
     mediaType: VisualMediaType = ImageAndVideo,
     @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
-) = PickVisualMediaRequest.Builder().setMediaType(mediaType).setMaxItems(maxItems).build()
+): PickVisualMediaRequest =
+    PickVisualMediaRequest.Builder().setMediaType(mediaType).setMaxItems(maxItems).build()
 
 /**
- * Creates a request for a
- * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * Creates a request for a [PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  *
  * @param mediaType type to go into the PickVisualMediaRequest
@@ -77,12 +76,12 @@ fun PickVisualMediaRequest(
  * @return a PickVisualMediaRequest that contains the given input
  */
 @Suppress("MissingJvmstatic")
-fun PickVisualMediaRequest(
+public fun PickVisualMediaRequest(
     mediaType: VisualMediaType = ImageAndVideo,
     @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
     isOrderedSelection: Boolean = false,
     defaultTab: DefaultTab = DefaultTab.PhotosTab,
-) =
+): PickVisualMediaRequest =
     PickVisualMediaRequest.Builder()
         .setMediaType(mediaType)
         .setMaxItems(maxItems)
@@ -91,8 +90,7 @@ fun PickVisualMediaRequest(
         .build()
 
 /**
- * Creates a request for a
- * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * Creates a request for a [PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  *
  * @param accentColor color long to customize picker accent color. Note that the support for this
@@ -109,13 +107,13 @@ fun PickVisualMediaRequest(
  * @return a PickVisualMediaRequest that contains the given input
  */
 @Suppress("MissingJvmstatic")
-fun PickVisualMediaRequest(
+public fun PickVisualMediaRequest(
     accentColor: Long,
     mediaType: VisualMediaType = ImageAndVideo,
     @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
     isOrderedSelection: Boolean = false,
     defaultTab: DefaultTab = DefaultTab.PhotosTab,
-) =
+): PickVisualMediaRequest =
     PickVisualMediaRequest.Builder()
         .setMediaType(mediaType)
         .setMaxItems(maxItems)
@@ -125,8 +123,7 @@ fun PickVisualMediaRequest(
         .build()
 
 /**
- * Creates a request for a
- * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * Creates a request for a [PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  *
  * @param mediaCapabilitiesForTranscoding the [MediaCapabilities] that the application can handle.
@@ -139,13 +136,13 @@ fun PickVisualMediaRequest(
  */
 @Suppress("MissingJvmstatic")
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun PickVisualMediaRequest(
+public fun PickVisualMediaRequest(
     mediaCapabilitiesForTranscoding: MediaCapabilities?,
     mediaType: VisualMediaType = ImageAndVideo,
     @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
     isOrderedSelection: Boolean = false,
     defaultTab: DefaultTab = DefaultTab.PhotosTab,
-) =
+): PickVisualMediaRequest =
     PickVisualMediaRequest.Builder()
         .setMediaType(mediaType)
         .setMaxItems(maxItems)
@@ -155,8 +152,7 @@ fun PickVisualMediaRequest(
         .build()
 
 /**
- * Creates a request for a
- * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * Creates a request for a [PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  *
  * @param mediaCapabilitiesForTranscoding the [MediaCapabilities] that the application can handle.
@@ -170,14 +166,14 @@ fun PickVisualMediaRequest(
  */
 @Suppress("MissingJvmstatic")
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-fun PickVisualMediaRequest(
+public fun PickVisualMediaRequest(
     mediaCapabilitiesForTranscoding: MediaCapabilities?,
     accentColor: Long,
     mediaType: VisualMediaType = ImageAndVideo,
     @IntRange(from = 2) maxItems: Int = PickMultipleVisualMedia.getMaxItems(),
     isOrderedSelection: Boolean = false,
     defaultTab: DefaultTab = DefaultTab.PhotosTab,
-) =
+): PickVisualMediaRequest =
     PickVisualMediaRequest.Builder()
         .setMediaType(mediaType)
         .setMaxItems(maxItems)
@@ -188,35 +184,34 @@ fun PickVisualMediaRequest(
         .build()
 
 /**
- * A request for a
- * [androidx.activity.result.contract.ActivityResultContracts.PickMultipleVisualMedia] or
+ * A request for a [PickMultipleVisualMedia] or
  * [androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia] Activity Contract.
  */
-class PickVisualMediaRequest internal constructor() {
+public class PickVisualMediaRequest internal constructor() {
 
-    var mediaType: VisualMediaType = ImageAndVideo
+    public var mediaType: VisualMediaType = ImageAndVideo
         internal set
 
-    var maxItems: Int = PickMultipleVisualMedia.getMaxItems()
+    public var maxItems: Int = PickMultipleVisualMedia.getMaxItems()
         internal set
 
-    var isOrderedSelection: Boolean = false
+    public var isOrderedSelection: Boolean = false
         internal set
 
-    var defaultTab: DefaultTab = DefaultTab.PhotosTab
+    public var defaultTab: DefaultTab = DefaultTab.PhotosTab
         internal set
 
-    var isCustomAccentColorApplied: Boolean = false
+    public var isCustomAccentColorApplied: Boolean = false
         internal set
 
-    var accentColor: Long = 0
+    public var accentColor: Long = 0
         internal set
 
-    var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
+    public var mediaCapabilitiesForTranscoding: MediaCapabilities? = null
         internal set
 
     /** A builder for constructing [PickVisualMediaRequest] instances. */
-    class Builder {
+    public class Builder {
 
         private var mediaType: VisualMediaType = ImageAndVideo
         private var maxItems: Int = PickMultipleVisualMedia.getMaxItems()
@@ -235,7 +230,7 @@ class PickVisualMediaRequest internal constructor() {
          * @param mediaType type to go into the PickVisualMediaRequest
          * @return This builder.
          */
-        fun setMediaType(mediaType: VisualMediaType): Builder {
+        public fun setMediaType(mediaType: VisualMediaType): Builder {
             this.mediaType = mediaType
             return this
         }
@@ -247,7 +242,7 @@ class PickVisualMediaRequest internal constructor() {
          * @param maxItems int type limiting the number of selectable items
          * @return This builder.
          */
-        fun setMaxItems(@IntRange(from = 2) maxItems: Int): Builder {
+        public fun setMaxItems(@IntRange(from = 2) maxItems: Int): Builder {
             this.maxItems = maxItems
             return this
         }
@@ -261,7 +256,7 @@ class PickVisualMediaRequest internal constructor() {
          * @param isOrderedSelection boolean to enable customisable selection order in the picker
          * @return This builder.
          */
-        fun setOrderedSelection(isOrderedSelection: Boolean): Builder {
+        public fun setOrderedSelection(isOrderedSelection: Boolean): Builder {
             this.isOrderedSelection = isOrderedSelection
             return this
         }
@@ -277,7 +272,7 @@ class PickVisualMediaRequest internal constructor() {
          * @return This builder.
          * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_LAUNCH_TAB
          */
-        fun setDefaultTab(defaultTab: DefaultTab): Builder {
+        public fun setDefaultTab(defaultTab: DefaultTab): Builder {
             this.defaultTab = defaultTab
             return this
         }
@@ -292,7 +287,7 @@ class PickVisualMediaRequest internal constructor() {
          * @return This builder.
          * @see android.provider.MediaStore.EXTRA_PICK_IMAGES_ACCENT_COLOR
          */
-        fun setAccentColor(accentColor: Long): Builder {
+        public fun setAccentColor(accentColor: Long): Builder {
             this.accentColor = accentColor
             this.isCustomAccentColorApplied = true
             return this
@@ -314,7 +309,9 @@ class PickVisualMediaRequest internal constructor() {
          * @return This builder.
          */
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-        fun setMediaCapabilitiesForTranscoding(mediaCapabilities: MediaCapabilities?): Builder {
+        public fun setMediaCapabilitiesForTranscoding(
+            mediaCapabilities: MediaCapabilities?
+        ): Builder {
             this.mediaCapabilitiesForTranscoding = mediaCapabilities
             return this
         }
@@ -324,7 +321,7 @@ class PickVisualMediaRequest internal constructor() {
          *
          * @return the newly constructed PickVisualMediaRequest.
          */
-        fun build(): PickVisualMediaRequest =
+        public fun build(): PickVisualMediaRequest =
             PickVisualMediaRequest().apply {
                 this.mediaType = this@Builder.mediaType
                 this.maxItems = this@Builder.maxItems

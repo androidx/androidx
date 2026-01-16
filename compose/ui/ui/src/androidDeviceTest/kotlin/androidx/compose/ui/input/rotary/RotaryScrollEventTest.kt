@@ -36,7 +36,7 @@ import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.elementFor
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.compose.ui.unit.dp

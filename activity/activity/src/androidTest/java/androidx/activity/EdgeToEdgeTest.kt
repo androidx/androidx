@@ -16,6 +16,7 @@
 
 package androidx.activity
 
+import android.content.res.Configuration
 import android.graphics.Color
 import android.os.Build
 import android.view.WindowManager
@@ -41,25 +42,28 @@ class EdgeToEdgeTest {
             withActivity {
                 enableEdgeToEdge()
                 val view = window.decorView
+                val darkMode =
+                    (view.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                        Configuration.UI_MODE_NIGHT_YES
                 if (Build.VERSION.SDK_INT >= 29) {
                     assertThat(window.statusBarColor).isEqualTo(Color.TRANSPARENT)
                     assertThat(window.navigationBarColor).isEqualTo(Color.TRANSPARENT)
                     WindowInsetsControllerCompat(window, view).run {
-                        assertThat(isAppearanceLightStatusBars).isTrue()
-                        assertThat(isAppearanceLightNavigationBars).isTrue()
+                        assertThat(isAppearanceLightStatusBars).isEqualTo(!darkMode)
+                        assertThat(isAppearanceLightNavigationBars).isEqualTo(!darkMode)
                     }
                 } else if (Build.VERSION.SDK_INT >= 26) {
                     assertThat(window.statusBarColor).isEqualTo(Color.TRANSPARENT)
                     assertThat(window.navigationBarColor).isEqualTo(DefaultLightScrim)
                     WindowInsetsControllerCompat(window, view).run {
-                        assertThat(isAppearanceLightStatusBars).isTrue()
-                        assertThat(isAppearanceLightNavigationBars).isTrue()
+                        assertThat(isAppearanceLightStatusBars).isEqualTo(!darkMode)
+                        assertThat(isAppearanceLightNavigationBars).isEqualTo(!darkMode)
                     }
                 } else {
                     assertThat(window.statusBarColor).isEqualTo(Color.TRANSPARENT)
                     assertThat(window.navigationBarColor).isEqualTo(DefaultDarkScrim)
                     WindowInsetsControllerCompat(window, view).run {
-                        assertThat(isAppearanceLightStatusBars).isTrue()
+                        assertThat(isAppearanceLightStatusBars).isEqualTo(!darkMode)
                     }
                 }
                 if (Build.VERSION.SDK_INT >= 30) {

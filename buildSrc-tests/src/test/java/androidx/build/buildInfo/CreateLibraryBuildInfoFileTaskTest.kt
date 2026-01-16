@@ -71,7 +71,9 @@ class CreateLibraryBuildInfoFileTaskTest {
     @Test
     fun buildInfoTaskCreatesSimpleFile() {
         setupBuildInfoProject()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
@@ -100,7 +102,9 @@ class CreateLibraryBuildInfoFileTaskTest {
     @Test
     fun buildInfoTaskCreatesSimpleFileWithAllDependencies() {
         setupBuildInfoProjectWithAllDependencies()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
@@ -146,7 +150,9 @@ class CreateLibraryBuildInfoFileTaskTest {
     @Test
     fun buildInfoSelectsCorrectKmpVariant() {
         setupBuildInfoProjectWithKmpDependency()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
@@ -169,7 +175,9 @@ class CreateLibraryBuildInfoFileTaskTest {
     @Test
     fun buildInfoTaskAddsTestModuleNames() {
         setupBuildInfoProject()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test_build_info.txt")
@@ -183,7 +191,9 @@ class CreateLibraryBuildInfoFileTaskTest {
     @Test
     fun buildInfoTaskWithSuffixSkipsTestModuleNames() {
         setupBuildInfoProjectForArtifactWithSuffix()
-        gradleRunner.withArguments("createLibraryBuildInfoFiles").build()
+        gradleRunner
+            .withArguments("createLibraryBuildInfoFiles", "--no-configuration-cache")
+            .build()
 
         val buildInfoFile =
             distDir.root.resolve("build-info/androidx.build_info_test_test-jvm_build_info.txt")
@@ -261,7 +271,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                             null,
                             project.provider { artifactId },
                             project.provider { "fakeSha" },
-                            false,
+                            project.provider { false },
                             false,
                             "androidx",
                             ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
@@ -326,7 +336,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                         null,
                         project.provider { artifactId },
                         project.provider { "fakeSha" },
-                        false,
+                        project.provider { false },
                         false,
                         "androidx",
                         ["android", "jvm", "jvmStubs", "linuxx64Stubs", "wasmJs"].toSet(),
@@ -387,7 +397,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                             null,
                             project.provider { artifactId },
                             project.provider { "fakeSha" },
-                            false,
+                            project.provider { false },
                             false,
                             "androidx",
                             [].toSet(),
@@ -454,7 +464,7 @@ class CreateLibraryBuildInfoFileTaskTest {
                             null,
                             project.provider { artifactId },
                             project.provider { "fakeSha" },
-                            false, // shouldPublishDocs
+                            project.provider { false }, // shouldPublishDocs
                             true, // isKmp
                             "androidx",
                             ["android", "jvm"].toSet(),

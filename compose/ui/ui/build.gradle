@@ -37,7 +37,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         withJava()
-        compileSdk = 35
+        compileSdk { version = release(35) }
         androidResources.enable = true
         optimization {
             it.consumerKeepRules.publish = true

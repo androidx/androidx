@@ -77,7 +77,7 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
@@ -134,12 +134,13 @@ internal class TextFieldFocusTest {
         lateinit var testDataList: List<FocusTestData>
 
         rule.setContent {
-            testDataList =
+            testDataList = remember {
                 listOf(
                     FocusTestData(FocusRequester()),
                     FocusTestData(FocusRequester()),
                     FocusTestData(FocusRequester()),
                 )
+            }
 
             TextFieldApp(testDataList)
         }

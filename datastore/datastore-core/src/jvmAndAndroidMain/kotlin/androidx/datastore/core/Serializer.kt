@@ -23,10 +23,9 @@ import java.io.OutputStream
  * The serializer determines the on-disk format and API for accessing it.
  *
  * The type [T] MUST be immutable. Mutable types will result in broken DataStore functionality.
- *
- * TODO(b/151635324): consider changing InputStream to File.
  */
 public interface Serializer<T> {
+    // TODO(b/151635324): consider changing InputStream to File.
 
     /** Value to return if there is no data on disk. */
     public val defaultValue: T

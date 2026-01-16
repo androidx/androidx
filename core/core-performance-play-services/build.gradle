@@ -49,7 +49,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
     namespace = "androidx.core.performance.play.services"
 }

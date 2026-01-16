@@ -28,13 +28,16 @@ import java.lang.ref.WeakReference
 import java.util.concurrent.Executor
 
 /**
- * A delegate class to help setup PiP (Picture-in-Picture) functionalities on behalf of the given
+ * A delegate class to help set up PiP (Picture-in-Picture) functionalities on behalf of the given
  * [PictureInPictureProvider] instance.
+ *
+ * It's highly recommended to choose one of the implementations: [BasicPictureInPicture],
+ * [VideoPlaybackPictureInPicture] instead of using this class directly.
  *
  * @param pictureInPictureProvider [PictureInPictureProvider] instance that this delegate will call
  *   into for actual Picture-in-Picture functionalities.
  */
-public class PictureInPictureDelegate(pictureInPictureProvider: PictureInPictureProvider) {
+public open class PictureInPictureDelegate(pictureInPictureProvider: PictureInPictureProvider) {
 
     private var pictureInPictureProviderRef: WeakReference<PictureInPictureProvider> =
         WeakReference(pictureInPictureProvider)

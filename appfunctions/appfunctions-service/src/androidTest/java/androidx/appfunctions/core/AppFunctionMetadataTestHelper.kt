@@ -328,13 +328,13 @@ internal class AppFunctionMetadataTestHelper(private val context: Context) {
                         "* Use noSchema_executionFail for testing execution failure. " +
                         "* Use notesSchema_print and mediaSchema_print for schema-based enabled functions. " +
                         "* Use mediaSchema2_print for testing a schema function disabled by default.",
-                displayDescription = "Test AppFunctionManagerCompat API(s)",
+                displayDescription = "Test AppFunctionManager API(s)",
             )
 
         val TEST_APP_METADATA_IN_FRENCH =
             AppFunctionAppMetadata(
                 description = TEST_APP_METADATA.description,
-                displayDescription = "Tester l'API AppFunctionManagerCompat",
+                displayDescription = "Tester l'API AppFunctionManager",
             )
     }
 }

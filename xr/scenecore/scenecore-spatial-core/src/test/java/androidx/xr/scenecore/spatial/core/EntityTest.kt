@@ -472,48 +472,34 @@ class EntityTest {
 
     @Test
     fun getAlpha_parentSpace_returnsParentAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
 
         assertThat(entity.getAlpha(Space.PARENT)).isEqualTo(0.5f)
     }
 
     @Test
     fun getAlpha_activitySpace_returnsActivitySpaceAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
 
         assertThat(entity.getAlpha(Space.ACTIVITY)).isEqualTo(0.5f)
     }
 
     @Test
     fun getAlpha_worldSpace_returnsWorldSpaceAlpha() {
-        entity.setAlpha(0.5f, Space.REAL_WORLD)
+        entity.setAlpha(0.5f)
 
         assertThat(entity.getAlpha(Space.REAL_WORLD)).isEqualTo(0.5f)
     }
 
     @Test
     fun getAlpha_invalidSpace_throwsException() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
         assertThrows(IllegalArgumentException::class.java) { entity.getAlpha(999) }
     }
 
     @Test
-    fun setAlpha_setsAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
-
-        assertThat(entity.getAlpha(Space.PARENT)).isEqualTo(0.5f)
-    }
-
-    @Test
-    fun setAlpha_parentSpace_setsParentAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
-
-        assertThat(entity.getAlpha(Space.PARENT)).isEqualTo(0.5f)
-    }
-
-    @Test
     fun setAlpha_activitySpace_setsActivitySpaceAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
         val child =
             TestEntity(
                 activity,
@@ -523,15 +509,15 @@ class EntityTest {
                 fakeScheduledExecutorService,
             )
         child.parent = entity
-        child.setAlpha(0.5f, Space.PARENT)
+        child.setAlpha(0.5f)
 
         assertThat(child.getAlpha(Space.ACTIVITY)).isEqualTo(0.25f)
     }
 
     @Test
     fun setAlpha_worldSpace_setsWorldSpaceAlpha() {
-        spatialSceneRuntime.activitySpace.setAlpha(4f, Space.PARENT)
-        entity.setAlpha(0.5f, Space.PARENT)
+        spatialSceneRuntime.activitySpace.setAlpha(4f)
+        entity.setAlpha(0.5f)
         val child =
             TestEntity(
                 activity,
@@ -541,14 +527,9 @@ class EntityTest {
                 fakeScheduledExecutorService,
             )
         child.parent = entity
-        child.setAlpha(0.5f, Space.PARENT)
+        child.setAlpha(0.5f)
 
         assertThat(child.getAlpha(Space.REAL_WORLD)).isEqualTo(0.25f)
-    }
-
-    @Test
-    fun setAlpha_invalidSpace_throwsException() {
-        assertThrows(IllegalArgumentException::class.java) { entity.setAlpha(0.5f, 999) }
     }
 
     @Test

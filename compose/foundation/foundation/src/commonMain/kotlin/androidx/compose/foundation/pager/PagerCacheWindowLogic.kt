@@ -70,6 +70,7 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
      */
     override val mainAxisExtraSpaceStart: Int
         get() {
+            if (layoutInfo.visiblePagesInfo.isEmpty()) return 0
             val firstVisibleItem = layoutInfo.visiblePagesInfo.first()
             // how much of the first item is peeking out of view at the start of the layout.
             val firstItemOverflowOffset =
@@ -80,7 +81,7 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
 
     override val mainAxisExtraSpaceEnd: Int
         get() {
-
+            if (layoutInfo.visiblePagesInfo.isEmpty()) return 0
             val lastVisibleItem = layoutInfo.visiblePagesInfo.last()
             // how much of the last item is peeking out of view at the end of the layout
             val lastItemOverflowOffset =
@@ -92,6 +93,7 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
 
     override val firstVisibleLineIndex: Int
         get() {
+            if (layoutInfo.visiblePagesInfo.isEmpty()) return InvalidIndex
             val itemIndex =
                 layoutInfo.visiblePagesInfo.first().index.toLong() -
                     layoutInfo.beyondViewportPageCount.toLong()
@@ -100,6 +102,7 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
 
     override val lastVisibleLineIndex: Int
         get() {
+            if (layoutInfo.visiblePagesInfo.isEmpty()) return InvalidIndex
             val itemIndex =
                 (layoutInfo.visiblePagesInfo.last().index.toLong() +
                     layoutInfo.beyondViewportPageCount.toLong())
@@ -184,7 +187,7 @@ private class PagerCacheWindowScope(val itemCount: () -> Int) : CacheWindowScope
     override fun getLastIndexInLine(lineIndex: Int): Int = lineIndex
 
     override fun getLastLineIndex(): Int {
-        if (totalItemsCount == 0) return InvalidIndex
+        if (layoutInfo.visiblePagesInfo.isEmpty()) return InvalidIndex
         return totalItemsCount - 1
     }
 }

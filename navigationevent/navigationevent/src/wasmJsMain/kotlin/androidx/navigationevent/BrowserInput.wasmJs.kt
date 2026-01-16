@@ -21,13 +21,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 import org.w3c.dom.PopStateEvent
 import org.w3c.dom.Window
+import org.w3c.dom.events.Event
 
 // @OptIn(ExperimentalWasmJsInterop::class)
-public class BrowserInput
-public constructor(
+internal class BrowserInput(
     private val browserWindow: BrowserWindow,
     private val coroutineDispatcher: CoroutineDispatcher = Dispatchers.Main,
 ) : NavigationEventInput() {
@@ -194,4 +196,10 @@ public constructor(
             go(delta)
         }
     }
+}
+
+private fun BrowserWindow.createPopStateFlow() = callbackFlow {
+    val callback: (Event) -> Unit = { event: Event -> trySend(event as PopStateEvent) }
+    addEventListener(BrowserInput.TYPE_POPSTATE, callback)
+    awaitClose { removeEventListener(BrowserInput.TYPE_POPSTATE, callback) }
 }

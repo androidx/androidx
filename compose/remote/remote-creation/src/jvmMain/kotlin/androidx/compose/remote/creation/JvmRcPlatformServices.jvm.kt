@@ -22,6 +22,7 @@ import javax.imageio.ImageIO
 
 /** Implementation of [RcPlatformServices] intended for multi-platform use on the JVM. */
 public class JvmRcPlatformServices : RcPlatformServices {
+    @Suppress("NullableCollection")
     override fun imageToByteArray(image: Any): ByteArray? {
         if (image is BufferedImage) {
             val baos = ByteArrayOutputStream()
@@ -57,6 +58,7 @@ public class JvmRcPlatformServices : RcPlatformServices {
         return false
     }
 
+    @Suppress("NullableCollection")
     override fun pathToFloatArray(path: Any): FloatArray? {
         if (path is RemotePath) {
             return path.createFloatArray()

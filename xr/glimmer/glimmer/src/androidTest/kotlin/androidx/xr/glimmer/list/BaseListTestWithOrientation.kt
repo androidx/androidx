@@ -49,7 +49,7 @@ import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.pressKey
@@ -58,9 +58,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.glimmer.GlimmerRule
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.createGlimmerRule
+import androidx.xr.glimmer.testutils.createGlimmerRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -71,7 +70,7 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
     val testDispatcher = StandardTestDispatcher()
     @get:Rule(0) val rule: ComposeContentTestRule = createComposeRule(testDispatcher)
 
-    @get:Rule(1) val glimmerRule: GlimmerRule = createGlimmerRule()
+    @get:Rule(1) val glimmerRule = createGlimmerRule()
 
     val vertical: Boolean
         get() = orientation == Orientation.Vertical

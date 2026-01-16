@@ -21,9 +21,6 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
-import androidx.compose.remote.creation.actions.Action
-import androidx.compose.remote.creation.actions.ValueIntegerChange
-import androidx.compose.remote.creation.actions.ValueIntegerExpressionChange
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -85,17 +82,6 @@ internal constructor(
     internal val arrayProvider: (creationState: RemoteComposeCreationState) -> LongArray,
 ) : BaseRemoteState<Int>() {
 
-    // @Deprecated("Use getLongIdForCreationState instead")
-    // TODO: re-enable asap
-    public val id: Long
-        get() {
-            // FallbackCreationState.state.platform.log(
-            //     Platform.LogCategory.TODO,
-            //     "Use RemoteInt.getLongIdForCreationState directly"
-            // )
-            return getLongIdForCreationState(FallbackCreationState.state)
-        }
-
     /**
      * Retrieves the [LongArray] representing this [RemoteInt]\'s expression using the provided
      * [creationState]. It utilizes a cache within the [creationState] to avoid redundant
@@ -112,15 +98,6 @@ internal constructor(
         val array = arrayProvider(creationState)
         creationState.longArrayCache.put(this, array)
         return array
-    }
-
-    /**
-     * Retrieves the integer portion of the remote ID.
-     *
-     * @return The integer ID.
-     */
-    public fun getIntId(): Int {
-        return Utils.idFromLong(id).toInt()
     }
 
     /**
@@ -921,16 +898,6 @@ public fun rememberRemoteInt(
             longArrayOf(remoteInt.getLongIdForCreationState(creationState))
         }
     }
-}
-
-public fun ValueChange(valueId: MutableRemoteInt, value: Int): Action {
-    return ValueIntegerChange(valueId.constantValue!!, value)
-}
-
-public fun ValueChange(valueId: MutableRemoteInt, value: RemoteInt): Action {
-    val id1 = Utils.idFromLong(valueId.id)
-    val id2 = Utils.idFromLong(value.id)
-    return ValueIntegerExpressionChange(id1, id2)
 }
 
 /** Extension property to convert a [Int] to a [RemoteInt]. */

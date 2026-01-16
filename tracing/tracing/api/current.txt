@@ -37,6 +37,9 @@ package androidx.tracing {
     field public androidx.tracing.PropagationToken propagationToken;
   }
 
+  @SuppressCompatibility @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.RequiresOptIn(message="Marks APIs that are highly experimental for context propagation.") @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalContextPropagation {
+  }
+
   @SuppressCompatibility @androidx.tracing.DelicateTracingApi public final class Frame {
     method public void reset();
     property public int lineNumber;
@@ -179,6 +182,7 @@ package androidx.tracing {
     method public final inline void instant(String category, String name);
     method public final inline void instant(String category, String name, optional kotlin.jvm.functions.Function1<? super androidx.tracing.EventMetadata,kotlin.Unit> metadataBlock);
     method @BytecodeOnly public static void instant$default(androidx.tracing.Tracer!, String!, String!, kotlin.jvm.functions.Function1!, int, Object!);
+    method @SuppressCompatibility @androidx.tracing.ExperimentalContextPropagation public abstract androidx.tracing.PropagationToken tokenForManualPropagation();
     method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract suspend Object? tokenFromCoroutineContext(kotlin.coroutines.Continuation<? super androidx.tracing.PropagationToken>);
     method @SuppressCompatibility @androidx.tracing.DelicateTracingApi public abstract androidx.tracing.PropagationToken tokenFromThreadContext();
     method public final inline <T> T trace(String category, String name, optional androidx.tracing.PropagationToken? token, optional boolean isRoot, kotlin.jvm.functions.Function0<? extends T> block);

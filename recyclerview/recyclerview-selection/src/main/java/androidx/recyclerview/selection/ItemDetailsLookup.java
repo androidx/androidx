@@ -296,7 +296,7 @@ public abstract class ItemDetailsLookup<K> {
          * item that should be directly interpreted as a user wishing to select the item.
          */
         public @SelectionHotspotResult int classifySelectionHotspot(@NonNull MotionEvent e) {
-            return inSelectionHotspot(e)
+            return (MotionEvents.isCtrlKeyPressed(e) || inSelectionHotspot(e))
                     ? SELECTION_HOTSPOT_INSIDE_TOGGLE_MULTI
                     : SELECTION_HOTSPOT_OUTSIDE;
         }

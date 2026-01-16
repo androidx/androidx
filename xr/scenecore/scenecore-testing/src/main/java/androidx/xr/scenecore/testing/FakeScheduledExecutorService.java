@@ -61,6 +61,16 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
         implements ScheduledExecutorService, AutoCloseable {
 
     private static final TimeUnit CLOCK_UNIT = MILLISECONDS;
+    private final Clock mClock;
+    private final Queue<Runnable> mExecuteQueue = new ConcurrentLinkedQueue<>();
+    private final PriorityBlockingQueue<DelayedFuture<?>> mScheduledQueue =
+            new PriorityBlockingQueue<>();
+    private final AtomicLong mNextSequenceId = new AtomicLong(0);
+    private volatile boolean mRunning = true;
+
+    public FakeScheduledExecutorService() {
+        mClock = new Clock();
+    }
 
     private static long toClockUnit(Duration duration) {
         return duration.toMillis();
@@ -68,18 +78,6 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
 
     private static Duration durationFromClockUnit(long durationClockUnit) {
         return Duration.ofMillis(durationClockUnit);
-    }
-
-    private final Clock mClock;
-    private final Queue<Runnable> mExecuteQueue = new ConcurrentLinkedQueue<>();
-    private final PriorityBlockingQueue<DelayedFuture<?>> mScheduledQueue =
-            new PriorityBlockingQueue<>();
-
-    private final AtomicLong mNextSequenceId = new AtomicLong(0);
-    private volatile boolean mRunning = true;
-
-    public FakeScheduledExecutorService() {
-        mClock = new Clock();
     }
 
     @Override
@@ -251,6 +249,38 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
         return true;
     }
 
+    /** Clears this thread's interrupt bit, runs the task, and restores any previous interrupt. */
+    private void runTaskWithInterruptIsolation(Runnable task) {
+        boolean interruptBitWasSet = Thread.interrupted();
+        try {
+            task.run();
+        } finally {
+            if (interruptBitWasSet) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
+    private static class Clock {
+        private final AtomicReference<Instant> mNowReference = new AtomicReference<>();
+
+        Clock() {
+            setTo(Instant.EPOCH);
+        }
+
+        public long currentTimeMillis() {
+            return mNowReference.get().toEpochMilli();
+        }
+
+        public void advanceBy(Duration duration) {
+            mNowReference.getAndUpdate(now -> now.plus(duration));
+        }
+
+        public void setTo(Instant instant) {
+            mNowReference.set(instant);
+        }
+    }
+
     private class DelayedFuture<T> implements ScheduledFuture<T>, Runnable {
         protected final long mTimeToRun;
         private final long mSequenceId;
@@ -358,38 +388,6 @@ public class FakeScheduledExecutorService extends AbstractExecutorService
         public T get(long timeout, TimeUnit unit)
                 throws InterruptedException, ExecutionException, TimeoutException {
             return mTask.get(timeout, unit);
-        }
-    }
-
-    private static class Clock {
-        private final AtomicReference<Instant> mNowReference = new AtomicReference<>();
-
-        Clock() {
-            setTo(Instant.EPOCH);
-        }
-
-        public long currentTimeMillis() {
-            return mNowReference.get().toEpochMilli();
-        }
-
-        public void advanceBy(Duration duration) {
-            mNowReference.getAndUpdate(now -> now.plus(duration));
-        }
-
-        public void setTo(Instant instant) {
-            mNowReference.set(instant);
-        }
-    }
-
-    /** Clears this thread's interrupt bit, runs the task, and restores any previous interrupt. */
-    private void runTaskWithInterruptIsolation(Runnable task) {
-        boolean interruptBitWasSet = Thread.interrupted();
-        try {
-            task.run();
-        } finally {
-            if (interruptBitWasSet) {
-                Thread.currentThread().interrupt();
-            }
         }
     }
 }

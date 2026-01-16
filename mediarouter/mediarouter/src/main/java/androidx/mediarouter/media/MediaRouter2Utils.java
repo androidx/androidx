@@ -76,8 +76,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresAconfigFlag;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RequiresFlag;
 import androidx.core.flagging.Flags;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
@@ -532,7 +532,7 @@ class MediaRouter2Utils {
     }
 
     @RequiresApi(api = Build.VERSION_CODES_FULL.BAKLAVA_1)
-    @RequiresAconfigFlag("com.android.media.flags.enable_route_visibility_control_api")
+    @RequiresFlag("com.android.media.flags.enable_route_visibility_control_api")
     private static final class FlagEnableRouteVisibilityControlApiImpl {
         private FlagEnableRouteVisibilityControlApiImpl() {}
 

@@ -21,7 +21,9 @@ import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.os.SystemClock
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.View.MeasureSpec.EXACTLY
@@ -225,6 +227,57 @@ class SlidingPaneLayoutTest {
         ) {
             minimumWidth = 100
         }
+    }
+
+    @Test
+    fun testCoerceInWithLargeMinOnMotionEvent_doNotCrash() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val firstChild = View(context).apply { minimumWidth = 500 }
+        val secondChild = View(context)
+        val spl =
+            SlidingPaneLayout(context).apply {
+                isOverlappingEnabled = false
+                isUserResizingEnabled = true
+                addView(firstChild, SlidingPaneLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT))
+                addView(secondChild, SlidingPaneLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT))
+            }
+
+        // Measure and layout with a width smaller than the minimum width of the first child.
+        spl.measureAndLayout(300, 300)
+
+        // Inject motion events to trigger divider dragging logic.
+        val downTime = SystemClock.uptimeMillis()
+        val eventTime = SystemClock.uptimeMillis()
+        val dividerX = spl.visualDividerPosition.toFloat()
+        val dividerY = 150f
+
+        val downEvent =
+            MotionEvent.obtain(downTime, eventTime, MotionEvent.ACTION_DOWN, dividerX, dividerY, 0)
+        spl.dispatchTouchEvent(downEvent)
+
+        val moveEvent =
+            MotionEvent.obtain(
+                downTime,
+                eventTime + 10,
+                MotionEvent.ACTION_MOVE,
+                dividerX + 10,
+                dividerY,
+                0,
+            )
+        // Previously, this would crash because clampDraggingDividerPosition would call coerceIn
+        // with min > max.
+        spl.dispatchTouchEvent(moveEvent)
+
+        val upEvent =
+            MotionEvent.obtain(
+                downTime,
+                eventTime + 20,
+                MotionEvent.ACTION_UP,
+                dividerX + 10,
+                dividerY,
+                0,
+            )
+        spl.dispatchTouchEvent(upEvent)
     }
 
     @Test

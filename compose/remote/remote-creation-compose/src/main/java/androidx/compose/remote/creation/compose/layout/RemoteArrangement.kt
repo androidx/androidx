@@ -32,7 +32,7 @@ public object RemoteArrangement {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Horizontal
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemoteCompose(): Int
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemote(): Int
     }
 
     /** A contract for laying out children vertically. */
@@ -40,7 +40,7 @@ public object RemoteArrangement {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun toComposeUi(): androidx.compose.foundation.layout.Arrangement.Vertical
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemoteCompose(): Int
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemote(): Int
     }
 
     /** A contract for laying out children horizontally or vertically. */
@@ -49,7 +49,7 @@ public object RemoteArrangement {
         override fun toComposeUi():
             androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemoteCompose(): Int
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun toRemote(): Int
     }
 
     /**
@@ -98,7 +98,7 @@ public data class VerticalArrangement(var type: Int) : RemoteArrangement.Vertica
         return androidx.compose.foundation.layout.Arrangement.Top
     }
 
-    override fun toRemoteCompose(): Int {
+    override fun toRemote(): Int {
         when (type) {
             0 -> return ColumnLayout.TOP
             1 -> return ColumnLayout.CENTER
@@ -121,7 +121,7 @@ public data class HorizontalOrVerticalArrangement(var type: Int) :
         return androidx.compose.foundation.layout.Arrangement.spacedBy(0.dp)
     }
 
-    override fun toRemoteCompose(): Int {
+    override fun toRemote(): Int {
         when (type) {
             6 -> return ColumnLayout.SPACE_BETWEEN
             7 -> return ColumnLayout.SPACE_EVENLY
@@ -145,7 +145,7 @@ public data class HorizontalArrangement(var type: Int) : RemoteArrangement.Horiz
         return androidx.compose.foundation.layout.Arrangement.Start
     }
 
-    override fun toRemoteCompose(): Int {
+    override fun toRemote(): Int {
         when (type) {
             3 -> return ColumnLayout.START
             4 -> return ColumnLayout.CENTER

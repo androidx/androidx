@@ -84,5 +84,10 @@
         android:checkable="true"
         android:title="@string/enable_torch_as_flash"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/auto_rotation"
+        android:checkable="true"
+        android:title="@string/enable_auto_rotation"
+        app:showAsAction="never" />
 
 </menu>

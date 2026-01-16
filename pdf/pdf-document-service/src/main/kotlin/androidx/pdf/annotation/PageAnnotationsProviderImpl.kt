@@ -21,23 +21,23 @@ import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.pdf.adapter.PdfDocumentRenderer
 import androidx.pdf.annotation.converters.PdfAnnotationConvertersFactory
-import androidx.pdf.annotation.models.EditId
-import androidx.pdf.annotation.models.PdfAnnotationData
 
 /** Implementation of [PageAnnotationsProvider] that fetches annotations for a specific page. */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
 internal class PageAnnotationsProviderImpl(private val documentRenderer: PdfDocumentRenderer) :
     PageAnnotationsProvider {
-    override fun getPageAnnotations(pageNum: Int): List<PdfAnnotationData> {
+    override fun getPageAnnotations(pageNum: Int): List<KeyedPdfAnnotation> {
         return documentRenderer.withPage(pageNum) { page ->
             val pageAnnotations = page.getPageAnnotations()
             val result =
                 pageAnnotations.map { annotationData ->
+                    val aospId = annotationData.first.toString()
+                    val aospAnnotation = annotationData.second
                     val converter =
-                        PdfAnnotationConvertersFactory.create<PdfAnnotation>(annotationData.second)
-                    val annotation = converter.convert(annotationData.second, pageNum)
+                        PdfAnnotationConvertersFactory.create<PdfAnnotation>(aospAnnotation)
+                    val jetpackAnnotation = converter.convert(aospAnnotation, pageNum)
 
-                    PdfAnnotationData(EditId(pageNum, annotationData.first.toString()), annotation)
+                    KeyedPdfAnnotation(key = aospId, jetpackAnnotation)
                 }
             return@withPage result
         } ?: emptyList()

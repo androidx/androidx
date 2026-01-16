@@ -94,6 +94,8 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testapp.common.isDrmSupported
+import androidx.xr.scenecore.testapp.common.isMvHevcSupported
 import java.io.File
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -991,7 +993,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[DRM] Play MVHEVC Left Primary",
             buttonColor = VideoButtonColors.DRM,
-            enabled = enabled,
+            enabled = isDrmSupported(),
             loop = loop,
             protected = true,
         )
@@ -1130,17 +1132,41 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
 
                     // High level testcases
                     BigBuckBunnyButton(session, arDevice, activity)
-                    MVHEVCLeftPrimaryButton(session, arDevice, activity)
-                    MVHEVCRightPrimaryButton(session, arDevice, activity)
+                    MVHEVCLeftPrimaryButton(session, arDevice, activity, isMvHevcSupported())
+                    MVHEVCRightPrimaryButton(session, arDevice, activity, isMvHevcSupported())
                     Naver180Button(session, arDevice, activity)
-                    Naver180MVHEVCButton(session, arDevice, activity)
+                    Naver180MVHEVCButton(session, arDevice, activity, isMvHevcSupported())
                     Galaxy360Button(session, arDevice, activity)
-                    Galaxy360MVHEVCButton(session, arDevice, activity)
+                    Galaxy360MVHEVCButton(session, arDevice, activity, isMvHevcSupported())
                     SideBySideProtectedButton(session, arDevice, activity)
-                    MVHEVCLeftPrimaryProtectedButton(session, arDevice, activity)
+                    MVHEVCLeftPrimaryProtectedButton(
+                        session,
+                        arDevice,
+                        activity,
+                        isMvHevcSupported(),
+                    )
+                    if (!isDrmSupported()) {
+                        Text(
+                            text = "DRM is not supported on this device.",
+                            fontSize = 18.sp,
+                            color = Color.Red,
+                        )
+                    }
                     HDRVideoPlaybackButton(session, arDevice, activity)
                     SingleViewRotated270HalfWidthButton(session, arDevice, activity)
-                    MVHEVCLeftPrimaryRotated180Button(session, arDevice, activity)
+                    MVHEVCLeftPrimaryRotated180Button(
+                        session,
+                        arDevice,
+                        activity,
+                        isMvHevcSupported(),
+                    )
+                    if (!isMvHevcSupported()) {
+                        Text(
+                            text = "MV-HEVC is not supported on this device.",
+                            fontSize = 18.sp,
+                            color = Color.Red,
+                        )
+                    }
                 } else {
                     Column(
                         verticalArrangement = Arrangement.Center,

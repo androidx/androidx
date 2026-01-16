@@ -16,132 +16,103 @@
 
 package androidx.pdf.annotation.processor
 
-import android.graphics.pdf.component.PdfAnnotation as AospPdfAnnotation
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.pdf.DraftEditOperation
+import androidx.pdf.DraftEditResult
+import androidx.pdf.InsertDraftEditOperation
+import androidx.pdf.RemoveDraftEditOperation
+import androidx.pdf.UpdateDraftEditOperation
 import androidx.pdf.adapter.PdfDocumentRenderer
-import androidx.pdf.adapter.PdfPage
 import androidx.pdf.annotation.converters.PdfAnnotationConvertersFactory
-import androidx.pdf.annotation.models.AddEditResult
-import androidx.pdf.annotation.models.AnnotationResult
-import androidx.pdf.annotation.models.EditId
-import androidx.pdf.annotation.models.JetpackAospIdPair
-import androidx.pdf.annotation.models.ModifyEditResult
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
 
+/**
+ * Processes draft annotation edits by applying them to the underlying PDF document using
+ * [PdfDocumentRenderer].
+ *
+ * This class acts as a bridge between the high-level draft edit operations and the low-level PDF
+ * rendering and manipulation APIs. It handles the conversion of annotation models and executes the
+ * requested operations (insert, update, remove) on the document.
+ */
 @RequiresExtension(extension = Build.VERSION_CODES.S, version = 18)
-internal class PdfRendererAnnotationsProcessor(private val renderer: PdfDocumentRenderer) :
-    PdfAnnotationsProcessor {
-    override fun process(annotations: List<PdfAnnotationData>): AnnotationResult {
-        // TODO: Sort the list by page num and then add so that we don't have to always open/close
-        // pages
+internal class PdfRendererAnnotationsProcessor(private val renderer: PdfDocumentRenderer) {
 
-        val (success, failures) = annotations.partition { applyAnnotationData(data = it) }
-        return AnnotationResult(success = success, failures = failures.map { it.annotation })
-    }
-
-    override fun processAddEdits(annotations: List<PdfAnnotationData>): AddEditResult {
-        val (success, failures) =
-            processAnnotationsByPage(annotations) { editId, page, convertedAnnotation ->
-                val aospId = page.addPageAnnotation(convertedAnnotation)
-                JetpackAospIdPair(editId, EditId(editId.pageNum, aospId.toString()))
-            }
-        return AddEditResult(success, failures)
-    }
-
-    override fun processUpdateEdits(annotations: List<PdfAnnotationData>): ModifyEditResult {
-        val (success, failures) =
-            processAnnotationsByPage(annotations) { editId, page, convertedAnnotation ->
-                val aospId: Int = editId.value.toInt()
-                page.updatePageAnnotation(aospId, convertedAnnotation)
-                editId
-            }
-        return ModifyEditResult(success, failures)
-    }
-
-    override fun processRemoveEdits(editIds: List<EditId>): ModifyEditResult {
-        val success = mutableListOf<EditId>()
-        val failures = mutableListOf<EditId>()
-
-        editIds
-            .groupBy { it.pageNum }
-            .forEach { pageNum, editIds ->
-                if (pageNum < 0 || pageNum > renderer.pageCount) {
-                    failures.addAll(editIds)
-                    return@forEach
-                }
-                renderer.withPage(pageNum) { page ->
-
-                    // Defensive call to re-populate annotations mapping in Aosp before calling
-                    // removing annotations.
-                    // TODO: b/448063670 - Remove this once addressed
-                    page.getPageAnnotations()
-
-                    editIds.forEach {
-                        try {
-                            val aospId: Int = it.value.toInt()
-                            page.removePageAnnotation(aospId)
-                            success.add(it)
-                        } catch (e: Exception) {
-                            failures.add(it)
-                        }
-                    }
-                }
-            }
-        return ModifyEditResult(success, failures)
-    }
-
-    // TODO: Revisit this code. We are losing exception info and generated annotation id
-    private fun applyAnnotationData(data: PdfAnnotationData): Boolean {
-        val converter = PdfAnnotationConvertersFactory.create<PdfAnnotation>(data.annotation)
+    /**
+     * Processes a list of draft edit operations sequentially.
+     *
+     * @param operations The list of [DraftEditOperation]s to apply.
+     * @return A [DraftEditResult] indicating the outcome of the processing.
+     */
+    fun process(operations: List<DraftEditOperation>): DraftEditResult {
+        var appliedOperationIndex = 0
+        val appliedAnnotationIds = mutableListOf<String>()
 
         try {
-            val convertedAnnotation = converter.convert(data.annotation)
-
-            renderer.withPage(pageNum = data.editId.pageNum) { page ->
-                val unused = page.addPageAnnotation(convertedAnnotation)
+            operations.forEach { draftEditOperation ->
+                val aospAnnotationId = applyOperation(draftEditOperation)
+                appliedAnnotationIds.add(aospAnnotationId)
+                appliedOperationIndex += 1
             }
-            return true
+            return DraftEditResult.Success(appliedAnnotationIds)
         } catch (e: Exception) {
-            return false
+            return DraftEditResult.Failure(
+                failedBatchIndex = appliedOperationIndex,
+                appliedIds = appliedAnnotationIds,
+                errorMessage = e.message ?: "Unknown error",
+            )
         }
     }
 
-    // Takes a list of annotations and operation to perform on success
-    private fun <T> processAnnotationsByPage(
-        annotations: List<PdfAnnotationData>,
-        onSuccessAction:
-            (editId: EditId, page: PdfPage, convertedAnnotation: AospPdfAnnotation) -> T,
-    ): Pair<List<T>, List<EditId>> {
+    private fun applyOperation(operation: DraftEditOperation): String {
+        return when (operation) {
+            is InsertDraftEditOperation -> insertPdfAnnotation(operation.annotation)
+            is UpdateDraftEditOperation -> updatePdfAnnotation(operation.id, operation.annotation)
+            is RemoveDraftEditOperation -> removePdfAnnotation(operation.id, operation.pageNum)
+            else ->
+                throw UnsupportedOperationException(
+                    "Unsupported operation: ${operation.javaClass.simpleName}"
+                )
+        }
+    }
 
-        val success = mutableListOf<T>()
-        val failures = mutableListOf<EditId>()
+    private fun insertPdfAnnotation(annotation: PdfAnnotation): String {
+        val converter = PdfAnnotationConvertersFactory.create<PdfAnnotation>(annotation)
+        val convertedAnnotation = converter.convert(annotation)
 
-        annotations
-            .groupBy { it.editId.pageNum }
-            .forEach { (pageNum, annotationsData) ->
-                if (pageNum < 0 || pageNum > renderer.pageCount) {
-                    failures.addAll(annotationsData.map { it.editId })
-                    return@forEach
-                }
-                renderer.withPage(pageNum) { page ->
-                    annotationsData.forEach { annotationData ->
-                        try {
-                            val converter =
-                                PdfAnnotationConvertersFactory.create<PdfAnnotation>(
-                                    annotationData.annotation
-                                )
-                            val aospAnnotation = converter.convert(annotationData.annotation)
-                            val result =
-                                onSuccessAction(annotationData.editId, page, aospAnnotation)
-                            success.add(result)
-                        } catch (e: Exception) {
-                            failures.add(annotationData.editId)
-                        }
-                    }
-                }
+        val aospAnnotationId =
+            renderer.withPage(pageNum = annotation.pageNum) { page ->
+                return@withPage page.addPageAnnotation(convertedAnnotation).toString()
             }
-        return success to failures
+
+        if (aospAnnotationId == null) {
+            throw IllegalStateException("Failed to add annotation: PdfRenderer returned null ID.")
+        }
+
+        return aospAnnotationId
+    }
+
+    private fun updatePdfAnnotation(annotationId: String, newAnnotation: PdfAnnotation): String {
+        val converter = PdfAnnotationConvertersFactory.create<PdfAnnotation>(newAnnotation)
+        val convertedAnnotation = converter.convert(newAnnotation)
+
+        val isUpdated =
+            renderer.withPage(pageNum = newAnnotation.pageNum) { page ->
+                return@withPage page.updatePageAnnotation(annotationId.toInt(), convertedAnnotation)
+            }
+
+        if (isUpdated == null || !isUpdated) {
+            throw IllegalStateException("Failed to update annotation")
+        }
+
+        return annotationId
+    }
+
+    private fun removePdfAnnotation(annotationId: String, pageNum: Int): String {
+        renderer.withPage(pageNum = pageNum) { page ->
+            return@withPage page.removePageAnnotation(annotationId.toInt())
+        }
+
+        return annotationId
     }
 }

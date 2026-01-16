@@ -114,7 +114,7 @@ package androidx.xr.scenecore.testing {
     method public void removeAllComponents();
     method public void removeComponent(androidx.xr.scenecore.runtime.Component component);
     method public void removeInputEventListener(androidx.xr.scenecore.runtime.InputEventListener listener);
-    method public void setAlpha(float alpha, @androidx.xr.scenecore.runtime.SpaceValue int relativeTo);
+    method public void setAlpha(float alpha);
     method @InaccessibleFromKotlin public void setContentDescription(CharSequence);
     method public void setHidden(boolean hidden);
     method @InaccessibleFromKotlin public void setParent(androidx.xr.scenecore.runtime.Entity?);
@@ -597,6 +597,7 @@ package androidx.xr.scenecore.testing {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSceneRuntime implements androidx.xr.scenecore.runtime.RenderingEntityFactory androidx.xr.scenecore.runtime.SceneRuntime {
     ctor public FakeSceneRuntime(boolean unscaledGravityAlignedActivitySpace, optional java.util.concurrent.Executor? executor);
     ctor @BytecodeOnly public FakeSceneRuntime(boolean, java.util.concurrent.Executor!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method public void addOnBoundaryConsentChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<java.lang.Boolean> listener);
     method public void addPerceivedResolutionChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.runtime.PixelDimensions> listener);
     method public void addSpatialCapabilitiesChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.runtime.SpatialCapabilities> listener);
     method public void clearSpatialVisibilityChangedListener();
@@ -619,6 +620,7 @@ package androidx.xr.scenecore.testing {
     method public void enablePanelDepthTest(boolean enabled);
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.FakeActivitySpace getActivitySpace();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.testing.FakeAudioTrackExtensionsWrapper getAudioTrackExtensionsWrapper();
+    method @InaccessibleFromKotlin public java.util.Map<java.util.function.Consumer<java.lang.Boolean>,java.util.concurrent.Executor> getBoundaryConsentChangedMap();
     method @InaccessibleFromKotlin public float getDeviceDpPerMeter();
     method @InaccessibleFromKotlin public boolean getEnabledPanelDepthTest();
     method @InaccessibleFromKotlin public java.util.concurrent.Executor? getExecutor();
@@ -636,6 +638,9 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SpatialModeChangeListener? getSpatialModeChangeListener();
     method @InaccessibleFromKotlin public java.util.Map<java.util.function.Consumer<androidx.xr.scenecore.runtime.SpatialVisibility>,java.util.concurrent.Executor> getSpatialVisibilityChangedMap();
     method @InaccessibleFromKotlin public Enum<androidx.xr.scenecore.testing.FakeSceneRuntime.State> getState();
+    method @InaccessibleFromKotlin public boolean isBoundaryConsentGranted();
+    method public void onBoundaryConsentChanged(boolean boundaryConsent);
+    method public void removeOnBoundaryConsentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
     method public void removePerceivedResolutionChangedListener(java.util.function.Consumer<androidx.xr.scenecore.runtime.PixelDimensions> listener);
     method public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<androidx.xr.scenecore.runtime.SpatialCapabilities> listener);
     method public void requestFullSpaceMode();
@@ -650,9 +655,11 @@ package androidx.xr.scenecore.testing {
     method public void setSpatialVisibilityChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.runtime.SpatialVisibility> listener);
     property public androidx.xr.scenecore.testing.FakeActivitySpace activitySpace;
     property public androidx.xr.scenecore.testing.FakeAudioTrackExtensionsWrapper audioTrackExtensionsWrapper;
+    property public java.util.Map<java.util.function.Consumer<java.lang.Boolean>,java.util.concurrent.Executor> boundaryConsentChangedMap;
     property public float deviceDpPerMeter;
     property public boolean enabledPanelDepthTest;
     property public java.util.concurrent.Executor? executor;
+    property public boolean isBoundaryConsentGranted;
     property public android.app.Activity? lastSetPreferredAspectRatioActivity;
     property public float lastSetPreferredAspectRatioRatio;
     property public androidx.xr.scenecore.runtime.PanelEntity mainPanelEntity;
@@ -833,7 +840,8 @@ package androidx.xr.scenecore.testing {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class FakeSurfaceFeature extends androidx.xr.scenecore.testing.FakeBaseRenderingFeature implements androidx.xr.scenecore.runtime.SurfaceFeature {
     ctor public FakeSurfaceFeature(androidx.xr.runtime.NodeHolder<? extends java.lang.Object?> nodeHolder);
-    method public boolean getColliderEnabled();
+    method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.TextureResource? getAuxiliaryAlphaMask();
+    method @InaccessibleFromKotlin public boolean getColliderEnabled();
     method @InaccessibleFromKotlin public int getColorRange();
     method @InaccessibleFromKotlin public int getColorSpace();
     method @InaccessibleFromKotlin public int getColorTransfer();
@@ -845,6 +853,7 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.SurfaceEntity.Shape getShape();
     method @InaccessibleFromKotlin public int getStereoMode();
     method @InaccessibleFromKotlin public android.view.Surface getSurface();
+    method @InaccessibleFromKotlin public androidx.xr.runtime.math.IntSize2d getSurfacePixelDimensions();
     method public void resetContentColorMetadata();
     method public void setAuxiliaryAlphaMaskTexture(androidx.xr.scenecore.runtime.TextureResource? alphaMask);
     method public void setColliderEnabled(boolean enableCollider);
@@ -855,6 +864,8 @@ package androidx.xr.scenecore.testing {
     method @InaccessibleFromKotlin public void setStereoMode(int);
     method public void setSurface(android.view.Surface surface);
     method public void setSurfacePixelDimensions(int width, int height);
+    property public androidx.xr.scenecore.runtime.TextureResource? auxiliaryAlphaMask;
+    property public boolean colliderEnabled;
     property public int colorRange;
     property public int colorSpace;
     property public int colorTransfer;
@@ -864,13 +875,9 @@ package androidx.xr.scenecore.testing {
     property public int maxContentLightLevel;
     property public androidx.xr.scenecore.runtime.TextureResource? primaryAlphaMask;
     property public androidx.xr.scenecore.runtime.SurfaceEntity.Shape shape;
-    property public int stereoMode;
+    property @androidx.xr.scenecore.runtime.SurfaceEntity.StereoMode public int stereoMode;
     property public android.view.Surface surface;
-    field public static final androidx.xr.scenecore.testing.FakeSurfaceFeature.Companion Companion;
-  }
-
-  public static final class FakeSurfaceFeature.Companion {
-    method public androidx.xr.scenecore.runtime.SurfaceFeature createWithMockFeature(androidx.xr.scenecore.runtime.SurfaceFeature feature, androidx.xr.runtime.NodeHolder<? extends java.lang.Object?> nodeHolder);
+    property public androidx.xr.runtime.math.IntSize2d surfacePixelDimensions;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class FakeSystemSpaceEntity extends androidx.xr.scenecore.testing.FakeEntity implements androidx.xr.scenecore.runtime.SystemSpaceEntity {

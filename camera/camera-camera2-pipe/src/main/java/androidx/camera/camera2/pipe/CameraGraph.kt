@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 /** A [CameraGraph] represents the combined configuration and state of a camera. */
@@ -593,6 +594,12 @@ public interface CameraGraphBase<TSession : Session> : AutoCloseable {
      * including when a camera graph is stopped, starting or started.
      */
     public val graphState: StateFlow<GraphState>
+
+    /** Conflated flow of the most recent [FrameNumber]s emitted by this CameraGraph. */
+    public val latestFrameNumber: Flow<FrameNumber>
+
+    /** Conflated flow of the most recent [FrameInfo] instances emitted by this CameraGraph. */
+    public val latestFrameInfo: Flow<FrameInfo>
 
     /**
      * This is a hint an app can give to a camera graph to indicate whether the camera is being used

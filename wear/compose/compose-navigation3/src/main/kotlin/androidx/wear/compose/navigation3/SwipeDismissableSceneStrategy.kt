@@ -117,7 +117,6 @@ public class SwipeDismissableSceneStrategy<T : Any>(
         val currentEntry = entries.last()
         val previousEntries = entries.dropLast(1)
         val background = previousEntries.lastOrNull()
-        val backEnabled = isUserSwipeEnabled && background != null
 
         return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             // api 36+, support predictive back
@@ -125,7 +124,7 @@ public class SwipeDismissableSceneStrategy<T : Any>(
                 modifier = modifier,
                 currentEntry = currentEntry,
                 previousEntries = previousEntries,
-                backEnabled = backEnabled,
+                backEnabled = isUserSwipeEnabled,
             )
         } else {
             val swipeToDismissBoxState = state.swipeToDismissBoxState
@@ -140,7 +139,7 @@ public class SwipeDismissableSceneStrategy<T : Any>(
                 currentBackStack = entries,
                 previousEntries = previousEntries,
                 swipeToDismissBoxState = swipeToDismissBoxState,
-                backEnabled = backEnabled,
+                backEnabled = isUserSwipeEnabled && background != null,
             )
         }
     }

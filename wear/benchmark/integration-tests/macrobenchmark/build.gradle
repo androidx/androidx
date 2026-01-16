@@ -21,7 +21,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
     namespace = "androidx.wear.benchmark.integration.macrobenchmark"
     targetProjectPath = ":wear:benchmark:integration-tests:macrobenchmark-target"

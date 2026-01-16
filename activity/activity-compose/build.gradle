@@ -76,11 +76,10 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose integration with Activity"
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":activity:activity-compose:activity-compose-samples"))
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.activity.compose"
 }

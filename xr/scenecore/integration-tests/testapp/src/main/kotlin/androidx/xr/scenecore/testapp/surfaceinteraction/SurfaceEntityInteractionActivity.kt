@@ -54,10 +54,13 @@ import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.Scene
+import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
+import androidx.xr.scenecore.testapp.common.isMvHevcSupported
 import java.io.File
+import java.util.function.Consumer
 
 internal const val TAG = "JXR-SurfaceEntityInteractionActivity"
 
@@ -94,6 +97,10 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
     private lateinit var switchDoubleClickEnabled: Switch
     private lateinit var switchDragEnabled: Switch
     private lateinit var textViewPointerLogs: TextView
+    private var spatialEnvironmentPreference: SpatialEnvironment.SpatialEnvironmentPreference? =
+        null
+    private var consentGranted: Boolean = false
+    private lateinit var mvHevcNotSupportedText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -185,11 +192,26 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         textViewPointerLogs = findViewById(R.id.textView_pointer_log)
         textViewPointerLogs.text = ""
 
+        mvHevcNotSupportedText = findViewById(R.id.mv_hevc_not_supported_text)
+        if (!isMvHevcSupported()) {
+            mvHevcNotSupportedText.visibility = View.VISIBLE
+        }
+
         updateButtonsEnabled(null, false)
 
         view = window.decorView
         view.postOnAnimation(this::onAnimation)
+
+        consentGranted = session.scene.isBoundaryConsentGranted
+        session.scene.addOnBoundaryConsentChangedListener(boundaryConsentListener)
     }
+
+    private val boundaryConsentListener =
+        Consumer<Boolean> { isGranted ->
+            consentGranted = isGranted
+            Log.i("[boundary] in app", isGranted.toString())
+            // App UX Flow for handling consent state changes.
+        }
 
     private fun onAnimation() {
         if (surfaceParent == null) return
@@ -225,10 +247,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         val debugPanelDefault = pointerLogManager.default.validPanel
         if (debugPanelDefault != null) {
             val oldPose = debugPanelDefault.getPose()
-            val newPose =
-                headPose.compose(
-                    Pose(Vector3(0f, 0f, -1f), Quaternion.fromAxisAngle(Vector3.Up, 180f))
-                )
+            val newPose = headPose.compose(Pose(Vector3(0f, 0f, -1f), Quaternion.Identity))
             debugPanelDefault.setPose(Pose.lerp(oldPose, newPose, followingPortion))
         }
 
@@ -237,7 +256,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         if (leftPose != null && debugPanelLeft != null) {
             val oldPose = debugPanelLeft.getPose()
             val newPos = leftPose.translation + Vector3(0f, 0.05f, 0f)
-            val newRot = Quaternion.fromLookTowards(headPose.translation - newPos, Vector3.Up)
+            val newRot = headPose.rotation
             debugPanelLeft.setPose(Pose.lerp(oldPose, Pose(newPos, newRot), followingPortion))
         }
 
@@ -246,7 +265,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         if (rightPose != null && debugPanelRight != null) {
             val oldPose = debugPanelRight.getPose()
             val newPos = rightPose.translation + Vector3(0f, 0.05f, 0f)
-            val newRot = Quaternion.fromLookTowards(headPose.translation - newPos, Vector3.Up)
+            val newRot = headPose.rotation
             debugPanelRight.setPose(Pose.lerp(oldPose, Pose(newPos, newRot), followingPortion))
         }
 
@@ -257,6 +276,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         super.onDestroy()
         exoPlayer?.stop()
         exoPlayer?.release()
+        session.scene.removeOnBoundaryConsentChangedListener(boundaryConsentListener)
     }
 
     // Request the external storage permission so that we can read large files from the SDCard
@@ -287,8 +307,10 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
     private fun updateButtonsEnabled(selectedVideo: VideoEnums?, interactableAttached: Boolean) {
         val isVideoSelected = selectedVideo != null
         buttonSelectQuad.isEnabled = selectedVideo != VideoEnums.BIG_BUCK_BUNNY_BUTTON
-        buttonSelectSphere.isEnabled = selectedVideo != VideoEnums.GALAXY_360_MVHEVC_BUTTON
-        buttonSelectHemisphere.isEnabled = selectedVideo != VideoEnums.NAVER_180_MVHEVC_BUTTON
+        buttonSelectSphere.isEnabled =
+            isMvHevcSupported() && (selectedVideo != VideoEnums.GALAXY_360_MVHEVC_BUTTON)
+        buttonSelectHemisphere.isEnabled =
+            isMvHevcSupported() && (selectedVideo != VideoEnums.NAVER_180_MVHEVC_BUTTON)
         buttonDeselectVideo.isEnabled = isVideoSelected
 
         switchInteractableAttached.isEnabled = selectedVideo != null
@@ -326,7 +348,18 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
                 .show()
             return
         }
-
+        // Check boundary consent status. If not granted, stop the immersive video and revert to the
+        // original state.
+        if (!consentGranted) {
+            // Allow the app to re-trigger the boundary setup flow on the second button click.
+            session.scene.spatialEnvironment.preferredSpatialEnvironment = null
+            // Set dummy environment to trigger boundary consent dialog
+            spatialEnvironmentPreference =
+                SpatialEnvironment.SpatialEnvironmentPreference(null, null)
+            session!!.scene.spatialEnvironment.preferredSpatialEnvironment =
+                spatialEnvironmentPreference
+            return
+        }
         surfaceEntity =
             createSurfaceEntity(
                 session = session,

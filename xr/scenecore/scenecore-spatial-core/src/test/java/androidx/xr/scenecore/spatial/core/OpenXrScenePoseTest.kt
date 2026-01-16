@@ -86,7 +86,7 @@ class OpenXrScenePoseTest(private val testScenePoseType: OpenXrScenePoseType) {
         activitySpace: ActivitySpaceImpl,
         pose: Pose,
     ): OpenXrScenePose {
-        return OpenXrScenePose(activitySpace, activitySpace, pose)
+        return OpenXrScenePose(activitySpace, pose)
     }
 
     private fun createTestScenePose(pose: Pose): BaseScenePose {

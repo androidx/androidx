@@ -48,7 +48,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.RotaryInjectionScope
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performRotaryScrollInput
 import androidx.compose.ui.unit.Dp
@@ -900,6 +900,57 @@ class RotaryScrollTest {
             .isEqualTo(firstOverscrollEffectApplyToScrollCount)
         assertThat(firstOverscrollEffect.applyToFlingCount)
             .isEqualTo(firstOverscrollEffectApplyToFlingCount)
+    }
+
+    @Test
+    fun rotaryScrollable_snap_sensitivity_avoids_divide_by_zero() {
+        val lowSensitivity = RotaryScrollableDefaults.LowSnapSensitivity
+        val highSensitivity = RotaryScrollableDefaults.HighSnapSensitivity
+        val sensitivityRange = highSensitivity - lowSensitivity
+        val defaultSensitivityValues = RotarySnapSensitivityValues.Default
+        val highSensitivityValues = RotarySnapSensitivityValues.High
+
+        // In worst case scenario, a bad call could reverse engineer our interpolation to get a
+        // threshold divider that causes a divide by zero. Verify that we're guarding against that,
+        // by coercing to at least 0.1.
+        val fractionForDivideByZero =
+            -defaultSensitivityValues.minThresholdDivider /
+                (highSensitivityValues.minThresholdDivider -
+                    defaultSensitivityValues.minThresholdDivider)
+        val sensitivityForDivideByZero =
+            fractionForDivideByZero * (sensitivityRange) + sensitivityRange
+        val values = RotarySnapSensitivityValues(sensitivityForDivideByZero)
+
+        assertThat(values.minThresholdDivider).isAtLeast(1e-6f)
+        assertThat(values.maxThresholdDivider).isAtLeast(1e-6f)
+    }
+
+    @Test
+    fun rotaryScrollable_snap_sensitivity_extrapolates_lower() {
+        val lowSensitivity = RotaryScrollableDefaults.LowSnapSensitivity
+
+        val values = RotarySnapSensitivityValues(lowSensitivity * 0.9f)
+
+        assertThat(values.minThresholdDivider)
+            .isLessThan(RotarySnapSensitivityValues.Default.minThresholdDivider)
+        assertThat(values.maxThresholdDivider)
+            .isLessThan(RotarySnapSensitivityValues.Default.maxThresholdDivider)
+        assertThat(values.resistanceFactor)
+            .isLessThan(RotarySnapSensitivityValues.Default.resistanceFactor)
+    }
+
+    @Test
+    fun rotaryScrollable_snap_sensitivity_extrapolates_higher() {
+        val highSensitivity = RotaryScrollableDefaults.HighSnapSensitivity
+
+        val values = RotarySnapSensitivityValues(highSensitivity * 1.1f)
+
+        assertThat(values.minThresholdDivider)
+            .isGreaterThan(RotarySnapSensitivityValues.High.minThresholdDivider)
+        assertThat(values.maxThresholdDivider)
+            .isGreaterThan(RotarySnapSensitivityValues.High.maxThresholdDivider)
+        assertThat(values.resistanceFactor)
+            .isGreaterThan(RotarySnapSensitivityValues.High.resistanceFactor)
     }
 
     @OptIn(ExperimentalFoundationApi::class)

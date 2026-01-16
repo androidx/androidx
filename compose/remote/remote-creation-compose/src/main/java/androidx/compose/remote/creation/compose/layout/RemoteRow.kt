@@ -19,12 +19,17 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
+import androidx.compose.remote.creation.compose.v2.RemoteRowV2
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.remember
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -40,8 +45,8 @@ public class RemoteComposeRowModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startRow(
                 modifier,
-                horizontalArrangement.toRemoteCompose(),
-                verticalAlignment.toRemoteCompose(),
+                horizontalArrangement.toRemote(),
+                verticalAlignment.toRemote(),
             )
             this@draw.drawContent()
             canvas.document.endRow()
@@ -71,12 +76,20 @@ public fun RemoteRow(
     verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
     content: @Composable RemoteRowScope.() -> Unit,
 ) {
+    if (currentComposer.applier is RemoteComposeApplierV2) {
+        RemoteRowV2(modifier, horizontalArrangement, verticalAlignment) {
+            // Bridge V1 scope to V2 scope
+            val v1Scope = remember { RemoteRowScope() }
+            v1Scope.content()
+        }
+        return
+    }
 
+    val creationState = LocalRemoteComposeCreationState.current
     val scope = remember { RemoteRowScope() }
-
     val composeModifiers =
         RemoteComposeRowModifier(
-                modifier.toRemoteCompose(),
+                creationState.toRecordingModifier(modifier),
                 horizontalArrangement,
                 verticalAlignment,
             )

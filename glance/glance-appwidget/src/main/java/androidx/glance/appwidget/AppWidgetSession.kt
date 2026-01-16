@@ -283,6 +283,7 @@ public open class AppWidgetSession(
         parentJob.cancel()
     }
 
+    @Suppress("ListIterator")
     override suspend fun recreateWithEvents(events: List<Any>): AppWidgetSession {
         // We can skip the UpdateGlanceState events because the new session will pull the state
         // when it starts. We can also skip WaitForReady because any waiters will be cancelled

@@ -299,24 +299,27 @@ class AccessibilityActivity : ComponentActivity() {
     fun GltfEntityUI() {
         val dragonEntities = remember { List(3) { mutableStateOf<GltfModelEntity?>(null) } }
         var entitiesCreated by remember { mutableStateOf(false) }
+        var dragonModel by remember { mutableStateOf<GltfModel?>(null) }
         val scope = rememberCoroutineScope()
 
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Button({
                 scope.launch {
                     if (!entitiesCreated) {
-                        var offset = -1.5f
-                        entitiesCreated = true
-                        dragonEntities.forEachIndexed { index, entity ->
-                            val translation = Vector3(offset, 0f, -1f)
-                            val model =
+                        if (dragonModel == null) {
+                            dragonModel =
                                 GltfModel.create(
                                     session,
                                     Paths.get("models", "Dragon_Evolved.gltf"),
                                 )
+                        }
+                        var offset = -1.5f
+                        entitiesCreated = true
+                        dragonEntities.forEachIndexed { index, entity ->
+                            val translation = Vector3(offset, 0f, -1f)
                             entity.value =
                                 createModelEntity(
-                                    model,
+                                    dragonModel!!,
                                     "Dragon Entity ${index+1} at $translation",
                                     translation,
                                 )

@@ -62,7 +62,7 @@ class PageTest {
                     FakeBitmapSource(invocation.getArgument(0))
                 }
             onBlocking { getPageContent(pageNumber = 0) } doReturn pageContent
-            onBlocking { getFormWidgetInfos(any()) } doReturn UPDATED_PAGE_WIDGET_INFOS
+            onBlocking { getFormWidgetInfos(any(), any()) } doReturn UPDATED_PAGE_WIDGET_INFOS
         }
 
     private val canvasSpy = spy(Canvas())
@@ -91,19 +91,19 @@ class PageTest {
             isAccessibilityEnabled = true,
             formWidgetInfos =
                 listOf(
-                    FormWidgetInfo(
+                    FormWidgetInfo.createRadioButton(
                         widgetIndex = 0,
-                        widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
                         widgetRect = Rect(10, 10, 20, 20),
                         textValue = "true",
                         accessibilityLabel = "radio",
+                        isReadOnly = false,
                     ),
-                    FormWidgetInfo(
+                    FormWidgetInfo.createRadioButton(
                         widgetIndex = 0,
-                        widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
                         widgetRect = Rect(10, 10, 20, 20),
                         textValue = "false",
                         accessibilityLabel = "radio",
+                        isReadOnly = false,
                     ),
                 ),
             pdfFormFillingConfig = PdfFormFillingConfig({ false }, Color.CYAN),
@@ -247,18 +247,18 @@ val FULL_PAGE_RECT = RectF(0f, 0f, PAGE_SIZE.x.toFloat(), PAGE_SIZE.y.toFloat())
 val MAX_BITMAP_SIZE = Point(500, 500)
 val UPDATED_PAGE_WIDGET_INFOS =
     listOf(
-        FormWidgetInfo(
+        FormWidgetInfo.createRadioButton(
             widgetIndex = 0,
-            widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
             widgetRect = Rect(10, 10, 20, 20),
             textValue = "false",
             accessibilityLabel = "radio",
+            isReadOnly = false,
         ),
-        FormWidgetInfo(
+        FormWidgetInfo.createRadioButton(
             widgetIndex = 0,
-            widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
             widgetRect = Rect(10, 10, 20, 20),
             textValue = "true",
             accessibilityLabel = "radio",
+            isReadOnly = false,
         ),
     )

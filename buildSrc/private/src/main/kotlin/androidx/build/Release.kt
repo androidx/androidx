@@ -106,14 +106,14 @@ object Release {
      * Registers the project to be included in its group's zip file as well as the global zip files.
      */
     fun register(project: Project, androidXExtension: AndroidXExtension) {
-        if (!androidXExtension.shouldPublish()) {
+        if (!androidXExtension.shouldPublish.get()) {
             project.logger.info(
                 "project ${project.name} isn't part of release," +
                     " because its \"publish\" property is explicitly set to Publish.NONE"
             )
             return
         }
-        if (!androidXExtension.shouldRelease() && !isSnapshotBuild()) {
+        if (!androidXExtension.shouldRelease.get() && !isSnapshotBuild()) {
             project.logger.info(
                 "project ${project.name} isn't part of release, because its" +
                     " \"publish\" property is SNAPSHOT_ONLY, but it is not a snapshot build"

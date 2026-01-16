@@ -1676,7 +1676,12 @@ class FocusMeteringControlTest {
         cameraId: String = CAMERA_ID_0,
         properties: CameraProperties = cameraPropertiesMap[cameraId]!!,
         requestControl: UseCaseCameraRequestControl = fakeRequestControl,
-    ) = FakeState3AControlCreator.createState3AControl(properties, requestControl)
+    ) =
+        FakeState3AControlCreator.createState3AControl(
+            properties,
+            requestControl,
+            fakeUseCaseThreads,
+        )
 
     private fun FocusMeteringControl.startFocusAndMeteringAndAdvanceTestScope(
         testScope: TestScope,

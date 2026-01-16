@@ -76,4 +76,20 @@ class RemoteMaterialThemeTest {
 
         remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
     }
+
+    @Test
+    fun custom_color_scheme_propagates_colors() {
+        val customColorScheme = ColorScheme(primary = Color.Magenta, onSurface = Color.Cyan)
+        val remoteColorScheme = RemoteColorScheme(customColorScheme)
+        val expectedTint = Color.Cyan
+
+        remoteComposeTestRule.runTest {
+            RemoteMaterialTheme(colorScheme = remoteColorScheme) {
+                val iconTint = RemoteMaterialTheme.colorScheme.onSurface
+                RemoteIcon(TestImageVectors.VolumeUp, contentDescription = null, tint = iconTint)
+            }
+        }
+
+        remoteComposeTestRule.assertRootNodeContainsColor(expectedTint)
+    }
 }

@@ -18,12 +18,11 @@
 package androidx.compose.remote.creation.compose.painter
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.operations.utilities.ImageScaling
-import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
-import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.ui.layout.ContentScale
 
 /**
  * A [RemotePainter] that draws a [RemoteBitmap] into the provided RemoteCanvas.
@@ -39,20 +38,11 @@ public class RemoteBitmapPainter(
     private val srcSize: RemoteSize = RemoteSize(image.width, image.height),
 ) : RemotePainter() {
     override fun RemoteDrawScope.onDraw() {
-        val componentSize = componentSize()
-        canvas.drawScaledBitmap(
+        drawScaledBitmap(
             image = image,
-            srcLeft = srcOffset.x,
-            srcTop = srcOffset.y,
-            srcRight = srcSize.width,
-            srcBottom = srcSize.height,
-            dstLeft = 0f.rf,
-            dstTop = 0f.rf,
-            dstRight = componentSize.width,
-            dstBottom = componentSize.height,
-            scaleType = ImageScaling.SCALE_FILL_BOUNDS,
-            scaleFactor = 1f.rf,
-            contentDescription = null,
+            srcOffset = srcOffset,
+            srcSize = srcSize,
+            scaleType = ContentScale.FillBounds,
         )
     }
 

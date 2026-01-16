@@ -315,7 +315,7 @@ class FakeImpressApiImplTest {
     fun setStereoSurfaceEntityCanvasShapeQuad_setsCanvasShapeQuad() {
         val stereoMode = StereoMode.MONO
         val stereoSurfaceNode = fakeImpressApi.createStereoSurface(stereoMode)
-        fakeImpressApi.setStereoSurfaceEntityCanvasShapeQuad(stereoSurfaceNode, 11.0f, 11.0f)
+        fakeImpressApi.setStereoSurfaceEntityCanvasShapeQuad(stereoSurfaceNode, 11.0f, 11.0f, 1.0f)
         val stereoSurface = fakeImpressApi.getStereoSurfaceEntities()
         val stereoSurfaceData = stereoSurface[stereoSurfaceNode]
         assertNotNull(stereoSurfaceData)
@@ -325,6 +325,8 @@ class FakeImpressApiImplTest {
         assertThat(width).isEqualTo(11.0f)
         val height = stereoSurfaceData.height
         assertThat(height).isEqualTo(11.0f)
+        val cornerRadius = stereoSurfaceData.cornerRadius
+        assertThat(cornerRadius).isEqualTo(1.0f)
     }
 
     @Test

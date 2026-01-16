@@ -43,6 +43,7 @@ import android.os.Looper
 import android.util.Range
 import android.util.Size
 import android.view.Surface
+import androidx.camera.core.AspectRatio
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
 import androidx.camera.core.CameraEffect
@@ -59,6 +60,7 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
+import androidx.camera.core.RotationProvider
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.SurfaceRequest.TransformationInfo
 import androidx.camera.core.UseCase
@@ -375,11 +377,7 @@ class VideoCaptureTest {
                 val videoOutput =
                     createVideoOutput(
                         mediaSpec =
-                            MediaSpec.builder()
-                                .configureVideo {
-                                    it.setQualitySelector(QualitySelector.from(quality))
-                                }
-                                .build(),
+                            createMediaSpec(qualitySelector = QualitySelector.from(quality)),
                         surfaceRequestListener = { request, _ -> surfaceRequest = request },
                     )
                 val videoCapture = createVideoCapture(videoOutput)
@@ -492,10 +490,7 @@ class VideoCaptureTest {
 
             val videoOutput =
                 createVideoOutput(
-                    mediaSpec =
-                        MediaSpec.builder()
-                            .configureVideo { it.setQualitySelector(QualitySelector.from(quality)) }
-                            .build()
+                    mediaSpec = createMediaSpec(qualitySelector = QualitySelector.from(quality))
                 )
             val videoCapture = createVideoCapture(videoOutput)
 
@@ -520,20 +515,17 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo {
-                            it.setQualitySelector(
-                                QualitySelector.fromOrderedList(
-                                    listOf(
-                                        UHD, // 2160P
-                                        SD, // 480P
-                                        HD, // 720P
-                                        FHD, // 1080P
-                                    )
+                    createMediaSpec(
+                        qualitySelector =
+                            QualitySelector.fromOrderedList(
+                                listOf(
+                                    UHD, // 2160P
+                                    SD, // 480P
+                                    HD, // 720P
+                                    FHD, // 1080P
                                 )
                             )
-                        }
-                        .build(),
+                    ),
                 videoCapabilities = FULL_QUALITY_VIDEO_CAPABILITIES,
             )
         val videoCapture = createVideoCapture(videoOutput)
@@ -561,14 +553,10 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo {
-                            it.setQualitySelector(
-                                QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD))
-                            )
-                            it.setAspectRatio(RATIO_4_3)
-                        }
-                        .build(),
+                    createMediaSpec(
+                        qualitySelector = QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD)),
+                        aspectRatio = RATIO_4_3,
+                    ),
                 videoCapabilities = FULL_QUALITY_VIDEO_CAPABILITIES,
             )
         val videoCapture = createVideoCapture(videoOutput)
@@ -601,14 +589,10 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo {
-                            it.setQualitySelector(
-                                QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD))
-                            )
-                            it.setAspectRatio(RATIO_16_9)
-                        }
-                        .build(),
+                    createMediaSpec(
+                        qualitySelector = QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD)),
+                        aspectRatio = RATIO_16_9,
+                    ),
                 videoCapabilities = FULL_QUALITY_VIDEO_CAPABILITIES,
             )
         val videoCapture = createVideoCapture(videoOutput)
@@ -641,14 +625,10 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo {
-                            it.setQualitySelector(
-                                QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD))
-                            )
-                            it.setAspectRatio(RATIO_4_3)
-                        }
-                        .build(),
+                    createMediaSpec(
+                        qualitySelector = QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD)),
+                        aspectRatio = RATIO_4_3,
+                    ),
                 videoCapabilities = HIGH_SPEED_FULL_QUALITY_VIDEO_CAPABILITIES,
             )
         val videoCapture = createVideoCapture(videoOutput, sessionType = SESSION_TYPE_HIGH_SPEED)
@@ -681,14 +661,10 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo {
-                            it.setQualitySelector(
-                                QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD))
-                            )
-                            it.setAspectRatio(RATIO_16_9)
-                        }
-                        .build(),
+                    createMediaSpec(
+                        qualitySelector = QualitySelector.fromOrderedList(listOf(UHD, FHD, HD, SD)),
+                        aspectRatio = RATIO_16_9,
+                    ),
                 videoCapabilities = HIGH_SPEED_FULL_QUALITY_VIDEO_CAPABILITIES,
             )
         val videoCapture = createVideoCapture(videoOutput, sessionType = SESSION_TYPE_HIGH_SPEED)
@@ -743,12 +719,10 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo {
-                            it.setQualitySelector(QualitySelector.from(HD))
-                            it.setAspectRatio(RATIO_4_3)
-                        }
-                        .build(),
+                    createMediaSpec(
+                        qualitySelector = QualitySelector.from(HD),
+                        aspectRatio = RATIO_4_3,
+                    ),
                 videoCapabilities =
                     createFakeVideoCapabilities(mapOf(DynamicRange.SDR to profileMap)),
             )
@@ -836,12 +810,10 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo {
-                            it.setQualitySelector(QualitySelector.from(HD))
-                            it.setAspectRatio(RATIO_4_3)
-                        }
-                        .build(),
+                    createMediaSpec(
+                        qualitySelector = QualitySelector.from(HD),
+                        aspectRatio = RATIO_4_3,
+                    ),
                 videoCapabilities =
                     createFakeVideoCapabilities(
                         mapOf(
@@ -932,10 +904,7 @@ class VideoCaptureTest {
         // Camera 0 support 2160P(UHD) and 720P(HD)
         val videoOutput =
             createVideoOutput(
-                mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo { it.setQualitySelector(QualitySelector.from(FHD)) }
-                        .build()
+                mediaSpec = createMediaSpec(qualitySelector = QualitySelector.from(FHD))
             )
         val videoCapture = createVideoCapture(videoOutput)
 
@@ -954,10 +923,7 @@ class VideoCaptureTest {
 
         val videoOutput =
             createVideoOutput(
-                mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo { it.setQualitySelector(QualitySelector.from(UHD)) }
-                        .build()
+                mediaSpec = createMediaSpec(qualitySelector = QualitySelector.from(UHD))
             )
         val videoCapture = createVideoCapture(videoOutput)
 
@@ -1758,9 +1724,7 @@ class VideoCaptureTest {
     @Test
     fun canSetVideoStabilization() {
         val videoCapture =
-            VideoCapture.Builder(Recorder.Builder().build())
-                .setVideoStabilizationEnabled(true)
-                .build()
+            VideoCapture.Builder(createVideoOutput()).setVideoStabilizationEnabled(true).build()
         assertThat(videoCapture.isVideoStabilizationEnabled).isTrue()
     }
 
@@ -2027,10 +1991,7 @@ class VideoCaptureTest {
             createVideoCapture(
                 videoOutput =
                     createVideoOutput(
-                        mediaSpec =
-                            MediaSpec.builder()
-                                .configureVideo { it.setQualitySelector(QualitySelector.from(FHD)) }
-                                .build()
+                        mediaSpec = createMediaSpec(qualitySelector = QualitySelector.from(FHD))
                     ),
                 customOrderedResolutions = customOrderedResolutions,
             )
@@ -2100,6 +2061,24 @@ class VideoCaptureTest {
         assertThat(sizeToMaxFpsMap[RESOLUTION_480P]).isNull()
     }
 
+    @Test
+    fun setTargetRotationByRotationProvider_rotationIsUpdated() {
+        // Arrange.
+        val videoCapture = createVideoCapture()
+        val rotationProvider = RotationProvider(context, true)
+        videoCapture.setRotationProvider(rotationProvider)
+        setupCamera()
+        createCameraUseCaseAdapter()
+        addAndAttachUseCases(videoCapture)
+
+        // Act.
+        rotationProvider.updateOrientationForTesting(180)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // Assert.
+        assertThat(videoCapture.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
     private fun testSelectedQualityIsExpected(
         streamSpecConfiguredResolution: Size,
         streamSpecResolution: Size = streamSpecConfiguredResolution,
@@ -2118,10 +2097,7 @@ class VideoCaptureTest {
         val videoOutput =
             createVideoOutput(
                 videoCapabilities = videoCapabilities,
-                mediaSpec =
-                    MediaSpec.builder()
-                        .configureVideo { it.setQualitySelector(qualitySelector) }
-                        .build(),
+                mediaSpec = createMediaSpec(qualitySelector = qualitySelector),
             )
         val videoCapture = createVideoCapture(videoOutput = videoOutput)
 
@@ -2282,7 +2258,7 @@ class VideoCaptureTest {
 
     private fun createVideoOutput(
         streamInfo: StreamInfo = createStreamInfo(),
-        mediaSpec: MediaSpec? = MediaSpec.builder().build(),
+        mediaSpec: MediaSpec? = createMediaSpec(),
         videoCapabilities: VideoCapabilities = CAMERA_0_VIDEO_CAPABILITIES,
         surfaceRequestListener: (SurfaceRequest, Timebase) -> Unit = { surfaceRequest, _ ->
             surfaceRequest.willNotProvideSurface()
@@ -2292,6 +2268,18 @@ class VideoCaptureTest {
             surfaceRequestsToRelease.add(surfaceRequest)
             surfaceRequestListener.invoke(surfaceRequest, timebase)
         }
+
+    private fun createMediaSpec(
+        qualitySelector: QualitySelector = DEFAULT_QUALITY_SELECTOR,
+        @AspectRatio.Ratio aspectRatio: Int? = null,
+    ): MediaSpec {
+        return MediaSpec.builder()
+            .configureVideo { config ->
+                config.setQualitySelector(qualitySelector)
+                aspectRatio?.let { config.setAspectRatio(it) }
+            }
+            .build()
+    }
 
     private class TestVideoOutput(
         streamInfo: StreamInfo,
@@ -2334,9 +2322,9 @@ class VideoCaptureTest {
 
         override fun isQualitySelectorDefault(): Boolean {
             val currentSelector = mediaSpec.fetchData().get()?.videoSpec?.qualitySelector
-            // For tests, both null and the Recorder-default are considered as default quality
+            // For tests, both null and the default are considered as default quality
             // selector.
-            return currentSelector == null || currentSelector == Recorder.DEFAULT_QUALITY_SELECTOR
+            return currentSelector == null || currentSelector == DEFAULT_QUALITY_SELECTOR
         }
     }
 
@@ -2600,6 +2588,12 @@ class VideoCaptureTest {
 
         private val CAMERA_0_VIDEO_CAPABILITIES =
             createFakeVideoCapabilities(mapOf(DynamicRange.SDR to CAMERA_0_PROFILES))
+
+        private val DEFAULT_QUALITY_SELECTOR =
+            QualitySelector.fromOrderedList(
+                listOf(FHD, HD, SD),
+                FallbackStrategy.higherQualityOrLowerThan(FHD),
+            )
 
         /** Create a fake VideoCapabilities. */
         private fun createFakeVideoCapabilities(

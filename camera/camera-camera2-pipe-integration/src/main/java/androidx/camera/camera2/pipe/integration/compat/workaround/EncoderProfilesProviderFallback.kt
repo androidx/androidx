@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
 import androidx.camera.core.impl.Quirks
+import androidx.camera.core.impl.SizeFilteredEncoderProfilesProvider
 import androidx.camera.core.internal.utils.SizeUtil.getArea
 
 /**

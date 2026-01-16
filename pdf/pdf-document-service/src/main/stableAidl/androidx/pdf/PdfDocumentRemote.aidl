@@ -27,16 +27,15 @@ import android.graphics.pdf.models.FormEditRecord;
 import android.graphics.pdf.models.FormWidgetInfo;
 import android.graphics.pdf.models.selection.PageSelection;
 import android.graphics.pdf.models.selection.SelectionBoundary;
+import android.graphics.PointF;
 import android.os.ParcelFileDescriptor;
+import androidx.pdf.DraftEditOperation;
+import androidx.pdf.DraftEditResult;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.annotation.models.PdfAnnotation;
-import androidx.pdf.annotation.models.AnnotationResult;
-import androidx.pdf.annotation.models.PdfAnnotationData;
-import androidx.pdf.annotation.models.EditId;
-import androidx.pdf.annotation.models.PdfEdit;
-import androidx.pdf.annotation.models.AddEditResult;
-import androidx.pdf.annotation.models.ModifyEditResult;
 import androidx.pdf.annotation.models.PaginatedAnnotations;
+import androidx.pdf.RenderParams;
+import androidx.pdf.annotation.models.PdfObject;
 
 /** Remote interface for interacting with a PDF document */
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
@@ -72,9 +71,10 @@ interface PdfDocumentRemote {
      * @param pageNum The zero-based page number to render.
      * @param width The desired width of the resulting Bitmap.
      * @param height The desired height of the resulting Bitmap.
+     * @param renderParams The set of parameters used for rendering a page bitmap.
      * @return A Bitmap representation of the specified page, or null if an error occurs.
      */
-    Bitmap getPageBitmap(int pageNum, int width, int height);
+    Bitmap getPageBitmap(int pageNum, int width, int height, in RenderParams renderParams);
 
     /**
      * Renders a tile of the specified page into a Bitmap.
@@ -89,9 +89,10 @@ interface PdfDocumentRemote {
      * @param pageHeight The height of the whole PDF page.
      * @param offsetX The horizontal offset of the tile within the page.
      * @param offsetY The vertical offset of the tile within the page.
+     * @param renderParams The set of parameters used for rendering a tile bitmap.
      * @return A Bitmap representation of the specified tile, or null if an error occurs.
      */
-    Bitmap getTileBitmap(int pageNum, int tilewidth, int tileHeight, int pageWidth, int pageHeight, int offsetX, int offsetY);
+    Bitmap getTileBitmap(int pageNum, int tilewidth, int tileHeight, int pageWidth, int pageHeight, int offsetX, int offsetY, in RenderParams renderParams);
 
     /**
      * Gets the text content of the specified page.
@@ -207,64 +208,13 @@ interface PdfDocumentRemote {
     */
     void write(in ParcelFileDescriptor destination, boolean removePasswordProtection);
 
-
-    /**
-    * Adds the annotations present in the given file to the document.
-    *
-    * @param pfd The file descriptor for the file from which annotations will be added.
-    *            The file should contain annotations intended for the currently opened PDF.
-    * @return A {@link AnnotationResult} object indicating the success or failure of the operation.
-    */
-    AnnotationResult addAnnotations(in ParcelFileDescriptor pfd);
-
-    /**
-    * Retrieves all annotations present on the specified page.
-    *
-    * @param pageNum The 0-based index of the page from which to retrieve annotations.
-    * @return A list of {@link PdfAnnotation} objects representing all annotations on the page.
-    *         Returns an empty list if there are no annotations or if the page number is invalid.
-    */
-    List<PdfAnnotation> getPageAnnotations(int pageNum);
-
-    /**
-    * Applies the given list of annotations to the document.
-    *
-    * @param annotations The list of annotations to apply.
-    * @return A {@link AnnotationResult} object indicating the success or failure of the operation.
-    */
-    AnnotationResult applyEdits(in List<PdfAnnotationData> annots);
-
-    /**
-    * Adds the given list of annotations to the document.
-    *
-    * @param annotations The list of annotations to add.
-    * @return A {@link AddEditResult} object indicating the success or failure of the operation.
-    */
-    AddEditResult addEdit(in List<PdfAnnotationData> annots);
-
-    /**
-    * Updates the given list of annotations in the document.
-    *
-    * @param annotations The list of annotations to update.
-    * @return A {@link ModifyEditResult} object indicating the success or failure of the operation.
-    */
-    ModifyEditResult updateEdit(in List<PdfAnnotationData> annots);
-
-    /**
-    * Removes the given list of annotations from the document.
-    *
-    * @param editIds The list of {@link EditId} for the annotations to remove.
-    * @return A {@link ModifyEditResult} object indicating the success or failure of the operation.
-    */
-    ModifyEditResult removeEdit(in List<EditId> editIds);
-
     /**
     * Retrieves the annotations present on the specified page in the paginated format.
     *
     * @param pageNum The 0-based index of the page from which to retrieve annotations.
     * @return Continuation token
     */
-    PaginatedAnnotations getAllPageAnnotations(int pageNum);
+    PaginatedAnnotations getPageAnnotations(int pageNum);
 
     /**
     * Retrieves the annotations present on the specified page for the specific batch.
@@ -273,5 +223,23 @@ interface PdfDocumentRemote {
     * @return Continuation token
     */
     PaginatedAnnotations getBatchedPageAnnotations(int pageNum, in int batchIndex);
+
+    /**
+    * Applies a list of draft edit operations (insert, update, remove) to the PDF document.
+    *
+    * @param operations The list of [DraftEditOperation] objects to apply.
+    * @return A [DraftEditResult] indicating the outcome of the batch operation.
+    */
+    DraftEditResult applyDraftEdits(in List<DraftEditOperation> operations);
+
+    /**
+     * Gets the topmost PDF object at a given position on a page, filtered by object types.
+     *
+     * @param point The position on the page to check, where coordinates are relative to the top-left
+     * of the page.
+     * @param types An array of integers representing the types of PDF objects to consider.
+     * @return The {@link PdfObject} found at the specified position, or null if no object is found.
+     */
+    PdfObject getTopPageObjectAtPosition( int pageNum, in PointF point, in int[] types);
 
 }

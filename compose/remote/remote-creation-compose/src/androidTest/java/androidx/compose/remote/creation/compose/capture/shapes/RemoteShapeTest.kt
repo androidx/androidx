@@ -169,8 +169,8 @@ class RemoteShapeTest {
             modifier = RemoteModifier.width(200.rdp).height(200.rdp),
         ) {
             RemoteCanvas(RemoteModifier.width(100.rdp).height(100.rdp)) {
-                val w = remote.component.width
-                val h = remote.component.height
+                val w = remoteWidth
+                val h = remoteHeight
                 val size = RemoteSize(w, h)
                 val paint = RemotePaint().apply { color = Color.RED }
                 with(shape.createOutline(size, layoutDirection)) { drawOutline(paint) }

@@ -20,22 +20,13 @@ import android.os.Bundle
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.PrimitiveKind
-import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-
-const val PATH_SERIAL_NAME = "www.test.com"
 
 @RunWith(JUnit4::class)
 class RouteFilledTest {
@@ -875,61 +866,7 @@ private fun <T : Any> assertThatRouteFilledFrom(
     return generateRouteWithArgs(obj, typeMap)
 }
 
-internal fun String.isEqualTo(other: String) {
-    assertThat(this).isEqualTo(other)
-}
-
-@Serializable
-@SerialName(PATH_SERIAL_NAME)
-private class ClassWithCompanionObject(val arg: Int) {
-    companion object TestObject
-}
-
-@Serializable
-@SerialName(PATH_SERIAL_NAME)
-private class ClassWithCompanionParam(val arg: Int) {
-    companion object {
-        val companionVal: String = "hello"
-    }
-}
-
-@Serializable @SerialName(PATH_SERIAL_NAME) internal object TestObject
-
-@Serializable
-@SerialName(PATH_SERIAL_NAME)
-internal object TestObjectWithArg {
-    val arg: Int = 0
-}
-
-@Serializable
-private sealed class SealedClass {
-    abstract val arg: Int
-
-    @Serializable
-    @SerialName(PATH_SERIAL_NAME)
-    // same value for arg and arg2
-    class TestClass(val arg2: Int) : SealedClass() {
-        override val arg: Int
-            get() = arg2
-    }
-}
-
 @JvmInline @Serializable @SerialName(PATH_SERIAL_NAME) value class TestValueClass(val arg: Int)
-
-private class CustomSerializerClass(val longArg: Long)
-
-private class CustomSerializer : KSerializer<CustomSerializerClass> {
-    override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("Date", PrimitiveKind.LONG)
-
-    override fun serialize(encoder: Encoder, value: CustomSerializerClass) =
-        encoder.encodeLong(value.longArg)
-
-    override fun deserialize(decoder: Decoder): CustomSerializerClass =
-        CustomSerializerClass(decoder.decodeLong())
-}
-
-private interface TestInterface
 
 private fun nullableIntArgument(name: String, hasDefaultValue: Boolean = false) =
     navArgument(name) {

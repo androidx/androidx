@@ -16,20 +16,19 @@
 
 package androidx.compose.lint
 
-import com.intellij.lang.java.JavaLanguage
 import com.intellij.psi.PsiMethod
-import com.intellij.psi.PsiParameter
 import com.intellij.psi.PsiType
-import com.intellij.psi.impl.compiled.ClsParameterImpl
-import com.intellij.psi.impl.light.LightParameter
-import kotlin.metadata.jvm.annotations
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.annotations.KaAnnotated
+import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
+import org.jetbrains.kotlin.analysis.api.symbols.KaNamedFunctionSymbol
 import org.jetbrains.kotlin.psi.KtAnnotated
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtFunction
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.kotlin.psi.KtTypeReference
-import org.jetbrains.kotlin.psi.psiUtil.getParentOfType
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UAnonymousClass
 import org.jetbrains.uast.UCallExpression
@@ -38,12 +37,10 @@ import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.ULambdaExpression
 import org.jetbrains.uast.UMethod
-import org.jetbrains.uast.UParameter
 import org.jetbrains.uast.UTypeReferenceExpression
 import org.jetbrains.uast.UVariable
 import org.jetbrains.uast.getContainingDeclaration
 import org.jetbrains.uast.getContainingUClass
-import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.toUElement
 import org.jetbrains.uast.toUElementOfType
 import org.jetbrains.uast.withContainingElements
@@ -125,41 +122,9 @@ val UVariable.isComposable: Boolean
         return annotationOnLambda || annotationOnType
     }
 
-/** Returns whether this parameter's type is @Composable or not */
-private val PsiParameter.isComposable: Boolean
-    get() =
-        when {
-            // The parameter is in a class file. Currently type annotations aren't currently added
-            // to
-            // the underlying type (https://youtrack.jetbrains.com/issue/KT-45307), so instead we
-            // use
-            // the metadata annotation.
-            this is ClsParameterImpl ||
-                // In some cases when a method is defined in bytecode and the call fails to resolve
-                // to the ClsMethodImpl, we will instead get a LightParameter. Note that some Kotlin
-                // declarations too will also appear as a LightParameter, so we can check to see if
-                // the source language is Java, which means that this is a LightParameter for
-                // bytecode, as opposed to for a Kotlin declaration.
-                // https://youtrack.jetbrains.com/issue/KT-46883
-                (this is LightParameter && this.language is JavaLanguage) -> {
-                // Find the containing method, so we can get metadata from the containing class
-                val containingMethod = getParentOfType<PsiMethod>(true)
-                val kmFunction = containingMethod!!.toKmFunction()
-
-                val kmValueParameter = kmFunction?.valueParameters?.find { it.name == name }
-
-                kmValueParameter?.type?.annotations?.find {
-                    it.className == Names.Runtime.Composable.kmClassName
-                } != null
-            }
-            else -> {
-                // In case of reified inline function from binary, UAST creates a fake PSI
-                // where the associated [PsiType] has annotations if any.
-                type.hasComposableAnnotation ||
-                    // The parameter might be in a source declaration
-                    (toUElement() as? UParameter)?.typeReference?.isComposable == true
-            }
-        }
+/** Returns whether this annotated type or declaration is marked with @Composable or not */
+val KaAnnotated.isComposable
+    get() = annotations.any { annotation -> annotation.classId == Names.Runtime.Composable.classId }
 
 /** Returns whether this lambda expression is @Composable or not */
 val ULambdaExpression.isComposable: Boolean
@@ -167,8 +132,15 @@ val ULambdaExpression.isComposable: Boolean
         when (val lambdaParent = uastParent) {
             // Function call with a lambda parameter
             is UCallExpression -> {
-                val parameter = lambdaParent.getParameterForArgument(this)
-                parameter?.isComposable == true
+                val enclosingCallSource =
+                    lambdaParent.sourcePsi as? KtCallExpression ?: return false
+                val lambdaSource = sourcePsi
+                analyze(enclosingCallSource) {
+                    val functionCall =
+                        enclosingCallSource.resolveToCall()?.singleFunctionCallOrNull()
+                    val lambdaParameterSymbol = functionCall?.argumentMapping[lambdaSource]
+                    lambdaParameterSymbol?.symbol?.returnType?.isComposable == true
+                }
             }
             // A local / non-local lambda variable
             is UVariable -> {
@@ -234,16 +206,36 @@ private class ComposableBodyVisitor(private val expression: UExpression) {
         for (element in expression.withContainingElements) {
             elements += element
             when (element) {
-                // TODO: consider handling the case of a lambda inside an inline function call,
-                //  such as `apply` or `forEach`. These calls don't really change the
-                //  'composability' here, but there may be other inline function calls that
-                //  capture the lambda and invoke it elsewhere, so we might need to look for
-                //  a callsInPlace contract in the metadata for the function, or the body of the
-                //  source definition.
-                is ULambdaExpression -> break
-                is UMethod -> break
                 // Stop when we reach the parent declaration to avoid escaping the scope.
                 boundaryUElement -> break
+                is ULambdaExpression -> {
+                    // Calls to inline functions (with inlined lambdas) don't affect the
+                    // composability / do not count as a boundary to determine composability. We
+                    // ignore calls to @Composable inline functions, as this will catch functions
+                    // such as `remember` which although inline, do change the semantics of the code
+                    // inside. We could instead check for the presence of
+                    // `@DisallowComposableCalls`, but this will not be commonly used by external
+                    // library code, so checking for @Composable is safer.
+                    // We ignore noinline and crossinline lambdas, as these can be executed in a
+                    // different context - this is the same behavior as the compose compiler, which
+                    // disallows composable calls inside noinline and crossinline lambda parameters.
+                    // We could additionally check for the presence of:
+                    // ```
+                    // contract {
+                    //     callsInPlace(...)
+                    // }
+                    // ```
+                    // to ensure that these lambdas are being called in place, but kotlin
+                    // contracts are experimental, and are not consistently used in library
+                    // code. Ignoring noinline and crossinline should be enough to avoid false
+                    // positives.
+                    if (element.couldBecomeComposableLambdaViaInlining()) {
+                        // Do not treat inlined lambdas as a boundary, continue upwards
+                    } else {
+                        break
+                    }
+                }
+                is UMethod -> break
             }
         }
         elements
@@ -303,3 +295,42 @@ fun isReallyRememberingUnit(node: UCallExpression, method: PsiMethod): Boolean =
         }
         else -> true
     }
+
+/**
+ * @return `true` if this lambda expression is passed as a parameter to a non-Composable inline
+ *   function, and the corresponding lambda parameter is _not_ marked `noinline` or `crossinline`.
+ *
+ * For example:
+ *
+ * inline fun foo(block: () -> Unit) {} => true
+ *
+ * inline fun foo(crossinline block: () -> Unit) {} => false
+ *
+ * inline fun foo(noinline block: () -> Unit) {} => false
+ *
+ * @Composable inline fun foo(block: () -> Unit) {} => false
+ *
+ * fun foo(block: () -> Unit) {} => false
+ */
+private fun ULambdaExpression.couldBecomeComposableLambdaViaInlining(): Boolean {
+    val callExpression = uastParent as? UCallExpression
+    val ktCallExpression = callExpression?.sourcePsi as? KtCallExpression
+
+    // null if this is a lambda variable
+    if (ktCallExpression != null) {
+        analyze(ktCallExpression) {
+            ktCallExpression.resolveToCall()?.singleFunctionCallOrNull()?.let { functionCall ->
+                (functionCall.symbol as? KaNamedFunctionSymbol)?.let { functionSymbol ->
+                    val lambdaParameterSymbol = functionCall.argumentMapping[sourcePsi]
+                    val isNoinline = lambdaParameterSymbol?.symbol?.isNoinline == true
+                    val isCrossinline = lambdaParameterSymbol?.symbol?.isCrossinline == true
+                    return !functionSymbol.isComposable &&
+                        functionSymbol.isInline &&
+                        !isNoinline &&
+                        !isCrossinline
+                }
+            }
+        }
+    }
+    return false
+}

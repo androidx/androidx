@@ -89,7 +89,6 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 
     private var config: UseCaseCameraConfig =
         UseCaseCameraConfig.create(
-            useCases = emptyList(),
             cameraGraphConfigProvider = configProvider,
             cameraGraphFactory = { _ -> cameraGraph },
             graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
@@ -157,12 +156,12 @@ open class FakeUseCaseCameraRequestControl(
         return addParameterResult
     }
 
-    override fun setParametersAsync(
-        valuesFactory: () -> Map<CaptureRequest.Key<*>, Any>,
+    override fun submitParameters(
+        values: Map<CaptureRequest.Key<*>, Any>,
         type: UseCaseCameraRequestControl.Type,
         optionPriority: Config.OptionPriority,
     ): Deferred<Unit> {
-        addParameterCalls.add(valuesFactory())
+        addParameterCalls.add(values)
         return addParameterResult
     }
 

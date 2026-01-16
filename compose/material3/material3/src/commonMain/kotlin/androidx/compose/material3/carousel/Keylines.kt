@@ -277,7 +277,7 @@ internal fun heroKeylineList(
     return if (shouldCenter && itemCount >= arrangement.itemCount()) {
         // When centered and when there are enough items to fill all keyline positions, create
         // a centered arrangement.
-        return createCenterAlignedKeylineList(
+        createCenterAlignedKeylineList(
             carouselMainAxisSize = carouselMainAxisSize,
             itemSpacing = itemSpacing,
             rightAnchorSize = anchorSize,

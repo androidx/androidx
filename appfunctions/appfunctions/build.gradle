@@ -79,7 +79,7 @@ kapt {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.appfunctions"
 }

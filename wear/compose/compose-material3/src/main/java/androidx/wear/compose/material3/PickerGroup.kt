@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrNull
+import androidx.compose.ui.util.fastSumBy
 import androidx.wear.compose.foundation.hierarchicalFocusGroup
 import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
 import kotlin.math.roundToInt
@@ -296,7 +297,7 @@ private fun computeDefaultCenteringOffset(placeables: List<Placeable>, autoCente
         placeables.first().width / 2
     } else {
         // Fallback to centering the whole group.
-        placeables.sumOf { it.width } / 2
+        placeables.fastSumBy { it.width } / 2
     }
 }
 

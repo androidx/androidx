@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.fastSumBy
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemAnimator
@@ -150,7 +151,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                         return it
                 }
 
-                return minBy { abs(it.offset + it.transformedHeight / 2 - maxHeight / 2) }
+                return fastMinByOrNull { abs(it.offset + it.transformedHeight / 2 - maxHeight / 2) }
             }
 
         /**

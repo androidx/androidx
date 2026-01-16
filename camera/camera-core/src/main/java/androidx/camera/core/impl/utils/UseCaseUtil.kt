@@ -16,7 +16,10 @@
 
 package androidx.camera.core.impl.utils
 
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.Logger
+import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.UseCaseConfigFactory
@@ -112,4 +115,43 @@ public object UseCaseUtil {
 
         return videoStabilizationMode
     }
+
+    /**
+     * Finds and returns the [androidx.camera.video.VideoCapture] in the given [UseCase] list.
+     *
+     * @return a UseCase type instance for the VideoCapture when it is found. Returns UseCase
+     *   because VideoCapture is not visible in the core module.. Returns `null` when VideoCapture
+     *   can't be found.
+     */
+    @JvmStatic
+    public fun Collection<UseCase>.findVideoCapture(): UseCase? = firstOrNull {
+        it.isVideoCapture()
+    }
+
+    /**
+     * Finds and returns the [Preview] in the given UseCase list.
+     *
+     * @return a [Preview] instance if it can be found. Otherwise, return `null`.
+     */
+    @JvmStatic
+    public fun Collection<UseCase>.findPreview(): Preview? =
+        firstOrNull { it is Preview } as? Preview
+
+    /**
+     * Finds and returns the [ImageCapture] in the given UseCase list.
+     *
+     * @return a [ImageCapture] instance if it can be found. Otherwise, return `null`.
+     */
+    @JvmStatic
+    public fun Collection<UseCase>.findImageCapture(): ImageCapture? =
+        firstOrNull { it is ImageCapture } as? ImageCapture
+
+    /**
+     * Finds and returns the [ImageAnalysis] in the given UseCase list.
+     *
+     * @return a [ImageAnalysis] instance if it can be found. Otherwise, return `null`.
+     */
+    @JvmStatic
+    public fun Collection<UseCase>.findImageAnalysis(): ImageAnalysis? =
+        firstOrNull { it is ImageAnalysis } as? ImageAnalysis
 }

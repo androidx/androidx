@@ -27,6 +27,7 @@ import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.AR
 import static androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption.SLIDE_PARENT_SNAP_TO_INSIDE;
 import static androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption.SLIDE_PARENT_SNAP_TO_OUTSIDE;
 import static androidx.wear.protolayout.renderer.R.id.clickable_id_tag;
+import static androidx.wear.protolayout.renderer.R.id.element_metadata_tag;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arc;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arcText;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.box;
@@ -230,7 +231,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 import org.junit.After;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -715,6 +715,84 @@ public class ProtoLayoutInflaterTest {
         expect.that(info.getClassName().toString()).contains("android.widget.Switch");
         expect.that(info.isImportantForAccessibility()).isTrue();
         assertThat(switchView.isImportantForAccessibility()).isTrue();
+    }
+
+    @Test
+    public void inflate_box_withMetadataModifier() {
+        byte[] tagData = new byte[]{1, 2, 3};
+        Modifiers modifiers =
+                Modifiers.newBuilder()
+                        .setMetadata(
+                                ModifiersProto.ElementMetadata.newBuilder()
+                                        .setTagData(ByteString.copyFrom(tagData)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setModifiers(modifiers)
+                                        .setWidth(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10)))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        assertThat((byte[]) box.getTag(element_metadata_tag)).isEqualTo(tagData);
+    }
+
+    @Test
+    public void inflate_box_withMetadataModifier_emptyTagData() {
+        Modifiers modifiers =
+                Modifiers.newBuilder()
+                        .setMetadata(ModifiersProto.ElementMetadata.newBuilder().setTagData(
+                                ByteString.EMPTY))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setModifiers(modifiers)
+                                        .setWidth(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10)))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        assertThat(box.getTag(element_metadata_tag)).isNull();
+    }
+
+    @Test
+    public void inflate_box_withoutMetadataModifier() {
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setModifiers(Modifiers.getDefaultInstance())
+                                        .setWidth(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10)))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        assertThat(box.getTag(element_metadata_tag)).isNull();
     }
 
     @Test
@@ -4768,44 +4846,6 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
-    @Ignore("b/262537912")
-    public void viewChangesWhileComputingMutation_applyMutationFails() throws Exception {
-        Layout layout1 =
-                layout(
-                        arc( // 1
-                                arcText("Hello"), // 1.1
-                                arcText("World") // 1.2
-                                ));
-        Layout layout2 =
-                layout(
-                        arc( // 1
-                                props -> props.anchorAngleDegrees = 35,
-                                arcText("Hello"), // 1.1
-                                arcText("World") // 1.2
-                                ));
-        Layout layout3 =
-                layout(
-                        arc( // 1
-                                arcText("Hello") // 1.1
-                                ));
-        // Check the premutation layout
-        Renderer renderer = renderer(layout1);
-        ViewGroup inflatedViewParent1 = renderer.inflate();
-        // Compute the mutation
-        ViewGroupMutation mutation2 =
-                renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout2, ViewProperties.EMPTY);
-        ViewGroupMutation mutation3 =
-                renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout3, ViewProperties.EMPTY);
-
-        renderer.mRenderer.applyMutation(inflatedViewParent1, mutation3).get();
-        assertThrows(
-                ViewMutationException.class,
-                () -> renderer.mRenderer.applyMutation(inflatedViewParent1, mutation2).get());
-    }
-
-    @Test
     public void inflateArcThenMutate_withDifferentNumberOfChildren_causesUpdate() {
         Layout layout1 =
                 layout(
@@ -5659,37 +5699,6 @@ public class ProtoLayoutInflaterTest {
         assertThat(box.getRotation()).isEqualTo(0);
         assertThat(box.getScaleX()).isEqualTo(1);
         assertThat(box.getScaleY()).isEqualTo(1);
-    }
-
-    // TODO(b/342379311): reenable the test when robolectric returns the correct default location.
-    @Ignore // b/342225240
-    @Test
-    public void inflate_box_withPivotTransformationModifier_noValidPivot_defaultToCenter() {
-        // PivotDimension without offSetDp nor locationRation
-        PivotDimension pivotDimension = PivotDimension.newBuilder().build();
-        ModifiersProto.Transformation transformation =
-                ModifiersProto.Transformation.newBuilder().setPivotX(pivotDimension).build();
-        ContainerDimension boxWidth =
-                ContainerDimension.newBuilder().setLinearDimension(dp(100.f).build()).build();
-        ContainerDimension boxHeight =
-                ContainerDimension.newBuilder().setLinearDimension(dp(120.f).build()).build();
-        LayoutElement root =
-                LayoutElement.newBuilder()
-                        .setBox(
-                                Box.newBuilder()
-                                        .setWidth(boxWidth)
-                                        .setHeight(boxHeight)
-                                        .setModifiers(
-                                                Modifiers.newBuilder()
-                                                        .setTransformation(transformation)
-                                                        .build()))
-                        .build();
-
-        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
-        assertThat(rootLayout.getChildCount()).isEqualTo(1);
-        View box = rootLayout.getChildAt(0);
-        assertThat(box.getPivotX()).isEqualTo(boxWidth.getLinearDimension().getValue() * 0.5f);
-        assertThat(box.getPivotY()).isEqualTo(boxHeight.getLinearDimension().getValue() * 0.5f);
     }
 
     @Test

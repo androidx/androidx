@@ -25,7 +25,7 @@
     <string name="grant_access_action_title" msgid="4033140828804350723">"اعطای دسترسی"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"فعال کردن مکان"</string>
     <string name="cancel_action_title" msgid="1149738685397349236">"لغو"</string>
-    <string name="stop_action_title" msgid="1187619482795416314">"توقف"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"ایست"</string>
     <string name="more_action_title" msgid="1039516575011403837">"بیشتر"</string>
     <string name="call_action_title" msgid="6218977436905001611">"تماس"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"اصلی"</string>

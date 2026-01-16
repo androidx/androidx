@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
+import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -41,7 +42,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @Composable
 @RemoteComposable
 fun RemoteTextButtonEnabled() {
-    RemoteTextButton(enabled = true.rb) { RemoteText("ABC".rs) }
+    RemoteTextButton(testAction, enabled = true.rb) { RemoteText("ABC".rs) }
 }
 
 @WearPreviewDevices
@@ -53,7 +54,9 @@ private fun RemoteTextButtonEnabledPreview(
 @Composable
 @RemoteComposable
 fun RemoteTextButtonTonal() {
-    RemoteTextButton(enabled = true.rb, colors = filledTonalColor()) { RemoteText("ABC".rs) }
+    RemoteTextButton(testAction, enabled = true.rb, colors = filledTonalColor()) {
+        RemoteText("ABC".rs)
+    }
 }
 
 @WearPreviewDevices
@@ -66,6 +69,7 @@ private fun RemoteTextButtonTonalPreview(
 @RemoteComposable
 fun RemoteTextButtonOutline() {
     RemoteTextButton(
+        testAction,
         border = 1.rdp,
         borderColor = RemoteMaterialTheme.colorScheme.outline,
         enabled = true.rb,
@@ -114,3 +118,5 @@ private fun Container(
         content = content,
     )
 }
+
+private val testAction = HostAction("testAction".rs, 1.rf)

@@ -194,6 +194,29 @@ class ProjectedDeviceLifecycleTest {
         assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
     }
 
+    @Test
+    fun onProjectedDeviceStateChanged_onDestroyedEventReceived_stateChangesToDestroyed() =
+        runBlocking {
+            val projectedDeviceLifecycle =
+                ProjectedDeviceLifecycle(lifecycleOwner, context, testDispatcher)
+            projectedDeviceLifecycle.addObserver(lifecycleObserver)
+            testScheduler.advanceUntilIdle()
+
+            verify(mockProjectedService)
+                .registerProjectedDeviceStateListener(deviceStateListenerArgumentCaptor.capture())
+            check(projectedDeviceLifecycle.currentState == Lifecycle.State.CREATED)
+
+            deviceStateListenerArgumentCaptor.firstValue.onProjectedDeviceStateChanged(
+                ProjectedDeviceState.DESTROYED,
+                /* data= */ null,
+            )
+            testScheduler.advanceUntilIdle()
+            verify(lifecycleObserver)
+                .onStateChanged(eq(lifecycleOwner), eq(Lifecycle.Event.ON_DESTROY))
+            assertThat(projectedDeviceLifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+            verify(mockProjectedService).unregisterProjectedDeviceStateListener(any())
+        }
+
     companion object {
         private const val ACTION_BIND = "androidx.xr.projected.ACTION_BIND"
         private const val SYSTEM_PACKAGE_NAME = "com.system.service"

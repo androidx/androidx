@@ -34,8 +34,8 @@ import java.util.Set;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BindingsResourceManager {
-    private final String mTAG = getClass().getSimpleName();
     private static final String RESOURCE_MANAGER_THREAD = "resource_manager_thread";
+    private final String mTAG = getClass().getSimpleName();
     private final Handler mMainThreadHandler;
     private final ReferenceQueue<Object> mQueue = new ReferenceQueue<>();
     private final Set<BindingsObjectPhantomReference> mPhantomReferences =

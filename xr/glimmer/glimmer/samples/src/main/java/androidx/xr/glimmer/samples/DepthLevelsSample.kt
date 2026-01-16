@@ -18,9 +18,7 @@ package androidx.xr.glimmer.samples
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -42,8 +40,6 @@ fun DepthLevelsSample() {
     val depthLevels = GlimmerTheme.depthLevels
     VerticalList(
         modifier = Modifier.fillMaxWidth().wrapContentSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item { DepthItem("level 1", depth = depthLevels.level1) }

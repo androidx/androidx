@@ -358,16 +358,22 @@ class RecomposerTests {
 
         // Register the apply observer after changing state to invalidate composition, but
         // before actually allowing the recomposition to happen.
-        Snapshot.registerApplyObserver { applied, _ -> applications += applied }
-        assertTrue(applications.isEmpty())
+        val observerHandle =
+            Snapshot.registerApplyObserver { applied, _ -> applications += applied }
 
-        assertEquals(1, advanceCount())
+        try {
+            assertTrue(applications.isEmpty())
 
-        // Make sure we actually recomposed.
-        assertEquals(2, recompositions)
+            assertEquals(1, advanceCount())
 
-        // The Recomposer should have received notification for the node's state.
-        assertContentEquals(listOf(setOf(countFromEffect)), applications)
+            // Make sure we actually recomposed.
+            assertEquals(2, recompositions)
+
+            // The Recomposer should have received notification for the node's state.
+            assertContentEquals(listOf(setOf(countFromEffect)), applications)
+        } finally {
+            observerHandle.dispose()
+        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)

@@ -29,7 +29,6 @@ import com.google.common.util.concurrent.ListenableFuture
 import org.mockito.Mockito.mock
 
 /** Fake [ImagePipeline] class for testing. */
-@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 class FakeImagePipeline(
     config: ImageCaptureConfig,
     cameraSurfaceSize: Size,
@@ -57,7 +56,7 @@ class FakeImagePipeline(
         )
 
     @MainThread
-    internal override fun createRequests(
+    override fun createRequests(
         request: TakePictureRequest,
         callback: TakePictureCallback,
         captureFuture: ListenableFuture<Void>,

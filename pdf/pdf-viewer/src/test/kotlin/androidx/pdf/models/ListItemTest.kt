@@ -34,7 +34,7 @@ class ListItemTest {
         val listItem = ListItem(label, selected)
 
         assertEquals(label, listItem.label)
-        assertEquals(selected, listItem.selected)
+        assertEquals(selected, listItem.isSelected)
     }
 
     @Test
@@ -123,7 +123,7 @@ class ListItemTest {
         val createdListItem = ListItem.CREATOR.createFromParcel(parcel)
 
         assertEquals("", createdListItem.label)
-        assertEquals(true, createdListItem.selected)
+        assertEquals(true, createdListItem.isSelected)
         parcel.recycle()
     }
 

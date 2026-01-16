@@ -17,15 +17,11 @@
 
 package androidx.compose.remote.creation.compose.shapes
 
-import android.graphics.Rect
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemotePath
-import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
-import androidx.compose.remote.creation.compose.layout.conicTo
-import androidx.compose.remote.creation.compose.layout.lineTo
-import androidx.compose.remote.creation.compose.layout.moveTo
-import androidx.compose.remote.creation.compose.layout.remoteComponentHeight
-import androidx.compose.remote.creation.compose.layout.remoteComponentWidth
+import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
@@ -42,23 +38,24 @@ public sealed class RemoteOutline {
 
     /** Rectangular area. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public class Rectangle(public val rect: Rect) : RemoteOutline() {
+    public class Rectangle(public val topLeft: RemoteOffset, public val size: RemoteSize) :
+        RemoteOutline() {
         override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
-            canvas.drawRect(rect, paint)
+            drawRect(paint, topLeft, size)
         }
     }
 
     /** Rectangular area with rounded corners. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Rounded(
-        private val topStart: RemoteFloat,
-        private val topEnd: RemoteFloat,
-        private val bottomEnd: RemoteFloat,
-        private val bottomStart: RemoteFloat,
+        internal val topStart: RemoteFloat,
+        internal val topEnd: RemoteFloat,
+        internal val bottomEnd: RemoteFloat,
+        internal val bottomStart: RemoteFloat,
     ) : RemoteOutline() {
         override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
-            val w = remoteComponentWidth(canvas.creationState)
-            val h = remoteComponentHeight(canvas.creationState)
+            val w = remoteWidth
+            val h = remoteHeight
             // Remap corner radii based on layout direction
             val topLeft: RemoteFloat
             val topRight: RemoteFloat
@@ -84,39 +81,51 @@ public sealed class RemoteOutline {
             val circularArcWeight = 0.7071f.rf // Weight for a 90-degree circular arc
 
             // 1. Move to top edge
-            path.moveTo(topLeft, 0f.rf)
+            path.moveTo(topLeft.floatId, 0f.rf.floatId)
 
             // 2. Top Line & Top-Right Corner
-            path.lineTo(w - topRight, 0f.rf)
-            path.conicTo(x1 = w, y1 = 0f.rf, x2 = w, y2 = topRight, weight = circularArcWeight)
+            path.lineTo((w - topRight).floatId, 0f.rf.floatId)
+            path.conicTo(
+                x1 = w.floatId,
+                y1 = 0f.rf.floatId,
+                x2 = w.floatId,
+                y2 = topRight.floatId,
+                weight = circularArcWeight.floatId,
+            )
 
             // 3. Right Line & Bottom-Right Corner
-            path.lineTo(w, h - bottomRight)
-            path.conicTo(x1 = w, y1 = h, x2 = w - bottomRight, y2 = h, weight = circularArcWeight)
+            path.lineTo(w.floatId, (h - bottomRight).floatId)
+            path.conicTo(
+                x1 = w.floatId,
+                y1 = h.floatId,
+                x2 = (w - bottomRight).floatId,
+                y2 = h.floatId,
+                weight = circularArcWeight.floatId,
+            )
 
             // 4. Bottom Line & Bottom-Left Corner
-            path.lineTo(bottomLeft, h)
+            path.lineTo(bottomLeft.floatId, h.floatId)
             path.conicTo(
-                x1 = 0f.rf,
-                y1 = h,
-                x2 = 0f.rf,
-                y2 = h - bottomLeft,
-                weight = circularArcWeight,
+                x1 = 0f.rf.floatId,
+                y1 = h.floatId,
+                x2 = 0f.rf.floatId,
+                y2 = (h - bottomLeft).floatId,
+                weight = circularArcWeight.floatId,
             )
 
             // 5. Start Line & Top-Left Corner
-            path.lineTo(0f.rf, topLeft)
+            path.lineTo(0f.rf.floatId, topLeft.floatId)
             path.conicTo(
-                x1 = 0f.rf,
-                y1 = 0f.rf,
-                x2 = topLeft,
-                y2 = 0f.rf,
-                weight = circularArcWeight,
+                x1 = 0f.rf.floatId,
+                y1 = 0f.rf.floatId,
+                x2 = topLeft.floatId,
+                y2 = 0f.rf.floatId,
+                weight = circularArcWeight.floatId,
             )
 
             // 6. Close the path
             path.close()
-            canvas.drawRPath(path, paint)
+            drawPath(path, paint)
         }
     }
 
@@ -124,7 +133,7 @@ public sealed class RemoteOutline {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Generic(public val path: RemotePath) : RemoteOutline() {
         override fun RemoteDrawScope.drawOutline(paint: RemotePaint) {
-            canvas.drawRPath(path, paint)
+            drawPath(path, paint)
         }
     }
 

@@ -30,16 +30,9 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-private val referenceColor =
-    RemoteColor.fromARGB(
-        RemoteFloat(0.1f),
-        RemoteFloat(0.25f),
-        RemoteFloat(0.5f),
-        RemoteFloat(0.75f),
-    )
+private val referenceColor = RemoteColor.fromARGB(0.1f.rf, 0.25f.rf, 0.5f.rf, 0.75f.rf)
 
-private val referenceHsvColor =
-    RemoteColor.fromHSV(RemoteFloat(0.75f), RemoteFloat(0.5f), RemoteFloat(0.25f))
+private val referenceHsvColor = RemoteColor.fromHSV(0.75f.rf, 0.5f.rf, 0.25f.rf)
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
@@ -54,9 +47,9 @@ class RemoteColorTest {
 
     @Test
     fun fromHSV() {
-        val h = RemoteFloat(0.75f)
-        val s = RemoteFloat(0.5f)
-        val v = RemoteFloat(0.25f)
+        val h = 0.75f.rf
+        val s = 0.5f.rf
+        val v = 0.25f.rf
         val result = RemoteColor.fromHSV(h, s, v)
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -72,9 +65,9 @@ class RemoteColorTest {
 
     @Test
     fun fromAHSV() {
-        val h = RemoteFloat(0.75f)
-        val s = RemoteFloat(0.5f)
-        val v = RemoteFloat(0.25f)
+        val h = 0.75f.rf
+        val s = 0.5f.rf
+        val v = 0.25f.rf
         val result = RemoteColor.fromAHSV(127, h, s, v)
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -90,10 +83,10 @@ class RemoteColorTest {
 
     @Test
     fun fromARGB() {
-        val a = RemoteFloat(1f)
-        val r = RemoteFloat(0.75f)
-        val g = RemoteFloat(0.5f)
-        val b = RemoteFloat(0.25f)
+        val a = 1f.rf
+        val r = 0.75f.rf
+        val g = 0.5f.rf
+        val b = 0.25f.rf
         val result = RemoteColor.fromARGB(a, r, g, b)
         val resultId = result.getIdForCreationState(creationState)
         makeAndPaintCoreDocument()
@@ -187,10 +180,10 @@ class RemoteColorTest {
         val red =
             RemoteColor(
                 constantValue = null,
-                RemoteFloat(Color.alpha(color).toFloat() / 255f),
-                RemoteFloat(Color.red(color).toFloat() / 255f),
-                RemoteFloat(Color.green(color).toFloat() / 255f),
-                RemoteFloat(Color.blue(color).toFloat() / 255f),
+                alpha = RemoteFloat(Color.alpha(color).toFloat() / 255f),
+                red = RemoteFloat(Color.red(color).toFloat() / 255f),
+                green = RemoteFloat(Color.green(color).toFloat() / 255f),
+                blue = RemoteFloat(Color.blue(color).toFloat() / 255f),
             ) { creationState ->
                 // This should only be created once
                 redCreated++

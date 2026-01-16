@@ -25,9 +25,6 @@ import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.runtime.changelist.ChangeList
-import androidx.compose.runtime.changelist.ComposerChangeListWriter
-import androidx.compose.runtime.changelist.FixupList
 import androidx.compose.runtime.collection.MultiValueMap
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.composer.gapbuffer.Anchor
@@ -35,6 +32,9 @@ import androidx.compose.runtime.composer.gapbuffer.KeyInfo
 import androidx.compose.runtime.composer.gapbuffer.SlotReader
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
+import androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList
+import androidx.compose.runtime.composer.gapbuffer.changelist.ComposerChangeListWriter
+import androidx.compose.runtime.composer.gapbuffer.changelist.FixupList
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.invokeComposable
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
@@ -54,7 +54,6 @@ import androidx.compose.runtime.tooling.buildTrace
 import androidx.compose.runtime.tooling.findLocation
 import androidx.compose.runtime.tooling.findSubcompositionContextGroup
 import androidx.compose.runtime.tooling.traceForGroup
-import kotlin.collections.plus
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.jvm.JvmInline
@@ -254,7 +253,7 @@ internal class GapComposer(
     private var childrenComposing: Int = 0
     private var compositionToken: Int = 0
 
-    private var sourceMarkersEnabled =
+    internal var sourceMarkersEnabled =
         parentContext.collectingSourceInformation || parentContext.collectingCallByInformation
 
     private val derivedStateObserver =
@@ -2294,16 +2293,18 @@ internal class GapComposer(
     override fun insertMovableContentReferences(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
-        var completed = false
-        try {
-            insertMovableContentGuarded(references)
-            completed = true
-        } finally {
-            if (completed) {
-                cleanUpCompose()
-            } else {
-                // if we finished with error, cleanup more aggressively
-                abortRoot()
+        trace("Compose:insertMovableContent") {
+            var completed = false
+            try {
+                insertMovableContentGuarded(references)
+                completed = true
+            } finally {
+                if (completed) {
+                    cleanUpCompose()
+                } else {
+                    // if we finished with error, cleanup more aggressively
+                    abortRoot()
+                }
             }
         }
     }
@@ -2503,7 +2504,7 @@ internal class GapComposer(
                     stackTraceForGroup(groupIndex, dataIndex) + parentStackTrace()
                 } ?: emptyList()
 
-        return ComposeStackTrace(stackTrace)
+        return ComposeStackTrace(stackTrace, sourceMarkersEnabled)
     }
 
     @OptIn(ComposeToolingApi::class)
@@ -2514,7 +2515,8 @@ internal class GapComposer(
                     addAll(writer.buildTrace())
                     addAll(reader.buildTrace())
                     addAll(parentStackTrace())
-                }
+                },
+                sourceMarkersEnabled,
             )
         } else {
             null

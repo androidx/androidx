@@ -137,20 +137,15 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
         // Message embedded in the autofix reminding the developer to implement a fallback.
         private const val TODO_FALLBACK_MESSAGE = "Implement fallback behavior"
 
+        private const val CHECKS_FLAG_ANNOTATION = "androidx.annotation.ChecksFlag"
         private const val COMPAT_FLAGS_CLASS = "androidx.core.flagging.Flags"
         private const val COMPAT_FLAGS_COMPANION_CLASS = "androidx.core.flagging.Flags.Companion"
-        private const val CHECKS_ACONFIG_FLAG_ANNOTATION = "androidx.annotation.ChecksAconfigFlag"
-        private const val REQUIRES_ACONFIG_FLAG_ANNOTATION =
-            "androidx.annotation.RequiresAconfigFlag"
         private const val FLAGGED_API_ANNOTATION = "android.annotation.FlaggedApi"
+        private const val REQUIRES_FLAG_ANNOTATION = "androidx.annotation.RequiresFlag"
     }
 
     override fun applicableAnnotations(): List<String> {
-        return listOf(
-            FLAGGED_API_ANNOTATION,
-            REQUIRES_ACONFIG_FLAG_ANNOTATION,
-            CHECKS_ACONFIG_FLAG_ANNOTATION,
-        )
+        return listOf(CHECKS_FLAG_ANNOTATION, FLAGGED_API_ANNOTATION, REQUIRES_FLAG_ANNOTATION)
     }
 
     override fun isApplicableAnnotationUsage(type: AnnotationUsageType): Boolean {
@@ -205,15 +200,15 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
             return
         }
 
-        // Avoid checking any usages of `@ChecksAconfigFlag`.
-        if (annotationInfo.qualifiedName == CHECKS_ACONFIG_FLAG_ANNOTATION) return
+        // Avoid checking any usages of `@ChecksFlag`.
+        if (annotationInfo.qualifiedName == CHECKS_FLAG_ANNOTATION) return
 
-        // Avoid checking usage of the `@FlaggedApi` or `@RequiresAconfigFlag` annotations
+        // Avoid checking usage of the `@FlaggedApi` or `@RequiresFlag` annotations
         // themselves.
         if (annotationInfo.origin == AnnotationOrigin.SELF) {
             if (
                 annotationInfo.qualifiedName == FLAGGED_API_ANNOTATION ||
-                    annotationInfo.qualifiedName == REQUIRES_ACONFIG_FLAG_ANNOTATION
+                    annotationInfo.qualifiedName == REQUIRES_FLAG_ANNOTATION
             ) {
                 return
             }
@@ -293,10 +288,10 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
                 }
 
     private fun isUsageInAllowlistedLibrary(context: JavaContext, usage: UElement): Boolean =
-        context.getAllowlistedCoordinates().let { allowlistedCoordinates ->
-            (context.evaluator.getLibrary(usage) ?: context.project.mavenCoordinate)?.let {
-                allowlistedCoordinates.contains(it.groupId) ||
-                    allowlistedCoordinates.contains("${it.groupId}:${it.artifactId}")
+        context.getAllowlistedCoordinates().let { allowlist ->
+            context.evaluator.getLibrary(usage)?.let {
+                allowlist.contains(it.groupId) ||
+                    allowlist.contains("${it.groupId}:${it.artifactId.substringAfterLast(':')}")
             } ?: true // If we can't obtain the Maven coordinate, assume we're in a lint test.
         }
 
@@ -518,7 +513,7 @@ class FlaggedApiDetector : Detector(), SourceCodeScanner {
                 if (
                     (resolved.toUElement() as UAnnotated)
                         .uAnnotations
-                        .filter { it.qualifiedName == CHECKS_ACONFIG_FLAG_ANNOTATION }
+                        .filter { it.qualifiedName == CHECKS_FLAG_ANNOTATION }
                         .mapNotNull { it.findAttributeAsInlineString(ATTR_VALUE) }
                         .contains(flagString)
                 ) {

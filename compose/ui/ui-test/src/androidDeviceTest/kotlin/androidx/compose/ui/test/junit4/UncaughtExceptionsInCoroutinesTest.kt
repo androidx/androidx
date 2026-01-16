@@ -21,10 +21,9 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -41,17 +40,9 @@ class UncaughtExceptionsInCoroutinesTest {
     // - Results have 2 failed tests:
     //   exception handler is installed correctly, but verifying thrown error is wrong
 
-    @Test
-    fun test1() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            expectError<TestException> { throwInLaunchedEffect() }
-        }
+    @Test fun test1() = runComposeUiTest { expectError<TestException> { throwInLaunchedEffect() } }
 
-    @Test
-    fun test2() =
-        runComposeUiTest(StandardTestDispatcher()) {
-            expectError<TestException> { throwInLaunchedEffect() }
-        }
+    @Test fun test2() = runComposeUiTest { expectError<TestException> { throwInLaunchedEffect() } }
 
     private fun ComposeUiTest.throwInLaunchedEffect() {
         setContent {

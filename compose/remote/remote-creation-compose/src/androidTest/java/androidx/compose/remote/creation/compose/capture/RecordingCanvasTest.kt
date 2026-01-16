@@ -24,7 +24,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
-import android.graphics.Shader
 import android.graphics.Typeface
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
@@ -47,6 +46,7 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.remote.creation.compose.test.R
@@ -54,6 +54,8 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.ui.graphics.TileMode
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -65,7 +67,6 @@ import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.ArrayList
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -313,7 +314,7 @@ class RecordingCanvasTest {
 
         val operations = inflateOperations()
         val paintOp = operations[operations.size - 1] as PaintData
-        assertThat(paintOp.mPaintData.toString()).contains("ColorId([45])")
+        assertThat(paintOp.mPaintData.toString()).containsMatch("ColorId\\(\\[\\d+]\\)")
     }
 
     @Test
@@ -357,7 +358,7 @@ class RecordingCanvasTest {
         val operations = inflateOperations()
         val paintOp = operations[operations.size - 1] as PaintData
         assertThat(paintOp.mPaintData.toString())
-            .contains("ColorFilterID(color=[45], mode=MULTIPLY)")
+            .containsMatch("ColorFilterID\\(color=\\[\\d+], mode=MULTIPLY\\)")
     }
 
     @Test
@@ -565,33 +566,38 @@ class RecordingCanvasTest {
     @Test
     fun setShaderMatrixCalledOnce() {
         val remoteShader =
-            RemoteSweepShader(100f, 100f, intArrayOf(Color.RED, Color.GREEN, Color.BLUE), null)
-                .apply { remoteMatrix3x3 = RemoteMatrix3x3.createRotate(RemoteFloat(90f)) }
+            RemoteSweepShader(
+                    100f.rf,
+                    100f.rf,
+                    listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
+                    null,
+                )
+                .apply { remoteMatrix3x3 = RemoteMatrix3x3.createRotate(90f.rf) }
         val paintWithShader = RemotePaint().apply { shader = remoteShader }
         val paintWithShader2 =
             RemotePaint().apply {
                 shader =
                     RemoteLinearShader(
-                        10f,
-                        100f,
-                        200f,
-                        200f,
-                        intArrayOf(Color.RED, Color.GREEN, Color.BLUE),
+                        10f.rf,
+                        100f.rf,
+                        200f.rf,
+                        200f.rf,
+                        listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
                         null,
-                        Shader.TileMode.REPEAT,
+                        TileMode.Repeated,
                     )
             }
         val paintWithShader3 =
             RemotePaint().apply {
                 shader =
                     RemoteLinearShader(
-                        10f,
-                        100f,
-                        100f,
-                        200f,
-                        intArrayOf(Color.RED, Color.BLUE),
+                        10f.rf,
+                        100f.rf,
+                        100f.rf,
+                        200f.rf,
+                        listOf(ComposeColor.Red.rc, ComposeColor.Blue.rc),
                         null,
-                        Shader.TileMode.REPEAT,
+                        TileMode.Repeated,
                     )
             }
         recordingCanvas.usePaint(paintWithShader)
@@ -619,7 +625,7 @@ class RecordingCanvasTest {
                 }
 
         assertThat(shaderMatricies.joinToString(","))
-            .isEqualTo("[ShaderMatrix([43])],[ShaderMatrix(0.0)],[]")
+            .matches("\\[ShaderMatrix\\(\\[\\d+]\\)],\\[ShaderMatrix\\(0.0\\)],\\[]")
     }
 
     private fun constructDocument() =

@@ -61,6 +61,7 @@ constructor(
     private val _streamMap: Map<CameraStream.Config, CameraStream>
 
     internal val outputConfigs: List<OutputConfig>
+    internal val outputConfigMap: Map<OutputStream, OutputConfig>
     internal val imageSourceMap: Map<StreamId, ImageSource>
 
     override val inputs: List<InputStream>
@@ -100,9 +101,12 @@ constructor(
         return imageSourceMap[streamId]
     }
 
+    fun getCameraStreamConfig(streamId: StreamId) =
+        _streamMap.entries.firstOrNull { it.value.id == streamId }?.key
+
     init {
         val outputConfigListBuilder = mutableListOf<OutputConfig>()
-        val outputConfigMap = mutableMapOf<OutputStream.Config, OutputConfig>()
+        val internalOutputConfigMap = mutableMapOf<OutputStream.Config, OutputConfig>()
 
         val streamListBuilder = mutableListOf<CameraStream>()
         val streamMapBuilder = mutableMapOf<CameraStream.Config, CameraStream>()
@@ -125,7 +129,7 @@ constructor(
         // are streams.
         for (streamConfig in graphConfig.streams) {
             for (output in streamConfig.outputs) {
-                if (outputConfigMap.containsKey(output)) {
+                if (internalOutputConfigMap.containsKey(output)) {
                     continue
                 }
 
@@ -150,18 +154,19 @@ constructor(
                         sensorPixelModes = output.sensorPixelModes,
                         externalOutputConfig = getOutputConfigurationOrNull(output),
                     )
-                outputConfigMap[output] = outputConfig
+                internalOutputConfigMap[output] = outputConfig
                 outputConfigListBuilder.add(outputConfig)
             }
         }
 
         // Build the streams
+        val streamOutputConfigMap = mutableMapOf<OutputStream, OutputConfig>()
         for (streamConfigIdx in graphConfig.streams.indices) {
             val streamConfig = graphConfig.streams[streamConfigIdx]
 
             val outputs =
                 streamConfig.outputs.map {
-                    val outputConfig = outputConfigMap[it]!!
+                    val outputConfig = internalOutputConfigMap[it]!!
 
                     val outputStream =
                         OutputStreamImpl(
@@ -176,6 +181,7 @@ constructor(
                             outputConfig.deferredOutputType,
                             outputConfig.streamUseHint,
                         )
+                    streamOutputConfigMap[outputStream] = outputConfig
                     outputStream
                 }
 
@@ -186,7 +192,7 @@ constructor(
                 output.stream = stream
             }
             for (cameraOutputConfig in streamConfig.outputs) {
-                outputConfigMap[cameraOutputConfig]!!.streamBuilder.add(stream)
+                internalOutputConfigMap[cameraOutputConfig]!!.streamBuilder.add(stream)
             }
         }
         inputs =
@@ -203,6 +209,7 @@ constructor(
             outputConfigListBuilder.sortedBy {
                 it.streams.minOf { stream -> streams.indexOf(stream) }
             }
+        outputConfigMap = streamOutputConfigMap
         outputs = streams.flatMap { it.outputs }
 
         imageSourceMap = buildMap {

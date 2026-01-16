@@ -133,6 +133,7 @@ package androidx.xr.projected.platform {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ProjectedDeviceState {
     field public static final int ACTIVE = 1; // 0x1
+    field public static final int DESTROYED = 2; // 0x2
     field public static final int INACTIVE = 0; // 0x0
   }
 

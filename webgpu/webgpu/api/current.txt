@@ -1,50 +1,6 @@
 // Signature format: 4.0
 package androidx.webgpu {
 
-  public final class AdapterInfo {
-    ctor public AdapterInfo(String vendor, String architecture, String device, String description, int adapterType, int vendorID, int deviceID, int subgroupMinSize, int subgroupMaxSize);
-    ctor public AdapterInfo(String vendor, String architecture, String device, String description, int adapterType, int vendorID, int deviceID, int subgroupMinSize, int subgroupMaxSize, optional int backendType);
-    ctor @BytecodeOnly public AdapterInfo(String!, String!, String!, String!, int, int, int, int, int, int, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    method @InaccessibleFromKotlin public int getAdapterType();
-    method @InaccessibleFromKotlin public String getArchitecture();
-    method @InaccessibleFromKotlin public int getBackendType();
-    method @InaccessibleFromKotlin public String getDescription();
-    method @InaccessibleFromKotlin public String getDevice();
-    method @InaccessibleFromKotlin public int getDeviceID();
-    method @InaccessibleFromKotlin public int getSubgroupMaxSize();
-    method @InaccessibleFromKotlin public int getSubgroupMinSize();
-    method @InaccessibleFromKotlin public String getVendor();
-    method @InaccessibleFromKotlin public int getVendorID();
-    method @InaccessibleFromKotlin public void setAdapterType(int);
-    method @InaccessibleFromKotlin public void setArchitecture(String);
-    method @InaccessibleFromKotlin public void setBackendType(int);
-    method @InaccessibleFromKotlin public void setDescription(String);
-    method @InaccessibleFromKotlin public void setDevice(String);
-    method @InaccessibleFromKotlin public void setDeviceID(int);
-    method @InaccessibleFromKotlin public void setSubgroupMaxSize(int);
-    method @InaccessibleFromKotlin public void setSubgroupMinSize(int);
-    method @InaccessibleFromKotlin public void setVendor(String);
-    method @InaccessibleFromKotlin public void setVendorID(int);
-    property public int adapterType;
-    property public String architecture;
-    property public int backendType;
-    property public String description;
-    property public String device;
-    property public int deviceID;
-    property public int subgroupMaxSize;
-    property public int subgroupMinSize;
-    property public String vendor;
-    property public int vendorID;
-  }
-
-  public fun interface BufferMapCallback {
-    method public void onBufferMap(int status, String message);
-  }
-
-  public fun interface CompilationInfoCallback {
-    method public void onCompilationInfo(int status, androidx.webgpu.GPUCompilationInfo compilationInfo);
-  }
-
   public final class CompilationInfoRequestException extends java.lang.Exception {
     ctor public CompilationInfoRequestException();
     ctor public CompilationInfoRequestException(optional String reason, optional int status);
@@ -81,10 +37,6 @@ package androidx.webgpu {
     field public static final long WHOLE_SIZE = -1L; // 0xffffffffffffffffL
   }
 
-  public fun interface CreateComputePipelineAsyncCallback {
-    method public void onCreateComputePipelineAsync(int status, String message, androidx.webgpu.GPUComputePipeline? pipeline);
-  }
-
   public final class CreatePipelineAsyncException extends java.lang.Exception {
     ctor public CreatePipelineAsyncException();
     ctor public CreatePipelineAsyncException(optional String reason, optional int status);
@@ -93,10 +45,6 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getStatus();
     property public String reason;
     property public int status;
-  }
-
-  public fun interface CreateRenderPipelineAsyncCallback {
-    method public void onCreateRenderPipelineAsync(int status, String message, androidx.webgpu.GPURenderPipeline? pipeline);
   }
 
   public final class DawnException extends java.lang.Exception {
@@ -133,10 +81,10 @@ package androidx.webgpu {
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public androidx.webgpu.GPULimits getLimits() throws androidx.webgpu.WebGpuException;
     method public boolean hasFeature(int feature);
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? requestDevice(optional androidx.webgpu.GPUDeviceDescriptor? descriptor, kotlin.coroutines.Continuation<? super androidx.webgpu.GPUDevice>) throws androidx.webgpu.WebGpuException;
-    method public void requestDevice(java.util.concurrent.Executor callbackExecutor, optional androidx.webgpu.GPUDeviceDescriptor? descriptor, androidx.webgpu.RequestDeviceCallback callback);
-    method @InaccessibleFromKotlin public void requestDevice(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.RequestDeviceCallback callback);
+    method public void requestDevice(java.util.concurrent.Executor callbackExecutor, optional androidx.webgpu.GPUDeviceDescriptor? descriptor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUDevice> callback);
+    method @InaccessibleFromKotlin public void requestDevice(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUDevice> callback);
     method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public static Object! requestDevice$default(androidx.webgpu.GPUAdapter!, androidx.webgpu.GPUDeviceDescriptor!, kotlin.coroutines.Continuation!, int, Object!) throws androidx.webgpu.WebGpuException;
-    method @BytecodeOnly public static void requestDevice$default(androidx.webgpu.GPUAdapter!, java.util.concurrent.Executor!, androidx.webgpu.GPUDeviceDescriptor!, androidx.webgpu.RequestDeviceCallback!, int, Object!);
+    method @BytecodeOnly public static void requestDevice$default(androidx.webgpu.GPUAdapter!, java.util.concurrent.Executor!, androidx.webgpu.GPUDeviceDescriptor!, androidx.webgpu.GPURequestCallback!, int, Object!);
     property public long handle;
   }
 
@@ -324,7 +272,7 @@ package androidx.webgpu {
     method public long getSize();
     method public int getUsage();
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? mapAndAwait(int mode, long offset, long size, kotlin.coroutines.Continuation<? super kotlin.Unit>) throws androidx.webgpu.WebGpuException;
-    method public void mapAsync(int mode, long offset, long size, java.util.concurrent.Executor callbackExecutor, androidx.webgpu.BufferMapCallback callback);
+    method public void mapAsync(int mode, long offset, long size, java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<kotlin.Unit> callback);
     method @InaccessibleFromKotlin public int mapState();
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public void readMappedRange(long offset, java.nio.ByteBuffer data) throws androidx.webgpu.WebGpuException;
     method public void setLabel(String label);
@@ -631,13 +579,13 @@ package androidx.webgpu {
     method @BytecodeOnly public static androidx.webgpu.GPUCommandEncoder! createCommandEncoder$default(androidx.webgpu.GPUDevice!, androidx.webgpu.GPUCommandEncoderDescriptor!, int, Object!);
     method public androidx.webgpu.GPUComputePipeline createComputePipeline(androidx.webgpu.GPUComputePipelineDescriptor descriptor);
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? createComputePipelineAndAwait(androidx.webgpu.GPUComputePipelineDescriptor descriptor, kotlin.coroutines.Continuation<? super androidx.webgpu.GPUComputePipeline>) throws androidx.webgpu.WebGpuException;
-    method public void createComputePipelineAsync(androidx.webgpu.GPUComputePipelineDescriptor descriptor, java.util.concurrent.Executor callbackExecutor, androidx.webgpu.CreateComputePipelineAsyncCallback callback);
+    method public void createComputePipelineAsync(androidx.webgpu.GPUComputePipelineDescriptor descriptor, java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUComputePipeline> callback);
     method public androidx.webgpu.GPUPipelineLayout createPipelineLayout(androidx.webgpu.GPUPipelineLayoutDescriptor descriptor);
     method public androidx.webgpu.GPUQuerySet createQuerySet(androidx.webgpu.GPUQuerySetDescriptor descriptor);
     method public androidx.webgpu.GPURenderBundleEncoder createRenderBundleEncoder(androidx.webgpu.GPURenderBundleEncoderDescriptor descriptor);
     method public androidx.webgpu.GPURenderPipeline createRenderPipeline(androidx.webgpu.GPURenderPipelineDescriptor descriptor);
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? createRenderPipelineAndAwait(androidx.webgpu.GPURenderPipelineDescriptor descriptor, kotlin.coroutines.Continuation<? super androidx.webgpu.GPURenderPipeline>) throws androidx.webgpu.WebGpuException;
-    method public void createRenderPipelineAsync(androidx.webgpu.GPURenderPipelineDescriptor descriptor, java.util.concurrent.Executor callbackExecutor, androidx.webgpu.CreateRenderPipelineAsyncCallback callback);
+    method public void createRenderPipelineAsync(androidx.webgpu.GPURenderPipelineDescriptor descriptor, java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPURenderPipeline> callback);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUSampler createSampler();
     method public androidx.webgpu.GPUSampler createSampler(optional androidx.webgpu.GPUSamplerDescriptor? descriptor);
     method @BytecodeOnly public static androidx.webgpu.GPUSampler! createSampler$default(androidx.webgpu.GPUDevice!, androidx.webgpu.GPUSamplerDescriptor!, int, Object!);
@@ -652,7 +600,7 @@ package androidx.webgpu {
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public androidx.webgpu.GPULimits getLimits() throws androidx.webgpu.WebGpuException;
     method public androidx.webgpu.GPUQueue getQueue();
     method public boolean hasFeature(int feature);
-    method public void popErrorScope(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.PopErrorScopeCallback callback);
+    method public void popErrorScope(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<java.lang.Integer> callback);
     method @kotlin.jvm.Throws(exceptionClasses={WebGpuException::class, WebGpuRuntimeException::class}) public suspend Object? popErrorScope(kotlin.coroutines.Continuation<? super java.lang.Integer>) throws androidx.webgpu.WebGpuException, androidx.webgpu.WebGpuRuntimeException;
     method public void pushErrorScope(int filter);
     method @InaccessibleFromKotlin public androidx.webgpu.GPUQueue queue();
@@ -742,10 +690,10 @@ package androidx.webgpu {
     method public boolean hasWGSLLanguageFeature(int feature);
     method public void processEvents();
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? requestAdapter(optional androidx.webgpu.GPURequestAdapterOptions? options, kotlin.coroutines.Continuation<? super androidx.webgpu.GPUAdapter>) throws androidx.webgpu.WebGpuException;
-    method public void requestAdapter(java.util.concurrent.Executor callbackExecutor, optional androidx.webgpu.GPURequestAdapterOptions? options, androidx.webgpu.RequestAdapterCallback callback);
-    method @InaccessibleFromKotlin public void requestAdapter(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.RequestAdapterCallback callback);
+    method public void requestAdapter(java.util.concurrent.Executor callbackExecutor, optional androidx.webgpu.GPURequestAdapterOptions? options, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUAdapter> callback);
+    method @InaccessibleFromKotlin public void requestAdapter(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUAdapter> callback);
     method @BytecodeOnly @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public static Object! requestAdapter$default(androidx.webgpu.GPUInstance!, androidx.webgpu.GPURequestAdapterOptions!, kotlin.coroutines.Continuation!, int, Object!) throws androidx.webgpu.WebGpuException;
-    method @BytecodeOnly public static void requestAdapter$default(androidx.webgpu.GPUInstance!, java.util.concurrent.Executor!, androidx.webgpu.GPURequestAdapterOptions!, androidx.webgpu.RequestAdapterCallback!, int, Object!);
+    method @BytecodeOnly public static void requestAdapter$default(androidx.webgpu.GPUInstance!, java.util.concurrent.Executor!, androidx.webgpu.GPURequestAdapterOptions!, androidx.webgpu.GPURequestCallback!, int, Object!);
     property public long handle;
   }
 
@@ -1035,7 +983,7 @@ package androidx.webgpu {
   public final class GPUQueue implements java.lang.AutoCloseable {
     method public void close();
     method @InaccessibleFromKotlin public long getHandle();
-    method public void onSubmittedWorkDone(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.QueueWorkDoneCallback callback);
+    method public void onSubmittedWorkDone(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<kotlin.Unit> callback);
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? onSubmittedWorkDone(kotlin.coroutines.Continuation<? super kotlin.Unit>) throws androidx.webgpu.WebGpuException;
     method public void setLabel(String label);
     method @InaccessibleFromKotlin public void submit();
@@ -1373,6 +1321,15 @@ package androidx.webgpu {
     property public boolean xrCompatible;
   }
 
+  public interface GPURequestCallback<T> {
+    method public void onError(Exception exception);
+    method public void onResult(T result);
+  }
+
+  public final class GPURequestCallbackKt {
+    method public static suspend <T> Object? awaitGPURequest(kotlin.jvm.functions.Function1<? super androidx.webgpu.GPURequestCallback<T>,kotlin.Unit> block, kotlin.coroutines.Continuation<? super T>);
+  }
+
   public final class GPUSampler implements java.lang.AutoCloseable {
     method public void close();
     method @InaccessibleFromKotlin public long getHandle();
@@ -1440,7 +1397,7 @@ package androidx.webgpu {
 
   public final class GPUShaderModule implements java.lang.AutoCloseable {
     method public void close();
-    method public void getCompilationInfo(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.CompilationInfoCallback callback);
+    method public void getCompilationInfo(java.util.concurrent.Executor callbackExecutor, androidx.webgpu.GPURequestCallback<androidx.webgpu.GPUCompilationInfo> callback);
     method @kotlin.jvm.Throws(exceptionClasses=WebGpuException::class) public suspend Object? getCompilationInfo(kotlin.coroutines.Continuation<? super androidx.webgpu.GPUCompilationInfo>) throws androidx.webgpu.WebGpuException;
     method @InaccessibleFromKotlin public long getHandle();
     method public void setLabel(String label);
@@ -1939,10 +1896,6 @@ package androidx.webgpu {
     ctor public OutOfMemoryException(String message);
   }
 
-  public fun interface PopErrorScopeCallback {
-    method public void onPopErrorScope(int status, int type, String message);
-  }
-
   public final class PopErrorScopeException extends java.lang.Exception {
     ctor public PopErrorScopeException();
     ctor public PopErrorScopeException(optional String reason, optional int status);
@@ -1957,10 +1910,6 @@ package androidx.webgpu {
     method public void on();
   }
 
-  public fun interface QueueWorkDoneCallback {
-    method public void onQueueWorkDone(int status, String message);
-  }
-
   public final class QueueWorkDoneException extends java.lang.Exception {
     ctor public QueueWorkDoneException();
     ctor public QueueWorkDoneException(optional String reason, optional int status);
@@ -1971,10 +1920,6 @@ package androidx.webgpu {
     property public int status;
   }
 
-  public fun interface RequestAdapterCallback {
-    method public void onRequestAdapter(int status, String message, androidx.webgpu.GPUAdapter? adapter);
-  }
-
   public final class RequestAdapterException extends java.lang.Exception {
     ctor public RequestAdapterException();
     ctor public RequestAdapterException(optional String reason, optional int status);
@@ -1983,10 +1928,6 @@ package androidx.webgpu {
     method @InaccessibleFromKotlin public int getStatus();
     property public String reason;
     property public int status;
-  }
-
-  public fun interface RequestDeviceCallback {
-    method public void onRequestDevice(int status, String message, androidx.webgpu.GPUDevice? device);
   }
 
   public final class RequestDeviceException extends java.lang.Exception {
@@ -2044,6 +1985,11 @@ package androidx.webgpu {
 }
 
 package androidx.webgpu.helper {
+
+  public final class ExtensionsKt {
+    method public static androidx.webgpu.GPUColor toGPUColor(int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.webgpu.GPUColor toGPUColor(long);
+  }
 
   public final class RoundingUtils {
     method public static int roundDownToNearestMultipleOf(int, int boundary);

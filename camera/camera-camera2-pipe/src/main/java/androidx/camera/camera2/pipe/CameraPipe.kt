@@ -149,6 +149,7 @@ public interface CameraPipe {
         val cameraInteropConfig: CameraInteropConfig = CameraInteropConfig(),
         val imageSources: ImageSources? = null,
         val flags: Flags = Flags(),
+        val platformApiCompat: PlatformApiCompat? = null,
     )
 
     /**

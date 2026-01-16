@@ -564,9 +564,7 @@ class OnBackPressedHandlerTest {
                 },
             )
 
-        // The listener is immediately invoked with the initial state (false) by navigation event,
-        // ensuring the consumer is always in sync without a separate state query.
-        assertWithMessage("initial reportCount").that(reportCount).isEqualTo(1)
+        assertWithMessage("initial reportCount").that(reportCount).isEqualTo(0)
         assertWithMessage("initial reportedHasEnabledCallbacks")
             .that(reportedHasEnabledCallbacks)
             .isFalse()

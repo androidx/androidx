@@ -34,8 +34,7 @@
     <string name="mr_controller_expand_group" msgid="4521419834052044261">"Genişlet"</string>
     <string name="mr_controller_collapse_group" msgid="2585048604188129749">"Daralt"</string>
     <string name="mr_controller_album_art" msgid="3330502667672708728">"Albüm kapağı"</string>
-    <!-- no translation found for mr_controller_volume_slider (824254108076730845) -->
-    <skip />
+    <string name="mr_controller_volume_slider" msgid="824254108076730845">"Ses"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"Medya seçilmedi"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"Bilgi yok"</string>
     <string name="mr_controller_casting_screen" msgid="9171231064758955152">"Ekran yayınlanıyor"</string>

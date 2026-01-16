@@ -31,6 +31,20 @@ public abstract class BaseJniMarshallingTest {
     protected ImpressApi mImpressApi;
     protected long mTestViewHandle;
 
+    @SuppressWarnings("VisiblySynchronized")
+    // It is safe to suppress this warning because this is a test class. There is no risk of
+    // external callers causing deadlocks by synchronizing on this.
+    protected static synchronized void loadLibraryAsync(@NonNull String nativeLibraryName) {
+        try {
+            System.loadLibrary(nativeLibraryName);
+        } catch (UnsatisfiedLinkError e) {
+            Log.e(
+                    "BaseJniMarshallingTest",
+                    "Unable to load " + nativeLibraryName + " " + e.getMessage());
+            return;
+        }
+    }
+
     @Before
     public void setUp() {
         loadLibraryAsync("test_impress_api_jni");
@@ -61,19 +75,5 @@ public abstract class BaseJniMarshallingTest {
             data[size - 1] = TEST_PATTERN_SENTINEL;
         }
         return data;
-    }
-
-    @SuppressWarnings("VisiblySynchronized")
-    // It is safe to suppress this warning because this is a test class. There is no risk of
-    // external callers causing deadlocks by synchronizing on this.
-    protected static synchronized void loadLibraryAsync(@NonNull String nativeLibraryName) {
-        try {
-            System.loadLibrary(nativeLibraryName);
-        } catch (UnsatisfiedLinkError e) {
-            Log.e(
-                    "BaseJniMarshallingTest",
-                    "Unable to load " + nativeLibraryName + " " + e.getMessage());
-            return;
-        }
     }
 }

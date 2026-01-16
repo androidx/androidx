@@ -77,13 +77,13 @@ final class SurfaceEntityImpl extends BaseRenderingEntity implements SurfaceEnti
     }
 
     @Override
-    public void setEdgeFeather(@NonNull EdgeFeather edgeFeather) {
-        mSurfaceFeature.setEdgeFeather(edgeFeather);
+    public @NonNull EdgeFeather getEdgeFeather() {
+        return mSurfaceFeature.getEdgeFeather();
     }
 
     @Override
-    public @NonNull EdgeFeather getEdgeFeather() {
-        return mSurfaceFeature.getEdgeFeather();
+    public void setEdgeFeather(@NonNull EdgeFeather edgeFeather) {
+        mSurfaceFeature.setEdgeFeather(edgeFeather);
     }
 
     @SuppressWarnings("ObjectToString")
@@ -91,11 +91,6 @@ final class SurfaceEntityImpl extends BaseRenderingEntity implements SurfaceEnti
     public void dispose() {
         mSurfaceFeature.dispose();
         super.dispose();
-    }
-
-    @Override
-    public void setStereoMode(@StereoMode int mode) {
-        mSurfaceFeature.setStereoMode(mode);
     }
 
     @Override
@@ -108,6 +103,11 @@ final class SurfaceEntityImpl extends BaseRenderingEntity implements SurfaceEnti
     @StereoMode
     public int getStereoMode() {
         return mSurfaceFeature.getStereoMode();
+    }
+
+    @Override
+    public void setStereoMode(@StereoMode int mode) {
+        mSurfaceFeature.setStereoMode(mode);
     }
 
     public void setColliderEnabled(boolean enableCollider) {
@@ -186,8 +186,8 @@ final class SurfaceEntityImpl extends BaseRenderingEntity implements SurfaceEnti
         return PerceivedResolutionUtils.getPerceivedResolutionOf3DBox(
                 renderViewScenePose,
                 renderViewFov,
-                /* viewPlaneInPixels= */
-                getDisplayResolutionInPixels(Objects.requireNonNull(getContext())),
+                /* viewPlaneInPixels= */ getDisplayResolutionInPixels(
+                        Objects.requireNonNull(getContext())),
                 /* boxDimensionsInActivitySpace= */ dimensionsInActivitySpace,
                 /* boxPositionInActivitySpace= */ getPose(Space.ACTIVITY).getTranslation());
     }

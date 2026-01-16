@@ -18,8 +18,6 @@ package androidx.tracing
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
-import androidx.tracing.PlatformThreadContextElement.Companion.STATE_BEGIN
-import androidx.tracing.PlatformThreadContextElement.Companion.STATE_END
 import kotlin.concurrent.Volatile
 import kotlinx.coroutines.currentCoroutineContext
 
@@ -80,76 +78,15 @@ public class PerfettoTracer(context: TraceContext, name: String) :
         return PropagationUnsupportedToken
     }
 
+    @ExperimentalContextPropagation
+    override fun tokenForManualPropagation(): PropagationToken {
+        return inheritedPropagationToken(parent = null, track = currentThreadTrack())
+    }
+
     @DelicateTracingApi
     override suspend fun tokenFromCoroutineContext(): PlatformThreadContextElement<*> {
-        val track = currentThreadTrack()
-        // Currently, Perfetto flows cannot fully represent fanouts and fanin's.
-        // Therefore we simply propagate a single flowId from the parent to the child
-        // and carry that throughout. This way, there is only 1 flow id that is used.
         val parent = currentCoroutineContext()[PlatformThreadContextElement.KEY]
-        val current =
-            buildThreadContextElement(
-                // Placeholder to be filled in by beginSectionWithMetadata
-                // Start off with the parent category and names so we have something consistent
-                // when using the PlatformThreadContextElement for explicit trace propagation.
-                category = parent?.category ?: DEFAULT_STRING,
-                name = parent?.name ?: DEFAULT_STRING,
-                flowIds = parent?.flowIds ?: listOf(monotonicId()),
-                // This method is called before a coroutine is resumed on a thread that
-                // belongs to a dispatcher. This can be called more than once. So avoid creating
-                // slices unless we transition to `STATE_END`.
-                updateThreadContextBlock = { context ->
-                    val contextElement = context[PlatformThreadContextElement.KEY]
-                    val category = contextElement?.category
-                    val name = contextElement?.name
-                    if (
-                        contextElement != null &&
-                            category != null &&
-                            name != null &&
-                            contextElement.synchronizedCompareAndSet(
-                                expected = STATE_END,
-                                newValue = STATE_BEGIN,
-                            )
-                    ) {
-                        val result =
-                            contextElement.owner.beginCoroutineSection(
-                                category = category,
-                                name = name,
-                                token = contextElement,
-                            )
-                        result.metadata.dispatchToTraceSink()
-                    }
-                },
-                // This method is called **after** a coroutine is suspended on the current thread.
-                // This method might be called more than once as well. So we want to be
-                // idempotent.
-                restoreThreadContextBlock = { context ->
-                    val contextElement = context[PlatformThreadContextElement.KEY]
-                    val name = contextElement?.name
-                    if (
-                        contextElement != null &&
-                            name != null &&
-                            contextElement.synchronizedCompareAndSet(
-                                expected = STATE_BEGIN,
-                                newValue = STATE_END,
-                            )
-                    ) {
-                        contextElement.owner.endSection()
-                    }
-                },
-                close = { platformThreadContextElement ->
-                    // Only close if the threadContextElement is still in STATE_BEGIN
-                    if (
-                        platformThreadContextElement.synchronizedCompareAndSet(
-                            expected = STATE_BEGIN,
-                            newValue = STATE_END,
-                        )
-                    ) {
-                        platformThreadContextElement.owner.endSection()
-                    }
-                },
-            )
-        current.owner = track
+        val current = inheritedCoroutinePropagationToken(parent, currentThreadTrack())
         return current
     }
 
@@ -160,9 +97,8 @@ public class PerfettoTracer(context: TraceContext, name: String) :
         token: PropagationToken?,
         isRoot: Boolean,
     ): EventMetadataCloseable {
-        val tokenElement = token ?: tokenFromThreadContext()
         // Out of the box we don't support propagation at all outside of suspending contexts.
-        return if (tokenElement == PropagationUnsupportedToken) {
+        return if (token == null || token == PropagationUnsupportedToken) {
             val track = currentThreadTrack()
             track.beginSection(
                 category = category,
@@ -170,7 +106,12 @@ public class PerfettoTracer(context: TraceContext, name: String) :
                 token = PropagationUnsupportedToken,
             )
         } else {
-            throw IllegalArgumentException("Unsupported token type $token")
+            val parent =
+                token as? PlatformThreadContextElement<*>
+                    ?: throw IllegalArgumentException("Unsupported token type $token")
+            val track = currentThreadTrack()
+            val tokenElement = inheritedPropagationToken(parent = parent, track = track)
+            track.beginCoroutineSection(category = category, name = name, token = tokenElement)
         }
     }
 
@@ -181,8 +122,7 @@ public class PerfettoTracer(context: TraceContext, name: String) :
         token: PropagationToken?,
         isRoot: Boolean,
     ): EventMetadataCloseable {
-        val tokenElement = token ?: tokenFromCoroutineContext()
-        return if (tokenElement == PropagationUnsupportedToken) {
+        return if (token == PropagationUnsupportedToken) {
             val eventMetadataCloseable =
                 beginSectionWithMetadata(
                     category = category,
@@ -192,17 +132,25 @@ public class PerfettoTracer(context: TraceContext, name: String) :
                 )
             eventMetadataCloseable
         } else {
-            val platformContextElement =
-                tokenElement as? PlatformThreadContextElement<*>
-                    ?: throw IllegalArgumentException("Unsupported token type $token")
-            platformContextElement.name = name
-            platformContextElement.category = category
+            val tokenElement =
+                if (token == null) {
+                    // Context Propagation is implicit here.
+                    // Derive the token from the current coroutine context.
+                    tokenFromCoroutineContext()
+                } else {
+                    // Context Propagation is explicit.
+                    val parent =
+                        token as? PlatformThreadContextElement<*>
+                            ?: throw IllegalArgumentException("Unsupported token type $token")
+                    inheritedCoroutinePropagationToken(
+                        parent = parent,
+                        track = currentThreadTrack(),
+                    )
+                }
+            tokenElement.name = name
+            tokenElement.category = category
             val track = tokenElement.owner
-            track.beginCoroutineSection(
-                category = category,
-                name = name,
-                token = platformContextElement,
-            )
+            track.beginCoroutineSection(category = category, name = name, token = tokenElement)
         }
     }
 

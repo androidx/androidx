@@ -116,7 +116,7 @@ package androidx.xr.scenecore {
     method public boolean isEnabled(boolean includeParents);
     method public void removeAllComponents();
     method public void removeComponent(androidx.xr.scenecore.Component component);
-    method public void setAlpha(float alpha, androidx.xr.scenecore.Space relativeTo);
+    method public void setAlpha(float alpha);
     method @InaccessibleFromKotlin public void setContentDescription(CharSequence);
     method public void setEnabled(boolean enabled);
     method @InaccessibleFromKotlin public void setParent(androidx.xr.scenecore.Entity?);
@@ -134,7 +134,10 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getActivitySpacePose();
     method public suspend Object? hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, int hitTestFilter, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.HitTestResult?>);
     method public suspend Object? hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.HitTestResult?>);
+    method public androidx.xr.runtime.math.Vector3 transformDirectionTo(androidx.xr.runtime.math.Vector3 direction, androidx.xr.scenecore.ScenePose destination);
     method public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose pose, androidx.xr.scenecore.ScenePose destination);
+    method public androidx.xr.runtime.math.Vector3 transformPositionTo(androidx.xr.runtime.math.Vector3 position, androidx.xr.scenecore.ScenePose destination);
+    method public androidx.xr.runtime.math.Vector3 transformVectorTo(androidx.xr.runtime.math.Vector3 vector, androidx.xr.scenecore.ScenePose destination);
     property public androidx.xr.runtime.math.Pose activitySpacePose;
   }
 
@@ -193,9 +196,7 @@ package androidx.xr.scenecore {
     method @BytecodeOnly public static boolean isEnabled$default(androidx.xr.scenecore.Entity!, boolean, int, Object!);
     method public void removeAllComponents();
     method public void removeComponent(androidx.xr.scenecore.Component component);
-    method public default void setAlpha(@FloatRange(from=0.0, to=1.0) float alpha);
-    method public void setAlpha(@FloatRange(from=0.0, to=1.0) float alpha, optional androidx.xr.scenecore.Space relativeTo);
-    method @BytecodeOnly public static void setAlpha$default(androidx.xr.scenecore.Entity!, float, androidx.xr.scenecore.Space!, int, Object!);
+    method public void setAlpha(@FloatRange(from=0.0, to=1.0) float alpha);
     method @InaccessibleFromKotlin public void setContentDescription(CharSequence);
     method public void setEnabled(boolean enabled);
     method @InaccessibleFromKotlin public void setParent(androidx.xr.scenecore.Entity?);
@@ -742,6 +743,8 @@ package androidx.xr.scenecore {
 
   public final class Scene implements androidx.xr.runtime.SessionConnector {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Scene();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addOnBoundaryConsentChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<java.lang.Boolean> listener);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addOnBoundaryConsentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
     method public void addSpatialCapabilitiesChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void addSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void clearSpatialModeChangedListener();
@@ -756,6 +759,8 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public java.util.Set<androidx.xr.scenecore.SpatialCapability> getSpatialCapabilities();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.SpatialEnvironment getSpatialEnvironment();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void initialize(java.util.List<? extends androidx.xr.runtime.internal.JxrRuntime> runtimes);
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isBoundaryConsentGranted();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void removeOnBoundaryConsentChangedListener(java.util.function.Consumer<java.lang.Boolean> listener);
     method public void removeSpatialCapabilitiesChangedListener(java.util.function.Consumer<java.util.Set<androidx.xr.scenecore.SpatialCapability>> listener);
     method public void requestFullSpaceMode();
     method public void requestHomeSpaceMode();
@@ -766,6 +771,7 @@ package androidx.xr.scenecore {
     method public void setSpatialVisibilityChangedListener(java.util.concurrent.Executor callbackExecutor, java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     method public void setSpatialVisibilityChangedListener(java.util.function.Consumer<androidx.xr.scenecore.SpatialVisibility> listener);
     property public androidx.xr.scenecore.ActivitySpace activitySpace;
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean isBoundaryConsentGranted;
     property public androidx.xr.scenecore.Entity? keyEntity;
     property public androidx.xr.scenecore.MainPanelEntity mainPanelEntity;
     property public androidx.xr.scenecore.PanelClippingConfig panelClippingConfig;
@@ -778,7 +784,10 @@ package androidx.xr.scenecore {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Pose getActivitySpacePose();
     method public suspend Object? hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, int hitTestFilter, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.HitTestResult?>);
     method public suspend Object? hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.HitTestResult?>);
+    method public androidx.xr.runtime.math.Vector3 transformDirectionTo(androidx.xr.runtime.math.Vector3 direction, androidx.xr.scenecore.ScenePose destination);
     method public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose pose, androidx.xr.scenecore.ScenePose destination);
+    method public androidx.xr.runtime.math.Vector3 transformPositionTo(androidx.xr.runtime.math.Vector3 position, androidx.xr.scenecore.ScenePose destination);
+    method public androidx.xr.runtime.math.Vector3 transformVectorTo(androidx.xr.runtime.math.Vector3 vector, androidx.xr.scenecore.ScenePose destination);
     property public abstract androidx.xr.runtime.math.Pose activitySpacePose;
   }
 
@@ -1156,7 +1165,10 @@ package androidx.xr.scenecore {
 
   public static final class SurfaceEntity.Shape.Quad implements androidx.xr.scenecore.SurfaceEntity.Shape {
     ctor public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d extents);
+    ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d extents, float cornerRadius);
+    method @InaccessibleFromKotlin @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public float getCornerRadius();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
+    property @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public float cornerRadius;
     property public androidx.xr.runtime.math.FloatSize2d extents;
   }
 

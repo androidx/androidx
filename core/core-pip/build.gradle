@@ -29,8 +29,8 @@ plugins {
 }
 
 dependencies {
-    implementation(project(":core:core"))
-    androidTestImplementation(project(":activity:activity"))
+    implementation("androidx.core:core:1.18.0-alpha01")
+    androidTestImplementation("androidx.activity:activity:1.13.0-alpha01")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
@@ -38,14 +38,14 @@ dependencies {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.core.pip"
 }
 
 androidx {
     name = "androidx.core:core-pip"
     type = SoftwareType.PUBLISHED_LIBRARY
-    mavenVersion = LibraryVersions.CORE
+    mavenVersion = LibraryVersions.CORE_PIP
     inceptionYear = "2025"
     description = "This library helps implementing the PiP (Picture-in-Picture) feature on API 24 and later."
 }

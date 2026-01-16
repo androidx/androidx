@@ -84,6 +84,15 @@ public final class QualitySelector {
     private static final String TAG = "QualitySelector";
 
     /**
+     * A QualitySelector that contains no preferred qualities and no fallback strategy.
+     * When used, the resolution engine will have to rely entirely on system defaults
+     * or other specification components (like AspectRatio).
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final @NonNull QualitySelector NONE =
+            new QualitySelector(Collections.emptyList(), FallbackStrategy.NONE);
+
+    /**
      * Gets all supported qualities on the device.
      *
      * <p>The returned list is sorted by quality size from largest to smallest. For the qualities in
@@ -173,9 +182,6 @@ public final class QualitySelector {
 
     QualitySelector(@NonNull List<Quality> preferredQualityList,
             @NonNull FallbackStrategy fallbackStrategy) {
-        Preconditions.checkArgument(
-                !preferredQualityList.isEmpty() || fallbackStrategy != FallbackStrategy.NONE,
-                "No preferred quality and fallback strategy.");
         mPreferredQualityList = Collections.unmodifiableList(new ArrayList<>(preferredQualityList));
         mFallbackStrategy = fallbackStrategy;
     }

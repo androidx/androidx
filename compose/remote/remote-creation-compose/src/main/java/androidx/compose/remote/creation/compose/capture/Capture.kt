@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.MutableState
@@ -40,7 +41,10 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.geometry.Size
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteComposeCreationState {
+public open class RemoteComposeCreationState : RemoteStateScope {
+
+    override val creationState: RemoteComposeCreationState
+        get() = this
 
     public val creationDisplayInfo: CreationDisplayInfo
     public val profile: Profile
@@ -49,7 +53,7 @@ public open class RemoteComposeCreationState {
     public val expressionCache: MutableIntObjectMap<RemoteFloat> = MutableIntObjectMap()
     public val intExpressionCache: MutableIntObjectMap<RemoteInt> = MutableIntObjectMap()
     public var ready: Boolean = true
-    public var document: RemoteComposeWriter
+    override lateinit var document: RemoteComposeWriter
     public val remoteVariableToId: MutableObjectIntMap<RemoteState<*>> = MutableObjectIntMap()
     public val floatArrayCache: HashMap<RemoteState<*>, FloatArray> = HashMap()
     public val longArrayCache: HashMap<RemoteState<*>, LongArray> = HashMap()
@@ -125,11 +129,11 @@ public open class RemoteComposeCreationState {
     public constructor(
         creationDisplayInfo: CreationDisplayInfo,
         profile: Profile,
-        document: RemoteComposeWriter,
+        writer: RemoteComposeWriter,
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        this.document = document
+        this.document = writer
     }
 
     public constructor(size: Size, profile: Profile) {

@@ -34,8 +34,7 @@
     <string name="mr_controller_expand_group" msgid="4521419834052044261">"Vis"</string>
     <string name="mr_controller_collapse_group" msgid="2585048604188129749">"Skjul"</string>
     <string name="mr_controller_album_art" msgid="3330502667672708728">"Albumgrafikk"</string>
-    <!-- no translation found for mr_controller_volume_slider (824254108076730845) -->
-    <skip />
+    <string name="mr_controller_volume_slider" msgid="824254108076730845">"Volum"</string>
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"Ingen medier er valgt"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"Ingen informasjon er tilgjengelig"</string>
     <string name="mr_controller_casting_screen" msgid="9171231064758955152">"Caster skjermen"</string>

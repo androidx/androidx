@@ -16,10 +16,12 @@
 
 package androidx.pdf.annotation
 
+import androidx.annotation.RestrictTo
 import java.util.UUID
 
 /** Responsible for generating unique string identifiers. */
-internal object AnnotationHandleIdGenerator {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public object AnnotationHandleIdGenerator {
     private const val ANNOTATION_ID_PREFIX = "AnnotationId_"
 
     private const val ANNOTATION_ID_DELIMITER = "::"
@@ -29,13 +31,13 @@ internal object AnnotationHandleIdGenerator {
      *
      * @return A string representation of a random UUID
      */
-    fun generateId(): String = UUID.randomUUID().toString()
+    public fun generateId(): String = UUID.randomUUID().toString()
 
     /** Returns an annotation id in the format AnnotationId_<pageNum>::<string>. */
-    fun composeAnnotationId(pageNum: Int, id: String): String =
+    public fun composeAnnotationId(pageNum: Int, id: String): String =
         "${ANNOTATION_ID_PREFIX}${pageNum}${ANNOTATION_ID_DELIMITER}${id}"
 
-    fun decomposeAnnotationId(key: String): Pair<Int, String> {
+    public fun decomposeAnnotationId(key: String): Pair<Int, String> {
         require(key.startsWith(ANNOTATION_ID_PREFIX)) {
             "Invalid ID format: '$this' must start with prefix '$ANNOTATION_ID_PREFIX'"
         }

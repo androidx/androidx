@@ -23,6 +23,7 @@ import androidx.tracing.TRACE_PACKET_POOL_ARRAY_POOL_SIZE
 import androidx.tracing.TraceDriver
 import androidx.tracing.TraceSink
 import androidx.tracing.Tracer
+import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertContentEquals
@@ -241,6 +242,7 @@ class TracingTest {
     }
 
     @Test
+    @Ignore("We no longer drop trace packets like we used to.")
     @Suppress("DEPRECATION")
     internal fun testDroppedPackets() {
         val dispatcher = StandardTestDispatcher()

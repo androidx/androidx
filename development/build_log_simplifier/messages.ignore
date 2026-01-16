@@ -427,3 +427,9 @@ w: KLIB resolver: The same 'unique_name=kotlin\-stdlib\-common' found in more th
 # > Task :wear:watchfacepush:watchfacepush:processReleaseAndroidTestManifest
 \$SUPPORT/wear/watchfacepush/watchfacepush/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 uses\-library\#wear\-sdk@android:required was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present
+# > Task :appfunctions:integration-tests:multi-modules-testapp:app:compileDebugAndroidTestKotlin
+# b/472412144
+\[KOTLIN\] \[IC\] Incremental compilation was attempted but failed:
+java\.lang\.IllegalStateException: The following LookupSymbols are not yet converted to ProgramSymbols:.*
+(?:.*[\n\r])*.*Falling back to non\-incremental compilation \(reason = IC_FAILED_TO_COMPUTE_FILES_TO_RECOMPILE\)
+(?:.*[\n\r])*.*e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols:.*SchemaAppFunctionInventory_Impl\)

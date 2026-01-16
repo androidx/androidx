@@ -21,6 +21,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -54,6 +55,11 @@ class ProcessCameraProviderWrapperImpl implements ProcessCameraProviderWrapper {
     }
 
     @Override
+    public void unbind(@NonNull SessionConfig sessionConfig) {
+        mProcessCameraProvider.unbind(sessionConfig);
+    }
+
+    @Override
     public void unbindAll() {
         mProcessCameraProvider.unbindAll();
     }
@@ -62,6 +68,13 @@ class ProcessCameraProviderWrapperImpl implements ProcessCameraProviderWrapper {
     public @NonNull Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
             @NonNull CameraSelector cameraSelector, @NonNull UseCaseGroup useCaseGroup) {
         return mProcessCameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup);
+    }
+
+    @Override
+    public @NonNull Camera bindToLifecycle(@NonNull LifecycleOwner lifecycleOwner,
+            @NonNull CameraSelector cameraSelector, @NonNull SessionConfig sessionConfig) {
+        return mProcessCameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector,
+                sessionConfig);
     }
 
     @VisibleForTesting

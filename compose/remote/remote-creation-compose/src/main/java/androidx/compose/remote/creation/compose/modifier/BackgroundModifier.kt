@@ -19,21 +19,26 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.painter.RemotePainter
+import androidx.compose.remote.creation.compose.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.modifiers.RecordingModifier
+import androidx.compose.remote.creation.modifiers.SolidBackgroundModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class BackgroundModifier(val color: RemoteColor) : RemoteModifier.Element {
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
-        val r = color.red.id
-        val g = color.green.id
-        val b = color.blue.id
-        val a = color.alpha.id
-        return androidx.compose.remote.creation.modifiers.SolidBackgroundModifier(r, g, b, a)
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
+        return SolidBackgroundModifier(
+            color.red.floatId,
+            color.green.floatId,
+            color.blue.floatId,
+            color.alpha.floatId,
+        )
     }
 }
 
@@ -41,15 +46,20 @@ public fun RemoteModifier.background(color: Color): RemoteModifier =
     this.then(BackgroundModifier(color.rc))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RemoteComposable
+@Composable
 public fun RemoteModifier.background(color: RemoteColor): RemoteModifier =
-    this.then(BackgroundModifier(color))
+    this.drawWithContent {
+        with(painterRemoteColor(color)) { onDraw() }
+        drawContent()
+    }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RemoteComposable
 @Composable
 public fun RemoteModifier.background(brush: RemoteBrush): RemoteModifier =
     this.drawWithContent {
-        drawRect(brush)
+        drawRect(paint = RemotePaint().apply { applyRemoteBrush(brush, remoteSize) })
         drawContent()
     }
 

@@ -59,6 +59,7 @@ public class FakeImpressApiImpl : ImpressApi {
         public var canvasShape: CanvasShape? = null,
         public var featherRadiusX: Float = 0f,
         public var featherRadiusY: Float = 0f,
+        public var cornerRadius: Float = 0f,
         public var surfaceWidth: Int = 1,
         public var surfaceHeight: Int = 1,
         public var colliderEnabled: Boolean = false,
@@ -369,6 +370,7 @@ public class FakeImpressApiImpl : ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     ) {
         val data =
             stereoSurfaceEntities[impressNode]
@@ -376,6 +378,7 @@ public class FakeImpressApiImpl : ImpressApi {
         data.canvasShape = StereoSurfaceEntityData.CanvasShape.QUAD
         data.width = width
         data.height = height
+        data.cornerRadius = cornerRadius
     }
 
     override fun setStereoSurfaceEntityCanvasShapeSphere(impressNode: ImpressNode, radius: Float) {

@@ -29,7 +29,7 @@ import androidx.compose.runtime.Immutable
  * val decorator = NavEntryDecorator<Any> { entry ->
  *    ...
  *    CompositionLocalProvider(LocalMyStateProvider provides myState) {
- *        entry.content.invoke(entry.key)
+ *        entry.Content()
  *    }
  * }
  * ```
@@ -39,7 +39,7 @@ import androidx.compose.runtime.Immutable
  * val decorator = NavEntryDecorator<Any> { entry ->
  *    ...
  *    MyComposableFunction {
- *        entry.content.invoke(entry.key)
+ *        entry.Content()
  *    }
  * }
  * ```

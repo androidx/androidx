@@ -38,7 +38,7 @@ import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.elementFor
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.unit.dp
 import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
 import androidx.test.core.view.MotionEventBuilder

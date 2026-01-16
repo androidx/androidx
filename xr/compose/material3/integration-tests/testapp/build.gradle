@@ -36,9 +36,9 @@ dependencies {
     implementation(project(":compose:ui:ui-tooling-preview"))
 
     // Adaptive (CAMAL) dependencies
-    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0-alpha10")
-    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0-alpha10")
-    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.2.0-alpha10")
+    implementation("androidx.compose.material3.adaptive:adaptive:1.2.0")
+    implementation("androidx.compose.material3.adaptive:adaptive-layout:1.2.0")
+    implementation("androidx.compose.material3.adaptive:adaptive-navigation:1.2.0")
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
 
     // XR Adaptive integration library
@@ -53,9 +53,9 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
     namespace = "androidx.xr.compose.material3.integration.testapp"
     buildTypes {

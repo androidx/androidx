@@ -59,8 +59,8 @@ public class ActivityPanelEntityImplTest {
     private final Activity mHostActivity = mActivityController.create().start().get();
     private final PixelDimensions mWindowBoundsPx = new PixelDimensions(640, 480);
     private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
-    private SceneRuntime mFakeRuntime;
     private final NodeRepository mNodeRepository = NodeRepository.getInstance();
+    private SceneRuntime mFakeRuntime;
 
     @Before
     public void setUp() {

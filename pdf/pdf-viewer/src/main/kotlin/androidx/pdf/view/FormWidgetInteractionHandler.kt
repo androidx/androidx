@@ -49,7 +49,7 @@ internal class FormWidgetInteractionHandler(
 
     /** Entry point to handle interaction with the formWidget. */
     fun handleInteraction(touchPoint: PdfPoint, formWidgetInfo: FormWidgetInfo) {
-        if (formWidgetInfo.readOnly) return
+        if (formWidgetInfo.isReadOnly) return
 
         val pageNum = touchPoint.pageNum
         // switch case to delegate to the appropriate handler
@@ -136,7 +136,7 @@ internal class FormWidgetInteractionHandler(
         pageNum: Int,
         formWidgetInfo: FormWidgetInfo,
     ) {
-        if (formWidgetInfo.multiSelect) {
+        if (formWidgetInfo.isMultiSelect) {
             showMultiChoiceSelectMenu(pageNum, formWidgetInfo)
         } else {
             showSingleChoiceSelectMenu(pageNum, formWidgetInfo)
@@ -144,7 +144,7 @@ internal class FormWidgetInteractionHandler(
     }
 
     private fun showSingleChoiceSelectMenu(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
-        var selectedItemIndex: Int = formWidgetInfo.listItems.indexOfFirst { it.selected }
+        var selectedItemIndex: Int = formWidgetInfo.listItems.indexOfFirst { it.isSelected }
         val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
 
         MaterialAlertDialogBuilder(context)
@@ -162,7 +162,7 @@ internal class FormWidgetInteractionHandler(
     private fun showMultiChoiceSelectMenu(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
         val selectedItems =
             BooleanArray(formWidgetInfo.listItems.size) { i ->
-                formWidgetInfo.listItems[i].selected
+                formWidgetInfo.listItems[i].isSelected
             }
         val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
 

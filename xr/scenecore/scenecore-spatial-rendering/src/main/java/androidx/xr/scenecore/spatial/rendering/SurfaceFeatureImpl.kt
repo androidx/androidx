@@ -71,6 +71,7 @@ internal class SurfaceFeatureImpl(
                             entityImpressNode,
                             value.extents.width,
                             value.extents.height,
+                            value.cornerRadius,
                         )
                     } catch (e: IllegalArgumentException) {
                         throw IllegalStateException(e)

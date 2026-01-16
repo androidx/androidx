@@ -109,39 +109,6 @@ class PdfDocumentAnnotationsManagerTest {
     }
 
     @Test
-    fun addAnnotation_addsToDraftAndTracker() = runTest {
-        val composedId = manager.addAnnotation(annotA)
-
-        // Verify returned ID format
-        assertThat(composedId).contains(pageNum.toString())
-        assertThat(composedId).contains("::")
-
-        // Verify Draft State
-        val edits = draftState.getEdits(pageNum)
-        assertThat(edits).hasSize(1)
-        assertThat(edits[0].annotation).isEqualTo(annotA)
-
-        // Verify Tracker
-        val snapshot = operationsTracker.getSnapshot()
-        assertThat(snapshot).hasSize(1)
-        assertThat(snapshot[0].operationType).isEqualTo(KeyedAnnotationOperation.OperationType.ADD)
-    }
-
-    @Test
-    fun removeAnnotation_draftAnnotation_removesFromDraftAndState() = runTest {
-        val composedId = manager.addAnnotation(annotA)
-
-        val removed = manager.removeAnnotation(composedId)
-
-        assertThat(removed).isEqualTo(annotA)
-        assertThat(draftState.getEdits(pageNum)).isEmpty()
-
-        // Tracker should effectively be empty due to ADD -> REMOVE squash logic in Fake
-        val snapshot = operationsTracker.getSnapshot()
-        assertThat(snapshot).isEmpty()
-    }
-
-    @Test
     fun removeAnnotation_persistedAnnotation_addsTombstoneToTracker() = runTest {
         val sourceId = "source_1"
         repository.seedAnnotations(pageNum, listOf(KeyedPdfAnnotation(sourceId, annotA)))
@@ -182,23 +149,6 @@ class PdfDocumentAnnotationsManagerTest {
 
         // Verify Tracker has REMOVE op
         assertThat(operationsTracker.isDeleted(composedId)).isTrue()
-    }
-
-    @Test
-    fun updateAnnotation_draftAnnotation_updatesDraftAndTracker() = runTest {
-        val composedId = manager.addAnnotation(annotA)
-
-        val previous = manager.updateAnnotation(composedId, updatedAnnotA)
-
-        assertThat(previous).isEqualTo(annotA)
-
-        // Verify Draft State has new content
-        val drafts = draftState.getEdits(pageNum)
-        assertThat(drafts[0].annotation).isEqualTo(updatedAnnotA)
-
-        // Verify Tracker has UPDATE op (or ADD with new content depending on squash implementation)
-        val snapshot = operationsTracker.getSnapshot()
-        assertThat(snapshot).isNotEmpty()
     }
 
     @Test

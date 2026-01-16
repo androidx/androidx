@@ -55,7 +55,7 @@ public class GuavaScenePoseTest {
     private void createTestSessionAndRunTest(TestBodyRunnable testBody) {
 
         try (ActivityScenario<ComponentActivity> scenario =
-                     ActivityScenario.launch(ComponentActivity.class)) {
+                ActivityScenario.launch(ComponentActivity.class)) {
             scenario.onActivity(
                     activity -> {
                         mTestDispatcher =
@@ -65,10 +65,11 @@ public class GuavaScenePoseTest {
                                         .getSession();
                         mSession.configure(new Config());
                         FakeSceneRuntime fakeSceneRt =
-                                (FakeSceneRuntime) mSession.getRuntimes().stream()
-                                        .filter(rt -> rt instanceof FakeSceneRuntime)
-                                        .findAny()
-                                        .get();
+                                (FakeSceneRuntime)
+                                        mSession.getRuntimes().stream()
+                                                .filter(rt -> rt instanceof FakeSceneRuntime)
+                                                .findAny()
+                                                .get();
                         mFakeRtActivitySpace = fakeSceneRt.getActivitySpace();
                         mScene = SessionExt.getScene(mSession);
 
@@ -99,20 +100,23 @@ public class GuavaScenePoseTest {
                     Vector3 hitPosition = new Vector3(7f, 8f, 9f);
                     float distance = 7f;
                     Vector3 surfaceNormal = new Vector3(10f, 11f, 12f);
-                    @androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceTypeValue int
-                            surfaceType =
+                    @androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceTypeValue
+                    int surfaceType =
                             androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType
                                     .HIT_TEST_RESULT_SURFACE_TYPE_PLANE;
 
                     androidx.xr.scenecore.runtime.HitTestResult rtHitTestResult =
-                            new androidx.xr.scenecore.runtime.HitTestResult(hitPosition,
-                                    surfaceNormal, surfaceType, distance);
+                            new androidx.xr.scenecore.runtime.HitTestResult(
+                                    hitPosition, surfaceNormal, surfaceType, distance);
                     mFakeRtActivitySpace.setHitTestResult(rtHitTestResult);
                     HitTestResult expectedHitTestResult =
                             new HitTestResult(hitPosition, surfaceNormal, surfaceType, distance);
 
                     ListenableFuture<HitTestResult> hitTestResultFuture =
-                            GuavaScenePose.hitTestAsync(mScene.getActivitySpace(), mSession, origin,
+                            GuavaScenePose.hitTestAsync(
+                                    mScene.getActivitySpace(),
+                                    mSession,
+                                    origin,
                                     direction,
                                     HitTestFilter.SELF_SCENE);
 
@@ -131,18 +135,22 @@ public class GuavaScenePoseTest {
                     Vector3 direction = new Vector3(4f, 5f, 6f);
                     float distance = 7f;
                     Vector3 surfaceNormal = new Vector3(10f, 11f, 12f);
-                    @androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceTypeValue int
-                            surfaceType =
+                    @androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceTypeValue
+                    int surfaceType =
                             androidx.xr.scenecore.runtime.HitTestResult.HitTestSurfaceType
                                     .HIT_TEST_RESULT_SURFACE_TYPE_PLANE;
 
                     androidx.xr.scenecore.runtime.HitTestResult rtHitTestResult =
-                            new androidx.xr.scenecore.runtime.HitTestResult(null, surfaceNormal,
-                                    surfaceType, distance);
+                            new androidx.xr.scenecore.runtime.HitTestResult(
+                                    null, surfaceNormal, surfaceType, distance);
                     mFakeRtActivitySpace.setHitTestResult(rtHitTestResult);
 
                     ListenableFuture<HitTestResult> headHitTestResultFuture =
-                            hitTestAsync(mScene.getActivitySpace(), mSession, origin, direction,
+                            hitTestAsync(
+                                    mScene.getActivitySpace(),
+                                    mSession,
+                                    origin,
+                                    direction,
                                     HitTestFilter.SELF_SCENE);
 
                     mTestDispatcher.getScheduler().advanceUntilIdle();

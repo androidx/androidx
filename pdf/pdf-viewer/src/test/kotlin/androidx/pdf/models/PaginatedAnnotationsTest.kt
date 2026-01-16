@@ -17,10 +17,10 @@
 package androidx.pdf.models
 
 import android.os.Parcel
-import androidx.pdf.annotation.models.EditId
+import androidx.pdf.annotation.AnnotationHandleIdGenerator.composeAnnotationId
 import androidx.pdf.annotation.models.PaginatedAnnotations
 import com.google.common.truth.Truth.assertThat
-import createDummyPdfAnnotationData
+import createDummyKeyedPdfAnnotation
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -31,9 +31,9 @@ class PaginatedAnnotationsTest {
     @Test
     fun test_createFromParcel_nonEmptyList_returnsNonEmptyAnnotations() {
         // Arrange
-        val mockEditIds =
-            listOf(EditId(pageNum = 0, value = "first"), EditId(pageNum = 0, value = "second"))
-        val mockPageAnnotationDataList = mockEditIds.map { createDummyPdfAnnotationData(it) }
+        val mockIds = listOf("first", "second").map { composeAnnotationId(0, it) }
+        val mockPageAnnotationDataList =
+            mockIds.map { createDummyKeyedPdfAnnotation(pageNum = 0, id = it) }
         val original =
             PaginatedAnnotations(
                 mockPageAnnotationDataList,

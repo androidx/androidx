@@ -16,6 +16,7 @@
 
 package androidx.pdf.annotation.manager
 
+import androidx.pdf.EditsDraft
 import androidx.pdf.annotation.AnnotationHandleIdGenerator.decomposeAnnotationId
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.draftstate.AnnotationEditsDraftState
@@ -48,14 +49,17 @@ internal class PdfDocumentAnnotationsManager(
 ) : PdfAnnotationsManager {
     override suspend fun getAnnotations(pageNum: Int): List<KeyedPdfAnnotation> {
         // TODO(b/462603193): Remove the map once draft state returns KeyedPdfAnnotation
-        val draftAnnotations =
-            draftState.getEdits(pageNum).map {
-                KeyedPdfAnnotation(key = it.editId.toString(), annotation = it.annotation)
-            }
+        val draftAnnotations = draftState.getDraftAnnotations(pageNum)
         val persistedAnnotations = annotationsRepository.getAnnotationsForPage(pageNum)
 
         val reconciledAnnotations = reconcileAnnotations(persistedAnnotations)
         return reconciledAnnotations + draftAnnotations
+    }
+
+    override suspend fun getAnnotationModifications(): EditsDraft {
+        val draftModificationsSnapshot = draftState.getModificationsSnapshot()
+        val persistedModificationsSnapshot = operationsTracker.getModificationsSnapshot()
+        return persistedModificationsSnapshot + draftModificationsSnapshot
     }
 
     override fun addAnnotation(annotation: PdfAnnotation): String {
@@ -136,6 +140,11 @@ internal class PdfDocumentAnnotationsManager(
             annotation = newAnnotation,
         )
         return previousAnnotation
+    }
+
+    override fun discardChanges() {
+        draftState.clear()
+        operationsTracker.clear()
     }
 
     /**

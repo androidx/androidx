@@ -17,37 +17,46 @@
 package androidx.datastore.core.okio
 
 import androidx.datastore.core.CorruptionException
-import androidx.datastore.core.InterProcessCoordinator
 import androidx.datastore.core.ReadScope
 import androidx.datastore.core.Storage
 import androidx.datastore.core.StorageConnection
 import androidx.datastore.core.WriteScope
 import androidx.datastore.core.use
+import kotlinx.browser.localStorage
 import kotlinx.browser.sessionStorage
 import okio.Buffer
+import okio.ByteString.Companion.decodeBase64
 import org.w3c.dom.Storage as DomStorage
 
-// TODO(b/441511612): Support LocalStorage and OPFS.
+// TODO(b/441511612): Support OPFS.
 public enum class WebStorageType {
-    SESSION
+    SESSION,
+    LOCAL,
 }
 
 public class WebStorage<T>(
     private val serializer: OkioSerializer<T>,
     private val name: String,
     private val storageType: WebStorageType,
-    private val coordinatorProducer: (String, WebStorageType) -> InterProcessCoordinator =
+) : Storage<T> {
+    private val coordinatorProducer: (String, WebStorageType) -> WebInterProcessCoordinator =
         { name, storageType ->
             createWebProcessCoordinator(name, storageType)
-        },
-) : Storage<T> {
+        }
+
     override fun createConnection(): StorageConnection<T> {
+        // TODO(b/441511612): Support OPFS.
         val domStorage =
             when (storageType) {
                 WebStorageType.SESSION -> sessionStorage
+                WebStorageType.LOCAL -> localStorage
             }
-        val coordinator = coordinatorProducer(name, storageType)
-        return WebStorageConnection(domStorage, name, serializer, coordinator)
+        return WebStorageConnection(
+            domStorage,
+            name,
+            serializer,
+            coordinatorProducer(name, storageType),
+        )
     }
 }
 
@@ -55,7 +64,7 @@ internal class WebStorageConnection<T>(
     private val domStorage: DomStorage,
     private val name: String,
     private val serializer: OkioSerializer<T>,
-    override val coordinator: InterProcessCoordinator,
+    override val coordinator: WebInterProcessCoordinator,
 ) : StorageConnection<T> {
 
     private val closed = AtomicBoolean(false)
@@ -78,6 +87,7 @@ internal class WebStorageConnection<T>(
 
     override fun close() {
         closed.set(true)
+        coordinator.removeStorageEventListener()
     }
 }
 
@@ -99,7 +109,11 @@ internal open class WebReadScope<T>(
             return serializer.defaultValue
         }
 
-        val buffer = Buffer().writeUtf8(stringData)
+        val byteStringData =
+            stringData.decodeBase64()
+                ?: throw CorruptionException("Unable to decode Base64 stored data.")
+        val buffer = Buffer().write(byteStringData)
+
         try {
             return serializer.readFrom(buffer)
         } catch (ex: Exception) {
@@ -123,7 +137,7 @@ internal class WebWriteScope<T>(
         checkClose()
         val buffer = Buffer()
         serializer.writeTo(value, buffer)
-        val stringData = buffer.readUtf8()
+        val stringData = buffer.readByteString().base64()
         domStorage.setItem(name, stringData)
     }
 }

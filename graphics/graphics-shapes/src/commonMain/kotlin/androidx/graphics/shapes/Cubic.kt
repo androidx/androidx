@@ -430,7 +430,7 @@ fun interface PointTransformer {
      * Transform the point given the x and y parameters, returning the transformed point as a
      * [TransformResult]
      */
-    fun transform(x: Float, y: Float): TransformResult
+    @Suppress("ValueClassUsageWithoutJvmName") fun transform(x: Float, y: Float): TransformResult
 }
 
 /**

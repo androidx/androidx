@@ -19,6 +19,7 @@ package androidx.camera.view
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.SessionConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.utils.futures.Futures
@@ -60,6 +61,10 @@ class FakeProcessCameraProviderWrapper(
         unbindInvokedUseCases = useCases.toList().filterNotNull()
     }
 
+    override fun unbind(sessionConfig: SessionConfig) {
+        // no-op.
+    }
+
     override fun unbindAll() {
         // no-op.
     }
@@ -73,6 +78,18 @@ class FakeProcessCameraProviderWrapper(
             throw bindToLifecycleException
         }
         boundUseCases = useCaseGroup.useCases
+        return camera
+    }
+
+    override fun bindToLifecycle(
+        lifecycleOwner: LifecycleOwner,
+        cameraSelector: CameraSelector,
+        sessionConfig: SessionConfig,
+    ): Camera {
+        if (bindToLifecycleException != null) {
+            throw bindToLifecycleException
+        }
+        boundUseCases = sessionConfig.useCases
         return camera
     }
 

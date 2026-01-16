@@ -38,6 +38,7 @@ import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollSta
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
 import androidx.compose.remote.player.core.RemoteDocument
@@ -109,7 +110,7 @@ fun ScrollableList(modifier: RemoteModifier = RemoteModifier) {
                 modifier =
                     RemoteModifier.fillMaxWidth()
                         .height(96.rdp)
-                        .border(1.rdp, Color.LightGray)
+                        .border(1.rdp, Color.LightGray.rc)
                         // Must be direct child of the scrollable item
                         .semantics(mergeDescendants = true) {},
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,

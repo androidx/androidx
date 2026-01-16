@@ -26,7 +26,6 @@ import androidx.concurrent.futures.CallbackToFutureAdapter
 import com.google.common.util.concurrent.ListenableFuture
 
 /** Fake [ProcessingRequest]. */
-@Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
 internal class FakeProcessingRequest(
     outputFileOptions: ImageCapture.OutputFileOptions?,
     secondaryOutputFileOptions: ImageCapture.OutputFileOptions?,

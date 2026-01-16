@@ -96,10 +96,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
                 // by adding back one spacing unit because a grid of 'n' items has 'n-1' gaps
                 val availableWidth = w - paddingLeft - paddingRight + itemSpacing
                 val newSpanCount = max(1, availableWidth / totalItemSpace)
-
-                // Post the span count update to the message queue. This ensures it runs after the
-                // current layout pass is complete, avoiding race conditions.
-                post { (layoutManager as? GridLayoutManager)?.spanCount = newSpanCount }
+                val lm = layoutManager as? GridLayoutManager ?: return
+                if (newSpanCount != lm.spanCount) lm.spanCount = newSpanCount
             }
         }
     }

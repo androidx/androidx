@@ -117,6 +117,15 @@ public class CryptoObjectUtils {
             }
         }
 
+        // Key agreement is only supported on API 36.1 and above.
+        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+            final javax.crypto.KeyAgreement keyAgreement =
+                    Api36MinorImpl.getKeyAgreement(cryptoObject);
+            if (keyAgreement != null) {
+                return new BiometricPrompt.CryptoObject(keyAgreement);
+            }
+        }
+
         // Operation handle is only supported on API 35 and above.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             // This should be the bottom one and only be reachable when cryptoObject was
@@ -180,6 +189,14 @@ public class CryptoObjectUtils {
             }
         }
 
+        // Key agreement is only supported on API 36.1 and above.
+        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1) {
+            final javax.crypto.KeyAgreement keyAgreement = cryptoObject.getKeyAgreement();
+            if (keyAgreement != null) {
+                return Api36MinorImpl.create(keyAgreement);
+            }
+        }
+
         // Operation handle is only supported on API 35 and above.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             final long operationHandle = cryptoObject.getOperationHandleCryptoObject();
@@ -215,7 +232,7 @@ public class CryptoObjectUtils {
      * {@link androidx.biometric.internal.FingerprintManagerCompat}.
      *
      * @param cryptoObject A crypto object from
-     * {@link androidx.biometric.internal.FingerprintManagerCompat}.
+     *                     {@link androidx.biometric.internal.FingerprintManagerCompat}.
      * @return An equivalent {@link androidx.biometric.BiometricPrompt.CryptoObject} instance.
      */
     @SuppressWarnings("deprecation")
@@ -291,6 +308,12 @@ public class CryptoObjectUtils {
             return null;
         }
 
+        if (Build.VERSION.SDK_INT_FULL >= Build.VERSION_CODES_FULL.BAKLAVA_1
+                && cryptoObject.getKeyAgreement() != null) {
+            Log.e(TAG, "Key agreement is not supported by FingerprintManager.");
+            return null;
+        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             Log.e(TAG, "Operation handle is not supported by FingerprintManager.");
             return null;
@@ -338,6 +361,39 @@ public class CryptoObjectUtils {
                  | UnrecoverableKeyException | IOException | NoSuchProviderException e) {
             Log.w(TAG, "Failed to create fake crypto object.", e);
             return null;
+        }
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES_FULL.BAKLAVA_1)
+    private static class Api36MinorImpl {
+        // Prevent instantiation.
+        private Api36MinorImpl() {
+        }
+
+        /**
+         * Creates an instance of the framework class
+         * { @link android.hardware.biometrics.BiometricPrompt.CryptoObject} from the given
+         * key agreement.
+         *
+         * @param keyAgreement The key agreement to be wrapped.
+         * @return An instance of { @link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         */
+        static android.hardware.biometrics.BiometricPrompt.@NonNull CryptoObject create(
+                javax.crypto.@NonNull KeyAgreement keyAgreement) {
+            return new android.hardware.biometrics.BiometricPrompt.CryptoObject(keyAgreement);
+        }
+
+        /**
+         * Gets the key agreement associated with the given crypto object, if any.
+         *
+         * @param crypto An instance of
+         *               { @link android.hardware.biometrics.BiometricPrompt.CryptoObject}.
+         * @return The wrapped key agreement object, or { @code null}.
+         */
+        static javax.crypto.@Nullable KeyAgreement getKeyAgreement(
+                android.hardware.biometrics.BiometricPrompt.@NonNull CryptoObject crypto) {
+            return crypto.getKeyAgreement();
         }
     }
 

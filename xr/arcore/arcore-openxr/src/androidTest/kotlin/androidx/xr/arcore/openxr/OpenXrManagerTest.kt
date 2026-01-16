@@ -60,6 +60,24 @@ class OpenXrManagerTest {
     }
 
     @Test
+    fun sessionPointer_initializedAfterCreate() = initOpenXrManagerAndRunTest {
+        check(underTest.sessionPointer == 0L)
+
+        underTest.create()
+
+        assertThat(underTest.sessionPointer).isGreaterThan(0L)
+    }
+
+    @Test
+    fun instancePointer_initializedAfterCreate() = initOpenXrManagerAndRunTest {
+        check(underTest.instancePointer == 0L)
+
+        underTest.create()
+
+        assertThat(underTest.instancePointer).isGreaterThan(0L)
+    }
+
+    @Test
     fun create_initializesNativeOpenXrManager() = initOpenXrManagerAndRunTest {
         check(underTest.nativePointer == 0L)
 
@@ -385,6 +403,7 @@ class OpenXrManagerTest {
 
             // Stop the OpenXR manager here in lieu of an @After method to ensure that the
             // calls to the OpenXR manager are coming from the same thread.
+            underTest.pause()
             underTest.stop()
         }
     }

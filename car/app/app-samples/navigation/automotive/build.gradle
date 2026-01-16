@@ -31,7 +31,7 @@ plugins {
 android {
     defaultConfig {
         applicationId = "androidx.car.app.sample.navigation"
-        minSdk = 29
+        minSdk { version = release(29) }
     }
 
     buildTypes {

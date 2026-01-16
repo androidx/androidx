@@ -40,6 +40,15 @@
     <issue
         id="RestrictedApiAndroidX"
         message="RemoteRowScope can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    label: @Composable @RemoteComposable (RemoteRowScope.() -> Unit)?,"
+        errorLine2="                                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/RemoteButton.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteRowScope can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
         errorLine1="    content: @Composable @RemoteComposable RemoteRowScope.() -> Unit,"
         errorLine2="                                           ~~~~~~~~~~~~~~">
         <location

@@ -15,7 +15,6 @@
  */
 package androidx.xr.compose.spatial
 
-import android.annotation.SuppressLint
 import android.view.View
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
@@ -50,24 +49,25 @@ import androidx.xr.compose.platform.SpatialComposeScene
 import androidx.xr.compose.platform.disposableValueOf
 import androidx.xr.compose.platform.findNearestParentEntity
 import androidx.xr.compose.platform.getValue
-import androidx.xr.compose.subspace.BodyPart
-import androidx.xr.compose.subspace.LockDimensions
-import androidx.xr.compose.subspace.LockingBehavior
+import androidx.xr.compose.subspace.AnchorTarget
+import androidx.xr.compose.subspace.ArDeviceTarget
+import androidx.xr.compose.subspace.FollowBehavior
+import androidx.xr.compose.subspace.FollowTarget
+import androidx.xr.compose.subspace.FollowTargetFlow
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialBoxScope
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.TrackedDimensions
 import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.recommendedSizeIfUnbounded
 import androidx.xr.compose.unit.IntVolumeSize
-import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.Meter.Companion.meters
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.AnchorEntity
 import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.Space
@@ -343,55 +343,53 @@ public fun PlanarEmbeddedSubspace(
 }
 
 /**
- * Controls the default distance (z-offset) between the content and the BodyPart.
- *
- * This offset is applied to push the content in front of the user, so their anchor point (e.g.,
- * head) is not inside the content. The values are in meters.
- */
-private object UserSubspaceDefaults {
-    @SuppressLint("PrimitiveInCollection")
-    @OptIn(ExperimentalUserSubspaceApi::class)
-    val OFFSETS: Map<BodyPart, Meter> = mapOf(BodyPart.Head to (-0.5f).meters)
-}
-
-/**
  * Marks Subspace APIs that are experimental and likely to change or be removed in the future.
  *
- * Any usage of a declaration annotated with `@ExperimentalUserSubspaceApi` must be accepted either
- * by annotating that usage with `@OptIn(ExperimentalUserSubspaceApi::class)` or by propagating the
- * annotation to the containing declaration.
+ * Any usage of a declaration annotated with `@ExperimentalFollowingSubspaceApi` must be accepted
+ * either by annotating that usage with `@OptIn(ExperimentalFollowingSubspaceApi::class)` or by
+ * propagating the annotation to the containing declaration.
  */
 @RequiresOptIn(
     level = RequiresOptIn.Level.ERROR,
     message = "This is an experimental API. It may be changed or removed in the future.",
 )
 @Retention(AnnotationRetention.BINARY)
-public annotation class ExperimentalUserSubspaceApi
+public annotation class ExperimentalFollowingSubspaceApi
 
 /**
- * Create a user-centric 3D space that is ideal for spatial UI content that follows the user's given
- * body part with configurable following behaviors.
+ * Create a user-centric 3D space that is ideal for spatial UI content that follows a target.
  *
- * Each call to `UserSubspace` creates a new, independent spatial UI hierarchy. It does **not**
+ * Each call to `FollowingSubspace` creates a new, independent spatial UI hierarchy. It does **not**
  * inherit the spatial position, orientation, or scale of any parent `Subspace` it is nested within.
- * Its position in the world is determined solely by its `lockTo` parameter.
+ * Its position in the world is determined solely by its `target` parameter. By default, this
+ * Subspace is automatically bounded by the system's recommended content box, similar to [Subspace].
  *
- * By default, this Subspace is automatically bounded by the system's recommended content box,
- * similar to [Subspace]. When using BodyPart.Head as the lockTo target, this API requires
- * headtracking to not be disabled in the session configuration. If it is disabled, this API will
- * not return anything. The session configuration should resemble `session.configure( config =
- * session.config.copy(headTracking = Config.HeadTrackingMode.LAST_KNOWN) )`
+ * When the target parameter is specified to be [FollowTarget.ArDevice], the content will be
+ * positioned relative the view of the AR device. This is sometimes referred to as head-locked
+ * content. For this API, it is required for headtracking to not be disabled in the session
+ * configuration. If it is disabled, this API will not return anything. The session configuration
+ * should resemble `session.configure( config = session.config.copy(deviceTracking =
+ * Config.DeviceTrackingMode.LAST_KNOWN) )` The [FollowTarget.ArDevice] is not compatible with
+ * [FollowBehavior.Tight]. Combining these together will cause this composable to not be displayed.
+ * For a near tight experience, use [FollowBehavior.Soft] with a low duration value such as
+ * `FollowBehavior.Soft([FollowBehavior.Companion.MIN_SOFT_DURATION_MS])`
+ *
+ * When the target parameter is specified to be [FollowTarget.Anchor], the content will be
+ * positioned around an anchor. This is useful for placing UI elements on real-world surfaces or at
+ * specific spatial locations. The visual stability of the anchored content depends on the
+ * underlying system's ability to track the [AnchorEntity]. For Creating, loading, and persisting
+ * anchors, please check [androidx.xr.scenecore.AnchorEntity] for more information
  *
  * This composable is a no-op in non-XR environments (i.e., Phone and Tablet).
  *
  * ## Managing Spatial Overlap
  * Because each call to any kind of Subspace function creates an independent 3D scene, these spaces
- * are not aware of one another. This can lead to a phenomenon known as the "tunneling effect,"
- * where a moving `UserSubspace` (like a head-locked menu) can intersect with content in another
- * stationary Subspace. This overlap can cause jarring visual artifacts and z-depth ordering issues
- * (Z-fighting), creating a confusing user experience. A Subspace does not perform automatic
- * collision avoidance between these independent Subspaces. It is the developer's responsibility to
- * manage the layout and prevent these intersections or to introduce custom hit handling.
+ * are not aware of one another. This can lead to a scenario where a moving `FollowingSubspace`
+ * (like a head-locked menu) can intersect with content in another stationary Subspace. This overlap
+ * can cause jarring visual artifacts and z-depth ordering issues (Z-fighting), creating a confusing
+ * user experience. A Subspace does not perform automatic collision avoidance between these
+ * independent Subspaces. It is the developer's responsibility to manage the layout and prevent
+ * these intersections or to introduce custom hit handling.
  *
  * ### Guidelines for Preventing Overlap:
  * 1. **Control Volume Size**: Carefully define the bounds of your Subspace instances. Instead of
@@ -405,30 +403,31 @@ public annotation class ExperimentalUserSubspaceApi
  *    XR doesn't guarantee predictable interaction behaviors between UI elements in separate,
  *    overlapping Subspaces.
  *
+ * @sample androidx.xr.compose.samples.FollowingSubspaceSample
+ * @param target Specifies an area which the Subspace will move towards.
+ * @param behavior determines how the FollowingSubspace follows the target. It can be made to move
+ *   faster and be more responsive. The default is FollowBehavior.Soft().
  * @param modifier The [SubspaceModifier] to be applied to the content of this Subspace.
- * @param lockTo Specifies a part of the body which the Subspace will be locked to.
- * @param lockDimensions A set of boolean flags to determine the dimensions of movement that are
+ * @param dimensions A set of boolean flags to determine the dimensions of movement that are
  *   tracked. Possible tracking dimensions are: translationX, translationY, translationZ, rotationX,
  *   rotationY, and rotationZ. By default, all dimensions are tracked. Any dimensions not listed
  *   will not be tracked. For example if translationY is not listed, this means the content will not
  *   move as the user moves vertically up and down.
- * @param behavior determines how the UserSubspace follows the user. It can be made to move faster
- *   and be more responsive. The default is LockingBehavior.soft().
  * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
  *   be applied, allowing the Subspace to be infinite. Defaults to false, providing a safe, bounded
  *   space.
  * @param content The 3D content to render within this Subspace.
  */
-// TODO(b/446871230): Add unit tests for UserSubspace.
+// TODO(b/446871230): Add unit tests for FollowingSubspace.
 @Composable
 @ComposableOpenTarget(index = -1)
 @Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
-@ExperimentalUserSubspaceApi
-public fun UserSubspace(
+@ExperimentalFollowingSubspaceApi
+public fun FollowingSubspace(
+    target: FollowTarget,
+    behavior: FollowBehavior,
     modifier: SubspaceModifier = SubspaceModifier,
-    lockTo: BodyPart = BodyPart.Head,
-    lockDimensions: LockDimensions = LockDimensions.All,
-    behavior: LockingBehavior = LockingBehavior.soft(),
+    dimensions: TrackedDimensions = TrackedDimensions.All,
     allowUnboundedSubspace: Boolean = false,
     content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
 ) {
@@ -436,47 +435,72 @@ public fun UserSubspace(
     if (!LocalSpatialConfiguration.current.hasXrSpatialFeature) return
     val session = checkNotNull(LocalSession.current) { "session must be initialized" }
 
-    if (session.config.deviceTracking == Config.DeviceTrackingMode.DISABLED) {
-        return
-    }
+    if (!validateFollowingSubspaceConfiguration(target, behavior, session.config)) return
 
-    val userSubspaceRoot by remember {
-        disposableValueOf(GroupEntity.create(session, "UserSubspaceRoot")) { it.dispose() }
-    }
-    SideEffect {
-        session.scene.keyEntity?.getScale(relativeTo = Space.REAL_WORLD)?.let { scale ->
-            userSubspaceRoot.setScale(scale)
-        }
-    }
-    val userSubspaceRootNode by remember {
-        disposableValueOf(CoreGroupEntity(userSubspaceRoot).apply { enabled = true }) {
-            it.dispose()
-        }
-    }
-
-    LaunchedEffect(behavior, lockTo, lockDimensions) {
-        behavior.configure(
-            session = session,
-            trailingEntity = userSubspaceRootNode,
-            lockTo = lockTo,
-            lockDimensions = lockDimensions,
+    // If we're following an anchor and want the content to follow it as tightly as possible,
+    // its best to link them together in the scene graph rather than implement custom logic.
+    if (target is AnchorTarget && behavior == FollowBehavior.Tight) {
+        Subspace(
+            modifier = modifier,
+            subspaceRootNode = target.anchorEntity,
+            content = content,
+            allowUnboundedSubspace = allowUnboundedSubspace,
         )
+    } else {
+        val subspaceRoot by remember {
+            disposableValueOf(GroupEntity.create(session, "subspaceRoot")) { it.dispose() }
+        }
+        SideEffect {
+            session.scene.keyEntity?.getScale(relativeTo = Space.REAL_WORLD)?.let { scale ->
+                subspaceRoot.setScale(scale)
+            }
+        }
+        val subspaceRootNode by remember {
+            disposableValueOf(CoreGroupEntity(subspaceRoot).apply { enabled = true }) {
+                it.dispose()
+            }
+        }
+
+        LaunchedEffect(behavior, target, dimensions) {
+            behavior.configure(
+                session = session,
+                trailingEntity = subspaceRootNode,
+                target = target,
+                dimensions = dimensions,
+            )
+        }
+
+        var offset = 0f.meters
+        if (target is FollowTargetFlow) offset = target.offset
+
+        Subspace(
+            modifier = modifier,
+            allowUnboundedSubspace = allowUnboundedSubspace,
+            subspaceRootNode = subspaceRoot,
+        ) {
+            SpatialBox(modifier = SubspaceModifier.offset(z = offset.toDp()), content = content)
+        }
+    }
+}
+
+/** Validates the configuration for [FollowingSubspace]. */
+@ExperimentalFollowingSubspaceApi
+private fun validateFollowingSubspaceConfiguration(
+    target: FollowTarget,
+    behavior: FollowBehavior,
+    config: Config,
+): Boolean {
+    // Following an AR device requires head tracking to be enabled.
+    if (target is ArDeviceTarget && config.deviceTracking == Config.DeviceTrackingMode.DISABLED) {
+        return false
     }
 
-    // The content is wrapped in a SpatialBox and we move it slightly ahead of the `lockTo` body
-    // part instead of the user being in the middle of it. But the user is still centered in the
-    // Subspace.
-    Subspace(
-        modifier = modifier,
-        allowUnboundedSubspace = allowUnboundedSubspace,
-        subspaceRootNode = userSubspaceRoot,
-    ) {
-        val subspaceOffset =
-            checkNotNull(UserSubspaceDefaults.OFFSETS[lockTo]) {
-                "No offset found for lockTo target."
-            }
-        SpatialBox(modifier = SubspaceModifier.offset(z = subspaceOffset.toDp()), content = content)
+    // Tight follow for AR devices was not performant enough to be supported at this time.
+    if (target is ArDeviceTarget && behavior == FollowBehavior.Tight) {
+        return false
     }
+
+    return true
 }
 
 /**
@@ -496,66 +520,4 @@ private fun View.findVolumeConstraints(): VolumeConstraints? {
     }
     // No constraints found in this branch of the hierarchy
     return null
-}
-
-/**
- * Creates a [Subspace] that places its content at a real-world location represented by
- * [AnchorEntity].
- *
- * This is useful for placing UI elements on real-world surfaces or at specific spatial locations.
- * The visual stability of the anchored content depends on the underlying system's ability to track
- * the [AnchorEntity].
- *
- * Each call to AnchoredSubspace creates a new, independent Spatial UI hierarchy. It does **not**
- * inherit the spatial position, orientation, or scale of any parent AnchoredSubspace it is nested
- * within. Its position and scale are solely decided by the system's recommended position and scale.
- * To create an embedded Subspace within a SpatialPanel, Orbiter, SpatialPopup and etc, use the
- * [Subspace] instead.
- *
- * By default, this Subspace is automatically bounded by the system's recommended content box. This
- * box represents a comfortable, human-scale area in front of the user, sized to occupy a
- * significant portion of their view on any given device. Using this default is the suggested way to
- * create responsive spatial layouts that look great without hardcoding dimensions.
- * SubspaceModifiers like `SubspaceModifier.fillMaxSize` will expand to fill this recommended box.
- * This default can be overridden by applying a custom size-based modifier. For unbounded behavior,
- * set `allowUnboundedSubspace = true`.
- *
- * This composable is a no-op and does not render anything in non-XR environments (i.e., Phone and
- * Tablet).
- *
- * On XR devices that cannot currently render spatial UI, the AnchoredSubspace will still create its
- * scene and all of its internal state, even though nothing may be rendered. This is to ensure that
- * the state is maintained consistently in the spatial scene and to allow preparation for the
- * support of rendering spatial UI. State should be maintained by the compose runtime and events
- * that cause the compose runtime to lose state (app process killed or configuration change) will
- * also cause the AnchoredSubspace to lose its state.
- *
- * Note: For Creating, loading, and persisting anchors, please check
- * [androidx.xr.scenecore.AnchorEntity] for more information
- *
- * @param lockTo the real-world [AnchorEntity] to which this space will be attached. If the
- *   developer changes the anchor parameter then the subspace will be reanchored to the swapped
- *   anchor.
- * @param modifier The [SubspaceModifier] to be applied to this Subspace.
- * @param allowUnboundedSubspace If true, the default recommended content box constraints will not
- *   be applied, allowing the Subspace to be infinite. Defaults to false, providing a safe, bounded
- *   space.
- * @param content The content to render within this Subspace.
- * @sample androidx.xr.compose.samples.AnchoredSubspaceSample
- */
-@Composable
-@ComposableOpenTarget(index = -1)
-@Suppress("COMPOSE_APPLIER_CALL_MISMATCH")
-public fun AnchoredSubspace(
-    lockTo: AnchorEntity,
-    modifier: SubspaceModifier = SubspaceModifier,
-    allowUnboundedSubspace: Boolean = false,
-    content: @Composable @SubspaceComposable SpatialBoxScope.() -> Unit,
-) {
-    Subspace(
-        modifier = modifier,
-        subspaceRootNode = lockTo,
-        content = content,
-        allowUnboundedSubspace = allowUnboundedSubspace,
-    )
 }

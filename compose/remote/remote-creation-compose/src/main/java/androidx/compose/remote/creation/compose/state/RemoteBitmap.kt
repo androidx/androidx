@@ -39,42 +39,32 @@ import androidx.compose.ui.graphics.asAndroidBitmap
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteBitmap
-internal constructor(
-    public val state: RemoteComposeCreationState?,
-    public override val constantValue: Bitmap?,
-) : BaseRemoteState<Bitmap>() {
-
-    // @Deprecated("Use getIdForCreationState directly")
-    // TODO: re-enable this asap
-    public val id: Int
-        get() {
-            // FallbackCreationState.state.platform.log(
-            //     Platform.LogCategory.TODO,
-            //     "Use RemoteBitmap.getIdForCreationState directly"
-            // )
-            return getIdForCreationState(FallbackCreationState.state)
-        }
+internal constructor(public override val constantValue: Bitmap?) : BaseRemoteState<Bitmap>() {
 
     /** The width of the bitmap as represented in the remote document. */
     public val width: RemoteFloat
         get() {
-            val width =
-                state?.document?.bitmapAttribute(id, IMAGE_WIDTH)
-                    ?: throw IllegalStateException(
-                        "Bitmap width is not available in the remote document."
+            return RemoteFloatExpression(null) { creationState ->
+                floatArrayOf(
+                    creationState.document.bitmapAttribute(
+                        getIdForCreationState(creationState),
+                        IMAGE_WIDTH,
                     )
-            return RemoteFloat(width)
+                )
+            }
         }
 
     /** The height of the bitmap as represented in the remote document. */
     public val height: RemoteFloat
         get() {
-            val height =
-                state?.document?.bitmapAttribute(id, IMAGE_HEIGHT)
-                    ?: throw IllegalStateException(
-                        "Bitmap height is not available in the remote document."
+            return RemoteFloatExpression(null) { creationState ->
+                floatArrayOf(
+                    creationState.document.bitmapAttribute(
+                        getIdForCreationState(creationState),
+                        IMAGE_HEIGHT,
                     )
-            return RemoteFloat(height)
+                )
+            }
         }
 
     public companion object {
@@ -83,18 +73,10 @@ internal constructor(
          * with or without an explicit [RemoteComposeCreationState].
          *
          * @param v The [Bitmap] value.
-         * @param state An optional [RemoteComposeCreationState] to associate with this bitmap. If
-         *   not provided, the bitmap will be added to the document when its ID is requested.
          * @return A [RemoteBitmap] representing the provided bitmap.
          */
-        @JvmOverloads
-        public operator fun invoke(
-            v: Bitmap,
-            state: RemoteComposeCreationState? = null,
-        ): RemoteBitmap {
-            return MutableRemoteBitmap(state, v) { creationState ->
-                creationState.document.addBitmap(v)
-            }
+        public operator fun invoke(v: Bitmap): MutableRemoteBitmap {
+            return MutableRemoteBitmap(v) { creationState -> creationState.document.addBitmap(v) }
         }
 
         /**
@@ -105,12 +87,8 @@ internal constructor(
          * @param initialValue The initial [Bitmap] value for the named remote bitmap.
          * @return A [RemoteBitmap] representing the named bitmap.
          */
-        public fun createNamedRemoteBitmap(
-            name: String,
-            initialValue: Bitmap,
-            state: RemoteComposeCreationState,
-        ): RemoteBitmap =
-            MutableRemoteBitmap(state, constantValue = null) { creationState ->
+        public fun createNamedRemoteBitmap(name: String, initialValue: Bitmap): RemoteBitmap =
+            MutableRemoteBitmap(constantValue = null) { creationState ->
                 creationState.document.addNamedBitmap(name, initialValue)
             }
 
@@ -122,7 +100,7 @@ internal constructor(
          * @return A [RemoteBitmap] with the specified [width] and [height].
          */
         public fun createOffscreenRemoteBitmap(width: Int, height: Int): RemoteBitmap =
-            object : RemoteBitmap(null, null) {
+            object : RemoteBitmap(null) {
                 public override fun writeToDocument(
                     creationState: RemoteComposeCreationState
                 ): Int = creationState.document.createBitmap(width, height)
@@ -141,10 +119,9 @@ internal constructor(
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteBitmap(
-    state: RemoteComposeCreationState?,
     constantValue: Bitmap?,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : RemoteBitmap(state, constantValue), MutableRemoteState<Bitmap> {
+) : RemoteBitmap(constantValue), MutableRemoteState<Bitmap> {
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
@@ -168,7 +145,7 @@ public fun rememberRemoteBitmapValue(
     val state = LocalRemoteComposeCreationState.current
     return rememberNamedState(name, domain) {
         val initial = value()
-        MutableRemoteBitmap(state, constantValue = null) { creationState ->
+        MutableRemoteBitmap(constantValue = null) { creationState ->
             creationState.document.addNamedBitmap("$domain:$name", initial)
         }
     }
@@ -182,12 +159,11 @@ public fun rememberRemoteBitmap(
     width: Int = 1,
     height: Int = 1,
 ): RemoteBitmap {
-    val state = LocalRemoteComposeCreationState.current
     return rememberNamedState(name, domain) {
         // We create a bitmap of the specified dimensions as a placeholder. The actual bitmap will
         // be loaded from the URL on the remote side. Providing accurate dimensions can prevent
         // unnecessary relayouts.
-        MutableRemoteBitmap(state, constantValue = null) { creationState ->
+        MutableRemoteBitmap(constantValue = null) { creationState ->
             creationState.document.addNamedBitmapUrl("$domain:$name", url)
         }
     }
@@ -196,5 +172,7 @@ public fun rememberRemoteBitmap(
 /** Extension property to convert a [ImageBitmap] to a [RemoteBitmap]. */
 public val ImageBitmap.rb: RemoteBitmap
     get() {
-        return RemoteBitmap(this.asAndroidBitmap())
+        return MutableRemoteBitmap(this.asAndroidBitmap()) { creationState ->
+            creationState.document.addBitmap(this.asAndroidBitmap())
+        }
     }

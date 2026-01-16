@@ -25,7 +25,9 @@ import androidx.camera.camera2.pipe.AudioRestrictionMode.Companion.AUDIO_RESTRIC
 import androidx.camera.camera2.pipe.AwbMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
+import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameMetadata
+import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Parameters
@@ -38,6 +40,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
 class FakeCameraGraph(
@@ -53,6 +56,12 @@ class FakeCameraGraph(
         get() = throw NotImplementedError("Not used in testing")
 
     override val graphState: StateFlow<GraphState>
+        get() = throw NotImplementedError("Not used in testing")
+
+    override val latestFrameNumber: Flow<FrameNumber>
+        get() = throw NotImplementedError("Not used in testing")
+
+    override val latestFrameInfo: Flow<FrameInfo>
         get() = throw NotImplementedError("Not used in testing")
 
     override var isForeground = true

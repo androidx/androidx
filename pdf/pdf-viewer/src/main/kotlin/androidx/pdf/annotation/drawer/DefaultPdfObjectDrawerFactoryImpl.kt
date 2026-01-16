@@ -24,6 +24,10 @@ internal object DefaultPdfObjectDrawerFactoryImpl : PdfObjectDrawerFactory {
     override fun create(pdfObject: PdfObject): PdfObjectDrawer<out PdfObject> {
         return when (pdfObject) {
             is PathPdfObject -> PathPdfObjectDrawer
+            else ->
+                throw UnsupportedOperationException(
+                    "PdfObject :: ${this.javaClass.simpleName} is not supported!"
+                )
         }
     }
 }

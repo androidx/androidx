@@ -42,7 +42,7 @@ actual constructor(private val trace: ComposeStackTrace) : RuntimeException() {
             if (trace.hasSourceInformation) {
                 buildString {
                     appendLine("Composition stack when thrown:")
-                    appendStackTrace(trace)
+                    appendSourceInformationStackTrace(trace)
                 }
             } else {
                 "Composition stack when thrown:"

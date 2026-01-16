@@ -36,7 +36,8 @@ android {
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.compose.runtime:runtime:1.3.3")
-    implementation("androidx.tracing:tracing-perfetto:1.0.0")
+    // Keep the versions of tracing-perfetto used by Benchmark and Runtime Tracing in sync.
+    implementation("androidx.tracing:tracing-perfetto:1.0.1")
     implementation("androidx.startup:startup-runtime:1.1.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

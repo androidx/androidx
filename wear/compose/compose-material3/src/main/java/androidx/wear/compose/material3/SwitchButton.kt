@@ -48,12 +48,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
@@ -1861,48 +1864,55 @@ private fun Switch(
                 .semantics { this.role = Role.Switch }
                 .height(SWITCH_INNER_HEIGHT)
                 .width(SWITCH_WIDTH)
-                .drawBehind {
-                    val currentThumbColor = actualThumbColor.value
-                    val currentThumbIconColor = actualThumbIconColor.value
-                    val currentTrackColor = actualTrackColor.value
-                    val currentTrackBorderColor = actualTrackBorderColor.value
+                .drawWithCache {
+                    val tickPath = createFullTickPath() // Avoid recreating the Path on every frame
 
-                    // Draw track background
-                    drawRoundRect(
-                        color = currentTrackColor,
-                        size = size,
-                        cornerRadius = CornerRadius(size.height / 2),
-                    )
+                    onDrawBehind { // This block is run on every invalidation of the draw phase
+                        val currentThumbColor = actualThumbColor.value
+                        val currentThumbIconColor = actualThumbIconColor.value
+                        val currentTrackColor = actualTrackColor.value
+                        val currentTrackBorderColor = actualTrackBorderColor.value
 
-                    // Draw track border
-                    val borderColor =
-                        if (currentTrackColor == currentTrackBorderColor) {
-                            Color.Transparent
-                        } else {
-                            currentTrackBorderColor
-                        }
+                        // Draw track background
+                        drawRoundRect(
+                            color = currentTrackColor,
+                            size = size,
+                            cornerRadius = CornerRadius(size.height / 2),
+                        )
 
-                    val strokeWidthPx = SWITCH_TRACK_WIDTH.toPx()
-                    // Inset the drawing area for the border by half the stroke width to replicate
-                    // Modifier.border's inset behavior.
-                    val inset = strokeWidthPx / 2
-                    drawRoundRect(
-                        color = borderColor,
-                        topLeft = Offset(inset, inset),
-                        size = Size(size.width - strokeWidthPx, size.height - strokeWidthPx),
-                        cornerRadius = CornerRadius((size.height - strokeWidthPx) / 2f),
-                        style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidthPx),
-                    )
+                        // Draw track border
+                        val borderColor =
+                            if (currentTrackColor == currentTrackBorderColor) {
+                                Color.Transparent
+                            } else {
+                                currentTrackBorderColor
+                            }
 
-                    // Draw thumb and tick on top
-                    drawThumbAndTick(
-                        enabled,
-                        checked,
-                        currentThumbColor,
-                        thumbProgress.value,
-                        currentThumbIconColor,
-                        isRtl,
-                    )
+                        val strokeWidthPx = SWITCH_TRACK_WIDTH.toPx()
+                        // Inset the drawing area for the border by half the stroke width to
+                        // replicate
+                        // Modifier.border's inset behavior.
+                        val inset = strokeWidthPx / 2
+                        drawRoundRect(
+                            color = borderColor,
+                            topLeft = Offset(inset, inset),
+                            size = Size(size.width - strokeWidthPx, size.height - strokeWidthPx),
+                            cornerRadius = CornerRadius((size.height - strokeWidthPx) / 2f),
+                            style =
+                                androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidthPx),
+                        )
+
+                        // Draw thumb and tick on top
+                        drawThumbAndTick(
+                            enabled,
+                            checked,
+                            currentThumbColor,
+                            thumbProgress.value,
+                            currentThumbIconColor,
+                            isRtl,
+                            tickPath,
+                        )
+                    }
                 }
                 .wrapContentSize(Alignment.CenterEnd)
     )
@@ -1915,6 +1925,7 @@ private fun DrawScope.drawThumbAndTick(
     progress: Float,
     thumbIconColor: Color,
     isRtl: Boolean,
+    tickPath: Path,
 ) {
 
     val thumbPaddingUnchecked = SWITCH_INNER_HEIGHT / 2 - THUMB_RADIUS_UNCHECKED
@@ -1950,25 +1961,21 @@ private fun DrawScope.drawThumbAndTick(
         center = Offset(thumbProgressPx, center.y),
     )
 
-    val ltrAdditionalOffset = 5.dp.toPx()
-    val rtlAdditionalOffset = 6.dp.toPx()
+    // Center of the tick's design, in pixels.
+    val tickDesignCenterX = 12.dp.toPx()
+    val tickDesignCenterY = 12.dp.toPx()
 
-    val totalDist = switchTrackLengthPx - 2 * switchThumbRadiusPx - ltrAdditionalOffset
-
-    // Offset value to be added if RTL mode is enabled.
-    // We need to move the tick to the checked position in ltr mode when unchecked.
-    val rtlOffset = switchTrackLengthPx - 2 * THUMB_RADIUS_CHECKED.toPx() - rtlAdditionalOffset
-
-    val distMoved = if (isRtl) rtlOffset - progress * totalDist else progress * totalDist
-
-    // Draw tick icon
-    animateTick(
-        enabled = enabled,
-        checked = checked,
-        tickColor = thumbIconColor,
-        tickProgress = progress,
-        startXOffset = distMoved.toDp(),
-    )
+    // Translate the canvas so the tick's design center (12.dp, 12.dp)
+    // aligns with the thumb's current center (thumbProgressPx, center.y).
+    translate(left = thumbProgressPx - tickDesignCenterX, top = center.y - tickDesignCenterY) {
+        // Call the new scaling tick function from AnimateTick.kt
+        drawScalingTick(
+            tickPath = tickPath,
+            tickColor = thumbIconColor,
+            scaleProgress = progress,
+            enabled = enabled,
+        )
+    }
 }
 
 @Composable

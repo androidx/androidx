@@ -96,7 +96,7 @@ fun RcSimpleClock1(
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         //    Box(modifier = Modifier.size(80.dp).background(Color.Blue))
-        RemoteCanvas(modifier = RemoteModifier.fillMaxWidth().fillMaxHeight()) {
+        RemoteCanvas0(modifier = RemoteModifier.fillMaxWidth().fillMaxHeight()) {
             val w = remote.component.width
             val h = remote.component.height
             val centerX = remote.component.centerX
@@ -132,7 +132,7 @@ fun RcSimpleClock1(
             drawCircle(bezel1, rad, RemoteOffset(centerX, centerY))
 
             clipRect(0f.rf, centerY, w, h) {
-                this@RemoteCanvas.drawCircle(bezel2, rad, RemoteOffset(centerX, centerY))
+                this@RemoteCanvas0.drawCircle(bezel2, rad, RemoteOffset(centerX, centerY))
             }
             drawCircle(Color.Black, rad, RemoteOffset(centerX, centerY), style = Stroke(width = 8f))
             drawCircle(Color.DarkGray, rad - bezel_thick, RemoteOffset(centerX, centerY))
@@ -150,7 +150,10 @@ fun RcSimpleClock1(
 
             // hour hand
             withTransform({
-                translate(centerX - 64f, (centerY + top) / 2f)
+                translate(
+                    with(this@RemoteCanvas0) { (centerX - 64f).floatId },
+                    with(this@RemoteCanvas0) { ((centerY + top) / 2f).floatId },
+                )
                 scale(5f, 5f, Offset(0f, 0f))
             }) {
                 drawPath(androidPath.asComposePath(), Color(0xFFA4C639))
@@ -221,8 +224,8 @@ fun RcSimpleClock1(
                             path.close()
 
                             translate(
-                                (centerX).internalAsFloat(),
-                                (faceTop + bezel_thick / 2f - 20f).internalAsFloat(),
+                                (centerX).floatId,
+                                (faceTop + bezel_thick / 2f - 20f).floatId,
                             ) {
                                 drawPath(path = path, color = minHandColor)
                             }
@@ -255,7 +258,7 @@ fun RcSimpleClock1(
                 drawCircle(Color.LightGray, dateLeft - centerX, RemoteOffset(centerX, centerY))
                 for (i in 0 until 7) {
                     val anim = remote.animateFloat((timeSeconds + i.toFloat()) * 360f / 7f, 0.2f)
-                    this@RemoteCanvas.rotate(anim, centerX, centerY) {
+                    this@RemoteCanvas0.rotate(anim, centerX, centerY) {
                         drawAnchoredText(
                             days[6 - i],
                             Color.Black,
@@ -293,9 +296,9 @@ fun RcSimpleClock1(
 
             val gmtPath = Path()
             gmtPath.moveTo(1f, 1f)
-            gmtPath.moveTo(centerX - 20f, top + (bezel_thick + 60f))
-            gmtPath.lineTo(centerX + 20f, top + (bezel_thick + 60f))
-            gmtPath.lineTo(centerX, top + (bezel_thick + 30f))
+            gmtPath.moveTo((centerX - 20f).floatId, (top + (bezel_thick + 60f)).floatId)
+            gmtPath.lineTo((centerX + 20f).floatId, (top + (bezel_thick + 60f)).floatId)
+            gmtPath.lineTo(centerX.floatId, (top + (bezel_thick + 30f)).floatId)
             gmtPath.close()
 
             rotate(gmtAngle, centerX, centerY) {

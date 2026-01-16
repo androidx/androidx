@@ -29,6 +29,7 @@ import android.util.SparseArray
 import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageGotoLinkContent
@@ -38,6 +39,8 @@ import androidx.pdf.content.SelectionBoundary
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.models.ListItem
+import java.util.concurrent.Executor
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -51,6 +54,7 @@ internal open class FakePdfDocument(
     internal val pages: List<Point?> = listOf(),
     override val formType: Int = PDF_FORM_TYPE_NONE,
     override val isLinearized: Boolean = false,
+    override val renderParams: RenderParams = RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY),
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),
     override val uri: Uri = Uri.parse("content://test.app/document.pdf"),
     private val pageLinks: Map<Int, PdfDocument.PdfPageLinks> = mapOf(),
@@ -85,21 +89,27 @@ internal open class FakePdfDocument(
         return FakeBitmapSource(pageNumber)
     }
 
-    override suspend fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo> {
-        logFormWidgetRequest(pageNum)
-        return pageFormWidgetInfos[pageNum] ?: emptyList()
-    }
-
     private fun logFormWidgetRequest(pageNum: Int) {
         _formWidgetRequests.add(pageNum)
     }
 
-    override suspend fun getFormWidgetInfos(pageNum: Int, types: IntArray): List<FormWidgetInfo> {
-        return pageFormWidgetInfos[pageNum]?.filter { it.widgetType in types } ?: emptyList()
+    override suspend fun getFormWidgetInfos(pageNum: Int, types: Long): List<FormWidgetInfo> {
+        logFormWidgetRequest(pageNum)
+        if (types == PdfDocument.FORM_WIDGET_INCLUDE_ALL_TYPES)
+            return pageFormWidgetInfos[pageNum] ?: emptyList()
+
+        return pageFormWidgetInfos[pageNum]?.filter {
+            (1 shl it.widgetType).toLong() and types != 0L
+        } ?: emptyList()
+    }
+
+    override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
+        TODO("Not yet implemented")
     }
 
     override fun addOnPdfContentInvalidatedListener(
-        listener: PdfDocument.OnPdfContentInvalidatedListener
+        executor: Executor,
+        listener: PdfDocument.OnPdfContentInvalidatedListener,
     ) {
         return
     }
@@ -138,17 +148,25 @@ internal open class FakePdfDocument(
         start: PointF,
         stop: PointF,
     ): PageSelection {
-        // TODO(b/376136631) provide a useful implementation when it's needed for testing
+        val selectionRect = RectF(start.x, start.y, stop.x, stop.y).apply { sort() }
+
         val selectedTextContents =
-            if (textContents.isEmpty()) {
-                listOf(PdfPageTextContent(listOf(RectF(0f, 0f, 10f, 10f)), "test"))
-            } else {
-                listOf(textContents[pageNumber])
-            }
+            textContents.getOrNull(pageNumber)?.let { content ->
+                // Filter text bounds that intersect with the selection
+                val intersectingBounds =
+                    content.bounds.mapNotNull { textRect ->
+                        RectF().takeIf { it.setIntersect(selectionRect, textRect) }
+                    }
+
+                if (intersectingBounds.isNotEmpty()) {
+                    listOf(PdfPageTextContent(intersectingBounds, content.text))
+                } else emptyList()
+            } ?: emptyList()
+
         return PageSelection(
             pageNumber,
-            SelectionBoundary(0),
-            SelectionBoundary(0),
+            SelectionBoundary(index = 0, point = Point(start.x.roundToInt(), start.y.roundToInt())),
+            SelectionBoundary(index = 0, point = Point(stop.x.roundToInt(), stop.y.roundToInt())),
             selectedTextContents,
         )
     }
@@ -175,25 +193,22 @@ internal open class FakePdfDocument(
 
     override suspend fun getPageInfos(
         pageRange: IntRange,
-        pageInfoFlags: PdfDocument.PageInfoFlags,
+        pageInfoFlags: Long,
     ): List<PdfDocument.PageInfo> {
         return listOf()
     }
 
     override suspend fun getPageInfo(pageNumber: Int): PdfDocument.PageInfo {
-        return getPageInfo(pageNumber, PdfDocument.PageInfoFlags.of(0))
+        return getPageInfo(pageNumber, PdfDocument.PAGE_INFO_EXCLUDE_FORM_WIDGETS)
     }
 
-    override suspend fun getPageInfo(
-        pageNumber: Int,
-        pageInfoFlags: PdfDocument.PageInfoFlags,
-    ): PdfDocument.PageInfo {
+    override suspend fun getPageInfo(pageNumber: Int, pageInfoFlags: Long): PdfDocument.PageInfo {
         layoutReach = maxOf(pageNumber, layoutReach)
         val size = pages[pageNumber]
         if (size == null) {
             throw CancellationException()
         }
-        if (pageInfoFlags.value and PdfDocument.INCLUDE_FORM_WIDGET_INFO != 0L) {
+        if (pageInfoFlags and PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET != 0L) {
             return PdfDocument.PageInfo(
                 pageNum = pageNumber,
                 height = size.y,
@@ -303,26 +318,25 @@ internal open class FakePdfDocument(
                     mapOf(
                         0 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+                                FormWidgetInfo.createRadioButton(
                                     widgetIndex = 0,
                                     widgetRect = Rect(50, 500, 100, 600),
                                     textValue = "false",
                                     accessibilityLabel = "Radio",
+                                    false,
                                 )
                             ),
                         1 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.WIDGET_TYPE_LISTBOX,
+                                FormWidgetInfo.createListBox(
                                     widgetIndex = 0,
                                     widgetRect = Rect(50, 400, 100, 550),
                                     textValue = "Banana",
                                     accessibilityLabel = "ListBox",
                                     listItems =
                                         listOf(ListItem("Apple", false), ListItem("Banana", false)),
-                                    multiSelect = true,
-                                    readOnly = true,
+                                    isMultiSelect = true,
+                                    isReadOnly = true,
                                 )
                             ),
                     ),

@@ -145,7 +145,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
             startSelectionHandleShown = true
             endSelectionHandleShown = true
             magnifierShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(position = bottomStart)
@@ -153,7 +153,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
             selection = 0 to text.length
             endSelectionHandleShown = false
             magnifierShown = false
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // drag back to ensure the gesture continues on
@@ -162,7 +162,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
             selection = 0 to 4
             endSelectionHandleShown = true
             magnifierShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -185,7 +185,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
         asserter.applyAndAssert {
             selection = 0 to text.length
             startSelectionHandleShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(characterPosition(offset = 2))
@@ -212,7 +212,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                 selection = 0 to text.length
                 magnifierShown = false
                 endSelectionHandleShown = false
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
 
             moveHandleToCharacter(characterOffset = 2)
@@ -220,7 +220,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                 selection = 0 to 4
                 magnifierShown = true
                 endSelectionHandleShown = true
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
         }
 
@@ -248,7 +248,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
             selection = 0 to text.length
             startSelectionHandleShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         withHandlePressed(Handle.SelectionStart) {
@@ -261,7 +261,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
             asserter.applyAndAssert {
                 selection = 5 to text.length
                 magnifierShown = true
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
 
             moveHandleTo(bottomEnd)
@@ -269,7 +269,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                 selection = (text.length - 1) to text.length
                 magnifierShown = false
                 startSelectionHandleShown = false
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
 
             moveHandleToCharacter(characterOffset = 6)
@@ -277,7 +277,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
                 selection = 5 to text.length
                 magnifierShown = true
                 startSelectionHandleShown = true
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
         }
 
@@ -303,7 +303,7 @@ internal class ClippedTextSelectionGesturesTest : AbstractSelectionGesturesTest(
         asserter.applyAndAssert {
             selection = 0 to text.length
             startSelectionHandleShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         val offsetTwoPosition = characterPosition(offset = 2)
