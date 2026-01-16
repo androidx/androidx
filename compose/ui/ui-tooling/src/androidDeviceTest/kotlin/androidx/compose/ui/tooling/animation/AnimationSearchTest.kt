@@ -20,7 +20,7 @@ import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.AnimateAsStatePreview
 import androidx.compose.ui.tooling.AnimateAsStateWithLabelsPreview
 import androidx.compose.ui.tooling.AnimateContentSizePreview

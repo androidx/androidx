@@ -25,7 +25,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.Icon
 import android.net.Uri
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,7 +78,7 @@ class ImageAppWidget : GlanceAppWidget() {
         val imageUri: Uri = getShareableImageUri(context)
 
         provideContent {
-            Scaffold(titleBar = { Header() }, content = { BodyContent(imageUri = imageUri) })
+            Scaffold(titleBar = { Header() }, content = { /*BodyContent(imageUri = imageUri) */ })
         }
     }
 
@@ -95,7 +94,7 @@ class ImageAppWidget : GlanceAppWidget() {
 @Composable
 private fun Header() {
     val context = LocalContext.current
-    var shouldTintHeaderIcon by remember { mutableStateOf(true) }
+    var shouldChangeHeaderIconTint by remember { mutableStateOf(true) }
 
     Row(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -107,12 +106,15 @@ private fun Header() {
             provider = ImageProvider(R.drawable.ic_android),
             contentDescription = null,
             colorFilter =
-                if (shouldTintHeaderIcon) {
+                if (shouldChangeHeaderIconTint) {
                     ColorFilter.tint(ColorProvider(day = Color.Green, night = Color.Blue))
                 } else {
-                    null
+                    ColorFilter.tint(ColorProvider(day = Color.Cyan, night = Color.Magenta))
                 },
-            modifier = GlanceModifier.clickable { shouldTintHeaderIcon = !shouldTintHeaderIcon },
+            modifier =
+                GlanceModifier.size(64.dp).clickable {
+                    shouldChangeHeaderIconTint = !shouldChangeHeaderIconTint
+                },
         )
         Text(
             text = context.getString(R.string.image_widget_name),
@@ -252,11 +254,6 @@ private fun BitmapImage(contentScale: ContentScale, modifier: GlanceModifier = G
  */
 @Composable
 private fun IconImage(contentScale: ContentScale, modifier: GlanceModifier) {
-    if (Build.VERSION.SDK_INT < 23) {
-        Text("The Icon api requires api >= 23")
-        return
-    }
-
     val bitmap = canvasBitmap(200, circleColor = Color.Red)
 
     Box {

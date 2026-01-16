@@ -25,11 +25,14 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultBlendMode
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.materialcore.SelectionStage
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.sin
 
 // Forked from materialcore package in order to specialise for material3
@@ -52,6 +55,69 @@ public fun DrawScope.animateTick(
     }
 }
 
+/**
+ * Draws the provided tick mark that scales in/out in size. The color's alpha component controls the
+ * fade in/out. The scaleProgress controls the size, from 0.0 (no size) to 1.0 (full size), with a
+ * Cubic Ease-Out curve applied to the scaling. This means the tick grows quickly at the start of
+ * the animation and slows down as it reaches full size.
+ */
+internal fun DrawScope.drawScalingTick(
+    tickPath: Path,
+    tickColor: Color,
+    scaleProgress: Float,
+    enabled: Boolean,
+) {
+    // Optimization: Don't draw if completely transparent or scaled to zero
+    if (tickColor.alpha == 0f || scaleProgress == 0f) {
+        return
+    }
+
+    val strokeWidth = TICK_STROKE_WIDTH_DP.toPx()
+    val tickDesignCenterX = TICK_DESIGN_CENTER_X_DP.toPx()
+    val tickDesignCenterY = TICK_DESIGN_CENTER_Y_DP.toPx()
+
+    val pivotOffset = Offset(tickDesignCenterX, tickDesignCenterY)
+
+    val normalizedProgress = scaleProgress.coerceIn(0f, 1f)
+    // Apply a Cubic Ease-Out function: increase quickly at the beginning and slow down towards the
+    // end for better tick visibility
+    val easedScaleFactor = 1f - (1f - normalizedProgress).pow(3)
+
+    // Scale around the tick's design center.
+    scale(scale = easedScaleFactor, pivot = pivotOffset) {
+        drawPath(
+            path = tickPath,
+            color = tickColor,
+            style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
+            blendMode = if (enabled) DefaultBlendMode else BlendMode.Hardlight,
+        )
+    }
+}
+
+/**
+ * Creates a [Path] object representing the complete geometry of the checkmark. The path coordinates
+ * are defined based on fitting the icon within a 24.dp x 24.dp container, and are converted to
+ * pixels using the receiver [Density].
+ */
+internal fun Density.createFullTickPath(): Path {
+    val tickBaseComponent = TICK_BASE_COMPONENT_DP.toPx()
+    val tickStickComponent = TICK_STICK_COMPONENT_DP.toPx()
+
+    val baseStartX = BASE_START_X_DP.toPx()
+    val baseStartY = BASE_START_Y_DP.toPx()
+    val stickStartX = STICK_START_X_DP.toPx()
+    val stickStartY = STICK_START_Y_DP.toPx()
+
+    return Path().apply {
+        // Base segment
+        moveTo(baseStartX, baseStartY)
+        lineTo(baseStartX + tickBaseComponent, baseStartY + tickBaseComponent)
+        // Stick segment
+        moveTo(stickStartX, stickStartY)
+        lineTo(stickStartX + tickStickComponent, stickStartY - tickStickComponent)
+    }
+}
+
 private fun DrawScope.drawTick(
     tickColor: Color,
     tickProgress: Float,
@@ -60,17 +126,30 @@ private fun DrawScope.drawTick(
 ) {
     // Using tickProgress animating from zero to TICK_TOTAL_LENGTH,
     // rotate the tick as we draw from 15 degrees to zero.
-    val tickBaseLength = TICK_BASE_LENGTH.toPx()
-    val tickStickLength = TICK_STICK_LENGTH.toPx()
+    val tickBaseLength = TICK_BASE_COMPONENT_DP.toPx()
+    val tickStickLength = TICK_STICK_COMPONENT_DP.toPx()
     val tickTotalLength = tickBaseLength + tickStickLength
     val tickProgressPx = tickProgress * tickTotalLength
     val startXOffsetPx = startXOffset.toPx()
-    val center = Offset(12.dp.toPx() + startXOffsetPx, 12.dp.toPx())
-    val angle = TICK_ROTATION - TICK_ROTATION / tickTotalLength * tickProgressPx
+    val center =
+        Offset(TICK_DESIGN_CENTER_X_DP.toPx() + startXOffsetPx, TICK_DESIGN_CENTER_Y_DP.toPx())
+
+    // Normalized progress for angle calculation (0 to 1)
+    val normalizedProgress = tickProgress.coerceIn(0f, 1f)
+
+    // Apply a Cubic Ease-In function (progress^3) to the normalized progress.
+    // This creates an "eased" progress value that increases slowly at the beginning
+    val rotationEasedProgress = normalizedProgress.pow(3)
+
+    // Angle decays from TICK_ROTATION to 0.
+    // We use (1f - rotationEasedProgress) such that the *change* in angle is slower at the start
+    // Meaning the angle stays larger for longer.
+    // Ensuring the tick is more visible while undergoing the most significant part of its rotation.
+    val angle = TICK_ROTATION * (1f - rotationEasedProgress)
     val angleRadians = angle.toRadians()
 
     // Animate the base of the tick.
-    val baseStart = Offset(7.4f.dp.toPx() + startXOffsetPx, 13.0f.dp.toPx())
+    val baseStart = Offset(BASE_START_X_DP.toPx() + startXOffsetPx, BASE_START_Y_DP.toPx())
     val tickBaseProgress = min(tickProgressPx, tickBaseLength)
 
     val path = Path()
@@ -81,7 +160,7 @@ private fun DrawScope.drawTick(
 
     if (tickProgressPx > tickBaseLength) {
         val tickStickProgress = min(tickProgressPx - tickBaseLength, tickStickLength)
-        val stickStart = Offset(10.5f.dp.toPx() + startXOffsetPx, 15.1f.dp.toPx())
+        val stickStart = Offset(STICK_START_X_DP.toPx() + startXOffsetPx, STICK_START_Y_DP.toPx())
         // Move back to the start of the stick (without drawing)
         path.moveTo(stickStart.rotate(angleRadians, center))
         path.lineTo(
@@ -92,7 +171,7 @@ private fun DrawScope.drawTick(
     drawPath(
         path,
         tickColor,
-        style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round),
+        style = Stroke(width = TICK_STROKE_WIDTH_DP.toPx(), cap = StrokeCap.Round),
         blendMode = if (enabled) DefaultBlendMode else BlendMode.Hardlight,
     )
 }
@@ -103,8 +182,8 @@ private fun DrawScope.eraseTick(
     startXOffset: Dp,
     enabled: Boolean,
 ) {
-    val tickBaseLength = TICK_BASE_LENGTH.toPx()
-    val tickStickLength = TICK_STICK_LENGTH.toPx()
+    val tickBaseLength = TICK_BASE_COMPONENT_DP.toPx()
+    val tickStickLength = TICK_STICK_COMPONENT_DP.toPx()
     val tickTotalLength = tickBaseLength + tickStickLength
     val tickProgressPx = tickProgress * tickTotalLength
     val startXOffsetPx = startXOffset.toPx()
@@ -130,7 +209,7 @@ private fun DrawScope.eraseTick(
     drawPath(
         path,
         tickColor,
-        style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round),
+        style = Stroke(width = TICK_STROKE_WIDTH_DP.toPx(), cap = StrokeCap.Round),
         blendMode = if (enabled) DefaultBlendMode else BlendMode.Hardlight,
     )
 }
@@ -157,6 +236,20 @@ public fun directionVector(angleRadians: Float): Offset =
 
 private fun Offset.rotate90() = Offset(-y, x)
 
-private val TICK_BASE_LENGTH = 2.5.dp
-private val TICK_STICK_LENGTH = 6.dp
+// These COMPONENT constants represent the equal horizontal and vertical projections
+// of the 45-degree line segments. The actual Euclidean length of the segments
+// is sqrt(2) * component_value.
+private val TICK_BASE_COMPONENT_DP = 2.5.dp // dX and dY for the base segment
+private val TICK_STICK_COMPONENT_DP = 6.dp // dX and dY for the stick segment
+
+private val BASE_START_X_DP = 7.4.dp
+private val BASE_START_Y_DP = 13.0.dp
+private val STICK_START_X_DP = 10.5.dp
+private val STICK_START_Y_DP = 15.1f.dp
+
+// Center of the tick's 24.dp design box
+private val TICK_DESIGN_CENTER_X_DP = 12.dp
+private val TICK_DESIGN_CENTER_Y_DP = 12.dp
+
+private val TICK_STROKE_WIDTH_DP = 2.dp
 private const val TICK_ROTATION = 15f

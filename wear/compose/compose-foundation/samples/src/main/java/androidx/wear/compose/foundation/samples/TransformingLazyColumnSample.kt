@@ -39,7 +39,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import androidx.wear.compose.material.Text
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.SurfaceTransformation
@@ -55,6 +57,31 @@ fun SimpleTransformingLazyColumnSample() {
     val transformationSpec = rememberTransformationSpec()
     TransformingLazyColumn(contentPadding = PaddingValues(20.dp)) {
         items(count = 10) { index ->
+            Button(
+                modifier = Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
+                transformation = SurfaceTransformation(transformationSpec),
+                onClick = {},
+            ) {
+                Text(text = "Item $index")
+            }
+        }
+    }
+}
+
+@Sampled
+@Preview
+@Composable
+fun TransformingLazyColumnWithSnapSample() {
+    val transformationSpec = rememberTransformationSpec()
+    val state = rememberTransformingLazyColumnState()
+    TransformingLazyColumn(
+        rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(scrollableState = state),
+        flingBehavior = TransformingLazyColumnDefaults.snapFlingBehavior(state = state),
+        modifier = Modifier.fillMaxWidth(),
+        state = state,
+        contentPadding = PaddingValues(20.dp),
+    ) {
+        items(count = 20) { index ->
             Button(
                 modifier = Modifier.fillMaxWidth().transformedHeight(this, transformationSpec),
                 transformation = SurfaceTransformation(transformationSpec),

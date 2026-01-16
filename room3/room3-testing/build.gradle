@@ -46,46 +46,26 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":room3:room3-common"))
-                api(project(":room3:room3-runtime"))
-                api(project(":sqlite:sqlite"))
-                implementation(project(":room3:room3-migration"))
-            }
+        commonMain.dependencies {
+            api(project(":room3:room3-common"))
+            api(project(":room3:room3-runtime"))
+            api(project(":sqlite:sqlite"))
+            implementation(project(":room3:room3-migration"))
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.junit)
-            }
+        jvmMain.dependencies {
+            api(libs.junit)
         }
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.junit)
-                api(project(":sqlite:sqlite-framework"))
-                implementation("androidx.arch.core:core-runtime:2.2.0")
-            }
+        androidMain.dependencies {
+            api(libs.junit)
+            api(project(":sqlite:sqlite-framework"))
+            implementation("androidx.arch.core:core-runtime:2.2.0")
         }
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.okio)
-            }
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            }
+        nativeMain.dependencies {
+            implementation(libs.okio)
         }
     }
 }

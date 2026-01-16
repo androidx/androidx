@@ -47,9 +47,9 @@ class RenderBundleEncoderTest {
 
         shaderModule =
             device.createShaderModule(
-                ShaderModuleDescriptor(
+                GPUShaderModuleDescriptor(
                     shaderSourceWGSL =
-                        ShaderSourceWGSL(
+                        GPUShaderSourceWGSL(
                             """@vertex fn vsMain() -> @builtin(position) vec4<f32> {
                         return vec4<f32>(0.0, 0.0, 0.0, 1.0);
                     }
@@ -62,20 +62,20 @@ class RenderBundleEncoderTest {
                 )
             )
 
-        layout = device.createPipelineLayout(PipelineLayoutDescriptor())
+        layout = device.createPipelineLayout(GPUPipelineLayoutDescriptor())
 
         defaultColorPipeline =
             device.createRenderPipeline(
-                RenderPipelineDescriptor(
+                GPURenderPipelineDescriptor(
                     layout = layout,
-                    vertex = VertexState(module = shaderModule, entryPoint = "vsMain"),
+                    vertex = GPUVertexState(module = shaderModule, entryPoint = "vsMain"),
                     fragment =
-                        FragmentState(
+                        GPUFragmentState(
                             module = shaderModule,
                             entryPoint = "fsMain",
-                            targets = arrayOf(ColorTargetState(format = kColorFormat)),
+                            targets = arrayOf(GPUColorTargetState(format = kColorFormat)),
                         ),
-                    primitive = PrimitiveState(topology = PrimitiveTopology.TriangleList),
+                    primitive = GPUPrimitiveState(topology = PrimitiveTopology.TriangleList),
                 )
             )
     }
@@ -102,7 +102,7 @@ class RenderBundleEncoderTest {
     /** Helper to create a GPURenderBundleEncoder with default color format. */
     private fun createDefaultBundleEncoder(): GPURenderBundleEncoder {
         return device.createRenderBundleEncoder(
-            RenderBundleEncoderDescriptor(colorFormats = intArrayOf(kColorFormat))
+            GPURenderBundleEncoderDescriptor(colorFormats = intArrayOf(kColorFormat))
         )
     }
 
@@ -112,7 +112,7 @@ class RenderBundleEncoderTest {
         val paddedSize = (dataSize + 3) and -4L
         val buffer =
             device.createBuffer(
-                BufferDescriptor(
+                GPUBufferDescriptor(
                     size = paddedSize,
                     usage = BufferUsage.Index or BufferUsage.CopyDst,
                 )
@@ -130,7 +130,7 @@ class RenderBundleEncoderTest {
         byteBuffer.asIntBuffer().put(data)
         val buffer =
             device.createBuffer(
-                BufferDescriptor(
+                GPUBufferDescriptor(
                     size = byteBuffer.capacity().toLong(),
                     usage = BufferUsage.Indirect or BufferUsage.CopyDst,
                 )
@@ -198,7 +198,7 @@ class RenderBundleEncoderTest {
     @Test
     fun testSetVertexBufferInvalidUsageFails() {
         val invalidBuffer =
-            device.createBuffer(BufferDescriptor(size = 16, usage = BufferUsage.CopyDst))
+            device.createBuffer(GPUBufferDescriptor(size = 16, usage = BufferUsage.CopyDst))
         val bundleEncoder = createDefaultBundleEncoder()
         bundleEncoder.setVertexBuffer(0, invalidBuffer) // Invalid.
 
@@ -211,7 +211,7 @@ class RenderBundleEncoderTest {
     @Test
     fun testSetVertexBufferValidSucceeds() {
         val validBuffer =
-            device.createBuffer(BufferDescriptor(size = 16, usage = BufferUsage.Vertex))
+            device.createBuffer(GPUBufferDescriptor(size = 16, usage = BufferUsage.Vertex))
         val bundleEncoder = createDefaultBundleEncoder()
         bundleEncoder.setVertexBuffer(0, validBuffer) // Valid.
 
@@ -254,7 +254,7 @@ class RenderBundleEncoderTest {
     @Test
     fun testDrawIndirectInvalidBufferFails() {
         val invalidBuffer =
-            device.createBuffer(BufferDescriptor(size = 16, usage = BufferUsage.CopyDst))
+            device.createBuffer(GPUBufferDescriptor(size = 16, usage = BufferUsage.CopyDst))
         val bundleEncoder = createDefaultBundleEncoder()
         bundleEncoder.setPipeline(defaultColorPipeline)
         bundleEncoder.drawIndirect(invalidBuffer, 0) // Invalid.
@@ -319,35 +319,39 @@ class RenderBundleEncoderTest {
         // Create pipeline requiring a bind group locally
         val bgl =
             device.createBindGroupLayout(
-                BindGroupLayoutDescriptor(
+                GPUBindGroupLayoutDescriptor(
                     entries =
                         arrayOf(
-                            BindGroupLayoutEntry(
+                            GPUBindGroupLayoutEntry(
                                 0,
                                 ShaderStage.Fragment,
-                                buffer = BufferBindingLayout(BufferBindingType.Uniform),
+                                buffer = GPUBufferBindingLayout(BufferBindingType.Uniform),
                             )
                         )
                 )
             )
         val layout =
-            device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayouts = arrayOf(bgl)))
+            device.createPipelineLayout(
+                GPUPipelineLayoutDescriptor(bindGroupLayouts = arrayOf(bgl))
+            )
         val module =
             device.createShaderModule(
-                ShaderModuleDescriptor(shaderSourceWGSL = ShaderSourceWGSL(BIND_GROUP_SHADER_CODE))
+                GPUShaderModuleDescriptor(
+                    shaderSourceWGSL = GPUShaderSourceWGSL(BIND_GROUP_SHADER_CODE)
+                )
             )
         val bgPipeline =
             device.createRenderPipeline(
-                RenderPipelineDescriptor(
+                GPURenderPipelineDescriptor(
                     layout = layout,
-                    vertex = VertexState(module, "vs"),
+                    vertex = GPUVertexState(module, "vs"),
                     fragment =
-                        FragmentState(
+                        GPUFragmentState(
                             module,
                             "fs",
-                            targets = arrayOf(ColorTargetState(kColorFormat)),
+                            targets = arrayOf(GPUColorTargetState(kColorFormat)),
                         ),
-                    primitive = PrimitiveState(topology = PrimitiveTopology.TriangleList),
+                    primitive = GPUPrimitiveState(topology = PrimitiveTopology.TriangleList),
                 )
             )
 
@@ -368,18 +372,18 @@ class RenderBundleEncoderTest {
     @Test
     fun testDrawWithBindGroupSetSucceeds() {
         // Create the uniform buffer resource needed by the shader.
-        val buffer = device.createBuffer(BufferDescriptor(size = 4, usage = BufferUsage.Uniform))
+        val buffer = device.createBuffer(GPUBufferDescriptor(size = 4, usage = BufferUsage.Uniform))
 
         // Define the layout for the bind group, matching the shader.
         val bgl =
             device.createBindGroupLayout(
-                BindGroupLayoutDescriptor(
+                GPUBindGroupLayoutDescriptor(
                     entries =
                         arrayOf(
-                            BindGroupLayoutEntry(
+                            GPUBindGroupLayoutEntry(
                                 0,
                                 ShaderStage.Fragment,
-                                buffer = BufferBindingLayout(BufferBindingType.Uniform),
+                                buffer = GPUBufferBindingLayout(BufferBindingType.Uniform),
                             )
                         )
                 )
@@ -388,29 +392,36 @@ class RenderBundleEncoderTest {
         // Create the actual bind group, linking the buffer to binding 0 according to the layout.
         val bindGroup =
             device.createBindGroup(
-                BindGroupDescriptor(layout = bgl, entries = arrayOf(BindGroupEntry(0, buffer)))
+                GPUBindGroupDescriptor(
+                    layout = bgl,
+                    entries = arrayOf(GPUBindGroupEntry(0, buffer)),
+                )
             )
 
         // Define the pipeline to expect the bind group layout 'bgl' at index 0.
         val layout =
-            device.createPipelineLayout(PipelineLayoutDescriptor(bindGroupLayouts = arrayOf(bgl)))
+            device.createPipelineLayout(
+                GPUPipelineLayoutDescriptor(bindGroupLayouts = arrayOf(bgl))
+            )
         val module =
             device.createShaderModule(
-                ShaderModuleDescriptor(shaderSourceWGSL = ShaderSourceWGSL(BIND_GROUP_SHADER_CODE))
+                GPUShaderModuleDescriptor(
+                    shaderSourceWGSL = GPUShaderSourceWGSL(BIND_GROUP_SHADER_CODE)
+                )
             )
         // Create the render pipeline, linking the shader, layout, and required state.
         val bgPipeline =
             device.createRenderPipeline(
-                RenderPipelineDescriptor(
+                GPURenderPipelineDescriptor(
                     layout = layout,
-                    vertex = VertexState(module, "vs"),
+                    vertex = GPUVertexState(module, "vs"),
                     fragment =
-                        FragmentState(
+                        GPUFragmentState(
                             module,
                             "fs",
-                            targets = arrayOf(ColorTargetState(kColorFormat)),
+                            targets = arrayOf(GPUColorTargetState(kColorFormat)),
                         ),
-                    primitive = PrimitiveState(topology = PrimitiveTopology.TriangleList),
+                    primitive = GPUPrimitiveState(topology = PrimitiveTopology.TriangleList),
                 )
             )
 

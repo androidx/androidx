@@ -22,8 +22,8 @@
  * modifying its settings.
  */
 
+
 import androidx.build.AndroidXConfig
-import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
 
 plugins {
@@ -37,7 +37,7 @@ dependencies {
     api(project(":xr:arcore:arcore-testing"))
     api(project(":xr:scenecore:scenecore-runtime"))
 
-    implementation("com.google.ar:impress:0.0.10")
+    implementation("com.google.ar:impress:0.0.11")
     implementation(libs.testExtTruth)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
@@ -50,7 +50,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
     namespace = "androidx.xr.scenecore.testing"
 }

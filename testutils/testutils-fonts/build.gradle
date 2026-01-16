@@ -35,9 +35,6 @@ androidXMultiplatform {
     desktop()
 }
 
-dependencies {
-}
-
 androidx {
     type = SoftwareType.INTERNAL_TEST_LIBRARY
 }

@@ -24,7 +24,7 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.A
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.elementOf
 import androidx.compose.ui.node.findNearestBeyondBoundsLayoutAncestor
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat

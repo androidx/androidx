@@ -320,9 +320,8 @@ class CapturePipelineTest {
     @Before
     fun setUp() {
         state3AControl =
-            State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler).apply {
-                requestControl = fakeRequestControl
-            }
+            State3AControl(fakeCameraProperties, NoOpAutoFlashAEModeDisabler, fakeUseCaseThreads)
+                .apply { requestControl = fakeRequestControl }
 
         torchControl =
             TorchControl(fakeCameraProperties, state3AControl, fakeUseCaseThreads).also {
@@ -792,7 +791,6 @@ class CapturePipelineTest {
         assertThat(fakeCameraGraphSession.lock3AForCaptureSemaphore.tryAcquire(this)).isFalse()
     }
 
-    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withZslTemplate_templateZeroShutterLagSent(): Unit = runTest {
         // Arrange.
@@ -829,7 +827,6 @@ class CapturePipelineTest {
             .isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG))
     }
 
-    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withNoTemplate_templateStillPictureSent(): Unit = runTest {
         // Arrange.
@@ -863,7 +860,6 @@ class CapturePipelineTest {
         assertThat(request.template).isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE))
     }
 
-    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withZslDisabledByUseCaseConfig_templateStillPictureSent(): Unit =
         runTest {
@@ -901,7 +897,6 @@ class CapturePipelineTest {
                 .isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE))
         }
 
-    @Config(minSdk = 23)
     @Test
     fun submitZslCaptureRequests_withZslDisabledByFlashMode_templateStillPictureSent(): Unit =
         runTest {
@@ -1139,7 +1134,7 @@ class CapturePipelineTest {
         val capturePipelineTorchCorrection =
             CapturePipelineTorchCorrection(
                 cameraProperties = FakeCameraProperties(),
-                capturePipelineImpl = capturePipeline,
+                capturePipelineImplProvider = { capturePipeline },
                 threads = fakeUseCaseThreads,
                 torchControl = torchControl,
             )
@@ -1316,7 +1311,7 @@ class CapturePipelineTest {
             threads = fakeUseCaseThreads,
             torchControl = torchControl,
             useCaseGraphContext = fakeUseCaseGraphContext,
-            useCaseCameraState = fakeUseCaseCameraState,
+            useCaseCameraStateProvider = { fakeUseCaseCameraState },
             useTorchAsFlash = useTorchAsFlash,
             flashControl = flashControl,
             videoUsageControl = VideoUsageControl(),

@@ -36,6 +36,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerMod
 import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.player.compose.utils.FloatsToPath
 import androidx.compose.remote.player.compose.utils.copy
+import androidx.compose.remote.player.compose.utils.getPath
 import androidx.compose.remote.player.core.platform.AndroidComputedTextLayout
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -45,7 +46,6 @@ import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.asImageBitmap
@@ -153,7 +153,7 @@ internal class ComposePaintContext(
     }
 
     override fun drawPath(id: Int, start: Float, end: Float) {
-        canvas.drawPath(getPath(id, start, end), paint)
+        canvas.drawPath(mContext.mRemoteComposeState.getPath(id, start, end), paint)
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float) {
@@ -267,17 +267,22 @@ internal class ComposePaintContext(
             TextLayout.TEXT_ALIGN_RIGHT,
             TextLayout.TEXT_ALIGN_END ->
                 staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_OPPOSITE)
+
             TextLayout.TEXT_ALIGN_CENTER ->
                 staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_CENTER)
+
             else -> staticLayoutBuilder.setAlignment(Layout.Alignment.ALIGN_NORMAL)
         }
         when (overflow) {
             TextLayout.OVERFLOW_ELLIPSIS ->
                 staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.END)
+
             TextLayout.OVERFLOW_MIDDLE_ELLIPSIS ->
                 staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.MIDDLE)
+
             TextLayout.OVERFLOW_START_ELLIPSIS ->
                 staticLayoutBuilder.setEllipsize(TextUtils.TruncateAt.START)
+
             else -> {}
         }
         staticLayoutBuilder.setMaxLines(maxLines)
@@ -345,8 +350,8 @@ internal class ComposePaintContext(
     }
 
     override fun combinePath(out: Int, path1: Int, path2: Int, operation: Byte) {
-        val p1 = getPath(path1, 0f, 1f)
-        val p2 = getPath(path2, 0f, 1f)
+        val p1 = mContext.mRemoteComposeState.getPath(id = path1, start = 0f, end = 1f)
+        val p2 = mContext.mRemoteComposeState.getPath(id = path2, start = 0f, end = 1f)
         val op =
             arrayOf(
                 PathOperation.Difference,
@@ -402,7 +407,7 @@ internal class ComposePaintContext(
     }
 
     override fun clipPath(pathId: Int, regionOp: Int) {
-        val path = getPath(pathId, 0f, 1f)
+        val path = mContext.mRemoteComposeState.getPath(id = pathId, start = 0f, end = 1f)
         if (regionOp == ClipPath.DIFFERENCE) {
             canvas.clipPath(path, ClipOp.Difference)
         } else {
@@ -467,24 +472,33 @@ internal class ComposePaintContext(
                     GraphicsLayerModifierOperation.ROTATION_Z -> node.rotationZ = value as Float
                     GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_X ->
                         node.pivotX = value as Float * node.width
+
                     GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y ->
                         node.pivotY = value as Float * node.width
+
                     GraphicsLayerModifierOperation.TRANSLATION_X ->
                         node.translationX = value as Float
+
                     GraphicsLayerModifierOperation.TRANSLATION_Y ->
                         node.translationY = value as Float
+
                     GraphicsLayerModifierOperation.TRANSLATION_Z ->
                         node.translationZ = value as Float
+
                     GraphicsLayerModifierOperation.SHAPE -> hasOutline = true
                     GraphicsLayerModifierOperation.SHADOW_ELEVATION ->
                         node.elevation = value as Float
+
                     GraphicsLayerModifierOperation.ALPHA -> node.alpha = value as Float
                     GraphicsLayerModifierOperation.CAMERA_DISTANCE ->
                         node.setCameraDistance(value as Float)
+
                     GraphicsLayerModifierOperation.SPOT_SHADOW_COLOR ->
                         node.spotShadowColor = value as Int
+
                     GraphicsLayerModifierOperation.AMBIENT_SHADOW_COLOR ->
                         node.ambientShadowColor = value as Int
+
                     GraphicsLayerModifierOperation.HAS_BLUR -> hasBlurEffect = (value as Int?) != 0
                 }
             }
@@ -531,12 +545,14 @@ internal class ComposePaintContext(
                 when (blurTileMode) {
                     GraphicsLayerModifierOperation.TILE_MODE_CLAMP ->
                         tileMode = Shader.TileMode.CLAMP
+
                     GraphicsLayerModifierOperation.TILE_MODE_DECAL ->
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) { // REMOVE IN PLATFORM
                             tileMode = Shader.TileMode.DECAL
                         } // REMOVE IN PLATFORM
                     GraphicsLayerModifierOperation.TILE_MODE_MIRROR ->
                         tileMode = Shader.TileMode.MIRROR
+
                     GraphicsLayerModifierOperation.TILE_MODE_REPEATED ->
                         tileMode = Shader.TileMode.REPEAT
                 }
@@ -569,7 +585,7 @@ internal class ComposePaintContext(
     }
 
     override fun matrixFromPath(pathId: Int, fraction: Float, vOffset: Float, flags: Int) {
-        val path = getPath(pathId, 0f, 1f)
+        val path = mContext.mRemoteComposeState.getPath(pathId, 0f, 1f)
         if (path.isEmpty) return
 
         val measure = PathMeasure()
@@ -614,25 +630,6 @@ internal class ComposePaintContext(
     private fun getPath(tmp: FloatArray, start: Float, end: Float): Path {
         val path = Path()
         FloatsToPath.genPath(path, tmp, start, end)
-        return path
-    }
-
-    private fun getPath(id: Int, start: Float, end: Float): Path {
-        val p: Path? = mContext.mRemoteComposeState.getPath(id) as Path?
-        val w: Int = mContext.mRemoteComposeState.getPathWinding(id)
-        if (p != null) {
-            return p
-        }
-        val path = Path()
-        val pathData: FloatArray? = mContext.mRemoteComposeState.getPathData(id)
-        if (pathData != null) {
-            FloatsToPath.genPath(path, pathData, start, end)
-            if (w == 1) {
-                path.fillType = PathFillType.EvenOdd
-            }
-            mContext.mRemoteComposeState.putPath(id, path)
-        }
-
         return path
     }
 

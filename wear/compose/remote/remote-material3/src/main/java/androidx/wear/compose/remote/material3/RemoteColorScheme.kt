@@ -33,11 +33,12 @@ import androidx.wear.compose.material3.ColorScheme
  *
  * The colors are retrieved from the local `ColorScheme` and wrapped in `rememberRemoteColor` to
  * ensure they are correctly managed and updated in the remote UI.
+ *
+ * @param colorScheme The local `ColorScheme` to retrieve colors from.
  */
 @Suppress("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteColorScheme() {
-    private val colorScheme: ColorScheme = ColorScheme()
+public open class RemoteColorScheme(internal val colorScheme: ColorScheme = ColorScheme()) {
 
     private companion object {
         private const val PRIMARY = "WearM3.primary"

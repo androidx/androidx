@@ -20,6 +20,8 @@ import androidx.binarycompatibilityvalidator.BinaryCompatibilityChecker
 import androidx.binarycompatibilityvalidator.KlibDumpParser
 import androidx.binarycompatibilityvalidator.ValidationException
 import androidx.build.Version
+import androidx.build.logging.TERMINAL_RED
+import androidx.build.logging.TERMINAL_RESET
 import androidx.build.metalava.shouldFreezeApis
 import androidx.build.metalava.summarizeDiff
 import java.io.File
@@ -147,8 +149,8 @@ private abstract class CheckCompatibilityWorker : WorkAction<CheckCompatibilityP
                 throw GradleException(
                     frozenApiErrorMessage(
                         parameters.referenceVersion.get(),
-                        previousApiDump = File(parameters.previousApiPath.get()),
-                        currentApiDump = File(parameters.currentApiPath.get()),
+                        previousAbiDump = File(parameters.previousApiPath.get()),
+                        currentAbiDump = File(parameters.currentApiPath.get()),
                     )
                 )
             }
@@ -157,17 +159,28 @@ private abstract class CheckCompatibilityWorker : WorkAction<CheckCompatibilityP
     }
 
     private fun compatErrorMessage(validationException: ValidationException) =
-        "Your change has binary compatibility issues. Please resolve them before updating." +
-            "\n${validationException.message}" +
-            "\nIf you believe these changes are actually compatible and that this is a tooling " +
-            "error, please file a bug. $NEW_ISSUE_URL"
+        """
+${TERMINAL_RED}Your change has binary compatibility issues. Please resolve them before updating.$TERMINAL_RESET
+
+${validationException.message}
+
+If you *intentionally* want to break compatibility, you can suppress it with
+./gradlew ignoreAbiChanges && ./gradlew updateAbi
+
+If you believe these changes are actually compatible and that this is a tooling error, please file a bug. $NEW_ISSUE_URL
+"""
 
     private fun frozenApiErrorMessage(
         referenceVersion: String,
-        previousApiDump: File,
-        currentApiDump: File,
+        previousAbiDump: File,
+        currentAbiDump: File,
     ) =
-        "The API surface was finalized in $referenceVersion. Revert the changes unless you have " +
-            "permission from Android API Council. " +
-            summarizeDiff(previousApiDump, currentApiDump)
+        """
+${TERMINAL_RED}The ABI surface was finalized in $referenceVersion. Revert the changes unless you have permission from Android API Council.$TERMINAL_RESET
+
+${summarizeDiff(previousAbiDump,currentAbiDump)}
+
+If you have obtained permission from Android API Council or Jetpack Working Group to bypass this policy, you can suppress this check with:
+./gradlew ignoreAbiChanges && ./gradlew updateAbi
+"""
 }

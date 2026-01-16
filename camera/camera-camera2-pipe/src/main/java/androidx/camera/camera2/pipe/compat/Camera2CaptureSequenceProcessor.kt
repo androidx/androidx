@@ -28,6 +28,7 @@ import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Metadata
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
@@ -35,6 +36,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.MonitoredLogMessages.REPEATING_REQUEST_STARTED_TIMEOUT
@@ -50,7 +52,8 @@ import kotlinx.atomicfu.atomic
 internal interface Camera2CaptureSequenceProcessorFactory {
     fun create(
         session: CameraCaptureSessionWrapper,
-        surfaceMap: Map<StreamId, Surface>,
+        streamToSurfaceMap: Map<StreamId, Surface>,
+        outputToSurfaceMap: Map<OutputId, Surface>,
     ): CaptureSequenceProcessor<*, *>
 }
 
@@ -61,18 +64,22 @@ constructor(
     private val graphConfig: CameraGraph.Config,
     private val streamGraph: StreamGraphImpl,
     private val quirks: Camera2Quirks,
+    private val strictMode: StrictMode,
 ) : Camera2CaptureSequenceProcessorFactory {
     @Suppress("UNCHECKED_CAST")
     override fun create(
         session: CameraCaptureSessionWrapper,
-        surfaceMap: Map<StreamId, Surface>,
+        streamToSurfaceMap: Map<StreamId, Surface>,
+        outputToSurfaceMap: Map<OutputId, Surface>,
     ): CaptureSequenceProcessor<*, CaptureSequence<Any>> {
         return Camera2CaptureSequenceProcessor(
             session,
             threads,
             graphConfig.defaultTemplate,
-            surfaceMap,
+            streamToSurfaceMap,
+            outputToSurfaceMap,
             streamGraph,
+            strictMode,
             quirks.shouldWaitForRepeatingRequestStartOnDisconnect(graphConfig),
         )
             as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
@@ -94,8 +101,10 @@ internal class Camera2CaptureSequenceProcessor(
     private val session: CameraCaptureSessionWrapper,
     private val threads: Threads,
     private val template: RequestTemplate,
-    private val surfaceMap: Map<StreamId, Surface>,
+    private val streamToSurfaceMap: Map<StreamId, Surface>,
+    private val outputToSurfaceMap: Map<OutputId, Surface>,
     private val streamGraph: StreamGraph,
+    private val strictMode: StrictMode,
     private val awaitRepeatingRequestOnDisconnect: Boolean = false,
 ) : CaptureSequenceProcessor<CaptureRequest, Camera2CaptureSequence> {
     private val debugId = captureSequenceProcessorDebugIds.incrementAndGet()
@@ -119,13 +128,16 @@ internal class Camera2CaptureSequenceProcessor(
         val captureRequests = ArrayList<CaptureRequest>(requests.size)
 
         val surfaceToStreamMap = ArrayMap<Surface, StreamId>()
+        val surfaceToOutputMap = ArrayMap<Surface, OutputId>()
         val streamToSurfaceMap = ArrayMap<StreamId, Surface>()
 
         if (!validateRequestList(requests, session)) {
             return null
         }
 
-        if (!buildSurfaceMaps(requests, surfaceToStreamMap, streamToSurfaceMap)) {
+        if (
+            !buildSurfaceMaps(requests, surfaceToStreamMap, surfaceToOutputMap, streamToSurfaceMap)
+        ) {
             return null
         }
 
@@ -156,8 +168,11 @@ internal class Camera2CaptureSequenceProcessor(
             check(hasSurface)
 
             if (request.inputRequest != null) {
-                checkNotNull(imageWriter) {
-                    "Failed to create ImageWriter for capture session: $session"
+                if (imageWriter == null) {
+                    Log.error {
+                        "Failed to queue request to ImageWriter - No ImageWriter available!"
+                    }
+                    return null
                 }
                 val image = request.inputRequest.image
                 synchronized(lock) {
@@ -289,6 +304,9 @@ internal class Camera2CaptureSequenceProcessor(
             listeners,
             sequenceListener,
             surfaceToStreamMap,
+            surfaceToOutputMap,
+            streamGraph,
+            strictMode,
         )
     }
 
@@ -403,7 +421,10 @@ internal class Camera2CaptureSequenceProcessor(
                         threads.camera2Handler,
                     )
                 } catch (e: RuntimeException) {
-                    Log.warn(e) { "Failed to create ImageWriter for session $session" }
+                    Log.error(e) {
+                        "Failed to create ImageWriter for session $session! " +
+                            "Reprocessing will not be supported!"
+                    }
                     null
                 }
             if (androidImageWriter != null) {
@@ -497,6 +518,7 @@ internal class Camera2CaptureSequenceProcessor(
     private fun buildSurfaceMaps(
         requests: List<Request>,
         surfaceToStreamMap: MutableMap<Surface, StreamId>,
+        surfaceToOutputMap: MutableMap<Surface, OutputId>,
         streamToSurfaceMap: MutableMap<StreamId, Surface>,
     ): Boolean {
         check(requests.isNotEmpty()) {
@@ -513,12 +535,17 @@ internal class Camera2CaptureSequenceProcessor(
                     continue
                 }
 
-                val surface = surfaceMap[stream]
+                val surface = this@Camera2CaptureSequenceProcessor.streamToSurfaceMap[stream]
                 if (surface != null) {
                     // TODO(codelogic) There should be a more efficient way to do these lookups than
                     // having two maps.
                     surfaceToStreamMap[surface] = stream
                     streamToSurfaceMap[stream] = surface
+                    val cameraStream = checkNotNull(streamGraph[stream])
+                    for (outputStream in cameraStream.outputs) {
+                        val surface = checkNotNull(outputToSurfaceMap[outputStream.id])
+                        surfaceToOutputMap[surface] = outputStream.id
+                    }
                     hasSurface = true
                 } else if (REQUIRE_SURFACE_FOR_ALL_STREAMS) {
                     Log.info { "  Failed to bind surface for $stream" }

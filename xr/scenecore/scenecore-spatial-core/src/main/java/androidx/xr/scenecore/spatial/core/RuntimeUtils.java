@@ -21,15 +21,11 @@ import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.impl.perception.Plane;
-import androidx.xr.scenecore.runtime.CameraViewScenePose.Fov;
 import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.HitTestResult;
 import androidx.xr.scenecore.runtime.InputEvent;
 import androidx.xr.scenecore.runtime.InputEvent.HitInfo;
 import androidx.xr.scenecore.runtime.PixelDimensions;
-import androidx.xr.scenecore.runtime.PlaneSemantic;
-import androidx.xr.scenecore.runtime.PlaneType;
 import androidx.xr.scenecore.runtime.ResizeEvent;
 import androidx.xr.scenecore.runtime.ScenePose.HitTestFilter;
 import androidx.xr.scenecore.runtime.ScenePose.HitTestFilterValue;
@@ -56,67 +52,6 @@ import java.util.List;
 
 final class RuntimeUtils {
     private RuntimeUtils() {}
-
-    /** Convert SceneCore PlaneType to a PerceptionLibrary Plane.Type. */
-    static Plane.Type getPlaneType(PlaneType planeType) {
-        switch (planeType) {
-            case HORIZONTAL:
-                // TODO: b/329888869 - Allow Horizontal to work as both upward and downward facing.
-                // To do this it would have to return a collection.
-                return Plane.Type.HORIZONTAL_UPWARD_FACING;
-            case VERTICAL:
-                return Plane.Type.VERTICAL;
-            case ANY:
-                return Plane.Type.ARBITRARY;
-        }
-        return Plane.Type.ARBITRARY;
-    }
-
-    /** Convert a Perception Plane.Type to a SceneCore PlaneType. */
-    static PlaneType getPlaneType(Plane.Type planeType) {
-        switch (planeType) {
-            case HORIZONTAL_UPWARD_FACING:
-            case HORIZONTAL_DOWNWARD_FACING:
-                return PlaneType.HORIZONTAL;
-            case VERTICAL:
-                return PlaneType.VERTICAL;
-            default:
-                return PlaneType.ANY;
-        }
-    }
-
-    /** Convert a SceneCore PlaneSemantic to a PerceptionLibrary Plane.Label. */
-    static Plane.Label getPlaneLabel(PlaneSemantic planeSemantic) {
-        switch (planeSemantic) {
-            case WALL:
-                return Plane.Label.WALL;
-            case FLOOR:
-                return Plane.Label.FLOOR;
-            case CEILING:
-                return Plane.Label.CEILING;
-            case TABLE:
-                return Plane.Label.TABLE;
-            case ANY:
-                return Plane.Label.UNKNOWN;
-        }
-        return Plane.Label.UNKNOWN;
-    }
-
-    /** Convert a PerceptionLibrary Plane.Label to a SceneCore PlaneSemantic. */
-    static PlaneSemantic getPlaneSemantic(Plane.Label planeLabel) {
-        switch (planeLabel) {
-            case WALL:
-                return PlaneSemantic.WALL;
-            case FLOOR:
-                return PlaneSemantic.FLOOR;
-            case CEILING:
-                return PlaneSemantic.CEILING;
-            case TABLE:
-                return PlaneSemantic.TABLE;
-            default:
-                return PlaneSemantic.ANY;
-        }
-    }
 
     @VisibleForTesting
     static @Nullable HitInfo getHitInfo(
@@ -266,65 +201,6 @@ final class RuntimeUtils {
 
     static Quaternion getQuaternion(Quatf quatf) {
         return new Quaternion(quatf.x, quatf.y, quatf.z, quatf.w);
-    }
-
-    /**
-     * Converts from a perception pose type.
-     *
-     * @param perceptionPose a {@code androidx.xr.scenecore.impl.perception.Pose} instance
-     *     representing the pose.
-     */
-    static Pose fromPerceptionPose(androidx.xr.scenecore.impl.perception.Pose perceptionPose) {
-        Vector3 translation =
-                new Vector3(perceptionPose.tx(), perceptionPose.ty(), perceptionPose.tz());
-        Quaternion rotation =
-                new Quaternion(
-                        perceptionPose.qx(),
-                        perceptionPose.qy(),
-                        perceptionPose.qz(),
-                        perceptionPose.qw());
-        return new Pose(translation, rotation);
-    }
-
-    /**
-     * Converts from a pose to a perception pose type.
-     *
-     * @param pose a {@code androidx.xr.runtime.math.Pose} instance representing the pose.
-     */
-    static androidx.xr.scenecore.impl.perception.Pose poseToPerceptionPose(Pose pose) {
-        return new androidx.xr.scenecore.impl.perception.Pose(
-                pose.getTranslation().getX(),
-                pose.getTranslation().getY(),
-                pose.getTranslation().getZ(),
-                pose.getRotation().getX(),
-                pose.getRotation().getY(),
-                pose.getRotation().getZ(),
-                pose.getRotation().getW());
-    }
-
-    /**
-     * Converts to a SceneCore FOV from a perception FOV type.
-     *
-     * @param perceptionFov a {@code androidx.xr.scenecore.impl.perception.Fov} instance
-     *     representing the FOV.
-     */
-    static Fov fovFromPerceptionFov(androidx.xr.scenecore.impl.perception.Fov perceptionFov) {
-        return new Fov(
-                perceptionFov.getAngleLeft(),
-                perceptionFov.getAngleRight(),
-                perceptionFov.getAngleUp(),
-                perceptionFov.getAngleDown());
-    }
-
-    /**
-     * Converts to a perception FOV from a SceneCore FOV type.
-     *
-     * @param fov a {@code androidx.xr.runtime.internal.CameraViewScenePose.Fov} instance
-     *     representing the FOV.
-     */
-    static androidx.xr.scenecore.impl.perception.Fov perceptionFovFromFov(Fov fov) {
-        return new androidx.xr.scenecore.impl.perception.Fov(
-                fov.getAngleLeft(), fov.getAngleRight(), fov.getAngleUp(), fov.getAngleDown());
     }
 
     /**

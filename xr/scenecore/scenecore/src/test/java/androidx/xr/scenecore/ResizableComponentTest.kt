@@ -16,140 +16,121 @@
 
 package androidx.xr.scenecore
 
-import android.content.Context
-import android.view.View
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
-import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
 import androidx.xr.scenecore.runtime.Dimensions as RtDimensions
-import androidx.xr.scenecore.runtime.Entity as RtEntity
-import androidx.xr.scenecore.runtime.PanelEntity as RtPanelEntity
-import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
-import androidx.xr.scenecore.runtime.ResizableComponent as RtResizableComponent
 import androidx.xr.scenecore.runtime.ResizeEvent as RtResizeEvent
-import androidx.xr.scenecore.runtime.ResizeEventListener as RtResizeEventListener
 import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilities
+import androidx.xr.scenecore.testing.FakeResizableComponent
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.util.function.Consumer
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.ArgumentCaptor
-import org.mockito.kotlin.any
-import org.mockito.kotlin.firstValue
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.secondValue
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class ResizableComponentTest {
-    private val fakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
     private val activity =
         Robolectric.buildActivity(ComponentActivity::class.java).create().start().get()
-    private val mockSceneRuntime = mock<SceneRuntime>()
+    private lateinit var sceneRuntime: SceneRuntime
 
     private lateinit var session: Session
-    private val mockGroupEntity = mock<RtEntity>()
-    private val mockActivitySpace = mock<RtActivitySpace>()
 
-    object MockitoHelper {
-        // use this in place of captor.capture() if you are trying to capture an argument that is
-        // not
-        // nullable
-        fun <T> capture(argumentCaptor: ArgumentCaptor<T>): T = argumentCaptor.capture()
+    /**
+     * A helper class for testing that acts as a [Consumer] for [ResizeEvent]. It counts how many
+     * times it has been called and stores the last event it received.
+     */
+    private class TestResizeListener : Consumer<ResizeEvent> {
+        var callCount = 0
+            private set // Make the setter private to prevent external modification
+
+        var lastEvent: ResizeEvent? = null
+            private set
+
+        override fun accept(event: ResizeEvent) {
+            callCount++
+            lastEvent = event
+        }
     }
 
     @Before
     fun setUp() {
-        whenever(mockSceneRuntime.spatialEnvironment).thenReturn(mock())
-        whenever(mockSceneRuntime.activitySpace).thenReturn(mockActivitySpace)
-        whenever(mockSceneRuntime.headActivityPose).thenReturn(mock())
-        whenever(mockSceneRuntime.perceptionSpaceActivityPose).thenReturn(mock())
-        whenever(mockSceneRuntime.mainPanelEntity).thenReturn(mock())
-        whenever(mockSceneRuntime.createGroupEntity(any(), any(), any()))
-            .thenReturn(mockGroupEntity)
-        whenever(mockSceneRuntime.spatialCapabilities).thenReturn(RtSpatialCapabilities(0))
-        session =
-            Session(
-                activity,
-                runtimes =
-                    listOf(fakePerceptionRuntimeFactory.createRuntime(activity), mockSceneRuntime),
-            )
+        val testDispatcher = StandardTestDispatcher()
+        val result = Session.create(activity, testDispatcher)
+
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+
+        session = (result as SessionCreateSuccess).session
+        sceneRuntime = session.sceneRuntime
     }
 
     @Test
     fun addResizableComponent_addsRuntimeResizableComponent() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any())).thenReturn(mock())
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
+
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
-        verify(mockSceneRuntime).createResizableComponent(any(), any())
-        verify(mockGroupEntity).addComponent(any())
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
     }
 
     @Test
     fun addResizableComponentDefaultArguments_addsRuntimeResizableComponentWithDefaults() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any())).thenReturn(mock())
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent = ResizableComponent.create(session) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
-        val captor: ArgumentCaptor<RtDimensions> = ArgumentCaptor.forClass(RtDimensions::class.java)
-        verify(mockSceneRuntime)
-            .createResizableComponent(MockitoHelper.capture(captor), MockitoHelper.capture(captor))
-        val rtMinDimensions = captor.firstValue
-        val rtMaxDimensions = captor.secondValue
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+
+        val rtMinDimensions = rtResizableComponent.minimumSize
+        val rtMaxDimensions = rtResizableComponent.maximumSize
+
         assertThat(rtMinDimensions.width).isEqualTo(0f)
         assertThat(rtMinDimensions.height).isEqualTo(0f)
         assertThat(rtMinDimensions.depth).isEqualTo(0f)
         assertThat(rtMaxDimensions.width).isEqualTo(10f)
         assertThat(rtMaxDimensions.height).isEqualTo(10f)
         assertThat(rtMaxDimensions.depth).isEqualTo(10f)
-        verify(mockGroupEntity).addComponent(any())
     }
 
     @Test
     fun removeResizableComponent_removesRuntimeResizableComponent() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any())).thenReturn(mock())
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
+
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
 
         entity.removeComponent(resizableComponent)
-        verify(mockGroupEntity).removeComponent(any())
+
+        assertThat(entity.rtEntity?.getComponents()).hasSize(0)
+        // The listeners map will not be reset after removing the component.
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
     }
 
     @Test
@@ -157,16 +138,14 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         val entity2 = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any())).thenReturn(mock())
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
+
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
+                directExecutor(),
+            ) {}
 
         assertThat(entity.addComponent(resizableComponent)).isTrue()
         assertThat(entity2.addComponent(resizableComponent)).isFalse()
@@ -177,25 +156,22 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
 
         val testSize = FloatSize3d(2f, 2f, 0f)
         resizableComponent.affordanceSize = testSize
 
         assertThat(resizableComponent.affordanceSize).isEqualTo(testSize)
-        verify(mockRtResizableComponent).size = RtDimensions(2f, 2f, 0f)
+        assertThat(rtResizableComponent.size).isEqualTo(testSize.toRtDimensions())
     }
 
     @Test
@@ -203,25 +179,22 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
 
         val testSize = FloatSize3d(0.5f, 0.6f, 0.7f)
         resizableComponent.minimumEntitySize = testSize
 
         assertThat(resizableComponent.minimumEntitySize).isEqualTo(testSize)
-        verify(mockRtResizableComponent).minimumSize = RtDimensions(0.5f, 0.6f, 0.7f)
+        assertThat(rtResizableComponent.minimumSize).isEqualTo(testSize.toRtDimensions())
     }
 
     @Test
@@ -229,25 +202,22 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
 
         val testSize = FloatSize3d(5f, 6f, 7f)
         resizableComponent.maximumEntitySize = testSize
 
         assertThat(resizableComponent.maximumEntitySize).isEqualTo(testSize)
-        verify(mockRtResizableComponent).maximumSize = RtDimensions(5f, 6f, 7f)
+        assertThat(rtResizableComponent.maximumSize).isEqualTo(testSize.toRtDimensions())
     }
 
     @Test
@@ -255,27 +225,22 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
 
         val testAspectRatio = true
         resizableComponent.isFixedAspectRatioEnabled = testAspectRatio
 
         assertThat(resizableComponent.isFixedAspectRatioEnabled).isEqualTo(testAspectRatio)
-        val captor = ArgumentCaptor.forClass(Boolean::class.java)
-        verify(mockRtResizableComponent).isFixedAspectRatioEnabled = captor.capture()
-        assertThat(captor.value).isEqualTo(testAspectRatio)
+        assertThat(rtResizableComponent.isFixedAspectRatioEnabled).isEqualTo(testAspectRatio)
     }
 
     @Test
@@ -283,26 +248,22 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        resizableComponent.isAutoHideContentWhileResizingEnabled = false // default is true
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+        assertThat(resizableComponent.isAutoHideContentWhileResizingEnabled).isTrue()
+
+        resizableComponent.isAutoHideContentWhileResizingEnabled = false
 
         assertThat(resizableComponent.isAutoHideContentWhileResizingEnabled).isFalse()
-        val captor = ArgumentCaptor.forClass(Boolean::class.java)
-        verify(mockRtResizableComponent).autoHideContent = captor.capture()
-        assertThat(captor.value).isFalse()
+        assertThat(rtResizableComponent.autoHideContent).isFalse()
     }
 
     @Test
@@ -310,26 +271,22 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+        assertThat(resizableComponent.shouldAutoUpdateOverlay).isTrue()
 
         resizableComponent.shouldAutoUpdateOverlay = false // default is true
 
         assertThat(resizableComponent.shouldAutoUpdateOverlay).isFalse()
-        val captor = ArgumentCaptor.forClass(Boolean::class.java)
-        verify(mockRtResizableComponent).autoUpdateSize = captor.capture()
-        assertThat(captor.value).isFalse()
+        assertThat(rtResizableComponent.autoUpdateSize).isFalse()
     }
 
     @Test
@@ -337,218 +294,218 @@ class ResizableComponentTest {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
 
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+        assertThat(resizableComponent.isAlwaysShowOverlayEnabled).isFalse()
 
         resizableComponent.isAlwaysShowOverlayEnabled = true // default is false
 
         assertThat(resizableComponent.isAlwaysShowOverlayEnabled).isTrue()
-        val captor = ArgumentCaptor.forClass(Boolean::class.java)
-        verify(mockRtResizableComponent).forceShowResizeOverlay = captor.capture()
-        assertThat(captor.value).isTrue()
+        assertThat(rtResizableComponent.forceShowResizeOverlay).isTrue()
     }
 
     @Test
     fun createResizableComponentWithListener_invokesRuntimeAddResizeEventListener() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
-        val mockResizeListener = mock<Consumer<ResizeEvent>>()
+
+        val initialListener = TestResizeListener()
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                mockResizeListener,
+                directExecutor(),
+                initialListener,
             )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        val captor: ArgumentCaptor<RtResizeEventListener> =
-            ArgumentCaptor.forClass(RtResizeEventListener::class.java)
-        // Capture the runtime resize event listener that is provided to the runtime resizable
-        // component.
-        verify(mockRtResizableComponent, times(1))
-            .addResizeEventListener(any(), MockitoHelper.capture(captor))
-        val rtResizeEventListener = captor.value
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+
         var rtResizeEvent =
             RtResizeEvent(RtResizeEvent.RESIZE_STATE_START, RtDimensions(1f, 1f, 1f))
         // Invoke the runtime resize event listener with a resize event.
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
         val expectedStartResizeEvent =
             ResizeEvent(entity, ResizeEvent.ResizeState.START, FloatSize3d(1f, 1f, 1f))
-        verify(mockResizeListener).accept(expectedStartResizeEvent)
+
+        assertThat(initialListener.callCount).isEqualTo(1)
+        assertThat(initialListener.lastEvent).isEqualTo(expectedStartResizeEvent)
+
         rtResizeEvent = RtResizeEvent(RtResizeEvent.RESIZE_STATE_ONGOING, RtDimensions(2f, 2f, 2f))
         val expectedOngoingResizeEvent =
             ResizeEvent(entity, ResizeEvent.ResizeState.ONGOING, FloatSize3d(2f, 2f, 2f))
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
-        verify(mockResizeListener, times(2)).accept(expectedOngoingResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+
+        assertThat(initialListener.callCount).isEqualTo(3)
+        assertThat(initialListener.lastEvent).isEqualTo(expectedOngoingResizeEvent)
+
         rtResizeEvent = RtResizeEvent(RtResizeEvent.RESIZE_STATE_END, RtDimensions(2f, 2f, 2f))
         val expectedEndResizeEvent =
             ResizeEvent(entity, ResizeEvent.ResizeState.END, FloatSize3d(2f, 2f, 2f))
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
-        verify(mockResizeListener).accept(expectedEndResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+
+        assertThat(initialListener.callCount).isEqualTo(4)
+        assertThat(initialListener.lastEvent).isEqualTo(expectedEndResizeEvent)
     }
 
     @Test
     fun addResizeListener_invokesRuntimeAddResizeEventListener() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
+
+        val resizeListener2 = TestResizeListener()
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
-        val mockResizeListener = mock<Consumer<ResizeEvent>>()
-        resizableComponent.addResizeEventListener(directExecutor(), mockResizeListener)
+                directExecutor(),
+            ) {}
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        val captor: ArgumentCaptor<RtResizeEventListener> =
-            ArgumentCaptor.forClass(RtResizeEventListener::class.java)
-        // Capture the runtime resize event listener that is provided to the runtime resizable
-        // component.
-        verify(mockRtResizableComponent, times(2))
-            .addResizeEventListener(any(), MockitoHelper.capture(captor))
-        val rtResizeEventListener = captor.value
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+
+        resizableComponent.addResizeEventListener(directExecutor(), resizeListener2)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(2)
+
         var rtResizeEvent =
             RtResizeEvent(RtResizeEvent.RESIZE_STATE_START, RtDimensions(1f, 1f, 1f))
         // Invoke the runtime resize event listener with a resize event.
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        val expectedStartResizeEvent =
+            ResizeEvent(entity, ResizeEvent.ResizeState.START, FloatSize3d(1f, 1f, 1f))
+
+        assertThat(resizeListener2.callCount).isEqualTo(1)
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedStartResizeEvent)
+
         rtResizeEvent = RtResizeEvent(RtResizeEvent.RESIZE_STATE_ONGOING, RtDimensions(2f, 2f, 2f))
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
         val expectedOngoingResizeEvent =
             ResizeEvent(entity, ResizeEvent.ResizeState.ONGOING, FloatSize3d(2f, 2f, 2f))
-        verify(mockResizeListener, times(2)).accept(expectedOngoingResizeEvent)
+
+        assertThat(resizeListener2.callCount).isEqualTo(3)
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedOngoingResizeEvent)
+
         rtResizeEvent = RtResizeEvent(RtResizeEvent.RESIZE_STATE_END, RtDimensions(2f, 2f, 2f))
-        rtResizeEventListener.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
         val expectedEndResizeEvent =
             ResizeEvent(entity, ResizeEvent.ResizeState.END, FloatSize3d(2f, 2f, 2f))
-        verify(mockResizeListener).accept(expectedEndResizeEvent)
+
+        assertThat(resizeListener2.callCount).isEqualTo(4)
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedEndResizeEvent)
     }
 
     @Test
     fun addMultipleResizeEventListeners_invokesAllListeners() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
-        val mockResizeListener = mock<Consumer<ResizeEvent>>()
+
+        val initialListener = TestResizeListener()
+        val resizeListener2 = TestResizeListener()
+        val resizeListener3 = TestResizeListener()
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                mockResizeListener,
+                directExecutor(),
+                initialListener,
             )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
-        val mockResizeListener2 = mock<Consumer<ResizeEvent>>()
-        resizableComponent.addResizeEventListener(directExecutor(), mockResizeListener2)
-        val mockResizeListener3 = mock<Consumer<ResizeEvent>>()
-        resizableComponent.addResizeEventListener(directExecutor(), mockResizeListener3)
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        val captor: ArgumentCaptor<RtResizeEventListener> =
-            ArgumentCaptor.forClass(RtResizeEventListener::class.java)
-        // Capture the runtime resize event listener that is provided to the runtime resizable
-        // component.
-        verify(mockRtResizableComponent, times(3))
-            .addResizeEventListener(any(), MockitoHelper.capture(captor))
-        val rtResizeEventListener1 = captor.allValues[0]
-        val rtResizeEventListener2 = captor.allValues[1]
-        val rtResizeEventListener3 = captor.allValues[2]
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+
+        resizableComponent.addResizeEventListener(directExecutor(), resizeListener2)
+        resizableComponent.addResizeEventListener(directExecutor(), resizeListener3)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(3)
+
         val rtResizeEvent =
             RtResizeEvent(RtResizeEvent.RESIZE_STATE_START, RtDimensions(1f, 1f, 1f))
         // Invoke the runtime resize event listener with a resize event.
-        rtResizeEventListener1.onResizeEvent(rtResizeEvent)
-        rtResizeEventListener2.onResizeEvent(rtResizeEvent)
-        rtResizeEventListener3.onResizeEvent(rtResizeEvent)
-        verify(mockResizeListener).accept(any())
-        verify(mockResizeListener2).accept(any())
-        verify(mockResizeListener3).accept(any())
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        val expectedStartResizeEvent =
+            ResizeEvent(entity, ResizeEvent.ResizeState.START, FloatSize3d(1f, 1f, 1f))
+
+        assertThat(initialListener.callCount).isEqualTo(3)
+        assertThat(initialListener.lastEvent).isEqualTo(expectedStartResizeEvent)
+        assertThat(resizeListener2.callCount).isEqualTo(3)
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedStartResizeEvent)
+        assertThat(resizeListener2.callCount).isEqualTo(3)
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedStartResizeEvent)
     }
 
     @Test
     fun removeResizeEventListener_invokesRuntimeRemoveResizeEventListener() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
-        val mockResizeListener = mock<Consumer<ResizeEvent>>()
+
+        val initialListener = TestResizeListener()
+        val resizeListener2 = TestResizeListener()
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                mockResizeListener,
+                directExecutor(),
+                initialListener,
             )
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
-        val mockResizeListener2 = mock<Consumer<ResizeEvent>>()
-        resizableComponent.addResizeEventListener(directExecutor(), mockResizeListener2)
+        val rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        val captor: ArgumentCaptor<RtResizeEventListener> =
-            ArgumentCaptor.forClass(RtResizeEventListener::class.java)
-        // Capture the runtime resize event listener that is provided to the runtime resizable
-        // component.
-        verify(mockRtResizableComponent, times(2))
-            .addResizeEventListener(any(), MockitoHelper.capture(captor))
-        val rtResizeEventListener1 = captor.allValues[0]
-        val rtResizeEventListener2 = captor.allValues[1]
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+
+        resizableComponent.addResizeEventListener(directExecutor(), resizeListener2)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(2)
+
         val rtResizeEvent =
             RtResizeEvent(RtResizeEvent.RESIZE_STATE_START, RtDimensions(1f, 1f, 1f))
         // Invoke the runtime resize event listener with a resize event.
-        rtResizeEventListener1.onResizeEvent(rtResizeEvent)
-        rtResizeEventListener2.onResizeEvent(rtResizeEvent)
-        verify(mockResizeListener).accept(any())
-        verify(mockResizeListener2).accept(any())
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
 
-        resizableComponent.removeResizeEventListener(mockResizeListener)
-        resizableComponent.removeResizeEventListener(mockResizeListener2)
-        verify(mockRtResizableComponent).removeResizeEventListener(rtResizeEventListener1)
-        verify(mockRtResizableComponent).removeResizeEventListener(rtResizeEventListener2)
+        val expectedStartResizeEvent =
+            ResizeEvent(entity, ResizeEvent.ResizeState.START, FloatSize3d(1f, 1f, 1f))
+
+        assertThat(initialListener.callCount).isEqualTo(2)
+        assertThat(initialListener.lastEvent).isNotNull()
+        assertThat(initialListener.lastEvent).isEqualTo(expectedStartResizeEvent)
+        assertThat(resizeListener2.callCount).isEqualTo(2)
+        assertThat(resizeListener2.lastEvent).isNotNull()
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedStartResizeEvent)
+
+        resizableComponent.removeResizeEventListener(initialListener)
+        resizableComponent.removeResizeEventListener(resizeListener2)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(0)
     }
 
     @Test
     fun resizableComponent_canAttachAgainAfterDetach() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any())).thenReturn(mock())
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
+
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                Consumer<ResizeEvent> {},
-            )
+                directExecutor(),
+            ) {}
 
         assertThat(entity.addComponent(resizableComponent)).isTrue()
         entity.removeComponent(resizableComponent)
@@ -559,73 +516,97 @@ class ResizableComponentTest {
     fun resizableComponent_attachAfterDetachPreservesListeners() {
         val entity = GroupEntity.create(session, "test")
         assertThat(entity).isNotNull()
-        val mockRtResizableComponent = mock<RtResizableComponent>()
-        whenever(mockSceneRuntime.createResizableComponent(any(), any()))
-            .thenReturn(mockRtResizableComponent)
-        whenever(mockGroupEntity.addComponent(any())).thenReturn(true)
-        val mockResizeListener = mock<Consumer<ResizeEvent>>()
+
+        val initialListener = TestResizeListener()
+        val resizeListener2 = TestResizeListener()
         val resizableComponent =
             ResizableComponent.create(
-                mockSceneRuntime,
+                sceneRuntime,
                 FloatSize3d(),
                 FloatSize3d(),
-                HandlerExecutor.mainThreadExecutor,
-                mockResizeListener,
+                directExecutor(),
+                initialListener,
             )
+        var rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
 
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
-        val mockResizeListener2 = mock<Consumer<ResizeEvent>>()
-        resizableComponent.addResizeEventListener(directExecutor(), mockResizeListener2)
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
 
-        val captor: ArgumentCaptor<RtResizeEventListener> =
-            ArgumentCaptor.forClass(RtResizeEventListener::class.java)
-        // Capture the runtime resize event listener that is provided to the runtime resizable
-        // component.
-        verify(mockRtResizableComponent, times(2))
-            .addResizeEventListener(any(), MockitoHelper.capture(captor))
-        val rtResizeEventListener1 = captor.allValues[0]
-        val rtResizeEventListener2 = captor.allValues[1]
+        resizableComponent.addResizeEventListener(directExecutor(), resizeListener2)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(2)
+
         val rtResizeEvent =
             RtResizeEvent(RtResizeEvent.RESIZE_STATE_START, RtDimensions(1f, 1f, 1f))
         // Invoke the runtime resize event listener with a resize event.
-        rtResizeEventListener1.onResizeEvent(rtResizeEvent)
-        rtResizeEventListener2.onResizeEvent(rtResizeEvent)
-        verify(mockResizeListener).accept(any())
-        verify(mockResizeListener2).accept(any())
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        val expectedStartResizeEvent =
+            ResizeEvent(entity, ResizeEvent.ResizeState.START, FloatSize3d(1f, 1f, 1f))
+
+        assertThat(initialListener.callCount).isEqualTo(2)
+        assertThat(initialListener.lastEvent).isNotNull()
+        assertThat(initialListener.lastEvent).isEqualTo(expectedStartResizeEvent)
+        assertThat(resizeListener2.callCount).isEqualTo(2)
+        assertThat(resizeListener2.lastEvent).isNotNull()
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedStartResizeEvent)
 
         // Detach and reattach the resizable component.
         entity.removeComponent(resizableComponent)
-        assertThat(entity.addComponent(resizableComponent)).isTrue()
+
+        assertThat(entity.rtEntity?.getComponents()).hasSize(0)
+
+        rtResizableComponent = addAndGetFakeResizableComponent(entity, resizableComponent)
+
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(3)
+
         // Invoke the runtime resize event listener with a resize event.
-        rtResizeEventListener1.onResizeEvent(rtResizeEvent)
-        rtResizeEventListener2.onResizeEvent(rtResizeEvent)
-        verify(mockResizeListener, times(2)).accept(any())
-        verify(mockResizeListener2, times(2)).accept(any())
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+        rtResizableComponent.onResizeEvent(rtResizeEvent)
+
+        // addComponent two times so initialListener is added two times.
+        assertThat(initialListener.callCount).isEqualTo(6)
+        assertThat(initialListener.lastEvent).isNotNull()
+        assertThat(initialListener.lastEvent).isEqualTo(expectedStartResizeEvent)
+        assertThat(resizeListener2.callCount).isEqualTo(4)
+        assertThat(resizeListener2.lastEvent).isNotNull()
+        assertThat(resizeListener2.lastEvent).isEqualTo(expectedStartResizeEvent)
     }
 
     @Test
     fun createResizableComponent_callsRuntimeCreateResizableComponent() {
-        whenever(mockSceneRuntime.createResizableComponent(any(), any())).thenReturn(mock())
-
         val resizableComponent = ResizableComponent.create(session) {}
         val view = TextView(activity)
-        val mockRtPanelEntity = mock<RtPanelEntity>()
-        whenever(mockRtPanelEntity.size).thenReturn(RtDimensions(1f, 1f, 1f))
-        whenever(
-                mockSceneRuntime.createPanelEntity(
-                    any<Context>(),
-                    any<Pose>(),
-                    any<View>(),
-                    any<RtPixelDimensions>(),
-                    any<String>(),
-                    any<RtEntity>(),
-                )
-            )
-            .thenReturn(mockRtPanelEntity)
-        whenever(mockRtPanelEntity.addComponent(any())).thenReturn(true)
         val panelEntity = PanelEntity.create(session, view, IntSize2d(720, 480), "test")
-        assertThat(panelEntity.addComponent(resizableComponent)).isTrue()
+        val rtResizableComponent = addAndGetFakeResizableComponent(panelEntity, resizableComponent)
 
-        verify(mockSceneRuntime).createResizableComponent(any(), any())
+        assertThat(rtResizableComponent.resizeEventListenersMap).hasSize(1)
+    }
+
+    /**
+     * A helper function to add a ResizableComponent to an entity, perform common assertions, and
+     * return the underlying FakeResizableComponent.
+     *
+     * @param entity The entity to which the component will be added.
+     * @param resizableComponent The component to add.
+     * @return The underlying [FakeResizableComponent] instance from the runtime.
+     */
+    private fun addAndGetFakeResizableComponent(
+        entity: Entity,
+        resizableComponent: ResizableComponent,
+    ): FakeResizableComponent {
+        // 1. Add the component and assert it was successful.
+        assertThat(entity.addComponent(resizableComponent)).isTrue()
+
+        // 2. Get the underlying runtime components.
+        val rtComponents = (entity as BaseEntity<*>).rtEntity?.getComponents()
+        assertThat(rtComponents).isNotNull()
+        assertThat(rtComponents).hasSize(1)
+
+        // 3. Assert the component is the correct fake type.
+        val rtComponent = rtComponents!![0]
+        assertThat(rtComponent).isInstanceOf(FakeResizableComponent::class.java)
+
+        // 4. Return the casted component.
+        return rtComponent as FakeResizableComponent
     }
 }

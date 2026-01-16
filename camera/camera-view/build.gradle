@@ -79,9 +79,10 @@ dependencies {
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testMonitor)
+    androidTestImplementation(project(":camera:camera-extensions"))
 }
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
 
     lint {
         enable.add("CameraXQuirksClassDetector")

@@ -16,11 +16,10 @@
 
 package androidx.pdf.models
 
-import android.graphics.Point
 import android.os.Parcel
+import androidx.pdf.PdfPoint
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -34,24 +33,26 @@ class FormEditRecordTest {
         val pageNumber = 1
         val widgetIndex = 2
         val selectedIndices = intArrayOf(1, 2, 3)
-        val record = FormEditInfo(pageNumber, widgetIndex, selectedIndices)
+        val record = FormEditInfo.createSetIndices(pageNumber, widgetIndex, selectedIndices)
 
         assertEquals(FormEditInfo.EDIT_TYPE_SET_INDICES, record.type)
         assertEquals(pageNumber, record.pageNumber)
         assertEquals(widgetIndex, record.widgetIndex)
-        assertTrue(selectedIndices.contentEquals(record.selectedIndices))
+        for (i in 0 until record.selectedIndexCount) {
+            assertEquals(selectedIndices[i], record.getSelectedIndexAt(i))
+        }
         assertEquals(null, record.clickPoint)
         assertEquals(null, record.text)
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun formEditRecord_setIndicesConstructor_negativePageNumber_throwsException() {
-        FormEditInfo(-1, 0, intArrayOf(1, 2))
+        FormEditInfo.createSetIndices(-1, 0, intArrayOf(1, 2))
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun formEditRecord_setIndicesConstructor_negativeWidgetIndex_throwsException() {
-        FormEditInfo(0, -1, intArrayOf(1, 2))
+        FormEditInfo.createSetIndices(0, -1, intArrayOf(1, 2))
     }
 
     @Test
@@ -59,29 +60,29 @@ class FormEditRecordTest {
         val pageNumber = 1
         val widgetIndex = 2
         val text = "Test Text"
-        val record = FormEditInfo(pageNumber, widgetIndex, text)
+        val record = FormEditInfo.createSetText(pageNumber, widgetIndex, text)
 
         assertEquals(FormEditInfo.EDIT_TYPE_SET_TEXT, record.type)
         assertEquals(pageNumber, record.pageNumber)
         assertEquals(widgetIndex, record.widgetIndex)
         assertEquals(text, record.text)
         assertEquals(null, record.clickPoint)
-        assertEquals(null, record.selectedIndices)
+        assertEquals(0, record.selectedIndexCount)
     }
 
     @Test
     fun formEditRecord_clickConstructor_createsInstanceWithCorrectType() {
         val pageNumber = 1
         val widgetIndex = 2
-        val clickPoint = Point(10, 20)
-        val record = FormEditInfo(pageNumber, widgetIndex, clickPoint)
+        val clickPoint = PdfPoint(pageNumber, 10f, 20f)
+        val record = FormEditInfo.createClick(widgetIndex, clickPoint)
 
         assertEquals(FormEditInfo.EDIT_TYPE_CLICK, record.type)
         assertEquals(pageNumber, record.pageNumber)
         assertEquals(widgetIndex, record.widgetIndex)
         assertEquals(clickPoint, record.clickPoint)
         assertEquals(null, record.text)
-        assertEquals(null, record.selectedIndices)
+        assertEquals(0, record.selectedIndexCount)
     }
 
     @Test
@@ -89,7 +90,7 @@ class FormEditRecordTest {
         val pageNumber = 1
         val widgetIndex = 2
         val selectedIndices = intArrayOf(1, 2, 3)
-        val originalRecord = FormEditInfo(pageNumber, widgetIndex, selectedIndices)
+        val originalRecord = FormEditInfo.createSetIndices(pageNumber, widgetIndex, selectedIndices)
 
         val parcel = Parcel.obtain()
         originalRecord.writeToParcel(parcel, 0)
@@ -106,7 +107,7 @@ class FormEditRecordTest {
         val pageNumber = 1
         val widgetIndex = 2
         val text = "Test Text"
-        val originalRecord = FormEditInfo(pageNumber, widgetIndex, text)
+        val originalRecord = FormEditInfo.createSetText(pageNumber, widgetIndex, text)
 
         val parcel = Parcel.obtain()
         originalRecord.writeToParcel(parcel, 0)
@@ -121,8 +122,8 @@ class FormEditRecordTest {
     fun formEditRecord_parcelable_click_equals() {
         val pageNumber = 1
         val widgetIndex = 2
-        val clickPoint = Point(10, 20)
-        val originalRecord = FormEditInfo(pageNumber, widgetIndex, clickPoint)
+        val clickPoint = PdfPoint(pageNumber, 10f, 20f)
+        val originalRecord = FormEditInfo.createClick(widgetIndex, clickPoint)
 
         val parcel = Parcel.obtain()
         originalRecord.writeToParcel(parcel, 0)
@@ -136,129 +137,131 @@ class FormEditRecordTest {
 
     @Test
     fun formEditRecord_equals_sameObject_returnsTrue() {
-        val record = FormEditInfo(1, 2, Point(10, 20))
+        val record = FormEditInfo.createClick(1, PdfPoint(2, 10f, 20f))
         assertEquals(record, record)
     }
 
     @Test
     fun formEditRecord_equals_sameValues_setIndices_returnsTrue() {
-        val record1 = FormEditInfo(1, 2, intArrayOf(1, 2))
-        val record2 = FormEditInfo(1, 2, intArrayOf(1, 2))
+        val record1 = FormEditInfo.createSetIndices(1, 2, intArrayOf(1, 2))
+        val record2 = FormEditInfo.createSetIndices(1, 2, intArrayOf(1, 2))
         assertEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_sameValues_setText_returnsTrue() {
-        val record1 = FormEditInfo(1, 2, "text")
-        val record2 = FormEditInfo(1, 2, "text")
+        val record1 = FormEditInfo.createSetText(1, 2, "text")
+        val record2 = FormEditInfo.createSetText(1, 2, "text")
         assertEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_sameValues_click_returnsTrue() {
-        val record1 = FormEditInfo(1, 2, Point(10, 20))
-        val record2 = FormEditInfo(1, 2, Point(10, 20))
+        val record1 = FormEditInfo.createClick(1, PdfPoint(2, 10f, 20f))
+        val record2 = FormEditInfo.createClick(1, PdfPoint(2, 10f, 20f))
         assertEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_differentPageNumber_returnsFalse() {
-        val record1 = FormEditInfo(1, 2, Point(10, 20))
-        val record2 = FormEditInfo(2, 2, Point(10, 20))
+        val record1 = FormEditInfo.createClick(1, PdfPoint(2, 10f, 20f))
+        val record2 = FormEditInfo.createClick(1, PdfPoint(1, 10f, 20f))
         assertNotEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_differentWidgetIndex_returnsFalse() {
-        val record1 = FormEditInfo(1, 2, Point(10, 20))
-        val record2 = FormEditInfo(1, 3, Point(10, 20))
+        val record1 = FormEditInfo.createClick(2, PdfPoint(1, 10f, 20f))
+        val record2 = FormEditInfo.createClick(1, PdfPoint(1, 10f, 20f))
         assertNotEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_differentType_returnsFalse() {
-        val record1 = FormEditInfo(1, 2, Point(10, 20))
-        val record2 = FormEditInfo(1, 2, "text")
+        val record1 = FormEditInfo.createClick(2, PdfPoint(1, 10f, 20f))
+        val record2 = FormEditInfo.createSetText(1, 2, "text")
         assertNotEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_differentClickPoint_returnsFalse() {
-        val record1 = FormEditInfo(1, 2, Point(10, 20))
-        val record2 = FormEditInfo(1, 2, Point(30, 40))
+        val record1 = FormEditInfo.createClick(2, PdfPoint(1, 10f, 20f))
+        val record2 = FormEditInfo.createClick(2, PdfPoint(1, 30f, 40f))
         assertNotEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_differentSelectedIndices_returnsFalse() {
-        val record1 = FormEditInfo(1, 2, intArrayOf(1, 2))
-        val record2 = FormEditInfo(1, 2, intArrayOf(3, 4))
+        val record1 = FormEditInfo.createSetIndices(1, 2, intArrayOf(1, 2))
+        val record2 = FormEditInfo.createSetIndices(1, 2, intArrayOf(3, 4))
         assertNotEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_differentText_returnsFalse() {
-        val record1 = FormEditInfo(1, 2, "text1")
-        val record2 = FormEditInfo(1, 2, "text2")
+        val record1 = FormEditInfo.createSetText(1, 2, "text1")
+        val record2 = FormEditInfo.createSetText(1, 2, "text2")
         assertNotEquals(record1, record2)
     }
 
     @Test
     fun formEditRecord_equals_differentClass_returnsFalse() {
-        val record = FormEditInfo(1, 2, "text1")
+        val record = FormEditInfo.createSetText(1, 2, "text1")
         val other = "Not a FormEditInfo"
         assertNotEquals(record, other)
     }
 
     @Test
     fun formEditRecord_equals_null_returnsFalse() {
-        val record = FormEditInfo(1, 2, "text1")
+        val record = FormEditInfo.createSetText(1, 2, "text1")
         assertNotEquals(record, null)
     }
 
     @Test
     fun formEditRecord_hashCode_equalObjects_equalHashCodes_setIndices() {
-        val record1 = FormEditInfo(1, 2, intArrayOf(1, 2))
-        val record2 = FormEditInfo(1, 2, intArrayOf(1, 2))
+        val record1 = FormEditInfo.createSetIndices(1, 2, intArrayOf(1, 2))
+        val record2 = FormEditInfo.createSetIndices(1, 2, intArrayOf(1, 2))
         assertEquals(record1.hashCode(), record2.hashCode())
     }
 
     @Test
     fun formEditRecord_hashCode_equalObjects_equalHashCodes_setText() {
-        val record1 = FormEditInfo(1, 2, "text")
-        val record2 = FormEditInfo(1, 2, "text")
+        val record1 = FormEditInfo.createSetText(1, 2, "text")
+        val record2 = FormEditInfo.createSetText(1, 2, "text")
         assertEquals(record1.hashCode(), record2.hashCode())
     }
 
     @Test
     fun formEditRecord_hashCode_equalObjects_equalHashCodes_click() {
-        val record1 = FormEditInfo(1, 2, Point(10, 20))
-        val record2 = FormEditInfo(1, 2, Point(10, 20))
+        val record1 = FormEditInfo.createClick(2, PdfPoint(1, 10f, 20f))
+        val record2 = FormEditInfo.createClick(2, PdfPoint(1, 10f, 20f))
         assertEquals(record1.hashCode(), record2.hashCode())
     }
 
     @Test
     fun formEditRecord_hashCode_differentObjects_differentHashCodes() {
-        val record1 = FormEditInfo(1, 2, Point(10, 20))
-        val record2 = FormEditInfo(2, 3, "text")
+        val record1 = FormEditInfo.createClick(2, PdfPoint(2, 10f, 20f))
+        val record2 = FormEditInfo.createSetText(2, 3, "text")
         assertNotEquals(record1.hashCode(), record2.hashCode())
     }
 
     @Test
     fun formEditRecord_describeContents_returnsZero() {
-        val record = FormEditInfo(1, 2, Point(10, 20))
+        val record = FormEditInfo.createClick(2, PdfPoint(1, 10f, 20f))
         assertEquals(0, record.describeContents())
     }
 
     @Test
     fun formEditRecord_createFromParcel_nullClickPoint_createsInstanceWithNullClickPoint() {
+        val selectedIndices = intArrayOf(1, 2)
+        val sampleText = "text"
         val parcel = Parcel.obtain()
         parcel.writeInt(1)
         parcel.writeInt(2)
         parcel.writeInt(FormEditInfo.EDIT_TYPE_CLICK)
-        parcel.writeParcelable(null, 0)
-        parcel.writeIntArray(intArrayOf(1, 2))
-        parcel.writeString("text")
+        parcel.writeIntArray(selectedIndices)
+        parcel.writeString(sampleText)
+        parcel.writeInt(-1) // clickPoint is null
         parcel.setDataPosition(0)
 
         val createdRecord = FormEditInfo.CREATOR.createFromParcel(parcel)
@@ -267,11 +270,11 @@ class FormEditRecordTest {
         assertEquals(2, createdRecord.widgetIndex)
         assertEquals(FormEditInfo.EDIT_TYPE_CLICK, createdRecord.type)
         assertEquals(null, createdRecord.clickPoint)
-        assertEquals(
-            intArrayOf(1, 2).contentToString(),
-            createdRecord.selectedIndices?.contentToString(),
-        )
-        assertEquals("text", createdRecord.text)
+        assertEquals(selectedIndices.size, createdRecord.selectedIndexCount)
+        for (i in 0 until selectedIndices.size) {
+            assertEquals(selectedIndices[i], createdRecord.getSelectedIndexAt(i))
+        }
+        assertEquals(sampleText, createdRecord.text)
         parcel.recycle()
     }
 

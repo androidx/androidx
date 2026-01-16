@@ -19,9 +19,7 @@ package androidx.xr.glimmer.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.runtime.Composable
@@ -42,10 +40,7 @@ import androidx.xr.glimmer.surface
 
 @Composable
 fun SurfaceSampleUsage() {
-    VerticalList(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-    ) {
+    VerticalList {
         item { SurfaceSample() }
         item { ClickableSurfaceSample() }
         item { ToggleableSurfaceSample() }

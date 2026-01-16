@@ -173,6 +173,7 @@ public expect open class NavDestinationBuilder<out D : NavDestination> {
      * @param navDeepLink the NavDeepLink to be added to this destination
      * @see NavDeepLink.Builder.setUriPattern for the final uriPattern's generation logic.
      */
+    @Suppress("KmpHideShowAnnotationMismatch") // nonAndroid is RestrictTo
     public fun <T : Any> deepLink(
         route: KClass<T>,
         basePath: String,

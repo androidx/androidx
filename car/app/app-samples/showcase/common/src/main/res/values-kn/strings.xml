@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ಸಾಲನ್ನು ಸಹ ಆಯ್ಕೆ ಮಾಡಬಹುದು"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ದ್ವಿತೀಯಕ ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"ಸಾಲಿನ ಪ್ರಾಥಮಿಕ ಕ್ರಿಯೆಯನ್ನು ಆಯ್ಕೆಮಾಡಲಾಗಿದೆ"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"ಸಾಲಿನ ಕೊನೆಯ ಚಿತ್ರ ಮತ್ತು ಕ್ರಿಯೆಗಳ ಡೆಮೋ"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"ಖಾಲಿ ಪಟ್ಟಿಯ ಡೆಮೊ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"ಪಟ್ಟಿ ಖಾಲಿಯಾಗಿದೆ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"ಇತರ ಟೆಂಪ್ಲೇಟ್‌ಗಳ ಡೆಮೋಗಳು"</string>

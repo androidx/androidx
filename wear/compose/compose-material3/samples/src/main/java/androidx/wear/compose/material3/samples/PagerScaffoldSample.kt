@@ -27,16 +27,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.PagerDefaults
 import androidx.wear.compose.foundation.pager.VerticalPager
 import androidx.wear.compose.foundation.pager.rememberPagerState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
-import androidx.wear.compose.foundation.rotary.RotarySnapSensitivity
 import androidx.wear.compose.material3.AnimatedPage
 import androidx.wear.compose.material3.AppScaffold
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.HorizontalPagerScaffold
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.PagerScaffoldDefaults
-import androidx.wear.compose.material3.PagerSensitivity
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.VerticalPagerScaffold
@@ -51,7 +51,12 @@ fun HorizontalPagerScaffoldSample(navigateBack: () -> Unit) {
             HorizontalPager(
                 state = pagerState,
                 flingBehavior =
-                    PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
+                    PagerDefaults.snapFlingBehavior(
+                        state = pagerState,
+                        maxFlingPages = 1,
+                        snapPositionalThreshold = PagerScaffoldDefaults.HighSnapPositionalThreshold,
+                        snapAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
+                    ),
                 rotaryScrollableBehavior = null,
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {
@@ -80,20 +85,22 @@ fun HorizontalPagerScaffoldSample(navigateBack: () -> Unit) {
 @Composable
 fun HorizontalPagerScaffoldWithLowSensitivitySample(navigateBack: () -> Unit) {
     AppScaffold {
-        val pagerState = rememberPagerState(pageCount = { 6 })
+        val pagerState = rememberPagerState(pageCount = { 3 })
 
         HorizontalPagerScaffold(pagerState = pagerState) {
             HorizontalPager(
                 state = pagerState,
                 flingBehavior =
-                    PagerScaffoldDefaults.snapWithSpringFlingBehavior(
+                    PagerDefaults.snapFlingBehavior(
                         state = pagerState,
-                        sensitivity = PagerSensitivity.Low,
+                        maxFlingPages = 0,
+                        snapPositionalThreshold = PagerScaffoldDefaults.LowSnapPositionalThreshold,
+                        snapAnimationSpec = PagerDefaults.SnapAnimationSpec,
                     ),
                 rotaryScrollableBehavior =
                     RotaryScrollableDefaults.snapBehavior(
                         pagerState = pagerState,
-                        snapSensitivity = RotarySnapSensitivity.Default,
+                        snapSensitivity = RotaryScrollableDefaults.LowSnapSensitivity,
                     ),
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {
@@ -128,7 +135,12 @@ fun VerticalPagerScaffoldSample() {
             VerticalPager(
                 state = pagerState,
                 flingBehavior =
-                    PagerScaffoldDefaults.snapWithSpringFlingBehavior(state = pagerState),
+                    PagerDefaults.snapFlingBehavior(
+                        state = pagerState,
+                        maxFlingPages = 1,
+                        snapPositionalThreshold = PagerScaffoldDefaults.HighSnapPositionalThreshold,
+                        snapAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
+                    ),
                 rotaryScrollableBehavior = RotaryScrollableDefaults.snapBehavior(pagerState),
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {
@@ -153,20 +165,22 @@ fun VerticalPagerScaffoldSample() {
 @Composable
 fun VerticalPagerScaffoldWithLowSensitivitySample() {
     AppScaffold {
-        val pagerState = rememberPagerState(pageCount = { 6 })
+        val pagerState = rememberPagerState(pageCount = { 3 })
 
         VerticalPagerScaffold(pagerState = pagerState) {
             VerticalPager(
                 state = pagerState,
                 flingBehavior =
-                    PagerScaffoldDefaults.snapWithSpringFlingBehavior(
+                    PagerDefaults.snapFlingBehavior(
                         state = pagerState,
-                        sensitivity = PagerSensitivity.Low,
+                        maxFlingPages = 0,
+                        snapPositionalThreshold = PagerScaffoldDefaults.LowSnapPositionalThreshold,
+                        snapAnimationSpec = PagerDefaults.SnapAnimationSpec,
                     ),
                 rotaryScrollableBehavior =
                     RotaryScrollableDefaults.snapBehavior(
                         pagerState = pagerState,
-                        snapSensitivity = RotarySnapSensitivity.Default,
+                        snapSensitivity = RotaryScrollableDefaults.LowSnapSensitivity,
                     ),
             ) { page ->
                 AnimatedPage(pageIndex = page, pagerState = pagerState) {

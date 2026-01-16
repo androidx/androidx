@@ -44,13 +44,6 @@ androidXMultiplatform {
     wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
-
-    sourceSets {
-        commonMain {
-            dependencies {
-            }
-        }
-    }
 }
 
 androidx {

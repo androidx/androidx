@@ -102,8 +102,9 @@ abstract class AndroidXDocsImplPlugin : Plugin<Project> {
             when (plugin) {
                 is LibraryPlugin -> {
                     val libraryExtension = project.extensions.getByType<LibraryExtension>()
-                    libraryExtension.compileSdk =
-                        project.defaultAndroidConfig.latestStableCompileSdk
+                    libraryExtension.compileSdk {
+                        version = release(project.defaultAndroidConfig.latestStableCompileSdk)
+                    }
                     libraryExtension.buildToolsVersion =
                         project.defaultAndroidConfig.buildToolsVersion
 
@@ -746,7 +747,7 @@ abstract class UnzipMultiplatformSourcesTask() : DefaultTask() {
             it.exclude("META-INF/*")
             // TODO(b/418945918): Remove when the files below are deduped:
             // benchmark/benchmark-traceprocessor/src/androidMain/kotlin/perfetto/protos/package-info.java
-            // tracing/tracing-driver-wire/src/androidMain/kotlin/perfetto/protos/package-info.java
+            // tracing/tracing-wire/src/androidMain/kotlin/perfetto/protos/package-info.java
             var seenPath = false
             it.eachFile { file ->
                 val relPath = file.relativePath.pathString

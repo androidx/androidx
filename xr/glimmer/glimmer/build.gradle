@@ -40,6 +40,7 @@ dependencies {
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":xr:glimmer:glimmer:glimmer-samples"))
+    androidTestImplementation(project(":xr:glimmer:test-utils"))
 
     androidTestImplementation("androidx.core:core:1.16.0")
     androidTestImplementation(libs.espressoCore)
@@ -51,7 +52,10 @@ dependencies {
 
 android {
     namespace = "androidx.xr.glimmer"
-    compileSdk = 35
+    compileSdk { version = release(35) }
+    defaultConfig {
+        testInstrumentationRunner "androidx.xr.glimmer.GlimmerTestRunner"
+    }
 }
 
 androidx {

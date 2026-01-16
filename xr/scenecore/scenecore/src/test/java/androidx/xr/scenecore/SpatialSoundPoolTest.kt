@@ -64,7 +64,6 @@ class SpatialSoundPoolTest {
         mockSceneRuntime.stub {
             on { spatialEnvironment } doReturn mock()
             on { activitySpace } doReturn mockActivitySpace
-            on { headActivityPose } doReturn mock()
             on { perceptionSpaceActivityPose } doReturn mock()
             on { mainPanelEntity } doReturn mock()
             on { createGroupEntity(any(), any(), any()) } doReturn mockGroupEntity

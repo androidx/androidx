@@ -26,9 +26,8 @@ import org.jspecify.annotations.NonNull;
 final class PerceptionSpaceScenePoseImpl extends BaseScenePose implements PerceptionSpaceScenePose {
     private final OpenXrScenePoseHelper mOpenXrScenePoseHelper;
 
-    PerceptionSpaceScenePoseImpl(
-            ActivitySpaceImpl activitySpace, AndroidXrEntity activitySpaceRoot) {
-        mOpenXrScenePoseHelper = new OpenXrScenePoseHelper(activitySpace, activitySpaceRoot);
+    PerceptionSpaceScenePoseImpl(ActivitySpaceImpl activitySpace) {
+        mOpenXrScenePoseHelper = new OpenXrScenePoseHelper(activitySpace);
     }
 
     @Override

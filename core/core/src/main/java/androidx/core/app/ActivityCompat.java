@@ -138,7 +138,13 @@ public class ActivityCompat extends ContextCompat {
          *
          * @return Whether the delegate has handled the activity result.
          * @see ActivityCompat#requestPermissions(Activity, String[], int)
+         * @deprecated This method is no longer called from {@code FragmentActivity}. Clients should
+         * migrate to
+         * <a href="https://developer.android.com/training/basics/intents/result#register">{@code ActivityResult}
+         * APIs</a>, specifically
+         * {@link androidx.activity.result.contract.ActivityResultContracts.RequestPermission}.
          */
+        @Deprecated
         boolean onActivityResult(@NonNull Activity activity,
                 @IntRange(from = 0) int requestCode, int resultCode, @Nullable Intent data);
     }

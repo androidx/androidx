@@ -14,12 +14,16 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
+
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
@@ -38,39 +42,47 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * @param context the Android [Context] to use for the capture.
  * @param creationDisplayInfo details about the virtual display to create.
  * @param profile the [Profile] to use for the capture, determining which operations are supported.
- * @param writerEvents callbacks for non-serializable content such as pending intents.
  * @param content the Composable content to render and capture.
  * @return a [ByteArray] containing the RemoteCompose document.
  */
-@ExperimentalRemoteCreationComposeApi
 public suspend fun captureSingleRemoteDocument(
     context: Context,
     creationDisplayInfo: CreationDisplayInfo = createCreationDisplayInfo(context),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    writerEvents: WriterEvents? = null,
     content: @Composable @RemoteComposable () -> Unit,
-): ByteArray = suspendCancellableCoroutine { continuation ->
-    val virtualDisplay = DisplayPool.allocate(context, creationDisplayInfo)
+): CapturedDocument {
+    if (RemoteComposeCreationComposeFlags.isRemoteApplierEnabled) {
+        return captureSingleRemoteDocumentV2(
+            creationDisplayInfo = creationDisplayInfo,
+            profile = profile,
+            content = content,
+        )
+    }
 
-    RemoteComposeCapture(
-        context = context,
-        virtualDisplay = virtualDisplay,
-        creationDisplayInfo = creationDisplayInfo,
-        immediateCapture = true,
-        onPaint = { _, writer ->
-            if (continuation.isActive) {
-                val docBytes = writer.encodeToByteArray()
-                writerEvents?.onDocumentAvailable(docBytes)
-                continuation.resume(docBytes)
-                DisplayPool.release(virtualDisplay)
-            }
-            true
-        },
-        onCaptureReady = @Composable {},
-        profile = profile,
-        writerEvents = writerEvents,
-        content = content,
-    )
+    return suspendCancellableCoroutine { continuation ->
+        val virtualDisplay = DisplayPool.allocate(context, creationDisplayInfo)
 
-    continuation.invokeOnCancellation { DisplayPool.release(virtualDisplay) }
+        val writerEvents = WriterEvents()
+
+        RemoteComposeCapture(
+            context = context,
+            virtualDisplay = virtualDisplay,
+            creationDisplayInfo = creationDisplayInfo,
+            immediateCapture = true,
+            onPaint = { _, writer ->
+                if (continuation.isActive) {
+                    val docBytes = writer.encodeToByteArray()
+                    continuation.resume(CapturedDocument(docBytes, writerEvents.pendingIntents))
+                    DisplayPool.release(virtualDisplay)
+                }
+                true
+            },
+            onCaptureReady = @Composable {},
+            profile = profile,
+            writerEvents = writerEvents,
+            content = content,
+        )
+
+        continuation.invokeOnCancellation { DisplayPool.release(virtualDisplay) }
+    }
 }

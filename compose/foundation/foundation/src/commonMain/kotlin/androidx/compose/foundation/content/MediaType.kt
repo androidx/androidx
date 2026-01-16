@@ -24,12 +24,14 @@ import androidx.compose.foundation.ExperimentalFoundationApi
  * Therefore, this class has an expect modifier for different platforms to specify how they define
  * certain common media types like Text, and Image.
  */
+@Suppress("KmpExperimentalMismatch") // actuals are not experimental
 @ExperimentalFoundationApi
 expect class MediaType(representation: String) {
 
     /** How this [MediaType] is represented in a specific platform. */
     val representation: String
 
+    @Suppress("KmpExperimentalMismatch") // actuals are not experimental
     @ExperimentalFoundationApi
     companion object {
 

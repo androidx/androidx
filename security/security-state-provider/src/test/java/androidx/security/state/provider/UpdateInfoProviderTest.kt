@@ -25,6 +25,8 @@ import android.content.pm.PackageManager
 import android.content.pm.ProviderInfo
 import android.net.Uri
 import androidx.security.state.SecurityPatchState.Companion.COMPONENT_SYSTEM
+import androidx.security.state.SerializableUpdateInfo
+import androidx.security.state.UpdateInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.time.LocalDate
 import java.time.ZoneOffset

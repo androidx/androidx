@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ public class GPUSurface private constructor(public val handle: Long) : AutoClose
      */
     @FastNative
     @JvmName("configure")
-    public external fun configure(config: SurfaceConfiguration): Unit
+    public external fun configure(config: GPUSurfaceConfiguration): Unit
 
     /**
      * Gets the presentation capabilities supported by the surface for a given adapter.
@@ -38,12 +38,12 @@ public class GPUSurface private constructor(public val handle: Long) : AutoClose
     @FastNative
     @JvmName("getCapabilities")
     @Throws(WebGpuException::class)
-    public external fun getCapabilities(adapter: GPUAdapter): SurfaceCapabilities
+    public external fun getCapabilities(adapter: GPUAdapter): GPUSurfaceCapabilities
 
     /** Gets the next available texture from the surface for rendering. */
     @FastNative
     @JvmName("getCurrentTexture")
-    public external fun getCurrentTexture(): SurfaceTexture
+    public external fun getCurrentTexture(): GPUSurfaceTexture
 
     /**
      * Presents the currently acquired texture to the screen.

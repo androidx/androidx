@@ -16,44 +16,28 @@
 
 package androidx.xr.scenecore
 
-import android.content.Context
 import android.os.Looper
-import android.view.View
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.runtime.ActivityPanelEntity as RtActivityPanelEntity
-import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
-import androidx.xr.scenecore.runtime.AnchorEntity as RtAnchorEntity
-import androidx.xr.scenecore.runtime.Entity as RtEntity
-import androidx.xr.scenecore.runtime.PanelEntity as RtPanelEntity
-import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.runtime.SpatialCapabilities as RtSpatialCapabilities
-import androidx.xr.scenecore.runtime.SpatialModeChangeListener as RtSpatialModeChangeListener
+import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialVisibility as RtSpatialVisibility
+import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.inOrder
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
@@ -61,29 +45,20 @@ import org.robolectric.Shadows.shadowOf
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SceneTest {
-    private val fakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
     private val activityController = Robolectric.buildActivity(ComponentActivity::class.java)
     private val activity = activityController.create().start().get()
-    private val mockSceneRuntime = mock<SceneRuntime>()
-    private val mockAnchorEntity = mock<RtAnchorEntity>()
+    private lateinit var sceneRuntime: SceneRuntime
     lateinit var session: Session
 
     @Before
     fun setUp() {
-        whenever(mockSceneRuntime.spatialEnvironment).thenReturn(mock())
-        val mockActivitySpace = mock<RtActivitySpace>()
-        whenever(mockSceneRuntime.activitySpace).thenReturn(mockActivitySpace)
-        whenever(mockSceneRuntime.headActivityPose).thenReturn(mock())
-        whenever(mockSceneRuntime.mainPanelEntity).thenReturn(mock())
-        whenever(mockSceneRuntime.perceptionSpaceActivityPose).thenReturn(mock())
-        whenever(mockAnchorEntity.state).thenReturn(RtAnchorEntity.State.UNANCHORED)
-        whenever(mockSceneRuntime.spatialCapabilities).thenReturn(RtSpatialCapabilities(0))
-        session =
-            Session(
-                activity,
-                runtimes =
-                    listOf(fakePerceptionRuntimeFactory.createRuntime(activity), mockSceneRuntime),
-            )
+        val testDispatcher = StandardTestDispatcher()
+        val result = Session.create(activity, testDispatcher)
+
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+
+        session = (result as SessionCreateSuccess).session
+        sceneRuntime = session.sceneRuntime
         session.configure(Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
     }
 
@@ -117,21 +92,6 @@ class SceneTest {
     }
 
     @Test
-    fun getSpatialUser_returnsSpatialUser() {
-        val spatialUser = session.scene.spatialUser
-
-        assertThat(spatialUser).isNotNull()
-    }
-
-    @Test
-    fun getSpatialUserTwice_returnsSameUser() {
-        val spatialUser1 = session.scene.spatialUser
-        val spatialUser2 = session.scene.spatialUser
-
-        assertThat(spatialUser1).isEqualTo(spatialUser2)
-    }
-
-    @Test
     fun getPerceptionSpace_returnPerceptionSpace() {
         val perceptionSpace = session.scene.perceptionSpace
 
@@ -140,29 +100,15 @@ class SceneTest {
 
     @Test
     fun getMainPanelEntity_returnsPanelEntity() {
-        @Suppress("UNUSED_VARIABLE") val unused = session.scene.mainPanelEntity
-        @Suppress("UNUSED_VARIABLE") val unusedAgain = session.scene.mainPanelEntity
+        @Suppress("UNUSED_VARIABLE") val mainPanelEntity1 = session.scene.mainPanelEntity
+        @Suppress("UNUSED_VARIABLE") val mainPanelEntity2 = session.scene.mainPanelEntity
 
-        verify(mockSceneRuntime, times(1)).mainPanelEntity
+        assertThat(mainPanelEntity1.rtEntity).isSameInstanceAs(sceneRuntime.mainPanelEntity)
+        assertThat(mainPanelEntity2.rtEntity).isSameInstanceAs(sceneRuntime.mainPanelEntity)
     }
 
     @Test
     fun getPanelEntityType_returnsAllPanelEntities() {
-        val mockPanelEntity1 = mock<RtPanelEntity>()
-        val mockActivityPanelEntity = mock<RtActivityPanelEntity>()
-        whenever(
-                mockSceneRuntime.createPanelEntity(
-                    any<Context>(),
-                    any<Pose>(),
-                    any<View>(),
-                    any<RtPixelDimensions>(),
-                    any<String>(),
-                    any<RtEntity>(),
-                )
-            )
-            .thenReturn(mockPanelEntity1)
-        whenever(mockSceneRuntime.createActivityPanelEntity(any(), any(), any(), any(), any()))
-            .thenReturn(mockActivityPanelEntity)
         val panelEntity =
             PanelEntity.create(session, TextView(activity), IntSize2d(720, 480), "test1")
         val activityPanelEntity = ActivityPanelEntity.create(session, IntSize2d(640, 480), "test2")
@@ -173,19 +119,6 @@ class SceneTest {
 
     @Test
     fun getEntitiesBaseType_returnsAllEntities() {
-        val mockPanelEntity = mock<RtPanelEntity>()
-        whenever(
-                mockSceneRuntime.createPanelEntity(
-                    any<Context>(),
-                    any<Pose>(),
-                    any<View>(),
-                    any<RtPixelDimensions>(),
-                    any<String>(),
-                    any<RtEntity>(),
-                )
-            )
-            .thenReturn(mockPanelEntity)
-        whenever(mockSceneRuntime.createAnchorEntity()).thenReturn(mockAnchorEntity)
         val panelEntity =
             PanelEntity.create(session, TextView(activity), IntSize2d(720, 480), "test1")
         val anchorEntity =
@@ -198,29 +131,41 @@ class SceneTest {
     @Test
     fun setSpatialVisibilityChangedListener_receivesRuntimeSpatialVisibilityChangedEvent() {
         var listenerCalledWithValue = SpatialVisibility.UNKNOWN
-        val captor = argumentCaptor<Consumer<RtSpatialVisibility>>()
         val listener =
             Consumer<SpatialVisibility> { visibility -> listenerCalledWithValue = visibility }
 
         // Test that it calls into the runtime and capture the runtime listener.
         val executor = directExecutor()
         session.scene.setSpatialVisibilityChangedListener(executor, listener)
-        verify(mockSceneRuntime).setSpatialVisibilityChangedListener(eq(executor), captor.capture())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
         // Simulate the runtime listener being called with any value.
-        val rtListener = captor.firstValue
-        rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.WITHIN_FOV))
+        fakeSceneRuntime.spatialVisibilityChangedMap.forEach { (listener, executor) ->
+            executor.execute {
+                listener.accept(RtSpatialVisibility(RtSpatialVisibility.WITHIN_FOV))
+            }
+        }
         assertThat(listenerCalledWithValue).isNotEqualTo(SpatialVisibility.UNKNOWN)
         assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.WITHIN_FIELD_OF_VIEW)
 
-        rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.PARTIALLY_WITHIN_FOV))
+        fakeSceneRuntime.spatialVisibilityChangedMap.forEach { (listener, executor) ->
+            executor.execute {
+                listener.accept(RtSpatialVisibility(RtSpatialVisibility.PARTIALLY_WITHIN_FOV))
+            }
+        }
         assertThat(listenerCalledWithValue)
             .isEqualTo(SpatialVisibility.PARTIALLY_WITHIN_FIELD_OF_VIEW)
 
-        rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.OUTSIDE_FOV))
+        fakeSceneRuntime.spatialVisibilityChangedMap.forEach { (listener, executor) ->
+            executor.execute {
+                listener.accept(RtSpatialVisibility(RtSpatialVisibility.OUTSIDE_FOV))
+            }
+        }
         assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.OUTSIDE_FIELD_OF_VIEW)
 
-        rtListener.accept(RtSpatialVisibility(RtSpatialVisibility.UNKNOWN))
+        fakeSceneRuntime.spatialVisibilityChangedMap.forEach { (listener, executor) ->
+            executor.execute { listener.accept(RtSpatialVisibility(RtSpatialVisibility.UNKNOWN)) }
+        }
         assertThat(listenerCalledWithValue).isEqualTo(SpatialVisibility.UNKNOWN)
     }
 
@@ -228,38 +173,43 @@ class SceneTest {
     fun setSpatialVisibilityChangedListener_withNoExecutor_callsRuntimeSetSpatialVisibilityChangedListenerWithMainThreadExecutor() {
         val listener = Consumer<SpatialVisibility> { _ -> }
         session.scene.setSpatialVisibilityChangedListener(listener)
-        verify(mockSceneRuntime)
-            .setSpatialVisibilityChangedListener(eq(HandlerExecutor.mainThreadExecutor), any())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.spatialVisibilityChangedMap).hasSize(1)
+
+        val storedExecutor = fakeSceneRuntime.spatialVisibilityChangedMap.values.first()
+        assertThat(storedExecutor).isEqualTo(HandlerExecutor.mainThreadExecutor)
     }
 
     @Test
     fun clearSpatialVisibilityChangedListener_callsRuntimeClearSpatialVisibilityChangedListener() {
+        val listener = Consumer<SpatialVisibility> { _ -> }
+        session.scene.setSpatialVisibilityChangedListener(listener)
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.spatialVisibilityChangedMap).hasSize(1)
+
         session.scene.clearSpatialVisibilityChangedListener()
-        verify(mockSceneRuntime).clearSpatialVisibilityChangedListener()
+
+        assertThat(fakeSceneRuntime.spatialVisibilityChangedMap).hasSize(0)
     }
 
     @Test
     fun sceneInit_setsDefaultSpatialModeChangedListener() {
         // Verify that default handler is always set.
-        verify(mockSceneRuntime).spatialModeChangeListener = any()
+        check(sceneRuntime.spatialModeChangeListener != null)
     }
 
     @Test
     fun setSpatialModeChangedListener_withExecutor_receivesEvent() {
         var receivedEvent: SpatialModeChangeEvent? = null
         val listener = Consumer<SpatialModeChangeEvent> { event -> receivedEvent = event }
-        val captor = argumentCaptor<RtSpatialModeChangeListener>()
-        // The listener is set during Scene initialization. We need to capture it to trigger
-        // changes.
-        verify(mockSceneRuntime).spatialModeChangeListener = captor.capture()
-        val rtListener = captor.firstValue
-
         val executor = directExecutor()
         session.scene.setSpatialModeChangedListener(executor, listener)
 
         val pose = Pose.Identity
         val scale = Vector3(2f, 2f, 2f)
-        rtListener.onSpatialModeChanged(pose, scale)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(pose, scale)
 
         assertThat(receivedEvent).isNotNull()
         assertThat(receivedEvent?.recommendedPose).isEqualTo(pose)
@@ -270,15 +220,12 @@ class SceneTest {
     fun setSpatialModeChangedListener_withNoExecutor_receivesEvent() {
         var receivedEvent: SpatialModeChangeEvent? = null
         val listener = Consumer<SpatialModeChangeEvent> { event -> receivedEvent = event }
-        val captor = argumentCaptor<RtSpatialModeChangeListener>()
-        verify(mockSceneRuntime).spatialModeChangeListener = captor.capture()
-        val rtListener = captor.firstValue
 
         session.scene.setSpatialModeChangedListener(listener)
 
         val pose = Pose.Identity
         val scale = Vector3(2f, 2f, 2f)
-        rtListener.onSpatialModeChanged(pose, scale)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(pose, scale)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(receivedEvent).isNotNull()
@@ -290,14 +237,11 @@ class SceneTest {
     fun clearSpatialModeChangedListener_removesListener() {
         var listenerCalled = false
         val listener = Consumer<SpatialModeChangeEvent> { _ -> listenerCalled = true }
-        val captor = argumentCaptor<RtSpatialModeChangeListener>()
-        verify(mockSceneRuntime).spatialModeChangeListener = captor.capture()
-        val rtListener = captor.firstValue
 
         session.scene.setSpatialModeChangedListener(listener)
         session.scene.clearSpatialModeChangedListener()
 
-        rtListener.onSpatialModeChanged(Pose.Identity, Vector3.One)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(Pose.Identity, Vector3.One)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(listenerCalled).isFalse()
@@ -305,23 +249,25 @@ class SceneTest {
 
     @Test
     fun clearSpatialModeChangedListener_restoresDefaultKeyEntityBehavior() {
-        val captor = argumentCaptor<RtSpatialModeChangeListener>()
-        verify(mockSceneRuntime).spatialModeChangeListener = captor.capture()
-        val rtListener = captor.firstValue
-
-        val mockKeyEntity = mock<Entity>()
-        session.scene.keyEntity = mockKeyEntity
+        val keyEntity = GroupEntity.create(session, "Test Entity")
+        session.scene.keyEntity = keyEntity
 
         // Set a custom listener that does nothing
         session.scene.setSpatialModeChangedListener {}
 
+        val initialPose = keyEntity.getPose()
+        val initialScale = keyEntity.getScale()
+
         // Trigger change, keyEntity should not be updated
         val pose1 = Pose(Vector3(1f, 1f, 1f))
-        val scale1 = Vector3(1f, 1f, 1f)
-        rtListener.onSpatialModeChanged(pose1, scale1)
+        val scale1 = Vector3(0.5f, 0.5f, 0.5f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(pose1, scale1)
         shadowOf(Looper.getMainLooper()).idle()
-        verify(mockKeyEntity, never()).setPose(any(), any())
-        verify(mockKeyEntity, never()).setScale(eq(scale1), any())
+
+        assertThat(keyEntity.getPose()).isEqualTo(initialPose)
+        assertThat(keyEntity.getScale()).isEqualTo(initialScale)
+        assertThat(keyEntity.getPose()).isNotEqualTo(pose1) // Ensure pose1 was different
+        assertThat(keyEntity.getScale()).isNotEqualTo(scale1.x) // Ensure scale1 was different
 
         // Clear the listener
         session.scene.clearSpatialModeChangedListener()
@@ -329,74 +275,101 @@ class SceneTest {
         // Trigger change again, keyEntity should now be updated
         val pose2 = Pose(Vector3(2f, 2f, 2f))
         val scale2 = Vector3(3f, 3f, 3f)
-        rtListener.onSpatialModeChanged(pose2, scale2)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(pose2, scale2)
         shadowOf(Looper.getMainLooper()).idle()
 
-        verify(mockKeyEntity).setPose(pose2, Space.ACTIVITY)
-        verify(mockKeyEntity).setScale(scale2.x, Space.ACTIVITY)
+        assertThat(keyEntity.getPose(Space.ACTIVITY)).isEqualTo(pose2)
+        assertThat(keyEntity.getScale(Space.ACTIVITY)).isEqualTo(scale2.x)
     }
 
     @Test
     fun setSpatialModeChangedListener_overridesDefaultBehavior() {
-        val captor = argumentCaptor<RtSpatialModeChangeListener>()
-        verify(mockSceneRuntime).spatialModeChangeListener = captor.capture()
-        val rtListener = captor.firstValue
-
-        val mockKeyEntity = mock<Entity>()
-        session.scene.keyEntity = mockKeyEntity
+        val keyEntity = GroupEntity.create(session, "Test Entity")
+        session.scene.keyEntity = keyEntity
 
         var listenerCalled = false
         val listener = Consumer<SpatialModeChangeEvent> { _ -> listenerCalled = true }
         session.scene.setSpatialModeChangedListener(listener)
 
-        rtListener.onSpatialModeChanged(Pose.Identity, Vector3.One)
+        val pose1 = Pose(Vector3(1f, 1f, 1f))
+        val scale1 = Vector3(0.5f, 0.5f, 0.5f)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(pose1, scale1)
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(listenerCalled).isTrue()
-        verify(mockKeyEntity, never()).setPose(any(), any())
-        verify(mockKeyEntity, never()).setScale(eq(Vector3.One), any())
+        assertThat(keyEntity.getPose()).isNotEqualTo(pose1)
+        assertThat(keyEntity.getScale()).isNotEqualTo(scale1.x)
+    }
+
+    /**
+     * A helper class for testing that acts as a [Consumer] for [SpatialCapabilities]. It counts how
+     * many times it has been called and stores the last capabilities it received.
+     */
+    private class TestSpatialCapabilitiesListener : Consumer<SpatialCapabilities> {
+        var callCount = 0
+            private set // Make the setter private to prevent external modification
+
+        var lastCapabilities: SpatialCapabilities? = null
+            private set
+
+        override fun accept(capabilities: SpatialCapabilities) {
+            callCount++
+            lastCapabilities = capabilities
+        }
     }
 
     @Test
     fun requestFullSpaceMode_callsThrough() {
+        val capabilitiesListener = TestSpatialCapabilitiesListener()
+        sceneRuntime.addSpatialCapabilitiesChangedListener(directExecutor(), capabilitiesListener)
         session.scene.requestFullSpaceMode()
-        verify(mockSceneRuntime).requestFullSpaceMode()
+
+        assertThat(capabilitiesListener.callCount).isEqualTo(1)
+        assertThat(capabilitiesListener.lastCapabilities?.capabilities)
+            .isEqualTo(FakeSceneRuntime.ALL_SPATIAL_CAPABILITIES)
     }
 
     @Test
     fun requestHomeSpaceMode_callsThrough() {
+        val capabilitiesListener = TestSpatialCapabilitiesListener()
+        sceneRuntime.addSpatialCapabilitiesChangedListener(directExecutor(), capabilitiesListener)
         session.scene.requestHomeSpaceMode()
-        verify(mockSceneRuntime).requestHomeSpaceMode()
+
+        assertThat(capabilitiesListener.callCount).isEqualTo(1)
+        assertThat(capabilitiesListener.lastCapabilities?.capabilities).isEqualTo(0)
     }
 
     @Test
     fun panelClippingConfig_defaultValue_isTrue() {
         val defaultConfig = PanelClippingConfig(isDepthTestEnabled = true)
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
         assertThat(session.scene.panelClippingConfig).isEqualTo(defaultConfig)
-        verify(mockSceneRuntime, never()).enablePanelDepthTest(false)
+        assertThat(fakeSceneRuntime.enabledPanelDepthTest).isFalse()
     }
 
     @Test
     fun panelClippingConfig_setFalse_callsPlatformAdapterWithFalse() {
         val disabledConfig = PanelClippingConfig(isDepthTestEnabled = false)
         session.scene.panelClippingConfig = disabledConfig
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
-        verify(mockSceneRuntime).enablePanelDepthTest(false)
+        assertThat(fakeSceneRuntime.enabledPanelDepthTest).isFalse()
         assertThat(session.scene.panelClippingConfig).isEqualTo(disabledConfig)
-        verify(mockSceneRuntime, never()).enablePanelDepthTest(true)
     }
 
     @Test
     fun panelClippingConfig_setTrue_callsPlatformAdapterWithTrue() {
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
         // First, set to disabled to ensure the next call is a change.
         session.scene.panelClippingConfig = PanelClippingConfig(isDepthTestEnabled = false)
+
+        assertThat(fakeSceneRuntime.enabledPanelDepthTest).isFalse()
 
         val enabledConfig = PanelClippingConfig(isDepthTestEnabled = true)
         session.scene.panelClippingConfig = enabledConfig
 
-        val inOrder = inOrder(mockSceneRuntime)
-        inOrder.verify(mockSceneRuntime).enablePanelDepthTest(false)
-        inOrder.verify(mockSceneRuntime).enablePanelDepthTest(true)
+        assertThat(fakeSceneRuntime.enabledPanelDepthTest).isTrue()
         assertThat(session.scene.panelClippingConfig).isEqualTo(enabledConfig)
     }
 
@@ -407,14 +380,13 @@ class SceneTest {
 
     @Test
     fun keyEntity_setWithValidEntity_succeeds() {
-        val mockEntity = mock<Entity>()
-        session.scene.keyEntity = mockEntity
-        assertThat(session.scene.keyEntity).isEqualTo(mockEntity)
+        val keyEntity = GroupEntity.create(session, "Test Entity")
+        session.scene.keyEntity = keyEntity
+        assertThat(session.scene.keyEntity).isEqualTo(keyEntity)
     }
 
     @Test
     fun keyEntity_setWithAnchorEntity_throwsIllegalArgumentException() {
-        whenever(mockSceneRuntime.createAnchorEntity()).thenReturn(mockAnchorEntity)
         val anchorEntity =
             AnchorEntity.create(session, FloatSize2d(), PlaneOrientation.ANY, PlaneSemanticType.ANY)
 
@@ -438,9 +410,9 @@ class SceneTest {
 
     @Test
     fun keyEntity_setWithNull_clearsKeyEntity() {
-        val mockEntity = mock<Entity>()
-        session.scene.keyEntity = mockEntity // Set it first
-        assertThat(session.scene.keyEntity).isEqualTo(mockEntity)
+        val keyEntity = GroupEntity.create(session, "Test Entity")
+        session.scene.keyEntity = keyEntity // Set it first
+        assertThat(session.scene.keyEntity).isEqualTo(keyEntity)
 
         session.scene.keyEntity = null // Clear it
         assertThat(session.scene.keyEntity).isNull()
@@ -448,30 +420,24 @@ class SceneTest {
 
     @Test
     fun defaultSpatialModeChangedListener_withKeyEntity_updatesPoseAndScale() {
-        val captor = argumentCaptor<RtSpatialModeChangeListener>()
-        // The listener is set during Scene initialization. Capture it to trigger a change.
-        verify(mockSceneRuntime).spatialModeChangeListener = captor.capture()
-        val rtListener = captor.firstValue
-
-        val mockKeyEntity = mock<Entity>()
-        session.scene.keyEntity = mockKeyEntity
+        val keyEntity = GroupEntity.create(session, "Test Entity")
+        session.scene.keyEntity = keyEntity
 
         val recommendedPose = Pose(Vector3(1f, 2f, 3f))
         val recommendedScale = Vector3(2f, 2f, 2f)
 
-        rtListener.onSpatialModeChanged(recommendedPose, recommendedScale)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            recommendedPose,
+            recommendedScale,
+        )
         shadowOf(Looper.getMainLooper()).idle()
 
-        verify(mockKeyEntity).setPose(recommendedPose, Space.ACTIVITY)
-        verify(mockKeyEntity).setScale(recommendedScale.x, Space.ACTIVITY)
+        assertThat(keyEntity.getPose(Space.ACTIVITY)).isEqualTo(recommendedPose)
+        assertThat(keyEntity.getScale(Space.ACTIVITY)).isEqualTo(recommendedScale.x)
     }
 
     @Test
     fun defaultSpatialModeChangedListener_withNullKeyEntity_isNoOp() {
-        val captor = argumentCaptor<RtSpatialModeChangeListener>()
-        verify(mockSceneRuntime).spatialModeChangeListener = captor.capture()
-        val rtListener = captor.firstValue
-
         // Ensure keyEntity is null (it is by default)
         assertThat(session.scene.keyEntity).isNull()
 
@@ -479,7 +445,10 @@ class SceneTest {
         val recommendedScale = Vector3.One
 
         // This should not throw any exception
-        rtListener.onSpatialModeChanged(recommendedPose, recommendedScale)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            recommendedPose,
+            recommendedScale,
+        )
         shadowOf(Looper.getMainLooper()).idle()
     }
 
@@ -487,27 +456,28 @@ class SceneTest {
     fun sceneClose_removesSpatialCapabilitiesListeners() {
         val capabilitiesListener = Consumer<Set<SpatialCapability>> {}
         session.scene.addSpatialCapabilitiesChangedListener(capabilitiesListener)
-        val rtCapabilitiesListenerCaptor = argumentCaptor<Consumer<RtSpatialCapabilities>>()
-        verify(mockSceneRuntime)
-            .addSpatialCapabilitiesChangedListener(any(), rtCapabilitiesListenerCaptor.capture())
-        val rtCapabilitiesListener = rtCapabilitiesListenerCaptor.firstValue
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.spatialCapabilitiesChangedMap).hasSize(1)
 
         session.scene.close()
         shadowOf(Looper.getMainLooper()).idle()
 
-        verify(mockSceneRuntime).removeSpatialCapabilitiesChangedListener(rtCapabilitiesListener)
+        assertThat(fakeSceneRuntime.spatialCapabilitiesChangedMap).hasSize(0)
     }
 
     @Test
     fun sceneClose_clearsSpatialVisibilityListener() {
         val visibilityListener = Consumer<SpatialVisibility> {}
         session.scene.setSpatialVisibilityChangedListener(visibilityListener)
-        verify(mockSceneRuntime).setSpatialVisibilityChangedListener(any(), any())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.spatialVisibilityChangedMap).hasSize(1)
 
         session.scene.close()
         shadowOf(Looper.getMainLooper()).idle()
 
-        verify(mockSceneRuntime).clearSpatialVisibilityChangedListener()
+        assertThat(fakeSceneRuntime.spatialVisibilityChangedMap).hasSize(0)
     }
 
     @Test
@@ -516,30 +486,114 @@ class SceneTest {
         val modeChangeListener =
             Consumer<SpatialModeChangeEvent> { modeChangeListenerCalled = true }
         session.scene.setSpatialModeChangedListener(modeChangeListener)
-        val rtModeChangeListenerCaptor = argumentCaptor<RtSpatialModeChangeListener>()
-        verify(mockSceneRuntime).spatialModeChangeListener = rtModeChangeListenerCaptor.capture()
-        val rtModeChangeListener = rtModeChangeListenerCaptor.firstValue
 
         session.scene.close()
         shadowOf(Looper.getMainLooper()).idle()
 
-        rtModeChangeListener.onSpatialModeChanged(Pose.Identity, Vector3.One)
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(Pose.Identity, Vector3.One)
         assertThat(modeChangeListenerCalled).isFalse()
     }
 
     @Test
     fun sceneClose_clearsKeyEntity() {
-        var modeChangeListenerCalled = false
-        val modeChangeListener =
-            Consumer<SpatialModeChangeEvent> { modeChangeListenerCalled = true }
+        val modeChangeListener = Consumer<SpatialModeChangeEvent> {}
         session.scene.setSpatialModeChangedListener(modeChangeListener)
-        val rtModeChangeListenerCaptor = argumentCaptor<RtSpatialModeChangeListener>()
-        verify(mockSceneRuntime).spatialModeChangeListener = rtModeChangeListenerCaptor.capture()
-        val rtModeChangeListener = rtModeChangeListenerCaptor.firstValue
 
         session.scene.close()
         shadowOf(Looper.getMainLooper()).idle()
 
         assertThat(session.scene.keyEntity).isNull()
+    }
+
+    @Test
+    fun keyEntity_setFirstTime_invokesSpatialModeChangeListenersWithLastRecommendedValues() {
+        val recommendedPose = Pose(Vector3(1f, 2f, 3f))
+        val recommendedScale = Vector3(5f, 5f, 5f)
+
+        // Trigger a mode change to set lastRecommended values
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            recommendedPose,
+            recommendedScale,
+        )
+
+        val keyEntity = GroupEntity.create(session, "Test Entity")
+        session.scene.keyEntity = keyEntity
+
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertThat(keyEntity.getPose()).isEqualTo(recommendedPose)
+        assertThat(keyEntity.getScale()).isEqualTo(recommendedScale.x)
+    }
+
+    @Test
+    fun keyEntity_setFirstTime_invokesCustomSpatialModeChangeListenersWithLastRecommendedValues() {
+        val recommendedPose = Pose(Vector3(1f, 2f, 3f))
+        val recommendedScale = Vector3(5f, 5f, 5f)
+        var testSpatialModeChangeCount = 0
+
+        // Trigger a mode change to set lastRecommended values
+        sceneRuntime.spatialModeChangeListener?.onSpatialModeChanged(
+            recommendedPose,
+            recommendedScale,
+        )
+
+        val keyEntity = GroupEntity.create(session, "Test Entity")
+        session.scene.keyEntity = keyEntity
+        session.scene.setSpatialModeChangedListener { _ -> testSpatialModeChangeCount++ }
+
+        shadowOf(Looper.getMainLooper()).idle()
+
+        // Check that spatial mode change listener was invoked twice, once on spatial mode change
+        // and later when keyEntity was set.
+        assertThat(testSpatialModeChangeCount).isEqualTo(2)
+    }
+
+    @Test
+    fun isBoundaryConsentGranted_callsThroughToRuntime() {
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        fakeSceneRuntime.onBoundaryConsentChanged(true)
+
+        assertThat(session.scene.isBoundaryConsentGranted).isTrue()
+
+        fakeSceneRuntime.onBoundaryConsentChanged(false)
+
+        assertThat(session.scene.isBoundaryConsentGranted).isFalse()
+    }
+
+    @Test
+    fun addOnBoundaryConsentChangedListener_withExecutor_callsThroughToRuntime() {
+        val listener = Consumer<Boolean> {}
+        val executor = directExecutor()
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        session.scene.addOnBoundaryConsentChangedListener(executor, listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).containsEntry(listener, executor)
+    }
+
+    @Test
+    fun addOnBoundaryConsentChangedListener_withNoExecutor_callsThroughToRuntimeWithMainExecutor() {
+        val listener = Consumer<Boolean> {}
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        session.scene.addOnBoundaryConsentChangedListener(listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap)
+            .containsEntry(listener, HandlerExecutor.mainThreadExecutor)
+    }
+
+    @Test
+    fun removeOnBoundaryConsentChangedListener_callsThroughToRuntime() {
+        val listener = Consumer<Boolean> {}
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        session.scene.addOnBoundaryConsentChangedListener(listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).hasSize(1)
+
+        session.scene.removeOnBoundaryConsentChangedListener(listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).hasSize(0)
     }
 }

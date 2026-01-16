@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LE
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraBackendFactory
+import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
@@ -35,22 +36,25 @@ import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.internal.CameraBackendsImpl
 import androidx.camera.camera2.pipe.internal.CameraPipeLifetime
-import androidx.camera.camera2.pipe.internal.ImageSourceMap
-import androidx.camera.camera2.pipe.media.ImageReaderImageSources
+import androidx.camera.camera2.pipe.media.ImageSources
 import androidx.camera.camera2.pipe.testing.CameraControllerSimulator
 import androidx.camera.camera2.pipe.testing.FakeCameraBackend
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
+import androidx.camera.camera2.pipe.testing.FakeImageReaders
+import androidx.camera.camera2.pipe.testing.FakeImageSources
+import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import javax.inject.Provider
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.test.TestScope
+import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 
@@ -67,7 +71,6 @@ internal class StreamGraphImplTest {
         )
     private val config = FakeGraphConfigs
     private val fakeGraphProcessor = FakeGraphProcessor()
-    private val fakeImageSourceMapProvider: () -> ImageSourceMap = { mock() }
 
     private val stream1Config =
         CameraStream.Config.create(
@@ -101,15 +104,37 @@ internal class StreamGraphImplTest {
     private val cameraController =
         CameraControllerSimulator(cameraContext, graphId, graphConfig, fakeGraphProcessor)
     private val cameraControllerProvider: () -> CameraControllerSimulator = { cameraController }
+    private val fakeSurfaces = FakeSurfaces()
+    private val fakeImageReaders = FakeImageReaders(fakeSurfaces)
+    private val imageSources = FakeImageSources(fakeImageReaders)
+    private val streamGraphs = mutableListOf<StreamGraphImpl>()
+
+    private fun createStreamGraphImpl(
+        cameraMetadata: CameraMetadata,
+        graphConfig: CameraGraph.Config,
+        imageSources: ImageSources,
+        cameraControllerProvider: Provider<CameraController>,
+    ): StreamGraphImpl =
+        StreamGraphImpl(cameraMetadata, graphConfig, imageSources, cameraControllerProvider).also {
+            streamGraphs.add(it)
+        }
+
+    @After
+    fun tearDown() {
+        for (streamGraph in streamGraphs) {
+            streamGraph.close()
+        }
+        imageSources.checkImageSourcesClosed()
+    }
 
     @Test
     fun testPrecomputedTestData() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -144,11 +169,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testStreamGraphPopulatesCameraId() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream = streamGraph[config.streamConfig1]!!
@@ -168,11 +193,11 @@ internal class StreamGraphImplTest {
             )
         val graphConfig = CameraGraph.Config(camera = CameraId("0"), streams = listOf(streamConfig))
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -208,11 +233,11 @@ internal class StreamGraphImplTest {
             )
 
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -261,11 +286,11 @@ internal class StreamGraphImplTest {
             )
 
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -309,11 +334,11 @@ internal class StreamGraphImplTest {
             )
 
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -347,11 +372,11 @@ internal class StreamGraphImplTest {
             )
 
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -401,11 +426,11 @@ internal class StreamGraphImplTest {
             )
 
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -456,11 +481,11 @@ internal class StreamGraphImplTest {
             )
 
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -509,11 +534,11 @@ internal class StreamGraphImplTest {
             )
 
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -537,11 +562,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testStreamMapConvertsConfigObjectsToStreamIds() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
 
@@ -565,18 +590,18 @@ internal class StreamGraphImplTest {
     @Test
     fun testStreamMapIdsAreNotEqualAcrossMultipleStreamMapInstances() {
         val streamGraphA =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         val streamGraphB =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
 
         val stream1A = streamGraphA[config.streamConfig1]!!
@@ -589,11 +614,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testSharedStreamsHaveOneOutputConfig() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.sharedStreamConfig1]!!
@@ -612,11 +637,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testSharedStreamsHaveDifferentOutputStreams() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.sharedStreamConfig1]!!
@@ -628,11 +653,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testGroupedStreamsHaveSameGroupNumber() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.streamConfig1]!!
@@ -657,11 +682,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testDefaultAndPropagatedMirrorModes() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.streamConfig1]!!
@@ -675,11 +700,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testDefaultAndPropagatedTimestampBases() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.streamConfig1]!!
@@ -693,11 +718,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testDefaultAndPropagatedDynamicRangeProfiles() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.streamConfig1]!!
@@ -711,11 +736,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testDefaultAndPropagatedStreamUseCases() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.streamConfig1]!!
@@ -729,11 +754,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testDefaultAndPropagatedStreamUseHints() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.streamConfig1]!!
@@ -747,11 +772,11 @@ internal class StreamGraphImplTest {
     @Test
     fun testGetOutputLatency() {
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 config.graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                fakeImageSourceMapProvider,
             )
         cameraController.streamGraph = streamGraph
         val stream1 = streamGraph[config.streamConfig1]!!
@@ -765,24 +790,20 @@ internal class StreamGraphImplTest {
 
     @Test
     fun testGetImageSource() {
-        lateinit var imageSourceMap: ImageSourceMap
-
         val streamGraph =
-            StreamGraphImpl(
+            createStreamGraphImpl(
                 config.fakeMetadata,
                 graphConfig,
+                imageSources,
                 cameraControllerProvider,
-                { imageSourceMap },
             )
-        val imageSources = ImageReaderImageSources(threads)
-        imageSourceMap = ImageSourceMap(graphConfig, streamGraph, imageSources)
 
         val streamId1 = streamGraph[stream1Config]!!.id
         val streamId2 = streamGraph[stream2Config]!!.id
         assertThat(streamGraph.getImageSource(streamId1))
-            .isEqualTo(imageSourceMap.imageSources[streamId1])
+            .isEqualTo(streamGraph.imageSourceMap[streamId1])
         assertThat(streamGraph.getImageSource(streamId2))
-            .isEqualTo(imageSourceMap.imageSources[streamId2])
+            .isEqualTo(streamGraph.imageSourceMap[streamId2])
     }
 
     private fun deferredStreamsAreSupported(

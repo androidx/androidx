@@ -39,53 +39,24 @@ androidXMultiplatform {
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
-    commonMain {}
-
-    commonTest {}
-
-    jvmAndroidMain {
-      dependsOn(commonMain)
-      dependencies {
-        api(libs.androidx.annotation)
-        implementation("androidx.collection:collection:1.4.3")
-        implementation(project(":ink:ink-geometry"))
-        implementation(project(":ink:ink-nativeloader"))
-      }
+    jvmAndAndroidMain.dependencies {
+      api(libs.androidx.annotation)
+      implementation("androidx.collection:collection:1.4.3")
+      implementation(project(":ink:ink-geometry"))
+      implementation(project(":ink:ink-nativeloader"))
     }
 
-    jvmAndroidTest {
-      dependsOn(commonTest)
-      dependencies {
-        implementation(libs.junit)
-        implementation(libs.kotlinTest)
-        implementation(libs.truth)
-      }
+    jvmAndAndroidTest.dependencies {
+      implementation(libs.junit)
+      implementation(libs.kotlinTest)
+      implementation(libs.truth)
     }
 
-    androidMain {
-      dependsOn(jvmAndroidMain)
-    }
-
-    androidDeviceTest {
-      dependsOn(jvmAndroidTest)
-      dependencies {
-        implementation(libs.testExtJunit)
-        implementation(libs.testRules)
-        implementation(libs.testRunner)
-        implementation(libs.espressoCore)
-        implementation(libs.junit)
-        implementation(libs.truth)
-      }
-    }
-
-    jvmMain {
-      dependsOn(jvmAndroidMain)
-    }
-
-    jvmTest {
-      // TODO: b/362697089 - add `dependsOn(jvmAndroidTest)` to run the tests
-      //   in a JVM environment in addition to on Android emulators, once the
-      //   mysterious SIGSEGV is resolved.
+    androidDeviceTest.dependencies {
+      implementation(libs.testExtJunit)
+      implementation(libs.testRules)
+      implementation(libs.testRunner)
+      implementation(libs.espressoCore)
     }
   }
 }
@@ -95,4 +66,10 @@ androidx {
     type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Define brushes for freehand input."
+}
+
+// TODO: b/362697089 - Enable to run the tests in a JVM environment in addition to on Android
+//  emulators, once the mysterious SIGSEGV is resolved.
+project.tasks.named("jvmTest").configure {
+    it.enabled = false
 }

@@ -46,6 +46,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.withContext
 
 /**
  * State model of a EmbeddedPhotoPickerSession. This interface models the state and session
@@ -372,7 +373,7 @@ public abstract class AbstractEmbeddedPhotoPickerState(
             awaitCancellation()
         } finally {
             // When this suspended function is cancelled clean up the session by closing it.
-            session.close()
+            withContext(Dispatchers.Main.immediate) { session.close() }
         }
     }
 

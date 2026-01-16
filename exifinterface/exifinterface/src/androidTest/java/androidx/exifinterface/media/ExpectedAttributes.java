@@ -114,8 +114,27 @@ final class ExpectedAttributes {
                     .setPixelYDimension(0)
                     .build();
 
-    /** Expected attributes for {@link R.raw#jpeg_with_fill_bytes}. */
-    public static final ExpectedAttributes JPEG_WITH_FILL_BYTES =
+    /** Expected attributes for {@link R.raw#jpeg_with_fill_1byte}. */
+    public static final ExpectedAttributes JPEG_WITH_FILL_1BYTE =
+            new Builder()
+                    .setThumbnailOffsetAndLength(3501, 6265)
+                    .setThumbnailSize(512, 288)
+                    .setIsThumbnailCompressed(true)
+                    .setMake("SAMSUNG")
+                    .setMakeOffset(161)
+                    .setModel("SM-N900S")
+                    .setAperture(2.2)
+                    .setDateTimeOriginal("2016:01:29 18:32:27")
+                    .setExposureTime(1.0 / 30)
+                    .setFocalLength("413/100")
+                    .setImageSize(640, 480)
+                    .setIso("50")
+                    .setPixelYDimension(480)
+                    .setOrientation(ExifInterface.ORIENTATION_ROTATE_90)
+                    .build();
+
+    /** Expected attributes for {@link R.raw#jpeg_with_fill_2bytes}. */
+    public static final ExpectedAttributes JPEG_WITH_FILL_2BYTES =
             new Builder()
                     .setThumbnailOffsetAndLength(3502, 6265)
                     .setThumbnailSize(512, 288)

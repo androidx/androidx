@@ -143,7 +143,7 @@ class MacroBenchmarkResultFilesTest {
         // GIVEN a valid CSV file with multiple benchmarks and metrics
         val csvContent =
             """
-            benchmark_name,metric_name,timing
+            benchmark_name,metric_name,metric_value
             startup,timeToInitialDisplayMs,100.1
             startup,timeToInitialDisplayMs,102.3
             startup,frameDurationCpuMs,5.5
@@ -193,11 +193,11 @@ class MacroBenchmarkResultFilesTest {
     }
 
     @Test
-    fun getBenchmarkDataFromOutputFile_withMalformedTimingValue() {
-        // GIVEN a CSV file with a non-numeric timing value
+    fun getBenchmarkDataFromOutputFile_withMalformedMetricValue() {
+        // GIVEN a CSV file with a non-numeric metric_value value
         val csvContent =
             """
-            benchmark_name,metric_name,timing
+            benchmark_name,metric_name,metric_value
             startup,timeToInitialDisplayMs,100.1
             startup,timeToInitialDisplayMs,not_a_number
             startup,timeToInitialDisplayMs,102.3
@@ -213,6 +213,6 @@ class MacroBenchmarkResultFilesTest {
         val startupMetrics = result["startup"]!!
         assertThat(startupMetrics["timeToInitialDisplayMs"]).isEqualTo(doubleArrayOf(100.1, 102.3))
         // AND it should print a warning
-        assertThat(errContent.toString()).contains("Warning: Could not parse timing value")
+        assertThat(errContent.toString()).contains("Warning: Could not parse metric value")
     }
 }

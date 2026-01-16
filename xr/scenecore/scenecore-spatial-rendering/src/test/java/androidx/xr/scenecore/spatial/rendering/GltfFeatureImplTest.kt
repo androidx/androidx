@@ -17,6 +17,7 @@
 package androidx.xr.scenecore.spatial.rendering
 
 import androidx.concurrent.futures.ResolvableFuture
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
 import androidx.xr.scenecore.impl.impress.GltfModel
 import androidx.xr.scenecore.impl.impress.ImpressApi
@@ -32,9 +33,11 @@ import com.android.extensions.xr.ShadowXrExtensions
 import com.android.extensions.xr.node.Node
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.androidxr.splitengine.SubspaceNode
+import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.atomic.AtomicReference
+import java.util.function.Consumer
 import kotlin.coroutines.intrinsics.COROUTINE_SUSPENDED
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -66,7 +69,8 @@ class GltfFeatureImplTest {
     private val executor = FakeScheduledExecutorService()
     private val mockImpressApi = mock(ImpressApi::class.java)
     private val fakeImpressApi = FakeImpressApiImpl()
-    private val splitEngineSubspaceManager = Mockito.mock(SplitEngineSubspaceManager::class.java)
+    private val splitEngineSubspaceManager = mock(SplitEngineSubspaceManager::class.java)
+    private val mockRenderer = mock(ImpSplitEngineRenderer::class.java)
     private lateinit var modelImpressNode: ImpressNode
 
     private val subspaceNode: Node = xrExtensions.createNode()
@@ -101,7 +105,7 @@ class GltfFeatureImplTest {
 
     @Throws(ExecutionException::class, InterruptedException::class)
     private fun createGltfFeature(): GltfFeature {
-        val model: GltfModel = runBlocking { fakeImpressApi.loadGltfAssetTemp("FakeGltfAsset.glb") }
+        val model: GltfModel = runBlocking { fakeImpressApi.loadGltfAsset("FakeGltfAsset.glb") }
         val modelToken = model.nativeHandle
         modelImpressNode = fakeImpressApi.instanceGltfModel(modelToken)
         `when`(mockImpressApi.createImpressNode()).thenReturn(fakeImpressApi.createImpressNode())
@@ -109,14 +113,20 @@ class GltfFeatureImplTest {
         `when`(mockImpressApi.getGltfModelBoundingBox(modelImpressNode))
             .thenReturn(fakeImpressApi.getGltfModelBoundingBox(modelImpressNode))
 
-        return GltfFeatureImpl(model, mockImpressApi, splitEngineSubspaceManager, xrExtensions)
+        return GltfFeatureImpl(
+            model,
+            mockImpressApi,
+            splitEngineSubspaceManager,
+            xrExtensions,
+            mockRenderer,
+        )
     }
 
     @Throws(ExecutionException::class, InterruptedException::class)
     private fun createWaterMaterial(isAlphaMapVersion: Boolean): MaterialResource {
         val materialResourceFuture = ResolvableFuture.create<MaterialResource>()
         val material: WaterMaterial = runBlocking {
-            fakeImpressApi.createWaterMaterialTemp(isAlphaMapVersion)
+            fakeImpressApi.createWaterMaterial(isAlphaMapVersion)
         }
 
         materialResourceFuture.set(material)
@@ -137,14 +147,35 @@ class GltfFeatureImplTest {
                         null
                     }
                     .`when`(mockImpressApi)
-                    .animateGltfModelTemp(modelImpressNode, animationName, true)
+                    .animateGltfModel(modelImpressNode, animationName, true)
             }
             gltfFeature.startAnimation(/* looping= */ true, animationName, executor)
             executor.runAll()
 
             runBlocking {
-                verify(mockImpressApi).animateGltfModelTemp(modelImpressNode, animationName, true)
+                verify(mockImpressApi).animateGltfModel(modelImpressNode, animationName, true)
             }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun startAnimation_afterImpressCallback_stopsAnimation() =
+        runTest(testDispatcher) {
+            val animationName = "test_animation"
+
+            runBlocking {
+                Mockito.doAnswer {
+                        assertThat(gltfFeature.animationState)
+                            .isEqualTo(GltfEntity.AnimationState.PLAYING)
+                        null
+                    }
+                    .`when`(mockImpressApi)
+                    .animateGltfModel(modelImpressNode, animationName, false)
+            }
+            gltfFeature.startAnimation(/* looping= */ false, animationName, executor)
+            assertThat(gltfFeature.animationState).isEqualTo(GltfEntity.AnimationState.PLAYING)
+            executor.runAll()
+            assertThat(gltfFeature.animationState).isEqualTo(GltfEntity.AnimationState.STOPPED)
         }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -156,7 +187,7 @@ class GltfFeatureImplTest {
             runBlocking {
                 Mockito.doAnswer { COROUTINE_SUSPENDED }
                     .`when`(mockImpressApi)
-                    .animateGltfModelTemp(modelImpressNode, animationName, true)
+                    .animateGltfModel(modelImpressNode, animationName, true)
             }
             gltfFeature.startAnimation(
                 /* looping= */ true,
@@ -175,7 +206,7 @@ class GltfFeatureImplTest {
         }
 
     @Test
-    fun pauseAnimation_pauseAnimation() {
+    fun pauseAnimation_pauseAnimation() = runBlocking {
         val animationName = "test_animation"
         `when`(mockImpressApi.animateGltfModel(modelImpressNode, animationName, true))
             .thenReturn(fakeImpressApi.animateGltfModel(modelImpressNode, animationName, true))
@@ -191,7 +222,7 @@ class GltfFeatureImplTest {
     }
 
     @Test
-    fun resumeAnimation_resumeAnimation() {
+    fun resumeAnimation_resumeAnimation() = runBlocking {
         val animationName = "test_animation"
         `when`(mockImpressApi.animateGltfModel(modelImpressNode, animationName, true))
             .thenReturn(fakeImpressApi.animateGltfModel(modelImpressNode, animationName, true))
@@ -276,7 +307,7 @@ class GltfFeatureImplTest {
                     null
                 }
                 .`when`(mockImpressApi)
-                .animateGltfModelTemp(modelImpressNode, animationName, true)
+                .animateGltfModel(modelImpressNode, animationName, true)
         }
 
         val latestValue = AtomicReference(GltfEntity.AnimationState.STOPPED)
@@ -287,6 +318,21 @@ class GltfFeatureImplTest {
         gltfFeature.stopAnimation()
 
         assertThat(latestValue.get()).isEqualTo(GltfEntity.AnimationState.STOPPED)
+    }
+
+    @Test
+    fun addOnBoundsUpdateListener_setsFrameListener() {
+        val listener = Consumer<BoundingBox> {}
+        gltfFeature.addOnBoundsUpdateListener(listener)
+        verify(mockRenderer).frameListener = Mockito.any()
+    }
+
+    @Test
+    fun removeOnBoundsUpdateListener_clearsFrameListener() {
+        val listener = Consumer<BoundingBox> {}
+        gltfFeature.addOnBoundsUpdateListener(listener)
+        gltfFeature.removeOnBoundsUpdateListener(listener)
+        verify(mockRenderer).frameListener = null
     }
 
     @Test
@@ -312,6 +358,7 @@ class GltfFeatureImplTest {
         verify(mockImpressApi).clearMaterialOverride(modelImpressNode, nodeName1, primitiveIndex1)
         verify(mockImpressApi).clearMaterialOverride(modelImpressNode, nodeName2, primitiveIndex2)
         verify(splitEngineSubspaceManager).deleteSubspace(SUBSPACE_ID)
+        verify(mockRenderer).frameListener = null
     }
 
     companion object {

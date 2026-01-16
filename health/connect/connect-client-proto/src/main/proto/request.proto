@@ -96,6 +96,7 @@ message GetChangesTokenRequest {
 
 message GetChangesRequest {
   optional string changes_token = 1;
+  optional int32 page_size = 2;
 }
 
 message RegisterForDataNotificationsRequest {

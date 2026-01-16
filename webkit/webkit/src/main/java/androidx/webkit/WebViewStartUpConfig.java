@@ -37,11 +37,11 @@ import java.util.concurrent.Executor;
 public final class WebViewStartUpConfig {
     private final Executor mExecutor;
     private final boolean mShouldRunUiThreadStartUpTasks;
-    private final @Nullable Set<String> mProfilesToLoadDuringStartup;
+    private final @Nullable Set<@NonNull String> mProfilesToLoadDuringStartup;
 
     private WebViewStartUpConfig(
             @NonNull Executor executor, boolean shouldRunUiThreadStartUpTasks,
-            @Nullable Set<String> profilesToLoadDuringStartup) {
+            @Nullable Set<@NonNull String> profilesToLoadDuringStartup) {
         mExecutor = executor;
         mShouldRunUiThreadStartUpTasks = shouldRunUiThreadStartUpTasks;
         mProfilesToLoadDuringStartup = profilesToLoadDuringStartup;
@@ -80,7 +80,7 @@ public final class WebViewStartUpConfig {
     // The lint warning is suppressed here as the null represents a state, please see the javadoc
     // above.
     @SuppressWarnings("NullableCollection")
-    public @Nullable Set<String> getProfilesToLoadDuringStartup() {
+    public @Nullable Set<@NonNull String> getProfilesToLoadDuringStartup() {
         return mProfilesToLoadDuringStartup;
     }
 

@@ -19,8 +19,8 @@ package androidx.xr.runtime.math
 /**
  * Represents a ray in 3D space. A ray is defined by an origin point and a direction vector.
  *
- * @property origin the origin of the ray.
- * @property direction the direction of the ray.
+ * @property origin the origin of the ray
+ * @property direction the direction of the ray
  */
 public class Ray(
     public val origin: Vector3 = Vector3(),

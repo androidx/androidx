@@ -549,7 +549,7 @@ public @interface FlaggedApi {
                 )
                 .indented()
 
-        val ChecksAconfigFlag: TestFile =
+        val ChecksFlag: TestFile =
             TestFiles.kotlin(
                     """
 package androidx.annotation
@@ -562,14 +562,14 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_SETTER,
     AnnotationTarget.FIELD
 )
-public annotation class ChecksAconfigFlag (
+public annotation class ChecksFlag (
     val value: String
 )
         """
                 )
                 .indented()
 
-        val RequiresAconfigFlag: TestFile =
+        val RequiresFlag: TestFile =
             TestFiles.kotlin(
                     """
 package androidx.annotation
@@ -586,7 +586,7 @@ package androidx.annotation
     AnnotationTarget.FIELD,
     AnnotationTarget.FILE,
 )
-public annotation class RequiresAconfigFlag (
+public annotation class RequiresFlag (
     val value: String
 )
         """

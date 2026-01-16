@@ -80,7 +80,6 @@ internal constructor(
                 Config.PlaneTrackingMode.DISABLED,
                 Config.HandTrackingMode.DISABLED,
                 Config.DeviceTrackingMode.DISABLED,
-                Config.HeadTrackingMode.DISABLED,
                 Config.DepthEstimationMode.DISABLED,
                 Config.AnchorPersistenceMode.DISABLED,
                 Config.FaceTrackingMode.DISABLED,

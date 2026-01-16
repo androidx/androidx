@@ -35,4 +35,5 @@ data class DialerUiState(
     val isFetchingEndpoints: Boolean = false,
     val isLocalCallSilenceEnabled: Boolean = false,
     val isInitiallyMuted: Boolean = false,
+    val canUserUpdateSilence: Boolean = true,
 )

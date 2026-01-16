@@ -17,30 +17,28 @@
 package androidx.window.area
 
 import android.app.Activity
-import android.os.Binder
+import androidx.core.util.Consumer
 import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
 /** Empty Implementation for devices that do not support the [WindowAreaController] functionality */
-@ExperimentalWindowApi
 internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
 
-    override val windowAreaInfos: Flow<List<WindowAreaInfo>>
-        get() = flowOf(listOf())
-
-    override fun transferActivityToWindowArea(
-        token: Binder,
-        activity: Activity,
-        executor: Executor,
-        windowAreaSessionCallback: WindowAreaSessionCallback,
-    ) {
-        windowAreaSessionCallback.onSessionEnded(IllegalStateException("There are no WindowAreas"))
+    override fun addWindowAreasListener(executor: Executor, listener: Consumer<List<WindowArea>>) {
+        executor.execute { listener.accept(listOf()) }
     }
 
+    override fun removeWindowAreasListener(listener: Consumer<List<WindowArea>>) {
+        return
+    }
+
+    override fun transferToWindowArea(windowAreaToken: WindowAreaToken?, activity: Activity) {
+        throw IllegalStateException("There are no WindowAreas")
+    }
+
+    @ExperimentalWindowApi
     override fun presentContentOnWindowArea(
-        token: Binder,
+        windowAreaToken: WindowAreaToken,
         activity: Activity,
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
@@ -48,5 +46,12 @@ internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
         windowAreaPresentationSessionCallback.onSessionEnded(
             IllegalStateException("There are no WindowAreas")
         )
+    }
+
+    @ExperimentalWindowApi
+    override fun getActivePresentationSession(
+        windowAreaToken: WindowAreaToken
+    ): WindowAreaSessionPresenter {
+        throw IllegalArgumentException("There is no active session")
     }
 }

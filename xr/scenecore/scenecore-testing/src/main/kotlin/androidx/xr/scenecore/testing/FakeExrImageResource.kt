@@ -16,7 +16,19 @@
 
 package androidx.xr.scenecore.testing
 
+import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.ExrImageResource
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.ExrImageResource] */
-internal class FakeExrImageResource(public val mToken: Long) : ExrImageResource {}
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+public class FakeExrImageResource(public val mToken: Long) : ExrImageResource {
+    /**
+     * The asset name that was used to "load" this fake resource.
+     *
+     * This property is intended for testing purposes. It is populated by the
+     * [FakeRenderingRuntime.loadExrImageByAssetName] method and can be inspected by tests to verify
+     * that the correct asset path was used during the model loading process.
+     */
+    public var assetName: String = ""
+        internal set
+}

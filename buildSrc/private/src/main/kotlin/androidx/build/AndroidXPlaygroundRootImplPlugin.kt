@@ -178,7 +178,12 @@ class AndroidXPlaygroundRootImplPlugin : Plugin<Project> {
                 "https://packages.jetbrains.team/maven/p/kt/dev/",
                 includeGroupRegex = """org\.jetbrains\.kotlin.*""",
             )
-        val all = listOf(snapshots, metalava, dokka, prebuilts, kotlinDev)
+        val mavenSnapshots =
+            PlaygroundRepository(
+                "https://central.sonatype.com/repository/maven-snapshots/",
+                includeGroupRegex = """com\.google\.devtools.*""",
+            )
+        val all = listOf(snapshots, metalava, dokka, prebuilts, kotlinDev, mavenSnapshots)
     }
 
     private data class PlaygroundRepository(

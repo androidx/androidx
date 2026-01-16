@@ -18,11 +18,14 @@ package androidx.pdf.annotation.processor
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.pdf.DraftEditResult
+import androidx.pdf.InsertDraftEditOperation
+import androidx.pdf.RemoveDraftEditOperation
+import androidx.pdf.UpdateDraftEditOperation
 import androidx.pdf.adapter.FakePdfDocumentRenderer
-import androidx.pdf.adapter.PdfDocumentRenderer
-import androidx.pdf.annotation.createPdfAnnotationDataList
-import androidx.pdf.annotation.models.PdfAnnotationData
-import org.junit.Assert.assertTrue
+import androidx.pdf.annotation.createStampAnnotationWithPath
+import androidx.pdf.annotation.models.PdfAnnotation
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -32,149 +35,111 @@ import org.robolectric.RobolectricTestRunner
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class PdfRendererAnnotationsProcessorTest {
+    private lateinit var fakeRenderer: FakePdfDocumentRenderer
     private lateinit var processor: PdfRendererAnnotationsProcessor
-    private lateinit var pdfDocumentRenderer: PdfDocumentRenderer
 
     @Before
     fun setUp() {
-        pdfDocumentRenderer =
-            FakePdfDocumentRenderer(isLinearized = false, pageCount = 10, formType = 1)
-        processor = PdfRendererAnnotationsProcessor(pdfDocumentRenderer)
+        fakeRenderer = FakePdfDocumentRenderer(isLinearized = false, pageCount = 10, formType = 0)
+        processor = PdfRendererAnnotationsProcessor(fakeRenderer)
     }
 
     @Test
-    fun process_emptyList_returnsEmptyResult() {
-        listOf(processor::process, processor::processAddEdits, processor::processUpdateEdits)
-            .forEach { method ->
-                val result = method(emptyList())
-                assertTrue(result.success.isEmpty())
-                assertTrue(result.failures.isEmpty())
-            }
+    fun process_emptyList_returnsSuccessWithEmptyIds() {
+        val result = processor.process(emptyList())
 
-        // processRemoveEdits has a different input parameter
-        val result = processor.processRemoveEdits(emptyList())
-        assertTrue(result.success.isEmpty())
-        assertTrue(result.failures.isEmpty())
+        assertThat(result).isInstanceOf(DraftEditResult.Success::class.java)
+        assertThat((result as DraftEditResult.Success).ids).isEmpty()
     }
 
     @Test
-    fun process_singleSuccessfulAnnotation_returnsSuccess() {
-        val expectedNumAnnots = 1
-        val annotations = createPdfAnnotationDataList(numAnnots = expectedNumAnnots, pathLength = 1)
+    fun process_singleInsertSuccess_returnsSuccessWithId() {
+        val pageNum = 0
+        val annotation = createFakeAnnotation(pageNum)
+        val operation = InsertDraftEditOperation(annotation)
 
-        val result = processor.process(annotations)
+        val result = processor.process(listOf(operation))
 
-        assertTrue(result.success.isNotEmpty())
-        assertTrue(result.success.size == expectedNumAnnots)
-        assertTrue(result.failures.isEmpty())
+        assertThat(result).isInstanceOf(DraftEditResult.Success::class.java)
+        val success = result as DraftEditResult.Success
+        assertThat(success.ids).containsExactly("1000")
+
+        val page = fakeRenderer.fakePagesMap[pageNum]!!
+        assertThat(page.addedAnnotations).hasSize(1)
     }
 
     @Test
-    fun process_singleFailedAnnotation_addPageAnnotationFails_returnsFailure() {
-        val annotations =
-            createPdfAnnotationDataList(numAnnots = 1, pathLength = 1, invalidRatio = 1f)
+    fun process_multipleOperationsSuccess_returnsSuccessWithOrderedIds() {
+        val insertOp = InsertDraftEditOperation(createFakeAnnotation(pageNum = 0))
+        val updateOp = UpdateDraftEditOperation("1000", createFakeAnnotation(pageNum = 1))
+        val removeOp = RemoveDraftEditOperation("2000", pageNum = 2)
 
-        val result = processor.process(annotations)
+        val result = processor.process(listOf(insertOp, updateOp, removeOp))
 
-        assertTrue(result.success.isEmpty())
-        assertTrue(result.failures.isNotEmpty())
+        assertThat(result).isInstanceOf(DraftEditResult.Success::class.java)
+        val success = result as DraftEditResult.Success
+        assertThat(success.ids).containsExactly("1000", "1000", "2000").inOrder()
+
+        assertThat(fakeRenderer.fakePagesMap[0]!!.addedAnnotations).hasSize(1)
+        assertThat(fakeRenderer.fakePagesMap[1]!!.updatedAnnotations).hasSize(1)
+        assertThat(fakeRenderer.fakePagesMap[2]!!.removedAnnotationIds).containsExactly(2000)
     }
 
     @Test
-    fun process_multipleAnnotations_returnsSuccess() {
-        val expectedNumAnnots = 10
-        val annotations = createPdfAnnotationDataList(numAnnots = expectedNumAnnots, pathLength = 1)
+    fun process_insertFailsWithNullReturn_returnsFailureWithIndex() {
+        val pageNum = 0
+        val operation = InsertDraftEditOperation(createFakeAnnotation(pageNum))
 
-        val result = processor.process(annotations)
+        val page = fakeRenderer.fakePagesMap[pageNum]!!
+        page.shouldFailInsert = true
 
-        assertTrue(result.success.isNotEmpty())
-        assertTrue(result.success.size == expectedNumAnnots)
-        assertTrue(result.failures.isEmpty())
+        val result = processor.process(listOf(operation))
+
+        assertThat(result).isInstanceOf(DraftEditResult.Failure::class.java)
+        val failure = result as DraftEditResult.Failure
+        assertThat(failure.failedBatchIndex).isEqualTo(0)
+        assertThat(failure.appliedIds).isEmpty()
+        assertThat(failure.errorMessage).contains("Failed to add annotation")
     }
 
     @Test
-    fun process_multipleAnnotations_addPageAnnotationFails_returnsFailure() {
-        val expectedNumAnnots = 10
-        val annotations =
-            createPdfAnnotationDataList(
-                numAnnots = expectedNumAnnots,
-                pathLength = 1,
-                invalidRatio = 1f,
-            )
+    fun process_updateFailsWithException_returnsFailureWithIndex() {
+        val pageNum = 1
+        val operation = UpdateDraftEditOperation("100", createFakeAnnotation(pageNum))
 
-        val result = processor.process(annotations)
+        val page = fakeRenderer.fakePagesMap[pageNum]!!
+        page.exceptionToThrow = RuntimeException("Native Error")
 
-        assertTrue(result.success.isEmpty())
-        assertTrue(result.failures.isNotEmpty())
-        assertTrue(result.failures.size == 10)
+        val result = processor.process(listOf(operation))
+
+        assertThat(result).isInstanceOf(DraftEditResult.Failure::class.java)
+        val failure = result as DraftEditResult.Failure
+        assertThat(failure.failedBatchIndex).isEqualTo(0)
+        assertThat(failure.errorMessage).contains("Native Error")
     }
 
     @Test
-    fun process_multipleAnnotations_partialSuccess_returnsSuccessAndFailures() {
-        val expectedNumAnnots = 10
-        val annotations =
-            createPdfAnnotationDataList(
-                numAnnots = expectedNumAnnots,
-                pathLength = 1,
-                invalidRatio = 0.5f,
-            )
+    fun process_sequentialOperations_stopsAtFirstFailure_returnsFailureWithPartialIds() {
+        val op1 = InsertDraftEditOperation(createFakeAnnotation(pageNum = 0))
 
-        val result = processor.process(annotations)
+        val op2 = InsertDraftEditOperation(createFakeAnnotation(pageNum = 1))
+        fakeRenderer.fakePagesMap[1]!!.shouldFailInsert = true
 
-        assertTrue(result.success.isNotEmpty())
-        assertTrue(result.success.size == 5)
-        assertTrue(result.failures.isNotEmpty())
-        assertTrue(result.failures.size == 5)
+        val op3 = InsertDraftEditOperation(createFakeAnnotation(pageNum = 2))
+
+        val result = processor.process(listOf(op1, op2, op3))
+
+        assertThat(result).isInstanceOf(DraftEditResult.Failure::class.java)
+        val failure = result as DraftEditResult.Failure
+
+        assertThat(failure.failedBatchIndex).isEqualTo(1)
+
+        assertThat(failure.appliedIds).containsExactly("1000")
+
+        assertThat(fakeRenderer.fakePagesMap[2]!!.addedAnnotations).isEmpty()
     }
 
-    @Test
-    fun processAddEdit_multipleAnnotations_partialSuccess_returnsSuccessAndFailures() {
-        val expectedNumAnnots = 10
-        val annotations =
-            createPdfAnnotationDataList(
-                numAnnots = expectedNumAnnots,
-                pathLength = 1,
-                invalidRatio = 0.5f,
-            )
-
-        val result = processor.processAddEdits(annotations)
-
-        assertTrue(result.success.isNotEmpty())
-        assertTrue(result.success.size == 5)
-        assertTrue(result.failures.isNotEmpty())
-        assertTrue(result.failures.size == 5)
-    }
-
-    @Test
-    fun processUpdateEdit_multipleAnnotations_partialSuccess_returnsSuccessAndFailures() {
-        val annotations =
-            createPdfAnnotationDataList(numAnnots = 4, pathLength = 1, invalidRatio = 0.5f)
-
-        val newAnnotationsForUpdate =
-            createPdfAnnotationDataList(numAnnots = 2, pathLength = 1, invalidRatio = 1f)
-
-        val addResult = processor.processAddEdits(annotations)
-        val pdfAnnotations =
-            addResult.success.zip(newAnnotationsForUpdate).map {
-                (jetpackAospIdPair, newPdfAnnotationData) ->
-                PdfAnnotationData(jetpackAospIdPair.aospId, newPdfAnnotationData.annotation)
-            }
-
-        val result = processor.processUpdateEdits(pdfAnnotations)
-        assertTrue(result.success.isNotEmpty())
-        assertTrue(result.success.size == 2)
-    }
-
-    @Test
-    fun processRemoveEdit_multipleAnnotations_partialSuccess_returnsSuccessAndFailures() {
-
-        val annotations =
-            createPdfAnnotationDataList(numAnnots = 4, pathLength = 1, invalidRatio = 0.5f)
-
-        val addResult = processor.processAddEdits(annotations)
-        val result = processor.processRemoveEdits(addResult.success.map { it.aospId })
-
-        assertTrue(result.success.isNotEmpty())
-        assertTrue(result.success.size == 2)
+    private fun createFakeAnnotation(pageNum: Int): PdfAnnotation {
+        return createStampAnnotationWithPath(pageNum, pathSize = 10)
     }
 }

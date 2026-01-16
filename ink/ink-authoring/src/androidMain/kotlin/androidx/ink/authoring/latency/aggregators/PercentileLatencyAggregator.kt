@@ -23,7 +23,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.latency.aggregators.internal.ConcurrentIntervalQueue
 import androidx.ink.authoring.latency.aggregators.internal.runEvery
-import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.Executor
 import kotlin.collections.ArrayDeque
 import kotlin.collections.ArrayList
 import kotlin.collections.MutableList
@@ -69,7 +69,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     public fun interface Callback {
         /**
          * Callback invoked at most once per [window] in the [CoroutineScope] (or, for Java clients,
-         * the [ScheduledExecutorService]) passed to [create].
+         * the [Executor]) passed to [create].
          *
          * @param latencyPercentileNanos Nanosecond latency durations for each of the [percentiles],
          *   computed over the last aggregation window. Do not hold a reference to this [List] after
@@ -117,7 +117,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          *   associated context should be distinct from the UI thread.
          * @param callback The [Callback] with which to report latency percentiles.
          */
-        @JvmSynthetic
+        @JvmStatic
         public fun create(
             window: Duration,
             percentiles: List<Float>,
@@ -143,8 +143,9 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          *   second, for preallocation purposes. `expectedSamplesPerSecond * (window + 0.5.seconds)`
          *   latency samples will be preallocated, so please do not pass extremely high values for
          *   this parameter.
-         * @param executor A [ScheduledExecutorService] on which to compute and report latency
-         *   percentiles. Should be distinct from the UI thread.
+         * @param executor An [Executor] on which to compute and report latency percentiles. Should
+         *   be distinct from the UI thread. More efficient if the [Executor] is an instance of
+         *   [java.util.concurrent.ScheduledExecutorService].
          * @param callback The [Callback] with which to report latency percentiles.
          */
         @JvmStatic
@@ -152,7 +153,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
             windowMilliseconds: Int,
             percentiles: List<Float>,
             expectedSamplesPerSecond: Int,
-            executor: ScheduledExecutorService,
+            executor: Executor,
             callback: Callback,
         ): PercentileLatencyAggregator {
             return create(

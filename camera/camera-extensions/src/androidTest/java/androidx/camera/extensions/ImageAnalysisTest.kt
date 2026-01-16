@@ -30,7 +30,6 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
@@ -61,7 +60,6 @@ import org.junit.runners.Parameterized
 class ImageAnalysisTest(
     private val implName: String,
     private val cameraXConfig: CameraXConfig,
-    private val implType: ExtensionsTestlibControl.ImplementationType,
     @ExtensionMode.Mode private val extensionMode: Int,
     @CameraSelector.LensFacing private val lensFacing: Int,
 ) {
@@ -69,9 +67,7 @@ class ImageAnalysisTest(
         val context: Context = ApplicationProvider.getApplicationContext()
 
         @JvmStatic
-        @Parameterized.Parameters(
-            name = "cameraXConfig = {0}, implType = {2}, mode = {3}, facing = {4}"
-        )
+        @Parameterized.Parameters(name = "cameraXConfig = {0}, mode = {2}, facing = {3}")
         fun data(): Collection<Array<Any>> {
             return ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
         }
@@ -102,7 +98,6 @@ class ImageAnalysisTest(
 
         ProcessCameraProvider.configureInstance(cameraXConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
-        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
 
@@ -177,7 +172,7 @@ class ImageAnalysisTest(
         val injectAnalysisSize =
             getOutputSizes(ImageFormat.YUV_420_888).minBy { it.width * it.height }
         // Inject a fake VendorExtender that reports empty supported size for imageAnalysis.
-        extensionsManager.setVendorExtenderFactory { _, _ ->
+        extensionsManager.setVendorExtenderFactory { _ ->
             object : VendorExtender {
                 override fun isExtensionAvailable(
                     cameraId: String,
@@ -233,7 +228,7 @@ class ImageAnalysisTest(
         runBlocking {
             // 1. Arrange
             // Inject a fake VendorExtender that reports empty supported size for imageAnalysis.
-            extensionsManager.setVendorExtenderFactory { _, _ ->
+            extensionsManager.setVendorExtenderFactory { _ ->
                 object : VendorExtender {
                     override fun isExtensionAvailable(
                         cameraId: String,

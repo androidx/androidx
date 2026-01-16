@@ -94,7 +94,7 @@ class SessionLifecycleHelper(
         if (config.faceTracking != Config.FaceTrackingMode.DISABLED) {
             permissions.add(FACE_TRACKING)
         }
-        if (config.headTracking != Config.HeadTrackingMode.DISABLED) {
+        if (config.deviceTracking != Config.DeviceTrackingMode.DISABLED) {
             permissions.add(HEAD_TRACKING)
         }
         if (config.eyeTracking == Config.EyeTrackingMode.COARSE_TRACKING) {

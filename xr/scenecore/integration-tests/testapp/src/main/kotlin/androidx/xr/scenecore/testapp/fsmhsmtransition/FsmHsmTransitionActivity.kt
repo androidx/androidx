@@ -96,6 +96,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
                     "h ${defaultPanelSize.height.format(2)}",
             )
         }
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // Set visibility of components per mode
         componentVisibility()
@@ -155,6 +156,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
                     true ->
                         movableActive =
                             session!!.scene.mainPanelEntity.addComponent(movableComponent)
+
                     false ->
                         movableActive.let {
                             session!!.scene.mainPanelEntity.removeComponent(movableComponent)
@@ -186,6 +188,7 @@ class FsmHsmTransitionActivity : AppCompatActivity() {
                     true ->
                         resizableActive =
                             session!!.scene.mainPanelEntity.addComponent(resizableComponent)
+
                     false -> {
                         if (resizableActive) {
                             session!!.scene.mainPanelEntity.removeComponent(resizableComponent)

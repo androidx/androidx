@@ -16,6 +16,7 @@
 
 package androidx.aab
 
+import androidx.aab.DexInfo.Companion.toDexInfo
 import com.android.tools.build.libraries.metadata.AppDependencies
 import java.io.File
 import java.io.FileInputStream
@@ -72,8 +73,9 @@ data class BundleInfo(
         }
 
         fun from(path: String, inputStream: InputStream): BundleInfo {
-            val dexInfo = mutableListOf<DexInfo>()
+            val deferredDexFiles = mutableListOf<DexInfo.DeferredDexFile>()
             val soInfo = mutableListOf<SoInfo>()
+            val xmlStrings = mutableSetOf<String>()
             val dotVersionFiles = mutableMapOf<String, String>()
             var mappingFileInfo: MappingFileInfo? = null
             var r8MetadataFileInfo: R8JsonFileInfo? = null
@@ -87,7 +89,13 @@ data class BundleInfo(
                 while (entry != null) {
                     when {
                         entry.name.contains("/dex/classes") && entry.name.endsWith(".dex") -> {
-                            dexInfo.add(DexInfo.from(entry.name, entry.compressedSize, zis))
+                            deferredDexFiles.add(
+                                DexInfo.DeferredDexFile(
+                                    entryName = entry.name,
+                                    compressedSize = entry.compressedSize,
+                                    bytes = zis.readAllBytes(),
+                                )
+                            )
                         }
 
                         entry.name == ProfInfo.BUNDLE_LOCATION -> {
@@ -131,6 +139,15 @@ data class BundleInfo(
                         entry.name.endsWith(".so") -> {
                             soInfo.add(SoInfo(bundlePath = entry.name, size = zis.countBytes()))
                         }
+
+                        entry.name.endsWith(".xml") -> {
+                            try {
+                                XmlInfo.collectStringsFromBundleResourceFile(zis, xmlStrings)
+                            } catch (_: Exception) {
+                                // Silently ignore unparseable .xml files - it's likely plaintext, and not driving
+                                // inflation / reflection
+                            }
+                        }
                     }
                     entry = zis.nextEntry
                 }
@@ -139,7 +156,7 @@ data class BundleInfo(
             return BundleInfo(
                 path = path,
                 profileInfo = profileInfo,
-                dexInfo = dexInfo,
+                dexInfo = deferredDexFiles.toDexInfo(xmlStrings),
                 soInfo = soInfo,
                 mappingFileInfo = mappingFileInfo,
                 r8JsonFileInfo = r8MetadataFileInfo,

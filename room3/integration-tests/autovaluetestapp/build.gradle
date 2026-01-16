@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import androidx.build.KotlinTarget
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -53,4 +56,8 @@ android {
 // See b/198431380
 tasks.withType(JavaCompile) {
     options.compilerArgs << "-parameters"
+}
+
+androidx {
+    kotlinTarget = KotlinTarget.KOTLIN_2_2
 }

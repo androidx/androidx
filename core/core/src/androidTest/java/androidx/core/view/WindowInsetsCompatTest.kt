@@ -104,6 +104,67 @@ class WindowInsetsCompatTest {
         assertEquals(13, insets.bottom)
     }
 
+    @Test
+    public fun builder_boundingRects() {
+        val statusBars = mutableListOf(Rect(0, 50, 0, 0))
+        val navigationBars = mutableListOf(Rect(0, 0, 0, 100))
+        val tappableElement = mutableListOf(Rect(0, 10, 0, 10))
+        val mandatorySystemGestures = mutableListOf(Rect(0, 20, 0, 20))
+        val displayCutout = mutableListOf(Rect(0, 5, 0, 0))
+        val captionBar = mutableListOf(Rect(0, 50, 0, 0))
+        val ime = mutableListOf(Rect(0, 0, 0, 300))
+        val systemOverlays = mutableListOf(Rect(10, 0, 0, 10))
+        val result =
+            WindowInsetsCompat.Builder()
+                .setBoundingRects(Type.statusBars(), statusBars)
+                .setBoundingRects(Type.navigationBars(), navigationBars)
+                .setBoundingRects(Type.tappableElement(), tappableElement)
+                .setBoundingRects(
+                    Type.mandatorySystemGestures() or Type.systemGestures(),
+                    mandatorySystemGestures,
+                )
+                .setBoundingRects(Type.displayCutout(), displayCutout)
+                .setBoundingRects(Type.captionBar(), captionBar)
+                .setBoundingRects(Type.ime(), ime)
+                .setBoundingRects(Type.systemOverlays(), systemOverlays)
+                .build()
+
+        val resultCopy = WindowInsetsCompat.Builder(result).build()
+
+        assertEquals(statusBars, result.getBoundingRects(Type.statusBars()))
+        assertEquals(navigationBars, result.getBoundingRects(Type.navigationBars()))
+        assertEquals(tappableElement, result.getBoundingRects(Type.tappableElement()))
+        assertEquals(
+            mandatorySystemGestures,
+            result.getBoundingRects(Type.mandatorySystemGestures()),
+        )
+        assertEquals(mandatorySystemGestures, result.getBoundingRects(Type.systemGestures()))
+        assertEquals(displayCutout, result.getBoundingRects(Type.displayCutout()))
+        assertEquals(captionBar, result.getBoundingRects(Type.captionBar()))
+        assertEquals(ime, result.getBoundingRects(Type.ime()))
+        assertEquals(systemOverlays, result.getBoundingRects(Type.systemOverlays()))
+
+        assertEquals(
+            mutableListOf(
+                statusBars.single(),
+                navigationBars.single(),
+                captionBar.single(),
+                systemOverlays.single(),
+            ),
+            result.getBoundingRects(
+                Type.statusBars() or
+                    Type.navigationBars() or
+                    Type.captionBar() or
+                    Type.systemOverlays()
+            ),
+        )
+
+        assertEquals(
+            resultCopy.getBoundingRects(Type.captionBar()),
+            result.getBoundingRects(Type.captionBar()),
+        )
+    }
+
     /** On API 34+ we can test more types such as SYSTEM_OVERLAYS. */
     @Test
     @SdkSuppress(minSdkVersion = 34)

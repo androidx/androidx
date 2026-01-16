@@ -27,7 +27,10 @@ public final class GltfModel extends BindingsResource implements GltfModelResour
     private final ImpressApi mImpressApi;
 
     private GltfModel(Builder builder) {
-        super(builder.mImpressapi.getBindingsResourceManager(), builder.mNativeGltfModel);
+        super(
+                builder.mImpressapi.getBindingsResourceManager(),
+                builder.mNativeGltfModel,
+                (handle) -> builder.mImpressapi.releaseGltfAsset(handle));
         mImpressApi = builder.mImpressapi;
     }
 

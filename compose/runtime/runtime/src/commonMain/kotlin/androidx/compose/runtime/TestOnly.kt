@@ -24,4 +24,5 @@ package androidx.compose.runtime
     AnnotationTarget.PROPERTY_GETTER,
     AnnotationTarget.PROPERTY_SETTER,
 )
+@Suppress("KmpVisibilityMismatch") // internal in android
 public expect annotation class TestOnly()

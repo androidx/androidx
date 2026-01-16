@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("deprecation")
+
 package androidx.wear.protolayout.material3
 
 import androidx.test.core.app.ApplicationProvider

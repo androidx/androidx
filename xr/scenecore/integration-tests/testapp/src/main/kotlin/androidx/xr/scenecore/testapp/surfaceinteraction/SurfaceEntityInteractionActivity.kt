@@ -54,10 +54,13 @@ import androidx.xr.scenecore.GroupEntity
 import androidx.xr.scenecore.InteractableComponent
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.Scene
+import androidx.xr.scenecore.SpatialEnvironment
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
+import androidx.xr.scenecore.testapp.common.isMvHevcSupported
 import java.io.File
+import java.util.function.Consumer
 
 internal const val TAG = "JXR-SurfaceEntityInteractionActivity"
 
@@ -94,6 +97,10 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
     private lateinit var switchDoubleClickEnabled: Switch
     private lateinit var switchDragEnabled: Switch
     private lateinit var textViewPointerLogs: TextView
+    private var spatialEnvironmentPreference: SpatialEnvironment.SpatialEnvironmentPreference? =
+        null
+    private var consentGranted: Boolean = false
+    private lateinit var mvHevcNotSupportedText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -105,15 +112,20 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
             insets
         }
 
-        session = (Session.create(this) as SessionCreateSuccess).session
+        @Suppress("DEPRECATION")
+        session =
+            (Session.create(this, unscaledGravityAlignedActivitySpace = true)
+                    as SessionCreateSuccess)
+                .session
         scene = session.scene
         scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
         session.configure(
             Config(
-                headTracking = Config.HeadTrackingMode.LAST_KNOWN,
+                deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
                 handTracking = Config.HandTrackingMode.BOTH,
             )
         )
+        session.scene.keyEntity = session.scene.mainPanelEntity
         device = ArDevice.getInstance(session)
 
         surfaceParent = GroupEntity.create(session, "SurfaceParent", Pose.Identity)
@@ -180,11 +192,26 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         textViewPointerLogs = findViewById(R.id.textView_pointer_log)
         textViewPointerLogs.text = ""
 
+        mvHevcNotSupportedText = findViewById(R.id.mv_hevc_not_supported_text)
+        if (!isMvHevcSupported()) {
+            mvHevcNotSupportedText.visibility = View.VISIBLE
+        }
+
         updateButtonsEnabled(null, false)
 
         view = window.decorView
         view.postOnAnimation(this::onAnimation)
+
+        consentGranted = session.scene.isBoundaryConsentGranted
+        session.scene.addOnBoundaryConsentChangedListener(boundaryConsentListener)
     }
+
+    private val boundaryConsentListener =
+        Consumer<Boolean> { isGranted ->
+            consentGranted = isGranted
+            Log.i("[boundary] in app", isGranted.toString())
+            // App UX Flow for handling consent state changes.
+        }
 
     private fun onAnimation() {
         if (surfaceParent == null) return
@@ -220,10 +247,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         val debugPanelDefault = pointerLogManager.default.validPanel
         if (debugPanelDefault != null) {
             val oldPose = debugPanelDefault.getPose()
-            val newPose =
-                headPose.compose(
-                    Pose(Vector3(0f, 0f, -1f), Quaternion.fromAxisAngle(Vector3.Up, 180f))
-                )
+            val newPose = headPose.compose(Pose(Vector3(0f, 0f, -1f), Quaternion.Identity))
             debugPanelDefault.setPose(Pose.lerp(oldPose, newPose, followingPortion))
         }
 
@@ -232,7 +256,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         if (leftPose != null && debugPanelLeft != null) {
             val oldPose = debugPanelLeft.getPose()
             val newPos = leftPose.translation + Vector3(0f, 0.05f, 0f)
-            val newRot = Quaternion.fromLookTowards(headPose.translation - newPos, Vector3.Up)
+            val newRot = headPose.rotation
             debugPanelLeft.setPose(Pose.lerp(oldPose, Pose(newPos, newRot), followingPortion))
         }
 
@@ -241,7 +265,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         if (rightPose != null && debugPanelRight != null) {
             val oldPose = debugPanelRight.getPose()
             val newPos = rightPose.translation + Vector3(0f, 0.05f, 0f)
-            val newRot = Quaternion.fromLookTowards(headPose.translation - newPos, Vector3.Up)
+            val newRot = headPose.rotation
             debugPanelRight.setPose(Pose.lerp(oldPose, Pose(newPos, newRot), followingPortion))
         }
 
@@ -252,6 +276,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         super.onDestroy()
         exoPlayer?.stop()
         exoPlayer?.release()
+        session.scene.removeOnBoundaryConsentChangedListener(boundaryConsentListener)
     }
 
     // Request the external storage permission so that we can read large files from the SDCard
@@ -282,8 +307,10 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
     private fun updateButtonsEnabled(selectedVideo: VideoEnums?, interactableAttached: Boolean) {
         val isVideoSelected = selectedVideo != null
         buttonSelectQuad.isEnabled = selectedVideo != VideoEnums.BIG_BUCK_BUNNY_BUTTON
-        buttonSelectSphere.isEnabled = selectedVideo != VideoEnums.GALAXY_360_MVHEVC_BUTTON
-        buttonSelectHemisphere.isEnabled = selectedVideo != VideoEnums.NAVER_180_MVHEVC_BUTTON
+        buttonSelectSphere.isEnabled =
+            isMvHevcSupported() && (selectedVideo != VideoEnums.GALAXY_360_MVHEVC_BUTTON)
+        buttonSelectHemisphere.isEnabled =
+            isMvHevcSupported() && (selectedVideo != VideoEnums.NAVER_180_MVHEVC_BUTTON)
         buttonDeselectVideo.isEnabled = isVideoSelected
 
         switchInteractableAttached.isEnabled = selectedVideo != null
@@ -321,7 +348,18 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
                 .show()
             return
         }
-
+        // Check boundary consent status. If not granted, stop the immersive video and revert to the
+        // original state.
+        if (!consentGranted) {
+            // Allow the app to re-trigger the boundary setup flow on the second button click.
+            session.scene.spatialEnvironment.preferredSpatialEnvironment = null
+            // Set dummy environment to trigger boundary consent dialog
+            spatialEnvironmentPreference =
+                SpatialEnvironment.SpatialEnvironmentPreference(null, null)
+            session!!.scene.spatialEnvironment.preferredSpatialEnvironment =
+                spatialEnvironmentPreference
+            return
+        }
         surfaceEntity =
             createSurfaceEntity(
                 session = session,
@@ -333,7 +371,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
                 movable = videoAttr.movable,
             )
 
-        alignPoseToPlayerHead(scene, surfaceParent!!)
+        alignPoseToPlayerHead(scene, device, surfaceParent!!)
 
         exoPlayer =
             createExoPlayer(
@@ -427,8 +465,12 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
     }
 
     companion object {
-        private fun alignPoseToPlayerHead(scene: Scene, entity: GroupEntity) {
-            val pose = scene.spatialUser.head?.transformPoseTo(Pose.Identity, scene.activitySpace)!!
+        private fun alignPoseToPlayerHead(scene: Scene, device: ArDevice, entity: GroupEntity) {
+            val pose =
+                scene.perceptionSpace.transformPoseTo(
+                    device.state.value.devicePose,
+                    scene.activitySpace,
+                )
             val rotation = Quaternion.fromEulerAngles(0.0f, pose.rotation.eulerAngles.y, 0.0f)
             entity.setPose(Pose(pose.translation, rotation))
         }
@@ -554,10 +596,13 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
                 SurfaceEntity.StereoMode.MULTIVIEW_LEFT_PRIMARY,
                 SurfaceEntity.StereoMode.MULTIVIEW_RIGHT_PRIMARY ->
                     FloatSize3d(1.0f, videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
+
                 SurfaceEntity.StereoMode.TOP_BOTTOM ->
                     FloatSize3d(1.0f, 0.5f * videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
+
                 SurfaceEntity.StereoMode.SIDE_BY_SIDE ->
                     FloatSize3d(1.0f, 2.0f * videoHeight.toFloat() / effectiveDisplayWidth, 0.0f)
+
                 else -> throw IllegalArgumentException("Unsupported stereo mode: $stereoMode")
             }
         }

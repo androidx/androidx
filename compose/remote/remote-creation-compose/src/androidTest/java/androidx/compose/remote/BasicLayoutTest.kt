@@ -31,11 +31,6 @@ import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.action.ValueChange
 import androidx.compose.remote.creation.compose.capture.rememberAsyncRemoteDocument
 import androidx.compose.remote.creation.compose.capture.rememberRemoteDocument
-import androidx.compose.remote.creation.compose.capture.rotate
-import androidx.compose.remote.creation.compose.capture.scale
-import androidx.compose.remote.creation.compose.capture.shaders.RemoteBrush
-import androidx.compose.remote.creation.compose.capture.shaders.radialGradient
-import androidx.compose.remote.creation.compose.capture.translate
 import androidx.compose.remote.creation.compose.layout.CaptureAsBitmap
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -43,7 +38,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.RemoteContext
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -64,11 +58,18 @@ import androidx.compose.remote.creation.compose.modifier.onTouchUp
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.width
+import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.radialGradient
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
+import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
 import androidx.compose.remote.creation.compose.state.rememberRemoteString
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.remote.serialization.yaml.YAMLSerializer
@@ -82,7 +83,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -92,20 +92,20 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import java.util.Collections.rotate
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Ignore
 import org.junit.Rule
@@ -416,12 +416,28 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                     val w = remote.component.width
                     val h = remote.component.height
                     val topLeft = RemoteOffset(0f, 0f)
-                    val topRight = RemoteOffset(w.internalAsFloat(), 0f)
-                    val bottomLeft = RemoteOffset(0f, h.internalAsFloat())
-                    val bottomRight = RemoteOffset(w.internalAsFloat(), h.internalAsFloat())
+                    val topRight = RemoteOffset(w, 0f.rf)
+                    val bottomLeft = RemoteOffset(0f.rf, h)
+                    val bottomRight = RemoteOffset(w, h)
 
-                    drawLine(color, start = topLeft, end = bottomRight, strokeWidth = 4f)
-                    drawLine(color, start = bottomLeft, end = topRight, strokeWidth = 4f)
+                    drawLine(
+                        paint =
+                            RemotePaint().apply {
+                                remoteColor = color.rc
+                                strokeWidth = 4f
+                            },
+                        start = topLeft,
+                        end = bottomRight,
+                    )
+                    drawLine(
+                        paint =
+                            RemotePaint().apply {
+                                remoteColor = color.rc
+                                strokeWidth = 4f
+                            },
+                        start = bottomLeft,
+                        end = topRight,
+                    )
                 }
             }
         }
@@ -436,13 +452,12 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
       BACKGROUND = [0.0, 0.0, 715.0, 825.0] color [1.0, 1.0, 0.0, 1.0] shape [0]
-    CANVAS [-5:-1] = [0.0, 275.0, 715.0, 275.0] VISIBLE
+    BOX [-5:-1] = [0.0, 275.0, 715.0, 275.0] VISIBLE
       MODIFIERS
         HEIGHT = 100.0 dp
         BACKGROUND = [0.0, 0.0, 715.0, 275.0] color [1.0, 1.0, 1.0, 1.0] shape [0]
         PADDING = [22.0, 22.0, 22.0, 22.0]
         BACKGROUND = [0.0, 0.0, 671.0, 231.0] color [0.8, 0.8, 0.8, 1.0] shape [0]
-      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 671.0, 231.0] VISIBLE
 """
         testLayout(result) {
             RemoteColumn(
@@ -450,14 +465,14 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 verticalArrangement = RemoteArrangement.Center,
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
-                RemoteCanvas(
+                RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxWidth()
                             .height(100.rdp)
                             .background(Color.White)
                             .padding(8.dp)
                             .background(Color.LightGray)
-                ) {}
+                )
             }
         }
     }
@@ -506,45 +521,41 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
 """
 
         testAsyncLayout(result) {
-            RemoteContext {
-                Column {
-                    Box(
+            RemoteColumn {
+                RemoteBox(
+                    modifier = RemoteModifier.height(32.rdp).fillMaxWidth().background(Color.Red)
+                ) {
+                    RemoteRow(
                         modifier =
-                            RemoteModifier.height(32.rdp).fillMaxWidth().background(Color.Red)
+                            RemoteModifier.background(Color.Black).fillMaxWidth().height(30.rdp)
                     ) {
-                        Row(
-                            modifier =
-                                RemoteModifier.background(Color.Black).fillMaxWidth().height(30.rdp)
-                        ) {
-                            @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-                            Text("Hello, World", color = Color.White)
-                        }
-                    }
-                    Row {
-                        Box(
-                            modifier =
-                                RemoteModifier.width(32.rdp).height(10.rdp).background(Color.Blue)
-                        )
                         @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-                        CaptureAsBitmap(onCapture = { it.value = true }) {
-                            Column(modifier = RemoteModifier.background(Color.Yellow)) {
-                                Text("🏄 🐶 élo! 🥳")
-                                Text("أليس هذا رائعا؟")
-                                Text("किं न शीतलम् ?")
-                                Text("是不是很酷？")
-                                Text("かっこいいでしょう？")
-                            }
-                        }
-                        Box(
-                            modifier =
-                                RemoteModifier.width(32.rdp).height(100.rdp).background(Color.Blue)
-                        )
+                        RemoteText("Hello, World", color = Color.White.rc)
                     }
-                    Box(
+                }
+                RemoteRow {
+                    RemoteBox(
                         modifier =
-                            RemoteModifier.height(32.rdp).fillMaxWidth().background(Color.Red)
+                            RemoteModifier.width(32.rdp).height(10.rdp).background(Color.Blue)
+                    )
+                    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
+                    CaptureAsBitmap(onCapture = { it.value = true }) {
+                        RemoteColumn(modifier = RemoteModifier.background(Color.Yellow)) {
+                            RemoteText("🏄 🐶 élo! 🥳")
+                            RemoteText("أليس هذا رائعا؟")
+                            RemoteText("किं न शीतलम् ?")
+                            RemoteText("是不是很酷？")
+                            RemoteText("かっこいいでしょう？")
+                        }
+                    }
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.width(32.rdp).height(100.rdp).background(Color.Blue)
                     )
                 }
+                RemoteBox(
+                    modifier = RemoteModifier.height(32.rdp).fillMaxWidth().background(Color.Red)
+                )
             }
         }
     }
@@ -779,7 +790,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
             ) {
                 RemoteBox(
-                    modifier = RemoteModifier.size(100.rdp).clickable(HostAction("my_host_action"))
+                    modifier =
+                        RemoteModifier.size(100.rdp).clickable(HostAction("my_host_action".rs))
                 )
             }
         }
@@ -811,7 +823,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
                 val param = rememberRemoteIntValue { 128 }
                 RemoteBox(
                     modifier =
-                        RemoteModifier.size(100.rdp).clickable(HostAction("my_host_action", param))
+                        RemoteModifier.size(100.rdp)
+                            .clickable(HostAction("my_host_action".rs, param))
                 )
             }
         }
@@ -1116,21 +1129,15 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
             """
 DATA_TEXT<42> = "Green"
 ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
-  ComponentValue value 43 set to WIDTH of Component -2
-  ComponentValue value 44 set to HEIGHT of Component -2
   BOX [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-    CANVAS [-5:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
-      MODIFIERS
-      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
-        ComponentValue value 48 set to WIDTH of Component -7
-        ComponentValue value 49 set to HEIGHT of Component -7
-    TEXT_LAYOUT [-8:-1] = [250.0, 364.0, 215.0, 97.0] VISIBLE (42:"Green")
+      DRAW_CONTENT
+    TEXT_LAYOUT [-5:-1] = [250.0, 364.0, 215.0, 97.0] VISIBLE (42:"Green")
       MODIFIERS
 """
         testLayout(result) {
             val colors =
-                listOf((Color.Red).copy(alpha = 0.5f).compositeOver(Color.Green), Color.Black)
+                listOf((Color.Red).copy(alpha = 0.5f).compositeOver(Color.Green).rc, Color.Black.rc)
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
@@ -1152,17 +1159,8 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         modifier: RemoteModifier = RemoteModifier,
         tint: Color = Color.White,
     ) {
-        // note -- tint isn't applied in that codepath
-        val painter = rememberVectorPainter(icon)
-        val iconSizePx = with(LocalDensity.current) { Dp(size.value.internalAsFloat()).toPx() }
-        val scale = iconSizePx / 24f
-        RemoteCanvas(modifier = RemoteModifier.size(size)) {
-            scale(scale, pivot = RemoteOffset.Zero) {
-                // Suppressed because of https://buganizer.corp.google.com/issues/375131944
-                @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-                with(painter.vector.root) { this@RemoteCanvas.drawScope.draw() }
-            }
-        }
+        val painter = painterRemoteVector(image = icon, tintColor = tint.rc)
+        RemoteCanvas(modifier = modifier.size(size)) { with(painter) { onDraw() } }
     }
 
     @SdkSuppress(minSdkVersion = 29)
@@ -1172,27 +1170,23 @@ ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
         val result =
             """
 ROOT [-2:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
-  ComponentValue value 42 set to WIDTH of Component -2
-  ComponentValue value 43 set to HEIGHT of Component -2
   BOX [-3:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
     MODIFIERS
-    CANVAS [-5:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
-      MODIFIERS
-      CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 715.0, 825.0] VISIBLE
-        ComponentValue value 47 set to WIDTH of Component -7
-        ComponentValue value 48 set to HEIGHT of Component -7
-    ROW [-8:-1] = [313.5, 368.5, 88.0, 88.0] VISIBLE
+      DRAW_CONTENT
+    ROW [-5:-1] = [313.5, 368.5, 88.0, 88.0] VISIBLE
       MODIFIERS
         BACKGROUND = [0.0, 0.0, 88.0, 88.0] color [0.0, 0.0, 1.0, 1.0] shape [0]
-      CANVAS [-10:-1] = [0.0, 0.0, 88.0, 88.0] VISIBLE
+      CANVAS [-7:-1] = [0.0, 0.0, 88.0, 88.0] VISIBLE
         MODIFIERS
           WIDTH = 32.0 dp
           HEIGHT = 32.0 dp
-        CANVAS_CONTENT [-12:-1] = [0.0, 0.0, 88.0, 88.0] VISIBLE
+        CANVAS_CONTENT [-9:-1] = [0.0, 0.0, 88.0, 88.0] VISIBLE
+          ComponentValue value 47 set to WIDTH of Component -9
+          ComponentValue value 48 set to HEIGHT of Component -9
 """
         testLayout(result) {
             val colors =
-                listOf((Color.Red).copy(alpha = 0.5f).compositeOver(Color.Green), Color.Black)
+                listOf((Color.Red).copy(alpha = 0.5f).compositeOver(Color.Green).rc, Color.Black.rc)
             RemoteBox(
                 modifier =
                     RemoteModifier.fillMaxSize()
@@ -1330,15 +1324,15 @@ list:
                 RemoteBox(
                     modifier =
                         RemoteModifier.drawWithContent {
-                                rotate(37f) { this@drawWithContent.drawContent() }
-                                translate(40f, 40f) {
-                                    rotate(45f) {
-                                        scale(1.2f) { this@drawWithContent.drawContent() }
+                                rotate(degrees = 37f.rf) { drawContent() }
+                                translate(left = 40f.rf, top = 40f.rf) {
+                                    rotate(degrees = 45f.rf) {
+                                        scale(scale = 1.2f.rf) { drawContent() }
                                     }
                                 }
                                 drawContent()
-                                translate(-40f, -40f) {
-                                    rotate(30f) { this@drawWithContent.drawContent() }
+                                translate(left = -40f.rf, top = -40f.rf) {
+                                    rotate(degrees = 30f.rf) { drawContent() }
                                 }
                             }
                             .size(64.rdp)

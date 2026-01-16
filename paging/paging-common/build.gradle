@@ -49,120 +49,45 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        commonTest {
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-paging"))
-                implementation(libs.kotlinTest)
-            }
+        commonTest.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-paging"))
+            implementation(libs.kotlinTest)
         }
 
-        commonJvmAndroidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api("androidx.arch.core:core-common:2.2.0")
-            }
+        jvmAndAndroidMain.dependencies {
+            api("androidx.arch.core:core-common:2.2.0")
         }
 
-        commonJvmAndroidTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.mockitoCore)
-                implementation(libs.mockitoKotlin)
-                implementation(project(":internal-testutils-common"))
-                implementation(project(":internal-testutils-ktx"))
-            }
+        jvmAndAndroidTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.mockitoCore)
+            implementation(libs.mockitoKotlin)
+            implementation(project(":internal-testutils-common"))
+            implementation(project(":internal-testutils-ktx"))
         }
 
-        jvmMain {
-            dependsOn(commonJvmAndroidMain)
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
+            implementation(libs.mockitoAndroid5)
         }
 
-        jvmTest {
-            dependsOn(commonJvmAndroidTest)
+        nonJvmMain.dependencies {
+            implementation(libs.atomicFu)
         }
 
-        androidMain {
-            dependsOn(commonJvmAndroidMain)
-        }
+        unixMain.dependsOn(nativeMain)
+        appleMain.dependsOn(unixMain)
+        linuxMain.dependsOn(unixMain)
 
-        androidDeviceTest {
-            dependsOn(commonJvmAndroidTest)
-            dependencies {
-                implementation(libs.testRunner)
-                implementation(libs.mockitoAndroid5)
-            }
-        }
-
-        nonJvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
-        }
-
-        nativeMain {
-            dependsOn(nonJvmMain)
-        }
-
-        unixMain {
-            dependsOn(nativeMain)
-        }
-
-        darwinMain {
-            dependsOn(unixMain)
-        }
-
-        linuxMain {
-            dependsOn(unixMain)
-        }
-
-        mingwMain {
-            dependsOn(nativeMain)
-        }
-
-        webMain {
-            dependsOn(nonJvmMain)
-        }
-
-        webTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-        }
-
-        desktopTest {
-            dependsOn(jvmTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    if (target.konanTarget.family.appleFamily) {
-                        dependsOn(darwinMain)
-                    } else if (target.konanTarget.family == Family.LINUX) {
-                        dependsOn(linuxMain)
-                    } else if (target.konanTarget.family == Family.MINGW) {
-                        dependsOn(mingwMain)
-                    } else {
-                        throw new GradleException("unknown native target ${target}")
-                    }
-                }
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        webMain.dependencies {
+            implementation(libs.atomicFu)
         }
     }
 }

@@ -77,6 +77,7 @@ import java.util.concurrent.Executor;
  *
  * <p>This camera info can be constructed with fake values.
  */
+@SuppressWarnings("HiddenSuperclass")
 public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private static final String TAG = "FakeCameraInfoInternal";
     private static final Set<Range<Integer>> FAKE_FPS_RANGES = Collections.unmodifiableSet(

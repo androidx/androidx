@@ -51,6 +51,8 @@ public class CryptoObjectUtilsTest {
     private Mac mMac;
     @Mock
     private Signature mSignature;
+    @Mock
+    private javax.crypto.KeyAgreement mKeyAgreement;
 
     @Test
     @Config(minSdk = Build.VERSION_CODES.P)
@@ -142,6 +144,22 @@ public class CryptoObjectUtilsTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    public void testUnwrapFromBiometricPrompt_WithKeyAgreementCryptoObject() {
+        final android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
+                new android.hardware.biometrics.BiometricPrompt.CryptoObject(mKeyAgreement);
+
+        final BiometricPrompt.CryptoObject unwrappedCrypto =
+                CryptoObjectUtils.unwrapFromBiometricPrompt(wrappedCrypto);
+
+        assertThat(unwrappedCrypto).isNotNull();
+        assertThat(unwrappedCrypto.getCipher()).isNull();
+        assertThat(unwrappedCrypto.getSignature()).isNull();
+        assertThat(unwrappedCrypto.getMac()).isNull();
+        assertThat(unwrappedCrypto.getKeyAgreement()).isEqualTo(mKeyAgreement);
+    }
+
+    @Test
     @Config(minSdk = Build.VERSION_CODES.P)
     public void testWrapForBiometricPrompt_WithNullCryptoObject() {
         assertThat(CryptoObjectUtils.wrapForBiometricPrompt(null)).isNull();
@@ -227,6 +245,22 @@ public class CryptoObjectUtilsTest {
         assertThat(wrappedCrypto.getSignature()).isNull();
         assertThat(wrappedCrypto.getMac()).isNull();
         assertThat(wrappedCrypto.getPresentationSession()).isEqualTo(presentationSession);
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES_FULL.BAKLAVA_1)
+    public void testWrapForBiometricPrompt_WithKeyAgreementCryptoObject() {
+        final BiometricPrompt.CryptoObject unwrappedCrypto =
+                new BiometricPrompt.CryptoObject(mKeyAgreement);
+
+        final android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
+                CryptoObjectUtils.wrapForBiometricPrompt(unwrappedCrypto);
+
+        assertThat(wrappedCrypto).isNotNull();
+        assertThat(wrappedCrypto.getCipher()).isNull();
+        assertThat(wrappedCrypto.getSignature()).isNull();
+        assertThat(wrappedCrypto.getMac()).isNull();
+        assertThat(wrappedCrypto.getKeyAgreement()).isEqualTo(mKeyAgreement);
     }
 
     @Test

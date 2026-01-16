@@ -44,69 +44,40 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                api(project(":compose:ui:ui-geometry"))
-                implementation("androidx.collection:collection:1.4.2")
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api(project(":compose:ui:ui-geometry"))
+            implementation("androidx.collection:collection:1.4.2")
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui-util"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            implementation("androidx.collection:collection-ktx:1.4.2")
         }
 
-        jvmTest {
-            dependsOn(commonTest)
+        commonStubsMain.dependsOn(commonMain)
+        jvmStubsMain.dependsOn(commonStubsMain)
+        linuxx64StubsMain.dependsOn(commonStubsMain)
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.testExtJunit)
+            implementation(libs.espressoCore)
+            implementation(libs.truth)
+            implementation("androidx.collection:collection-ktx:1.4.2")
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation-experimental:1.4.1")
-                implementation("androidx.collection:collection-ktx:1.4.2")
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
-        }
-
-        androidDeviceTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.testExtJunit)
-                implementation(libs.espressoCore)
-                implementation(libs.truth)
-                implementation("androidx.collection:collection-ktx:1.4.2")
-            }
-        }
-
-        androidHostTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation("androidx.collection:collection-ktx:1.4.2")
-            }
+        androidHostTest.dependencies {
+            implementation(libs.truth)
+            implementation("androidx.collection:collection-ktx:1.4.2")
         }
     }
 }

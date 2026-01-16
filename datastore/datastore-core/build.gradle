@@ -99,53 +99,23 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
 
-        commonMain {
-            dependencies {
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        jvmAndroidMain {
-            dependsOn(commonMain)
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.okio)
+            implementation(project(":datastore:datastore-core-okio"))
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-datastore"))
         }
 
-        androidMain {
-            dependsOn(jvmAndroidMain)
-        }
+        nonWebCommonTest.dependsOn(commonTest)
 
-        webCommonMain {
-            dependsOn(commonMain)
-        }
-
-        wasmJsMain {
-            dependsOn(webCommonMain)
-        }
-
-        jsMain {
-            dependsOn(webCommonMain)
-        }
-
-        jvmMain {
-            dependsOn(jvmAndroidMain)
-        }
-
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.okio)
-                implementation(project(":datastore:datastore-core-okio"))
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
-            }
-        }
-
-        nonWebCommonTest {
-            dependsOn(commonTest)
-        }
-
-        jvmAndroidTest {
+        jvmAndAndroidTest {
             dependsOn(nonWebCommonTest)
             dependencies {
                 implementation(libs.junit)
@@ -157,17 +127,10 @@ androidXMultiplatform {
             }
         }
         // tests that are run on AndroidUnit and instrumented targets.
-        // similar to jvmAndroidTest, except, they don't run on JVM outside Robolectric.
-        androidUnitAndInstrumentedTest {
-            dependsOn(jvmAndroidTest)
-        }
-
-        jvmTest {
-            dependsOn(jvmAndroidTest)
-        }
+        // similar to jvmAndAndroidTest, except, they don't run on JVM outside Robolectric.
+        androidUnitAndInstrumentedTest.dependsOn(jvmAndAndroidTest)
 
         androidHostTest {
-            dependsOn(jvmAndroidTest)
             dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.protobufLite)
@@ -179,7 +142,6 @@ androidXMultiplatform {
         }
 
         androidDeviceTest {
-            dependsOn(jvmAndroidTest)
             dependsOn(androidUnitAndInstrumentedTest)
             dependencies {
                 implementation(libs.truth)
@@ -194,26 +156,10 @@ androidXMultiplatform {
             }
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
+        nativeMain.dependencies {
+            implementation(libs.atomicFu)
         }
-        nativeTest {
-            dependsOn(nonWebCommonTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
-            }
-        }
+        nativeTest.dependsOn(nonWebCommonTest)
     }
 }
 

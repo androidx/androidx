@@ -193,15 +193,6 @@
     <issue
         id="LocalContextConfigurationRead"
         message="Reading Configuration using LocalContext.current.resources.configuration"
-        errorLine1="    originalContext.resources.configuration.updateFrom(fixedScreenSizeConfiguration)"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/kotlin/androidx/wear/compose/material3/Material3Test.kt"/>
-    </issue>
-
-    <issue
-        id="LocalContextConfigurationRead"
-        message="Reading Configuration using LocalContext.current.resources.configuration"
         errorLine1="                val screenSize = LocalContext.current.resources.configuration.smallestScreenWidthDp"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location

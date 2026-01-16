@@ -23,15 +23,12 @@ import android.view.View
 import androidx.test.filters.SdkSuppress
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.AnchorEntity
-import androidx.xr.scenecore.runtime.AnchorPlacement
-import androidx.xr.scenecore.runtime.CameraViewScenePose
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.PlaneSemantic
 import androidx.xr.scenecore.runtime.PlaneType
-import androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener
 import androidx.xr.scenecore.runtime.SpatialCapabilities
 import androidx.xr.scenecore.runtime.SpatialVisibility
@@ -57,30 +54,6 @@ class FakeSceneRuntimeTest {
     @Test
     fun getState_whenCreated_returnsCreatedState() {
         assertThat(fakeSceneRuntime.state).isEqualTo(FakeSceneRuntime.State.CREATED)
-    }
-
-    @Test
-    fun getCameraViewScenePose_returnsCameraViewScenePoseWithCorrectType() {
-        val cameraViewScenePose =
-            fakeSceneRuntime.getCameraViewActivityPose(
-                CameraViewScenePose.CameraType.CAMERA_TYPE_UNKNOWN
-            )
-        val cameraViewScenePoseL =
-            fakeSceneRuntime.getCameraViewActivityPose(
-                CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE
-            )
-        val cameraViewScenePoseR =
-            fakeSceneRuntime.getCameraViewActivityPose(
-                CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE
-            )
-
-        assertThat(cameraViewScenePose).isNull()
-        assertThat(cameraViewScenePoseL).isNotNull()
-        assertThat((cameraViewScenePoseL as FakeCameraViewScenePose).cameraType)
-            .isEqualTo(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE)
-        assertThat(cameraViewScenePoseR).isNotNull()
-        assertThat((cameraViewScenePoseR as FakeCameraViewScenePose).cameraType)
-            .isEqualTo(CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE)
     }
 
     @Test
@@ -143,7 +116,7 @@ class FakeSceneRuntimeTest {
     @Test
     fun requestHomeSpaceMode_requestFullSpaceMode_spatialCapabilitiesIsUpdated() {
         assertThat(fakeSceneRuntime.spatialCapabilities.capabilities)
-            .isEqualTo(ALL_SPATIAL_CAPABILITIES)
+            .isEqualTo(FakeSceneRuntime.ALL_SPATIAL_CAPABILITIES)
 
         fakeSceneRuntime.requestHomeSpaceMode()
 
@@ -152,7 +125,7 @@ class FakeSceneRuntimeTest {
         fakeSceneRuntime.requestFullSpaceMode()
 
         assertThat(fakeSceneRuntime.spatialCapabilities.capabilities)
-            .isEqualTo(ALL_SPATIAL_CAPABILITIES)
+            .isEqualTo(FakeSceneRuntime.ALL_SPATIAL_CAPABILITIES)
     }
 
     @Test
@@ -246,22 +219,16 @@ class FakeSceneRuntimeTest {
 
     @Test
     fun createMovableComponent_returnsInitialValue() {
-        val anchorPlacement: Set<@JvmSuppressWildcards AnchorPlacement> =
-            setOf(
-                fakeSceneRuntime.createAnchorPlacementForPlanes(
-                    setOf(PlaneType.HORIZONTAL),
-                    setOf(PlaneSemantic.TABLE, PlaneSemantic.FLOOR),
-                )
+        val movableComponent =
+            fakeSceneRuntime.createMovableComponent(
+                systemMovable = false,
+                scaleInZ = false,
+                userAnchorable = false,
             )
-
-        assertThat(
-                fakeSceneRuntime.createMovableComponent(
-                    systemMovable = false,
-                    scaleInZ = false,
-                    userAnchorable = false,
-                )
-            )
-            .isInstanceOf(FakeMovableComponent::class.java)
+        assertThat(movableComponent).isInstanceOf(FakeMovableComponent::class.java)
+        assertThat(movableComponent.systemMovable).isFalse()
+        assertThat(movableComponent.scaleInZ).isFalse()
+        assertThat(movableComponent.userAnchorable).isFalse()
     }
 
     @Test
@@ -291,10 +258,7 @@ class FakeSceneRuntimeTest {
     @Test
     fun createPointerCaptureComponent_returnsInitialValue() {
         val executor = Executor { command -> command.run() }
-        val stateListener: StateListener =
-            object : StateListener {
-                override fun onStateChanged(@PointerCaptureState newState: Int) {}
-            }
+        val stateListener = StateListener {}
         val inputListener = TestInputEventListener()
         val pointerCaptureComponent =
             fakeSceneRuntime.createPointerCaptureComponent(executor, stateListener, inputListener)
@@ -335,6 +299,59 @@ class FakeSceneRuntimeTest {
 
         assertThat(fakeSceneRuntime.lastSetPreferredAspectRatioActivity).isEqualTo(activity)
         assertThat(fakeSceneRuntime.lastSetPreferredAspectRatioRatio).isEqualTo(preferredRatio)
+    }
+
+    @Test
+    fun onBoundaryConsentChanged_listenersAreCalledAndInternalStateUpdates() {
+        var listenerCalledWith: Boolean? = null
+        val listener = Consumer<Boolean> { granted -> listenerCalledWith = granted }
+        val executor = Executor { command -> command.run() }
+
+        assertThat(fakeSceneRuntime.isBoundaryConsentGranted).isFalse()
+
+        fakeSceneRuntime.addOnBoundaryConsentChangedListener(executor, listener)
+
+        assertThat(listenerCalledWith).isNull()
+
+        // Change to true
+        fakeSceneRuntime.onBoundaryConsentChanged(true)
+
+        assertThat(fakeSceneRuntime.isBoundaryConsentGranted).isTrue()
+        assertThat(listenerCalledWith).isTrue()
+
+        // Change to false
+        listenerCalledWith = null
+        fakeSceneRuntime.onBoundaryConsentChanged(false)
+
+        assertThat(fakeSceneRuntime.isBoundaryConsentGranted).isFalse()
+        assertThat(listenerCalledWith).isFalse()
+    }
+
+    @Test
+    fun addOnBoundaryConsentChangedListener_addsListenerAndExecutorToMap() {
+        val listener = Consumer<Boolean> {}
+        val executor = Executor { command -> command.run() }
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).isEmpty()
+
+        fakeSceneRuntime.addOnBoundaryConsentChangedListener(executor, listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).hasSize(1)
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).containsEntry(listener, executor)
+    }
+
+    @Test
+    fun removeOnBoundaryConsentChangedListener_removesListenerFromMap() {
+        val listener = Consumer<Boolean> {}
+        val executor = Executor { command -> command.run() }
+
+        fakeSceneRuntime.addOnBoundaryConsentChangedListener(executor, listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).isNotEmpty() //
+
+        fakeSceneRuntime.removeOnBoundaryConsentChangedListener(listener)
+
+        assertThat(fakeSceneRuntime.boundaryConsentChangedMap).isEmpty()
     }
 
     private class TestInputEventListener : InputEventListener {

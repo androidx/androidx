@@ -61,17 +61,18 @@ import java.util.function.Consumer;
 // Technically this doesn't need to be a Robolectric test, since it doesn't directly depend on
 // any Android subsystems. However, we're currently using an Android test runner for consistency
 // with other Android XR impl tests in this directory.
+
 /** Unit tests for the AndroidXR implementation of JXRCore's SpatialEnvironment module. */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = {Config.TARGET_SDK})
 public final class SpatialEnvironmentImplTest {
+    private final NodeRepository mNodeRepository = NodeRepository.getInstance();
+    private final SpatialEnvironmentFeature mMockSpatialEnvironmentFeature =
+            mock(SpatialEnvironmentFeature.class);
     private ActivityController<Activity> mActivityController;
     private Activity mActivity;
     private XrExtensions mXrExtensions = null;
     private SpatialEnvironmentImpl mEnvironment = null;
-    private final NodeRepository mNodeRepository = NodeRepository.getInstance();
-    private final SpatialEnvironmentFeature mMockSpatialEnvironmentFeature =
-            mock(SpatialEnvironmentFeature.class);
 
     @Before
     public void setUp() {

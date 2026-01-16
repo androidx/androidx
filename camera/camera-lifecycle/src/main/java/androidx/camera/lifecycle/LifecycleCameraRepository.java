@@ -17,8 +17,10 @@
 package androidx.camera.lifecycle;
 
 import androidx.annotation.GuardedBy;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraIdentifier;
 import androidx.camera.core.Logger;
+import androidx.camera.core.RotationProvider;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
@@ -72,7 +74,8 @@ import java.util.Set;
  * When it is released, all UseCases bound to the LifecycleCamera will be unbound and the
  * LifecycleCamera will be released.
  */
-final class LifecycleCameraRepository {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public final class LifecycleCameraRepository {
     private static final String TAG = "LifecycleCameraRepository";
 
     private final Object mLock = new Object();
@@ -129,7 +132,8 @@ final class LifecycleCameraRepository {
      */
     LifecycleCamera createLifecycleCamera(
             @NonNull LifecycleOwner lifecycleOwner,
-            @NonNull CameraUseCaseAdapter cameraUseCaseAdapter) {
+            @NonNull CameraUseCaseAdapter cameraUseCaseAdapter,
+            @NonNull RotationProvider rotationProvider) {
         LifecycleCamera lifecycleCamera;
         synchronized (mLock) {
             Key key = Key.create(lifecycleOwner, cameraUseCaseAdapter.getAdapterIdentifier());
@@ -138,7 +142,8 @@ final class LifecycleCameraRepository {
 
             // Need to add observer before creating LifecycleCamera to make sure
             // it can be stopped before the latest active one is started.'
-            lifecycleCamera = new LifecycleCamera(lifecycleOwner, cameraUseCaseAdapter);
+            lifecycleCamera = new LifecycleCamera(lifecycleOwner, cameraUseCaseAdapter,
+                    rotationProvider);
             // Suspend the LifecycleCamera if there is no use case bound.
             if (cameraUseCaseAdapter.getUseCases().isEmpty()) {
                 lifecycleCamera.suspend();
@@ -479,8 +484,6 @@ final class LifecycleCameraRepository {
                     if (hasUseCase && lifecycleCamera.getUseCases().isEmpty()) {
                         setInactive(lifecycleCamera.getLifecycleOwner());
                     }
-                } else {
-                    Logger.w(TAG, "Attempt to unbind use cases from an invalid camera.");
                 }
             }
         }

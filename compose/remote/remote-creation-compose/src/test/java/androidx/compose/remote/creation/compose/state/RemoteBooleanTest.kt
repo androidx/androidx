@@ -663,6 +663,28 @@ class RemoteBooleanTest {
             .isNull()
     }
 
+    @Test
+    fun select_complexExpression() {
+        // Create a complex float expression
+        var complexFloat = RemoteFloat(0f)
+        for (i in 1..50) {
+            complexFloat += RemoteFloat(i.toFloat())
+        }
+
+        val bool = RemoteBoolean.createNamedRemoteBoolean("testBool", true)
+        // usage of select with complex expression
+        val result = bool.select(complexFloat, RemoteFloat(0f))
+
+        // Assertions similar to longExpression_usesReferences
+        val finalArray = result.arrayProvider(creationState)
+        assertThat(finalArray.size < 20).isTrue()
+
+        val resultId = result.getIdForCreationState(creationState)
+        makeAndPaintCoreDocument()
+        val expected = (50 * 51) / 2f
+        assertThat(context.getFloat(resultId)).isEqualTo(expected)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

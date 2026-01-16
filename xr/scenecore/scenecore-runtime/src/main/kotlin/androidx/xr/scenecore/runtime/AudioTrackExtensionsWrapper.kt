@@ -49,10 +49,10 @@ public interface AudioTrackExtensionsWrapper {
     /**
      * Sets the PointSourceParams of the AudioTrack.
      *
-     * <p>The new PointSourceParams will be applied if the [SpatializerConstants.SourceType] of the
-     * AudioTrack was either [SpatializerConstants.DEFAULT]0 or [SpatializerConstants.POINT_SOURCE].
-     * If the [SpatializerConstants.SourceType] was [SpatializerConstants.SOUND_FIELD], then this
-     * method will have no effect.
+     * The new PointSourceParams will be applied if the [SpatializerConstants.SourceType] of the
+     * AudioTrack was either [SpatializerConstants.SOURCE_TYPE_BYPASS] or
+     * [SpatializerConstants.SOURCE_TYPE_POINT_SOURCE]. If the [SpatializerConstants.SourceType] was
+     * [SpatializerConstants.SOURCE_TYPE_SOUND_FIELD], then this method will have no effect.
      *
      * @param track The AudioTrack to set the PointSourceParams on.
      * @param params The PointSourceParams to set.

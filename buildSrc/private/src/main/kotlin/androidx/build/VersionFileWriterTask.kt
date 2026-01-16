@@ -88,14 +88,16 @@ private fun Project.registerVersionFileTask(
     androidXExtension: AndroidXExtension
 ): TaskProvider<VersionFileWriterTask> {
     val fileNameProvider = provider { String.format("META-INF/%s_%s.version", group, name) }
-    val versionProvider = provider {
-        if (androidXExtension.shouldPublish()) {
-            version().toString()
-        } else {
-            "0.0.0"
+    val versionProvider =
+        androidXExtension.shouldPublish.map {
+            if (it) {
+                version().toString()
+            } else {
+                "0.0.0"
+            }
         }
-    }
-    val shouldPublish = provider { androidXExtension.shouldPublish() }
+
+    val shouldPublish = androidXExtension.shouldPublish
 
     val writeVersionFile =
         tasks.register("writeVersionFile", VersionFileWriterTask::class.java) {

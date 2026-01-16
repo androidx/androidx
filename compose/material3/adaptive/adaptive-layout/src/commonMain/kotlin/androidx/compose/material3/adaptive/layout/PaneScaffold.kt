@@ -438,20 +438,27 @@ private class PaneMarginsNode(var paneMargins: PaneMargins) :
         }
 }
 
-@Suppress("ModifierFactoryExtensionFunction") // This is not a modifier factory function
-internal fun extractPaneScaffoldSizeModifiers(original: Modifier): Modifier {
-    var result: Modifier = Modifier
-    original.all { element ->
+internal fun Modifier.splitPaneAndContentModifiers(): Pair<Modifier, Modifier> {
+    var paneModifier: Modifier = Modifier
+    var contentModifier: Modifier = Modifier
+    all { element ->
         if (
             element is PreferredWidthElement ||
                 element is PreferredHeightElement ||
-                element is PaneMarginsElement
+                element is PaneMarginsElement ||
+                // This is a workaround to b/375496210 - shadows cannot be faded so we have to apply
+                // shadows on AnimatedVisibility instead of the content, which forces us to apply
+                // graphic layer transformation to AnimatedVisibility as well, so the shadow will be
+                // rendered correctly.
+                element::class.qualifiedName == "androidx.compose.ui.graphics.GraphicsLayerElement"
         ) {
-            result = result.then(element)
+            paneModifier = paneModifier.then(element)
+        } else {
+            contentModifier = contentModifier.then(element)
         }
         true
     }
-    return result
+    return Pair(paneModifier, contentModifier)
 }
 
 internal fun Modifier.animatedPane(): Modifier {

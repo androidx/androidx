@@ -121,6 +121,9 @@ internal abstract class SourceMetalavaTask(workerExecutor: WorkerExecutor) :
      */
     @get:Internal abstract val sourceSets: ListProperty<SourceSetInputs>
 
+    /** Whether metalava should process the project as multiplatform. */
+    @get:Input abstract val multiplatform: Property<Boolean>
+
     /**
      * Creates an XML file representing the project structure.
      *

@@ -18,7 +18,6 @@ package androidx.glance.wear
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.compose.remote.creation.compose.capture.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.ui.graphics.Color
 import androidx.glance.wear.parcel.WidgetUpdateClient
@@ -45,12 +44,9 @@ class GlanceWearWidgetTest {
         verify(mockUpdateClient).requestUpdate(any(), eq(componentName))
     }
 
-    @Suppress("RestrictedApiAndroidX")
     private class TestWidget(updateClient: WidgetUpdateClient) : GlanceWearWidget(updateClient) {
 
         override suspend fun provideWidgetData(context: Context, params: WearWidgetParams) =
-            WearWidgetDocument(backgroundPainter = painterRemoteColor(Color.Transparent)) {
-                RemoteText("Testing...")
-            }
+            WearWidgetDocument(backgroundColor = Color.Transparent) { RemoteText("Testing...") }
     }
 }

@@ -46,7 +46,7 @@ public val LocalSpatialConfiguration: ProvidableCompositionLocal<SpatialConfigur
 /**
  * Provides information and functionality related to the spatial configuration of the application.
  */
-public interface SpatialConfiguration {
+public sealed interface SpatialConfiguration {
     /**
      * A volume whose width, height, and depth represent the space available to the application.
      *
@@ -61,7 +61,6 @@ public interface SpatialConfiguration {
      * This is a state-based value that will trigger recomposition.
      */
     public val bounds: DpVolumeSize
-        get() = DpVolumeSize.Zero
 
     /**
      * XR Spatial APIs are supported for this system. This is equivalent to
@@ -71,7 +70,6 @@ public interface SpatialConfiguration {
     @Suppress("INAPPLICABLE_JVM_NAME")
     @get:JvmName("hasXrSpatialFeature")
     public val hasXrSpatialFeature: Boolean
-        get() = false
 
     /**
      * Request that the system places the application into home space mode. This will execute
@@ -83,11 +81,7 @@ public interface SpatialConfiguration {
      *
      * See [modes in XR](https://developer.android.com/design/ui/xr/guides/foundations#modes).
      */
-    public fun requestHomeSpaceMode() {
-        throw UnsupportedOperationException(
-            "Cannot request mode changes when not in an Android XR environment."
-        )
-    }
+    @Deprecated("Use Activity.requestHomeSpace.") public fun requestHomeSpaceMode()
 
     /**
      * Request that the system places the application into full space mode. This will execute
@@ -100,11 +94,7 @@ public interface SpatialConfiguration {
      *
      * See [modes in XR](https://developer.android.com/design/ui/xr/guides/foundations#modes).
      */
-    public fun requestFullSpaceMode() {
-        throw UnsupportedOperationException(
-            "Cannot request mode changes when not in an Android XR environment."
-        )
-    }
+    @Deprecated("Use Activity.requestFullSpace.") public fun requestFullSpaceMode()
 
     public companion object {
         /**
@@ -122,6 +112,20 @@ public interface SpatialConfiguration {
 private class ContextOnlySpatialConfiguration(private val context: Context) : SpatialConfiguration {
     override val hasXrSpatialFeature: Boolean
         get() = SpatialConfiguration.hasXrSpatialFeature(context)
+
+    @Deprecated("Use Activity.requestHomeSpace.")
+    override fun requestHomeSpaceMode() {
+        throw UnsupportedOperationException(
+            "Cannot request mode changes when not in an Android XR environment."
+        )
+    }
+
+    @Deprecated("Use Activity.requestFullSpace.")
+    override fun requestFullSpaceMode() {
+        throw UnsupportedOperationException(
+            "Cannot request mode changes when not in an Android XR environment."
+        )
+    }
 
     override val bounds: DpVolumeSize
         get() =
@@ -144,10 +148,12 @@ internal class SessionSpatialConfiguration(private val session: Session) : Spati
     override val bounds: DpVolumeSize
         get() = boundsState.toDpVolumeSize()
 
+    @Deprecated("Use Activity.requestHomeSpace.")
     override fun requestHomeSpaceMode() {
         session.scene.requestHomeSpaceMode()
     }
 
+    @Deprecated("Use Activity.requestFullSpace.")
     override fun requestFullSpaceMode() {
         session.scene.requestFullSpaceMode()
     }

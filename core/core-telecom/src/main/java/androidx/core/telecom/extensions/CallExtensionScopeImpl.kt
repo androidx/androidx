@@ -19,7 +19,6 @@ package androidx.core.telecom.extensions
 import android.content.Context
 import android.net.Uri
 import android.os.Build
-import android.os.Build.VERSION
 import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
@@ -180,15 +179,21 @@ internal class CallExtensionScopeImpl(
     }
 
     override fun addLocalCallSilenceExtension(
-        onIsLocallySilencedUpdated: suspend (Boolean) -> Unit
+        onIsLocallySilencedUpdated: suspend (Boolean) -> Unit,
+        onCanUserUpdateSilence: (suspend (Boolean) -> Unit),
     ): LocalCallSilenceExtensionRemoteImpl {
-        val extension = LocalCallSilenceExtensionRemoteImpl(callScope, onIsLocallySilencedUpdated)
+        val extension =
+            LocalCallSilenceExtensionRemoteImpl(
+                callScope,
+                onIsLocallySilencedUpdated,
+                onCanUserUpdateSilence,
+            )
         registerExtension {
             CallExtensionCreator(
                 extensionCapability =
                     Capability().apply {
                         featureId = Extensions.LOCAL_CALL_SILENCE
-                        featureVersion = LocalCallSilenceExtensionImpl.VERSION
+                        featureVersion = LocalCallSilenceExtensionRemoteImpl.VERSION
                         supportedActions = extension.actions
                     },
                 onExchangeComplete = extension::onExchangeComplete,

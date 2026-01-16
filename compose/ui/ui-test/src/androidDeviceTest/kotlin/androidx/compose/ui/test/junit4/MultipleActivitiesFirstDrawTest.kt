@@ -23,10 +23,9 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.test.espresso.Espresso
 import androidx.test.filters.MediumTest
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Test
 
 @MediumTest
@@ -35,7 +34,7 @@ class MultipleActivitiesFirstDrawTest {
 
     @Test
     fun test() =
-        runAndroidComposeUiTest<Activity1>(StandardTestDispatcher()) {
+        runAndroidComposeUiTest<Activity1> {
             Espresso.onIdle()
             // doesn't timeout
         }

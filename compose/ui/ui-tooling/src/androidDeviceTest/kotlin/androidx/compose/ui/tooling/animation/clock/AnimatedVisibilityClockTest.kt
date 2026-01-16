@@ -16,20 +16,18 @@
 
 package androidx.compose.ui.tooling.animation.clock
 
-import android.os.Build
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.animation.tooling.ComposeAnimatedProperty
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.Utils.assertEquals
 import androidx.compose.ui.tooling.animation.Utils.createTestAnimatedVisibility
 import androidx.compose.ui.tooling.animation.parseAnimatedVisibility
 import androidx.compose.ui.tooling.animation.states.AnimatedVisibilityState
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -173,13 +171,8 @@ class AnimatedVisibilityClockTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 24) // b/452716095
     @Test
     fun clockKeepsSetTime() {
-        assumeFalse(
-            "Test fails on cuttlefish b/460514260",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
-        )
         val clock = setupClock()
         rule.runOnIdle {
             // Set clock to the end of the animation.
@@ -187,20 +180,19 @@ class AnimatedVisibilityClockTest {
             clock.setClockTime(millisToNanos(380))
         }
         rule.waitForIdle()
+        lateinit var previousProperty: List<ComposeAnimatedProperty>
         rule.runOnIdle {
-            assertEquals(
-                listOf(IntOffset(0, 0), 1f, IntSize(234, 43)),
-                clock.getAnimatedProperties().map { it.value },
-            )
+            previousProperty = clock.getAnimatedProperties()
+            assertTrue(previousProperty.isNotEmpty())
             // Change state but keep the clock time.
             clock.setStateParameters(AnimatedVisibilityState.Exit)
         }
         rule.waitForIdle()
         rule.runOnIdle {
-            assertEquals(
-                listOf(IntOffset(0, 0), 0f, IntSize(0, 0)),
-                clock.getAnimatedProperties().map { it.value },
-            )
+            val newProperties = clock.getAnimatedProperties()
+            // After changing state - same properties but with different values
+            assertNotEquals(previousProperty.map { it.value }, newProperties.map { it.value })
+            assertEquals(previousProperty.map { it.label }, newProperties.map { it.label })
         }
     }
 

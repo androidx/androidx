@@ -16,7 +16,7 @@
 
 package androidx.datastore.core
 
-import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -57,7 +57,7 @@ internal class DataStoreImpl<T>(
      * produces the new data to replace the corrupted data on disk. By default it is a no-op which
      * simply throws the exception and does not produce new data.
      */
-    private val corruptionHandler: CorruptionHandler<T> = NoOpCorruptionHandler(),
+    private val corruptionHandler: CorruptionHandler<T> = ReThrowCorruptionHandler(),
     private val scope: CoroutineScope = CoroutineScope(ioDispatcher() + SupervisorJob()),
 ) : CurrentDataProviderStore<T> {
 

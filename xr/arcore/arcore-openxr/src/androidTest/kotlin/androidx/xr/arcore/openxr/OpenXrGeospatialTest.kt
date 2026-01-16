@@ -27,6 +27,7 @@ import androidx.xr.runtime.Config
 import androidx.xr.runtime.math.GeospatialPose
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
+import androidx.xr.runtime.math.Vector3
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertThrows
@@ -43,7 +44,7 @@ class OpenXrGeospatialTest {
 
     companion object {
         init {
-            System.loadLibrary("androidx.xr.runtime.openxr.test")
+            System.loadLibrary("androidx.xr.arcore.openxr.test")
         }
 
         const val XR_POLL_TIME_MS = 20L
@@ -84,6 +85,25 @@ class OpenXrGeospatialTest {
             assertThat(result.horizontalAccuracy).isEqualTo(1.0)
             assertThat(result.verticalAccuracy).isEqualTo(2.0)
             assertThat(result.orientationYawAccuracy).isEqualTo(3.0)
+        }
+    }
+
+    @Test
+    fun createPoseFromGeospatialPose_returnsPose() = initOpenXrManagerAndRunTest {
+        runTest {
+            ensureGeospatialRunning()
+
+            val result = underTest.createPoseFromGeospatialPose(GeospatialPose())
+
+            // The values below come from `xrLocateGeospatialPoseANDROIDX2` in
+            // //third_party/jetpack_xr_natives/openxr/openxr_stub.cc.
+            assertThat(result)
+                .isEqualTo(
+                    Pose(
+                        translation = Vector3(0.0f, 0.0f, 2.0f),
+                        rotation = Quaternion(0.0f, 1.0f, 0.0f, 1.0f),
+                    )
+                )
         }
     }
 

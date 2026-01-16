@@ -40,16 +40,16 @@ dependencies {
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
 
-    // For com.android.xr.extensions.
+    // For com.android.extensions.xr
     // TODO(b/447454270): Remove this once extensions are in g3.
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    compileOnly(libs.androidExtensionsXr)
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
-    testImplementation("com.android.extensions.xr:extensions-xr:1.1.0")
+    testImplementation(libs.androidExtensionsXr)
 }
 
 android {
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
     namespace = "androidx.xr.scenecore.runtime"
 }

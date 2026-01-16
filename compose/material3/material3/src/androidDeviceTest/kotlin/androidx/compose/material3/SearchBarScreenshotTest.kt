@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
@@ -730,6 +730,54 @@ class SearchBarScreenshotTest(private val scheme: ColorSchemeWrapper) {
         }
         assertAgainstGolden(
             "appBarWithSearch_withNavigationIconAndActions_dockedAndExpanded_withGap_${scheme.name}"
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun appBarWithSearch_withNavigationIconAndActions_fullScreenAndExpanded_contained() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            val searchBarState = rememberSearchBarState(initialValue = SearchBarValue.Expanded)
+            val appBarWithSearchColors =
+                SearchBarDefaults.appBarWithSearchColors(
+                    searchBarColors = SearchBarDefaults.containedColors(state = searchBarState)
+                )
+            val inputField =
+                @Composable {
+                    SearchBarDefaults.InputField(
+                        searchBarState = searchBarState,
+                        textFieldState = rememberTextFieldState(),
+                        onSearch = {},
+                        placeholder = { Text("Hint") },
+                        colors = appBarWithSearchColors.searchBarColors.inputFieldColors,
+                    )
+                }
+            AppBarWithSearch(
+                state = searchBarState,
+                inputField = inputField,
+                colors = appBarWithSearchColors,
+            )
+            ExpandedFullScreenContainedSearchBar(
+                modifier = Modifier.testTag(testTag),
+                state = searchBarState,
+                inputField = inputField,
+                colors = appBarWithSearchColors.searchBarColors,
+            ) {
+                repeat(4) { idx ->
+                    val resultText = "Suggestion $idx"
+                    ListItem(
+                        headlineContent = { Text(resultText) },
+                        supportingContent = { Text("Additional info") },
+                        leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        modifier =
+                            Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp),
+                    )
+                }
+            }
+        }
+        assertAgainstGolden(
+            "appBarWithSearch_withNavigationIconAndActions_fullScreenAndExpanded_contained_${scheme.name}"
         )
     }
 

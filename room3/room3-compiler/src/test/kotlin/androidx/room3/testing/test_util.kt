@@ -143,6 +143,8 @@ object COMMON {
 
     val GUAVA_ROOM by lazy { loadKotlinCode("common/input/GuavaRoom.kt") }
 
+    val EITHER by lazy { loadKotlinCode("common/input/Either.kt") }
+
     val LISTENABLE_FUTURE_PAGING_SOURCE by lazy {
         loadKotlinCode("common/input/ListenableFuturePagingSource.kt")
     }

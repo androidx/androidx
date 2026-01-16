@@ -34,37 +34,16 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.ui.test.junit4.accessibility"
-        compileSdk = 35
+        compileSdk { version = release(35) }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-            }
-        }
-
-        commonTest {
-            dependencies {
-            }
-        }
-
-        androidMain {
-            dependencies {
-                api(project(":compose:ui:ui-test-junit4"))
-                api("androidx.annotation:annotation:1.8.1")
-                api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
-            }
-        }
-
-        androidDeviceTest {
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+        androidMain.dependencies {
+            api(project(":compose:ui:ui-test-junit4"))
+            api("androidx.annotation:annotation:1.8.1")
+            api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
         }
     }
 }

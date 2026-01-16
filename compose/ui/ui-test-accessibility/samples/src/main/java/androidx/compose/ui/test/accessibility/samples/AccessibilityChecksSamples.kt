@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.accessibility.samples
 
-import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.annotation.Sampled
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -27,9 +26,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
-import androidx.compose.ui.test.runAndroidComposeUiTest
-import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.test.tryPerformAccessibilityChecks
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.espresso.accessibility.AccessibilityChecks
 import com.google.android.apps.common.testing.accessibility.framework.AccessibilityCheckResult.AccessibilityCheckResultType
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
@@ -39,7 +38,6 @@ import org.junit.Test
  * Sample that shows how to enable accessibility checks with default validator when using
  * runComposeUiTest {}.
  */
-@SuppressLint("ComposeTestRuleDispatcher")
 @Sampled
 fun accessibilityChecks_withComposeUiTest_sample() {
     @Test
@@ -66,7 +64,6 @@ fun accessibilityChecks_withComposeUiTest_sample() {
  * Sample that shows how to enable accessibility checks when using runAndroidComposeUiTest<A :
  * ComponentActivity> {} and custom validator.
  */
-@SuppressLint("ComposeTestRuleDispatcher")
 @Sampled
 fun accessibilityChecks_withAndroidComposeUiTest_sample() {
     @Test
@@ -88,7 +85,6 @@ fun accessibilityChecks_withAndroidComposeUiTest_sample() {
  * Sample that shows how to set up accessibility checks in a hybrid environment, when using
  * runComposeUiTest {}.
  */
-@SuppressLint("ComposeTestRuleDispatcher")
 @Sampled
 fun accessibilityChecks_interopWithEspresso_withTestFunction() {
     @Test

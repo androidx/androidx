@@ -111,6 +111,7 @@ public class CircularProgressIndicator implements LayoutElement {
     }
 
     /** Builder class for {@link CircularProgressIndicator} */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
         private @NonNull ProgressIndicatorColors mCircularProgressIndicatorColors = DEFAULT_COLORS;
         private @NonNull DpProp mStrokeWidth = DEFAULT_STROKE_WIDTH;

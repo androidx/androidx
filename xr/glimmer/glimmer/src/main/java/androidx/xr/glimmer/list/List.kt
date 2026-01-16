@@ -19,6 +19,7 @@ package androidx.xr.glimmer.list
 import androidx.compose.foundation.OverscrollEffect
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
@@ -29,6 +30,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
@@ -62,13 +64,13 @@ import androidx.compose.ui.unit.dp
 public fun VerticalList(
     modifier: Modifier = Modifier,
     state: ListState = rememberListState(),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
+    contentPadding: PaddingValues = VerticalListDefaults.ContentPadding,
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    flingBehavior: FlingBehavior = rememberSnapFlingBehavior(state),
+    flingBehavior: FlingBehavior = VerticalListDefaults.flingBehavior(state),
     reverseLayout: Boolean = false,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    verticalArrangement: Arrangement.Vertical = VerticalListDefaults.VerticalArrangement,
     content: ListScope.() -> Unit,
 ): Unit =
     List(
@@ -82,10 +84,35 @@ public fun VerticalList(
         flingBehavior = flingBehavior,
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = verticalArrangement,
-        verticalAlignment = null,
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = null,
         content = content,
     )
+
+/** Contains the default values used by [VerticalList]. */
+public object VerticalListDefaults {
+    /** Recommended content padding values for optimal use of available space. */
+    public val ContentPadding: PaddingValues = PaddingValues(vertical = 20.dp, horizontal = 0.dp)
+
+    /** Recommended values for the spacing between items. */
+    public val VerticalArrangement: Arrangement.Vertical = Arrangement.spacedBy(20.dp)
+
+    /** The maximum height of the fade effects on the sides of the list. */
+    public val ScrimMaxHeight: Dp = 46.dp
+
+    /**
+     * Creates and remembers the default fling behavior for a [VerticalList] that aligns the focus
+     * position with list scroll.
+     *
+     * @param state The [ListState] to observe for layout and focus information.
+     * @return A [FlingBehavior] instance that provides focus-aware snapping.
+     */
+    @Composable
+    public fun flingBehavior(state: ListState): FlingBehavior {
+        val snapLayoutInfoProvider = remember(state) { SnapLayoutInfoProvider(state) }
+        return rememberSnapFlingBehavior(snapLayoutInfoProvider)
+    }
+}
 
 /**
  * The scrolling List list that only composes and lays out the currently visible items. The
@@ -119,17 +146,17 @@ public fun VerticalList(
 @Composable
 internal fun List(
     orientation: Orientation,
-    modifier: Modifier = Modifier,
-    state: ListState = rememberListState(),
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    userScrollEnabled: Boolean = true,
-    overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
-    flingBehavior: FlingBehavior = rememberSnapFlingBehavior(state),
-    reverseLayout: Boolean = false,
-    horizontalAlignment: Alignment.Horizontal? = null,
-    verticalArrangement: Arrangement.Vertical? = null,
-    verticalAlignment: Alignment.Vertical? = null,
-    horizontalArrangement: Arrangement.Horizontal? = null,
+    modifier: Modifier,
+    state: ListState,
+    contentPadding: PaddingValues,
+    userScrollEnabled: Boolean,
+    overscrollEffect: OverscrollEffect?,
+    flingBehavior: FlingBehavior,
+    reverseLayout: Boolean,
+    horizontalAlignment: Alignment.Horizontal?,
+    verticalArrangement: Arrangement.Vertical?,
+    verticalAlignment: Alignment.Vertical?,
+    horizontalArrangement: Arrangement.Horizontal?,
     content: ListScope.() -> Unit,
 ) {
     val itemProvider = rememberGlimmerListItemProviderLambda(state, content)
@@ -168,8 +195,7 @@ internal fun List(
             modifier
                 .then(state.remeasurementModifier)
                 .then(state.awaitLayoutModifier)
-                .autoFocus(state.autoFocusBehaviour)
-                // TODO: b/433237949 - Behaviour conflicts between the AutoFocus and D-Pad.
+                .autoFocus(state.autoFocusState)
                 .lazyLayoutSemantics(
                     itemProviderLambda = itemProvider,
                     state = semanticState,
@@ -177,9 +203,12 @@ internal fun List(
                     userScrollEnabled = scrollEnabled,
                     reverseScrolling = reverseLayout,
                 )
-                // TODO: b/433235501 - Behaviour conflicts between the AutoFocus and BeyondBounds.
                 .then(beyondBoundsModifier)
-                .edgeScrim(state, orientation)
+                .edgeScrim(
+                    state = state,
+                    orientation = orientation,
+                    maxScrimSize = VerticalListDefaults.ScrimMaxHeight,
+                )
                 .scrollableArea(
                     state = state,
                     orientation = orientation,

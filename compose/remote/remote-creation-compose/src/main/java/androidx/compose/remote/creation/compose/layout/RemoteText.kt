@@ -24,15 +24,19 @@ import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteIntReference
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rememberRemoteString
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
+import androidx.compose.remote.creation.compose.v2.RemoteTextV2
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -66,9 +70,8 @@ public fun RemoteText(
     maxLines: Int = Int.MAX_VALUE,
     style: TextStyle = LocalTextStyle.current,
 ) {
-    val remoteText = rememberRemoteString { text }
     RemoteText(
-        remoteText,
+        text.rs,
         modifier,
         color,
         fontSize,
@@ -172,6 +175,8 @@ public fun RemoteText(
     text: RemoteString,
     color: RemoteColor,
     fontSize: RemoteFloat,
+    minFontSize: Float? = null,
+    maxFontSize: Float? = null,
     modifier: RemoteModifier = RemoteModifier,
     fontStyle: FontStyle = FontStyle.Normal,
     fontWeight: RemoteFloat = 400.rf,
@@ -187,6 +192,29 @@ public fun RemoteText(
 ) {
     val captureMode = LocalRemoteComposeCreationState.current
 
+    if (currentComposer.applier is RemoteComposeApplierV2) {
+        RemoteTextV2(
+            text = text,
+            modifier = modifier,
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontFamily = fontFamily,
+            textAlign = textAlign,
+            overflow = overflow,
+            maxLines = maxLines,
+            minFontSize = minFontSize,
+            maxFontSize = maxFontSize,
+            letterSpacing = letterSpacing,
+            lineHeightAdd = lineHeightAdd,
+            lineHeightMultiply = lineHeightMultiply,
+            textDecoration = textDecoration ?: TextDecoration.None,
+            fontVariationSettings = fontVariationSettings,
+        )
+        return
+    }
+
     val useCoreTextComponent =
         LocalRemoteComposeCreationState.current.profile.supportedOperations.contains(
             Operations.CORE_TEXT
@@ -195,10 +223,12 @@ public fun RemoteText(
     if (useCoreTextComponent) {
         androidx.compose.foundation.layout.Box(
             RemoteComposeCoreTextComponentModifier(
-                    modifier = modifier.toRemoteCompose(),
+                    modifier = captureMode.toRecordingModifier(modifier),
                     id = text,
                     color = color,
                     fontSize = fontSize,
+                    minFontSize = minFontSize,
+                    maxFontSize = maxFontSize,
                     fontStyle = fontStyle.encode(),
                     fontWeight = fontWeight,
                     fontFamily = fontFamily,
@@ -216,12 +246,12 @@ public fun RemoteText(
     } else {
         androidx.compose.foundation.layout.Box(
             RemoteComposeTextComponentModifier(
-                    modifier = modifier.toRemoteCompose(),
+                    modifier = captureMode.toRecordingModifier(modifier),
                     id = RemoteIntReference(text.getIdForCreationState(captureMode)),
                     color =
                         color.constantValue?.toArgb() ?: color.getIdForCreationState(captureMode),
                     isColorConstant = color.hasConstantValue,
-                    fontSize = fontSize.id,
+                    fontSize = with(LocalRemoteComposeCreationState.current) { fontSize.floatId },
                     fontStyle = fontStyle.encode(),
                     fontWeight = fontWeight.constantValue ?: 400f,
                     fontFamily = fontFamily,
@@ -329,6 +359,8 @@ public class RemoteComposeCoreTextComponentModifier(
     public val id: RemoteString,
     public val color: RemoteColor,
     public val fontSize: RemoteFloat,
+    public val minFontSize: Float? = null,
+    public val maxFontSize: Float? = null,
     public val fontStyle: Int,
     public val fontWeight: RemoteFloat,
     public val fontFamily: String?,
@@ -352,6 +384,8 @@ public class RemoteComposeCoreTextComponentModifier(
                 if (color.hasConstantValue) -1
                 else color.getIdForCreationState(canvas.creationState),
                 fontSize.getFloatIdForCreationState(canvas.creationState),
+                minFontSize ?: -1f,
+                maxFontSize ?: -1f,
                 fontStyle,
                 fontWeight.getFloatIdForCreationState(canvas.creationState),
                 fontFamily,

@@ -23,6 +23,8 @@ import androidx.appfunctions.compiler.core.AnnotatedParameterizedAppFunctionSeri
 import androidx.appfunctions.compiler.core.AppFunctionPropertyDeclaration
 import androidx.appfunctions.compiler.core.AppFunctionSerializableType
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.PARCELABLE_LIST
+import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.PARCELABLE_SINGULAR
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.PRIMITIVE_ARRAY
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.PRIMITIVE_LIST
 import androidx.appfunctions.compiler.core.AppFunctionTypeReference.AppFunctionSupportedTypeCategory.PRIMITIVE_SINGULAR
@@ -440,6 +442,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
             PRIMITIVE_SINGULAR,
             PRIMITIVE_ARRAY,
             PRIMITIVE_LIST -> appendPrimitiveGetterStatement(paramName, afType, isRequired)
+            PARCELABLE_SINGULAR -> appendParcelableGetterStatement(paramName, afType, isRequired)
+            PARCELABLE_LIST -> appendParcelableListGetterStatement(paramName, afType, isRequired)
             SERIALIZABLE_SINGULAR ->
                 appendSerializableGetterStatement(
                     paramName,
@@ -505,6 +509,60 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
         } else {
             addNamed(
                 "val %param_name:L = %app_function_data_param_name:L.%getter_name:L(\"%param_name:L\")%default_value_postfix:L\n",
+                formatStringMap,
+            )
+        }
+        return this
+    }
+
+    private fun CodeBlock.Builder.appendParcelableGetterStatement(
+        paramName: String,
+        afType: AppFunctionTypeReference,
+        isRequired: Boolean,
+    ): CodeBlock.Builder {
+        val formatStringMap =
+            mapOf<String, Any>(
+                "param_name" to paramName,
+                "app_function_data_param_name" to APP_FUNCTION_DATA_WITH_SPEC_VARIABLE_NAME,
+                "getter_name" to getAppFunctionDataGetterName(afType),
+                "param_type" to afType.selfTypeReference.toTypeName().ignoreNullable(),
+            )
+        if (!afType.isNullable && isRequired) {
+            addNamed(
+                "val %param_name:L = checkNotNull(%app_function_data_param_name:L.%getter_name:L(\"%param_name:L\", %param_type:T::class.java))\n",
+                formatStringMap,
+            )
+        } else {
+            addNamed(
+                "val %param_name:L = %app_function_data_param_name:L.%getter_name:L(\"%param_name:L\", %param_type:T::class.java)\n",
+                formatStringMap,
+            )
+        }
+        return this
+    }
+
+    private fun CodeBlock.Builder.appendParcelableListGetterStatement(
+        paramName: String,
+        afType: AppFunctionTypeReference,
+        isRequired: Boolean,
+    ): CodeBlock.Builder {
+        val formatStringMap =
+            mapOf<String, Any>(
+                "param_name" to paramName,
+                "app_function_data_param_name" to APP_FUNCTION_DATA_WITH_SPEC_VARIABLE_NAME,
+                "getter_name" to getAppFunctionDataGetterName(afType),
+                "item_type" to afType.itemTypeReference.toTypeName().ignoreNullable(),
+                "default_value_postfix" to getGetterDefaultValueStatement(afType, isRequired),
+            )
+
+        if (!afType.isNullable && isRequired) {
+            addNamed(
+                "val %param_name:L = checkNotNull(%app_function_data_param_name:L.%getter_name:L(\"%param_name:L\", %item_type:T::class.java))\n",
+                formatStringMap,
+            )
+        } else {
+            addNamed(
+                "val %param_name:L = %app_function_data_param_name:L.%getter_name:L(\"%param_name:L\", %item_type:T::class.java)%default_value_postfix:L\n",
                 formatStringMap,
             )
         }
@@ -652,6 +710,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
             PRIMITIVE_SINGULAR,
             PRIMITIVE_ARRAY,
             PRIMITIVE_LIST -> appendPrimitiveSetterStatement(paramName, afType)
+            PARCELABLE_SINGULAR,
+            PARCELABLE_LIST -> appendParcelableSetterStatement(paramName, afType)
             SERIALIZABLE_SINGULAR ->
                 appendSerializableSetterStatement(
                     paramName,
@@ -692,6 +752,19 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
     }
 
     private fun CodeBlock.Builder.appendPrimitiveSetterStatement(
+        paramName: String,
+        afType: AppFunctionTypeReference,
+    ): CodeBlock.Builder {
+        val formatStringMap =
+            mapOf<String, Any>(
+                "param_name" to paramName,
+                "setter_name" to getAppFunctionDataSetterName(afType),
+            )
+        addNamed("builder.%setter_name:L(\"%param_name:L\", %param_name:L)\n", formatStringMap)
+        return this
+    }
+
+    private fun CodeBlock.Builder.appendParcelableSetterStatement(
         paramName: String,
         afType: AppFunctionTypeReference,
     ): CodeBlock.Builder {
@@ -760,6 +833,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
             SERIALIZABLE_PROXY_LIST,
             SERIALIZABLE_LIST -> "getAppFunctionDataList"
             PRIMITIVE_LIST -> "get${shortTypeName}List"
+            PARCELABLE_SINGULAR -> "getParcelable"
+            PARCELABLE_LIST -> "getParcelableList"
             else -> {
                 throw ProcessingException(
                     "Unsupported type for @AppFunctionSerializable: ${afType.typeCategory}",
@@ -779,7 +854,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
             PRIMITIVE_ARRAY,
             PRIMITIVE_LIST,
             SERIALIZABLE_PROXY_LIST,
-            SERIALIZABLE_LIST -> {
+            SERIALIZABLE_LIST,
+            PARCELABLE_LIST -> {
                 if (!isRequired && !afType.isNullable) {
                     " ?: ${afType.getTypeDefaultValueAsString()}"
                 } else {
@@ -787,7 +863,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
                 }
             }
             SERIALIZABLE_PROXY_SINGULAR,
-            SERIALIZABLE_SINGULAR -> {
+            SERIALIZABLE_SINGULAR,
+            PARCELABLE_SINGULAR -> {
                 ""
             }
             else -> {
@@ -808,6 +885,8 @@ class AppFunctionSerializableFactoryCodeBuilderHelper(
             SERIALIZABLE_PROXY_SINGULAR -> "setAppFunctionData"
             SERIALIZABLE_PROXY_LIST,
             SERIALIZABLE_LIST -> "setAppFunctionDataList"
+            PARCELABLE_SINGULAR -> "setParcelable"
+            PARCELABLE_LIST -> "setParcelableList"
             else -> {
                 throw ProcessingException(
                     "Unsupported type for @AppFunctionSerializable: ${afType.typeCategory}",

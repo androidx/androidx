@@ -56,12 +56,60 @@
             android:text="Toggle HSM/FSM" />
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Three Buttons (Row 2) - Evenly Spaced in CardView -->
+    <!-- Two Buttons (Row 2) - Evenly Spaced in CardView -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/environment_cardRowLoading"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/environment_cardRow1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/environment_load_path"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Load Skybox Bar (Path)"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/environment_load_bytes"
+                app:layout_constraintHorizontal_weight="1" />
+
+            <Button
+                android:id="@+id/environment_load_bytes"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/test_button"
+                android:textSize="18sp"
+                android:textFontWeight="400"
+                android:text="Load Skybox Blue (Bytes)"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/environment_load_path"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_weight="1" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- Three Buttons (Row 3) - Evenly Spaced in CardView -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/environment_cardRow2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@+id/environment_cardRow1"
+        app:layout_constraintTop_toBottomOf="@+id/environment_cardRowLoading"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp">
@@ -127,7 +175,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Three Buttons (Row 3) - Evenly Spaced in CardView -->
+    <!-- Three Buttons (Row 4) - Evenly Spaced in CardView -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/environment_cardRow3"
         android:layout_width="match_parent"
@@ -213,7 +261,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Two Buttons (Row 4) - 60/40 Split in CardView -->
+    <!-- Two Buttons (Row 5) - 60/40 Split in CardView -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/environment_cardRow4"
         android:layout_width="match_parent"
@@ -261,7 +309,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Center Button (Row 5) in CardView -->
+    <!-- Center Button (Row 6) in CardView -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/environment_cardRow5"
         android:layout_width="match_parent"
@@ -312,7 +360,7 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Slider (60%) and Button (40%) (Row 6) in CardView -->
+    <!-- Slider (60%) and Button (40%) (Row 7) in CardView -->
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/environment_cardRow6"
         android:layout_width="match_parent"

@@ -777,7 +777,7 @@
 
     <issue
         id="PrivateResource"
-        message="Overriding `@attr/anchorAngleDegrees` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha03. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        message="Overriding `@attr/anchorAngleDegrees` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
         errorLine1="  &lt;attr name=&quot;anchorAngleDegrees&quot; format=&quot;float&quot;/>"
         errorLine2="              ~~~~~~~~~~~~~~~~~~">
         <location
@@ -786,7 +786,7 @@
 
     <issue
         id="PrivateResource"
-        message="Overriding `@attr/anchorPosition` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha03. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        message="Overriding `@attr/anchorPosition` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
         errorLine1="  &lt;attr name=&quot;anchorPosition&quot; format=&quot;enum&quot;>"
         errorLine2="              ~~~~~~~~~~~~~~">
         <location
@@ -795,7 +795,7 @@
 
     <issue
         id="PrivateResource"
-        message="Overriding `@attr/clockwise` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha03. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        message="Overriding `@attr/clockwise` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
         errorLine1="  &lt;attr name=&quot;clockwise&quot; format=&quot;boolean&quot;/>"
         errorLine2="              ~~~~~~~~~">
         <location
@@ -804,7 +804,7 @@
 
     <issue
         id="PrivateResource"
-        message="Overriding `@attr/sweepAngleDegrees` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha03. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        message="Overriding `@attr/sweepAngleDegrees` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
         errorLine1="  &lt;attr name=&quot;sweepAngleDegrees&quot; format=&quot;float&quot; />"
         errorLine2="              ~~~~~~~~~~~~~~~~~">
         <location
@@ -813,7 +813,7 @@
 
     <issue
         id="PrivateResource"
-        message="Overriding `@attr/thickness` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha03. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
+        message="Overriding `@attr/thickness` which is marked as private in androidx.wear.protolayout:protolayout-renderer:1.4.0-alpha04. If deliberate, use tools:override=&quot;true&quot;, otherwise pick a different name."
         errorLine1="  &lt;attr name=&quot;thickness&quot; format=&quot;dimension&quot; />"
         errorLine2="              ~~~~~~~~~">
         <location

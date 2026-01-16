@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Satır da seçilebilir"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"İkincil işlem seçildi"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Satırdaki birincil işlem seçildi"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Satırdaki Son Resim ve İşlemler Demosu"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Boş Liste Demosu"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Liste boş"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Çeşitli Şablon Demoları"</string>

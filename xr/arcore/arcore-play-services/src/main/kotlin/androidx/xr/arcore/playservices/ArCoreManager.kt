@@ -71,10 +71,6 @@ internal constructor(
      */
     @UnsupportedArCoreCompatApi public fun session(): Session = _session
 
-    // TODO(b/411154789): Remove once Session runtime invocations are forced to run sequentially.
-    internal var running: Boolean = false
-        private set
-
     /**
      * This method implements the [LifecycleManager.create] method.
      *
@@ -170,7 +166,6 @@ internal constructor(
 
     override fun resume() {
         _session.resume()
-        running = true
     }
 
     override suspend fun update(): ComparableTimeMark {
@@ -185,15 +180,12 @@ internal constructor(
         val delayTime = (1000L / avgFps).milliseconds
         delay(delayTime)
 
-        if (running) {
-            perceptionManager.update()
-        }
+        perceptionManager.update()
 
         return timeSource.markNow()
     }
 
     override fun pause() {
-        running = false
         _session.pause()
     }
 

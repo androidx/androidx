@@ -86,6 +86,8 @@ import androidx.compose.runtime.remember
  * a custom class should not be retained (possibly because it will cause a memory leak), you can
  * annotate your class definition with [androidx.compose.runtime.annotation.DoNotRetain].
  *
+ * @sample androidx.compose.runtime.retain.samples.retainSample
+ * @sample androidx.compose.runtime.retain.samples.rememberAndRetainSample
  * @param calculation A computation to invoke to create a new value, which will be used when a
  *   previous one is not available to return because it was neither remembered nor retained.
  * @return The result of [calculation]
@@ -167,6 +169,8 @@ public inline fun <reified T> retain(noinline calculation: () -> T): T {
  * a custom class should not be retained (possibly because it will cause a memory leak), you can
  * annotate your class definition with [androidx.compose.runtime.annotation.DoNotRetain].
  *
+ * @sample androidx.compose.runtime.retain.samples.retainSample
+ * @sample androidx.compose.runtime.retain.samples.rememberAndRetainSample
  * @param keys An arbitrary list of keys that, if changed, will cause an old retained value to be
  *   discarded and for [calculation] to return a new value, regardless of whether the old value was
  *   being retained in the [RetainedValuesStore] or not.

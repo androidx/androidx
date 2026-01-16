@@ -77,8 +77,17 @@ class MovableActivity : AppCompatActivity() {
 
         // Create session
         session = SessionManager(this).createSession()
-        if (session == null) this.finish()
+        if (session == null) {
+            Log.e(TAG, "Failed to create a session. Finishing activity.")
+            finish()
+            return
+        }
         session!!.configure(Config(Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL))
+        session!!.scene.keyEntity = session!!.scene.mainPanelEntity
+
+        // Enable passthrough by default to allow interaction with the real world,
+        // which is necessary for testing anchoring functionality.
+        session!!.scene.spatialEnvironment.preferredPassthroughOpacity = 1.0f
 
         // Toolbar action
         findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
@@ -109,7 +118,7 @@ class MovableActivity : AppCompatActivity() {
                 "stationaryPanel",
                 Pose(Vector3(0.9f, 0f, 0f)),
             )
-
+        stationaryPanelEntity.parent = session!!.scene.keyEntity
         // Create a single panel with text
         @SuppressLint("InflateParams")
         val movablePanelContentView = layoutInflater.inflate(R.layout.panel_movable, null)
@@ -121,6 +130,7 @@ class MovableActivity : AppCompatActivity() {
                 "panel",
                 Pose(Vector3(0f, 0f, 0.1f)),
             )
+        movablePanelEntity.parent = session!!.scene.keyEntity
         val sysMovSwitch = movablePanelContentView.findViewById<MaterialSwitch>(R.id.sys_mov_switch)
         sysMovSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
             systemMovable = isChecked
@@ -136,13 +146,27 @@ class MovableActivity : AppCompatActivity() {
             movablePanelContentView.findViewById<MaterialSwitch>(R.id.anchorable_switch)
         anchorableSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
             anchorable = isChecked
+            // When an MovableComponent is anchorable, the scaleInZ option should be disabled.
+            // MovableComponent.createAnchorable() does not support or utilize the scaleInZ
+            // parameter.
+            // Anchorable components are designed to maintain a consistent scale relative to the
+            // real-world
+            // surface they are attached to, preserving the sense of presence in the augmented
+            // environment.
+            // Automatic scaling based on Z-distance (scaleInZ) is not applicable in this mode.
+            if (isChecked) {
+                scaleInZSwitch.isChecked = false
+                scaleInZSwitch.isEnabled = false
+            } else {
+                scaleInZSwitch.isEnabled = true
+            }
             replaceMovableComponent(movablePanelEntity)
         }
         val parentSwitch = movablePanelContentView.findViewById<MaterialSwitch>(R.id.parent_switch)
         parentSwitch.setOnCheckedChangeListener { _, isChecked: Boolean ->
             when (isChecked) {
                 true -> movablePanelEntity.parent = stationaryPanelEntity
-                false -> movablePanelEntity.parent = session!!.scene.activitySpace
+                false -> movablePanelEntity.parent = session!!.scene.keyEntity
             }
             movablePanelEntity.setPose(Pose(Vector3(0f, 0f, 0.1f)))
         }

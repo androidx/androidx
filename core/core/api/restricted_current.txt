@@ -65,7 +65,7 @@ package androidx.core.app {
   }
 
   public static interface ActivityCompat.PermissionCompatDelegate {
-    method public boolean onActivityResult(android.app.Activity, @IntRange(from=0) int, int, android.content.Intent?);
+    method @Deprecated public boolean onActivityResult(android.app.Activity, @IntRange(from=0) int, int, android.content.Intent?);
     method public boolean requestPermissions(android.app.Activity, String![], @IntRange(from=0) int);
   }
 
@@ -1145,6 +1145,11 @@ package androidx.core.app {
     method public androidx.core.app.PictureInPictureParamsCompat.Builder setTitle(CharSequence? title);
   }
 
+  public interface PictureInPictureProvider extends androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.app.OnPictureInPictureUiStateChangedProvider androidx.core.app.OnUserLeaveHintProvider {
+    method public void enterPictureInPictureMode(androidx.core.app.PictureInPictureParamsCompat params);
+    method public void setPictureInPictureParams(androidx.core.app.PictureInPictureParamsCompat params);
+  }
+
   public final class PictureInPictureUiStateCompat {
     ctor public PictureInPictureUiStateCompat(boolean isStashed, boolean isTransitioningToPip);
     method public static androidx.core.app.PictureInPictureUiStateCompat fromPictureInPictureUiState(android.app.PictureInPictureUiState uiState);
@@ -1810,15 +1815,15 @@ package androidx.core.flagging {
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class Flags {
     ctor public Flags();
-    method public static boolean getBooleanFlagValue(String packageName, String flagName);
-    method public static boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
+    method @ChecksSdkIntAtLeast(api=10000) public static boolean getBooleanFlagValue(String packageName, String flagName);
+    method @ChecksSdkIntAtLeast(api=10000) public static boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
     field public static final androidx.core.flagging.Flags.Companion Companion;
   }
 
   public static final class Flags.Companion {
-    method public boolean getBooleanFlagValue(String packageName, String flagName);
-    method public boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
-    method @BytecodeOnly public static boolean getBooleanFlagValue$default(androidx.core.flagging.Flags.Companion!, String!, String!, boolean, int, Object!);
+    method @ChecksSdkIntAtLeast(api=10000) public boolean getBooleanFlagValue(String packageName, String flagName);
+    method @ChecksSdkIntAtLeast(api=10000) public boolean getBooleanFlagValue(String packageName, String flagName, optional boolean defaultValue);
+    method @BytecodeOnly @ChecksSdkIntAtLeast(api=10000) public static boolean getBooleanFlagValue$default(androidx.core.flagging.Flags.Companion!, String!, String!, boolean, int, Object!);
   }
 
 }
@@ -4105,6 +4110,8 @@ package androidx.core.view {
     method @Deprecated public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
     method @Deprecated public androidx.core.view.WindowInsetsCompat consumeStableInsets();
     method @Deprecated public androidx.core.view.WindowInsetsCompat consumeSystemWindowInsets();
+    method public java.util.List<android.graphics.Rect!> getBoundingRects(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
+    method public java.util.List<android.graphics.Rect!> getBoundingRectsIgnoringVisibility(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
     method public androidx.core.view.DisplayCutoutCompat? getDisplayCutout();
     method public androidx.core.view.DisplayShapeCompat? getDisplayShape();
     method public androidx.core.graphics.Insets getInsets(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
@@ -4144,6 +4151,8 @@ package androidx.core.view {
     ctor public WindowInsetsCompat.Builder();
     ctor public WindowInsetsCompat.Builder(androidx.core.view.WindowInsetsCompat);
     method public androidx.core.view.WindowInsetsCompat build();
+    method public androidx.core.view.WindowInsetsCompat.Builder setBoundingRects(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, java.util.List<android.graphics.Rect!>);
+    method public androidx.core.view.WindowInsetsCompat.Builder setBoundingRectsIgnoringVisibility(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, java.util.List<android.graphics.Rect!>);
     method public androidx.core.view.WindowInsetsCompat.Builder setDisplayCutout(androidx.core.view.DisplayCutoutCompat?);
     method public androidx.core.view.WindowInsetsCompat.Builder setDisplayShape(androidx.core.view.DisplayShapeCompat);
     method public androidx.core.view.WindowInsetsCompat.Builder setInsets(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, androidx.core.graphics.Insets);

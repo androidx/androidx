@@ -1,7 +1,7 @@
 @file:JvmName("WebGpuUtils")
 
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,20 +21,20 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Surface
 import androidx.webgpu.BackendType
-import androidx.webgpu.DeviceDescriptor
 import androidx.webgpu.DeviceLostCallback
 import androidx.webgpu.DeviceLostException
+import androidx.webgpu.GPU.createInstance
 import androidx.webgpu.GPUAdapter
 import androidx.webgpu.GPUDevice
+import androidx.webgpu.GPUDeviceDescriptor
 import androidx.webgpu.GPUInstance
+import androidx.webgpu.GPUInstanceDescriptor
+import androidx.webgpu.GPURequestAdapterOptions
 import androidx.webgpu.GPUSurface
-import androidx.webgpu.InstanceDescriptor
-import androidx.webgpu.RequestAdapterOptions
-import androidx.webgpu.SurfaceDescriptor
-import androidx.webgpu.SurfaceSourceAndroidNativeWindow
+import androidx.webgpu.GPUSurfaceDescriptor
+import androidx.webgpu.GPUSurfaceSourceAndroidNativeWindow
 import androidx.webgpu.UncapturedErrorCallback
-import androidx.webgpu.createInstance
-import androidx.webgpu.getException
+import androidx.webgpu.WebGpuRuntimeException
 import androidx.webgpu.helper.Util.windowFromSurface
 import java.util.concurrent.Executor
 
@@ -48,10 +48,10 @@ public abstract class WebGpu : AutoCloseable {
 
 public suspend fun createWebGpu(
     surface: Surface? = null,
-    instanceDescriptor: InstanceDescriptor = InstanceDescriptor(),
-    requestAdapterOptions: RequestAdapterOptions = RequestAdapterOptions(),
-    deviceDescriptor: DeviceDescriptor =
-        DeviceDescriptor(
+    instanceDescriptor: GPUInstanceDescriptor = GPUInstanceDescriptor(),
+    requestAdapterOptions: GPURequestAdapterOptions = GPURequestAdapterOptions(),
+    deviceDescriptor: GPUDeviceDescriptor =
+        GPUDeviceDescriptor(
             deviceLostCallback = defaultDeviceLostCallback,
             deviceLostCallbackExecutor = Executor(Runnable::run),
             uncapturedErrorCallback = defaultUncapturedErrorCallback,
@@ -64,9 +64,9 @@ public suspend fun createWebGpu(
     val webgpuSurface =
         surface?.let {
             instance.createSurface(
-                SurfaceDescriptor(
+                GPUSurfaceDescriptor(
                     surfaceSourceAndroidNativeWindow =
-                        SurfaceSourceAndroidNativeWindow(windowFromSurface(it))
+                        GPUSurfaceSourceAndroidNativeWindow(windowFromSurface(it))
                 )
             )
         }
@@ -111,14 +111,14 @@ public suspend fun createWebGpu(
 
 private suspend fun requestAdapter(
     instance: GPUInstance,
-    options: RequestAdapterOptions = RequestAdapterOptions(backendType = BackendType.Vulkan),
+    options: GPURequestAdapterOptions = GPURequestAdapterOptions(backendType = BackendType.Vulkan),
 ): GPUAdapter {
     return instance.requestAdapter(options)
 }
 
 private suspend inline fun requestDevice(
     adapter: GPUAdapter,
-    deviceDescriptor: DeviceDescriptor,
+    deviceDescriptor: GPUDeviceDescriptor,
 ): GPUDevice {
     if (deviceDescriptor.deviceLostCallback == null) {
         deviceDescriptor.deviceLostCallback = defaultDeviceLostCallback
@@ -132,7 +132,9 @@ private suspend inline fun requestDevice(
 
 private val defaultUncapturedErrorCallback
     get(): UncapturedErrorCallback {
-        return UncapturedErrorCallback { _, type, message -> throw getException(type, message) }
+        return UncapturedErrorCallback { _, type, message ->
+            throw WebGpuRuntimeException.create(type, message)
+        }
     }
 
 private val defaultDeviceLostCallback

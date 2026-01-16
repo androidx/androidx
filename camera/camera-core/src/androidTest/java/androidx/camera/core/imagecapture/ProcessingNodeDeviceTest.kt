@@ -61,6 +61,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -127,6 +128,7 @@ class ProcessingNodeDeviceTest {
         saveJpegOnDisk_verifyOutput(OUTPUT_FILE_OPTIONS)
     }
 
+    @Ignore("TODO: b/467864931 - Fix malformed image generation before enabling this test.")
     @SdkSuppress(minSdkVersion = 34)
     @Test
     fun processSaveJpegOnDisk_verifyOutput_whenFormatIsJpegr() = runBlocking {

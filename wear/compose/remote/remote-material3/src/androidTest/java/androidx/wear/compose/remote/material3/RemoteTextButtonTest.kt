@@ -18,6 +18,7 @@ package androidx.wear.compose.remote.material3
 
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -36,6 +37,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.remote.material3.previews.RemoteTextButtonEnabled
+import androidx.wear.compose.remote.material3.previews.RemoteTextButtonOutline
+import androidx.wear.compose.remote.material3.previews.RemoteTextButtonTonal
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,9 +66,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
-                RemoteTextButton(enabled = true.rb) { RemoteText("ABC".rs) }
-            }
+            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonEnabled() }
         }
     }
 
@@ -75,7 +77,7 @@ class RemoteTextButtonTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             Center(RemoteModifier.fillMaxSize()) {
-                RemoteTextButton(enabled = false.rb) { RemoteText("ABC".rs) }
+                RemoteTextButton(testAction, enabled = false.rb) { RemoteText("ABC".rs) }
             }
         }
     }
@@ -86,11 +88,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
-                RemoteTextButton(enabled = true.rb, colors = FILLED_TONAL_COLOR) {
-                    RemoteText("ABC".rs)
-                }
-            }
+            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonTonal() }
         }
     }
 
@@ -101,7 +99,7 @@ class RemoteTextButtonTest {
             creationDisplayInfo = creationDisplayInfo,
         ) {
             Center(RemoteModifier.fillMaxSize()) {
-                RemoteTextButton(enabled = false.rb, colors = FILLED_TONAL_COLOR) {
+                RemoteTextButton(testAction, enabled = false.rb, colors = FILLED_TONAL_COLOR) {
                     RemoteText("ABC".rs)
                 }
             }
@@ -114,16 +112,7 @@ class RemoteTextButtonTest {
             backgroundColor = Color.Black,
             creationDisplayInfo = creationDisplayInfo,
         ) {
-            Center(RemoteModifier.fillMaxSize()) {
-                RemoteTextButton(
-                    border = 1.rdp,
-                    borderColor = RemoteMaterialTheme.colorScheme.outline,
-                    enabled = true.rb,
-                    colors = OUTLINE_COLOR,
-                ) {
-                    RemoteText("ABC".rs)
-                }
-            }
+            Center(RemoteModifier.fillMaxSize()) { RemoteTextButtonOutline() }
         }
     }
 
@@ -135,6 +124,7 @@ class RemoteTextButtonTest {
         ) {
             Center(RemoteModifier.fillMaxSize()) {
                 RemoteTextButton(
+                    testAction,
                     border = 1.rdp,
                     borderColor = RemoteMaterialTheme.colorScheme.outline,
                     enabled = false.rb,
@@ -147,6 +137,8 @@ class RemoteTextButtonTest {
     }
 
     private companion object {
+        private val testAction = HostAction("testAction".rs, 1.rf)
+
         val FILLED_TONAL_COLOR
             @Composable
             get() =

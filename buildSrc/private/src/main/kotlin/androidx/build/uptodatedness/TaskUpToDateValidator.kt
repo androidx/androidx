@@ -125,7 +125,6 @@ val ALLOW_RERUNNING_TASKS =
         ":datastore:datastore-preferences-proto:extractIncludeTestProto",
         ":glance:glance-appwidget-proto:extractIncludeTestProto",
         ":health:connect:connect-client-proto:extractIncludeTestProto",
-        ":privacysandbox:tools:tools-core:extractIncludeTestProto",
         ":test:screenshot:screenshot-proto:extractIncludeTestProto",
         ":wear:protolayout:protolayout-proto:extractIncludeTestProto",
         ":wear:tiles:tiles-proto:extractIncludeTestProto",

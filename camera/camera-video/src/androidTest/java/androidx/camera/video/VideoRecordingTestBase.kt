@@ -21,6 +21,7 @@ import android.content.Context
 import android.graphics.Rect
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import android.util.Rational
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
@@ -192,6 +193,11 @@ abstract class VideoRecordingTestBase(
 
     @Before
     fun setUp() {
+        assumeFalse(
+            "Test fails on cuttlefish b/467136521",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
+
         assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
 
         cameraExecutor = CameraTaskTrackingExecutor()
@@ -327,9 +333,7 @@ abstract class VideoRecordingTestBase(
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture = VideoCapture.withOutput(recorder)
         // Arbitrary cropping
-        val profile =
-            videoCapabilities.getProfiles(quality, defaultDynamicRange)!!.defaultVideoProfile
-        val targetResolution = profile.resolution
+        val targetResolution = videoCapabilities.getResolution(quality, defaultDynamicRange)!!
         val cropRect = Rect(6, 6, targetResolution.width - 7, targetResolution.height - 7)
         videoCapture.setViewPortCropRect(cropRect)
 

@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".model.GltfModelMaterialTexture">
+    tools:context=".model.GltfModelMaterialTextureActivity">
 
   <com.google.android.material.appbar.MaterialToolbar
       android:id="@+id/gltf_model_topAppBar"
@@ -77,12 +77,28 @@
           android:layout_marginLeft="10dp"
           android:layout_marginRight="10dp"
           android:background="@drawable/test_button"
-          android:text="Dispose Texture"
+          android:text="Dispose Texture GC"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/gltf_model_button1_3"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button1_1"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <Button
+          android:id="@+id/gltf_model_button1_3"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Dispose Texture Explicit"
           android:textFontWeight="400"
           android:textSize="18sp"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0.5"
-          app:layout_constraintStart_toEndOf="@+id/gltf_model_button1_1"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button1_2"
           app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
@@ -125,12 +141,28 @@
           android:layout_marginLeft="10dp"
           android:layout_marginRight="10dp"
           android:background="@drawable/test_button"
-          android:text="Dispose Khronos PBR Material"
+          android:text="Dispose PBR Material GC"
+          android:textFontWeight="400"
+          android:textSize="18sp"
+          app:layout_constraintEnd_toEndOf="parent"
+          app:layout_constraintEnd_toStartOf="@+id/gltf_model_button2_3"
+          app:layout_constraintHorizontal_bias="0.5"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button2_1"
+          app:layout_constraintTop_toTopOf="parent" />
+
+      <Button
+          android:id="@+id/gltf_model_button2_3"
+          android:layout_width="0dp"
+          android:layout_height="wrap_content"
+          android:layout_marginLeft="10dp"
+          android:layout_marginRight="10dp"
+          android:background="@drawable/test_button"
+          android:text="Dispose PBR Material Explicit"
           android:textFontWeight="400"
           android:textSize="18sp"
           app:layout_constraintEnd_toEndOf="parent"
           app:layout_constraintHorizontal_bias="0.5"
-          app:layout_constraintStart_toEndOf="@+id/gltf_model_button2_1"
+          app:layout_constraintStart_toEndOf="@+id/gltf_model_button2_2"
           app:layout_constraintTop_toTopOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

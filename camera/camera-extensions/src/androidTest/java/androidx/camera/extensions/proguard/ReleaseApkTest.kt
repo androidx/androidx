@@ -39,8 +39,6 @@ import androidx.camera.extensions.ExtensionMode.FACE_RETOUCH
 import androidx.camera.extensions.ExtensionMode.HDR
 import androidx.camera.extensions.ExtensionMode.NIGHT
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.extensions.impl.ExtensionsTestlibControl
-import androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.OEM_IMPL
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
@@ -264,12 +262,11 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
             cameraSelector: CameraSelector,
             extensionMode: Int,
         ) =
-            ExtensionsTestlibControl.getInstance().implementationType == OEM_IMPL &&
-                ExtensionsTestUtil.isExtensionAvailable(
-                    extensionsManager,
-                    cameraSelector,
-                    extensionMode,
-                )
+            ExtensionsTestUtil.isExtensionAvailable(
+                extensionsManager,
+                cameraSelector,
+                extensionMode,
+            )
 
         @JvmStatic
         private fun createCameraSelectorById(cameraId: String) =

@@ -26,7 +26,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.navigationevent.NavigationEvent
 
 /** Compat around the [BackEvent] class */
-class BackEventCompat
+public class BackEventCompat
 @VisibleForTesting
 @JvmOverloads
 constructor(
@@ -34,18 +34,18 @@ constructor(
      * Absolute X location of the touch point of this event in the coordinate space of the view that
      * * received this back event.
      */
-    val touchX: Float,
+    public val touchX: Float,
     /**
      * Absolute Y location of the touch point of this event in the coordinate space of the view that
      * received this back event.
      */
-    val touchY: Float,
+    public val touchY: Float,
     /** Value between 0 and 1 on how far along the back gesture is. */
-    @FloatRange(from = 0.0, to = 1.0) val progress: Float,
+    @FloatRange(from = 0.0, to = 1.0) public val progress: Float,
     /** Indicates which edge the swipe starts from. */
-    val swipeEdge: @SwipeEdge Int,
+    public val swipeEdge: @SwipeEdge Int,
     /** Frame time of the back event. */
-    val frameTimeMillis: Long = 0,
+    public val frameTimeMillis: Long = 0,
 ) {
 
     /**
@@ -57,7 +57,7 @@ constructor(
      * @param backEvent The [BackEvent] instance to convert.
      */
     @RequiresApi(34)
-    constructor(
+    public constructor(
         backEvent: BackEvent
     ) : this(
         touchX = backEvent.touchX,
@@ -75,7 +75,7 @@ constructor(
      *
      * @param navigationEvent The [NavigationEvent] instance to convert.
      */
-    constructor(
+    public constructor(
         navigationEvent: NavigationEvent
     ) : this(
         touchX = navigationEvent.touchX,
@@ -90,7 +90,7 @@ constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(EDGE_LEFT, EDGE_RIGHT, EDGE_NONE)
-    annotation class SwipeEdge
+    public annotation class SwipeEdge
 
     /**
      * Convert this [BackEventCompat] object to a [BackEvent] object.
@@ -99,7 +99,7 @@ constructor(
      * @throws UnsupportedOperationException if this API is called on an API prior to 34.
      */
     @RequiresApi(34)
-    fun toBackEvent(): BackEvent {
+    public fun toBackEvent(): BackEvent {
         return if (Build.VERSION.SDK_INT >= 36) {
             BackEvent(touchX, touchY, progress, swipeEdge, frameTimeMillis)
         } else {
@@ -112,7 +112,7 @@ constructor(
      *
      * @return A new [NavigationEvent] object populated with this [BackEventCompat] data.
      */
-    fun toNavigationEvent(): NavigationEvent {
+    public fun toNavigationEvent(): NavigationEvent {
         return NavigationEvent(
             touchX = touchX,
             touchY = touchY,
@@ -127,18 +127,18 @@ constructor(
             "swipeEdge=$swipeEdge, frameTimeMillis=$frameTimeMillis)"
     }
 
-    companion object {
+    public companion object {
         /** Indicates that the edge swipe starts from the left edge of the screen */
-        const val EDGE_LEFT = 0
+        public const val EDGE_LEFT: Int = 0
 
         /** Indicates that the edge swipe starts from the right edge of the screen */
-        const val EDGE_RIGHT = 1
+        public const val EDGE_RIGHT: Int = 1
 
         /**
          * Indicates that the back event was not triggered by an edge swipe back gesture. This
          * applies to cases like using the back button in 3-button navigation or pressing a hardware
          * back button.
          */
-        const val EDGE_NONE = 2
+        public const val EDGE_NONE: Int = 2
     }
 }

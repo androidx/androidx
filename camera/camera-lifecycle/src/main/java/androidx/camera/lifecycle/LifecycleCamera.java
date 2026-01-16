@@ -28,6 +28,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.LegacySessionConfig;
+import androidx.camera.core.RotationProvider;
 import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.featuregroup.GroupableFeature;
@@ -63,9 +64,11 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
 
     @GuardedBy("mLock")
     // The lifecycle that controls the LifecycleCamera
-    private final LifecycleOwner mLifecycleOwner;
+    private final @NonNull LifecycleOwner mLifecycleOwner;
 
-    private final CameraUseCaseAdapter mCameraUseCaseAdapter;
+    private final @NonNull CameraUseCaseAdapter mCameraUseCaseAdapter;
+
+    private final @NonNull RotationProvider mRotationProvider;
 
     @GuardedBy("mLock")
     private volatile boolean mIsActive = false;
@@ -82,9 +85,12 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
     /**
      * Wraps an existing {@link CameraUseCaseAdapter} so it is controlled by lifecycle transitions.
      */
-    LifecycleCamera(LifecycleOwner lifecycleOwner, CameraUseCaseAdapter cameraUseCaseAdaptor) {
+    LifecycleCamera(@NonNull LifecycleOwner lifecycleOwner,
+            @NonNull CameraUseCaseAdapter cameraUseCaseAdaptor,
+            @NonNull RotationProvider rotationProvider) {
         mLifecycleOwner = lifecycleOwner;
         mCameraUseCaseAdapter = cameraUseCaseAdaptor;
+        mRotationProvider = rotationProvider;
 
         // Make sure that the attach state of mCameraUseCaseAdapter matches that of the lifecycle
         if (mLifecycleOwner.getLifecycle().getCurrentState().isAtLeast(State.STARTED)) {
@@ -278,6 +284,12 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
             mCameraUseCaseAdapter.setSessionType(sessionConfig.getSessionType());
             mCameraUseCaseAdapter.setFrameRate(sessionConfig.getFrameRateRange());
 
+            // Sets RotationProvider to ImageCapture, ImageAnalysis and VideoCapture when
+            // auto-rotation is enabled.
+            if (sessionConfig.isAutoRotationEnabled()) {
+                updateUseCasesRotationProvider(sessionConfig.getUseCases(), mRotationProvider);
+            }
+
             ResolvedFeatureGroup resolvedFeatureGroup = resolveFeatureGroup(
                     sessionConfig, (CameraInfoInternal) getCameraInfo());
 
@@ -294,6 +306,15 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
 
             mCameraUseCaseAdapter.addUseCases(sessionConfig.getUseCases(),
                     resolvedFeatureGroup);
+        }
+    }
+
+    private void updateUseCasesRotationProvider(@NonNull List<UseCase> useCases,
+            @Nullable RotationProvider rotationProvider) {
+        for (UseCase useCase : useCases) {
+            if (useCase.isAutoRotationSupported()) {
+                useCase.setRotationProvider(rotationProvider);
+            }
         }
     }
 
@@ -348,7 +369,11 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
             }
             List<UseCase> useCasesToRemove = new ArrayList<>(sessionConfig.getUseCases());
             useCasesToRemove.retainAll(mCameraUseCaseAdapter.getUseCases());
+
             mCameraUseCaseAdapter.removeUseCases(useCasesToRemove);
+            // Clears RotationProvider to ImageCapture, ImageAnalysis and VideoCapture when
+            // UseCase is unbound.
+            updateUseCasesRotationProvider(useCasesToRemove, null);
         }
     }
 
@@ -359,7 +384,11 @@ public final class LifecycleCamera implements LifecycleObserver, Camera {
      */
     void unbindAll() {
         synchronized (mLock) {
-            mCameraUseCaseAdapter.removeUseCases(mCameraUseCaseAdapter.getUseCases());
+            List<UseCase> useCases = mCameraUseCaseAdapter.getUseCases();
+            mCameraUseCaseAdapter.removeUseCases(useCases);
+            // Clears RotationProvider to ImageCapture, ImageAnalysis and VideoCapture when
+            // UseCase is unbound.
+            updateUseCasesRotationProvider(useCases, null);
             mBoundSessionConfig = null;
         }
     }

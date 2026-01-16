@@ -40,11 +40,10 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
      * Closes the given [ExrImage].
      *
      * The [ExrImage] can be explicitly closed at any time or garbage collected. When either
-     * happens, its resources are freed. An [IllegalStateException] will be thrown if the [ExrImage]
-     * is used after being closed.
+     * happens, its resources are freed. If close() is not explicitly invoked by the client, the
+     * [ExrImage] will be automatically closed when the [ExrImage] is garbage collected.
      *
-     * The If close() is not explicitly invoked by the client, the [ExrImage] will be automatically
-     * closed when the [ExrImage] is garbage collected.
+     * @throws IllegalStateException if the resource has already been closed.
      */
     @MainThread
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -89,7 +88,7 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
                 "Only preprocessed skybox files with the .zip extension are supported."
             }
 
-            return createExrImage(session, renderingRuntime.loadExrImageByAssetNameAsync(name))
+            return createExrImage(session, renderingRuntime.loadExrImageByAssetName(name))
         }
 
         @SuppressWarnings("RestrictTo")
@@ -101,7 +100,7 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
         ): ExrImage {
             return createExrImage(
                 session,
-                renderingRuntime.loadExrImageByByteArrayAsync(byteArray, assetKey),
+                renderingRuntime.loadExrImageByByteArray(byteArray, assetKey),
             )
         }
 
@@ -170,7 +169,7 @@ internal constructor(internal val session: Session?, internal val image: RtExrIm
             assetData: ByteArray,
             assetKey: String,
         ): ExrImage {
-            return createFromZip(session, assetData, assetKey)
+            return createFromZip(session, session.renderingRuntime, assetData, assetKey)
         }
 
         private fun createExrImage(session: Session, exrImageResource: RtExrImage): ExrImage =

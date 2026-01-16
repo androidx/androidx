@@ -69,6 +69,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
                     BUFFER_TRANSFORM_ROTATE_270,
                 ]
         )
+        @Retention(AnnotationRetention.SOURCE)
         internal annotation class BufferTransform
 
         /** The identity transformation. Maps a coordinate (x, y) onto itself. */
@@ -91,6 +92,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
 
         /** Constants for [Transaction.setFrameRate] */
         @IntDef(value = [CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS, CHANGE_FRAME_RATE_ALWAYS])
+        @Retention(AnnotationRetention.SOURCE)
         internal annotation class ChangeFrameRateStrategy
 
         /** Change the frame rate only if the transition is going to be seamless. */
@@ -104,6 +106,7 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
 
         /** Constants for configuring compatibility for [Transaction.setFrameRate] */
         @IntDef(value = [FRAME_RATE_COMPATIBILITY_DEFAULT, FRAME_RATE_COMPATIBILITY_FIXED_SOURCE])
+        @Retention(AnnotationRetention.SOURCE)
         internal annotation class FrameRateCompatibility
 
         /**

@@ -380,9 +380,6 @@ private constructor(private val lifecycleCameraProvider: LifecycleCameraProvider
     override val isConcurrentCameraModeOn: Boolean
         @MainThread get() = lifecycleCameraProvider.isConcurrentCameraModeOn
 
-    override val configImplType: Int
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = lifecycleCameraProvider.configImplType
-
     @Throws(CameraInfoUnavailableException::class)
     override fun hasCamera(cameraSelector: CameraSelector): Boolean {
         return lifecycleCameraProvider.hasCamera(cameraSelector)

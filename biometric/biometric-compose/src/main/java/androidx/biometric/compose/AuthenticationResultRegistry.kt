@@ -36,8 +36,8 @@ import java.util.concurrent.Executor
  * Returns an [AuthenticationResultLauncher] that can be used to initiate authentication.
  *
  * A successful or error result will be delivered to [AuthenticationResultCallback.onAuthResult] and
- * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthFailure], which
- * is set by [resultCallback]. The callback will be executed on the thread provided by the
+ * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthAttemptFailed],
+ * which is set by [resultCallback]. The callback will be executed on the thread provided by the
  * [callbackExecutor].
  *
  * @sample androidx.biometric.compose.samples.RememberLauncherForAuthResult
@@ -59,8 +59,8 @@ public fun rememberAuthenticationLauncher(
  * Returns an [AuthenticationResultLauncher] that can be used to initiate authentication.
  *
  * A successful or error result will be delivered to [AuthenticationResultCallback.onAuthResult] and
- * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthFailure], which
- * is set by [resultCallback]. The callback will be executed on the main thread.
+ * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthAttemptFailed],
+ * which is set by [resultCallback]. The callback will be executed on the main thread.
  *
  * @sample androidx.biometric.compose.samples.RememberLauncherForAuthResult
  * @see rememberAuthenticationLauncher(Executor, AuthenticationResultCallback)
@@ -80,10 +80,10 @@ public fun rememberAuthenticationLauncher(
  * Returns an [AuthenticationResultLauncher] that can be used to initiate authentication.
  *
  * A successful or error result will be delivered to [AuthenticationResultCallback.onAuthResult] and
- * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthFailure], which
- * is set by [resultCallback]. The callback will be executed on the thread provided by the optional
- * [callbackExecutor]. If no [callbackExecutor] is provided, the callback will be executed on the
- * main thread.
+ * (one or more) failures will be delivered to [AuthenticationResultCallback.onAuthAttemptFailed],
+ * which is set by [resultCallback]. The callback will be executed on the thread provided by the
+ * optional [callbackExecutor]. If no [callbackExecutor] is provided, the callback will be executed
+ * on the main thread.
  *
  * @sample androidx.biometric.compose.samples.RememberLauncherForAuthResult
  */

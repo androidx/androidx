@@ -77,9 +77,13 @@ class RuntimeSessionActivity : BaseLifecycleTestActivity() {
     private var latestCreatedAnchor: Anchor? by mutableStateOf(null)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.i("corycook", "preCreate peekDecorView: " + window.peekDecorView())
+
         super.onCreate(savedInstanceState)
 
-        val result: SessionCreateResult = Session.Companion.create(this)
+        Log.i("corycook", "onCreate peekDecorView: " + window.peekDecorView())
+
+        val result: SessionCreateResult = Session.create(this)
         currentSession =
             if (result is SessionCreateSuccess) {
                 result.session
@@ -94,7 +98,15 @@ class RuntimeSessionActivity : BaseLifecycleTestActivity() {
         // Load 3D models once the session is created
         currentSession?.let { session -> lifecycleScope.launch { load3DModels(session) } }
 
-        setContent { RuntimeSessionContent() }
+        Log.i("corycook", "preSetContent peekDecorView: " + window.peekDecorView())
+
+        setContent {
+            Log.i("corycook", "setContent peekDecorView: " + window.peekDecorView())
+
+            RuntimeSessionContent()
+        }
+
+        Log.i("corycook", "postSetContent peekDecorView: " + window.peekDecorView())
     }
 
     override fun onDestroy() {

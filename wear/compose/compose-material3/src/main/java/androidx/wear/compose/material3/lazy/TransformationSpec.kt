@@ -42,6 +42,11 @@ import androidx.wear.compose.foundation.lazy.TransformingLazyColumnItemScrollPro
  *
  * @sample androidx.wear.compose.material3.samples.CustomTransformationSpecSample
  *
+ * This shows how to apply different [androidx.compose.ui.graphics.CompositingStrategy] with
+ * [TransformationSpec] for the [TransformingLazyColumn].
+ *
+ * @sample androidx.wear.compose.material3.samples.CustomCompositingStrategyTransformationSpecSample
+ *
  * This shows how to apply the [TransformationSpec] to custom component inside
  * [TransformingLazyColumn].
  *

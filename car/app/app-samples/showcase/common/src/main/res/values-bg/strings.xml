@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Редът може също да бъде избран"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Избрано е алтернативното действие"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Избрано е основното действие за реда"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Демонстрация на крайно изображение и действия за ред"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Демонстрация на празен списък"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Списъкът е празен"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Демонстрации на разни шаблони"</string>

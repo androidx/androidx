@@ -86,10 +86,10 @@ class UseCaseCameraRequestControlTest {
         )
     private val requestControl =
         UseCaseCameraRequestControlImpl(
-            capturePipeline = FakeCapturePipeline(),
-            state = fakeUseCaseCameraState,
+            capturePipelineProvider = { FakeCapturePipeline() },
+            useCaseCameraStateProvider = { fakeUseCaseCameraState },
             useCaseGraphContext = fakeUseCaseGraphContext,
-            useCaseSurfaceManager = FakeUseCaseSurfaceManager(threads = useCaseThreads),
+            useCaseSurfaceManagerProvider = { FakeUseCaseSurfaceManager(threads = useCaseThreads) },
             threads = useCaseThreads,
         )
 
@@ -380,10 +380,12 @@ class UseCaseCameraRequestControlTest {
                 .build()
         val requestControl =
             UseCaseCameraRequestControlImpl(
-                capturePipeline = FakeCapturePipeline(),
-                state = fakeUseCaseCameraState,
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = { fakeUseCaseCameraState },
                 useCaseGraphContext = fakeUseCaseGraphContext,
-                useCaseSurfaceManager = FakeUseCaseSurfaceManager(threads = useCaseThreads),
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = useCaseThreads)
+                },
                 threads = useCaseThreads,
                 cameraXConfig = cameraXConfig,
             )
@@ -417,10 +419,12 @@ class UseCaseCameraRequestControlTest {
                 .build()
         val requestControl =
             UseCaseCameraRequestControlImpl(
-                capturePipeline = FakeCapturePipeline(),
-                state = fakeUseCaseCameraState,
+                capturePipelineProvider = { FakeCapturePipeline() },
+                useCaseCameraStateProvider = { fakeUseCaseCameraState },
                 useCaseGraphContext = fakeUseCaseGraphContext,
-                useCaseSurfaceManager = FakeUseCaseSurfaceManager(threads = useCaseThreads),
+                useCaseSurfaceManagerProvider = {
+                    FakeUseCaseSurfaceManager(threads = useCaseThreads)
+                },
                 threads = useCaseThreads,
                 cameraXConfig = cameraXConfig,
             )

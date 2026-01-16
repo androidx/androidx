@@ -435,6 +435,10 @@ public open class RemoteComposeContext {
         mRemoteWriter.drawTextOnPath(textId, path, hOffset, vOffset)
     }
 
+    public fun drawTextOnPath(textId: Int, pathId: Int, hOffset: Float, vOffset: Float) {
+        mRemoteWriter.drawTextOnPath(textId, pathId, hOffset, vOffset)
+    }
+
     public fun drawTextOnCircle(
         textId: Int,
         centerX: Float,
@@ -1252,6 +1256,8 @@ public open class RemoteComposeContext {
         color: Int,
         colorId: Int,
         fontSize: Float,
+        minFontSize: Float,
+        maxFontSize: Float,
         fontStyle: Int,
         fontWeight: Float,
         fontFamily: String?,
@@ -1277,6 +1283,8 @@ public open class RemoteComposeContext {
             color,
             colorId,
             fontSize,
+            minFontSize,
+            maxFontSize,
             fontStyle,
             fontWeight,
             fontFamily,
@@ -1489,6 +1497,36 @@ public open class RemoteComposeContext {
         return mRemoteWriter.ComponentHeight()
     }
 
+    /** Content Width */
+    public fun ComponentContentWidth(): RFloat {
+        return mRemoteWriter.ComponentContentWidth()
+    }
+
+    /** Content Height */
+    public fun ComponentContentHeight(): RFloat {
+        return mRemoteWriter.ComponentContentHeight()
+    }
+
+    /** X */
+    public fun ComponentX(): RFloat {
+        return mRemoteWriter.ComponentX()
+    }
+
+    /** Y */
+    public fun ComponentY(): RFloat {
+        return mRemoteWriter.ComponentY()
+    }
+
+    /** Root X */
+    public fun ComponentRootX(): RFloat {
+        return mRemoteWriter.ComponentRootX()
+    }
+
+    /** Root Y */
+    public fun ComponentRootY(): RFloat {
+        return mRemoteWriter.ComponentRootY()
+    }
+
     /** generate random number */
     public fun rand(): RFloat {
         return mRemoteWriter.rand()
@@ -1549,6 +1587,8 @@ public open class RemoteComposeContext {
         color: Int = 0xFF000000.toInt(),
         colorId: Int = -1,
         fontSize: Float = 36f,
+        minFontSize: Float = -1f,
+        maxFontSize: Float = -1f,
         fontStyle: Int = 0,
         fontWeight: Float = 400f,
         fontFamily: String? = null,
@@ -1573,6 +1613,8 @@ public open class RemoteComposeContext {
             color,
             colorId,
             fontSize,
+            minFontSize,
+            maxFontSize,
             fontStyle,
             fontWeight,
             fontFamily,
@@ -1598,6 +1640,8 @@ public open class RemoteComposeContext {
         color: Int = 0xFF000000.toInt(),
         colorId: Int = 0,
         fontSize: Float = 36f,
+        minFontSize: Float = -1f,
+        maxFontSize: Float = -1f,
         fontStyle: Int = 0,
         fontWeight: Float = 400f,
         fontFamily: String? = null,
@@ -1628,6 +1672,8 @@ public open class RemoteComposeContext {
             color,
             colorId,
             fontSize,
+            minFontSize,
+            maxFontSize,
             fontStyle,
             fontWeight,
             fontFamily,

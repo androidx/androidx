@@ -261,7 +261,7 @@ constructor(
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultIconButtonShapesCached: IconButtonShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-    internal var defaultInteractiveListItemShapesCached: InteractiveListItemShapes? = null
+    internal var defaultListItemShapesCached: ListItemShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     internal var defaultMenuStandaloneItemShapesCached: MenuItemShapes? = null
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)

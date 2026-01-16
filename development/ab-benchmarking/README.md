@@ -6,8 +6,8 @@ quickly measure the performance impact of their changes before code submission.
 
 ## Available Tools
 
-* **[MacroBenchmark Tool](README-MACRO.md)**: For A/B Macro benchmarking
-* **[MicroBenchmark Tool](README-MICRO.md)**: For A/B Micro benchmarking
+* **[MacroBenchmark Tool](./app/src/main/kotlin/androidx/abbenchmarking/macrobenchmarking/README-MACRO.md)**: For A/B Macro benchmarking
+* **[MicroBenchmark Tool](./app/src/main/kotlin/androidx/abbenchmarking/microbenchmarking/README-MICRO.md)**: For A/B Micro benchmarking
 
 The script performs the following actions:
 
@@ -51,5 +51,5 @@ environmental noise. Here are some recommendations:
     *   Clear all applications from the "Recents" screen.
 
 > **For specific command-line arguments, usage examples, and example output, please see the README for the specific tool you are using:**
-> * **[MacroBenchmark Tool](README-MACRO.md)**
-> * **[MicroBenchmark Tool](README-MICRO.md)**
+> * **[MacroBenchmark Tool](./app/src/main/kotlin/androidx/abbenchmarking/macrobenchmarking/README-MACRO.md)**: For A/B Macro benchmarking
+> * **[MicroBenchmark Tool](./app/src/main/kotlin/androidx/abbenchmarking/microbenchmarking/README-MICRO.md)**: For A/B Micro benchmarking

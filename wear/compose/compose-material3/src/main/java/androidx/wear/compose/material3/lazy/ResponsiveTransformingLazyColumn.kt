@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumn
+import androidx.wear.compose.foundation.lazy.TransformingLazyColumnDefaults
 import androidx.wear.compose.foundation.lazy.TransformingLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberTransformingLazyColumnState
 import androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior
@@ -49,7 +50,13 @@ import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
  * Specifically, it adjusts padding so the first item is initially well-positioned and the last item
  * can scroll to a comfortable viewing position.
  *
+ * Example of a [ResponsiveTransformingLazyColumn] with default parameters:
+ *
  * @sample androidx.wear.compose.material3.samples.SimpleResponsiveTransformingLazyColumnSample
+ *
+ * Example of a [ResponsiveTransformingLazyColumn] that snaps items to the center of the viewport:
+ *
+ * @sample androidx.wear.compose.material3.samples.ResponsiveTransformingLazyColumnWithSnapSample
  * @param modifier The modifier to be applied to the `ResponsiveTransformingLazyColumn`.
  * @param state The state object that can be used to control and observe the list's scroll position.
  * @param contentPadding Padding around the content. The final top and bottom padding will be the
@@ -66,15 +73,24 @@ import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
  *   default is [Arrangement.Top] when [reverseLayout] is false and [Arrangement.Bottom] when
  *   [reverseLayout] is true.
  * @param horizontalAlignment The horizontal alignment of the items.
- * @param flingBehavior The fling behavior to be used for the list. This parameter and the
- *   [rotaryScrollableBehavior] (which controls rotary scroll) should produce similar scroll effect
- *   visually.
+ * @param flingBehavior Logic describing fling behavior for touch scroll. If snapping is required
+ *   use [TransformingLazyColumnDefaults.snapFlingBehavior]. Note that when configuring fling or
+ *   snap behavior, this flingBehavior parameter and the [rotaryScrollableBehavior] parameter that
+ *   controls rotary scroll are expected to produce similar list scrolling. For example, if
+ *   [rotaryScrollableBehavior] is set for snap (using [RotaryScrollableDefaults.snapBehavior]),
+ *   [flingBehavior] should be set for snap as well (using
+ *   [TransformingLazyColumnDefaults.snapFlingBehavior])
  * @param userScrollEnabled Whether the user should be able to scroll the list. This also affects
  *   scrolling with rotary.
- * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior. This parameter
- *   and the [flingBehavior] (which controls touch scroll) should produce similar scroll effect. Can
- *   be null if rotary support is not required or when it should be handled externally with a
- *   separate [Modifier.rotaryScrollable] modifier.
+ * @param rotaryScrollableBehavior Parameter for changing rotary scrollable behavior. Supports
+ *   scroll [RotaryScrollableDefaults.behavior] and snap [RotaryScrollableDefaults.snapBehavior].
+ *   Note that when configuring fling or snap behavior, this rotaryBehavior parameter and the
+ *   [flingBehavior] parameter that controls touch scroll are expected to produce similar list
+ *   scrolling. For example, if [rotaryScrollableBehavior] is set for snap (using
+ *   [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for snap as well (using
+ *   [TransformingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not
+ *   required or when it should be handled externally - with a separate [Modifier.rotaryScrollable]
+ *   modifier.
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.

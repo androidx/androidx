@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Auch diese Zeile kann ausgewählt werden"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekundäre Aktion ist ausgewählt"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Zeile mit der primären Aktion ist ausgewählt"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demo zu Bild am Ende der Zeile und Aktionen"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Leere Liste – Demo"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Die Liste ist leer"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demos der verschiedenen Vorlagen"</string>

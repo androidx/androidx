@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"切換到時鐘模式"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"選取時間"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"輸入時間"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"分鐘值須介於 0 至 59 之間"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"小時值須介於 1 至 12 之間"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"小時值須介於 0 至 23 之間"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"關閉邊欄"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"導覽邊欄"</string>
 </resources>

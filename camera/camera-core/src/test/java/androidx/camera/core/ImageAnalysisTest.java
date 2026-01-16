@@ -28,6 +28,7 @@ import static org.robolectric.Shadows.shadowOf;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Pair;
 import android.util.Range;
@@ -554,6 +555,33 @@ public class ImageAnalysisTest {
                         .setTargetAspectRatio(AspectRatio.RATIO_4_3)
                         .setResolutionSelector(new ResolutionSelector.Builder().build())
                         .build());
+    }
+
+    @Test
+    public void setTargetRotationByRotationProvider_rotationIsUpdated() {
+        // Arrange.
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        RotationProvider rotationProvider = new RotationProvider(
+                ApplicationProvider.getApplicationContext(),
+                true);
+        imageAnalysis.setRotationProvider(rotationProvider);
+
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+                ApplicationProvider.getApplicationContext(),
+                CameraSelector.DEFAULT_BACK_CAMERA);
+
+        try {
+            cameraUseCaseAdapter.addUseCases(Collections.singleton(imageAnalysis));
+        } catch (CameraUseCaseAdapter.CameraException e) {
+            throw new RuntimeException(e);
+        }
+
+        // Act.
+        rotationProvider.updateOrientationForTesting(180);
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Assert.
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
     void assertCanReceiveAnalysisImage(ImageAnalysis imageAnalysis) throws InterruptedException {

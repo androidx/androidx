@@ -46,40 +46,16 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
         }
-        androidMain {
-            dependsOn(commonMain)
-        }
-        androidHostTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.truth)
-            }
-        }
-        jvmMain {
-            dependsOn(commonMain)
-        }
-        nativeMain {
-            dependsOn(commonMain)
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                def main = target.compilations["main"]
-                main.defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            }
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.mockitoCore4)
+            implementation(libs.truth)
         }
     }
 }

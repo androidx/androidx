@@ -137,10 +137,9 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
         return RemoteFloatExpression(
             constantValue = null,
             { creationState ->
-                floatArrayOf(
-                    *ifFalse.arrayProvider(creationState),
-                    *ifTrue.arrayProvider(creationState),
-                    v.getFloatIdForCreationState(creationState),
+                combineToFloatArray(
+                    creationState,
+                    arrayOf(ifFalse, ifTrue, v.toRemoteFloat()),
                     AnimatedFloatExpression.IFELSE,
                 )
             },

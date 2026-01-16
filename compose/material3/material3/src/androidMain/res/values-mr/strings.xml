@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"क्लॉक मोडवर स्विच करा"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"वेळ निवडा"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"वेळ एंटर करा"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"मिनिट ० ते ५९ मधील असावे"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"तास १ ते १२ मधील असावा"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"तास ० ते २३ मधील असावा"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"रेल बंद करा"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"नेव्हिगेशन रेल"</string>
 </resources>

@@ -56,7 +56,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
@@ -64,7 +63,7 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.hasText
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performKeyInput
@@ -269,7 +268,6 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
     }
 
-    @Ignore("b/374850853")
     @Test
     fun edm_editable_collapsesOnEscapePress() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -285,6 +283,11 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(EDMTag).assertIsDisplayed()
         rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
 
+        rule.onNodeWithTag(TFTag).requestFocus()
+        rule.onNodeWithTag(TFTag).assertIsFocused()
+        rule.onNodeWithTag(TFTag).performKeyInput { pressKey(Key.Tab) }
+
+        // Menu will only close if the focus is on it instead of on the text field.
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
             .pressKeyCode(KeyEvent.KEYCODE_ESCAPE)
 
@@ -493,7 +496,6 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_expands_onEnterKey() {
         var expanded by mutableStateOf(false)
@@ -511,7 +513,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isTrue() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_collapses_onEnterKey() {
         var expanded by mutableStateOf(true)
@@ -529,7 +530,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isFalse() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_expands_onEnterKey() {
         var expanded by mutableStateOf(false)
@@ -548,7 +548,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isTrue() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_collapses_onEnterKey() {
         var expanded by mutableStateOf(true)
@@ -567,7 +566,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isFalse() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_doesNotExpand_onSpacebarKey() {
         var expanded by mutableStateOf(false)
@@ -586,7 +584,6 @@ class ExposedDropdownMenuTest {
         rule.runOnIdle { assertThat(expanded).isFalse() }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun edm_editable_doesNotCollapse_onSpacebarKey() {
         var expanded by mutableStateOf(true)

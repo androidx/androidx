@@ -40,6 +40,7 @@ internal abstract class CacheWindowLogic(
     private val prefetchWindowHandles = mutableIntObjectMapOf<List<PrefetchHandle>>()
 
     private val indicesToRemove = mutableIntSetOf()
+
     /**
      * Cache for items sizes in the current window. Holds sizes for both visible and non-visible
      * items
@@ -161,20 +162,22 @@ internal abstract class CacheWindowLogic(
     private fun CacheWindowScope.onDatasetChanged() {
         debugLog { "Total Items Changed" }
         shouldRefillWindow = true
-        if (visibleLineCount == 0) return
-        prefetchWindowStartLine = prefetchWindowStartLine.coerceAtLeast(0)
-        val lastLineIndex = getLastLineIndex()
-        if (lastLineIndex != InvalidIndex) {
-            prefetchWindowEndLine = prefetchWindowEndLine.coerceAtMost(lastLineIndex)
-        }
+        if (hasVisibleItems) {
+            prefetchWindowStartLine = prefetchWindowStartLine.coerceAtLeast(0)
+            val lastLineIndex = getLastLineIndex()
+            if (lastLineIndex != InvalidIndex) {
+                prefetchWindowEndLine = prefetchWindowEndLine.coerceAtMost(lastLineIndex)
+            }
 
-        /**
-         * Resets the window state. We will refill the window on the direction of the last scroll.
-         */
-        if (previousPassDelta <= 0f) {
-            removeOutOfBoundsItems(lastVisibleLineIndex, itemsCount - 1)
-        } else {
-            removeOutOfBoundsItems(0, firstVisibleLineIndex)
+            /**
+             * Resets the window state. We will refill the window on the direction of the last
+             * scroll.
+             */
+            if (previousPassDelta <= 0f) {
+                removeOutOfBoundsItems(lastVisibleLineIndex, itemsCount - 1)
+            } else {
+                removeOutOfBoundsItems(0, firstVisibleLineIndex)
+            }
         }
     }
 

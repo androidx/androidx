@@ -38,4 +38,14 @@ public interface LocalCallSilenceExtension {
      * @param isSilenced The new local call silence state associated with this call.
      */
     public suspend fun updateIsLocallySilenced(isSilenced: Boolean)
+
+    /**
+     * Updates whether the user is allowed to change the silence state on remote surfaces. This
+     * should be set to 'false' when the user is in a state where audio input is disabled by the a
+     * moderator or the environment (e.g. hardware limitations).
+     *
+     * @param canUserUpdateSilence True if the user can toggle silence, false if the control should
+     *   be disabled.
+     */
+    public suspend fun updateCanUserUpdateSilence(canUserUpdateSilence: Boolean)
 }

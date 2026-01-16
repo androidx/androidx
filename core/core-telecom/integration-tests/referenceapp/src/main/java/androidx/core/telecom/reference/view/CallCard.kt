@@ -19,7 +19,6 @@ package androidx.core.telecom.reference.view
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,13 +30,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CallEnd
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.AlertDialog
@@ -45,6 +44,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -57,10 +57,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.telecom.CallAttributesCompat
@@ -85,6 +82,7 @@ fun CallCard(
     onUnholdClick: (String) -> Unit,
     onAudioRouteClick: (String, CallEndpointCompat) -> Unit,
     onLocalCallSilenceClick: (String, Boolean) -> Unit,
+    onCanUserUpdateSilenceClick: (String, Boolean) -> Unit,
     onAddParticipantClick: (String) -> Unit,
     onRemoveParticipantClick: (String) -> Unit,
     onChangeCallIconClick: (String) -> Unit,
@@ -241,49 +239,72 @@ fun CallCard(
                             horizontalArrangement = Arrangement.SpaceEvenly,
                             verticalAlignment = Alignment.Top,
                         ) {
-                            if (uiState.isCallIconExtensionEnabled) {
-                                ExtensionItem(
-                                    label = "Call Icon",
-                                    onClick = { onChangeCallIconClick(uiState.callId) },
-                                ) {
-                                    if (uiState.callIconData?.bitmap != null) {
-                                        Image(
-                                            bitmap = uiState.callIconData.bitmap.asImageBitmap(),
-                                            contentDescription = "Call Icon",
-                                            modifier = Modifier.size(40.dp).clip(CircleShape),
-                                            contentScale = ContentScale.Crop,
-                                        )
-                                    } else {
-                                        Icon(
-                                            Icons.Filled.Person,
-                                            "Default Call Icon",
-                                            modifier = Modifier.size(40.dp),
-                                        )
-                                    }
-                                }
-                            }
-
                             if (uiState.isLocalCallSilenceEnabled) {
                                 ExtensionItem(
                                     label = "Local Silence",
-                                    onClick = {
-                                        onLocalCallSilenceClick(
-                                            uiState.callId,
-                                            !uiState.isLocallyMuted,
-                                        )
-                                    },
+                                    // Pass an empty click here so the parent card doesn't intercept
+                                    // the clicks intended for the specific buttons below.
+                                    onClick = {},
                                 ) {
-                                    Icon(
-                                        imageVector =
-                                            if (uiState.isLocallyMuted) Icons.Filled.MicOff
-                                            else Icons.Filled.Mic,
-                                        contentDescription = "Local Call Silence",
-                                        modifier = Modifier.size(40.dp),
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        // 1. Mic Button (The Action)
+                                        IconButton(
+                                            onClick = {
+                                                // Only allow toggling if the capability is enabled
+                                                if (uiState.canUserUpdateSilence) {
+                                                    onLocalCallSilenceClick(
+                                                        uiState.callId,
+                                                        !uiState.isLocallyMuted,
+                                                    )
+                                                }
+                                            },
+                                            modifier = Modifier.size(40.dp),
+                                        ) {
+                                            Icon(
+                                                imageVector =
+                                                    if (uiState.isLocallyMuted) Icons.Filled.MicOff
+                                                    else Icons.Filled.Mic,
+                                                contentDescription = "Toggle Local Silence",
+                                                modifier = Modifier.size(32.dp),
+                                                // Visually dim the mic if the user cannot update it
+                                                // (Locked)
+                                                tint =
+                                                    if (uiState.canUserUpdateSilence)
+                                                        LocalContentColor.current
+                                                    else
+                                                        MaterialTheme.colorScheme.onSurface.copy(
+                                                            alpha = 0.38f
+                                                        ),
+                                            )
+                                        }
+
+                                        // 2. Lock Button (The Capability)
+                                        IconButton(
+                                            onClick = {
+                                                onCanUserUpdateSilenceClick(
+                                                    uiState.callId,
+                                                    !uiState.canUserUpdateSilence,
+                                                )
+                                            },
+                                            modifier = Modifier.size(40.dp),
+                                        ) {
+                                            Icon(
+                                                imageVector =
+                                                    if (uiState.canUserUpdateSilence)
+                                                        Icons.Filled.LockOpen
+                                                    else Icons.Filled.Lock,
+                                                contentDescription =
+                                                    if (uiState.canUserUpdateSilence) "Lock Silence"
+                                                    else "Unlock Silence",
+                                                modifier = Modifier.size(32.dp),
+                                            )
+                                        }
+                                    }
                                 }
                             } else {
-                                // Placeholder if local silence is not enabled but section is
-                                // visible
                                 Text(
                                     "Local Silence N/A",
                                     style = MaterialTheme.typography.bodySmall,
@@ -362,6 +383,7 @@ fun CallCardActivePreview() {
             onRemoveParticipantClick = {},
             onChangeCallIconClick = {},
             onLocalCallSilenceClick = { _, _ -> },
+            onCanUserUpdateSilenceClick = { _, _ -> },
         )
     }
 }
@@ -383,6 +405,7 @@ fun CallCardMutedPreview() {
             onRemoveParticipantClick = {},
             onChangeCallIconClick = {},
             onLocalCallSilenceClick = { _, _ -> },
+            onCanUserUpdateSilenceClick = { _, _ -> },
         )
     }
 }
@@ -404,6 +427,7 @@ fun CallCardInactivePreview() {
             onRemoveParticipantClick = {},
             onChangeCallIconClick = {},
             onLocalCallSilenceClick = { _, _ -> },
+            onCanUserUpdateSilenceClick = { _, _ -> },
         )
     }
 }
@@ -424,6 +448,7 @@ fun CallCardActiveParticipantsPreview() {
             onRemoveParticipantClick = {},
             onChangeCallIconClick = {},
             onLocalCallSilenceClick = { _, _ -> },
+            onCanUserUpdateSilenceClick = { _, _ -> },
         )
     }
 }

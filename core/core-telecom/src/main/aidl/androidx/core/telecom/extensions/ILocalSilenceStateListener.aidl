@@ -24,4 +24,5 @@ import androidx.core.telecom.extensions.ILocalSilenceActions;
 oneway interface ILocalSilenceStateListener {
 void updateIsLocallySilenced(boolean isLocallySilenced)= 0;
 void finishSync(in ILocalSilenceActions cb) = 1;
+void updateCanUserUpdateSilence(boolean canUserUpdateSilenceState) = 2;
 }

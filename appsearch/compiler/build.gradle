@@ -50,7 +50,7 @@ dependencies {
     // For testing, add in the compiled classes from appsearch to get access to annotations.
     testImplementationAarAsJar(project(":appsearch:appsearch"))
     // TODO(b/438455972): Use ToT of compiler-processing-testing
-    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0")
     testImplementation(libs.googleCompileTesting)
     testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.1.21")
     testImplementation(libs.kotlinCompileTestingKsp)

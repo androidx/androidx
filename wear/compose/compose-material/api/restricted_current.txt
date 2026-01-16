@@ -817,7 +817,7 @@ package androidx.wear.compose.material {
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public static androidx.wear.compose.material.ScalingLazyListState rememberScalingLazyListState(int, int, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @Deprecated @kotlin.DslMarker public @interface ScalingLazyScopeMarker {
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface ScalingLazyScopeMarker {
   }
 
   @Deprecated @androidx.compose.runtime.Stable public interface ScalingParams {

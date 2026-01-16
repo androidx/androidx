@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,6 +56,10 @@ public object Constants {
     /** A constant value indicating an undefined query set index. */
     public const val QUERY_SET_INDEX_UNDEFINED: Int = UINT32_MAX
 
+    /**
+     * A constant value for string length when the string is {@code null}-terminated or its length
+     * is determined otherwise.
+     */
     public const val STRLEN: Long = SIZE_MAX
 
     /** A constant value representing the whole size of a mappable buffer range. */

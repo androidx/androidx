@@ -28,7 +28,7 @@ package androidx.lifecycle {
     method public void addCloseable(AutoCloseable closeable);
     method public final void addCloseable(String key, AutoCloseable closeable);
     method public final <T extends java.lang.AutoCloseable> T? getCloseable(String key);
-    method protected void onCleared();
+    method @EmptySuper protected void onCleared();
   }
 
   public final class ViewModelKt {
@@ -179,7 +179,7 @@ package androidx.lifecycle.viewmodel {
     method public operator <T> void set(androidx.lifecycle.viewmodel.CreationExtras.Key<T> key, T t);
   }
 
-  @kotlin.DslMarker public @interface ViewModelFactoryDsl {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface ViewModelFactoryDsl {
   }
 
   public final class ViewModelInitializer<T extends androidx.lifecycle.ViewModel> {

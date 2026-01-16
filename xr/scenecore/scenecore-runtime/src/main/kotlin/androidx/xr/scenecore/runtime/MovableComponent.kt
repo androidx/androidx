@@ -37,6 +37,15 @@ public interface MovableComponent : Component {
     /**
      * Adds the listener to the set of active listeners for the move events.
      *
+     * <p>The listener is invoked on the default executor of the runtime.
+     *
+     * @param moveEventListener The move event listener to set.
+     */
+    public fun addMoveEventListener(moveEventListener: MoveEventListener)
+
+    /**
+     * Adds the listener to the set of active listeners for the move events.
+     *
      * <p>The listener is invoked on the provided executor. If the app intends to modify the UI
      * elements/views during the callback, the app should provide the thread executor that is
      * appropriate for the UI operations. For example, if the app is using the main thread to render

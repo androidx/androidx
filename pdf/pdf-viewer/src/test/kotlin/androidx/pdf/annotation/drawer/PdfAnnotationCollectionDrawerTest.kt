@@ -20,8 +20,10 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.util.SparseArray
 import androidx.pdf.annotation.AnnotationsView.PageAnnotationsData
+import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfAnnotation
 import com.google.common.truth.Truth.assertThat
+import java.util.UUID
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +58,7 @@ class PdfAnnotationCollectionDrawerTest {
     fun draw_pageDataWithNoAnnotations_noFactoryInteraction() {
         val pagesAnnotationDataWithEmptyAnnotations =
             SparseArray<PageAnnotationsData>().apply {
-                put(0, PageAnnotationsData(annotations = emptyList(), transform = Matrix()))
+                put(0, PageAnnotationsData(keyedAnnotations = emptyList(), transform = Matrix()))
             }
         pdfDocumentAnnotationsDrawerImpl.draw(
             pagesAnnotationData = pagesAnnotationDataWithEmptyAnnotations,
@@ -69,13 +71,20 @@ class PdfAnnotationCollectionDrawerTest {
 
     @Test
     fun draw_singleAnnotationOnSinglePage_delegatesToFactoryAndDrawer() {
-        val annotation = TestAnnotation(pageNum = 0)
+        val keyedAnnotation =
+            KeyedPdfAnnotation(
+                key = UUID.randomUUID().toString(),
+                annotation = TestAnnotation(pageNum = 0),
+            )
         val pageTransform = Matrix().apply { setScale(2.0f, 2.0f) }
         val pagesAnnotationData =
             SparseArray<PageAnnotationsData>().apply {
                 put(
                     0,
-                    PageAnnotationsData(annotations = listOf(annotation), transform = pageTransform),
+                    PageAnnotationsData(
+                        keyedAnnotations = listOf(keyedAnnotation),
+                        transform = pageTransform,
+                    ),
                 )
             }
 
@@ -85,13 +94,14 @@ class PdfAnnotationCollectionDrawerTest {
         )
 
         // Verify factory was called to create a drawer for the annotation
-        assertThat(fakeAnnotationDrawerFactory.creationLog).containsExactly(annotation)
+        assertThat(fakeAnnotationDrawerFactory.creationLog)
+            .containsExactly(keyedAnnotation.annotation)
 
         // Verify the created drawer's draw method was called correctly
-        val drawer = fakeAnnotationDrawerFactory.createdDrawers[annotation]
+        val drawer = fakeAnnotationDrawerFactory.createdDrawers[keyedAnnotation.annotation]
         assertThat(drawer).isNotNull()
         drawer?.assertDrawInvocation(
-            expectedAnnotation = annotation,
+            expectedAnnotation = keyedAnnotation.annotation,
             expectedCanvas = canvas,
             expectedTransform = pageTransform,
         )
@@ -99,15 +109,23 @@ class PdfAnnotationCollectionDrawerTest {
 
     @Test
     fun draw_multipleAnnotationsOnSinglePage_delegatesToFactoryAndDrawers() {
-        val annotation1 = TestAnnotation(pageNum = 0)
-        val annotation2 = TestAnnotation(pageNum = 0)
+        val keyedAnnotation1 =
+            KeyedPdfAnnotation(
+                key = UUID.randomUUID().toString(),
+                annotation = TestAnnotation(pageNum = 0),
+            )
+        val keyedAnnotation2 =
+            KeyedPdfAnnotation(
+                key = UUID.randomUUID().toString(),
+                annotation = TestAnnotation(pageNum = 0),
+            )
         val pageTransform = Matrix().apply { setTranslate(10f, 20f) }
         val pagesAnnotationData =
             SparseArray<PageAnnotationsData>().apply {
                 put(
                     0,
                     PageAnnotationsData(
-                        annotations = listOf(annotation1, annotation2),
+                        keyedAnnotations = listOf(keyedAnnotation1, keyedAnnotation2),
                         transform = pageTransform,
                     ),
                 )
@@ -120,29 +138,45 @@ class PdfAnnotationCollectionDrawerTest {
 
         // Verify factory was called for each annotation in order
         assertThat(fakeAnnotationDrawerFactory.creationLog)
-            .containsExactly(annotation1, annotation2)
+            .containsExactly(keyedAnnotation1.annotation, keyedAnnotation2.annotation)
             .inOrder()
 
         // Verify each created drawer was called correctly
-        fakeAnnotationDrawerFactory.createdDrawers[annotation1]?.assertDrawInvocation(
-            expectedAnnotation = annotation1,
-            expectedCanvas = canvas,
-            expectedTransform = pageTransform,
-        )
-        fakeAnnotationDrawerFactory.createdDrawers[annotation2]?.assertDrawInvocation(
-            expectedAnnotation = annotation2,
-            expectedCanvas = canvas,
-            expectedTransform = pageTransform,
-        )
+        fakeAnnotationDrawerFactory.createdDrawers[keyedAnnotation1.annotation]
+            ?.assertDrawInvocation(
+                expectedAnnotation = keyedAnnotation1.annotation,
+                expectedCanvas = canvas,
+                expectedTransform = pageTransform,
+            )
+        fakeAnnotationDrawerFactory.createdDrawers[keyedAnnotation2.annotation]
+            ?.assertDrawInvocation(
+                expectedAnnotation = keyedAnnotation2.annotation,
+                expectedCanvas = canvas,
+                expectedTransform = pageTransform,
+            )
     }
 
     @Test
     fun draw_annotationsAcrossMultiplePages_delegatesWithCorrectTransforms() {
-        val annotationPage0 = TestAnnotation(pageNum = 0)
+        val keyedAnnotationPage0 =
+            KeyedPdfAnnotation(
+                key = UUID.randomUUID().toString(),
+                annotation = TestAnnotation(pageNum = 0),
+            )
         val page0Transform = Matrix().apply { setTranslate(10f, 10f) }
 
         val annotationPage2First = TestAnnotation(pageNum = 2)
         val annotationPage2Second = TestAnnotation(pageNum = 2)
+        val keyedAnnotationPage2First =
+            KeyedPdfAnnotation(
+                key = UUID.randomUUID().toString(),
+                annotation = annotationPage2First,
+            )
+        val keyedAnnotationPage2Second =
+            KeyedPdfAnnotation(
+                key = UUID.randomUUID().toString(),
+                annotation = annotationPage2Second,
+            )
         val page2Transform =
             Matrix().apply {
                 setScale(2f, 2f)
@@ -154,7 +188,7 @@ class PdfAnnotationCollectionDrawerTest {
                 put(
                     0,
                     PageAnnotationsData(
-                        annotations = listOf(annotationPage0),
+                        keyedAnnotations = listOf(keyedAnnotationPage0),
                         transform = page0Transform,
                     ),
                 )
@@ -162,14 +196,15 @@ class PdfAnnotationCollectionDrawerTest {
                 put(
                     1,
                     PageAnnotationsData(
-                        annotations = emptyList(),
+                        keyedAnnotations = emptyList(),
                         transform = Matrix().apply { setScale(1.5f, 1.5f) },
                     ),
                 )
                 put(
                     2,
                     PageAnnotationsData(
-                        annotations = listOf(annotationPage2First, annotationPage2Second),
+                        keyedAnnotations =
+                            listOf(keyedAnnotationPage2First, keyedAnnotationPage2Second),
                         transform = page2Transform,
                     ),
                 )
@@ -182,15 +217,20 @@ class PdfAnnotationCollectionDrawerTest {
 
         // Verify factory was called for each annotation in the correct order
         assertThat(fakeAnnotationDrawerFactory.creationLog)
-            .containsExactly(annotationPage0, annotationPage2First, annotationPage2Second)
+            .containsExactly(
+                keyedAnnotationPage0.annotation,
+                annotationPage2First,
+                annotationPage2Second,
+            )
             .inOrder()
 
         // Verify drawers were called with correct page-specific transforms
-        fakeAnnotationDrawerFactory.createdDrawers[annotationPage0]?.assertDrawInvocation(
-            expectedAnnotation = annotationPage0,
-            expectedCanvas = canvas,
-            expectedTransform = page0Transform,
-        )
+        fakeAnnotationDrawerFactory.createdDrawers[keyedAnnotationPage0.annotation]
+            ?.assertDrawInvocation(
+                expectedAnnotation = keyedAnnotationPage0.annotation,
+                expectedCanvas = canvas,
+                expectedTransform = page0Transform,
+            )
         fakeAnnotationDrawerFactory.createdDrawers[annotationPage2First]?.assertDrawInvocation(
             expectedAnnotation = annotationPage2First,
             expectedCanvas = canvas,

@@ -28,6 +28,7 @@ import com.google.android.material.R as MaterialR
 import com.google.android.material.color.MaterialColors
 import com.google.android.material.slider.LabelFormatter
 import com.google.android.material.slider.Slider
+import com.google.android.material.slider.SliderOrientation
 
 /**
  * A composite [android.view.ViewGroup] for selecting a brush size.
@@ -51,6 +52,23 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         addView(brushSizeSlider)
         addView(brushPreviewView)
+    }
+
+    override fun setOrientation(orientation: Int) {
+        if (this.orientation == orientation) return
+        super.setOrientation(orientation)
+
+        brushSizeSlider.applyOrientation(orientation)
+
+        // Reorder views based on orientation
+        removeAllViews()
+        if (orientation == VERTICAL) {
+            addView(brushPreviewView)
+            addView(brushSizeSlider)
+        } else {
+            addView(brushSizeSlider)
+            addView(brushPreviewView)
+        }
     }
 
     private fun setupContainerView() {
@@ -79,11 +97,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private fun createSliderView(): Slider =
         Slider(context).apply {
-            layoutParams =
-                LayoutParams(0, LayoutParams.WRAP_CONTENT).also {
-                    // Let slider occupy the remaining width of the container
-                    it.weight = 1f
-                }
+            applyOrientation(orientation)
             // By default, there are only 5 steps sizes
             valueFrom = 0f
             valueTo = 4f
@@ -102,4 +116,25 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             focusable = NOT_FOCUSABLE
             gravity = Gravity.CENTER
         }
+
+    private fun Slider.applyOrientation(orientation: Int) {
+        when (orientation) {
+            VERTICAL -> {
+                layoutParams =
+                    LayoutParams(LayoutParams.WRAP_CONTENT, 0).also {
+                        // Let slider occupy the remaining height of the container
+                        it.weight = 1f
+                    }
+                setOrientation(SliderOrientation.VERTICAL)
+            }
+            HORIZONTAL -> {
+                layoutParams =
+                    LayoutParams(0, LayoutParams.WRAP_CONTENT).also {
+                        // Let slider occupy the remaining width of the container
+                        it.weight = 1f
+                    }
+                setOrientation(SliderOrientation.HORIZONTAL)
+            }
+        }
+    }
 }

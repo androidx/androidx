@@ -52,6 +52,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDialog;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.core.view.AccessibilityDelegateCompat;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
@@ -84,6 +87,16 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
     private static final int MSG_SHOW_NO_ROUTES = 3;
     private static final int SHOW_WIFI_HINT_DELAY_MS = 5000;
     private static final int SHOW_NO_ROUTES_DELAY_MS = 15000;
+
+    private static final AccessibilityDelegateCompat BUTTON_ACCESSIBILITY_DELEGATE =
+            new AccessibilityDelegateCompat() {
+                @Override
+                public void onInitializeAccessibilityNodeInfo(
+                        @NonNull View host, @NonNull AccessibilityNodeInfoCompat info) {
+                    super.onInitializeAccessibilityNodeInfo(host, info);
+                    info.setClassName(Button.class.getName());
+                }
+            };
 
     private final MediaRouter mRouter;
     private final MediaRouterCallback mCallback;
@@ -495,6 +508,7 @@ public class MediaRouteChooserDialog extends AppCompatDialog {
                 text2.setText("");
             }
             view.setEnabled(route.isEnabled());
+            ViewCompat.setAccessibilityDelegate(view, BUTTON_ACCESSIBILITY_DELEGATE);
 
             ImageView iconView = view.findViewById(R.id.mr_chooser_route_icon);
             if (iconView != null) {

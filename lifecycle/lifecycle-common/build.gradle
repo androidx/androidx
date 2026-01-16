@@ -43,39 +43,22 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.jspecify)
-            }
+        jvmMain.dependencies {
+            api(libs.jspecify)
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-            }
+        jvmTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.mockitoCore4)
         }
 
-        nonJvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nonJvmMain)
-            }
+        nonJvmMain.dependencies {
+            implementation(libs.atomicFu)
         }
     }
 }

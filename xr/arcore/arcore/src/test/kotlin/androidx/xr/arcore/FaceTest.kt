@@ -110,7 +110,7 @@ class FaceTest {
     @Test
     fun getUserFace_returnsFaceWithUpdatedTrackingStateAndBlendShapes() {
         runTest(testDispatcher) {
-            session.configure(Config(faceTracking = FaceTrackingMode.USER))
+            session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
             val perceptionManager =
                 session.perceptionRuntime.perceptionManager as FakePerceptionManager
             val userFace = Face.getUserFace(session)
@@ -169,7 +169,7 @@ class FaceTest {
 
     @Test
     fun getUserFace_stateMatchesRuntimeFace() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.USER))
+        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         val runtimeFace = FakeRuntimeFace()
         val underTest = Face(runtimeFace, xrResourcesManager)
         val expectedBlendShapeValues = floatArrayOf(0.1f, 0.2f, 0.3f)
@@ -257,7 +257,7 @@ class FaceTest {
     @Test
     @Ignore("b/452702634 Remove @Ignore when Face is made a Trackable after API approval")
     fun update_trackingStateMatchesRuntime() = runBlocking {
-        session.configure(Config(faceTracking = FaceTrackingMode.USER))
+        session.configure(Config(faceTracking = FaceTrackingMode.BLEND_SHAPES))
         val runtimeFace = FakeRuntimeFace()
         xrResourcesManager.syncTrackables(listOf(runtimeFace))
         val underTest = xrResourcesManager.trackablesMap[runtimeFace] as Face

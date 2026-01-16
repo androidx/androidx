@@ -42,13 +42,13 @@ import androidx.compose.ui.util.fastRoundToInt
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.animation.SpatialTransitionDefaults.DefaultAlphaAnimationSpec
 import androidx.xr.compose.subspace.animation.SpatialTransitionDefaults.DefaultSlideAnimationSpec
+import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
 import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.alpha
 import androidx.xr.compose.subspace.layout.layout
 import androidx.xr.compose.unit.IntVolumeOffset
 import androidx.xr.compose.unit.IntVolumeSize

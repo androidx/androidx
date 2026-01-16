@@ -15,5 +15,5 @@
   -->
 
 <resources>
-    <string name="description">Tester l\'API AppFunctionManagerCompat</string>
+    <string name="description">Tester l\'API AppFunctionManager</string>
 </resources>

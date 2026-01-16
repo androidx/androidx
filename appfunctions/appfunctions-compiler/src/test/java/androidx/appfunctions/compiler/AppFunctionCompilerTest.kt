@@ -154,6 +154,19 @@ class AppFunctionCompilerTest {
     }
 
     @Test
+    fun testInvalidBaseParcelable_throwsException() {
+        val report =
+            compilationTestHelper.compileAll(sourceFileNames = listOf("InvalidBaseParcelable.KT"))
+
+        compilationTestHelper.assertErrorWithMessage(
+            report,
+            expectedErrorMessage =
+                "Use an implementation of Parcelable, base Parcelable type is " +
+                    "not allowed as a type in AppFunctions",
+        )
+    }
+
+    @Test
     fun testFunctionsWithSerializableProxyInput_genAppFunctionInventory_success() {
         val report =
             compilationTestHelper.compileAll(

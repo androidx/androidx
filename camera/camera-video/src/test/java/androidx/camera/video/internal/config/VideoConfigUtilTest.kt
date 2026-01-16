@@ -16,17 +16,32 @@
 
 package androidx.camera.video.internal.config
 
-import android.media.EncoderProfiles
-import android.media.MediaFormat
-import android.media.MediaRecorder
+import android.media.EncoderProfiles.VideoProfile.HDR_DOLBY_VISION
+import android.media.EncoderProfiles.VideoProfile.HDR_HDR10
+import android.media.EncoderProfiles.VideoProfile.HDR_HDR10PLUS
+import android.media.EncoderProfiles.VideoProfile.HDR_HLG
+import android.media.MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION
+import android.media.MediaFormat.MIMETYPE_VIDEO_HEVC
+import android.media.MediaFormat.MIMETYPE_VIDEO_VP9
+import android.media.MediaRecorder.VideoEncoder.DOLBY_VISION
+import android.media.MediaRecorder.VideoEncoder.HEVC
+import android.media.MediaRecorder.VideoEncoder.VP9
 import android.util.Range
 import android.util.Size
-import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
+import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_10
+import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.testing.impl.EncoderProfilesUtil
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.VideoSpec
+import androidx.camera.video.VideoSpec.Companion.MIME_TYPE_UNSPECIFIED
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.camera.video.internal.config.VideoConfigUtil.VIDEO_FRAME_RATE_FIXED_DEFAULT
 import com.google.common.truth.Truth.assertThat
@@ -46,20 +61,20 @@ class VideoConfigUtilTest {
         val videoMimeInfo =
             VideoConfigUtil.resolveVideoMimeInfo(
                 createMediaSpec(),
-                DynamicRange.HLG_10_BIT,
+                HLG_10_BIT,
                 createFakeEncoderProfiles(listOf(VIDEO_PROFILE_DEFAULT)),
             )
 
         assertThat(videoMimeInfo.compatibleVideoProfile).isNull()
-        assertThat(videoMimeInfo.mimeType).isEqualTo(MediaFormat.MIMETYPE_VIDEO_HEVC)
+        assertThat(videoMimeInfo.mimeType).isEqualTo(MIMETYPE_VIDEO_HEVC)
     }
 
     @Test
     fun videoMimeInfo_resolvesFromDynamicRange_withCompatibleProfile() {
         val videoMimeInfo =
             VideoConfigUtil.resolveVideoMimeInfo(
-                createMediaSpec(outputFormat = MediaSpec.OUTPUT_FORMAT_AUTO),
-                DynamicRange.HLG_10_BIT,
+                createMediaSpec(outputFormat = MediaSpec.OUTPUT_FORMAT_UNSPECIFIED),
+                HLG_10_BIT,
                 createFakeEncoderProfiles(
                     listOf(
                         VIDEO_PROFILE_DEFAULT,
@@ -79,7 +94,7 @@ class VideoConfigUtilTest {
         val videoMimeInfo =
             VideoConfigUtil.resolveVideoMimeInfo(
                 createMediaSpec(outputFormat = MediaSpec.OUTPUT_FORMAT_MPEG_4),
-                DynamicRange.HLG_10_BIT,
+                HLG_10_BIT,
                 createFakeEncoderProfiles(
                     listOf(
                         VIDEO_PROFILE_DEFAULT,
@@ -96,7 +111,7 @@ class VideoConfigUtilTest {
         val videoMimeInfo =
             VideoConfigUtil.resolveVideoMimeInfo(
                 createMediaSpec(),
-                DynamicRange.DOLBY_VISION_10_BIT,
+                DOLBY_VISION_10_BIT,
                 createFakeEncoderProfiles(
                     listOf(
                         VIDEO_PROFILE_DEFAULT,
@@ -107,19 +122,19 @@ class VideoConfigUtilTest {
             )
 
         assertThat(videoMimeInfo.compatibleVideoProfile).isNull()
-        assertThat(videoMimeInfo.mimeType).isEqualTo(MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION)
+        assertThat(videoMimeInfo.mimeType).isEqualTo(MIMETYPE_VIDEO_DOLBY_VISION)
     }
 
     @Test
     fun videoMimeInfo_resolvesFromMatchingMime() {
         val expectedProfileMap =
             mapOf(
-                DynamicRange.SDR to VIDEO_PROFILE_DEFAULT,
-                DynamicRange.HLG_10_BIT to VIDEO_PROFILE_HEVC_HLG10,
-                DynamicRange.HDR10_10_BIT to VIDEO_PROFILE_HEVC_HDR10,
-                DynamicRange.HDR10_PLUS_10_BIT to VIDEO_PROFILE_HEVC_HDR10_PLUS,
-                DynamicRange.DOLBY_VISION_10_BIT to VIDEO_PROFILE_DOLBY_VISION_10_BIT,
-                DynamicRange.DOLBY_VISION_8_BIT to VIDEO_PROFILE_DOLBY_VISION_8_BIT,
+                SDR to VIDEO_PROFILE_DEFAULT,
+                HLG_10_BIT to VIDEO_PROFILE_HEVC_HLG10,
+                HDR10_10_BIT to VIDEO_PROFILE_HEVC_HDR10,
+                HDR10_PLUS_10_BIT to VIDEO_PROFILE_HEVC_HDR10_PLUS,
+                DOLBY_VISION_10_BIT to VIDEO_PROFILE_DOLBY_VISION_10_BIT,
+                DOLBY_VISION_8_BIT to VIDEO_PROFILE_DOLBY_VISION_8_BIT,
             )
         val encoderProfiles = createFakeEncoderProfiles(expectedProfileMap.values.toList())
 
@@ -140,7 +155,7 @@ class VideoConfigUtilTest {
     }
 
     @Test
-    fun resolveFrameRates_expectedCaptureFrameRateUnspecified_videoSpecAuto() {
+    fun resolveFrameRates_expectedCaptureFrameRateUnspecified_videoSpecUnspecified() {
         val videoSpec = VideoSpec.builder().build()
         val expectedCaptureFrameRateRange = FRAME_RATE_RANGE_UNSPECIFIED
 
@@ -151,7 +166,7 @@ class VideoConfigUtilTest {
     }
 
     @Test
-    fun resolveFrameRates_expectedCaptureFrameRateSpecified_videoSpecAuto() {
+    fun resolveFrameRates_expectedCaptureFrameRateSpecified_videoSpecUnspecified() {
         val videoSpec = VideoSpec.builder().build()
         val expectedCaptureFrameRateRange = Range(24, 60)
 
@@ -183,6 +198,105 @@ class VideoConfigUtilTest {
         assertThat(result.encodeRate).isEqualTo(30)
     }
 
+    @Test
+    fun resolveCompatibleVideoProfile_unspecifiedMime_returnsFirstMatchingDynamicRange() {
+        // Arrange: UNSPECIFIED MIME should ignore the media type and find the first compatible
+        // profile
+        val videoMime = MIME_TYPE_UNSPECIFIED
+        val dynamicRange = HLG_10_BIT
+        val profiles =
+            listOf(
+                VIDEO_PROFILE_DEFAULT, // SDR, 8-bit (Incompatible)
+                VIDEO_PROFILE_VP9_HLG10, // HLG, 10-bit (Compatible)
+                VIDEO_PROFILE_HEVC_HLG10, // HLG, 10-bit (Compatible)
+            )
+
+        // Act
+        val result =
+            VideoConfigUtil.resolveCompatibleVideoProfile(videoMime, dynamicRange, profiles)
+
+        // Assert: Should return the first compatible one (VP9)
+        assertThat(result).isEqualTo(VIDEO_PROFILE_VP9_HLG10)
+    }
+
+    @Test
+    fun resolveCompatibleVideoProfile_specificMime_matchesBothMimeAndDynamicRange() {
+        // Arrange
+        val expectedProfileMap =
+            mapOf(
+                SDR to VIDEO_PROFILE_DEFAULT,
+                HLG_10_BIT to VIDEO_PROFILE_HEVC_HLG10,
+                HDR10_10_BIT to VIDEO_PROFILE_HEVC_HDR10,
+                HDR10_PLUS_10_BIT to VIDEO_PROFILE_HEVC_HDR10_PLUS,
+                DOLBY_VISION_10_BIT to VIDEO_PROFILE_DOLBY_VISION_10_BIT,
+                DOLBY_VISION_8_BIT to VIDEO_PROFILE_DOLBY_VISION_8_BIT,
+            )
+        val encoderProfiles = createFakeEncoderProfiles(expectedProfileMap.values.toList())
+
+        for ((dynamicRange, expectedVideoProfile) in expectedProfileMap) {
+
+            // Act
+            val result =
+                VideoConfigUtil.resolveCompatibleVideoProfile(
+                    expectedVideoProfile.mediaType,
+                    dynamicRange,
+                    encoderProfiles.videoProfiles,
+                )
+
+            // Assert
+            assertThat(result).isEqualTo(expectedVideoProfile)
+        }
+    }
+
+    @Test
+    fun resolveCompatibleVideoProfile_mismatchingDynamicRange_returnsNull() {
+        // Arrange: Requesting HLG 10-bit but only SDR or Dolby 8-bit are available
+        val videoMime = MIME_TYPE_UNSPECIFIED
+        val dynamicRange = HLG_10_BIT
+        val profiles =
+            listOf(
+                VIDEO_PROFILE_DEFAULT, // SDR
+                VIDEO_PROFILE_DOLBY_VISION_8_BIT, // Incompatible HDR
+            )
+
+        // Act
+        val result =
+            VideoConfigUtil.resolveCompatibleVideoProfile(videoMime, dynamicRange, profiles)
+
+        // Assert
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun resolveCompatibleVideoProfile_mismatchingMime_returnsNull() {
+        // Arrange: Requesting VP9 but only DOLBY_VISION is available
+        val videoMime = MIMETYPE_VIDEO_VP9
+        val dynamicRange = DOLBY_VISION_10_BIT
+        val profiles = listOf(VIDEO_PROFILE_DOLBY_VISION_10_BIT)
+
+        // Act
+        val result =
+            VideoConfigUtil.resolveCompatibleVideoProfile(videoMime, dynamicRange, profiles)
+
+        // Assert
+        assertThat(result).isNull()
+    }
+
+    @Test
+    fun resolveCompatibleVideoProfile_mismatchingDynamicRangeBitDepth_returnsNull() {
+        // Arrange: Requesting DOLBY_VISION 10-bit but only 8-bit is available
+        val videoMime = MIMETYPE_VIDEO_DOLBY_VISION
+        val dynamicRange = DOLBY_VISION_10_BIT
+        val profiles = listOf(VIDEO_PROFILE_DOLBY_VISION_8_BIT)
+
+        // Act
+        val result =
+            VideoConfigUtil.resolveCompatibleVideoProfile(videoMime, dynamicRange, profiles)
+
+        // Assert
+        assertThat(result).isNull()
+    }
+
     companion object {
         fun createFakeEncoderProfiles(videoProfileProxies: List<VideoProfileProxy>) =
             VideoValidatedEncoderProfilesProxy.create(
@@ -192,7 +306,7 @@ class VideoConfigUtilTest {
                 videoProfileProxies,
             )
 
-        fun createMediaSpec(outputFormat: Int = MediaSpec.OUTPUT_FORMAT_AUTO) =
+        fun createMediaSpec(outputFormat: Int = MediaSpec.OUTPUT_FORMAT_UNSPECIFIED) =
             MediaSpec.builder().apply { setOutputFormat(outputFormat) }.build()
 
         private val DEFAULT_VIDEO_RESOLUTION = Size(1920, 1080)
@@ -203,55 +317,55 @@ class VideoConfigUtilTest {
         val VIDEO_PROFILE_HEVC_HLG10 =
             EncoderProfilesUtil.createFakeVideoProfileProxy(
                 DEFAULT_VIDEO_RESOLUTION,
-                videoCodec = MediaRecorder.VideoEncoder.HEVC,
-                videoMediaType = MediaFormat.MIMETYPE_VIDEO_HEVC,
-                videoHdrFormat = EncoderProfiles.VideoProfile.HDR_HLG,
-                videoBitDepth = VideoProfileProxy.BIT_DEPTH_10,
+                videoCodec = HEVC,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
+                videoHdrFormat = HDR_HLG,
+                videoBitDepth = BIT_DEPTH_10,
             )
 
         val VIDEO_PROFILE_HEVC_HDR10 =
             EncoderProfilesUtil.createFakeVideoProfileProxy(
                 DEFAULT_VIDEO_RESOLUTION,
-                videoCodec = MediaRecorder.VideoEncoder.HEVC,
-                videoMediaType = MediaFormat.MIMETYPE_VIDEO_HEVC,
-                videoHdrFormat = EncoderProfiles.VideoProfile.HDR_HDR10,
-                videoBitDepth = VideoProfileProxy.BIT_DEPTH_10,
+                videoCodec = HEVC,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
+                videoHdrFormat = HDR_HDR10,
+                videoBitDepth = BIT_DEPTH_10,
             )
 
         val VIDEO_PROFILE_HEVC_HDR10_PLUS =
             EncoderProfilesUtil.createFakeVideoProfileProxy(
                 DEFAULT_VIDEO_RESOLUTION,
-                videoCodec = MediaRecorder.VideoEncoder.HEVC,
-                videoMediaType = MediaFormat.MIMETYPE_VIDEO_HEVC,
-                videoHdrFormat = EncoderProfiles.VideoProfile.HDR_HDR10PLUS,
-                videoBitDepth = VideoProfileProxy.BIT_DEPTH_10,
+                videoCodec = HEVC,
+                videoMediaType = MIMETYPE_VIDEO_HEVC,
+                videoHdrFormat = HDR_HDR10PLUS,
+                videoBitDepth = BIT_DEPTH_10,
             )
 
         val VIDEO_PROFILE_DOLBY_VISION_10_BIT =
             EncoderProfilesUtil.createFakeVideoProfileProxy(
                 DEFAULT_VIDEO_RESOLUTION,
-                videoCodec = MediaRecorder.VideoEncoder.DOLBY_VISION,
-                videoMediaType = MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION,
-                videoHdrFormat = EncoderProfiles.VideoProfile.HDR_DOLBY_VISION,
-                videoBitDepth = VideoProfileProxy.BIT_DEPTH_10,
+                videoCodec = DOLBY_VISION,
+                videoMediaType = MIMETYPE_VIDEO_DOLBY_VISION,
+                videoHdrFormat = HDR_DOLBY_VISION,
+                videoBitDepth = BIT_DEPTH_10,
             )
 
         val VIDEO_PROFILE_DOLBY_VISION_8_BIT =
             EncoderProfilesUtil.createFakeVideoProfileProxy(
                 DEFAULT_VIDEO_RESOLUTION,
-                videoCodec = MediaRecorder.VideoEncoder.DOLBY_VISION,
-                videoMediaType = MediaFormat.MIMETYPE_VIDEO_DOLBY_VISION,
-                videoHdrFormat = EncoderProfiles.VideoProfile.HDR_DOLBY_VISION,
-                videoBitDepth = VideoProfileProxy.BIT_DEPTH_8,
+                videoCodec = DOLBY_VISION,
+                videoMediaType = MIMETYPE_VIDEO_DOLBY_VISION,
+                videoHdrFormat = HDR_DOLBY_VISION,
+                videoBitDepth = BIT_DEPTH_8,
             )
 
         val VIDEO_PROFILE_VP9_HLG10 =
             EncoderProfilesUtil.createFakeVideoProfileProxy(
                 DEFAULT_VIDEO_RESOLUTION,
-                videoCodec = MediaRecorder.VideoEncoder.VP9,
-                videoMediaType = MediaFormat.MIMETYPE_VIDEO_VP9,
-                videoHdrFormat = EncoderProfiles.VideoProfile.HDR_HLG,
-                videoBitDepth = VideoProfileProxy.BIT_DEPTH_10,
+                videoCodec = VP9,
+                videoMediaType = MIMETYPE_VIDEO_VP9,
+                videoHdrFormat = HDR_HLG,
+                videoBitDepth = BIT_DEPTH_10,
             )
     }
 }

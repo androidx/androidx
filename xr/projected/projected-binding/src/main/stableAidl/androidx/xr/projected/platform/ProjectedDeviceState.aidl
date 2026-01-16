@@ -19,6 +19,10 @@ package androidx.xr.projected.platform;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX)")
 @Backing(type="int")
 enum ProjectedDeviceState {
+  // Device is currently not usable. Commonly done because the device is not worn.
   INACTIVE = 0,
+  // Device is currently useable. Apps can project content to the device.
   ACTIVE = 1,
+  // A virtual device representing the Projected device was destroyed.
+  DESTROYED = 2,
 }

@@ -132,15 +132,17 @@ object VideoEncoderInfoWrapperTest {
         @Test
         fun getSupportedWidths() {
             val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
-            assertThat(videoEncoderInfo.supportedWidths).isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)
-            assertThat(videoEncoderInfo.supportedHeights).isEqualTo(OVERRIDDEN_SUPPORTED_HEIGHTS)
+            assertThat(videoEncoderInfo.getSupportedWidths()).isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)
+            assertThat(videoEncoderInfo.getSupportedHeights())
+                .isEqualTo(OVERRIDDEN_SUPPORTED_HEIGHTS)
         }
 
         @Test
         fun getSupportedHeight() {
             val videoEncoderInfo = createFakeVideoEncoderInfoWrapper()
-            assertThat(videoEncoderInfo.supportedWidths).isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)
-            assertThat(videoEncoderInfo.supportedHeights).isEqualTo(OVERRIDDEN_SUPPORTED_HEIGHTS)
+            assertThat(videoEncoderInfo.getSupportedWidths()).isEqualTo(OVERRIDDEN_SUPPORTED_WIDTHS)
+            assertThat(videoEncoderInfo.getSupportedHeights())
+                .isEqualTo(OVERRIDDEN_SUPPORTED_HEIGHTS)
         }
 
         @Test

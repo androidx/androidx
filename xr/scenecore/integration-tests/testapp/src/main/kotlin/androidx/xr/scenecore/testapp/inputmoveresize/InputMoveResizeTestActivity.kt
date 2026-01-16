@@ -193,6 +193,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                     mainPanelSystemMovable.visibility = View.VISIBLE
                     mainPanelScaleInZ.visibility = View.VISIBLE
                 }
+
                 false -> {
                     if (mainPanelMovableActive) {
                         session!!.scene.mainPanelEntity.removeComponent(mainPanelMovableComponent)
@@ -257,6 +258,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                 true ->
                     mainPanelResizableActive =
                         session!!.scene.mainPanelEntity.addComponent(mainPanelResizableComponent)
+
                 false ->
                     if (mainPanelResizableActive) {
                         session!!.scene.mainPanelEntity.removeComponent(mainPanelResizableComponent)
@@ -310,6 +312,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
         }
 
         setupMainPanel()
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // Recreate button
         findViewById<FloatingActionButton>(R.id.bottomCenterFab).also {
@@ -348,6 +351,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                     )
                 }
         }
+
         val checkBoxListener =
             CompoundButton.OnCheckedChangeListener { _, _ ->
                 updateMovablePanelComponent()
@@ -368,6 +372,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                     systemMovableCheckbox.visibility = View.VISIBLE
                     scaleInZCheckBox.visibility = View.VISIBLE
                 }
+
                 false -> {
                     if (movablePanelActive) {
                         movablePanelEntity.removeComponent(movablePanelComponent)
@@ -424,6 +429,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                         "Component is null"
                     }
                 }
+
                 false -> {
                     everythingPanelEntity.removeAllComponents()
                 }
@@ -494,6 +500,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                 true ->
                     resizablePanelActive =
                         resizablePanelEntity.addComponent(resizablePanelComponent)
+
                 false ->
                     if (resizablePanelActive) {
                         resizablePanelEntity.removeComponent(resizablePanelComponent)
@@ -526,6 +533,7 @@ class InputMoveResizeTestActivity : AppCompatActivity() {
                 true ->
                     interactablePanelActive =
                         interactablePanelEntity.addComponent(interactableComponent)
+
                 false ->
                     if (interactablePanelActive) {
                         interactablePanelEntity.removeComponent(interactableComponent)

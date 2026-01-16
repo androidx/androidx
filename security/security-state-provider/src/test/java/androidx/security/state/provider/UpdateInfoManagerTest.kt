@@ -21,6 +21,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.security.state.SecurityPatchState
 import androidx.security.state.SecurityPatchState.Companion.COMPONENT_SYSTEM
+import androidx.security.state.SerializableUpdateInfo
+import androidx.security.state.UpdateInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.time.LocalDate
 import java.time.ZoneOffset

@@ -17,6 +17,10 @@
 package androidx.xr.scenecore.testing
 
 import androidx.kruth.assertThat
+import androidx.xr.runtime.math.Matrix4
+import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.runtime.InputEvent
+import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener
 import java.util.concurrent.Executor
@@ -32,12 +36,7 @@ class FakePointerCaptureComponentTest {
     fun onStateChanged_withExecutor_returnsSetPointerCaptureState() {
         // Arrange
         var state = PointerCaptureState.POINTER_CAPTURE_STATE_STOPPED
-        val stateListener: StateListener =
-            object : StateListener {
-                override fun onStateChanged(@PointerCaptureState newState: Int) {
-                    state = newState
-                }
-            }
+        val stateListener = StateListener { newState -> state = newState }
         val executor = Executor { commands -> commands.run() }
         underTest = FakePointerCaptureComponent(executor, stateListener)
 
@@ -46,5 +45,48 @@ class FakePointerCaptureComponentTest {
 
         // Assert
         assertThat(state).isEqualTo(PointerCaptureState.POINTER_CAPTURE_STATE_ACTIVE)
+    }
+
+    @Test
+    fun onInputEvent_withExecutor_returnsSetInputEvent() {
+        // Arrange
+        var inputEvent: InputEvent? = null
+        val inputListener = InputEventListener { event -> inputEvent = event }
+        val executor = Executor { commands -> commands.run() }
+        underTest = FakePointerCaptureComponent(executor)
+        underTest.inputListener = inputListener
+
+        // Act
+        val entity = FakeEntity()
+        val expectedInputEvent =
+            InputEvent(
+                InputEvent.Source.HANDS,
+                InputEvent.Pointer.LEFT,
+                100,
+                Vector3(),
+                Vector3(0f, 0f, 1f),
+                InputEvent.Action.DOWN,
+                listOf(InputEvent.HitInfo(entity, Vector3.One, Matrix4.Identity)),
+            )
+        underTest.onInputEvent(expectedInputEvent)
+
+        // Assert
+        assertThat(inputEvent).isNotNull()
+        assertThat(inputEvent!!.source).isEqualTo(expectedInputEvent.source)
+        assertThat(inputEvent.pointerType).isEqualTo(expectedInputEvent.pointerType)
+        assertThat(inputEvent.timestamp).isEqualTo(expectedInputEvent.timestamp)
+        assertThat(inputEvent.origin).isEqualTo(expectedInputEvent.origin)
+        assertThat(inputEvent.direction).isEqualTo(expectedInputEvent.direction)
+        assertThat(inputEvent.action).isEqualTo(expectedInputEvent.action)
+        assertThat(inputEvent.hitInfoList).isNotEmpty()
+
+        val hitInfoList = inputEvent.hitInfoList
+        assertThat(hitInfoList).isNotEmpty()
+        assertThat(hitInfoList.size).isEqualTo(1)
+
+        val hitInfo = hitInfoList[0]
+        assertThat(hitInfo.inputEntity).isEqualTo(entity)
+        assertThat(hitInfo.hitPosition).isEqualTo(Vector3.One)
+        assertThat(hitInfo.transform).isEqualTo(Matrix4.Identity)
     }
 }

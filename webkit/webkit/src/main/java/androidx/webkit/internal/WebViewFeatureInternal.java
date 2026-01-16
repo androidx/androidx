@@ -785,10 +785,29 @@ public class WebViewFeatureInternal {
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
-     * This feature covers {@link androidx.webkit.NavigationListener} and all methods within.
+     * This feature covers
+     * {@link NavigationListener#onNavigationStarted(Navigation)},
+     * {@link NavigationListener#onNavigationRedirected(Navigation)},
+     * {@link NavigationListener#onNavigationCompleted(Navigation)}
+     * {@link NavigationListener#onPageDeleted(Page)},
+     * {@link NavigationListener#onPageLoadEvent(Page)},
+     * {@link NavigationListener#onPageDomContentLoadedEvent(Page)},
+     * {@link NavigationListener#onFirstContentfulPaint(Page, long)}
      */
     public static final ApiFeature.NoFramework NAVIGATION_LISTENER_V1 = new ApiFeature.NoFramework(
             WebViewFeature.NAVIGATION_LISTENER_V1, Features.WEB_VIEW_NAVIGATION_LISTENER_V1);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationListener#onFirstContentfulPaintMillis(Page, long)},
+     * {@link NavigationListener#onLargestContentfulPaintMillis(Page, long)},
+     * {@link NavigationListener#onPerformanceMarkMillis(Page, String, long)}
+     */
+    public static final ApiFeature.NoFramework WEB_VIEW_NAVIGATION_LISTENER_V2 =
+            new ApiFeature.NoFramework(
+            WebViewFeature.WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2,
+                    Features.WEB_VIEW_NAVIGATION_LISTENER_V2);
 
     /**
      * This is an internal only feature that indicate whether it is safe to cache WebView Provider
@@ -817,6 +836,16 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework WEBVIEW_BUILDER_V1 =
             new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_BUILDER_EXPERIMENTAL_V1,
                     Features.WEBVIEW_BUILDER);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers:
+     * {@link WebViewBuilder#applyTo(WebView)}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework WEBVIEW_BUILDER_V2 =
+            new ApiFeature.NoFramework(WebViewFeature.WEBVIEW_BUILDER_EXPERIMENTAL_V2,
+                    Features.WEBVIEW_BUILDER_V2);
 
     /**
      * Feature for {@link WebViewFeature#isFeatureSupported(String)}.

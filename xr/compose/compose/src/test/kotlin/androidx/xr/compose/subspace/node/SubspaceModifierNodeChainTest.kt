@@ -50,7 +50,13 @@ import org.junit.runner.RunWith
 /** Tests for [SubspaceModifierNodeChain]. */
 @RunWith(AndroidJUnit4::class)
 class SubspaceModifierNodeChainTest {
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     // This is used to track the number of times CountNode is reused.
     var nodeCount = 0

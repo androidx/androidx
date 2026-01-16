@@ -44,9 +44,9 @@ class ComputePassEncoderTest {
         // Create a minimal compute pipeline to be used by all tests
         val shaderModule =
             device.createShaderModule(
-                ShaderModuleDescriptor(
+                GPUShaderModuleDescriptor(
                     shaderSourceWGSL =
-                        ShaderSourceWGSL(
+                        GPUShaderSourceWGSL(
                             """
                     @compute @workgroup_size(1) fn main() {}
                     """
@@ -55,13 +55,13 @@ class ComputePassEncoderTest {
                 )
             )
 
-        val layout = device.createPipelineLayout(PipelineLayoutDescriptor())
+        val layout = device.createPipelineLayout(GPUPipelineLayoutDescriptor())
 
         pipeline =
             device.createComputePipelineAndAwait(
-                ComputePipelineDescriptor(
+                GPUComputePipelineDescriptor(
                     layout = layout,
-                    compute = ComputeState(module = shaderModule, entryPoint = "main"),
+                    compute = GPUComputeState(module = shaderModule, entryPoint = "main"),
                 )
             )
     }
@@ -160,7 +160,7 @@ class ComputePassEncoderTest {
     fun testDispatchWorkgroupsIndirectWithInvalidBuffer() {
         val invalidBuffer =
             device.createBuffer(
-                BufferDescriptor(
+                GPUBufferDescriptor(
                     size = 12, // 3 * Int
                     usage = BufferUsage.CopyDst, // Note: Missing BufferUsage.Indirect.
                 )
@@ -186,7 +186,7 @@ class ComputePassEncoderTest {
     fun testDispatchWorkgroupsIndirectWithValidBuffer() {
         val validBuffer =
             device.createBuffer(
-                BufferDescriptor(
+                GPUBufferDescriptor(
                     size = 12, // 3 * Int for X, Y, Z counts.
                     usage = BufferUsage.Indirect or BufferUsage.CopyDst,
                 )

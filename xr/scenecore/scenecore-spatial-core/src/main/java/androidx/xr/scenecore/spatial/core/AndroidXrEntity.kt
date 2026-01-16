@@ -45,8 +45,6 @@ import java.util.Optional
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * Implementation of a JXR SceneCore Entity that wraps an android XR extension Node.
@@ -200,12 +198,11 @@ public abstract class AndroidXrEntity(
         return perceptionSpaceScenePose.transformPoseTo(pose, xrParent)
     }
 
-    override fun setAlpha(alpha: Float, @SpaceValue relativeTo: Int) {
-        val clampedAlpha = max(0.0f, min(1.0f, alpha))
-        super<BaseEntity>.setAlpha(clampedAlpha, relativeTo)
+    override fun setAlpha(alpha: Float) {
+        super<BaseEntity>.setAlpha(alpha)
 
         mExtensions.createNodeTransaction().use { transaction ->
-            transaction.setAlpha(mNode, super<BaseEntity>.getAlpha(relativeTo)).apply()
+            transaction.setAlpha(mNode, super<BaseEntity>.getAlpha()).apply()
         }
     }
 

@@ -1089,7 +1089,7 @@ public final class ProtoLayoutInflater {
         }
     }
 
-    @VisibleForTesting()
+    @VisibleForTesting
     static int getFrameLayoutGravity(
             HorizontalAlignment horizontalAlignment, VerticalAlignment verticalAlignment) {
         return horizontalAlignmentToGravity(horizontalAlignment)
@@ -1909,6 +1909,11 @@ public final class ProtoLayoutInflater {
                     posId,
                     pipelineMaker,
                     hidden -> hidden ? INVISIBLE : VISIBLE);
+        }
+
+        if (modifiers.hasMetadata() && modifiers.getMetadata().getTagData().size() > 0) {
+            byte[] tagData = modifiers.getMetadata().getTagData().toByteArray();
+            view.setTag(R.id.element_metadata_tag, tagData);
         }
 
         if (modifiers.hasClickable()) {

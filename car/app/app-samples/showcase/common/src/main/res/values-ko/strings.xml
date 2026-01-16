@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"행도 선택할 수 있습니다."</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"보조 작업 선택됨"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"행 기본 작업 선택됨"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"행 끝에 있는 이미지 및 작업 데모"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"빈 목록 데모"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"목록이 비어 있음"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"기타 템플릿 데모"</string>

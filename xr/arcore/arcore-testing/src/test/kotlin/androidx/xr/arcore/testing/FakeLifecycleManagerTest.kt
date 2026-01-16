@@ -108,7 +108,7 @@ class FakeLifecycleManagerTest {
         underTest.create()
         underTest.shouldSupportFaceTracking = false
         assertFailsWith<UnsupportedOperationException> {
-            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
         }
     }
 

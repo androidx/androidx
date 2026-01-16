@@ -65,8 +65,6 @@ dependencies {
     implementation(project.ext.findGradleKotlinDsl())
     implementation(libs.kotlinGradlePluginAnnotations)
     implementation(libs.kotlinToolingCore)
-    implementation(libs.binaryCompatibilityValidator)
-    implementation(libs.jetbrainsBinaryCompatibilityValidator)
     implementation(libs.xmlApis)
 
     testImplementation(libs.checkmark)

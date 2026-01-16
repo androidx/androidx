@@ -20,7 +20,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
 
     defaultConfig {
         applicationId = "androidx.camera.integration.uiwidgets"
@@ -66,6 +66,7 @@ dependencies {
     implementation("androidx.compose.material:material:1.7.2")
     implementation("androidx.compose.animation:animation:1.7.2")
     implementation("androidx.compose.runtime:runtime:1.7.2")
+    implementation(project(":compose:ui:ui"))
     implementation("androidx.compose.ui:ui-tooling:1.7.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1")
     implementation("androidx.navigation:navigation-compose:2.4.2")

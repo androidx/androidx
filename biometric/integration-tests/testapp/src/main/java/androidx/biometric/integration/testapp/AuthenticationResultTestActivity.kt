@@ -265,7 +265,7 @@ class AuthenticationResultTestActivity : FragmentActivity() {
                     }
                 }
 
-                override fun onAuthFailure() {
+                override fun onAuthAttemptFailed() {
                     onAuthenticationFailed()
                     log("button$id")
                 }

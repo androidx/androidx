@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.spatial.core;
 
-import static androidx.xr.runtime.testing.math.MathAssertions.assertPose;
 import static androidx.xr.runtime.testing.math.MathAssertions.assertVector3;
 
 import static com.android.extensions.xr.node.ReformEvent.REFORM_STATE_END;
@@ -25,29 +24,18 @@ import static com.android.extensions.xr.node.ReformEvent.REFORM_STATE_START;
 import static com.android.extensions.xr.node.ReformEvent.REFORM_STATE_UNKNOWN;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.util.concurrent.Futures.immediateFuture;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 
 import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
-import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
-import androidx.xr.scenecore.impl.perception.Plane;
-import androidx.xr.scenecore.impl.perception.Session;
 import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.HitTestResult;
 import androidx.xr.scenecore.runtime.InputEvent;
 import androidx.xr.scenecore.runtime.PixelDimensions;
-import androidx.xr.scenecore.runtime.PlaneSemantic;
-import androidx.xr.scenecore.runtime.PlaneType;
 import androidx.xr.scenecore.runtime.ResizeEvent;
 import androidx.xr.scenecore.runtime.ScenePose.HitTestFilter;
 import androidx.xr.scenecore.runtime.ScenePose.HitTestFilterValue;
@@ -98,103 +86,8 @@ public final class RuntimeUtilsTest {
         if (xrExtensions == null) {
             throw new IllegalStateException("XrExtensions is null. Stop testing");
         }
-        PerceptionLibrary mPerceptionLibrary = mock(PerceptionLibrary.class);
-        Session mSession = mock(Session.class);
-        when(mPerceptionLibrary.initSession(eq(mActivity), anyInt(), eq(mFakeExecutor)))
-                .thenReturn(immediateFuture(mSession));
-        when(mPerceptionLibrary.getActivity()).thenReturn(mActivity);
         return SpatialSceneRuntime.create(
-                mActivity, mFakeExecutor, xrExtensions, entityManager, mPerceptionLibrary, false);
-    }
-
-    @Test
-    public void getPlaneTypeHorizontal_returnsHorizontal() {
-        assertThat(RuntimeUtils.getPlaneType(PlaneType.HORIZONTAL))
-                .isEqualTo(Plane.Type.HORIZONTAL_UPWARD_FACING);
-    }
-
-    @Test
-    public void getPlaneTypeVertical_returnsVertical() {
-        assertThat(RuntimeUtils.getPlaneType(PlaneType.VERTICAL)).isEqualTo(Plane.Type.VERTICAL);
-    }
-
-    @Test
-    public void getPlaneTypeAny_returnsArbitrary() {
-        assertThat(RuntimeUtils.getPlaneType(PlaneType.ANY)).isEqualTo(Plane.Type.ARBITRARY);
-    }
-
-    @Test
-    public void getPlaneTypeHorizontalUpwardFacingFromPerception_returnsHorizontal() {
-        assertThat(RuntimeUtils.getPlaneType(Plane.Type.HORIZONTAL_UPWARD_FACING))
-                .isEqualTo(PlaneType.HORIZONTAL);
-    }
-
-    @Test
-    public void getPlaneTypeHorizontalDownwardFacingFromPerception_returnsHorizontal() {
-        assertThat(RuntimeUtils.getPlaneType(Plane.Type.HORIZONTAL_DOWNWARD_FACING))
-                .isEqualTo(PlaneType.HORIZONTAL);
-    }
-
-    @Test
-    public void getPlaneTypeVerticalFromPerception_returnsVertical() {
-        assertThat(RuntimeUtils.getPlaneType(Plane.Type.VERTICAL)).isEqualTo(PlaneType.VERTICAL);
-    }
-
-    @Test
-    public void getPlaneTypeArbitraryFromPerception_returnsAny() {
-        assertThat(RuntimeUtils.getPlaneType(PlaneType.ANY)).isEqualTo(Plane.Type.ARBITRARY);
-    }
-
-    @Test
-    public void getPlaneLabelWall_returnsWall() {
-        assertThat(RuntimeUtils.getPlaneLabel(PlaneSemantic.WALL)).isEqualTo(Plane.Label.WALL);
-    }
-
-    @Test
-    public void getPlaneLabelFloor_returnsFloor() {
-        assertThat(RuntimeUtils.getPlaneLabel(PlaneSemantic.FLOOR)).isEqualTo(Plane.Label.FLOOR);
-    }
-
-    @Test
-    public void getPlaneLabelCeiling_returnsCeiling() {
-        assertThat(RuntimeUtils.getPlaneLabel(PlaneSemantic.CEILING))
-                .isEqualTo(Plane.Label.CEILING);
-    }
-
-    @Test
-    public void getPlaneLabelTable_returnsTable() {
-        assertThat(RuntimeUtils.getPlaneLabel(PlaneSemantic.TABLE)).isEqualTo(Plane.Label.TABLE);
-    }
-
-    @Test
-    public void getPlaneLabelAny_returnsUnknown() {
-        assertThat(RuntimeUtils.getPlaneLabel(PlaneSemantic.ANY)).isEqualTo(Plane.Label.UNKNOWN);
-    }
-
-    @Test
-    public void getPlaneSemanticlWall_returnsWall() {
-        assertThat(RuntimeUtils.getPlaneSemantic(Plane.Label.WALL)).isEqualTo(PlaneSemantic.WALL);
-    }
-
-    @Test
-    public void getPlaneSemanticFloor_returnsFloor() {
-        assertThat(RuntimeUtils.getPlaneSemantic(Plane.Label.FLOOR)).isEqualTo(PlaneSemantic.FLOOR);
-    }
-
-    @Test
-    public void getPlaneSemanticCeiling_returnsCeiling() {
-        assertThat(RuntimeUtils.getPlaneSemantic(Plane.Label.CEILING))
-                .isEqualTo(PlaneSemantic.CEILING);
-    }
-
-    @Test
-    public void getPlaneSemanticTable_returnsTable() {
-        assertThat(RuntimeUtils.getPlaneSemantic(Plane.Label.TABLE)).isEqualTo(PlaneSemantic.TABLE);
-    }
-
-    @Test
-    public void getPlaneSemanticUnknown_returnsAny() {
-        assertThat(RuntimeUtils.getPlaneSemantic(Plane.Label.UNKNOWN)).isEqualTo(PlaneSemantic.ANY);
+                mActivity, mFakeExecutor, xrExtensions, entityManager, false);
     }
 
     @Test
@@ -206,24 +99,6 @@ public final class RuntimeUtilsTest {
                 .usingExactEquality()
                 .containsExactly(new Matrix4(expected).getData())
                 .inOrder();
-    }
-
-    @Test
-    public void fromPerceptionPose_returnsPose() {
-        Pose expectedPose = new Pose(new Vector3(1, 2, 3), new Quaternion(0, 0, 0, 1));
-        androidx.xr.scenecore.impl.perception.Pose perceptionPose =
-                new androidx.xr.scenecore.impl.perception.Pose(1, 2, 3, 0, 0, 0, 1);
-
-        assertPose(RuntimeUtils.fromPerceptionPose(perceptionPose), expectedPose);
-    }
-
-    @Test
-    public void poseToPerceptionPose_returnsPerceptionPose() {
-        androidx.xr.scenecore.impl.perception.Pose expectedPerceptionPose =
-                new androidx.xr.scenecore.impl.perception.Pose(1, 2, 3, 0, 0, 0, 1);
-        Pose pose = new Pose(new Vector3(1, 2, 3), new Quaternion(0, 0, 0, 1));
-
-        assertThat(RuntimeUtils.poseToPerceptionPose(pose)).isEqualTo(expectedPerceptionPose);
     }
 
     @Test
@@ -495,64 +370,6 @@ public final class RuntimeUtilsTest {
         EntityManager entityManager = new EntityManager();
 
         assertThat(RuntimeUtils.getHitInfo(null, entityManager)).isNull();
-    }
-
-    @Test
-    public void getHitInfo_nullInputNode_returnsNull() {
-        EntityManager entityManager = new EntityManager();
-        SpatialSceneRuntime sceneRuntime = createSceneRuntime(entityManager);
-        Entity testEntity =
-                sceneRuntime.createGroupEntity(
-                        new Pose(), "testGroup", sceneRuntime.getActivitySpace());
-        Node testNode = ((AndroidXrEntity) testEntity).getNode();
-
-        float[] transformData = new float[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-        Mat4f transform = new Mat4f(transformData);
-        Vec3 hitPosition = new Vec3(1, 2, 3);
-
-        com.android.extensions.xr.node.InputEvent.HitInfo extensionHitInfo =
-                new com.android.extensions.xr.node.InputEvent.HitInfo(
-                        1, null, transform, hitPosition);
-        InputEvent.HitInfo hitInfo = RuntimeUtils.getHitInfo(extensionHitInfo, entityManager);
-
-        assertThat(hitInfo).isNull();
-    }
-
-    @Test
-    public void getHitInfo_nullTransform_returnsNull() {
-        EntityManager entityManager = new EntityManager();
-        SpatialSceneRuntime sceneRuntime = createSceneRuntime(entityManager);
-        Entity testEntity =
-                sceneRuntime.createGroupEntity(
-                        new Pose(), "testGroup", sceneRuntime.getActivitySpace());
-        Node testNode = ((AndroidXrEntity) testEntity).getNode();
-
-        Vec3 hitPosition = new Vec3(1, 2, 3);
-
-        com.android.extensions.xr.node.InputEvent.HitInfo extensionHitInfo =
-                new com.android.extensions.xr.node.InputEvent.HitInfo(
-                        1, testNode, null, hitPosition);
-        InputEvent.HitInfo hitInfo = RuntimeUtils.getHitInfo(extensionHitInfo, entityManager);
-
-        assertThat(hitInfo).isNull();
-    }
-
-    @Test
-    public void getHitInfo_nullHitEntity_returnsNull() {
-        // Create the entity manager but do not set the hit entity.
-        EntityManager entityManager = new EntityManager();
-        SpatialSceneRuntime sceneRuntime = createSceneRuntime(entityManager);
-
-        float[] transformData = new float[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-        Mat4f transform = new Mat4f(transformData);
-        Vec3 hitPosition = new Vec3(1, 2, 3);
-
-        com.android.extensions.xr.node.InputEvent.HitInfo extensionHitInfo =
-                new com.android.extensions.xr.node.InputEvent.HitInfo(
-                        1, null, transform, hitPosition);
-        InputEvent.HitInfo hitInfo = RuntimeUtils.getHitInfo(extensionHitInfo, entityManager);
-
-        assertThat(hitInfo).isNull();
     }
 
     @Test

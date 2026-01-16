@@ -21,8 +21,15 @@ package androidx.webkit;
  * The instance itself functions as the key/identifier through {@link Object#equals(Object)} and
  * {@link Object#hashCode()}.
  * <p>
+ * In the following circumstances, multiple navigations may result in the same Page:
+ * <ul>
+ *     <li>Same-document navigations when
+ *     {@link WebViewFeature#NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS} is
+ *     supported.</li>
+ *     <li>Back or forward navigations that result in the user returning to a previously loaded page
+ *     when {@link WebSettingsCompat#setBackForwardCacheEnabled} is enabled.</li>
+ * </ul>
  * While this interface is currently empty, it may be expanded on in the future.
- * For example, it could be enhanced to expose lifecycle state information.
  */
 @WebNavigationClient.ExperimentalNavigationCallback
 public interface Page {

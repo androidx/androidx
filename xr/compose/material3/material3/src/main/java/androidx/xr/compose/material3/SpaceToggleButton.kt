@@ -60,9 +60,13 @@ public fun SpaceToggleButton(
         checked = isSpatialUiEnabled,
         onCheckedChange = {
             if (isSpatialUiEnabled) {
-                config.requestHomeSpaceMode()
+                // TODO(b/466137882) Update once material has access to
+                //  ActivityExt.requestHomeSpace()
+                @Suppress("DEPRECATION") config.requestHomeSpaceMode()
             } else {
-                config.requestFullSpaceMode()
+                // TODO(b/466137882) Update once material has access to
+                //  ActivityExt.requestFullSpace()
+                @Suppress("DEPRECATION") config.requestFullSpaceMode()
             }
         },
     ) {

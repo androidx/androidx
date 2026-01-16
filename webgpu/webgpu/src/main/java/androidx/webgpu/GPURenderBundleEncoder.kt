@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -87,7 +87,7 @@ public class GPURenderBundleEncoder private constructor(public val handle: Long)
     @FastNative
     @JvmName("finish")
     @JvmOverloads
-    public external fun finish(descriptor: RenderBundleDescriptor? = null): GPURenderBundle
+    public external fun finish(descriptor: GPURenderBundleDescriptor? = null): GPURenderBundle
 
     /**
      * Inserts a debug marker command into the bundle.
@@ -114,7 +114,7 @@ public class GPURenderBundleEncoder private constructor(public val handle: Long)
      * Sets the bind group for a given index.
      *
      * @param groupIndex The index of the bind group to set.
-     * @param group The bind group object to set.
+     * @param group The bind group object to set, or {@code null} to unbind.
      * @param dynamicOffsets An array of dynamic offsets for uniform/storage buffers.
      */
     @FastNative

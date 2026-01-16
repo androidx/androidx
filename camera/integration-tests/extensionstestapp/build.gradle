@@ -30,7 +30,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
 
     defaultConfig {
         applicationId = "androidx.camera.integration.extensions"
@@ -86,7 +86,6 @@ dependencies {
     }
 
     androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 
     // Transitive dependencies
     implementation 'androidx.core:core-ktx:1.1.0'

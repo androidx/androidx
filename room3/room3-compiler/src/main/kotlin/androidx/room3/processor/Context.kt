@@ -34,6 +34,7 @@ private constructor(
     val processingEnv: XProcessingEnv,
     val logger: RLog,
     private val typeConverters: CustomConverterProcessor.ProcessResult,
+    private val daoReturnTypeConverters: DaoReturnTypeConverterProcessor.ProcessResult,
     private val inheritedAdapterStore: TypeAdapterStore?,
     val cache: Cache,
     private val canRewriteQueriesToDropUnusedColumns: Boolean,
@@ -48,6 +49,7 @@ private constructor(
                 this,
                 typeConverters.builtInConverterFlags,
                 typeConverters.converters,
+                daoReturnTypeConverters.converters,
             )
         }
     }
@@ -85,6 +87,7 @@ private constructor(
         processingEnv = processingEnv,
         logger = RLog(processingEnv.messager, emptySet(), null),
         typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
+        daoReturnTypeConverters = DaoReturnTypeConverterProcessor.ProcessResult.EMPTY,
         inheritedAdapterStore = null,
         cache =
             Cache(
@@ -138,6 +141,7 @@ private constructor(
                 processingEnv = processingEnv,
                 logger = RLog(collector, logger.suppressedWarnings, logger.defaultElement),
                 typeConverters = this.typeConverters,
+                daoReturnTypeConverters = this.daoReturnTypeConverters,
                 inheritedAdapterStore = typeAdapterStore,
                 cache = cache,
                 canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns,
@@ -148,8 +152,8 @@ private constructor(
     }
 
     /**
-     * Forks the processor context adding suppressed warnings a type converters found in the given
-     * [element].
+     * Forks the processor context adding suppressed warnings, type converters and return type
+     * converters found in the given [element].
      *
      * @param element the element from which to create the fork.
      * @param forceSuppressedWarnings the warning that will be silenced regardless if they are
@@ -174,13 +178,17 @@ private constructor(
                     result
                 }
             }
+        val processDaoReturnTypeConvertersResult =
+            this.daoReturnTypeConverters +
+                DaoReturnTypeConverterProcessor.findConverters(this, element)
         val subBuiltInConverterFlags =
             typeConverters.builtInConverterFlags.withNext(
                 processConvertersResult.builtInConverterFlags
             )
         val canReUseAdapterStore =
             subBuiltInConverterFlags == typeConverters.builtInConverterFlags &&
-                processConvertersResult.classes.isEmpty()
+                processConvertersResult.classes.isEmpty() &&
+                processDaoReturnTypeConvertersResult.classes.isEmpty()
         // order here is important since the sub context should give priority to new converters.
         val subTypeConverters =
             if (canReUseAdapterStore) {
@@ -193,7 +201,8 @@ private constructor(
         val subCache =
             Cache(
                 parent = cache,
-                converters = subTypeConverters.classes,
+                converters =
+                    subTypeConverters.classes + processDaoReturnTypeConvertersResult.classes,
                 suppressedWarnings = subSuppressedWarnings,
                 builtInConverterFlags = subBuiltInConverterFlags,
             )
@@ -205,6 +214,7 @@ private constructor(
                 processingEnv = processingEnv,
                 logger = RLog(logger.messager, subSuppressedWarnings, element),
                 typeConverters = subTypeConverters,
+                daoReturnTypeConverters = processDaoReturnTypeConvertersResult,
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
                 cache = subCache,
                 canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns,

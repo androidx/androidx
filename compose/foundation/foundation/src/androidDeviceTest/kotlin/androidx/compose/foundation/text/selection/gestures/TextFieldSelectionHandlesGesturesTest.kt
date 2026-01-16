@@ -88,7 +88,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
             selection = 12 to 17
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsLongPressCount++
         }
 
         withHandlePressed(Handle.SelectionEnd) {
@@ -132,7 +132,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
             selection = 6 to 11
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsLongPressCount++
         }
 
         withHandlePressed(Handle.SelectionEnd) {
@@ -144,7 +144,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
                 selection = 6 to 7
                 textToolbarShown = false
                 magnifierShown = true
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
 
             val y = fetchHandleInfo().position.y
@@ -176,7 +176,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
             selection = 0 to content.length
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsLongPressCount++
         }
 
         withHandlePressed(Handle.SelectionEnd) {
@@ -187,7 +187,7 @@ internal class TextFieldSelectionHandlesGesturesTest : AbstractSelectionGestures
                 selection = 0 to 5
                 magnifierShown = true
                 textToolbarShown = false
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
         }
 

@@ -57,6 +57,73 @@ public interface ScenePose {
      */
     public fun transformPoseTo(pose: Pose, destination: ScenePose): Pose
 
+    // TODO: b/473866938 - Move the transform helper implementation into BaseScenePose
+    /**
+     * Transforms a position from this ScenePose's local space to the destination ScenePose's local
+     * space.
+     *
+     * This operation is affected by both ScenePose's position, rotation, and scale.
+     *
+     * @param position The position in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned position will be relative to.
+     * @return The position in the destination ScenePose's local space.
+     */
+    public fun transformPositionTo(position: Vector3, destination: ScenePose): Vector3 {
+        return this.transformPoseTo(Pose(position), destination).translation
+    }
+
+    /**
+     * Transforms a vector from this ScenePose's local space to the destination ScenePose's local
+     * space. This operation accounts for scale. The magnitude of the output vector might be
+     * different from the magnitude of the input vector.
+     *
+     * This operation is not affected by either ScenePose's position.
+     *
+     * @param vector The vector in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned vector will be relative to.
+     * @return The vector in the destination ScenePose's local space. The returned magnitude will be
+     *   affected by destination scale.
+     */
+    public fun transformVectorTo(vector: Vector3, destination: ScenePose): Vector3 {
+        // To isolate rotation and scale, transform two points: the origin and the vector endpoint.
+        // The difference between the transformed points yields the transformed vector.
+
+        // Transform the origin point
+        val originPointInDest = this.transformPositionTo(Vector3.Zero, destination)
+
+        // Transform the point representing the vector endpoint
+        val vectorEndPointInDest = this.transformPositionTo(vector, destination)
+
+        // The transformed vector is the difference between the transformed endpoint and origin.
+        return vectorEndPointInDest - originPointInDest
+    }
+
+    /**
+     * Transforms a direction from this ScenePose's local space to the destination ScenePose's local
+     * space. This operation ignores relative scaling; the output vector will have the same
+     * magnitude as [direction].
+     *
+     * This operation is not affected by either ScenePose's scale or position.
+     * > Warning: This operation does not support non-uniformly scaled ScenePoses.
+     *
+     * @param direction The direction in this ScenePose's local coordinate space
+     * @param destination The ScenePose which the returned direction will be relative to.
+     * @return The direction in the destination ScenePose's local space. It will have the same
+     *   magnitude as the input direction.
+     */
+    public fun transformDirectionTo(direction: Vector3, destination: ScenePose): Vector3 {
+        // We need to transform the direction vector into the destination space similar to
+        // transformVectorTo and then we need to remove the scaling effect
+        val transformedVectorInDest = transformVectorTo(direction, destination)
+
+        // Preserve the original magnitude by normalizing and rescaling.
+        val originalMagnitude = direction.length
+        if (originalMagnitude == 0.0f) {
+            return Vector3.Zero
+        }
+        return transformedVectorInDest.toNormalized() * originalMagnitude
+    }
+
     /** A filter for which Scenes to hit test with ScenePose.hitTest */
     public object HitTestFilter {
         /** Register hit tests for the scene which this Scene pose belongs to. */

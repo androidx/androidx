@@ -16,6 +16,7 @@
 
 package androidx.build.importmaven
 
+import java.util.concurrent.TimeUnit.MINUTES
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
@@ -44,20 +45,71 @@ class LicenseDownloader(
     private val mediaType = "application/json; charset=utf-8".toMediaType()
     private val licenseEndpoint = "https://fetch-licenses.appspot.com/convert/licenses"
     private val githubLicenseApiClient = GithubLicenseApiClient()
-    private val licenseXPath =
+    private val licenseUrlXPath =
         XPathFactory.newInstance().newXPath().compile("/project/licenses/license/url")
+    private val licenseNameXPath =
+        XPathFactory.newInstance().newXPath().compile("/project/licenses/license/name")
     private val scmUrlXPath = XPathFactory.newInstance().newXPath().compile("/project/scm/url")
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder().readTimeout(1, MINUTES).build()
+
+    private val apacheLicenseNames =
+        setOf(
+            "The Apache Software License, Version 2.0",
+            "The Apache License, Version 2.0",
+            "Apache License, Version 2.0",
+            "Apache 2.0",
+            "apache-2.0",
+        )
+    private val apacheUrls =
+        setOf(
+            "http://www.apache.org/licenses/LICENSE-2.0.txt",
+            "https://www.apache.org/licenses/LICENSE-2.0.txt",
+            "http://www.apache.org/licenses/LICENSE-2.0",
+            "http://www.apache.org/licenses/LICENSE-2.0.html",
+            "https://opensource.org/licenses/Apache-2.0",
+        )
+    private val mitLicenseNames = setOf("MIT License", "The MIT License")
+    private val mitUrls =
+        setOf(
+            "https://opensource.org/licenses/MIT",
+            "http://opensource.org/licenses/MIT",
+            "http://www.opensource.org/licenses/mit-license.php",
+        )
+    private val bsd3LicenseNames = setOf("BSD-3-Clause", "3-Clause BSD License")
+    private val bsd3Urls =
+        setOf(
+            "https://asm.ow2.io/license.html",
+            "https://opensource.org/licenses/BSD-3-Clause",
+            "http://opensource.org/licenses/BSD-3-Clause",
+        )
+    private val androidSoftwareLicenseNames =
+        setOf(
+            "Android Software Development Kit License",
+            "Android Software Development Kit License Agreement",
+        )
+    private val androidSoftwareUrls =
+        setOf(
+            "https://developer.android.com/studio/terms",
+            "https://developer.android.com/studio/terms.html",
+        )
 
     /** Fetches license information for external dependencies. */
     fun fetchLicenseFromPom(bytes: ByteArray): ByteArray? {
         val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val document = bytes.inputStream().use { builder.parse(it) }
+        val licenseName =
+            (licenseNameXPath.evaluate(document, XPathConstants.NODE) as? Node)?.textContent
         val licenseUrl =
-            (licenseXPath.evaluate(document, XPathConstants.NODE) as? Node)?.textContent
+            (licenseUrlXPath.evaluate(document, XPathConstants.NODE) as? Node)?.textContent
         val scmUrl = (scmUrlXPath.evaluate(document, XPathConstants.NODE) as? Node)?.textContent
         val fetchers =
             listOf(
+                {
+                    // short-circuit common license
+                    if (licenseName != null && licenseUrl != null) {
+                        tryReturnKnownLicense(licenseName, licenseUrl)
+                    } else null
+                },
                 {
                     // directly download if it is a txt file
                     licenseUrl?.let(this::tryFetchTxtLicense)
@@ -79,6 +131,29 @@ class LicenseDownloader(
         // get rid of any windows style line endings or extra newlines
         val cleanedUp = licenseContents.replace("\r", "").dropLastWhile { it == '\n' } + "\n"
         return cleanedUp.toByteArray(Charsets.UTF_8)
+    }
+
+    private fun tryReturnKnownLicense(name: String, url: String): String? {
+        fun getLicenseByName(name: String): String {
+            println("Getting $name")
+            return LicenseDownloader::class.java.getResourceAsStream(name)!!.bufferedReader().use {
+                it.readText()
+            }
+        }
+        return when {
+            name in apacheLicenseNames && url in apacheUrls -> getLicenseByName("/apache-2.0.txt")
+            name in mitLicenseNames && url in mitUrls -> getLicenseByName("/mit.txt")
+            name in bsd3LicenseNames && url in bsd3Urls -> getLicenseByName("/bsd-3.txt")
+            name in androidSoftwareLicenseNames && url in androidSoftwareUrls ->
+                getLicenseByName("/android-software-license.txt")
+            name == "Eclipse Public License 1.0" &&
+                url == "http://www.eclipse.org/legal/epl-v10.html" ->
+                getLicenseByName("/epl-1.0.txt")
+            name == "Eclipse Public License v2.0" &&
+                url == "https://www.eclipse.org/legal/epl-v20.html" ->
+                getLicenseByName("/epl-2.0.txt")
+            else -> null
+        }
     }
 
     private fun tryFetchTxtLicense(url: String): String? {

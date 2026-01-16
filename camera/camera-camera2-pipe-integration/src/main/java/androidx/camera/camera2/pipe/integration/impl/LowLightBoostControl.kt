@@ -178,10 +178,13 @@ constructor(
             // Hold the internal AE mode to ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY while the
             // low-light boost is turned ON. If low-light boost is OFF, a value of null will make
             // the state3AControl calculate the correct AE mode based on other settings.
-            state3AControl.preferredAeMode =
-                if (lowLightBoost) CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY else null
+            val updateSignal =
+                state3AControl.setPreferredAeModeAsync(
+                    if (lowLightBoost) CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST_BRIGHTNESS_PRIORITY
+                    else null
+                )
 
-            state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
+            updateSignal.propagateTo(signal)
 
             signal.invokeOnCompletion {
                 if (signal == _updateSignal) {

@@ -30,8 +30,9 @@ import androidx.xr.scenecore.runtime.GltfFeature
 import androidx.xr.scenecore.runtime.MaterialResource
 import com.android.extensions.xr.XrExtensions
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
+import com.google.ar.imp.view.splitengine.ImpSplitEngineRenderer
 import java.util.Collections
-import java.util.HashMap
+import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlin.coroutines.cancellation.CancellationException
@@ -53,6 +54,7 @@ internal class GltfFeatureImpl(
     impressApi: ImpressApi,
     splitEngineSubspaceManager: SplitEngineSubspaceManager,
     extensions: XrExtensions,
+    private val renderer: ImpSplitEngineRenderer,
 ) : BaseRenderingFeature(impressApi, splitEngineSubspaceManager, extensions), GltfFeature {
 
     private val modelImpressNode: ImpressNode = impressApi.instanceGltfModel(gltfModel.nativeHandle)
@@ -62,6 +64,9 @@ internal class GltfFeatureImpl(
 
     private val animationStateListeners: MutableMap<Consumer<Int>, Executor> =
         Collections.synchronizedMap(mutableMapOf())
+
+    private val boundsUpdateListeners: MutableSet<Consumer<BoundingBox>> = CopyOnWriteArraySet()
+    private var lastBoundingBox: BoundingBox? = null
 
     init {
         bindImpressNodeToSubspace("gltf_entity_subspace_", modelImpressNode)
@@ -95,26 +100,27 @@ internal class GltfFeatureImpl(
         currentAnimationJob?.cancel()
         val coroutineDispatcher = executor.asCoroutineDispatcher()
         animationState = GltfEntity.AnimationState.PLAYING
-        CoroutineScope(coroutineDispatcher).launch {
-            try {
-                // The @MainThread annotation is a "Lint" check. As soon as you call launch, you are
-                // creating a new asynchronous task. The Dispatcher you pass to launch decides where
-                // that task runs. If you try to access that context from a background thread
-                // (which is where executor put you), the native code looks for the context, doesn't
-                // find it (or finds a mismatch), and fails or crashes
-                withContext(Dispatchers.Main) {
-                    impressApi.animateGltfModelTemp(modelImpressNode, animationName, loop)
-                }
-            } catch (e: Exception) {
-                if (e is CancellationException) throw e
-                // Some other error happened.  Log it and stop the animation.
-                Log.e("GltfFeatureImpl", "Could not start animation: $e")
-            } finally {
-                if (currentAnimationJob === coroutineContext[Job]) {
-                    animationState = GltfEntity.AnimationState.STOPPED
+        currentAnimationJob =
+            CoroutineScope(coroutineDispatcher).launch {
+                try {
+                    // The @MainThread annotation is a "Lint" check. As soon as you call launch, you
+                    // are creating a new asynchronous task. The Dispatcher you pass to launch
+                    // decides where that task runs. If you try to access that context from a
+                    // background thread (which is where executor put you), the native code looks
+                    // for the context, doesn't find it (or finds a mismatch), and fails or crashes
+                    withContext(Dispatchers.Main) {
+                        impressApi.animateGltfModel(modelImpressNode, animationName, loop)
+                    }
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
+                    // Some other error happened.  Log it and stop the animation.
+                    Log.e("GltfFeatureImpl", "Could not start animation: $e")
+                } finally {
+                    if (currentAnimationJob === coroutineContext[Job]) {
+                        animationState = GltfEntity.AnimationState.STOPPED
+                    }
                 }
             }
-        }
     }
 
     @MainThread
@@ -155,7 +161,7 @@ internal class GltfFeatureImpl(
         require(material is Material) { "MaterialResource is not a Material" }
         impressApi.setMaterialOverride(
             modelImpressNode,
-            (material as Material).nativeHandle,
+            material.nativeHandle,
             nodeName,
             primitiveIndex,
         )
@@ -179,18 +185,48 @@ internal class GltfFeatureImpl(
             impressApi.clearMaterialOverride(modelImpressNode, key, value)
         }
         meshOverrides.clear()
+        renderer.frameListener = null
+        boundsUpdateListeners.clear()
         super.dispose()
     }
 
     @MainThread
-    override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>): Unit {
+    override fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>) {
         // Assigning the result to _ (or ignoring it) ensures the compiler sees Unit as the return.
-        val unused = animationStateListeners.putIfAbsent(listener, executor)
+        animationStateListeners.putIfAbsent(listener, executor)
     }
 
     @MainThread
-    override fun removeAnimationStateListener(listener: Consumer<Int>): Unit {
+    override fun removeAnimationStateListener(listener: Consumer<Int>) {
         // Assigning the result to _ (or ignoring it) ensures the compiler sees Unit as the return.
-        val unused = animationStateListeners.remove(listener)
+        animationStateListeners.remove(listener)
+    }
+
+    @MainThread
+    override fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        if (boundsUpdateListeners.isEmpty()) {
+            val frameListener =
+                ImpSplitEngineRenderer.FrameListener {
+                    if (animationState == GltfEntity.AnimationState.PLAYING) {
+                        val boundingBox = getGltfModelBoundingBox()
+                        if (boundingBox != lastBoundingBox) {
+                            lastBoundingBox = boundingBox
+                            boundsUpdateListeners.forEach { it.accept(boundingBox) }
+                        }
+                    }
+                }
+            renderer.frameListener = frameListener
+        }
+
+        boundsUpdateListeners.add(listener)
+    }
+
+    @MainThread
+    override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        boundsUpdateListeners.remove(listener)
+
+        if (boundsUpdateListeners.isEmpty()) {
+            renderer.frameListener = null
+        }
     }
 }

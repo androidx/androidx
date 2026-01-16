@@ -31,13 +31,16 @@ import android.view.Choreographer;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
+import android.widget.EdgeEffect;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.LayoutCallback;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SystemClock;
+import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.Header;
 import androidx.compose.remote.core.operations.RootContentBehavior;
 import androidx.compose.remote.core.operations.Theme;
@@ -49,6 +52,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,7 +63,8 @@ import java.util.Set;
  * (touch/click).
  */
 @RestrictTo(LIBRARY_GROUP)
-public class RemoteComposeView extends FrameLayout implements View.OnAttachStateChangeListener {
+public class RemoteComposeView extends FrameLayout implements View.OnAttachStateChangeListener,
+        LayoutCallback {
 
     static final boolean USE_VIEW_AREA_CLICK = true; // Use views to represent click areas
     static final float DEFAULT_FRAME_RATE = 60f;
@@ -164,6 +169,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         mStart = nanoTime(clock);
         mLastFrameCall = clock.millis();
         mARContext = new AndroidRemoteContext(clock);
+        mARContext.setEdgeEffectBuilder(() -> new EdgeEffect(getContext()));
     }
 
     /**
@@ -215,10 +221,14 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         mARContext.setUseChoreographer(true);
         setContentDescription(mDocument.getDocument().getContentDescription());
 
+        mDocument.getDocument().setLayoutCallback(this);
+
         updateClickAreas();
         requestLayout();
         mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME, -Float.MAX_VALUE);
         mARContext.loadFloat(RemoteContext.ID_FONT_SIZE, getDefaultTextSize());
+
+        mDocument.applyDataOperations(mARContext);
 
         invalidate();
         Integer fps = (Integer) mDocument.getDocument().getProperty(Header.DOC_DESIRED_FPS);
@@ -292,8 +302,17 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @return array of names or null
      */
-    public String @NonNull [] getNamedColors() {
+    public String @Nullable [] getNamedColors() {
         return mDocument.getNamedColors();
+    }
+
+    /**
+     * Get a array of the names of the "Themed Colors" defined in the loaded doc
+     *
+     * @return array of names or null
+     */
+    public  @NonNull ArrayList<ColorTheme> getThemedColors() {
+        return mDocument.getThemedColors();
     }
 
     /**
@@ -516,6 +535,11 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         mDocument.getDocument().applyUpdate(document.getDocument());
     }
 
+    @Override
+    public void onRequestLayout() {
+        requestLayout();
+    }
+
     /**
      * Interface to receive click events on components.
      */
@@ -666,8 +690,58 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         }
         int preWidth = getWidth();
         int preHeight = getHeight();
-        int w = measureDimension(widthMeasureSpec, mDocument.getWidth());
-        int h = measureDimension(heightMeasureSpec, mDocument.getHeight());
+
+        int w;
+        int h;
+
+        if (!mDocument.useFeature(Header.FEATURE_PAINT_MEASURE)) {
+            int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+            int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+            int widthSize = MeasureSpec.getSize(widthMeasureSpec);
+            int heightSize = MeasureSpec.getSize(heightMeasureSpec);
+            float maxWidth = Float.MAX_VALUE;
+            float maxHeight = Float.MAX_VALUE;
+            switch (widthMode) {
+                case MeasureSpec.EXACTLY:
+                    maxWidth = widthSize;
+                    break;
+                case MeasureSpec.AT_MOST:
+                    maxWidth = widthSize;
+                    break;
+                case MeasureSpec.UNSPECIFIED:
+                    break;
+            }
+            switch (heightMode) {
+                case MeasureSpec.EXACTLY:
+                    maxHeight = heightSize;
+                    break;
+                case MeasureSpec.AT_MOST:
+                    maxHeight = heightSize;
+                    break;
+                case MeasureSpec.UNSPECIFIED:
+                    break;
+            }
+
+            if (mARContext.getPaintContext() != null) {
+                mDocument.getDocument().measure(mARContext, 0, maxWidth, 0,
+                        maxHeight);
+            }
+
+            w = measureDimension(widthMeasureSpec, mDocument.getWidth());
+            h = measureDimension(heightMeasureSpec, mDocument.getHeight());
+
+            if (mARContext.getPaintContext() == null) {
+                if (w == 0) {
+                    w = (int) maxWidth;
+                }
+                if (h == 0) {
+                    h = (int) maxHeight;
+                }
+            }
+        } else {
+            w = measureDimension(widthMeasureSpec, mDocument.getWidth());
+            h = measureDimension(heightMeasureSpec, mDocument.getHeight());
+        }
 
         if (!USE_VIEW_AREA_CLICK) {
             if (mDocument.getDocument().getContentSizing() == RootContentBehavior.SIZING_SCALE) {
@@ -729,7 +803,6 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         try {
             long nanoStart = nanoTime(mClock);
             long start = mEvalTime ? nanoStart : 0; // measure execution of commands
-
             float animationTime = (nanoStart - mStart) * 1E-9f;
             mARContext.setAnimationTime(animationTime);
             mARContext.loadFloat(RemoteContext.ID_ANIMATION_TIME, animationTime);

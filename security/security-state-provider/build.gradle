@@ -31,7 +31,7 @@ plugins {
 
 dependencies {
     implementation(libs.kotlinSerializationJson)
-    implementation("androidx.security:security-state:1.0.0-beta01")
+    implementation(project(":security:security-state"))
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.mockitoKotlin4)
@@ -41,7 +41,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.security.state.provider"
 }
 

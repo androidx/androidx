@@ -78,6 +78,23 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
             }
         }
 
+    /**
+     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
+     * model's local coordinate space.
+     *
+     * @return A [BoundingBox] object representing the model's bounding box. The
+     *   [BoundingBox.center] defines the geometric center of the box, and the
+     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
+     *   of the box is twice the half-extent. All values are in meters.
+     */
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public val gltfModelBoundingBox: BoundingBox
+        @MainThread
+        get() {
+            checkNotDisposed()
+            return rtEntity!!.gltfModelBoundingBox
+        }
+
     public companion object {
         /**
          * Factory method for GltfModelEntity.
@@ -305,22 +322,6 @@ private constructor(rtEntity: RtGltfEntity, entityManager: EntityManager) :
     public fun clearMaterialOverride(nodeName: String, primitiveIndex: Int = 0) {
         checkNotDisposed()
         rtEntity!!.clearMaterialOverride(nodeName, primitiveIndex)
-    }
-
-    /**
-     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
-     * model's local coordinate space.
-     *
-     * @return A [BoundingBox] object representing the model's bounding box. The
-     *   [BoundingBox.center] defines the geometric center of the box, and the
-     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
-     *   of the box is twice the half-extent. All values are in meters.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @MainThread
-    public fun getGltfModelBoundingBox(): BoundingBox {
-        checkNotDisposed()
-        return rtEntity!!.getGltfModelBoundingBox()
     }
 
     /**

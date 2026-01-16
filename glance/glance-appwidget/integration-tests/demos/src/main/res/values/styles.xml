@@ -26,8 +26,10 @@
         <item name="android:fontFamily">sans-serif</item>
     </style>
     <style name="Glance.ErrorUi.MainTextAppearance" parent="">
-        <item name="android:textSize">15sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFamily">sans-serif</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textFontWeight">500</item>
     </style>
+
 </resources>

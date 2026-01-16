@@ -68,7 +68,7 @@ fun Project.configureMavenArtifactUpload(
         }
     }
     afterEvaluate {
-        if (!androidXExtension.shouldPublish()) {
+        if (!androidXExtension.shouldPublish.get()) {
             return@afterEvaluate
         }
         components.configureEach { component ->
@@ -95,17 +95,17 @@ private fun Project.releaseTaskShouldBeRegistered(extension: AndroidXExtension):
     if (plugins.hasPlugin(AppPlugin::class.java)) {
         return false
     }
-    if (!extension.shouldRelease() && !isSnapshotBuild()) {
+    if (!extension.shouldRelease.get() && !isSnapshotBuild()) {
         return false
     }
-    return extension.shouldPublish()
+    return extension.shouldPublish.get()
 }
 
 private fun Project.buildInfoTaskShouldBeRegistered(extension: AndroidXExtension): Boolean {
     if (plugins.hasPlugin(AppPlugin::class.java)) {
         return false
     }
-    return extension.shouldRelease()
+    return extension.shouldRelease.get()
 }
 
 /** Configure publishing for a [SoftwareComponent]. */
@@ -364,7 +364,7 @@ private fun Project.validateCoordinatesAndGetGroup(extension: AndroidXExtension)
 
 private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: MavenPom) {
     pom.name.set(extension.name)
-    extension.description?.let { pom.description.set(provider { it }) }
+    pom.description.set(extension.description)
     pom.url.set(
         provider {
             fun defaultUrl() =
@@ -375,7 +375,7 @@ private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: Ma
             getAlternativeProjectUrl() ?: defaultUrl()
         }
     )
-    extension.inceptionYear?.let { pom.inceptionYear.set(provider { it }) }
+    pom.inceptionYear.set(extension.inceptionYear)
     pom.licenses { licenses ->
         licenses.license { license ->
             license.name.set(extension.license.name)

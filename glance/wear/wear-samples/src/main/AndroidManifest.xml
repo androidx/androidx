@@ -44,6 +44,23 @@
                 android:resource="@xml/hello_widget_info" />
         </service>
 
+        <service
+            android:name=".Material3ThemeWidgetService"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/material3_theme_widget_label"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+
+            <intent-filter>
+                <action android:name="androidx.glance.wear.action.BIND_WIDGET_PROVIDER" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="androidx.glance.wear.widget.provider"
+                android:resource="@xml/material3_theme_widget_info" />
+        </service>
+
         <uses-library
             android:name="com.google.android.wearable"
             android:required="true" />

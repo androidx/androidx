@@ -103,7 +103,7 @@ class FaceTrackingActivity : ComponentActivity() {
         sessionHelper =
             SessionLifecycleHelper(
                 this,
-                Config(faceTracking = Config.FaceTrackingMode.USER),
+                Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES),
                 onSessionAvailable = { session ->
                     this.session = session
                     lifecycleScope.launch {

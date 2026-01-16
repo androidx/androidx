@@ -134,6 +134,7 @@ internal actual constructor(
     }
 
     // only because PointerEvent was a data class
+    @Suppress("KmpModifierMismatch") // commonStubsMain is operator
     fun component1(): List<PointerInputChange> = changes
 
     // only because PointerEvent was a data class

@@ -41,14 +41,9 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                implementation(libs.wireRuntime)
-            }
-        }
-        androidMain {
-            dependsOn(commonMain)
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            implementation(libs.wireRuntime)
         }
     }
 }

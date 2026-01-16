@@ -24,17 +24,13 @@ import static com.android.extensions.xr.node.ReformEvent.REFORM_TYPE_RESIZE;
 import static com.android.extensions.xr.node.ReformOptions.ALLOW_MOVE;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.util.concurrent.Futures.immediateFuture;
 import static com.google.common.util.concurrent.MoreExecutors.directExecutor;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.content.Context;
@@ -48,8 +44,6 @@ import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
-import androidx.xr.scenecore.impl.perception.Session;
 import androidx.xr.scenecore.runtime.AnchorPlacement;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.Entity;
@@ -98,39 +92,33 @@ import java.util.List;
 @Config(sdk = {Config.TARGET_SDK})
 public class MovableComponentImplTest {
 
+    @Rule public final Expect expect = Expect.create();
     private final ActivityController<Activity> mActivityController =
             Robolectric.buildActivity(Activity.class);
     private final Activity mActivity = mActivityController.create().start().get();
     private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
-    private final PerceptionLibrary mPerceptionLibrary = mock(PerceptionLibrary.class);
     private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
     private final EntityManager mEntityManager = new EntityManager();
-
-    private SpatialSceneRuntime mFakeRuntime;
-    private ActivitySpaceImpl mActivitySpaceImpl;
-    private Node mActivitySpaceNode;
     private final PanelShadowRenderer mPanelShadowRenderer =
             Mockito.mock(PanelShadowRenderer.class);
     private final NodeRepository mNodeRepository = NodeRepository.getInstance();
-
-    @Rule public final Expect expect = Expect.create();
 
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
             GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING");
 
+    private SpatialSceneRuntime mFakeRuntime;
+    private ActivitySpaceImpl mActivitySpaceImpl;
+    private Node mActivitySpaceNode;
+
     @Before
     public void setUp() {
-        when(mPerceptionLibrary.initSession(eq(mActivity), anyInt(), eq(mFakeExecutor)))
-                .thenReturn(immediateFuture(mock(Session.class)));
-        when(mPerceptionLibrary.getActivity()).thenReturn(mActivity);
         mFakeRuntime =
                 SpatialSceneRuntime.create(
                         mActivity,
                         mFakeExecutor,
                         mXrExtensions,
                         mEntityManager,
-                        mPerceptionLibrary,
                         /* unscaledGravityAlignedActivitySpace= */ false);
         mActivitySpaceImpl = (ActivitySpaceImpl) mFakeRuntime.getActivitySpace();
         mActivitySpaceNode = mActivitySpaceImpl.mNode;
@@ -557,6 +545,34 @@ public class MovableComponentImplTest {
 
         verify(mockMoveEventListener1).onMoveEvent(any());
         verify(mockMoveEventListener2).onMoveEvent(any());
+    }
+
+    @Test
+    public void addMoveEventListenerOnDefaultExecutor_invokesListenerOnDefaultExecutor() {
+        Entity entity = createTestEntity();
+        MovableComponent movableComponent =
+                new MovableComponentImpl(
+                        /* systemMovable= */ true,
+                        /* scaleInZ= */ true,
+                        /* userAnchorable= */ false,
+                        mActivitySpaceImpl,
+                        mPanelShadowRenderer,
+                        mFakeExecutor);
+        assertThat(movableComponent).isNotNull();
+        assertThat(entity.addComponent(movableComponent)).isTrue();
+        ReformOptions options = mNodeRepository.getReformOptions(getEntityNode(entity));
+        MoveEventListener mockMoveEventListener = mock(MoveEventListener.class);
+
+        movableComponent.addMoveEventListener(mockMoveEventListener);
+        assertThat(options.getEventCallback()).isNotNull();
+        assertThat(options.getEventExecutor()).isNotNull();
+
+        ReformEvent reformEvent =
+                ShadowReformEvent.create(
+                        /* type= */ REFORM_TYPE_MOVE, /* state= */ REFORM_STATE_START, /* id= */ 0);
+
+        sendReformEvent(getEntityNode(entity), reformEvent);
+        verify(mockMoveEventListener).onMoveEvent(any());
     }
 
     @Test

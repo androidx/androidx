@@ -42,6 +42,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
@@ -51,7 +52,6 @@ import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
-import org.junit.Assume.assumeFalse
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -144,14 +144,11 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
         }
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/460511639
     @Test
     @LargeTest
     @Throws(InterruptedException::class)
     fun testBackCollapsesActionView() {
-        assumeFalse(
-            "Test fails on cuttlefish b/460511639",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
-        )
         with(ActivityScenario.launch(activityClass)) {
             // Click on the Search menu item
             onView(withId(R.id.action_search)).perform(click())
@@ -208,11 +205,8 @@ abstract class BaseKeyEventsTestCase<A : BaseTestActivity>(private val activityC
 
     @Test
     @MediumTest
+    @SdkSuppress(maxSdkVersion = 35) // b/460511639
     fun testBackPressWithEmptyMenuHandledByActivity() {
-        assumeFalse(
-            "Test fails on cuttlefish b/460511639",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
-        )
         with(ActivityScenario.launch(activityClass)) {
             // Pressing the menu key with an empty menu does nothing.
             val scenario = (this as? ActivityScenario<BaseTestActivity>)!!

@@ -38,22 +38,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
+import androidx.compose.ui.test.performKeyInput
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.xr.glimmer.GlimmerRule
 import androidx.xr.glimmer.Text
-import androidx.xr.glimmer.createGlimmerRule
+import androidx.xr.glimmer.testutils.createGlimmerRule
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -64,7 +70,7 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
     val testDispatcher = StandardTestDispatcher()
     @get:Rule(0) val rule: ComposeContentTestRule = createComposeRule(testDispatcher)
 
-    @get:Rule(1) val glimmerRule: GlimmerRule = createGlimmerRule()
+    @get:Rule(1) val glimmerRule = createGlimmerRule()
 
     val vertical: Boolean
         get() = orientation == Orientation.Vertical
@@ -75,7 +81,7 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
         state: ListState = rememberListState(),
         listOrientation: Orientation = orientation,
         userScrollEnabled: Boolean = true,
-        flingBehavior: FlingBehavior = rememberSnapFlingBehavior(state),
+        flingBehavior: FlingBehavior = VerticalListDefaults.flingBehavior(state),
         horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
         horizontalArrangement: Arrangement.Horizontal = Arrangement.Center,
         verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
@@ -99,6 +105,7 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
                 flingBehavior = flingBehavior,
                 modifier = modifier.testTag(LIST_TEST_TAG),
                 contentPadding = contentPadding,
+                reverseLayout = false,
             ) {
                 items(itemsCount, key = keyProvider) { index -> itemContent(index) }
             }
@@ -120,6 +127,36 @@ abstract class BaseListTestWithOrientation(protected val orientation: Orientatio
         } else {
             this.fillMaxHeight()
         }
+
+    fun SemanticsNodeInteraction.touchScrollMainAxisBy(distance: Dp) {
+        val x = if (vertical) 0.dp else distance
+        val y = if (vertical) distance else 0.dp
+        this.touchScrollBy(x = x, y = y)
+    }
+
+    fun SemanticsNodeInteraction.touchScrollBy(x: Dp, y: Dp) = performTouchInput {
+        with(rule.density) {
+            val xPx = x.roundToPx()
+            val yPx = y.roundToPx()
+            swipeWithVelocity(
+                start = center,
+                end = Offset(center.x - xPx, center.y - yPx),
+                endVelocity = 0f,
+            )
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    fun SemanticsNodeInteraction.navigateToNextItemWithKeyInput() {
+        performKeyInput {
+            if (vertical) pressKey(Key.DirectionDown) else pressKey(Key.DirectionRight)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    fun SemanticsNodeInteraction.navigateToPreviousItemWithKeyInput() {
+        performKeyInput { if (vertical) pressKey(Key.DirectionUp) else pressKey(Key.DirectionLeft) }
+    }
 
     fun SemanticsNodeInteraction.assertMainAxisSizeIsEqualTo(expectedSize: Dp) =
         if (vertical) {

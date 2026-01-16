@@ -120,7 +120,7 @@ private fun createAuthenticationCallback(
 ): AuthenticationCallback {
     return object : AuthenticationCallback() {
         override fun onAuthenticationFailed() {
-            resultCallback.onAuthFailure()
+            resultCallback.onAuthAttemptFailed()
         }
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {

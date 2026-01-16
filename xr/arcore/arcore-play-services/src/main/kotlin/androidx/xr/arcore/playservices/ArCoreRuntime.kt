@@ -19,6 +19,8 @@ package androidx.xr.arcore.playservices
 import androidx.annotation.RestrictTo
 import androidx.xr.arcore.runtime.PerceptionRuntime
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.Config.ConfigMode
+import com.google.ar.core.Config as ArCoreConfig
 import kotlin.time.ComparableTimeMark
 
 /**
@@ -54,7 +56,54 @@ internal constructor(
         lifecycleManager.configure(config)
     }
 
+    override fun isSupported(configMode: ConfigMode): Boolean {
+        if (configMode is Config.DepthEstimationMode) {
+            return isDepthModeSupportedInArCore1x(configMode)
+        } else if (configMode is Config.GeospatialMode) {
+            return isGeoSpatialModeSupportedInArCore1x(configMode)
+        }
+        return SUPPORTED_CONFIG_MODES.contains(configMode)
+    }
+
     override fun destroy() {
         lifecycleManager.stop()
+    }
+
+    private fun isDepthModeSupportedInArCore1x(
+        depthEstimationMode: Config.DepthEstimationMode
+    ): Boolean {
+        val arCoreDepthMode =
+            when (depthEstimationMode) {
+                Config.DepthEstimationMode.SMOOTH_ONLY,
+                Config.DepthEstimationMode.SMOOTH_AND_RAW -> ArCoreConfig.DepthMode.AUTOMATIC
+                Config.DepthEstimationMode.RAW_ONLY -> ArCoreConfig.DepthMode.RAW_DEPTH_ONLY
+                else -> ArCoreConfig.DepthMode.DISABLED
+            }
+        return lifecycleManager._session.isDepthModeSupported(arCoreDepthMode)
+    }
+
+    private fun isGeoSpatialModeSupportedInArCore1x(
+        geospatialMode: Config.GeospatialMode
+    ): Boolean {
+        val arCoreGeospatialMode =
+            when (geospatialMode) {
+                Config.GeospatialMode.VPS_AND_GPS -> ArCoreConfig.GeospatialMode.ENABLED
+                else -> ArCoreConfig.GeospatialMode.DISABLED
+            }
+        return lifecycleManager._session.isGeospatialModeSupported(arCoreGeospatialMode)
+    }
+
+    internal companion object {
+        internal val SUPPORTED_CONFIG_MODES: Set<ConfigMode> =
+            setOf(
+                Config.CameraFacingDirection.WORLD,
+                Config.CameraFacingDirection.USER,
+                Config.DeviceTrackingMode.DISABLED,
+                Config.DeviceTrackingMode.LAST_KNOWN,
+                Config.FaceTrackingMode.DISABLED,
+                Config.FaceTrackingMode.MESHES,
+                Config.PlaneTrackingMode.DISABLED,
+                Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
+            )
     }
 }

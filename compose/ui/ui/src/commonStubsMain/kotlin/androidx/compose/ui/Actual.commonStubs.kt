@@ -16,18 +16,6 @@
 
 package androidx.compose.ui
 
-import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.platform.InspectorInfo
-
-internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean = implementedInJetBrainsFork()
-
-internal actual fun classKeyForObject(a: Any): Any = implementedInJetBrainsFork()
-
-internal actual fun InspectorInfo.tryPopulateReflectively(element: ModifierNodeElement<*>): Unit =
-    implementedInJetBrainsFork()
-
-internal actual fun currentTimeMillis(): Long = implementedInJetBrainsFork()
-
 internal actual fun postDelayed(delayMillis: Long, block: () -> Unit): Any =
     implementedInJetBrainsFork()
 

@@ -19,8 +19,7 @@ package androidx.glance.wear
 import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.CreationDisplayInfo
-import androidx.compose.remote.creation.compose.capture.painter.RemotePainter
-import androidx.compose.remote.creation.compose.capture.painter.painterRemoteColor
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -28,29 +27,22 @@ import androidx.glance.wear.composable.WearWidgetContainer
 import androidx.glance.wear.parcel.WearWidgetCapture
 
 /**
- * Describes the contents of a Widget with Remote Compose.
+ * Defines the content of a widget using Remote Compose.
  *
- * The content provided will be captured into a Remote Compose document.
+ * The provided composable content will be captured into a Remote Compose document for display
+ * within a widget.
  *
- * @param content The RemoteComposable corresponding to contents of the widget.
+ * @param backgroundColor The [Color] for the widget's background. The system draws this color
+ *   behind the [content], applying clipping and system-defined padding.
+ * @param content The RemoteComposable content of the widget. This content is rendered in a padded
+ *   area on top of the background.
  */
-// TODO: Add @RemoteComposable annotation to content parameter once it's public.
-public class WearWidgetDocument
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Suppress("RestrictedApiAndroidX")
-constructor(
-    private val backgroundPainter: RemotePainter,
-    public val content: @Composable () -> Unit,
+public class WearWidgetDocument(
+    private val backgroundColor: Color,
+    private val content: @RemoteComposable @Composable () -> Unit,
 ) : WearWidgetData {
 
-    // TODO: Remove this when RemotePainter it's public.
-    @Suppress("RestrictedApiAndroidX")
-    public constructor(
-        content: @Composable () -> Unit
-    ) : this(backgroundPainter = painterRemoteColor(Color.Transparent), content = content)
-
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @Suppress("RestrictedApiAndroidX")
     override suspend fun captureRawContent(
         context: Context,
         params: WearWidgetParams,
@@ -67,7 +59,7 @@ constructor(
                 horizontalPadding = params.horizontalPaddingDp.dp,
                 verticalPadding = params.verticalPaddingDp.dp,
                 cornerRadius = params.cornerRadiusDp.dp,
-                backgroundPainter = backgroundPainter,
+                backgroundColor = backgroundColor,
                 content = content,
             )
         }

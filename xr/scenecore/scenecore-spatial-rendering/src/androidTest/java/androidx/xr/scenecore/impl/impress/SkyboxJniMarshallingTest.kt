@@ -41,7 +41,7 @@ class SkyboxJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetExpectedLoadIblPath(TEST_IBL_PATH)
         ImpressApiTestHelper.nativeSetLoadIblAssetSuccess(TEST_NATIVE_TOKEN)
 
-        val actualImage = mImpressApi.loadImageBasedLightingAssetTemp(TEST_IBL_PATH)
+        val actualImage = mImpressApi.loadImageBasedLightingAsset(TEST_IBL_PATH)
 
         val actualToken = actualImage.nativeHandle
         assertThat(actualToken).isEqualTo(TEST_NATIVE_TOKEN)
@@ -54,7 +54,7 @@ class SkyboxJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetExpectedLoadIblAssetTestPattern(testSize, TEST_IBL_KEY)
         ImpressApiTestHelper.nativeSetLoadIblAssetSuccess(TEST_NATIVE_TOKEN)
 
-        val actualImage = mImpressApi.loadImageBasedLightingAssetTemp(testData, TEST_IBL_KEY)
+        val actualImage = mImpressApi.loadImageBasedLightingAsset(testData, TEST_IBL_KEY)
 
         val actualToken = actualImage.nativeHandle
         assertThat(actualToken).isEqualTo(TEST_NATIVE_TOKEN)
@@ -66,9 +66,7 @@ class SkyboxJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetLoadIblAssetFailure(TEST_ERROR_MESSAGE)
 
         val exception =
-            assertFailsWith<Exception> {
-                mImpressApi.loadImageBasedLightingAssetTemp(TEST_IBL_PATH)
-            }
+            assertFailsWith<Exception> { mImpressApi.loadImageBasedLightingAsset(TEST_IBL_PATH) }
 
         assertThat(exception).hasMessageThat().contains(TEST_ERROR_MESSAGE)
     }
@@ -82,7 +80,7 @@ class SkyboxJniMarshallingTest : BaseJniMarshallingTest() {
 
         val exception =
             assertFailsWith<Exception> {
-                mImpressApi.loadImageBasedLightingAssetTemp(testData, TEST_IBL_KEY)
+                mImpressApi.loadImageBasedLightingAsset(testData, TEST_IBL_KEY)
             }
 
         assertThat(exception).hasMessageThat().contains(TEST_ERROR_MESSAGE)

@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ជួរដេកក៏អាចត្រូវបានជ្រើសរើសផងដែរ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"សកម្មភាពបន្ទាប់បន្សំត្រូវបានជ្រើសរើស"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"សកម្មភាពចម្បងជួរដេកត្រូវបានជ្រើសរើស"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"គំរូបង្ហាញសកម្មភាព និងរូបភាពនៅចុងជួរដេក"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"គំរូបង្ហាញបញ្ជីទទេ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"បញ្ជីគឺទទេ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"គំរូបង្ហាញនៃ​ទម្រង់គំរូផ្សេងៗ"</string>

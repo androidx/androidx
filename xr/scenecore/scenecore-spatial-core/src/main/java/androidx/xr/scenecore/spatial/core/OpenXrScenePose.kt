@@ -23,12 +23,10 @@ import androidx.xr.scenecore.runtime.ScenePose
 
 internal class OpenXrScenePose(
     private val activitySpace: ActivitySpaceImpl,
-    activitySpaceRoot: AndroidXrEntity,
     private val perceptionPose: Pose?,
 ) : BaseScenePose() {
 
-    private val openXrScenePoseHelper: OpenXrScenePoseHelper =
-        OpenXrScenePoseHelper(activitySpace, activitySpaceRoot)
+    private val openXrScenePoseHelper: OpenXrScenePoseHelper = OpenXrScenePoseHelper(activitySpace)
 
     override val poseInActivitySpace: Pose
         get() = openXrScenePoseHelper.getPoseInActivitySpace(poseInOpenXrReferenceSpace)

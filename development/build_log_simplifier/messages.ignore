@@ -234,6 +234,8 @@ WARN: .*\/unzippedMultiplatformSources\/wasmJsMain\/androidx\/datastore\/core\/o
 WARN: .*\/unzippedMultiplatformSources\/wasmJsMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedMultiplatformSources\/webCommonMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws IOException in DFunction createConnection\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedMultiplatformSources\/webCommonMain\/androidx\/datastore\/core\/okio\/WebStorage\.wasmJs\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources\/webMain\/androidx\/datastore\/core\/okio\/WebStorage\.web\.kt:[0-9]+ Link does not resolve for @throws IOException in DFunction createConnection\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
+WARN: .*\/unzippedMultiplatformSources\/webMain\/androidx\/datastore\/core\/okio\/WebStorage\.web\.kt:[0-9]+ Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: .*\/unzippedMultiplatformSources\/commonMain\/androidx\/paging\/compose\/LazyPagingItems\.kt:[0-9]+ Failed to resolve See PagingSource\.invalidate in DFunction refresh\. Did you mean PagingSource#invalidate\?
 WARN: .*\/unzippedMultiplatformSources\/desktopMain\/androidx\/compose\/material\/DesktopMenu\.desktop\.kt:[0-9]+ Missing @param tag for parameter `content` in DFunction DropdownMenuItem
 WARN: .*\/unzippedMultiplatformSources\/commonJvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
@@ -322,9 +324,6 @@ WARN: Source sets 'main' and 'commonMain' have the common sample roots: \$OUT_DI
 docs-tip-of-tree:docs completing
 # > Configure project :androidx-demos
 The current default is 'false'\.
-# Investigate more b/325465332
-# buildPrivacySandboxSdkApksForDebug (b/329101823)
-Extracted sandbox SDK APK for.*
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
 .*xcodebuild.*
 # > Task :benchmark:benchmark-darwin-samples:assembleAndroidXDarwinBenchmarksReleaseXCFramework
@@ -345,21 +344,6 @@ warning Ignored scripts due to flag.
 # https://youtrack.jetbrains.com/issue/KT-69929
 e: The daemon has terminated unexpectedly on startup attempt #1 with error code: Unknown\. The daemon process output:
 1\. Kotlin compile daemon is ready
-# b/359449191
-> Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:tools:integration\-tests:testsdk\-asb\) with ExtractCompileSdkShimTransform
-WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' for not yet loaded registry
-warning: unable to find kotlin\-stdlib\.jar in the Kotlin home directory\. Pass either '\-no\-stdlib' to prevent adding it to the classpath, or the correct '\-kotlin\-home'
-warning: unable to find kotlin\-script\-runtime\.jar in the Kotlin home directory\. Pass either '\-no\-stdlib' to prevent adding it to the classpath, or the correct '\-kotlin\-home'
-# b/388455777
-\$OUT_DIR/tmp/extract\-shim\-transform[0-9]+/androidx/privacysandbox/tools/integration/testsdk/NativeAd\.kt:[0-9]+:[0-9]+: warning: this API is experimental\. It may be changed in the future without notice\.
-\^+$
-public interface NativeAd : SharedUiAdapter
-\$OUT_DIR/tmp/extract\-shim\-transform[0-9]+/androidx/privacysandbox/tools/integration/testsdk/NativeAdClientProxy\.kt:[0-9]+:[0-9]+: warning: this API is experimental\. It may be changed in the future without notice\.
-public override fun openSession\(clientExecutor: Executor, client: SharedUiAdapter\.SessionClient\) \{
-public val sharedUiAdapter: SharedUiAdapter =
-SharedUiAdapterFactory\.createFromCoreLibInfo\(coreLibInfo\)
-client: SharedUiAdapter\.SessionClient\) \{
-sharedUiAdapter\.openSession\(clientExecutor, client\)
 # develocity plugin begign warning, reported back to Gradle
 Failed sysctl call: hw\.nperflevels, Error code: 2
 # > Task :benchmark:benchmark-macro:processReleaseAndroidTestManifest
@@ -383,11 +367,6 @@ Completed
 # https://github.com/kythe/kythe/issues/6145
 .*com.google\.devtools\.kythe\.extractors\.java\.JavaCompilationUnitExtractor.*
 ^WARNING: Empty java source file.*
-# b/359449191
-> Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:integration\-tests:testsdkproviderwrapper\) with ExtractCompileSdkShimTransform
-> Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:integration\-tests:mediateesdkproviderwrapper\) with ExtractCompileSdkShimTransform
-> Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:macrobenchmark:testapp:testsdkproviderwrapper\) with ExtractCompileSdkShimTransform
-> Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:ui:macrobenchmark:testapp:mediateesdkproviderwrapper\) with ExtractCompileSdkShimTransform
 # > Task :room3:integration-tests:room-testapp:runErrorProneWithPreKmpCompilerRelease
 \$OUT_DIR/androidx/room3/integration\-tests/room\-testapp/build/errorProne/WithPreKmpCompilerRelease/androidx/room3/integration/testapp/database/CustomerDao_Impl\.java:[0-9]+: warning: \[removal\] finalize\(\) in Object has been deprecated and marked for removal
 protected void finalize\(\) \{
@@ -395,10 +374,6 @@ protected void finalize\(\) \{
 # b/399029837
 ^C/C\+\+: ninja: warning: build log version is too old; starting over.*
 ^C/C\+\+: ninja: warning: bad deps log signature or version; starting over.*
-# b/388455777 Warnings are thrown for classes generated by privacysandbox-tools for features behind
-# the @RequiresOptIn flag. This can be ignored for now as all required code is still generated.
-# > Task :privacysandbox:tools:integration-tests:testsdk:compileReleaseKotlin
-w: file://\$OUT_DIR/androidx/privacysandbox/tools/integration\-tests/testsdk/build/generated/ksp/release/kotlin/androidx/privacysandbox/tools/integration/testsdk/NativeAdDataConverter\.kt:[0-9]+:[0-9]+ This API is experimental\. It may be changed in the future without notice\.
 # > Task :docs-public:docs
 In Dokka K[0-9]+ it will be an error\. Also, please consider reporting your user case: https://github\.com/Kotlin/dokka/issues/[0-9]+
 WARN: \$OUT_DIR/androidx/docs\-public/build/unzippedJvmSources/androidx/biometric/auth/CredentialAuthExtensions\.kt:[0-9]+ Failed to resolve See CredentialAuthPrompt\.authenticate in DFunction authenticate\. Did you mean CredentialAuthPrompt\#authenticate\?
@@ -428,7 +403,7 @@ warning Waiting for the other yarn instance to finish.*
 Analyzing \d+ files from .*/(kotlin|jvm|java|processedResources|sources)(.*/.*)
 Writing out Java source to .*benchmark.*
 # b/446708295, b/409324917, b/407927787, b/429040474 Tracing - Driver warnings (https://youtrack.jetbrains.com/issue/KTIJ-22326)
-w: file://\$SUPPORT/[a-zA-Z-_/]+\.kt:[0-9]+:[0-9]+ Suppression of error '(OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE|UNSAFE_CALL|INVISIBLE_REFERENCE|WRONG_ANNOTATION_TARGET|UPPER_BOUND_VIOLATED)' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED\. Please report your use case to the Kotlin issue tracker instead: https://kotl\.in/issue
+w: file://\$SUPPORT/[a-zA-Z-_/\.]+\.kt:[0-9]+:[0-9]+ Suppression of error '(OPTIONAL_DECLARATION_USAGE_IN_NON_COMMON_SOURCE|UNSAFE_CALL|INVISIBLE_REFERENCE|WRONG_ANNOTATION_TARGET|UPPER_BOUND_VIOLATED)' might compile and work, but the compiler behavior is UNSPECIFIED and WILL NOT BE PRESERVED\. Please report your use case to the Kotlin issue tracker instead: https://kotl\.in/issue
 # Cannot be suppressed because the issue is in generated code
 # > Task :compose:integration-tests:hero:pokedex:pokedex-macrobenchmark-target:compileDebugKotlin
 w: file://\$OUT_DIR/androidx/compose/integration\-tests/hero/pokedex/pokedex\-macrobenchmark\-target/build/generated/ksp/debug/kotlin/com/bumptech/glide/GeneratedAppGlideModuleImpl\.kt:[0-9]+:[0-9]+ 'internal' declaration exposes 'public/\*package\*/' type 'GeneratedAppGlideModule'\. This will become an error in language version [0-9]+\.[0-9]+\. See https://youtrack\.jetbrains\.com/issue/KTLC\-[0-9]+\.
@@ -452,3 +427,9 @@ w: KLIB resolver: The same 'unique_name=kotlin\-stdlib\-common' found in more th
 # > Task :wear:watchfacepush:watchfacepush:processReleaseAndroidTestManifest
 \$SUPPORT/wear/watchfacepush/watchfacepush/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 uses\-library\#wear\-sdk@android:required was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present
+# > Task :appfunctions:integration-tests:multi-modules-testapp:app:compileDebugAndroidTestKotlin
+# b/472412144
+\[KOTLIN\] \[IC\] Incremental compilation was attempted but failed:
+java\.lang\.IllegalStateException: The following LookupSymbols are not yet converted to ProgramSymbols:.*
+(?:.*[\n\r])*.*Falling back to non\-incremental compilation \(reason = IC_FAILED_TO_COMPUTE_FILES_TO_RECOMPILE\)
+(?:.*[\n\r])*.*e: Incremental compilation failed: The following LookupSymbols are not yet converted to ProgramSymbols:.*SchemaAppFunctionInventory_Impl\)

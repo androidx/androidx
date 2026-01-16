@@ -24,6 +24,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
+import androidx.camera.core.RotationProvider
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.StreamSpecsCalculatorImpl
 import androidx.camera.testing.fakes.FakeCamera
@@ -264,6 +265,7 @@ class LifecycleCameraProviderTest(
                         ),
                         FakeUseCaseConfigFactory(),
                     ),
+                    RotationProvider(context),
                 )
         }
 

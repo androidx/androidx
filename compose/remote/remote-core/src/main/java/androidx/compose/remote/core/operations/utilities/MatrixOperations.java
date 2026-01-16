@@ -171,27 +171,24 @@ public class MatrixOperations {
     static {
         int k = 0;
         sNames.put(k++, "NOP");
-        sNames.put(k++, "+");
-        sNames.put(k++, "-");
-        sNames.put(k++, "*");
-        sNames.put(k++, "/");
-        sNames.put(k++, "%");
-        sNames.put(k++, "min");
-        sNames.put(k++, "max");
-        sNames.put(k++, "pow");
-        sNames.put(k++, "sqrt");
-        sNames.put(k++, "abs");
-        sNames.put(k++, "sign");
-        sNames.put(k++, "copySign");
-        sNames.put(k++, "exp");
-        sNames.put(k++, "floor");
-        sNames.put(k++, "log");
-        sNames.put(k++, "ln");
-        sNames.put(k++, "round");
-        sNames.put(k++, "sin");
-        sNames.put(k++, "cos");
-        sNames.put(k++, "tan");
-        sNames.put(k++, "asin");
+        sNames.put(k++, "IDENTITY");
+        sNames.put(k++, "ROT_X");
+        sNames.put(k++, "ROT_Y");
+        sNames.put(k++, "ROT_Z");
+        sNames.put(k++, "TRANSLATE_X");
+        sNames.put(k++, "TRANSLATE_Y");
+        sNames.put(k++, "TRANSLATE_Z");
+        sNames.put(k++, "TRANSLATE2");
+        sNames.put(k++, "TRANSLATE_3");
+        sNames.put(k++, "SCALE_X");
+        sNames.put(k++, "SCALE_Y");
+        sNames.put(k++, "SCALE_Z");
+        sNames.put(k++, "SCALE2");
+        sNames.put(k++, "SCALE3");
+        sNames.put(k++, "MUL");
+        sNames.put(k++, "ROT_PZ");
+        sNames.put(k++, "ROT_AXIS");
+        sNames.put(k++, "PROJECTION");
     }
 
     /**

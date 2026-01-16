@@ -33,7 +33,6 @@ import androidx.room3.parser.ParsedQuery
 import androidx.room3.solver.TypeAdapterExtras
 import androidx.room3.solver.prepared.binder.CoroutinePreparedQueryResultBinder
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
-import androidx.room3.solver.query.result.CoroutineResultBinder
 import androidx.room3.solver.query.result.QueryResultBinder
 import androidx.room3.solver.shortcut.binder.CoroutineDeleteOrUpdateFunctionBinder
 import androidx.room3.solver.shortcut.binder.CoroutineInsertOrUpsertFunctionBinder
@@ -195,11 +194,12 @@ class SuspendFunctionProcessorDelegate(
         query: ParsedQuery,
         extrasCreator: TypeAdapterExtras.() -> Unit,
     ) =
-        CoroutineResultBinder(
-            typeArg = returnType,
-            adapter =
-                context.typeAdapterStore.findQueryResultAdapter(returnType, query, extrasCreator),
-            continuationParamName = continuationParam.name,
+        context.typeAdapterStore.findCoroutineQueryResultBinder(
+            returnType,
+            query,
+            TypeAdapterExtras().apply(extrasCreator).apply {
+                putData(ContinuationParamName::class, ContinuationParamName(continuationParam.name))
+            },
         )
 
     override fun findPreparedResultBinder(returnType: XType, query: ParsedQuery) =
@@ -256,3 +256,5 @@ class SuspendFunctionProcessorDelegate(
         )
     }
 }
+
+internal data class ContinuationParamName(val paramName: String)

@@ -99,7 +99,7 @@ public class GlanceRemoteViews {
             recomposer.close()
             recomposer.join()
 
-            normalizeCompositionTree(root)
+            normalizeCompositionTree(root, isRemoteCompose = false) // todo: don't hardcode
 
             RemoteViewsCompositionResult(
                 translateComposition(

@@ -3,6 +3,15 @@
 
     <issue
         id="RestrictedApiAndroidX"
+        message="GlanceBackendPreference.RemoteCompose can only be accessed from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="        get() = GlanceBackendPreference.RemoteCompose"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/ButtonsWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
         message="ColorProviderKt.ColorProvider can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
         errorLine1="                    color = ColorProvider(androidx.glance.R.color.glance_colorError),"
         errorLine2="                            ~~~~~~~~~~~~~">
@@ -29,21 +38,48 @@
     </issue>
 
     <issue
+        id="RestrictedApiAndroidX"
+        message="GlanceBackendPreference.RemoteCompose can only be accessed from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="        get() = GlanceBackendPreference.RemoteCompose"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/RCTintDemoWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GlanceBackendPreference.RemoteCompose can only be accessed from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="        get() = GlanceBackendPreference.RemoteCompose"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/RemoteComposeDemoWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="GlanceBackendPreference.RemoteCompose can only be accessed from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="        get() = GlanceBackendPreference.RemoteCompose"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/SnapScrollDemoWidget.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="LazyListKt.LazyColumn-ca5uSD8 can only be called from within the same library group (referenced groupId=`androidx.glance` from groupId=`androidx.glance.glance-appwidget.integration-tests`)"
+        errorLine1="        LazyColumn("
+        errorLine2="        ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/demos/SnapScrollDemoWidget.kt"/>
+    </issue>
+
+    <issue
         id="PrivateResource"
         message="The resource `@color/glance_colorErrorContainer` is marked as private in androidx.glance:glance:1.3.0-alpha01"
         errorLine1="    android:background=&quot;@color/glance_colorErrorContainer&quot;"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/layout/error_ui_app_widget_on_error_layout.xml"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 23"
-        errorLine1="    if (Build.VERSION.SDK_INT &lt; 23) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/demos/ImageAppWidget.kt"/>
     </issue>
 
     <issue

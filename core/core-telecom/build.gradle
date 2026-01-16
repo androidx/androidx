@@ -49,11 +49,8 @@ dependencies {
 }
 
 android {
-    compileSdk = 36
-    compileSdkMinor = 1
+    compileSdk { version = release(36) { minorApiLevel = 1 }}
     namespace = "androidx.core.telecom"
-    compileSdk = 36
-    compileSdkMinor = 1
     buildFeatures {
         aidl = true
     }

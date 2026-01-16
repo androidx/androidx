@@ -62,6 +62,12 @@ class SpatialPointerComponentImpl implements SpatialPointerComponent {
     }
 
     @Override
+    @SpatialPointerIconType
+    public int getSpatialPointerIcon() {
+        return mSpatialPointerIconType;
+    }
+
+    @Override
     public void setSpatialPointerIcon(@SpatialPointerIconType int icon) {
         mSpatialPointerIconType = icon;
 
@@ -71,11 +77,5 @@ class SpatialPointerComponentImpl implements SpatialPointerComponent {
                             mEntity.getNode(), RuntimeUtils.convertSpatialPointerIconType(icon))
                     .apply();
         }
-    }
-
-    @Override
-    @SpatialPointerIconType
-    public int getSpatialPointerIcon() {
-        return mSpatialPointerIconType;
     }
 }

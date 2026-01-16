@@ -42,13 +42,10 @@ dependencies {
     implementation(libs.androidx.annotation)
     annotationProcessor(libs.autoValue)
 
-    compileOnly(project(":camera:camera-extensions-stub"))
-
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
     testImplementation(project(":camera:camera-testing"))
-    testImplementation(project(":camera:camera-extensions-stub"))
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
@@ -71,7 +68,6 @@ dependencies {
     }
     androidTestImplementation(project(":camera:camera-video"))
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(project(":camera:camera-testlib-extensions"))
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.guavaAndroid)
@@ -82,7 +78,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig.consumerProguardFiles("proguard-rules.pro")
     lint {
         enable.add("CameraXQuirksClassDetector")
@@ -94,6 +90,7 @@ android {
 androidx {
     name = "Camera Extensions"
     type = SoftwareType.PUBLISHED_LIBRARY
+    samples(project(":camera:camera-extensions:camera-extensions-samples"))
     inceptionYear = "2019"
     description = "OEM Extensions for the Jetpack Camera Library, a library providing interfaces" +
             " to integrate with OEM specific camera features."

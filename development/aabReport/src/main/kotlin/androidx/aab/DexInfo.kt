@@ -16,7 +16,6 @@
 
 package androidx.aab
 
-import java.io.InputStream
 import java.security.MessageDigest
 import java.util.zip.CRC32
 import kotlin.collections.map
@@ -62,7 +61,18 @@ data class DexInfo(
     val noPackageClassCount: Int,
     val classInfo: List<ClassInfo>,
 ) {
-    class ClassInfo(val packageName: String, val className: String, val size: Int) {
+    /**
+     * Used to hold onto dex data captured during parsing, for later extraction into DexInfo (once
+     * strings are loaded from resources)
+     */
+    class DeferredDexFile(val entryName: String, val compressedSize: Long, val bytes: ByteArray)
+
+    class ClassInfo(
+        val packageName: String,
+        className: String,
+        val size: Int,
+        val usedByXml: Boolean,
+    ) {
         val fullName: String = if (packageName.isEmpty()) className else "$packageName.$className"
         val startsWithLowerCase = className[0].isLowerCase()
         val classNameAppearsMinified =
@@ -101,6 +111,8 @@ data class DexInfo(
     }
 
     companion object {
+        const val DEBUG_XML = false
+
         internal fun packageNameForType(type: String?): String {
             val parts = type!!.split("\\.".toRegex())
             val sb = StringBuilder()
@@ -138,11 +150,20 @@ data class DexInfo(
             }
         }
 
-        fun from(entryName: String, compressedSize: Long, src: InputStream): DexInfo {
+        fun List<DeferredDexFile>.toDexInfo(xmlStrings: MutableSet<String>): List<DexInfo> {
+            return map { from(it, xmlStrings) }
+                .also {
+                    if (DEBUG_XML) {
+                        xmlStrings.forEach { println("    remaining xml string : $it") }
+                    }
+                }
+        }
+
+        fun from(deferredDexFile: DeferredDexFile, xmlStrings: MutableSet<String>): DexInfo {
             val crc = CRC32()
             val sha256 = MessageDigest.getInstance("SHA-256")
 
-            val bytes = src.readAllBytes()
+            val bytes = deferredDexFile.bytes
             crc.update(bytes)
             sha256.update(bytes)
             val dexFile = DexBackedDexFile(Opcodes.getDefault(), bytes)
@@ -161,9 +182,9 @@ data class DexInfo(
             var noPackage = 0
             var classCount = 0
             val classInfo = mutableListOf<ClassInfo>()
+
             dexFile.classes.forEach { cls ->
                 val isTopLevel = !cls.type.contains("$")
-
                 if (!isTopLevel) return@forEach
 
                 classCount++
@@ -171,8 +192,13 @@ data class DexInfo(
                 val type = signatureToType(cls.type)
                 val packageName = packageNameForType(type)
                 val className = classNameForType(type)
+                val usedByXml = type in xmlStrings
 
-                ClassInfo(packageName, className, cls.size).apply {
+                if (usedByXml) {
+                    xmlStrings.remove(type)
+                }
+
+                ClassInfo(packageName, className, cls.size, usedByXml).apply {
                     if (startsWithLowerCase) minifiedClassCountLowercase++
                     if (classNameAppearsMinified) minifiedClassCountLengthHeuristic++
                     if (packageName.isEmpty()) noPackage++
@@ -188,11 +214,11 @@ data class DexInfo(
 
             // 4. Return the results in the data class.
             return DexInfo(
-                entryName = entryName,
+                entryName = deferredDexFile.entryName,
                 crc32 = crc32Hex,
                 sha256 = sha256Hex,
                 uncompressedSize = bytes.size.toLong(),
-                compressedSize = compressedSize,
+                compressedSize = deferredDexFile.compressedSize,
                 r8MapId = r8MapId,
                 r8Markers = r8Markers,
                 minifiedClassCountLowercase = minifiedClassCountLowercase,
@@ -207,7 +233,18 @@ data class DexInfo(
                 CsvColumn<List<DexInfo>>(
                     columnLabel = "dex_totalSizeMb",
                     description = "Total size of dex in MB",
-                    calculate = { (it.sumOf { it.uncompressedSize } / (1024.0 * 1024)).toString() },
+                    calculate = {
+                        (it.sumOf { dex -> dex.uncompressedSize } / (1024.0 * 1024)).toString()
+                    },
+                ),
+                CsvColumn<List<DexInfo>>(
+                    columnLabel = "dex_classTotalSizeMb",
+                    description = "Total size of dex in MB calculated from classes",
+                    calculate = {
+                        (it.sumOf { dex -> dex.classInfo.sumOf { clazz -> clazz.size } } /
+                                (1024.0 * 1024))
+                            .toString()
+                    },
                 ),
                 CsvColumn<List<DexInfo>>(
                     columnLabel = "dex_minifiedClassesLower",

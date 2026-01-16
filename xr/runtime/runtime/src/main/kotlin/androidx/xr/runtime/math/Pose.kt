@@ -19,8 +19,8 @@ package androidx.xr.runtime.math
 /**
  * Represents an immutable rigid transformation from one coordinate space to another.
  *
- * @property translation the translation component of this pose.
- * @property rotation the rotation component of this pose.
+ * @property translation the translation component of this pose
+ * @property rotation the rotation component of this pose
  */
 public class Pose
 @JvmOverloads
@@ -80,21 +80,26 @@ constructor(
     public fun rotate(rotation: Quaternion): Pose = Pose(this.translation, this.rotation * rotation)
 
     /**
-     * Transforms the provided point by the pose by applying both the rotation and the translation
-     * components of the pose. This is because a point represents a specific location in space. It
-     * needs to account for the position, scale and orientation of the space it is in.
+     * Transforms the provided [point] by the pose by applying both the [rotation] and the
+     * [translation] components of the pose. This is because a point represents a specific location
+     * in space. It needs to account for the position, scale and orientation of the space it is in.
      */
     public infix fun transformPoint(point: Vector3): Vector3 = rotation * point + translation
 
     /**
-     * Transforms the provided vector by the pose by only applying the rotation component of the
+     * Transforms the provided [vector] by the pose by only applying the [rotation] component of the
      * pose. This is because a vector represents a direction and magnitude, not a specific location.
      * It only needs to account for the scale and orientation of the space it is in since it has no
      * position.
      */
     public infix fun transformVector(vector: Vector3): Vector3 = rotation * vector
 
-    /** Returns a copy of the pose. */
+    /**
+     * Returns a copy of the pose.
+     *
+     * @param translation the new translation for the copied pose
+     * @param rotation the new rotation for the copied pose
+     */
     @JvmOverloads
     public fun copy(
         translation: Vector3 = this.translation,
@@ -121,11 +126,11 @@ constructor(
          * Returns a new pose oriented to look at [target] from [eye] position with [up] as the up
          * vector.
          *
-         * @param eye the position from which to look at [target].
-         * @param target the target position to look at.
-         * @param up a vector indicating the general "up" direction.
+         * @param eye the position from which to look at [target]
+         * @param target the target position to look at
+         * @param up a vector indicating the general "up" direction
          * @return the pose oriented to look at [target] from [eye] position with [up] as the up
-         *   vector.
+         *   vector
          */
         @JvmStatic
         @JvmOverloads
@@ -136,7 +141,12 @@ constructor(
             return Pose(eye, rotation)
         }
 
-        /** Returns the distance between the two poses. */
+        /**
+         * Returns the distance between the two poses.
+         *
+         * @param lhs the first pose
+         * @param rhs the second pose
+         */
         @JvmStatic
         public fun distance(lhs: Pose, rhs: Pose): Float =
             Vector3.Companion.distance(lhs.translation, rhs.translation)
@@ -147,6 +157,10 @@ constructor(
          * will be [slerped][Quaternion.slerp] if the angles are far apart.
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned pose will be extrapolated.
+         *
+         * @param start the starting pose
+         * @param end the ending pose
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun lerp(start: Pose, end: Pose, ratio: Float): Pose {

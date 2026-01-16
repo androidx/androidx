@@ -31,7 +31,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.testutils"
         androidResources.enable = true
     }
@@ -62,43 +62,13 @@ androidXMultiplatform {
             implementation(libs.espressoCore)
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.truth)
+            implementation(project(":compose:material:material"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        androidDeviceTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(project(":compose:material:material"))
-            }
-        }
-
-        androidHostTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.truth)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.truth)
         }
     }
 }

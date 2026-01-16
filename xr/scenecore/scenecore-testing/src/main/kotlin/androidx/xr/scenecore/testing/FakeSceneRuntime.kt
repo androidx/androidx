@@ -26,16 +26,13 @@ import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.AnchorEntity
-import androidx.xr.scenecore.runtime.AudioTrackExtensionsWrapper
-import androidx.xr.scenecore.runtime.CameraViewScenePose
+import androidx.xr.scenecore.runtime.BoundsComponent
 import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfFeature
-import androidx.xr.scenecore.runtime.HeadScenePose
 import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.InteractableComponent
 import androidx.xr.scenecore.runtime.LoggingEntity
-import androidx.xr.scenecore.runtime.MediaPlayerExtensionsWrapper
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose
 import androidx.xr.scenecore.runtime.PixelDimensions
@@ -47,7 +44,6 @@ import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SoundPoolExtensionsWrapper
 import androidx.xr.scenecore.runtime.SpatialCapabilities
-import androidx.xr.scenecore.runtime.SpatialEnvironment
 import androidx.xr.scenecore.runtime.SpatialModeChangeListener
 import androidx.xr.scenecore.runtime.SpatialPointerComponent
 import androidx.xr.scenecore.runtime.SpatialVisibility
@@ -56,14 +52,6 @@ import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.SurfaceFeature
 import java.util.concurrent.Executor
 import java.util.function.Consumer
-
-internal const val ALL_SPATIAL_CAPABILITIES: Int =
-    SpatialCapabilities.SPATIAL_CAPABILITY_UI or
-        SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
-        SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO or
-        SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT or
-        SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL or
-        SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
 
 /**
  * Test-only implementation of [androidx.xr.scenecore.runtime.SceneRuntime].
@@ -99,7 +87,7 @@ public class FakeSceneRuntime(
         SpatialCapabilities(ALL_SPATIAL_CAPABILITIES)
         private set(value) {
             field = value
-            spatialCapabilitiesChangedMap.forEach { (executor, consumer) ->
+            spatialCapabilitiesChangedMap.forEach { (consumer, executor) ->
                 executor.execute { consumer.accept(value) }
             }
         }
@@ -107,42 +95,24 @@ public class FakeSceneRuntime(
     override val activitySpace: FakeActivitySpace =
         FakeActivitySpace(unscaledGravityAlignedActivitySpace)
 
-    override val headActivityPose: HeadScenePose? = FakeHeadScenePose()
-
     override val perceptionSpaceActivityPose: PerceptionSpaceScenePose =
         FakePerceptionSpaceScenePose()
 
     override val soundPoolExtensionsWrapper: SoundPoolExtensionsWrapper =
         FakeSoundPoolExtensionsWrapper()
 
-    override val audioTrackExtensionsWrapper: AudioTrackExtensionsWrapper =
+    override val audioTrackExtensionsWrapper: FakeAudioTrackExtensionsWrapper =
         FakeAudioTrackExtensionsWrapper()
 
-    override val mediaPlayerExtensionsWrapper: MediaPlayerExtensionsWrapper =
+    override val mediaPlayerExtensionsWrapper: FakeMediaPlayerExtensionsWrapper =
         FakeMediaPlayerExtensionsWrapper()
 
     override val mainPanelEntity: PanelEntity = FakePanelEntity()
 
-    override val spatialEnvironment: SpatialEnvironment = FakeSpatialEnvironment()
+    override val spatialEnvironment: FakeSpatialEnvironment = FakeSpatialEnvironment()
 
     override var spatialModeChangeListener: SpatialModeChangeListener? =
         FakeSpatialModeChangeListener()
-
-    private val cameraViewActivityPoseL: FakeCameraViewScenePose =
-        FakeCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE)
-
-    private val cameraViewActivityPoseR: FakeCameraViewScenePose =
-        FakeCameraViewScenePose(CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE)
-
-    override fun getCameraViewActivityPose(
-        @CameraViewScenePose.CameraType cameraType: Int
-    ): CameraViewScenePose? {
-        return when (cameraType) {
-            CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE -> cameraViewActivityPoseL
-            CameraViewScenePose.CameraType.CAMERA_TYPE_RIGHT_EYE -> cameraViewActivityPoseR
-            else -> null
-        }
-    }
 
     override fun getScenePoseFromPerceptionPose(pose: Pose): ScenePose {
         return FakePerceptionSpaceScenePose()
@@ -247,22 +217,22 @@ public class FakeSceneRuntime(
      * [removeSpatialCapabilitiesChangedListener]. Tests can inspect its contents to verify that the
      * correct listeners are registered with their intended executors.
      */
-    internal val spatialCapabilitiesChangedMap: Map<Executor, Consumer<SpatialCapabilities>>
+    public val spatialCapabilitiesChangedMap: Map<Consumer<SpatialCapabilities>, Executor>
         get() = _spatialCapabilitiesChangedMap
 
     private val _spatialCapabilitiesChangedMap:
-        MutableMap<Executor, Consumer<SpatialCapabilities>> =
+        MutableMap<Consumer<SpatialCapabilities>, Executor> =
         mutableMapOf()
 
     override fun addSpatialCapabilitiesChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<SpatialCapabilities>,
     ) {
-        _spatialCapabilitiesChangedMap[callbackExecutor] = listener
+        _spatialCapabilitiesChangedMap[listener] = callbackExecutor
     }
 
     override fun removeSpatialCapabilitiesChangedListener(listener: Consumer<SpatialCapabilities>) {
-        _spatialCapabilitiesChangedMap.values.remove(listener)
+        _spatialCapabilitiesChangedMap.remove(listener)
     }
 
     /**
@@ -276,17 +246,17 @@ public class FakeSceneRuntime(
      * [clearSpatialVisibilityChangedListener]. Tests can inspect its contents to verify that the
      * correct listener is registered or that it has been successfully cleared.
      */
-    public val spatialVisibilityChangedMap: Map<Executor, Consumer<SpatialVisibility>>
+    public val spatialVisibilityChangedMap: Map<Consumer<SpatialVisibility>, Executor>
         get() = _spatialVisibilityChangedMap
 
-    private val _spatialVisibilityChangedMap: MutableMap<Executor, Consumer<SpatialVisibility>> =
+    private val _spatialVisibilityChangedMap: MutableMap<Consumer<SpatialVisibility>, Executor> =
         mutableMapOf()
 
     override fun setSpatialVisibilityChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<SpatialVisibility>,
     ) {
-        _spatialVisibilityChangedMap[callbackExecutor] = listener
+        _spatialVisibilityChangedMap[listener] = callbackExecutor
     }
 
     override fun clearSpatialVisibilityChangedListener() {
@@ -304,21 +274,21 @@ public class FakeSceneRuntime(
      * [removePerceivedResolutionChangedListener]. Tests can inspect its contents to verify that the
      * correct listeners are registered or that they have been successfully removed.
      */
-    public val perceivedResolutionChangedMap: Map<Executor, Consumer<PixelDimensions>>
+    public val perceivedResolutionChangedMap: Map<Consumer<PixelDimensions>, Executor>
         get() = _perceivedResolutionChangedMap
 
-    private val _perceivedResolutionChangedMap: MutableMap<Executor, Consumer<PixelDimensions>> =
+    private val _perceivedResolutionChangedMap: MutableMap<Consumer<PixelDimensions>, Executor> =
         mutableMapOf()
 
     override fun addPerceivedResolutionChangedListener(
         callbackExecutor: Executor,
         listener: Consumer<PixelDimensions>,
     ) {
-        _perceivedResolutionChangedMap[callbackExecutor] = listener
+        _perceivedResolutionChangedMap[listener] = callbackExecutor
     }
 
     override fun removePerceivedResolutionChangedListener(listener: Consumer<PixelDimensions>) {
-        _perceivedResolutionChangedMap.values.remove(listener)
+        _perceivedResolutionChangedMap.remove(listener)
     }
 
     /**
@@ -359,7 +329,8 @@ public class FakeSceneRuntime(
     override fun setFullSpaceModeWithEnvironmentInherited(bundle: Bundle): Bundle = bundle
 
     /** This value is used to verify the result of [enablePanelDepthTest] in tests. */
-    internal var enabledPanelDepthTest: Boolean = false
+    public var enabledPanelDepthTest: Boolean = false
+        internal set
 
     override fun enablePanelDepthTest(enabled: Boolean) {
         enabledPanelDepthTest = enabled
@@ -368,7 +339,11 @@ public class FakeSceneRuntime(
     override fun createInteractableComponent(
         executor: Executor,
         listener: InputEventListener,
-    ): InteractableComponent = FakeInteractableComponent()
+    ): InteractableComponent {
+        val interactableComponent = FakeInteractableComponent()
+        interactableComponent.inputEventListenersMap[listener] = executor
+        return interactableComponent
+    }
 
     override fun createAnchorPlacementForPlanes(
         planeTypeFilter: Set<@JvmSuppressWildcards PlaneType>,
@@ -379,7 +354,13 @@ public class FakeSceneRuntime(
         systemMovable: Boolean,
         scaleInZ: Boolean,
         userAnchorable: Boolean,
-    ): FakeMovableComponent = FakeMovableComponent()
+    ): FakeMovableComponent {
+        val movableComponent = FakeMovableComponent()
+        movableComponent.systemMovable = systemMovable
+        movableComponent.scaleInZ = scaleInZ
+        movableComponent.userAnchorable = userAnchorable
+        return movableComponent
+    }
 
     override fun createResizableComponent(
         minimumSize: Dimensions,
@@ -397,17 +378,79 @@ public class FakeSceneRuntime(
         stateListener: PointerCaptureComponent.StateListener,
         inputListener: InputEventListener,
     ): FakePointerCaptureComponent {
-        return FakePointerCaptureComponent(executor, stateListener)
+        val pointerCaptureComponent = FakePointerCaptureComponent(executor, stateListener)
+        pointerCaptureComponent.inputListener = inputListener
+        return pointerCaptureComponent
     }
 
     override fun createSpatialPointerComponent(): SpatialPointerComponent =
         FakeSpatialPointerComponent()
 
+    override fun createBoundsComponent(): BoundsComponent = FakeBoundsComponent()
+
     // Assuming the subspaceNodeHolder contains a valid FakeSubspaceNode and a valid FakeNode.
     public fun createSubspaceNodeEntity(node: FakeNode, size: Dimensions): SubspaceNodeEntity =
         FakeSubspaceNodeEntity()
 
-    internal companion object {
-        const val DEFAULT_DP_PER_METER: Float = 1151.856f
+    public companion object {
+        internal const val DEFAULT_DP_PER_METER: Float = 1151.856f
+
+        public const val ALL_SPATIAL_CAPABILITIES: Int =
+            SpatialCapabilities.SPATIAL_CAPABILITY_UI or
+                SpatialCapabilities.SPATIAL_CAPABILITY_3D_CONTENT or
+                SpatialCapabilities.SPATIAL_CAPABILITY_SPATIAL_AUDIO or
+                SpatialCapabilities.SPATIAL_CAPABILITY_APP_ENVIRONMENT or
+                SpatialCapabilities.SPATIAL_CAPABILITY_PASSTHROUGH_CONTROL or
+                SpatialCapabilities.SPATIAL_CAPABILITY_EMBED_ACTIVITY
+    }
+
+    private var _isBoundaryConsentGranted = false
+    override val isBoundaryConsentGranted: Boolean
+        get() = _isBoundaryConsentGranted
+
+    /**
+     * For test purposes only.
+     *
+     * A map tracking the listeners registered for boundary consent changes. The key is the
+     * [Consumer] listener ,and the value is the [Executor] on which the listener should be invoked.
+     *
+     * This map is populated by calls to [addOnBoundaryConsentChangedListener] and modified by
+     * [removeOnBoundaryConsentChangedListener]. Tests can inspect its contents to verify that the
+     * correct listeners are registered with their intended executors.
+     */
+    public val boundaryConsentChangedMap: Map<Consumer<Boolean>, Executor>
+        get() = _boundaryConsentChangedMap
+
+    private val _boundaryConsentChangedMap: MutableMap<Consumer<Boolean>, Executor> = mutableMapOf()
+
+    override fun addOnBoundaryConsentChangedListener(
+        callbackExecutor: Executor,
+        listener: Consumer<Boolean>,
+    ) {
+        _boundaryConsentChangedMap[listener] = callbackExecutor
+    }
+
+    override fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+        _boundaryConsentChangedMap.remove(listener)
+    }
+
+    /**
+     * For test purposes only.
+     *
+     * Changes the internal state of boundary consent and triggers registered listeners if the
+     * effective consent state has changed.
+     *
+     * @param boundaryConsent The new value for boundary consent.
+     */
+    public fun onBoundaryConsentChanged(boundaryConsent: Boolean) {
+        val oldBoundaryConsent = _isBoundaryConsentGranted
+        val newBoundaryConsent = boundaryConsent
+        _isBoundaryConsentGranted = newBoundaryConsent
+
+        if (oldBoundaryConsent != newBoundaryConsent) {
+            _boundaryConsentChangedMap.forEach { (listener, executor) ->
+                executor.execute { listener.accept(newBoundaryConsent) }
+            }
+        }
     }
 }

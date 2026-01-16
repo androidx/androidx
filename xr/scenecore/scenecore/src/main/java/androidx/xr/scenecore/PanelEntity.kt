@@ -19,10 +19,9 @@ package androidx.xr.scenecore
 import android.content.Context
 import android.view.View
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.Config
+import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
@@ -41,7 +40,7 @@ import androidx.xr.scenecore.runtime.SceneRuntime
 // for mainPanelEntity
 public open class PanelEntity
 internal constructor(
-    private val lifecycleManager: LifecycleManager,
+    private val perceptionSpace: PerceptionSpace,
     rtEntity: RtPanelEntity,
     entityManager: EntityManager,
     @get:JvmName("isMainPanelEntity") public val isMainPanelEntity: Boolean = false,
@@ -89,11 +88,12 @@ internal constructor(
         }
 
     /**
-     * Gets the perceived resolution of this Entity in the [CameraView].
+     * Gets the perceived resolution of this Entity in the provided [RenderViewpoint].
      *
      * This API is only intended for use in Full Space Mode and will return
-     * [PerceivedResolutionResult.InvalidCameraView] in Home Space Mode. For applications requiring
-     * perceived resolution in Home Space Mode, see [MainPanelEntity.getPerceivedResolution].
+     * [PerceivedResolutionResult.InvalidRenderViewpoint] in Home Space Mode. For applications
+     * requiring perceived resolution in Home Space Mode, see
+     * [MainPanelEntity.getPerceivedResolution].
      *
      * This value represents the dimensions of the Entity on the camera view if its largest surface
      * was facing the camera without changing the distance of the Entity to the camera. This can be
@@ -101,6 +101,7 @@ internal constructor(
      * example by using lower-resolution assets within panels that are further from the viewer. The
      * Entity's own rotation and the camera's viewing direction are disregarded.
      *
+     * @param renderViewpoint that provides the pose and field-of-view of the camera.
      * @return A [PerceivedResolutionResult] which encapsulates the outcome:
      *     - [PerceivedResolutionResult.Success] containing the [PixelDimensions] if the calculation
      *       is successful.
@@ -108,16 +109,19 @@ internal constructor(
      *     - [PerceivedResolutionResult.InvalidCameraView] if the camera information required for
      *       the calculation is invalid or unavailable.
      *
-     * @throws [IllegalStateException] if [Session.config] is not set to
-     *   [Config.DeviceTrackingMode.LAST_KNOWN].
      * @see PerceivedResolutionResult
      */
-    public fun getPerceivedResolution(): PerceivedResolutionResult {
+    public fun getPerceivedResolution(renderViewpoint: RenderViewpoint): PerceivedResolutionResult {
         checkNotDisposed()
-        check(lifecycleManager.config.deviceTracking == Config.DeviceTrackingMode.LAST_KNOWN) {
-            "Config.DeviceTrackingMode is not set to LastKnown."
-        }
-        return rtEntity!!.getPerceivedResolution().toPerceivedResolutionResult()
+        val renderViewpointState = renderViewpoint.state.value
+        return rtEntity!!
+            .getPerceivedResolution(
+                (perceptionSpace.getScenePoseFromPerceptionPose(renderViewpointState.pose)
+                        as PerceptionScenePose)
+                    .rtScenePose,
+                renderViewpoint.state.value.fieldOfView,
+            )
+            .toPerceivedResolutionResult()
     }
 
     /**
@@ -176,9 +180,9 @@ internal constructor(
 
     public companion object {
         internal fun create(
-            lifecycleManager: LifecycleManager,
             context: Context,
             sceneRuntime: SceneRuntime,
+            perceptionSpace: PerceptionSpace,
             entityManager: EntityManager,
             view: View,
             dimensions: FloatSize2d,
@@ -187,7 +191,7 @@ internal constructor(
             parent: Entity? = entityManager.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): PanelEntity =
             PanelEntity(
-                lifecycleManager,
+                perceptionSpace,
                 sceneRuntime.createPanelEntity(
                     context,
                     pose,
@@ -208,9 +212,9 @@ internal constructor(
             )
 
         internal fun create(
-            lifecycleManager: LifecycleManager,
             context: Context,
             sceneRuntime: SceneRuntime,
+            perceptionSpace: PerceptionSpace,
             entityManager: EntityManager,
             view: View,
             pixelDimensions: IntSize2d,
@@ -219,7 +223,7 @@ internal constructor(
             parent: Entity? = entityManager.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): PanelEntity =
             PanelEntity(
-                lifecycleManager,
+                perceptionSpace,
                 sceneRuntime.createPanelEntity(
                     context,
                     pose,
@@ -260,9 +264,9 @@ internal constructor(
             pose: Pose = Pose.Identity,
         ): PanelEntity =
             PanelEntity.create(
-                session.perceptionRuntime.lifecycleManager,
                 session.activity,
                 session.sceneRuntime,
+                session.scene.perceptionSpace,
                 session.scene.entityManager,
                 view,
                 dimensions,
@@ -291,9 +295,9 @@ internal constructor(
             pose: Pose = Pose.Identity,
         ): PanelEntity =
             PanelEntity.create(
-                session.perceptionRuntime.lifecycleManager,
                 session.activity,
                 session.sceneRuntime,
+                session.scene.perceptionSpace,
                 session.scene.entityManager,
                 view,
                 pixelDimensions,
@@ -328,9 +332,9 @@ internal constructor(
             parent: Entity? = session.scene.activitySpace,
         ): PanelEntity =
             PanelEntity.create(
-                session.perceptionRuntime.lifecycleManager,
                 session.activity,
                 session.sceneRuntime,
+                session.scene.perceptionSpace,
                 session.scene.entityManager,
                 view,
                 dimensions,
@@ -366,28 +370,15 @@ internal constructor(
             parent: Entity? = session.scene.activitySpace,
         ): PanelEntity =
             PanelEntity.create(
-                session.perceptionRuntime.lifecycleManager,
                 session.activity,
                 session.sceneRuntime,
+                session.scene.perceptionSpace,
                 session.scene.entityManager,
                 view,
                 pixelDimensions,
                 name,
                 pose,
                 parent,
-            )
-
-        /** Returns the PanelEntity backed by the main window for the Activity. */
-        internal fun createMainPanelEntity(
-            lifecycleManager: LifecycleManager,
-            sceneRuntime: SceneRuntime,
-            entityManager: EntityManager,
-        ): PanelEntity =
-            PanelEntity(
-                lifecycleManager,
-                sceneRuntime.mainPanelEntity,
-                entityManager,
-                isMainPanelEntity = true,
             )
     }
 }

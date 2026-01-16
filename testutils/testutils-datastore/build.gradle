@@ -38,56 +38,35 @@ androidXMultiplatform {
     js()
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":datastore:datastore-core"))
-                api(project(":datastore:datastore-core-okio"))
-                api(libs.kotlinTest)
-                api(libs.kotlinCoroutinesCore)
-                api(libs.kotlinCoroutinesTest)
-                api(libs.okio)
-            }
-        }
-        nonWebCommonMain {
-            dependsOn(commonMain)
+        commonMain.dependencies {
+            api(project(":datastore:datastore-core"))
+            api(project(":datastore:datastore-core-okio"))
+            api(libs.kotlinTest)
+            api(libs.kotlinCoroutinesCore)
+            api(libs.kotlinCoroutinesTest)
+            api(libs.okio)
         }
 
-        nativeMain {
-            dependsOn(nonWebCommonMain)
+        commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
         }
+
+        nonWebCommonMain.dependsOn(commonMain)
+        nonWebCommonTest.dependsOn(commonTest)
+        nativeMain.dependsOn(nonWebCommonMain)
+
         jvmMain {
             dependsOn(nonWebCommonMain)
             dependencies {
                 api(libs.kotlinTest)
             }
         }
-        commonTest {
-            dependencies {
-                implementation(project(":kruth:kruth"))
-                implementation(libs.kotlinTest)
-            }
-        }
-        nonWebCommonTest {
-            dependsOn(commonTest)
-        }
 
-        webCommonTest {
-            dependsOn(commonTest)
-        }
-        wasmJsTest {
-            dependsOn(webCommonTest)
-        }
         jvmTest {
             dependsOn(nonWebCommonTest)
             dependencies {
                 implementation(libs.kotlinTest)
-            }
-        }
-        targets.configureEach { target ->
-            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
             }
         }
     }

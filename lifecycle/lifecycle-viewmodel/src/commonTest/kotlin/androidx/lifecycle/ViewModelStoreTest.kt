@@ -38,6 +38,17 @@ class ViewModelStoreTest {
         assertThat(store["b"]).isNull()
     }
 
+    @Test
+    fun testToString() {
+        class SubStore : ViewModelStore()
+        val store = SubStore()
+        store.put("key1", TestViewModel())
+
+        // Verify identity included (discourage parsing) and keys listed.
+        val identity = store.hashCode().toString(16)
+        assertThat(store.toString()).isEqualTo("SubStore#$identity(keys=[key1])")
+    }
+
     private open class TestViewModel : ViewModel() {
         var cleared = false
 

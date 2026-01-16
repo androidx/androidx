@@ -54,6 +54,7 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
     constructor(pdfStylingOptions: PdfStylingOptions) : super(pdfStylingOptions)
 
     val pdfLoadingIdlingResource = PdfIdlingResource(PDF_LOAD_RESOURCE_NAME)
+    val pdfFirstLoadIdlingResource = PdfIdlingResource(PDF_FIRST_LOAD_RESOURCE_NAME)
     val pdfScrollIdlingResource = PdfIdlingResource(PDF_SCROLL_RESOURCE_NAME)
     val pdfSearchFocusIdlingResource = PdfIdlingResource(PDF_SEARCH_FOCUS_RESOURCE_NAME)
     val pdfSearchViewVisibleIdlingResource =
@@ -150,6 +151,8 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
     @OptIn(ExperimentalPdfApi::class)
     override fun onPdfViewCreated(pdfView: PdfView) {
         super.onPdfViewCreated(pdfView)
+        pdfView.addOnFirstContentLoadListener { pdfFirstLoadIdlingResource.decrement() }
+
         pdfView.addOnSelectionChangedListener(
             object : PdfView.OnSelectionChangedListener {
                 override fun onSelectionChanged(newSelection: Selection?) {
@@ -216,6 +219,7 @@ internal class TestPdfViewerFragment : PdfViewerFragment {
     companion object {
         // Resource name must be unique to avoid conflicts while running multiple test scenarios
         private val PDF_LOAD_RESOURCE_NAME = "PdfLoad-${UUID.randomUUID()}"
+        private val PDF_FIRST_LOAD_RESOURCE_NAME = "PdfFirstLoad-${UUID.randomUUID()}"
         private val PDF_SCROLL_RESOURCE_NAME = "PdfScroll-${UUID.randomUUID()}"
         private val PDF_SEARCH_FOCUS_RESOURCE_NAME = "PdfSearchFocus-${UUID.randomUUID()}"
         private val PDF_SEARCH_VIEW_VISIBLE_RESOURCE_NAME =

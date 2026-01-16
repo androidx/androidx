@@ -293,9 +293,13 @@ class ExtrasExtensionsLayerEndToEndTests : BaseTelecomTest() {
     @OptIn(ExperimentalAppActions::class)
     internal class CachedLocalSilence(scope: CallExtensionScope) {
         private val isLocallySilenced = MutableStateFlow(false)
+        private val isAuthoritativelyMuted = MutableStateFlow(false)
 
         val extension =
-            scope.addLocalCallSilenceExtension(onIsLocallySilencedUpdated = isLocallySilenced::emit)
+            scope.addLocalCallSilenceExtension(
+                onIsLocallySilencedUpdated = isLocallySilenced::emit,
+                onCanUserUpdateSilence = isAuthoritativelyMuted::emit,
+            )
 
         suspend fun waitForLocalCallSilenceState(expected: Boolean) {
             val result = withTimeoutOrNull(5000) { isLocallySilenced.first { it == expected } }

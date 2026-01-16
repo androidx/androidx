@@ -66,7 +66,7 @@ internal class FormFillingTextInputFactory(private val context: Context) {
             )
         this.applyLengthFilter(formWidget)
         gravity = Gravity.CENTER_VERTICAL
-        inputType = configureInputType(formWidget.multiLineText)
+        inputType = configureInputType(formWidget.isMultiLineText)
         configureText(startingText, formWidget, this)
         imeOptions = DEFAULT_IME_OPTIONS
         return FormFillingEditText(this, textSize, pageNum, formWidget)
@@ -92,7 +92,7 @@ internal class FormFillingTextInputFactory(private val context: Context) {
             max(MINIMUM_GENERAL_TEXT_FONT_SIZE_PX, formWidget.widgetRect.height().toFloat())
         val fontSize =
             if (abs(formWidget.fontSize) < AUTO_SIZE_THRESHOLD) {
-                autoFontResize(maxFontSize, formWidget.multiLineText)
+                autoFontResize(maxFontSize, formWidget.isMultiLineText)
             } else {
                 min(formWidget.fontSize, maxFontSize)
             }

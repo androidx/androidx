@@ -22,6 +22,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,7 +38,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.createAndroidComposeBenchmarkRunner
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.AndroidUiDispatcher
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -199,6 +206,64 @@ class MemoryLeakTest {
             recomposer.cancel()
             recomposer.join()
         }
+
+    @Test
+    fun scrollLazyStaggeredGrid() {
+        runBlocking(AndroidUiDispatcher.Main) {
+            val immediateClock =
+                object : MonotonicFrameClock {
+                    override suspend fun <R> withFrameNanos(
+                        onFrame: (frameTimeNanos: Long) -> R
+                    ): R {
+                        yield()
+                        return onFrame(0L)
+                    }
+                }
+            val context = coroutineContext + immediateClock
+            val recomposer = Recomposer(context)
+
+            suspend fun doFrame() {
+                Snapshot.sendApplyNotifications()
+
+                var pendingCount = 0
+                while (recomposer.hasPendingWork) {
+                    pendingCount++
+                    yield()
+                    if (pendingCount == 10) {
+                        error("Recomposer still pending work after 10 frames.")
+                    }
+                }
+            }
+
+            val state = LazyStaggeredGridState()
+            activityTestRule.activity.setContent(recomposer) {
+                LookaheadScope {
+                    LazyVerticalStaggeredGrid(
+                        StaggeredGridCells.Fixed(2),
+                        Modifier.fillMaxSize(),
+                        state,
+                    ) {
+                        items(100) { Box(Modifier.size(100.dp)) }
+                    }
+                }
+            }
+            launch(context = context, start = CoroutineStart.UNDISPATCHED) {
+                recomposer.runRecomposeAndApplyChanges()
+            }
+            doFrame()
+
+            loopAndVerifyMemory(iterations = 400, gcFrequency = 40) {
+                state.scrollToItem(10)
+                doFrame()
+
+                state.scrollToItem(0)
+                doFrame()
+            }
+
+            recomposer.cancel()
+            recomposer.join()
+        }
+    }
 
     /**
      * Runs the given code in a loop for exactly [iterations] times and every [gcFrequency] it will

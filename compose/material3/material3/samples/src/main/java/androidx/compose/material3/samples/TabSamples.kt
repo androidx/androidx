@@ -470,7 +470,10 @@ fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
-fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(index: Int) {
+fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(
+    index: Int,
+    isScrollable: Boolean = false,
+) {
     val colors =
         listOf(
             MaterialTheme.colorScheme.primary,
@@ -540,7 +543,10 @@ fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(index: Int) {
                         )
                     )
                 layout(constraints.maxWidth, constraints.maxHeight) {
-                    placeable.place(indicatorStart, 0)
+                    val contentWidth = tabPositions[index].contentWidth.roundToPx()
+                    val tabWidth = tabPositions[index].width.roundToPx()
+                    val relativeOffset = if (isScrollable) (tabWidth - contentWidth) / 2 else 0
+                    placeable.place(indicatorStart - relativeOffset, 0)
                 }
             }
             .padding(5.dp)
@@ -577,7 +583,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
     Column {
         SecondaryScrollableTabRow(
             selectedTabIndex = state,
-            indicator = { FancyAnimatedIndicatorWithModifier(state) },
+            indicator = { FancyAnimatedIndicatorWithModifier(state, isScrollable = true) },
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(selected = state == index, onClick = { state = index }, text = { Text(title) })

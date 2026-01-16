@@ -26,7 +26,9 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.Log;
 
+import androidx.compose.remote.core.RcPlatformServices;
 import androidx.compose.remote.core.operations.Theme;
+import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.player.core.RemoteDocument;
 import androidx.compose.remote.player.view.platform.RemoteComposeView;
 import androidx.test.filters.SdkSuppress;
@@ -371,4 +373,50 @@ public class DrawPathTweenTest {
         System.out.println("relative to local " + rms);
         assertTrue("image not equivalent error = " + rms, rms < 4);
     }
+
+    @Test
+    public void testBadPath1() {
+
+        int tw = 600;
+        int th = 600;
+        DebugPlayerContext debugContext = new DebugPlayerContext();
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Path path1 = new Path();
+        path1.reset();
+        float shift = 0;
+        path1.moveTo(shift + 10, th / 2);
+        path1.lineTo(shift + 30, 10);
+        path1.lineTo(shift + 30, th / 2);
+        path1.close();
+
+        RcPlatformServices.RcPathArrayCreator badpath = () -> new float[]{
+                Utils.asNan(10), 0f, 0f,
+                Utils.asNan(11), 100f, 0f,
+                Utils.asNan(11), 0f, 100f,
+                Utils.asNan(15), 100f, 100f,
+                Utils.asNan(18), 0f, 0f, 0f, 0f, 0f,
+        };
+
+        TestUtils.Callback cb =
+                rdoc -> {
+                    int id1 = rdoc.addPathData(path1);
+                    int id2 = rdoc.addPathData(badpath);
+                    rdoc.getPainter().setColor(Color.GREEN).commit();
+                    rdoc.drawPath(id1);
+                    rdoc.getPainter().setColor(Color.RED).commit();
+                    rdoc.drawPath(id2);
+                    rdoc.getPainter().setColor(0x550000ff).commit();
+                    for (float i = 0.2f; i < 1.0f; i += 0.2f) {
+                        rdoc.drawTweenPath(id1, id2, i, 0f, 1f);
+                    }
+                };
+        String result = drawCommandTest(cb);
+        System.out.println(result);
+        RemoteDocument doc = TestUtils.createDocument(debugContext, cb);
+        TestUtils.docToBitmap(tw, th, appContext, doc);
+        assertTrue(true);
+        // this should complete without crashing or hanging
+
+    }
+
 }

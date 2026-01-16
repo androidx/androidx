@@ -22,6 +22,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.UserManager
 import androidx.annotation.IntDef
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
@@ -317,7 +318,7 @@ interface HealthConnectClient {
      * }
      * ```
      *
-     * @param changesToken A Changes-Token that represents a specific point in time in Android
+     * @param changesToken A changes token that represents a specific point in time in Android
      *   Health Platform.
      * @return a [ChangesResponse] with changes since provided [changesToken].
      * @throws android.os.RemoteException For any IPC transportation failures.
@@ -325,6 +326,26 @@ interface HealthConnectClient {
      * @see getChangesToken
      */
     suspend fun getChanges(changesToken: String): ChangesResponse
+
+    /**
+     * Same as [getChanges] method but also allows specifying a preferred [pageSize].
+     *
+     * [pageSize] is a soft limit that serves as a recommendation to the system. The system makes
+     * best attempt to limit the number of returned change logs, however in certain cases the
+     * response might exceed the [pageSize].
+     *
+     * @param changesToken A changes token that represents a specific point in time in Android
+     *   Health Platform.
+     * @param pageSize The (soft) limit of change logs to return, must be within [1, 5000].
+     * @return a [ChangesResponse] with changes since provided [changesToken].
+     * @throws android.os.RemoteException For any IPC transportation failures.
+     * @throws SecurityException For requests with unpermitted access.
+     * @see getChangesToken
+     */
+    suspend fun getChanges(
+        changesToken: String,
+        @IntRange(from = 1, to = 5000) pageSize: Int,
+    ): ChangesResponse
 
     /**
      * Inserts or updates a list of [MedicalResource]s using [UpsertMedicalResourceRequest]s.

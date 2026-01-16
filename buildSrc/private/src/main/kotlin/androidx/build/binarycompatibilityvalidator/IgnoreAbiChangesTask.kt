@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.build.binarycompatibilityvalidator
 
 import androidx.binarycompatibilityvalidator.BinaryCompatibilityChecker
@@ -48,24 +47,17 @@ import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 abstract class IgnoreAbiChangesTask
 @Inject
 constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTask() {
-
     /** Text file from which API signatures will be read. */
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFile
     abstract val previousApiDump: RegularFileProperty
-
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFile
     abstract val currentApiDump: RegularFileProperty
-
     @get:OutputFile abstract val ignoreFile: RegularFileProperty
-
     @get:Classpath abstract val runtimeClasspath: ConfigurableFileCollection
-
     @get:Input abstract var referenceVersion: Provider<String>
-
     @get:Input abstract var projectVersion: Provider<String>
-
     @get:Nested abstract val dependencies: ListProperty<DependenciesForTarget>
 
     @TaskAction
@@ -118,10 +110,12 @@ private abstract class IgnoreChangesWorker : WorkAction<IgnoreChangesParameters>
                 .map { it.toString() }
                 .toSet()
         parameters.ignoreFile.get().asFile.apply {
-            if (!exists()) {
-                createNewFile()
+            if (ignoredErrors.isEmpty()) {
+                takeIf { exists() }?.delete()
+            } else {
+                takeUnless { exists() }?.createNewFile()
+                writeText(FORMAT_STRING + "\n" + ignoredErrors.joinToString("\n"))
             }
-            writeText(FORMAT_STRING + "\n" + ignoredErrors.joinToString("\n"))
         }
     }
 

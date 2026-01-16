@@ -18,16 +18,21 @@ package androidx.pdf.testapp.ui.v2
 
 import android.annotation.SuppressLint
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresExtension
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.ink.EditablePdfViewerFragment
+import androidx.pdf.ink.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.IOException
 import kotlinx.coroutines.launch
 
@@ -37,11 +42,22 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
     private val viewModel: EditablePdfHostViewModel by viewModels()
 
     internal var destinationUri: Uri? = null
-    internal var onSaveCompletion: () -> Unit = {}
+
+    private lateinit var backPressedCallback: OnBackPressedCallback
+
+    private var fragmentListener: FragmentListener? = null
+
+    private val discardDialog: AlertDialog by lazy { createDiscardDialog(requireContext()) }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is FragmentListener) fragmentListener = context
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupBackPressedCallback()
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.saveState.collect { state ->
                 when (state) {
@@ -57,7 +73,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
 
                     SaveState.Ready -> {
                         // Re-enable the save button
-                        onSaveCompletion()
+                        fragmentListener?.onSaveComplete()
                     }
                     SaveState.Saving -> {
                         // No-op or show loading indicator
@@ -79,8 +95,57 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
 
     override fun onApplyEditsFailed(error: Throwable) {
         super.onApplyEditsFailed(error)
-        onSaveCompletion()
+        fragmentListener?.onSaveComplete()
     }
+
+    override fun onEnterEditMode() {
+        super.onEnterEditMode()
+        backPressedCallback.isEnabled = true
+        fragmentListener?.onEnterEditMode()
+    }
+
+    override fun onExitEditMode() {
+        super.onExitEditMode()
+        backPressedCallback.isEnabled = false
+        fragmentListener?.onExitEditMode()
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        fragmentListener = null
+    }
+
+    private fun setupBackPressedCallback() {
+        backPressedCallback =
+            object : OnBackPressedCallback(enabled = false) {
+                override fun handleOnBackPressed() {
+                    if (hasUnsavedChanges) {
+                        discardDialog.show()
+                    } else {
+                        isEditModeEnabled = false
+                    }
+                }
+            }
+        // sync state with edit mode after creation
+        backPressedCallback.isEnabled = isEditModeEnabled
+
+        requireActivity()
+            .onBackPressedDispatcher
+            .addCallback(viewLifecycleOwner, backPressedCallback)
+    }
+
+    private fun createDiscardDialog(context: Context): AlertDialog =
+        MaterialAlertDialogBuilder(context)
+            .setTitle(getString(R.string.discard_changes_dialog_title))
+            .setMessage(getString(R.string.discard_changes_dialog_message))
+            .setNegativeButton(getString(R.string.keep_editing_button)) { dialog, _ ->
+                dialog.dismiss()
+            }
+            .setPositiveButton(getString(R.string.discard_button)) { dialog, _ ->
+                dialog.dismiss()
+                isEditModeEnabled = false
+            }
+            .create()
 
     private fun getParcelFileDescriptorFromUri(
         contentResolver: ContentResolver,
@@ -91,5 +156,17 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
         } catch (e: IOException) {
             null
         }
+    }
+
+    /**
+     * Interface for the host Activity to listen to state changes and events from the
+     * [EditablePdfHostFragment].
+     */
+    internal interface FragmentListener {
+        fun onEnterEditMode()
+
+        fun onExitEditMode()
+
+        fun onSaveComplete()
     }
 }

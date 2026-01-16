@@ -137,35 +137,35 @@ class PerceivedResolutionResultTest {
 
     @Test
     fun invalidCameraView_equals_sameObject_returnsTrue() {
-        val underTest = PerceivedResolutionResult.InvalidCameraView()
+        val underTest = PerceivedResolutionResult.InvalidRenderViewpoint()
         assertThat(underTest.equals(underTest)).isTrue()
     }
 
     @Test
     fun invalidCameraView_equals_differentObjects_returnsTrue() {
-        val underTest1 = PerceivedResolutionResult.InvalidCameraView()
-        val underTest2 = PerceivedResolutionResult.InvalidCameraView()
+        val underTest1 = PerceivedResolutionResult.InvalidRenderViewpoint()
+        val underTest2 = PerceivedResolutionResult.InvalidRenderViewpoint()
         // Different instances of the same stateless class should be equal
         assertThat(underTest1.equals(underTest2)).isTrue()
     }
 
     @Test
     fun invalidCameraView_equals_null_returnsFalse() {
-        val underTest = PerceivedResolutionResult.InvalidCameraView()
+        val underTest = PerceivedResolutionResult.InvalidRenderViewpoint()
         assertThat(underTest.equals(null)).isFalse()
     }
 
     @Test
     fun invalidCameraView_equals_differentType_returnsFalse() {
-        val underTest = PerceivedResolutionResult.InvalidCameraView()
-        val otherObject = "Not an InvalidCameraView object"
+        val underTest = PerceivedResolutionResult.InvalidRenderViewpoint()
+        val otherObject = "Not an InvalidRenderViewpoint object"
         assertThat(underTest.equals(otherObject)).isFalse()
     }
 
     @Test
     fun invalidCameraView_hashCode_differentObjects_returnsSameHashCode() {
-        val underTest1 = PerceivedResolutionResult.InvalidCameraView()
-        val underTest2 = PerceivedResolutionResult.InvalidCameraView()
+        val underTest1 = PerceivedResolutionResult.InvalidRenderViewpoint()
+        val underTest2 = PerceivedResolutionResult.InvalidRenderViewpoint()
         // HashCode for stateless objects of the same type should be the same
         assertThat(underTest1.hashCode()).isEqualTo(underTest2.hashCode())
     }
@@ -183,7 +183,7 @@ class PerceivedResolutionResultTest {
     @Test
     fun success_notEquals_invalidCameraView() {
         val success = PerceivedResolutionResult.Success(IntSize2d(10, 20))
-        val invalidCameraView = PerceivedResolutionResult.InvalidCameraView()
+        val invalidCameraView = PerceivedResolutionResult.InvalidRenderViewpoint()
         assertThat(success.equals(invalidCameraView)).isFalse()
         assertThat(invalidCameraView.equals(success)).isFalse() // Check commutativity
     }
@@ -191,7 +191,7 @@ class PerceivedResolutionResultTest {
     @Test
     fun entityTooClose_notEquals_invalidCameraView() {
         val entityTooClose = PerceivedResolutionResult.EntityTooClose()
-        val invalidCameraView = PerceivedResolutionResult.InvalidCameraView()
+        val invalidCameraView = PerceivedResolutionResult.InvalidRenderViewpoint()
         assertThat(entityTooClose.equals(invalidCameraView)).isFalse()
         assertThat(invalidCameraView.equals(entityTooClose)).isFalse() // Check commutativity
     }

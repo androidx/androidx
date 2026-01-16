@@ -38,9 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialColumn
-import androidx.xr.compose.subspace.SpatialLayoutSpacer
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.SpatialSpacer
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.rotate
@@ -66,7 +66,7 @@ class Rotation : ComponentActivity() {
                     val (rotation, axisAngle) = initializePanelRotationData()
                     SpatialColumn {
                         SpatialPanelLayout(rotation, axisAngle)
-                        SpatialLayoutSpacer(modifier = SubspaceModifier.height(20.dp))
+                        SpatialSpacer(modifier = SubspaceModifier.height(20.dp))
                         InfoPanel(rotation, axisAngle)
                     }
                 }

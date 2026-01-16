@@ -109,6 +109,7 @@ public class EmphasisSpan(
         @IntDef(
             value = [STYLE_DOT, STYLE_CIRCLE, STYLE_DOUBLE_CIRCLE, STYLE_TRIANGLE, STYLE_SESAME]
         )
+        @Retention(AnnotationRetention.SOURCE)
         internal annotation class EmphasisStyleType
 
         /** The default scale factor for emphasis marks. */

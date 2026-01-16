@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
+import androidx.pdf.annotation.AnnotationHandleIdGenerator
 
 /**
  * Represents a unique identifier for an annotation edit, consisting of a page number and a unique
@@ -46,6 +47,10 @@ public class EditId(public val pageNum: Int, public val value: String) : Parcela
         dest.writeString(value)
     }
 
+    override fun toString(): String {
+        return AnnotationHandleIdGenerator.composeAnnotationId(pageNum, value)
+    }
+
     public companion object {
         /** Creator for generating instances of [EditId] from a [Parcel]. */
         @JvmField
@@ -60,5 +65,10 @@ public class EditId(public val pageNum: Int, public val value: String) : Parcela
                     return arrayOfNulls(size)
                 }
             }
+
+        public fun create(key: String): EditId {
+            val (page, id) = AnnotationHandleIdGenerator.decomposeAnnotationId(key)
+            return EditId(page, id)
+        }
     }
 }

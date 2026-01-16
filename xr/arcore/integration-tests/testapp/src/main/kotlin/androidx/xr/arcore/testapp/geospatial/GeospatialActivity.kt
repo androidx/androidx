@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -83,7 +84,9 @@ import androidx.xr.scenecore.scene
 import java.nio.file.Paths
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class GeospatialActivity : ComponentActivity() {
@@ -110,7 +113,7 @@ class GeospatialActivity : ComponentActivity() {
             SessionLifecycleHelper(
                 this,
                 Config(
-                    headTracking = Config.HeadTrackingMode.LAST_KNOWN,
+                    deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
                     planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                 ),
                 onSessionAvailable = { session ->
@@ -203,26 +206,34 @@ class GeospatialActivity : ComponentActivity() {
             }
         }
 
-        LaunchedEffect(arDeviceState, geospatialState) {
+        LaunchedEffect(geospatialState) {
+            if (geospatialState == Geospatial.State.RUNNING) {
+                val poseResult =
+                    snapshotFlow { arDeviceState }
+                        .map { geospatial.createGeospatialPoseFromPose(it.devicePose) }
+                        .filterIsInstance<CreateGeospatialPoseFromPoseSuccess>()
+                        .first()
+
+                try {
+                    vpsAvailability =
+                        geospatial.checkVpsAvailability(
+                            poseResult.pose.latitude,
+                            poseResult.pose.longitude,
+                        )
+                } catch (e: Exception) {
+                    Log.warn(e) { "checkVpsAvailability failed: $e" }
+                    vpsAvailability = null
+                }
+            }
+        }
+
+        LaunchedEffect(geospatialState) {
             while (true) {
                 if (geospatialState == Geospatial.State.RUNNING) {
                     try {
                         val result =
                             geospatial.createGeospatialPoseFromPose(arDeviceState.devicePose)
                         localizationStatusText = localizationTextFromResult(result)
-
-                        if (result is CreateGeospatialPoseFromPoseSuccess) {
-                            try {
-                                vpsAvailability =
-                                    geospatial.checkVpsAvailability(
-                                        result.pose.latitude,
-                                        result.pose.longitude,
-                                    )
-                            } catch (e: Exception) {
-                                Log.warn(e) { "checkVpsAvailability failed: $e" }
-                                vpsAvailability = null
-                            }
-                        }
                     } catch (e: Exception) {
                         Log.warn(e) { "createGeospatialPoseFromPose failed: $e" }
                         localizationStatusText = "Error creating geospatial pose"

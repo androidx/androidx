@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Sıra da seçilə bilər"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"İkinci Dərəcəli Əməliyyat seçilib"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Sıra üzrə əsas əməliyyat seçilib"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Sətrin sonundakı şəkil və əməliyyatlar demosu"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Boş siyahı demosu"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Siyahı boşdur"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Digər Şablon Demoları"</string>

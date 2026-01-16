@@ -41,6 +41,7 @@ import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.ApplicationVariantBuilder
+import com.android.build.api.variant.KotlinMultiplatformAndroidVariant
 import com.android.build.api.variant.Variant
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
@@ -64,12 +65,21 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
     AgpPlugin(
         project = project,
         supportedAgpPlugins =
-            setOf(AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN, AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN),
+            setOf(
+                AgpPluginId.ID_ANDROID_APPLICATION_PLUGIN,
+                AgpPluginId.ID_ANDROID_LIBRARY_PLUGIN,
+                // We don't need to version check this feature.
+                // `com.android.kotlin.multiplatform.library` is supported starting AGP 8.10, so
+                // it's
+                // safe to assume that if this plugin were to exist, we are on a new enough version
+                // of AGP.
+                AgpPluginId.ID_ANDROID_KOTLIN_MULTIPLATFORM_LIBRARY,
+            ),
         minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
         maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE,
     ) {
 
-    // List of the non debuggable build types
+    // List of the non-debuggable build types
     private val nonDebuggableBuildTypes = mutableListOf<String>()
 
     // The baseline profile consumer extension to access non-variant specific configuration options
@@ -129,7 +139,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
     override fun onApplicationFinalizeDsl(extension: ApplicationExtension) {
 
         // Here we select the build types we want to process if this is an application,
-        // i.e. non debuggable build types that have not been created by the app target plugin.
+        // i.e. non-debuggable build types that have not been created by the app target plugin.
         // Also exclude the build types starting with baseline profile prefix, in case the app
         // target plugin is also applied.
 
@@ -170,7 +180,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         val isBaselineProfilePluginCreatedBuildType =
             isBaselineProfilePluginCreatedBuildType(variantBuilder.buildType)
 
-        // Note that the callback should be remove at the end, after all the variants
+        // Note that the callback should be removed at the end, after all the variants
         // have been processed. This is because the benchmark and nonMinified variants can be
         // disabled at any point AFTER the plugin has been applied. So checking immediately here
         // would tell us that the variant is enabled, while it could be disabled later.
@@ -199,7 +209,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         PrintMapPropertiesForVariantTask.registerForVariant(project = project, variant = variant)
 
         // Controls whether Android Studio should see this variant. Variants created by the
-        // baseline profile gradle plugin are hidden by default.
+        // baseline profile Gradle plugin are hidden by default.
         if (
             baselineProfileExtension.hideSyntheticBuildTypesInAndroidStudio &&
                 isBaselineProfilePluginCreatedBuildType(variant.buildType)
@@ -207,8 +217,19 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             variant.experimentalProperties.put("androidx.baselineProfile.hideInStudio", true)
         }
 
-        // From here on, process only the non debuggable build types we previously selected.
-        if (variant.buildType !in nonDebuggableBuildTypes) return
+        // From here on, process only the non-debuggable build types we previously selected.
+
+        // NOTE: For Kotlin Multiplatform Android Library modules, they don't seem to have a notion
+        // of a `buildType`. Also worth noting, is that the set of `nonDebuggableBuildTypes` are
+        // actually populated in the `onLibraryFinalizeDsl` block, which is not called for the
+        // KotlinMultiplatformAndroidComponentsExtension. This is also because they are quite
+        // different when compared to traditional Android Library Modules.
+        if (
+            variant.buildType !in nonDebuggableBuildTypes &&
+                variant !is KotlinMultiplatformAndroidVariant
+        ) {
+            return
+        }
 
         // This allows quick access to this variant configuration according to the override
         // and merge rules implemented in the PerVariantConsumerExtensionManager.
@@ -222,12 +243,12 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
             variantConfig = variantConfiguration,
         )
 
-        // Sets the r8 rewrite baseline profile for the non debuggable variant.
+        // Sets the r8 rewrite baseline profile for the non-debuggable variant.
         variantConfiguration.baselineProfileRulesRewrite?.let {
             r8Utils.setRulesRewriteForVariantEnabled(variant, it)
         }
 
-        // Sets the r8 startup dex optimization profile for the non debuggable variant.
+        // Sets the r8 startup dex optimization profile for the non-debuggable variant.
         variantConfiguration.dexLayoutOptimization?.let {
             r8Utils.setDexLayoutOptimizationEnabled(variant, it)
         }
@@ -254,7 +275,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         // When mergeIntoMain is `true` the first variant will create a task shared across
         // all the variants to merge, while the next variants will simply add the additional
         // baseline profile artifacts, modifying the existing task.
-        // When mergeIntoMain is `false` each variants has its own task with a single
+        // When mergeIntoMain is `false` each variant has its own task with a single
         // artifact per task, specific for that variant.
         // When mergeIntoMain is not specified, it's by default true for libraries and false
         // for apps.
@@ -289,8 +310,8 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
         // possible to run tests on multiple build types in the same run, when `mergeIntoMain` is
         // true only variants of the specific build type invoked are merged. This means that on
         // AGP 8.0 the `main` baseline profile is generated by only the build type `release` when
-        // calling `generateReleaseBaselineProfiles`. On Agp 8.1 instead, it works as intended and
-        // we can merge all the variants with `mergeIntoMain` true, independently from the build
+        // calling `generateReleaseBaselineProfiles`. On Agp 8.1 instead, it works as intended, and
+        // we can merge all the variants with `mergeIntoMain` true, irrespective of the build
         // type.
         data class TaskAndFolderName(val taskVariantName: String, val folderVariantName: String)
         val (mergeAwareTaskName, mergeAwareVariantOutput) =
@@ -339,8 +360,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
 
                 // Note that the merge task is the last task only if saveInSrc is disabled. When
                 // saveInSrc is enabled an additional task is created to copy the profile in the
-                // sources
-                // folder.
+                // source folder.
                 isLastTask = !variantConfiguration.saveInSrc,
             )
 
@@ -367,7 +387,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
 
                 // This task copies the baseline profile generated from the merge task.
                 // Note that we're reutilizing the [MergeBaselineProfileTask] because
-                // if the flag `mergeIntoMain` is true tasks will have the same name
+                // if the flag `mergeIntoMain` is true tasks will have the same name,
                 // and we just want to add more file to copy to the same output. This is
                 // already handled in the MergeBaselineProfileTask.
                 val copyTaskProvider =
@@ -416,7 +436,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
                 // Note that we cannot use the variant src set api
                 // `addGeneratedSourceDirectory` since that overwrites the outputDir,
                 // that would be re-set in the build dir.
-                // Also this is specific for applications: doing this for a library would
+                // Also, this is specific for applications: doing this for a library would
                 // trigger a circular task dependency since the library would require
                 // the profile in order to build the aar for the sample app and generate
                 // the profile.
@@ -606,15 +626,27 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) :
     fun TaskContainer.taskMergeStartupProfile(variantName: String) =
         project.tasks.namedOrNull<Task>("merge", variantName, "startupProfile")
 
-    private fun createConfigurationForVariant(variant: Variant, mainConfiguration: Configuration) =
-        configurationManager.maybeCreate(
+    private fun createConfigurationForVariant(
+        variant: Variant,
+        mainConfiguration: Configuration,
+    ): Configuration {
+        val buildType =
+            if (variant !is KotlinMultiplatformAndroidVariant) {
+                ""
+            } else {
+                // Default to "release" if the variant is a KotlinMultiPlatformAndroidVariant
+                // This is because build types don't exist for KMP Android Library modules.
+                "release"
+            }
+        return configurationManager.maybeCreate(
             nameParts = listOf(variant.name, CONFIGURATION_NAME_BASELINE_PROFILES),
             canBeResolved = true,
             canBeConsumed = false,
             extendFromConfigurations = listOf(mainConfiguration),
-            buildType = variant.buildType ?: "",
+            buildType = variant.buildType ?: buildType,
             productFlavors = variant.productFlavors,
         )
+    }
 
     private fun isBaselineProfilePluginCreatedBuildType(buildType: String?) =
         buildType?.let {

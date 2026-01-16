@@ -79,4 +79,10 @@ public interface RCDoc {
      */
     @Nullable
     RemoteDocument getDoc();
+
+    /**
+     * Return the time to create the document
+     * @return time in ms
+     */
+    float getBuildTime();
 }

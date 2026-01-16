@@ -20,6 +20,7 @@ import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.demos.layoutanimation.turquoiseColors
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,7 @@ import androidx.compose.ui.zIndex
  * Note that despite the items position changing due to the scroll, it does not affect or trigger an
  * animation.
  */
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Composable
 @Preview
 fun LookaheadInScrollingColumn() {
@@ -82,36 +84,40 @@ fun LookaheadInScrollingColumn() {
         }
     }
 
-    Box(Modifier.fillMaxSize()) {
-        LookaheadScope {
-            Column(
-                modifier =
-                    Modifier.fillMaxSize().verticalScroll(rememberScrollState(0)).padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-            ) {
-                Text("Click Yellow box to animate to/from scrolling list.")
-                repeat(6) {
-                    Box(
-                        Modifier.fillMaxWidth()
-                            .background(turquoiseColors[it % 6], RoundedCornerShape(10.dp))
-                            .height(80.dp)
-                    )
+    LookaheadAnimationVisualDebuggingToggle {
+        Box(Modifier.fillMaxSize()) {
+            LookaheadScope {
+                Column(
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .verticalScroll(rememberScrollState(0))
+                            .padding(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    Text("Click Yellow box to animate to/from scrolling list.")
+                    repeat(6) {
+                        Box(
+                            Modifier.fillMaxWidth()
+                                .background(turquoiseColors[it % 6], RoundedCornerShape(10.dp))
+                                .height(80.dp)
+                        )
+                    }
+                    if (displayInScroller) {
+                        movableContent()
+                    }
+                    repeat(6) {
+                        Box(
+                            Modifier.animateBounds(lookaheadScope = this@LookaheadScope)
+                                .background(turquoiseColors[it % 6], RoundedCornerShape(10.dp))
+                                .height(80.dp)
+                                .fillMaxWidth()
+                        )
+                    }
                 }
-                if (displayInScroller) {
-                    movableContent()
-                }
-                repeat(6) {
-                    Box(
-                        Modifier.animateBounds(lookaheadScope = this@LookaheadScope)
-                            .background(turquoiseColors[it % 6], RoundedCornerShape(10.dp))
-                            .height(80.dp)
-                            .fillMaxWidth()
-                    )
-                }
-            }
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-                if (!displayInScroller) {
-                    movableContent()
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+                    if (!displayInScroller) {
+                        movableContent()
+                    }
                 }
             }
         }

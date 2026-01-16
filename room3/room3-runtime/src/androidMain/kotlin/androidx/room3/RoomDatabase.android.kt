@@ -172,6 +172,7 @@ actual constructor() {
      * @throws IllegalArgumentException if initialization fails.
      */
     @CallSuper
+    @Suppress("KmpVisibilityMismatch") // expect is internal
     public actual open fun init(configuration: DatabaseConfiguration) {
         this.configuration = configuration
         useTempTrackingTable = configuration.useTempTrackingTable
@@ -476,7 +477,9 @@ actual constructor() {
      *
      * @param T The type of the abstract database class.
      */
-    @Suppress("GetterOnBuilder") // To keep ABI compatibility from Java
+    // GetterOnBuilder: To keep ABI compatibility from Java
+    // KmpModifierMismatch: expect is not open
+    @Suppress("GetterOnBuilder", "KmpModifierMismatch")
     public actual open class Builder<T : RoomDatabase> {
         private val klass: KClass<T>
         private val context: Context
@@ -1127,6 +1130,7 @@ actual constructor() {
      * A container to hold migrations. It also allows querying its contents to find migrations
      * between two versions.
      */
+    @Suppress("KmpModifierMismatch") // expect is not open
     public actual open class MigrationContainer {
         private val migrations = mutableMapOf<Int, TreeMap<Int, Migration>>()
 

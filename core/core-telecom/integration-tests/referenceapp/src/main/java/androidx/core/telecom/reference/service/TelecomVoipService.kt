@@ -159,6 +159,7 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
         callAttributes: CallAttributesCompat,
         notificationId: Int,
         isInitiallyMuted: Boolean,
+        canUserUpdateSilence: Boolean,
     ) {
         val callId = notificationId.toString()
         Log.d(TAG, "[$callId] addCall")
@@ -214,6 +215,7 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
                                     settings = loadAllExtensionSettings(applicationContext),
                                     scope = this,
                                     desiredInitialMuteState = isInitiallyMuted,
+                                    canUserUpdateSilenceState = canUserUpdateSilence,
                                 )
 
                             onCall {
@@ -264,6 +266,7 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
         settings: ExtensionSettings,
         scope: ExtensionInitializationScope,
         desiredInitialMuteState: Boolean,
+        canUserUpdateSilenceState: Boolean,
     ): InitializedExtensionsHolder {
         var localCallSilenceExt: LocalCallSilenceExtension? = null
         var callIconExt: CallIconExtension? = null
@@ -278,7 +281,10 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
                 "LCS: Local Call Silence Extension Enabled: sending initial state: $desiredInitialMuteState",
             )
             localCallSilenceExt =
-                scope.addLocalCallSilenceExtension(desiredInitialMuteState) { isSilenced ->
+                scope.addLocalCallSilenceExtension(
+                    desiredInitialMuteState,
+                    canUserUpdateSilenceState,
+                ) { isSilenced ->
                     Log.i(
                         TAG,
                         "LCS: [$callId] Local Silence Update Received" +
@@ -338,6 +344,7 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
             raiseHand = raiseHandExt,
             participantsManager = participantsMgr,
             initialLocalMuteState = desiredInitialMuteState,
+            initialCanUserUpdateSilenceState = canUserUpdateSilenceState,
         )
     }
 
@@ -491,6 +498,7 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
             isLocalCallSilenceEnabled = initializedExtensions.localCallSilence != null,
             isCallIconExtensionEnabled = initializedExtensions.callIcon != null,
             isLocallyMuted = initializedExtensions.initialLocalMuteState,
+            canUserUpdateSilence = initializedExtensions.initialCanUserUpdateSilenceState,
         )
     }
 
@@ -621,6 +629,14 @@ class TelecomVoipService() : LocalServiceBinder, LifecycleService() {
         lifecycleScope.launch {
             callData?.localCallSilenceExtension?.updateIsLocallySilenced(isMuted)
             updateCallDataInternal(callId) { it.copy(isLocallyMuted = isMuted) }
+        }
+    }
+
+    override fun toggleCanUserUpdateSilence(callId: String, canUserUpdateSilence: Boolean) {
+        val callData = getCallDataById(callId)
+        lifecycleScope.launch {
+            callData?.localCallSilenceExtension?.updateCanUserUpdateSilence(canUserUpdateSilence)
+            updateCallDataInternal(callId) { it.copy(canUserUpdateSilence = canUserUpdateSilence) }
         }
     }
 

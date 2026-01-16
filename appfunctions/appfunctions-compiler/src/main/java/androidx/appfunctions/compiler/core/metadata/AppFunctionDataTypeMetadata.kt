@@ -41,7 +41,7 @@ abstract class AppFunctionDataTypeMetadata() {
         internal const val TYPE_ARRAY: Int = 10
         internal const val TYPE_REFERENCE: Int = 11
         internal const val TYPE_ALL_OF: Int = 12
-        internal const val TYPE_PENDING_INTENT: Int = 13
+        internal const val TYPE_PARCELABLE: Int = 13
         internal const val TYPE_ONE_OF = 14
     }
 }
@@ -62,6 +62,24 @@ data class AppFunctionArrayTypeMetadata(
 
     companion object {
         const val TYPE: Int = TYPE_ARRAY
+    }
+}
+
+data class AppFunctionParcelableTypeMetadata(
+    val qualifiedName: String?,
+    override val isNullable: Boolean,
+    override val description: String,
+) : AppFunctionDataTypeMetadata() {
+    override fun toAppFunctionDataTypeMetadataDocument() =
+        AppFunctionDataTypeMetadataDocument(
+            type = TYPE,
+            isNullable = isNullable,
+            description = description,
+            objectQualifiedName = qualifiedName,
+        )
+
+    companion object {
+        const val TYPE: Int = TYPE_PARCELABLE
     }
 }
 
@@ -318,19 +336,6 @@ data class AppFunctionUnitTypeMetadata(
     }
 }
 
-data class AppFunctionPendingIntentTypeMetadata(
-    override val isNullable: Boolean,
-    override val description: String,
-) : AppFunctionDataTypeMetadata() {
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT,
-            isNullable = isNullable,
-            description = description,
-        )
-    }
-}
-
 data class AppFunctionNamedDataTypeMetadataDocument(
     val namespace: String = APP_FUNCTION_NAMESPACE,
     val id: String = APP_FUNCTION_ID_EMPTY,
@@ -427,10 +432,11 @@ data class AppFunctionDataTypeMetadataDocument(
             AppFunctionDataTypeMetadata.TYPE_UNIT ->
                 AppFunctionUnitTypeMetadata(isNullable = isNullable, description = description)
 
-            AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT ->
-                AppFunctionPendingIntentTypeMetadata(
+            AppFunctionDataTypeMetadata.TYPE_PARCELABLE ->
+                AppFunctionParcelableTypeMetadata(
                     isNullable = isNullable,
                     description = description,
+                    qualifiedName = objectQualifiedName,
                 )
             AppFunctionDataTypeMetadata.TYPE_ONE_OF ->
                 AppFunctionOneOfTypeMetadata(

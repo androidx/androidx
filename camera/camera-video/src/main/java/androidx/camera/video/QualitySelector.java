@@ -29,7 +29,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
-import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.core.util.Preconditions;
 
 import org.jspecify.annotations.NonNull;
@@ -83,6 +82,15 @@ import java.util.Set;
  */
 public final class QualitySelector {
     private static final String TAG = "QualitySelector";
+
+    /**
+     * A QualitySelector that contains no preferred qualities and no fallback strategy.
+     * When used, the resolution engine will have to rely entirely on system defaults
+     * or other specification components (like AspectRatio).
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final @NonNull QualitySelector NONE =
+            new QualitySelector(Collections.emptyList(), FallbackStrategy.NONE);
 
     /**
      * Gets all supported qualities on the device.
@@ -149,8 +157,7 @@ public final class QualitySelector {
             @NonNull Quality quality) {
         checkQualityConstantsOrThrow(quality);
         VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(cameraInfo);
-        VideoValidatedEncoderProfilesProxy profiles = videoCapabilities.getProfiles(quality, SDR);
-        return profiles != null ? getProfileVideoSize(profiles) : null;
+        return videoCapabilities.getResolution(quality, SDR);
     }
 
     /**
@@ -164,8 +171,8 @@ public final class QualitySelector {
             @NonNull VideoCapabilities videoCapabilities, @NonNull DynamicRange dynamicRange) {
         Map<Quality, Size> map = new HashMap<>();
         for (Quality supportedQuality : videoCapabilities.getSupportedQualities(dynamicRange)) {
-            map.put(supportedQuality, getProfileVideoSize(
-                    requireNonNull(videoCapabilities.getProfiles(supportedQuality, dynamicRange))));
+            map.put(supportedQuality, requireNonNull(
+                    videoCapabilities.getResolution(supportedQuality, dynamicRange)));
         }
         return map;
     }
@@ -175,9 +182,6 @@ public final class QualitySelector {
 
     QualitySelector(@NonNull List<Quality> preferredQualityList,
             @NonNull FallbackStrategy fallbackStrategy) {
-        Preconditions.checkArgument(
-                !preferredQualityList.isEmpty() || fallbackStrategy != FallbackStrategy.NONE,
-                "No preferred quality and fallback strategy.");
         mPreferredQualityList = Collections.unmodifiableList(new ArrayList<>(preferredQualityList));
         mFallbackStrategy = fallbackStrategy;
     }
@@ -405,11 +409,6 @@ public final class QualitySelector {
             default:
                 throw new AssertionError("Unhandled fallback strategy: " + mFallbackStrategy);
         }
-    }
-
-    private static @NonNull Size getProfileVideoSize(
-            @NonNull VideoValidatedEncoderProfilesProxy profiles) {
-        return profiles.getDefaultVideoProfile().getResolution();
     }
 
     private static void checkQualityConstantsOrThrow(@NonNull List<Quality> qualities) {

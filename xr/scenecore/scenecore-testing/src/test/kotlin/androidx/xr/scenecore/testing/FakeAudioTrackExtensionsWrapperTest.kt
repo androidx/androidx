@@ -83,7 +83,7 @@ class FakeAudioTrackExtensionsWrapperTest {
         check(fakeWrapper.getSoundFieldAttributes(track) == null)
 
         val attributes = SoundFieldAttributes(SpatializerConstants.AMBISONICS_ORDER_FIRST_ORDER)
-        fakeWrapper.soundFieldAttributesMap = mutableMapOf(track to attributes)
+        fakeWrapper.setSoundFieldAttributes(track, attributes)
 
         assertThat(fakeWrapper.getSoundFieldAttributes(track)).isEqualTo(attributes)
     }

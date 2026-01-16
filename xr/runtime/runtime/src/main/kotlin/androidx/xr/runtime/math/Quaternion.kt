@@ -30,10 +30,10 @@ import kotlin.math.sqrt
  * Represents a rotation component in three-dimensional space. Any vector can be provided and the
  * resulting quaternion will be normalized at construction time.
  *
- * @param x the x value of the quaternion.
- * @param y the y value of the quaternion.
- * @param z the z value of the quaternion.
- * @param w the rotation of the unit vector, in radians.
+ * @property x the x value of the quaternion
+ * @property y the y value of the quaternion
+ * @property z the z value of the quaternion
+ * @property w the rotation of the unit vector, in radians
  */
 public class Quaternion
 @JvmOverloads
@@ -88,7 +88,11 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
     public inline operator fun minus(other: Quaternion): Quaternion =
         Quaternion(x - other.x, y - other.y, z - other.z, w - other.w)
 
-    /** Rotates a [Vector3] by this quaternion. */
+    /**
+     * Rotates a [Vector3] by this quaternion.
+     *
+     * @param src the vector to rotate
+     */
     public inline operator fun times(src: Vector3): Vector3 {
         val qx = x
         val qy = y
@@ -109,7 +113,7 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
 
     /**
      * Returns a new quaternion with the product of this quaternion and the [other] quaternion. The
-     * order of the multiplication is `[this] * [other]`.
+     * order of the multiplication is this * [other].
      */
     public inline operator fun times(other: Quaternion): Quaternion {
         val lx = this.x
@@ -171,7 +175,14 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
         return Pair(axis, toDegrees(angleRadians))
     }
 
-    /** Returns a copy of the quaternion. */
+    /**
+     * Returns a copy of the quaternion.
+     *
+     * @param x the new x value for the copied quaternion
+     * @param y the new y value for the copied quaternion
+     * @param z the new z value for the copied quaternion
+     * @param w the new w value for the copied quaternion
+     */
     @JvmOverloads
     public fun copy(
         x: Float = this.x,
@@ -205,7 +216,12 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
 
         @JvmField public val Identity: Quaternion = Quaternion()
 
-        /** Returns a new quaternion representing the rotation from one vector to another. */
+        /**
+         * Returns a new quaternion representing the rotation from one vector to another.
+         *
+         * @param start the starting vector
+         * @param end the ending vector
+         */
         @JvmStatic
         public fun fromRotation(start: Vector3, end: Vector3): Quaternion {
             val startNorm = start.toNormalized()
@@ -230,12 +246,22 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             return Quaternion(rotationAxis.x, rotationAxis.y, rotationAxis.z, 1 + cosTheta)
         }
 
-        /** Returns a new quaternion representing the rotation from one quaternion to another. */
+        /**
+         * Returns a new quaternion representing the rotation from one quaternion to another.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         */
         @JvmStatic
         public fun fromRotation(start: Quaternion, end: Quaternion): Quaternion =
             Quaternion(end * start.inverse)
 
-        /** Returns a new quaternion with the specified forward and upward directions. */
+        /**
+         * Returns a new quaternion with the specified forward and upward directions.
+         *
+         * @param forward the forward direction
+         * @param up the upward direction
+         */
         @JvmStatic
         public fun fromLookTowards(forward: Vector3, up: Vector3): Quaternion {
             val forwardNormalized = forward.toNormalized()
@@ -270,7 +296,12 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             }
         }
 
-        /** Creates a new quaternion using an axis/angle to define the rotation. */
+        /**
+         * Creates a new quaternion using an axis/angle to define the rotation.
+         *
+         * @param axis the axis of rotation
+         * @param degrees the angle of rotation in degrees
+         */
         @JvmStatic
         public fun fromAxisAngle(axis: Vector3, degrees: Float): Quaternion =
             Quaternion(
@@ -283,6 +314,8 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
         /**
          * Returns a new quaternion using Euler angles (in degrees) to define the rotation in YXZ
          * (yaw, pitch, roll) order.
+         *
+         * @param eulerAngles the Euler angles in degrees
          */
         @JvmStatic
         public fun fromEulerAngles(eulerAngles: Vector3): Quaternion =
@@ -293,6 +326,10 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
         /**
          * Returns a new quaternion using Euler angles (in degrees) to define the rotation in YXZ
          * (yaw, pitch, roll) order.
+         *
+         * @param pitch the pitch in degrees
+         * @param yaw the yaw in degrees
+         * @param roll the roll in degrees
          */
         @JvmStatic
         public fun fromEulerAngles(pitch: Float, yaw: Float, roll: Float): Quaternion =
@@ -306,6 +343,10 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned quaternion will be
          * extrapolated.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun lerp(start: Quaternion, end: Quaternion, ratio: Float): Quaternion =
@@ -324,6 +365,10 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned quaternion will be
          * extrapolated.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun slerp(start: Quaternion, end: Quaternion, ratio: Float): Quaternion {
@@ -364,12 +409,22 @@ constructor(x: Float = 0F, y: Float = 0F, z: Float = 0F, w: Float = 1F) {
             )
         }
 
-        /** Returns the angle between [start] and [end] quaternion in degrees. */
+        /**
+         * Returns the angle between [start] and [end] quaternion in degrees.
+         *
+         * @param start the starting quaternion
+         * @param end the ending quaternion
+         */
         @JvmStatic
         public fun angle(start: Quaternion, end: Quaternion): Float =
             toDegrees(2.0f * acos(abs(clamp(dot(start, end), -1.0f, 1.0f))))
 
-        /** Returns the dot product of two quaternions. */
+        /**
+         * Returns the dot product of two quaternions.
+         *
+         * @param lhs the first quaternion
+         * @param rhs the second quaternion
+         */
         @JvmStatic
         public fun dot(lhs: Quaternion, rhs: Quaternion): Float =
             lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w

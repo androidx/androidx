@@ -198,7 +198,7 @@ internal constructor(
             isAlphaMapVersion: Boolean,
             session: Session,
         ): WaterMaterial {
-            val material = renderingRuntime.createWaterMaterialAsync(isAlphaMapVersion)
+            val material = renderingRuntime.createWaterMaterial(isAlphaMapVersion)
             return WaterMaterial(material, isAlphaMapVersion, session)
         }
 

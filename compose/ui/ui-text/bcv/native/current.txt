@@ -547,6 +547,7 @@ final class androidx.compose.ui.text.input/TransformedText { // androidx.compose
 }
 
 final class androidx.compose.ui.text.intl/Locale { // androidx.compose.ui.text.intl/Locale|null[0]
+    constructor <init>(androidx.compose.ui.text.intl/PlatformLocale) // androidx.compose.ui.text.intl/Locale.<init>|<init>(androidx.compose.ui.text.intl.PlatformLocale){}[0]
     constructor <init>(kotlin/String) // androidx.compose.ui.text.intl/Locale.<init>|<init>(kotlin.String){}[0]
 
     final val language // androidx.compose.ui.text.intl/Locale.language|{}language[0]

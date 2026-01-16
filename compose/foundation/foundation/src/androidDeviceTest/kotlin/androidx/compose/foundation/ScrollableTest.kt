@@ -96,13 +96,12 @@ import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyInput
@@ -402,7 +401,6 @@ class ScrollableTest {
      * at least one child within the scrollable must be focusable. (This matches the behavior in
      * Views.)
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_horizontalScroll_keyboardPageUpAndDown() {
         var scrollAmount = 0f
@@ -866,7 +864,6 @@ class ScrollableTest {
      * at least one child within the scrollable must be focusable. (This matches the behavior in
      * Views.)
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_verticalScroll_keyboardPageUpAndDown() {
         var scrollAmount = 0f
@@ -1413,7 +1410,6 @@ class ScrollableTest {
      * at least one child within the scrollable must be focusable. (This matches the behavior in
      * Views.)
      */
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun scrollable_nestedScroll_childPartialConsumptionForKeyboardPageUpAndDown() {
         var innerDrag = 0f

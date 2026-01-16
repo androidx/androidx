@@ -134,6 +134,22 @@ public interface VideoCapabilities {
     }
 
     /**
+     * Gets the resolution of the input quality and dynamic range.
+     *
+     * @param quality one of the quality constants. Possible values include
+     *                {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
+     *                {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
+     * @param dynamicRange target dynamicRange.
+     * @return the corresponding resolution, or {@code null} if the quality is not supported on the
+     * device.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    default @Nullable Size getResolution(@NonNull Quality quality,
+            @NonNull DynamicRange dynamicRange) {
+        return null;
+    }
+
+    /**
      * Gets the corresponding {@link VideoValidatedEncoderProfilesProxy} of the input quality and
      * dynamic range.
      *

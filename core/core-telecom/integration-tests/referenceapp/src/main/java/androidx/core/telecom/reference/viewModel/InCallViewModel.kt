@@ -80,6 +80,7 @@ class InCallViewModel(
                         isCallIconExtensionEnabled = call.isCallIconExtensionEnabled,
                         callIconData = call.iconData,
                         isLocallyMuted = call.isLocallyMuted,
+                        canUserUpdateSilence = call.canUserUpdateSilence,
                     )
                 }
             }
@@ -189,6 +190,11 @@ class InCallViewModel(
         Log.d(TAG, "Requesting toggleLocalMute: isMuted = $isMuted")
         maybeStopAudioLoopback(isMuted)
         callRepository.toggleLocalCallSilence(callId, isMuted)
+    }
+
+    fun toggleCanUserUpdateSilence(callId: String, canUserUpdateSilence: Boolean) {
+        Log.d(TAG, "toggleCanUserUpdateSilence: canUserUpdateSilence = $canUserUpdateSilence")
+        callRepository.toggleCanUserUpdateSilence(callId, canUserUpdateSilence)
     }
 
     fun maybeStopAudioLoopback(isMuted: Boolean) {

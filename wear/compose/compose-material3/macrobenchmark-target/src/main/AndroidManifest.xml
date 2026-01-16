@@ -501,6 +501,17 @@
         </activity>
 
         <activity
+            android:name=".TransformingLazyColumnOffscreenContainerActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TRANSFORMING_LAZY_COLUMN_OFFSCREEN_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".TransformingLazyColumnMorphingNotificationsActivity"
             android:theme="@style/AppTheme"
             android:exported="true">
@@ -518,6 +529,17 @@
             <intent-filter>
                 <action android:name=
                     "androidx.wear.compose.material3.macrobenchmark.target.TRANSFORMING_LAZY_COLUMN_HEAVY_ITEM_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".TransformingLazyColumnNotificationsWithSnapActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.material3.macrobenchmark.target.TRANSFORMING_LAZY_COLUMN_NOTIFICATIONS_WITH_SNAP_ACTIVITY" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

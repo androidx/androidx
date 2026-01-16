@@ -18,13 +18,8 @@ package androidx.xr.scenecore.spatial.rendering
 
 import android.app.Activity
 import androidx.xr.runtime.math.FloatSize2d
-import androidx.xr.runtime.math.Pose
-import androidx.xr.runtime.math.Quaternion
-import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl
 import androidx.xr.scenecore.impl.impress.ImpressApi
-import androidx.xr.scenecore.runtime.CameraViewScenePose
-import androidx.xr.scenecore.runtime.PixelDimensions
 import androidx.xr.scenecore.runtime.SurfaceEntity
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider
 import com.google.androidxr.splitengine.SplitEngineSubspaceManager
@@ -41,6 +36,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.any
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -64,6 +60,8 @@ class SurfaceFeatureImplTest {
 
         impressApi = mock(ImpressApi::class.java)
         `when`(impressApi.createImpressNode()).thenReturn(fakeImpressApi.createImpressNode())
+        `when`(impressApi.createStereoSurface(any(), any(), any()))
+            .thenReturn(fakeImpressApi.createImpressNode())
 
         Assert.assertNotNull(xrExtensions)
         val node = xrExtensions.createNode()
@@ -72,7 +70,7 @@ class SurfaceFeatureImplTest {
         `when`(splitEngineSubspaceManager.createSubspace(anyString(), anyInt()))
             .thenReturn(expectedSubspaceNode)
 
-        createDefaultSurfaceFeature(SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f)))
+        createDefaultSurfaceFeature(SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f), 0.0f))
     }
 
     @After
@@ -105,36 +103,18 @@ class SurfaceFeatureImplTest {
         return surfaceFeature
     }
 
-    private fun setupDefaultMockCameraView(): CameraViewScenePose {
-        val cameraView = mock(CameraViewScenePose::class.java)
-        `when`(cameraView.cameraType)
-            .thenReturn(CameraViewScenePose.CameraType.CAMERA_TYPE_LEFT_EYE)
-        `when`(cameraView.activitySpacePose)
-            .thenReturn(Pose(Vector3(0f, 0f, 0f), Quaternion.Identity))
-
-        val fov =
-            CameraViewScenePose.Fov(
-                Math.atan(1.0).toFloat(),
-                Math.atan(1.0).toFloat(),
-                Math.atan(1.0).toFloat(),
-                Math.atan(1.0).toFloat(),
-            )
-        `when`(cameraView.fov).thenReturn(fov)
-        `when`(cameraView.displayResolutionInPixels).thenReturn(PixelDimensions(1000, 1000))
-        return cameraView
-    }
-
     @Ignore // b/428211243 this test currently leaks android.view.Surface
     @Test
     fun setShape_setsShape() {
-        var expectedShape: SurfaceEntity.Shape = SurfaceEntity.Shape.Quad(FloatSize2d(12f, 12f))
+        var expectedShape: SurfaceEntity.Shape =
+            SurfaceEntity.Shape.Quad(FloatSize2d(12f, 12f), 0.0f)
         surfaceFeature.shape = expectedShape
         var shape = surfaceFeature.shape
 
         assertThat(shape.javaClass).isEqualTo(expectedShape.javaClass)
         assertThat(shape.dimensions).isEqualTo(expectedShape.dimensions)
         verify(impressApi)
-            .setStereoSurfaceEntityCanvasShapeQuad(surfaceFeature.entityImpressNode, 12f, 12f)
+            .setStereoSurfaceEntityCanvasShapeQuad(surfaceFeature.entityImpressNode, 12f, 12f, 0.0f)
 
         expectedShape = SurfaceEntity.Shape.Sphere(11f)
         surfaceFeature.shape = expectedShape
@@ -178,7 +158,7 @@ class SurfaceFeatureImplTest {
     @Ignore // b/428211243 this test currently leaks android.view.Surface
     @Test
     fun dispose_supports_reentry() {
-        val quadShape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)) // 1m x 1m local
+        val quadShape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), 0.0f) // 1m x 1m local
         surfaceFeature = createDefaultSurfaceFeature(quadShape)
 
         // Note that we don't test that dispose prevents manipulating other properties because that
@@ -244,7 +224,7 @@ class SurfaceFeatureImplTest {
                 splitEngineSubspaceManager,
                 xrExtensions,
                 SurfaceEntity.StereoMode.SIDE_BY_SIDE,
-                SurfaceEntity.Shape.Quad(FloatSize2d(kTestWidth, kTestHeight)),
+                SurfaceEntity.Shape.Quad(FloatSize2d(kTestWidth, kTestHeight), 0.0f),
                 SurfaceEntity.SurfaceProtection.NONE,
                 SurfaceEntity.SuperSampling.DEFAULT,
             )
@@ -336,7 +316,7 @@ class SurfaceFeatureImplTest {
         val protectedSurfaceFeature =
             createSurfaceFeature(
                 SurfaceEntity.SurfaceProtection.PROTECTED,
-                SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f)),
+                SurfaceEntity.Shape.Quad(FloatSize2d(1f, 1f), 0.0f),
             )
         var exceptionThrown = false
         try {

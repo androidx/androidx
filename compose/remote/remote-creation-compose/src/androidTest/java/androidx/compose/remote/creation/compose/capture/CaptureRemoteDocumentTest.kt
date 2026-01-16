@@ -19,7 +19,6 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
-import android.graphics.Paint
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operations
 import androidx.compose.remote.core.RcProfiles
@@ -30,11 +29,13 @@ import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationCompos
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
-import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.ui.graphics.Color
@@ -66,8 +67,9 @@ class CaptureRemoteDocumentTest {
         val document: ByteArray =
             withContext(Dispatchers.Main) {
                 captureSingleRemoteDocument(context) {
-                    RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red))
-                }
+                        RemoteBox(modifier = RemoteModifier.fillMaxSize().background(Color.Red))
+                    }
+                    .bytes
             }
 
         val remoteComposeDocument =
@@ -94,27 +96,38 @@ class CaptureRemoteDocumentTest {
         val document: ByteArray =
             withContext(Dispatchers.Main) {
                 captureSingleRemoteDocument(context, profile = customProfile) {
-                    RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
-                        val textPaint =
-                            Paint().apply {
-                                isAntiAlias = true
-                                color = Color.LightGray.toArgb()
-                                textSize = 12f
-                            }
+                        RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
+                            val redPaint =
+                                RemotePaint().apply { color = android.graphics.Color.RED }
+                            drawRect(paint = redPaint)
+                            val bluePaint =
+                                RemotePaint().apply { color = android.graphics.Color.BLUE }
+                            drawCircle(
+                                paint = bluePaint,
+                                center = RemoteOffset(remoteWidth / 2f, remoteHeight / 2f),
+                                radius = remoteWidth / 4f,
+                            )
+                            val textPaint =
+                                RemotePaint().apply {
+                                    isAntiAlias = true
+                                    color = Color.LightGray.toArgb()
+                                    textSize = 12f
+                                }
 
-                        canvas.drawTextOnCircle(
-                            text = RemoteString("10:09"),
-                            centerX = remote.component.width / 2f,
-                            centerY = remote.component.height / 2f,
-                            radius = remote.component.width / 2f,
-                            startAngle = 0f.rf,
-                            warpRadiusOffset = 0f.rf,
-                            alignment = DrawTextOnCircle.Alignment.CENTER,
-                            placement = DrawTextOnCircle.Placement.INSIDE,
-                            paint = textPaint,
-                        )
+                            drawTextOnCircle(
+                                text = "10:09".rs,
+                                centerX = remoteWidth / 2f,
+                                centerY = remoteHeight / 2f,
+                                radius = remoteWidth / 2f,
+                                startAngle = 0f.rf,
+                                warpRadiusOffset = 0f.rf,
+                                alignment = DrawTextOnCircle.Alignment.CENTER,
+                                placement = DrawTextOnCircle.Placement.INSIDE,
+                                paint = textPaint,
+                            )
+                        }
                     }
-                }
+                    .bytes
             }
 
         assertTrue(document.isNotEmpty())

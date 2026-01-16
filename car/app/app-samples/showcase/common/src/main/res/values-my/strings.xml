@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"အတန်းကိုလည်း ရွေးနိုင်သည်"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"ဒုတိယဦးစားပေး လုပ်ဆောင်ချက်ကို ရွေးထားသည်"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"အတန်း၏ ပထမဦးစားပေး လုပ်ဆောင်ချက်ကို ရွေးထားသည်"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"အတန်းအဆုံး ပုံနှင့် လုပ်ဆောင်ချက်များ သရုပ်ပြခြင်း"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"စာရင်းအလွတ် သရုပ်ပြ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"ဤစာရင်းသည် အလွတ်ဖြစ်သည်"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"အထွေထွေ ပုံစံသရုပ်ပြချက်များ"</string>

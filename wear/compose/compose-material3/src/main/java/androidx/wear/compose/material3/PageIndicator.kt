@@ -21,7 +21,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -482,7 +485,7 @@ private class PagesState(
     private var hiddenPagesToTheLeft = 0
 
     // Current visible position on the screen.
-    var visibleDotIndex = 0
+    var visibleDotIndex by mutableIntStateOf(0)
         private set
 
     // Sizes and alphas of all indicators on the screen. These parameters depend on the currently

@@ -51,6 +51,10 @@ public class XrExtensionsProvider {
     private static class XrExtensionsInstance {
         private XrExtensionsInstance() {}
 
+        private static XrExtensions getInstance() {
+            return XrExtensionsHolder.INSTANCE;
+        }
+
         @SuppressLint("BanUncheckedReflection")
         private static class XrExtensionsHolder {
             public static final XrExtensions INSTANCE = new XrExtensions();
@@ -75,10 +79,6 @@ public class XrExtensionsProvider {
                             "XrExtensions.setCurrentExtensions method could not be called: " + e);
                 }
             }
-        }
-
-        private static XrExtensions getInstance() {
-            return XrExtensionsHolder.INSTANCE;
         }
     }
 }

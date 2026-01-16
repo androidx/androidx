@@ -171,8 +171,9 @@ package androidx.work {
     method @InaccessibleFromKotlin public java.util.Map<java.lang.String,java.lang.Object?> getKeyValueMap();
     method public long getLong(String key, long defaultValue);
     method public long[]? getLongArray(String key);
+    method public String?[]? getNullableStringArray(String key);
     method public String? getString(String key);
-    method public String[]? getStringArray(String key);
+    method @Deprecated public String[]? getStringArray(String key);
     method public <T> boolean hasKeyWithValueOfType(String key, Class<T> klass);
     method public byte[] toByteArray();
     property public java.util.Map<java.lang.String,java.lang.Object?> keyValueMap;

@@ -51,34 +51,12 @@ import org.robolectric.annotation.Config;
 @Config(sdk = {Config.TARGET_SDK})
 public class PointerCaptureComponentImplTest {
 
-    // Static private implementation of fakes so that the last received state can be grabbed.
-    private static class FakeStateListener implements StateListener {
-        public int lastState = -1;
-
-        @Override
-        public void onStateChanged(int newState) {
-            lastState = newState;
-        }
-    }
-
-    private static class FakeInputEventListener implements InputEventListener {
-        public InputEvent lastEvent = null;
-
-        @Override
-        public void onInputEvent(@NonNull InputEvent event) {
-            lastEvent = event;
-        }
-    }
-
     private final FakeStateListener mStateListener = new FakeStateListener();
-
     private final FakeInputEventListener mInputListener = new FakeInputEventListener();
-
     private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
     private final FakeScheduledExecutorService mFakeScheduler = new FakeScheduledExecutorService();
     private final Node mNode = mXrExtensions.createNode();
     private final ShadowNode mShadowNode = ShadowNode.extract(mNode);
-
     private final Entity mEntity =
             new AndroidXrEntity(null, mNode, mXrExtensions, new EntityManager(), mFakeScheduler) {};
 
@@ -248,5 +226,24 @@ public class PointerCaptureComponentImplTest {
         component.onDetach(mEntity);
 
         assertThat(mShadowNode.getInputListener()).isNull();
+    }
+
+    // Static private implementation of fakes so that the last received state can be grabbed.
+    private static class FakeStateListener implements StateListener {
+        public int lastState = -1;
+
+        @Override
+        public void onStateChanged(int newState) {
+            lastState = newState;
+        }
+    }
+
+    private static class FakeInputEventListener implements InputEventListener {
+        public InputEvent lastEvent = null;
+
+        @Override
+        public void onInputEvent(@NonNull InputEvent event) {
+            lastEvent = event;
+        }
     }
 }

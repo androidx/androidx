@@ -17,6 +17,7 @@
 package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.animateBounds
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -67,22 +68,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Composable
 fun ScreenSizeChangeDemo() {
     // A surface container using the 'background' color from the theme
     var state by remember { mutableStateOf(DisplayState.Tablet) }
-    Box(
-        modifier =
-            Modifier.fillMaxSize().background(Color.Black).clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null,
-            ) {
-                state =
-                    if (state == DisplayState.Tablet) DisplayState.Compact else DisplayState.Tablet
-            },
-        contentAlignment = Alignment.TopStart,
-    ) {
-        Root(state)
+    LookaheadAnimationVisualDebuggingToggle {
+        Box(
+            modifier =
+                Modifier.fillMaxSize().background(Color.Black).clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                ) {
+                    state =
+                        if (state == DisplayState.Tablet) DisplayState.Compact
+                        else DisplayState.Tablet
+                },
+            contentAlignment = Alignment.TopStart,
+        ) {
+            Root(state)
+        }
     }
 }
 

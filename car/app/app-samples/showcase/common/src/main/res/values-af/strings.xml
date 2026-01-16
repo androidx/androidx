@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Die ry kan ook gekies word"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekondêre handeling is gekies"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Primêre handeling vir ry is gekies"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demonstrasie van ry se eindprent en handelinge"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Demonstrasie van leë lys"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Die lys is leeg"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrasies oor diverse template"</string>

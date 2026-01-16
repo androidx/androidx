@@ -25,10 +25,11 @@ import java.util.Objects
 public class VideoSpec
 @JvmOverloads
 public constructor(
-    public val qualitySelector: QualitySelector = QUALITY_SELECTOR_AUTO,
-    public val encodeFrameRate: Int = ENCODE_FRAME_RATE_AUTO,
-    public val bitrate: Int = BITRATE_AUTO,
+    public val qualitySelector: QualitySelector = QUALITY_SELECTOR_UNSPECIFIED,
+    public val encodeFrameRate: Int = ENCODE_FRAME_RATE_UNSPECIFIED,
+    public val bitrate: Int = BITRATE_UNSPECIFIED,
     @get:AspectRatio.Ratio public val aspectRatio: Int = AspectRatio.RATIO_DEFAULT,
+    public val mimeType: String = MIME_TYPE_UNSPECIFIED,
 ) {
 
     /** Returns a [Builder] instance with the same property values as this instance. */
@@ -38,6 +39,7 @@ public constructor(
             .setEncodeFrameRate(encodeFrameRate)
             .setBitrate(bitrate)
             .setAspectRatio(aspectRatio)
+            .setMimeType(mimeType)
     }
 
     public override fun toString(): String {
@@ -45,7 +47,8 @@ public constructor(
             "qualitySelector=$qualitySelector, " +
             "encodeFrameRate=$encodeFrameRate, " +
             "bitrate=$bitrate, " +
-            "aspectRatio=$aspectRatio" +
+            "aspectRatio=$aspectRatio, " +
+            "mimeType=$mimeType" +
             "}"
     }
 
@@ -55,25 +58,27 @@ public constructor(
         return qualitySelector == other.qualitySelector &&
             encodeFrameRate == other.encodeFrameRate &&
             bitrate == other.bitrate &&
-            aspectRatio == other.aspectRatio
+            aspectRatio == other.aspectRatio &&
+            mimeType == other.mimeType
     }
 
     public override fun hashCode(): Int {
-        return Objects.hash(qualitySelector, encodeFrameRate, bitrate, aspectRatio)
+        return Objects.hash(qualitySelector, encodeFrameRate, bitrate, aspectRatio, mimeType)
     }
 
     /** The builder of the [VideoSpec]. */
     @RestrictTo(Scope.LIBRARY)
     public class Builder {
-        private var qualitySelector: QualitySelector = QUALITY_SELECTOR_AUTO
-        private var encodeFrameRate: Int = ENCODE_FRAME_RATE_AUTO
-        private var bitrate: Int = BITRATE_AUTO
+        private var qualitySelector: QualitySelector = QUALITY_SELECTOR_UNSPECIFIED
+        private var encodeFrameRate: Int = ENCODE_FRAME_RATE_UNSPECIFIED
+        private var bitrate: Int = BITRATE_UNSPECIFIED
         private var aspectRatio: Int = AspectRatio.RATIO_DEFAULT
+        private var mimeType: String = MIME_TYPE_UNSPECIFIED
 
         /**
          * Sets the [QualitySelector].
          *
-         * If not set, defaults to [QUALITY_SELECTOR_AUTO].
+         * If not set, defaults to [QUALITY_SELECTOR_UNSPECIFIED].
          */
         public fun setQualitySelector(qualitySelector: QualitySelector): Builder = apply {
             this.qualitySelector = qualitySelector
@@ -82,7 +87,7 @@ public constructor(
         /**
          * Sets the encode frame rate.
          *
-         * If not set, defaults to [ENCODE_FRAME_RATE_AUTO].
+         * If not set, defaults to [ENCODE_FRAME_RATE_UNSPECIFIED].
          */
         public fun setEncodeFrameRate(frameRate: Int): Builder = apply {
             this.encodeFrameRate = frameRate
@@ -91,7 +96,7 @@ public constructor(
         /**
          * Sets the bitrate.
          *
-         * If not set, defaults to [BITRATE_AUTO].
+         * If not set, defaults to [BITRATE_UNSPECIFIED].
          */
         public fun setBitrate(bitrate: Int): Builder = apply { this.bitrate = bitrate }
 
@@ -104,26 +109,34 @@ public constructor(
             this.aspectRatio = aspectRatio
         }
 
+        /**
+         * Sets the MIME type.
+         *
+         * If not set, defaults to [MIME_TYPE_UNSPECIFIED].
+         */
+        public fun setMimeType(mimeType: String): Builder = apply { this.mimeType = mimeType }
+
         /** Builds the VideoSpec instance. */
         public fun build(): VideoSpec {
-            return VideoSpec(qualitySelector, encodeFrameRate, bitrate, aspectRatio)
+            return VideoSpec(qualitySelector, encodeFrameRate, bitrate, aspectRatio, mimeType)
         }
     }
 
     public companion object {
         /** Frame rate representing no preference for encode frame rate. */
-        public const val ENCODE_FRAME_RATE_AUTO: Int = 0
+        public const val ENCODE_FRAME_RATE_UNSPECIFIED: Int = 0
 
         /** No preference for bitrate. */
-        public const val BITRATE_AUTO: Int = 0
+        public const val BITRATE_UNSPECIFIED: Int = 0
+
+        /** No preference for MIME type. */
+        public const val MIME_TYPE_UNSPECIFIED: String = "video/*"
 
         /** Quality selector representing no preference for quality. */
-        @JvmField
-        public val QUALITY_SELECTOR_AUTO: QualitySelector =
-            QualitySelector.fromOrderedList(
-                listOf(Quality.FHD, Quality.HD, Quality.SD),
-                FallbackStrategy.higherQualityOrLowerThan(Quality.FHD),
-            )
+        public val QUALITY_SELECTOR_UNSPECIFIED: QualitySelector = QualitySelector.NONE
+
+        /** A [VideoSpec] representing the default video configuration. */
+        public val DEFAULT: VideoSpec = builder().build()
 
         /** Returns a build for this config. */
         @RestrictTo(Scope.LIBRARY) @JvmStatic public fun builder(): Builder = Builder()

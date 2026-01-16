@@ -34,7 +34,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.runtime.saveable"
         androidResources.enable = true
     }
@@ -51,82 +51,45 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation("androidx.collection:collection:1.5.0")
-                implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
-                api(project(":compose:runtime:runtime"))
-                api("androidx.savedstate:savedstate-compose:1.3.2")
-            }
+        commonMain.dependencies {
+            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.4")
+            api(project(":compose:runtime:runtime"))
+            api("androidx.savedstate:savedstate-compose:1.3.2")
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
         }
 
-        androidDeviceTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-                implementation("androidx.fragment:fragment:1.3.0")
-                implementation("androidx.activity:activity-compose:1.7.0")
-                implementation(libs.testUiautomator)
-                implementation(libs.testCore)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.dexmakerMockito)
-                implementation(libs.mockitoCore)
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:ui:ui"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.fragment:fragment:1.3.0")
+            implementation("androidx.activity:activity-compose:1.7.0")
+            implementation(libs.testUiautomator)
+            implementation(libs.testCore)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.mockitoCore)
         }
 
-        androidHostTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-
-        webMain {
-            dependsOn(commonMain)
-        }
-
-        webTest {
-            dependsOn(commonTest)
-        }
-
-        jsMain {
-            dependsOn(webMain)
-        }
-
-        jsTest {
-            dependsOn(webTest)
-        }
-
-        wasmJsMain {
-            dependsOn(webMain)
-        }
-
-        wasmJsTest {
-            dependsOn(webTest)
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
     }
 }

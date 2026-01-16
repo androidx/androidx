@@ -54,18 +54,14 @@ configurations {
 androidXMultiplatform {
     jvm()
     sourceSets {
-        jvmMain {
-            dependencies {
-                implementation(libs.binaryCompatibilityValidator)
-            }
+        jvmMain.dependencies {
+            implementation(libs.kotlinAbiTools)
         }
-        jvmTest {
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCompiler)
-            }
+        jvmTest.dependencies {
+            implementation(libs.truth)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCompiler)
         }
     }
     provideKlibStdLibForTests()

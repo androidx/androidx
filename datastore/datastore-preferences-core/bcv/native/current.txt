@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -10,6 +10,7 @@ abstract class androidx.datastore.preferences.core/Preferences { // androidx.dat
     abstract fun <#A1: kotlin/Any?> contains(androidx.datastore.preferences.core/Preferences.Key<#A1>): kotlin/Boolean // androidx.datastore.preferences.core/Preferences.contains|contains(androidx.datastore.preferences.core.Preferences.Key<0:0>){0§<kotlin.Any?>}[0]
     abstract fun <#A1: kotlin/Any?> get(androidx.datastore.preferences.core/Preferences.Key<#A1>): #A1? // androidx.datastore.preferences.core/Preferences.get|get(androidx.datastore.preferences.core.Preferences.Key<0:0>){0§<kotlin.Any?>}[0]
     abstract fun asMap(): kotlin.collections/Map<androidx.datastore.preferences.core/Preferences.Key<*>, kotlin/Any> // androidx.datastore.preferences.core/Preferences.asMap|asMap(){}[0]
+    final fun copy(kotlin/Function1<androidx.datastore.preferences.core/MutablePreferences, kotlin/Unit>): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/Preferences.copy|copy(kotlin.Function1<androidx.datastore.preferences.core.MutablePreferences,kotlin.Unit>){}[0]
     final fun toMutablePreferences(): androidx.datastore.preferences.core/MutablePreferences // androidx.datastore.preferences.core/Preferences.toMutablePreferences|toMutablePreferences(){}[0]
     final fun toPreferences(): androidx.datastore.preferences.core/Preferences // androidx.datastore.preferences.core/Preferences.toPreferences|toPreferences(){}[0]
 

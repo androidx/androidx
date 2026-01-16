@@ -35,6 +35,7 @@ import androidx.annotation.RestrictTo
     ErrorCode.CHANGES_TOKEN_OUTDATED,
     ErrorCode.TRANSACTION_TOO_LARGE,
 )
+@Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 annotation class ErrorCode {
     companion object {

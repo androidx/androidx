@@ -420,6 +420,32 @@ class CallsManagerTest : BaseTelecomTest() {
         assertEquals(mTestClassName, handle.componentName.className)
     }
 
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_withOptOutOfPremiumNetwork_setsCorrectCapability() {
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK)
+        val phoneAccount = mCallsManager.getBuiltPhoneAccount()!!
+        assertTrue(
+            phoneAccount.hasCapabilities(
+                0x200000 /* PLATFORM_CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK */
+            )
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @SmallTest
+    @Test
+    fun testRegister_withoutOptOutOfPremiumNetwork_doesNotSetCapability() {
+        mCallsManager.registerAppWithTelecom(CallsManager.CAPABILITY_BASELINE)
+        val phoneAccount = mCallsManager.getBuiltPhoneAccount()!!
+        assertFalse(
+            phoneAccount.hasCapabilities(
+                0x200000 /* PLATFORM_CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK */
+            )
+        )
+    }
+
     private suspend fun assertStartingCallEndpoint(coroutineContext: CoroutineContext) {
         mCallsManager.registerAppWithTelecom(
             CallsManager.CAPABILITY_SUPPORTS_VIDEO_CALLING or

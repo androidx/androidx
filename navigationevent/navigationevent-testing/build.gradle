@@ -31,7 +31,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 36
+        compileSdk { version = release(36) }
         namespace = "androidx.navigationevent.testing"
     }
     jvm()
@@ -47,10 +47,8 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":navigationevent:navigationevent"))
-            }
+        commonMain.dependencies {
+            api(project(":navigationevent:navigationevent"))
         }
     }
 }

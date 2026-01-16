@@ -16,7 +16,6 @@
 
 package androidx.appfunctions
 
-import android.app.PendingIntent
 import android.app.appsearch.GenericDocument
 import android.net.Uri
 import android.os.Build
@@ -476,32 +475,6 @@ internal constructor(
     }
 
     /**
-     * Retrieves a [PendingIntent] value associated with the specified [key].
-     *
-     * @param key The key to retrieve the value for.
-     * @return The value associated with the [key], or null if the associated value is not found.
-     * @throws IllegalArgumentException if the [key] is not allowed or the value type is incorrect
-     *   according to the metadata specification.
-     */
-    public fun getPendingIntent(key: String): PendingIntent? {
-        return getPendingIntentOrNull(key)
-    }
-
-    // Equivalent to getPendingIntent. Provided for generated AppFunctionSerializableFactory to use
-    // without changing the access getter name based on type.
-    @RestrictTo(LIBRARY_GROUP)
-    public fun getPendingIntentOrNull(key: String): PendingIntent? {
-        val pendingIntentValue = extras.getParcelable(extrasKey(key), PendingIntent::class.java)
-        spec?.validateReadRequest(
-            key,
-            PendingIntent::class.java,
-            isCollection = false,
-            targetValue = pendingIntentValue,
-        )
-        return pendingIntentValue
-    }
-
-    /**
      * Retrieves a [Parcelable] value of type [T] associated with the specified [key].
      *
      * Returns null or fails with an exception if:
@@ -562,7 +535,7 @@ internal constructor(
     @RestrictTo(LIBRARY_GROUP)
     public fun <T : Parcelable> getParcelableOrNull(key: String, clazz: Class<T>): T? {
         val parcelable = extras.getParcelable(extrasKey(key), clazz)
-        // TODO: b/447530985 - Implement spec validation
+        spec?.validateReadRequest(key, clazz, isCollection = false, targetValue = parcelable)
         return parcelable
     }
 
@@ -771,27 +744,6 @@ internal constructor(
     }
 
     /**
-     * Retrieves a [List] of [PendingIntent] value associated with the specified [key].
-     *
-     * @param key The key to retrieve the value for.
-     * @return The value associated with the [key]. Or null if the associated value is not found.
-     * @throws IllegalArgumentException if the [key] is not allowed or the value type is incorrect
-     *   according to the metadata specification.
-     */
-    @Suppress("NullableCollection")
-    public fun getPendingIntentList(key: String): List<PendingIntent>? {
-        val pendingIntentListValue =
-            extras.getParcelableArrayList(extrasKey(key), PendingIntent::class.java)
-        spec?.validateReadRequest(
-            key,
-            PendingIntent::class.java,
-            isCollection = true,
-            targetValue = pendingIntentListValue,
-        )
-        return pendingIntentListValue
-    }
-
-    /**
      * Retrieves a [List] of [Parcelable] values of type [T] associated with the specified [key].
      *
      * For `Parcelable` types not defined by the Android platform (e.g., custom classes shared
@@ -807,7 +759,7 @@ internal constructor(
     public fun <T : Parcelable> getParcelableList(key: String, clazz: Class<T>): List<T>? {
         extras.classLoader = clazz.classLoader
         val parcelableList = extras.getParcelableArrayList(extrasKey(key), clazz)
-        // TODO: b/447530985 - Implement spec validation
+        spec?.validateReadRequest(key, clazz, isCollection = true, targetValue = parcelableList)
         if (parcelableList?.all { clazz.isInstance(it) } != true) {
             // For some reason Bundle.getParcelableArrayList doesn't return null even when type is
             // wrong.
@@ -1292,26 +1244,6 @@ internal constructor(
         }
 
         /**
-         * Sets a [PendingIntent] value for the given [key].
-         *
-         * @param key The key to set the [AppFunctionData] value for.
-         * @param value The [AppFunctionData] value to set.
-         * @throws IllegalArgumentException if the [key] is not allowed or the [value] does not
-         *   match the metadata specification associated with the [key].
-         */
-        @CanIgnoreReturnValue
-        public fun setPendingIntent(key: String, value: PendingIntent): Builder {
-            spec?.validateWriteRequest(
-                key,
-                PendingIntent::class.java,
-                isCollection = false,
-                targetValue = value,
-            )
-            extrasBuilder.putParcelable(extrasKey(key), value)
-            return this
-        }
-
-        /**
          * Sets a [Parcelable] value of type [T] for the given [key].
          *
          * For `Parcelable` types not defined by the Android platform (e.g., custom classes shared
@@ -1324,7 +1256,12 @@ internal constructor(
          */
         @CanIgnoreReturnValue
         public fun <T : Parcelable> setParcelable(key: String, value: T): Builder {
-            // TODO: b/447530985 - Implement spec validation
+            spec?.validateWriteRequest(
+                key,
+                value.javaClass,
+                isCollection = false,
+                targetValue = value,
+            )
             extrasBuilder.putParcelable(extrasKey(key), value)
             return this
         }
@@ -1508,23 +1445,22 @@ internal constructor(
         }
 
         /**
-         * Sets a [List] of [PendingIntent] value for the given [key].
+         * Sets a [List] of [Parcelable] values of type [T] for the given [key].
          *
-         * @param key The key to set the [List] of [AppFunctionData] value for.
-         * @param value The [List] of [AppFunctionData] value to set.
-         * @throws IllegalArgumentException if the [key] is not allowed or the [value] does not
-         *   match the metadata specification associated with the [key].
+         * For `Parcelable` types not defined by the Android platform (e.g., custom classes shared
+         * between agents and apps), forward and backward compatibility is **not guaranteed** by
+         * this framework. The sender and receiver of the `Parcelable` are responsible for managing
+         * any compatibility and versioning concerns.
+         *
+         * @param key The key to set the list for.
+         * @param value The [List] of [Parcelable] values of type [T] to set.
          */
         @CanIgnoreReturnValue
-        public fun setPendingIntentList(key: String, value: List<PendingIntent>): Builder {
-            spec?.validateWriteRequest(
-                key,
-                PendingIntent::class.java,
-                isCollection = true,
-                targetValue = value,
-            )
-            extrasBuilder.putParcelableArrayList(extrasKey(key), ArrayList<PendingIntent>(value))
-            return this
+        public inline fun <reified T : Parcelable> setParcelableList(
+            key: String,
+            value: List<T>,
+        ): Builder {
+            return setParcelableList(key, value, T::class.java)
         }
 
         /**
@@ -1537,10 +1473,15 @@ internal constructor(
          *
          * @param key The key to set the list for.
          * @param value The [List] of [Parcelable] values of type [T] to set.
+         * @param clazz The [Class] of the [Parcelable] list to set, of type [T].
          */
         @CanIgnoreReturnValue
-        public fun <T : Parcelable> setParcelableList(key: String, value: List<T>): Builder {
-            // TODO: b/447530985 - Implement spec validation
+        public fun <T : Parcelable> setParcelableList(
+            key: String,
+            value: List<T>,
+            clazz: Class<T>,
+        ): Builder {
+            spec?.validateWriteRequest(key, clazz, isCollection = true, targetValue = value)
             extrasBuilder.putParcelableArrayList(extrasKey(key), ArrayList(value))
             return this
         }

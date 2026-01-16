@@ -20,7 +20,7 @@ import android.os.StrictMode
 import androidx.datastore.TestFile
 import androidx.datastore.TestIO
 import androidx.datastore.TestingSerializerConfig
-import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -84,7 +84,7 @@ abstract class MultiProcessDataStoreSingleProcessTest<F : TestFile<F>>(
         file: F = testFile,
         scope: CoroutineScope = dataStoreScope,
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
-        corruptionHandler: CorruptionHandler<Byte> = NoOpCorruptionHandler<Byte>(),
+        corruptionHandler: CorruptionHandler<Byte> = ReThrowCorruptionHandler<Byte>(),
     ): DataStore<Byte> {
         return DataStoreImpl(
             storage =

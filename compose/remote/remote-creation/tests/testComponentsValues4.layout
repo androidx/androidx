@@ -1,0 +1,694 @@
+- description: Initial State
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+        - type: ROW
+          id: -5
+          x: 334.0
+          y: 384.0
+          width: 300.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - {type: ComponentValue, valueId: 45, componentValueType: HEIGHT, componentId: -5}
+          - {type: ComponentValue, valueId: 46, componentValueType: INVALID_TYPE,
+            componentId: -5}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 300.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClipRectModifierOperation, width: 300.0, height: 200.0}
+            - {type: ScrollModifierOperation, direction: 1, max: !!float 'NaN', notchMax: !!float 'NaN',
+              scrollValue: -0.0, maxScrollValue: 810.0, contentDimension: 1110.0,
+              hostDimension: 300.0}
+          - type: BOX
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -8
+            x: 100.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -9
+            x: 200.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -10
+            x: 300.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -11
+            x: 400.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -12
+            x: 500.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -13
+            x: 600.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -14
+            x: 700.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -15
+            x: 800.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -16
+            x: 900.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -17
+            x: 1000.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -18
+            x: 1100.0
+            y: 0.0
+            width: 10.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 10.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 10.0}
+                dimensionModifierType: EXACT
+              - type: LayoutComputeOperation
+                list:
+                - {type: DataDynamicListFloat, id: 2097194, values: '[200.0, 200.0,
+                    0.0, 0.0, 0.0, 0.0]'}
+                - arrayId: 2097194
+                  index: {type: Value, value: 0.0}
+                  value: {type: Variable, id: 45, value: 200.0}
+                - arrayId: 2097194
+                  index: {type: Value, value: 1.0}
+                  value: {type: Variable, id: 46, value: 200.0}
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+          spacedBy: 0.0
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+        spacedBy: 0.0
+- description: Component Tree
+  command: Capture
+  result:
+    type: CoreDocument
+    width: 1000
+    height: 1000
+    operations:
+    - type: RootLayoutComponent
+      id: -2
+      x: 0.0
+      y: 0.0
+      width: 1000.0
+      height: 1000.0
+      visibility: VISIBLE
+      list:
+      - type: COLUMN
+        id: -3
+        x: 0.0
+        y: 0.0
+        width: 1000.0
+        height: 1000.0
+        visibility: VISIBLE
+        list:
+        - type: ComponentModifiers
+          modifiers:
+          - type: WidthModifierOperation
+            width: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - type: HeightModifierOperation
+            height: {type: Variable, id: 0, value: !!float 'NaN'}
+            dimensionModifierType: FILL
+          - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 1000.0, height: 1000.0,
+            color: '0xffffff00', shapeType: RECTANGLE}
+          - {type: PaddingModifierOperation, left: 16.0, top: 16.0, right: 16.0, bottom: 16.0}
+        - type: ROW
+          id: -5
+          x: 334.0
+          y: 384.0
+          width: 300.0
+          height: 200.0
+          visibility: VISIBLE
+          list:
+          - {type: ComponentValue, valueId: 45, componentValueType: HEIGHT, componentId: -5}
+          - {type: ComponentValue, valueId: 46, componentValueType: INVALID_TYPE,
+            componentId: -5}
+          - type: ComponentModifiers
+            modifiers:
+            - type: WidthModifierOperation
+              width: {type: Value, value: 300.0}
+              dimensionModifierType: EXACT
+            - type: HeightModifierOperation
+              height: {type: Value, value: 200.0}
+              dimensionModifierType: EXACT
+            - {type: BackgroundModifierOperation, x: 0.0, y: 0.0, width: 300.0, height: 200.0,
+              color: '0xffff0000', shapeType: RECTANGLE}
+            - {type: ClipRectModifierOperation, width: 300.0, height: 200.0}
+            - {type: ScrollModifierOperation, direction: 1, max: !!float 'NaN', notchMax: !!float 'NaN',
+              scrollValue: -0.0, maxScrollValue: 810.0, contentDimension: 1110.0,
+              hostDimension: 300.0}
+          - type: BOX
+            id: -7
+            x: 0.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -8
+            x: 100.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -9
+            x: 200.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -10
+            x: 300.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -11
+            x: 400.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -12
+            x: 500.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -13
+            x: 600.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -14
+            x: 700.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -15
+            x: 800.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -16
+            x: 900.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -17
+            x: 1000.0
+            y: 0.0
+            width: 100.0
+            height: 100.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 100.0}
+                dimensionModifierType: EXACT
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          - type: BOX
+            id: -18
+            x: 1100.0
+            y: 0.0
+            width: 10.0
+            height: 10.0
+            visibility: VISIBLE
+            list:
+            - type: ComponentModifiers
+              modifiers:
+              - type: WidthModifierOperation
+                width: {type: Value, value: 10.0}
+                dimensionModifierType: EXACT
+              - type: HeightModifierOperation
+                height: {type: Value, value: 10.0}
+                dimensionModifierType: EXACT
+              - type: LayoutComputeOperation
+                list:
+                - {type: DataDynamicListFloat, id: 2097194, values: '[200.0, 200.0,
+                    0.0, 0.0, 0.0, 0.0]'}
+                - arrayId: 2097194
+                  index: {type: Value, value: 0.0}
+                  value: {type: Variable, id: 45, value: 200.0}
+                - arrayId: 2097194
+                  index: {type: Value, value: 1.0}
+                  value: {type: Variable, id: 46, value: 200.0}
+            paddingLeft: 0.0
+            paddingRight: 0.0
+            paddingTop: 0.0
+            paddingBottom: 0.0
+            verticalPositioning: CENTER
+            horizontalPositioning: CENTER
+          paddingLeft: 0.0
+          paddingRight: 0.0
+          paddingTop: 0.0
+          paddingBottom: 0.0
+          verticalPositioning: TOP
+          horizontalPositioning: START
+          spacedBy: 0.0
+        paddingLeft: 16.0
+        paddingRight: 16.0
+        paddingTop: 16.0
+        paddingBottom: 16.0
+        verticalPositioning: CENTER
+        horizontalPositioning: CENTER
+        spacedBy: 0.0

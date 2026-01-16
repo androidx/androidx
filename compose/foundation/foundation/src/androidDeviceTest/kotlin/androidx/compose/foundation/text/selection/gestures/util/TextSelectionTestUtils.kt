@@ -42,6 +42,7 @@ import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.util.lerp
@@ -108,13 +109,19 @@ private fun TextToolbar.assertShown(shown: Boolean = true) {
         .isEqualTo(if (shown) TextToolbarStatus.Shown else TextToolbarStatus.Hidden)
 }
 
-private fun FakeHapticFeedback.assertPerformedAtLeastThenClear(times: Int) {
-    assertThat(invocationCountMap[HapticFeedbackType.TextHandleMove] ?: 0).isAtLeast(times)
-    invocationCountMap.clear()
+private fun FakeHapticFeedback.assertPerformedAtLeast(
+    hapticFeedbackType: HapticFeedbackType,
+    times: Int,
+) {
+    assertThat(invocationCountMap[hapticFeedbackType] ?: 0).isAtLeast(times)
 }
 
 internal class FakeHapticFeedback : HapticFeedback {
     val invocationCountMap = mutableMapOf<HapticFeedbackType, Int>().withDefault { 0 }
+
+    fun clear() {
+        invocationCountMap.clear()
+    }
 
     override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
         invocationCountMap[hapticFeedbackType] = 1 + (invocationCountMap[hapticFeedbackType] ?: 0)
@@ -151,7 +158,8 @@ internal abstract class SelectionAsserter<S>(
     var endSelectionHandleShown: Boolean? = null
     var textToolbarShown = false
     var magnifierShown = false
-    var hapticsCount = 0
+    var hapticsTextHandleMoveCount = 0
+    var hapticsLongPressCount = 0
     var startLayoutDirection = ResolvedTextDirection.Ltr
     var endLayoutDirection = ResolvedTextDirection.Ltr
 
@@ -176,7 +184,13 @@ internal abstract class SelectionAsserter<S>(
         rule.assertMagnifierShown(magnifierShown)
         // reset haptics every assert.
         // with gestures, we could get multiple haptics per tested move
-        hapticFeedback.assertPerformedAtLeastThenClear(hapticsCount).also { hapticsCount = 0 }
+        hapticFeedback
+            .assertPerformedAtLeast(HapticFeedbackType.TextHandleMove, hapticsTextHandleMoveCount)
+            .also { hapticsTextHandleMoveCount = 0 }
+        hapticFeedback
+            .assertPerformedAtLeast(HapticFeedbackType.LongPress, hapticsLongPressCount)
+            .also { hapticsLongPressCount = 0 }
+        hapticFeedback.clear()
     }
 
     protected abstract fun subAssert()
@@ -313,4 +327,43 @@ internal fun SemanticsNodeInteraction.mouseDragNodeBy(delta: Offset, durationMil
     performMouseInput { startVar = currentPosition }
     val start = startVar!!
     mouseDragNodeTo(start + delta, durationMillis)
+}
+
+internal fun SemanticsNodeInteraction.trackpadDragNodeTo(
+    position: Offset,
+    durationMillis: Long = 200L,
+) {
+    require(durationMillis > 0) { "Duration cannot be <= 0" }
+
+    var startVar: Offset? = null
+    var dragEventPeriodMillisVar: Long? = null
+    performTrackpadInput {
+        startVar = currentPosition
+        dragEventPeriodMillisVar = eventPeriodMillis
+    }
+    val start = startVar!!
+    val dragEventPeriodMillis = dragEventPeriodMillisVar!!
+
+    // How many steps will we take in durationMillis?
+    // At least 1, and a number that will bring as as close to eventPeriod as possible
+    val steps = max(1, (durationMillis / dragEventPeriodMillis.toFloat()).roundToInt())
+
+    var previousTime = 0L
+    for (step in 1..steps) {
+        val progress = step / steps.toFloat()
+        val nextTime = lerp(0, stop = durationMillis, fraction = progress)
+        val nextPosition = lerp(start, position, nextTime / durationMillis.toFloat())
+        performTrackpadInput { moveTo(nextPosition, delayMillis = nextTime - previousTime) }
+        previousTime = nextTime
+    }
+}
+
+internal fun SemanticsNodeInteraction.trackpadDragNodeBy(
+    delta: Offset,
+    durationMillis: Long = 100L,
+) {
+    var startVar: Offset? = null
+    performTrackpadInput { startVar = currentPosition }
+    val start = startVar!!
+    trackpadDragNodeTo(start + delta, durationMillis)
 }

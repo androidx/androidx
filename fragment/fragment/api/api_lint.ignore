@@ -23,6 +23,10 @@ GetterSetterNames: androidx.fragment.app.Fragment#getAllowReturnTransitionOverla
     Symmetric method for `setAllowReturnTransitionOverlap` must be named `isAllowReturnTransitionOverlap`; was `getAllowReturnTransitionOverlap`
 
 
+HiddenSuperclass: androidx.fragment.app.FragmentActivity:
+    Public class androidx.fragment.app.FragmentActivity stripped of unavailable superclass androidx.core.app.ActivityCompat.RequestPermissionsRequestCodeValidator
+
+
 InvalidNullabilityOverride: androidx.fragment.app.DialogFragment#onCancel(android.content.DialogInterface) parameter #0:
     Invalid nullability on type android.content.DialogInterface in parameter `dialog` in method `onCancel`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.fragment.app.DialogFragment#onDismiss(android.content.DialogInterface) parameter #0:

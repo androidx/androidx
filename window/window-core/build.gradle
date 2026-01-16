@@ -47,23 +47,17 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.9.1")
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesCore)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesCore)
         }
 
-        androidDeviceTest {
-            dependencies {
-                implementation(libs.testRunner)
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
         }
     }
 }

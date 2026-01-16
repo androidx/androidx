@@ -16,35 +16,73 @@
 
 package androidx.wear.compose.remote.material3
 
-import androidx.compose.remote.creation.RemotePath
+import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
+import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.vector.RemotePathData
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 
 internal object TestImageVectors {
 
+    val testRemoteStateScope = NoRemoteCompose()
+
     val VolumeUp =
-        object : RemoteImageVector(autoMirror = true) {
-            override fun RemotePath.buildPath() {
-                moveTo(3.0f, 9.0f)
-                verticalLineToRelative(6.0f)
-                horizontalLineToRelative(4.0f)
-                lineToRelative(5.0f, 5.0f)
-                lineTo(12.0f, 4.0f)
-                lineTo(7.0f, 9.0f)
-                lineTo(3.0f, 9.0f)
-                close()
-                moveTo(16.5f, 12.0f)
-                curveToRelative(0.0f, -1.77f, -1.02f, -3.29f, -2.5f, -4.03f)
-                verticalLineToRelative(8.05f)
-                curveToRelative(1.48f, -0.73f, 2.5f, -2.25f, 2.5f, -4.02f)
-                close()
-                moveTo(14.0f, 3.23f)
-                verticalLineToRelative(2.06f)
-                curveToRelative(2.89f, 0.86f, 5.0f, 3.54f, 5.0f, 6.71f)
-                reflectiveCurveToRelative(-2.11f, 5.85f, -5.0f, 6.71f)
-                verticalLineToRelative(2.06f)
-                curveToRelative(4.01f, -0.91f, 7.0f, -4.49f, 7.0f, -8.77f)
-                reflectiveCurveToRelative(-2.99f, -7.86f, -7.0f, -8.77f)
-                close()
-            }
-        }
+        RemoteImageVector.Builder(
+                testRemoteStateScope,
+                name = "Volume up",
+                viewportWidth = 24.0f.rf,
+                viewportHeight = 24.0f.rf,
+                tintColor = RemoteColor(Color.Black),
+                autoMirror = true,
+            )
+            .addPath(
+                RemotePathData(testRemoteStateScope) {
+                    moveTo(3.0f.rf, 9.0f.rf)
+                    verticalLineToRelative(6.0f.rf)
+                    horizontalLineToRelative(4.0f.rf)
+                    lineToRelative(5.0f.rf, 5.0f.rf)
+                    lineTo(12.0f.rf, 4.0f.rf)
+                    lineTo(7.0f.rf, 9.0f.rf)
+                    lineTo(3.0f.rf, 9.0f.rf)
+                    close()
+                    moveTo(16.5f.rf, 12.0f.rf)
+                    curveToRelative(
+                        0.0f.rf,
+                        (-1.77f).rf,
+                        (-1.02f).rf,
+                        (-3.29f).rf,
+                        (-2.5f).rf,
+                        (-4.03f).rf,
+                    )
+                    verticalLineToRelative(8.05f.rf)
+                    curveToRelative(
+                        1.48f.rf,
+                        (-0.73f).rf,
+                        2.5f.rf,
+                        (-2.25f).rf,
+                        2.5f.rf,
+                        (-4.02f).rf,
+                    )
+                    close()
+                    moveTo(14.0f.rf, 3.23f.rf)
+                    verticalLineToRelative(2.06f.rf)
+                    curveToRelative(2.89f.rf, 0.86f.rf, 5.0f.rf, 3.54f.rf, 5.0f.rf, 6.71f.rf)
+                    reflectiveCurveToRelative((-2.11f).rf, 5.85f.rf, (-5.0f).rf, 6.71f.rf)
+                    verticalLineToRelative(2.06f.rf)
+                    curveToRelative(
+                        4.01f.rf,
+                        (-0.91f).rf,
+                        7.0f.rf,
+                        (-4.49f).rf,
+                        7.0f.rf,
+                        (-8.77f).rf,
+                    )
+                    reflectiveCurveToRelative((-2.99f).rf, (-7.86f).rf, (-7.0f).rf, (-8.77f).rf)
+                    close()
+                },
+                fill = SolidColor(Color.Black),
+            )
+            .build()
 }

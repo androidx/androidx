@@ -225,8 +225,7 @@ class SupportedQualitiesVerificationTest(
     ) {
         // Arrange.
         val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
-        val videoProfile =
-            videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+        val resolution = videoCapabilities.getResolution(quality, dynamicRange)!!
         val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(quality)).build()
         val videoCapture =
             VideoCapture.Builder(recorder)
@@ -296,7 +295,7 @@ class SupportedQualitiesVerificationTest(
         assertThat(finalizedEvent!!.error).isEqualTo(VideoRecordEvent.Finalize.ERROR_NONE)
 
         // Verify resolution.
-        val resolutionToVerify = videoProfile.resolution
+        val resolutionToVerify = resolution
         val rotationDegrees = getRotationNeeded(videoCapture, cameraInfo)
         // Skip verification when:
         // * The device has extra cropping quirk. UseCase surface will be configured with a fixed

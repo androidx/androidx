@@ -68,6 +68,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.stabilization.VideoStabilization;
 import androidx.camera.core.impl.utils.UseCaseUtil;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
@@ -108,6 +109,7 @@ public abstract class UseCase {
     private final Set<StateChangeCallback> mStateChangeCallbacks = new HashSet<>();
 
     private final Object mCameraLock = new Object();
+    private final Object mRotationProviderLock = new Object();
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
@@ -168,6 +170,12 @@ public abstract class UseCase {
     private @Nullable CameraEffect mEffect;
 
     private @Nullable String mPhysicalCameraId;
+
+    @GuardedBy("mRotationProviderLock")
+    private @Nullable RotationProvider mRotationProvider = null;
+
+    @GuardedBy("mRotationProviderLock")
+    private final RotationProvider.Listener mRotationListener = this::onProviderRotationChanged;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -424,6 +432,20 @@ public abstract class UseCase {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Called when the RotationProvider rotation has changed.
+     *
+     * <p>This method is called when the host of this use case is rotated.
+     *
+     * @param rotation The new rotation.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected void onProviderRotationChanged(@ImageOutputConfig.RotationValue int rotation) {
+        // By default, this just calls setTargetRotationInternal. But this method can be overridden
+        // by subclasses to do additional work.
+        setTargetRotationInternal(rotation);
     }
 
     /**
@@ -859,6 +881,12 @@ public abstract class UseCase {
         mCameraConfig = cameraConfig;
         mCurrentConfig = mergeConfigs(camera.getCameraInfoInternal(), mExtendedConfig,
                 mCameraConfig);
+        synchronized (mRotationProviderLock) {
+            if (mRotationProvider != null) {
+                mRotationProvider.addListener(CameraXExecutors.mainThreadExecutor(),
+                        mRotationListener);
+            }
+        }
         onBind();
     }
 
@@ -905,6 +933,12 @@ public abstract class UseCase {
             if (camera == mSecondaryCamera) {
                 removeStateChangeCallback(mSecondaryCamera);
                 mSecondaryCamera = null;
+            }
+        }
+
+        synchronized (mRotationProviderLock) {
+            if (mRotationProvider != null) {
+                mRotationProvider.removeListener(mRotationListener);
             }
         }
 
@@ -1296,6 +1330,31 @@ public abstract class UseCase {
     public @Nullable Set<@NonNull DynamicRange> getSupportedDynamicRanges(
             @NonNull CameraInfoInternal cameraInfo) {
         return null;
+    }
+
+    /**
+     * Sets the {@link RotationProvider} for this use case.
+     *
+     * <p>If a {@link RotationProvider} is set, the use case will automatically listen to the
+     * rotation updates and set the target rotation.
+     *
+     * @param rotationProvider The {@link RotationProvider} to set.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setRotationProvider(@Nullable RotationProvider rotationProvider) {
+        synchronized (mRotationProviderLock) {
+            mRotationProvider = rotationProvider;
+        }
+    }
+
+    /**
+     * Returns whether the use case supports auto-rotation.
+     *
+     * @return true if the use case supports auto-rotation, false otherwise.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public boolean isAutoRotationSupported() {
+        return false;
     }
 
     enum State {

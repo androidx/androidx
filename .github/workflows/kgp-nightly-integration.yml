@@ -17,14 +17,22 @@ jobs:
       kgpVersion: ${{ steps.version.outputs.kgpVersion }}
 
     steps:
-      - name: "Find the latest KGP version"
+      - name: "Find the latest KGP dev version"
         id: version
         run: |
           kgpMetadata=$(curl 'https://packages.jetbrains.team/maven/p/kt/dev/org/jetbrains/kotlin/kotlin-gradle-plugin/maven-metadata.xml')
-          # Find the line with the latest version.
-          versionLine=$(grep '<latest>' <<< $kgpMetadata)
-          # Strip the "<latest>" and "</latest>".
-          kgpVersion=$(sed 's/.*<latest>//' <<< $versionLine | sed 's/<\/latest>.*//')
+
+          # 1. grep "<version>" : Get all version lines
+          # 2. grep "dev"       : Filter only for dev versions
+          # 3. sed ...          : Strip XML tags to get raw version numbers
+          # 4. sort -V          : Sort by version
+          # 5. tail -n 1        : Get the last line (highest version)
+          kgpVersion=$(echo "$kgpMetadata" | grep "<version>" | grep "dev" | sed 's/.*<version>\(.*\)<\/version>.*/\1/' | sort -V | tail -n 1)
+
+          if [ -z "$kgpVersion" ]; then
+            echo "::error::Could not find any dev versions in maven-metadata.xml"
+            exit 1
+          fi
           # Set the version as the step output.
           echo "kgpVersion=$kgpVersion" >> "$GITHUB_OUTPUT"
           # Add a notice to make it easy to see which version is used for the build.

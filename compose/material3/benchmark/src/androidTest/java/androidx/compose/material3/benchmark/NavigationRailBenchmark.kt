@@ -129,7 +129,7 @@ class NavigationRailBenchmark {
 
     @Test
     fun modalWideNavigationRail_firstPixel() {
-        benchmarkRule.benchmarkFirstRenderUntilStable(modalWideRailTestCaseFactory)
+        benchmarkRule.benchmarkToFirstPixel(modalWideRailTestCaseFactory)
     }
 
     @Test

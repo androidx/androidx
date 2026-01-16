@@ -35,7 +35,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class SpatialConfigurationTest {
 
-    @get:Rule val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
+    // Migrate to `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule`,
+    // available starting with v1.11.0.
+    // See API docs for details.
+    @Suppress("DEPRECATION")
+    @get:Rule
+    val composeTestRule = createAndroidComposeRule<SubspaceTestingActivity>()
 
     private val hasXrSpatialFeatureText = "Has XR Spatial Feature"
 
@@ -58,7 +63,7 @@ class SpatialConfigurationTest {
 
         composeTestRule.setContent {
             assertFailsWith<UnsupportedOperationException> {
-                LocalSpatialConfiguration.current.requestFullSpaceMode()
+                @Suppress("DEPRECATION") LocalSpatialConfiguration.current.requestFullSpaceMode()
             }
         }
     }
@@ -69,7 +74,7 @@ class SpatialConfigurationTest {
 
         composeTestRule.setContent {
             assertFailsWith<UnsupportedOperationException> {
-                LocalSpatialConfiguration.current.requestHomeSpaceMode()
+                @Suppress("DEPRECATION") LocalSpatialConfiguration.current.requestHomeSpaceMode()
             }
         }
     }
@@ -88,9 +93,9 @@ class SpatialConfigurationTest {
         }
 
         composeTestRule.onNodeWithText("Full").assertExists()
-        composeTestRule.runOnIdle { configuration?.requestHomeSpaceMode() }
+        composeTestRule.runOnIdle { @Suppress("DEPRECATION") configuration?.requestHomeSpaceMode() }
         composeTestRule.onNodeWithText("Home").assertExists()
-        composeTestRule.runOnIdle { configuration?.requestFullSpaceMode() }
+        composeTestRule.runOnIdle { @Suppress("DEPRECATION") configuration?.requestFullSpaceMode() }
         composeTestRule.onNodeWithText("Full").assertExists()
     }
 

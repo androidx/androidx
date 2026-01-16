@@ -22,7 +22,6 @@ import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.Dimensions
-import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
@@ -93,28 +92,6 @@ class FakePanelEntityTest {
 
         // Value set successfully but returned with depth set to 0.
         assertThat(underTest.size).isApproximatelyEqualTo(Dimensions(2.0f, 3.0f, 0.0f))
-    }
-
-    @Test
-    fun getPerceivedResolutionResult_withDifferentResults() {
-        // Default value
-        assertThat(underTest.getPerceivedResolution())
-            .isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
-
-        // Set the EntityTooClose result.
-        underTest.setPerceivedResolution(PerceivedResolutionResult.EntityTooClose())
-
-        assertThat(underTest.getPerceivedResolution())
-            .isInstanceOf(PerceivedResolutionResult.EntityTooClose::class.java)
-
-        // Set the Success result.
-        underTest.setPerceivedResolution(
-            PerceivedResolutionResult.Success(PixelDimensions(640, 480))
-        )
-        val successResult = underTest.getPerceivedResolution() as PerceivedResolutionResult.Success
-
-        assertThat(successResult).isInstanceOf(PerceivedResolutionResult.Success::class.java)
-        assertThat(successResult.perceivedResolution).isEqualTo(PixelDimensions(640, 480))
     }
 
     @Test

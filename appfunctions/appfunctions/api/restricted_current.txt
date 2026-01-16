@@ -44,8 +44,6 @@ package androidx.appfunctions {
     method public <T extends android.os.Parcelable> T? getParcelable(String key, Class<T> clazz);
     method @KotlinOnly public inline <reified T extends android.os.Parcelable> java.util.List<T>? getParcelableList(String key);
     method public <T extends android.os.Parcelable> java.util.List<T>? getParcelableList(String key, Class<T> clazz);
-    method public android.app.PendingIntent? getPendingIntent(String key);
-    method public java.util.List<android.app.PendingIntent>? getPendingIntentList(String key);
     method @InaccessibleFromKotlin public String getQualifiedName();
     method public String? getString(String key);
     method public java.util.List<java.lang.String>? getStringList(String key);
@@ -75,9 +73,8 @@ package androidx.appfunctions {
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.appfunctions.AppFunctionData.Builder setLong(String key, long value);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.appfunctions.AppFunctionData.Builder setLongArray(String key, long[] value);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public <T extends android.os.Parcelable> androidx.appfunctions.AppFunctionData.Builder setParcelable(String key, T value);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public <T extends android.os.Parcelable> androidx.appfunctions.AppFunctionData.Builder setParcelableList(String key, java.util.List<? extends T> value);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.appfunctions.AppFunctionData.Builder setPendingIntent(String key, android.app.PendingIntent value);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.appfunctions.AppFunctionData.Builder setPendingIntentList(String key, java.util.List<android.app.PendingIntent> value);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public <T extends android.os.Parcelable> androidx.appfunctions.AppFunctionData.Builder setParcelableList(String key, java.util.List<? extends T> value, Class<T> clazz);
+    method @KotlinOnly @com.google.errorprone.annotations.CanIgnoreReturnValue public inline <reified T extends android.os.Parcelable> androidx.appfunctions.AppFunctionData.Builder setParcelableList(String key, java.util.List<T> value);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.appfunctions.AppFunctionData.Builder setString(String key, String value);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.appfunctions.AppFunctionData.Builder setStringList(String key, java.util.List<java.lang.String> value);
   }
@@ -123,7 +120,7 @@ package androidx.appfunctions {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionIntValueConstraint {
     ctor @KotlinOnly public AppFunctionIntValueConstraint(optional int[] enumValues);
-    method @InaccessibleFromKotlin public abstract int[] enumValues();
+    method @InaccessibleFromKotlin public abstract int[] enumValues() default {};
     property public abstract int[] enumValues;
   }
 
@@ -137,9 +134,9 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionLimitExceededException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public final class AppFunctionManagerCompat {
+  public final class AppFunctionManager {
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? executeAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
-    method public static androidx.appfunctions.AppFunctionManagerCompat? getInstance(android.content.Context context);
+    method public static androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? isAppFunctionEnabled(String packageName, String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? isAppFunctionEnabled(String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public kotlinx.coroutines.flow.Flow<java.util.List<androidx.appfunctions.metadata.AppFunctionPackageMetadata>> observeAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec);
@@ -147,11 +144,11 @@ package androidx.appfunctions {
     field public static final int APP_FUNCTION_STATE_DEFAULT = 0; // 0x0
     field public static final int APP_FUNCTION_STATE_DISABLED = 2; // 0x2
     field public static final int APP_FUNCTION_STATE_ENABLED = 1; // 0x1
-    field public static final androidx.appfunctions.AppFunctionManagerCompat.Companion Companion;
+    field public static final androidx.appfunctions.AppFunctionManager.Companion Companion;
   }
 
-  public static final class AppFunctionManagerCompat.Companion {
-    method public androidx.appfunctions.AppFunctionManagerCompat? getInstance(android.content.Context context);
+  public static final class AppFunctionManager.Companion {
+    method public androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
     property public static int APP_FUNCTION_STATE_DEFAULT;
     property public static int APP_FUNCTION_STATE_DISABLED;
     property public static int APP_FUNCTION_STATE_ENABLED;
@@ -216,7 +213,7 @@ package androidx.appfunctions {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
     ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues);
-    method @InaccessibleFromKotlin public abstract String[] enumValues();
+    method @InaccessibleFromKotlin public abstract String[] enumValues() default {};
     property public abstract String[] enumValues;
   }
 
@@ -469,10 +466,12 @@ package androidx.appfunctions.metadata {
     property public String name;
   }
 
-  public final class AppFunctionPendingIntentTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
-    ctor public AppFunctionPendingIntentTypeMetadata(boolean isNullable);
-    ctor public AppFunctionPendingIntentTypeMetadata(boolean isNullable, optional String description);
-    ctor @BytecodeOnly public AppFunctionPendingIntentTypeMetadata(boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+  public final class AppFunctionParcelableTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {
+    ctor public AppFunctionParcelableTypeMetadata(String qualifiedName, boolean isNullable);
+    ctor public AppFunctionParcelableTypeMetadata(String qualifiedName, boolean isNullable, optional String description);
+    ctor @BytecodeOnly public AppFunctionParcelableTypeMetadata(String!, boolean, String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public String getQualifiedName();
+    property public String qualifiedName;
   }
 
   public final class AppFunctionReferenceTypeMetadata extends androidx.appfunctions.metadata.AppFunctionDataTypeMetadata {

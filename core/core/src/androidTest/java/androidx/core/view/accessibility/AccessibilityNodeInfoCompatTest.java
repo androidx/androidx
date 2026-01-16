@@ -616,8 +616,6 @@ public class AccessibilityNodeInfoCompatTest extends
                     .SORT_DIRECTION_ASCENDING);
     }
 
-    // Temporarily no-op'ed due to b/459474438.
-    /*
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1)
     @Test
     public void testSelection() {
@@ -665,7 +663,6 @@ public class AccessibilityNodeInfoCompatTest extends
         containerNodeCompat.setSelection(null);
         assertThat(containerNodeCompat.getSelection()).isNull();
     }
-    */
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1)
     @SmallTest

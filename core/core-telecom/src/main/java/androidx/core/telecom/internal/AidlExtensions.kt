@@ -195,6 +195,10 @@ internal class LocalCallSilenceStateListenerRemote(val binder: ILocalSilenceStat
         binder.updateIsLocallySilenced(isLocallySilenced)
     }
 
+    fun updateCanUserUpdateSilence(canUserUpdateSilenceState: Boolean) {
+        binder.updateCanUserUpdateSilence(canUserUpdateSilenceState)
+    }
+
     fun finishSync(actions: ILocalSilenceActions) {
         binder.finishSync(actions)
     }
@@ -231,10 +235,15 @@ internal class LocalCallSilenceCallbackRepository(coroutineScope: CoroutineScope
 @ExperimentalAppActions
 internal class LocalCallSilenceStateListener(
     private val updateLocalCallSilence: (Boolean) -> Unit,
+    private val updateCanUserUpdateSilence: (Boolean) -> Unit,
     private val finishSync: (LocalCallSilenceActionsRemote?) -> Unit,
 ) : ILocalSilenceStateListener.Stub() {
     override fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
         updateLocalCallSilence.invoke(isLocallySilenced)
+    }
+
+    override fun updateCanUserUpdateSilence(canUserUpdateSilence: Boolean) {
+        updateCanUserUpdateSilence.invoke(canUserUpdateSilence)
     }
 
     override fun finishSync(cb: ILocalSilenceActions?) {
@@ -310,7 +319,7 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
     // This is set in LocalSilenceExtensionImpl (VoIP side) in onExchangeStarted(...)
     // callbacks.onCreateLocalCallSilenceExtension = // current impl
     var onCreateLocalCallSilenceExtension:
-        ((CoroutineScope, Set<Int>, LocalCallSilenceStateListenerRemote) -> Unit)? =
+        ((CoroutineScope, Int, Set<Int>, LocalCallSilenceStateListenerRemote) -> Unit)? =
         null
 
     var onCreateCallIconExtension:
@@ -345,6 +354,7 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
                     // called by the LocalSilenceExtensionImpl (VoIP side)
                     onCreateLocalCallSilenceExtension?.invoke(
                         connectionScope,
+                        version,
                         actions?.toSet() ?: emptySet(),
                         LocalCallSilenceStateListenerRemote(l),
                     )

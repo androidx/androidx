@@ -74,6 +74,10 @@ class DialerViewModel(
         _uiState.update { it.copy(isInitiallyMuted = isMuted) }
     }
 
+    fun updateCanUserUpdateSilence(canUserUpdateSilence: Boolean) {
+        _uiState.update { it.copy(canUserUpdateSilence = canUserUpdateSilence) }
+    }
+
     /**
      * Fetches the available pre-call audio endpoints and updates the UI state. Cancels any previous
      * fetch job before starting a new one.
@@ -204,6 +208,7 @@ class DialerViewModel(
                 isLogExcluded = false,
             ),
             isInitiallyMuted = _uiState.value.isInitiallyMuted,
+            canUserUpdateSilence = _uiState.value.canUserUpdateSilence,
         )
     }
 

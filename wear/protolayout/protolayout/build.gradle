@@ -53,7 +53,7 @@ dependencies {
 android {
     namespace = "androidx.wear.protolayout"
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
         consumerProguardFiles("proguard-rules.pro")
     }
 }

@@ -19,7 +19,6 @@ package androidx.glance.wear
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import androidx.compose.remote.creation.compose.capture.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.ui.graphics.Color
 import androidx.glance.wear.parcel.IWearWidgetProvider
@@ -86,7 +85,6 @@ class GlanceWearWidgetServiceTest {
         assertThat(binder).isNull()
     }
 
-    @Suppress("RestrictedApiAndroidX")
     class TestWidget : GlanceWearWidget() {
         var instanceId: WidgetInstanceId? = null
 
@@ -95,7 +93,7 @@ class GlanceWearWidgetServiceTest {
             params: WearWidgetParams,
         ): WearWidgetDocument {
             instanceId = params.instanceId
-            return WearWidgetDocument(backgroundPainter = painterRemoteColor(Color.Transparent)) {
+            return WearWidgetDocument(backgroundColor = Color.Transparent) {
                 RemoteText("Testing...")
             }
         }

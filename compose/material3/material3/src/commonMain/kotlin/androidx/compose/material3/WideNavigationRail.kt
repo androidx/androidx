@@ -1242,7 +1242,7 @@ private fun ModalWideNavigationRailContent(
                     val width = railSize.width.toFloat()
                     val minValue =
                         if (isStandaloneModal) {
-                            if (isRtl) width else -width
+                            -width
                         } else {
                             0f
                         }

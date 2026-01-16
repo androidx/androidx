@@ -443,7 +443,7 @@ class KeyAndMouseEventsTest : InputDispatcherTest() {
 
     private fun AndroidInputDispatcher.verifyMousePosition(expectedPosition: Offset) {
         Truth.assertWithMessage("currentMousePosition")
-            .that(currentMousePosition)
+            .that(currentCursorPosition)
             .isEqualTo(expectedPosition)
     }
 

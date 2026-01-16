@@ -34,6 +34,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 internal object MetalavaTasks {
 
@@ -55,7 +56,13 @@ internal object MetalavaTasks {
         // implemented by excluding APIs with this annotation from the restricted API file.
         val generateRestrictToLibraryGroupAPIs = !extension.mavenGroup!!.requireSameVersion
         val kotlinSourceLevel: Provider<KotlinVersion> = extension.kotlinApiVersion
-        val targetsJavaConsumers = !extension.type.targetsKotlinConsumersOnly
+        val targetsJavaConsumers = extension.type.map { !it.targetsKotlinConsumersOnly }
+        // For a KMP project, only use multiplatform metalava if K2 is also used as K1 metalava does
+        // not support multiplatform.
+        val multiplatform =
+            extension.metalavaK2UastEnabled.map {
+                it && compilationInputs is MultiplatformCompilationInputs
+            }
         val generateApi =
             project.tasks.register("generateApi", GenerateApiTask::class.java) { task ->
                 task.group = "API"
@@ -67,6 +74,7 @@ internal object MetalavaTasks {
                 task.targetsJavaConsumers.set(targetsJavaConsumers)
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
+                task.multiplatform.set(multiplatform)
 
                 // Arguments needed for generating the API levels JSON
                 task.projectApiDirectory = project.layout.projectDirectory.dir("api")
@@ -129,6 +137,7 @@ internal object MetalavaTasks {
                 task.targetsJavaConsumers.set(targetsJavaConsumers)
                 task.k2UastEnabled.set(extension.metalavaK2UastEnabled)
                 task.kotlinSourceLevel.set(kotlinSourceLevel)
+                task.multiplatform.set(multiplatform)
                 applyInputs(compilationInputs, task, generateApiDependencies, androidManifest)
             }
 
@@ -217,12 +226,13 @@ internal object MetalavaTasks {
     ) {
         task.sourcePaths = inputs.sourcePaths
         task.compiledSources = generateApiDependencies
-        task.dependencyClasspath = inputs.dependencyClasspath
         task.bootClasspath = inputs.bootClasspath
         androidManifest?.let { task.manifestPath.set(it) }
         if (inputs is MultiplatformCompilationInputs) {
+            task.dependencyClasspath = inputs.allSourceSetsDependencyClasspath
             task.sourceSets.set(inputs.sourceSets)
         } else {
+            task.dependencyClasspath = inputs.dependencyClasspath
             // Represent a non-multiplatform project as one source set.
             task.sourceSets.set(
                 listOf(
@@ -231,6 +241,7 @@ internal object MetalavaTasks {
                         dependsOnSourceSets = emptyList(),
                         sourcePaths = inputs.sourcePaths,
                         dependencyClasspath = inputs.dependencyClasspath,
+                        kotlinPlatforms = setOf(KotlinPlatformType.androidJvm),
                     )
                 )
             )

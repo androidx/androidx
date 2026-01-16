@@ -22,32 +22,36 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import androidx.camera.camera2.adapter.awaitUntil
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
-import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.extensions.CameraExtensionsInfo
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.internal.Camera2ExtensionsUtil
-import androidx.camera.extensions.internal.ExtensionVersion
-import androidx.camera.extensions.internal.ExtensionsUtils
 import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -142,17 +146,7 @@ class CameraExtensionsInfoTest(private val config: CameraXExtensionTestParams) {
 
     @Test
     fun isExtensionStrengthAvailable_returnCorrectValue() {
-        val available =
-            if (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                    config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-            ) {
-                isCamera2ExtensionStrengthSupported()
-            } else if (ExtensionVersion.isAdvancedExtenderSupported()) {
-                isAdvancedExtenderExtensionStrengthSupported()
-            } else {
-                false
-            }
+        val available = isCamera2ExtensionStrengthSupported()
         assertThat(cameraExtensionsInfo.isExtensionStrengthAvailable).isEqualTo(available)
 
         if (available) {
@@ -178,45 +172,35 @@ class CameraExtensionsInfoTest(private val config: CameraXExtensionTestParams) {
         return false
     }
 
-    private fun isAdvancedExtenderExtensionStrengthSupported(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return CameraXExtensionsTestUtil.createAdvancedExtenderImpl(
-                    config.extensionMode,
-                    config.cameraId,
-                    camera.cameraInfo,
-                )
-                .apply {
-                    init(
-                        config.cameraId,
-                        ExtensionsUtils.getCameraCharacteristicsMap(
-                            camera.cameraInfo as CameraInfoInternal
-                        ),
-                    )
-                }
-                .availableCaptureRequestKeys
-                .contains(CaptureRequest.EXTENSION_STRENGTH)
-        }
-        return false
-    }
-
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun isCurrentExtensionModeAvailable_returnCorrectValue() {
-        val available =
-            if (
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-                    config.implName == CAMERA_PIPE_IMPLEMENTATION_OPTION
-            ) {
-                isCamera2CurrentExtensionModeSupported()
-            } else if (ExtensionVersion.isAdvancedExtenderSupported()) {
-                isAdvancedExtenderCurrentExtensionModeSupported()
-            } else {
-                false
-            }
+    fun isCurrentExtensionModeAvailable_returnCorrectValue(): Unit = runBlocking {
+        val available = isCamera2CurrentExtensionModeSupported()
         assertThat(cameraExtensionsInfo.isCurrentExtensionModeAvailable).isEqualTo(available)
 
         if (available) {
             // Getting the current extension type value should not cause exception
             cameraExtensionsInfo.currentExtensionMode!!.value
+
+            val completableDeferred = CompletableDeferred<Int>()
+            val observer =
+                Observer<Int> { currentExtensionType ->
+                    completableDeferred.complete(currentExtensionType)
+                }
+
+            withContext(Dispatchers.Main) {
+                cameraExtensionsInfo.currentExtensionMode!!.observeForever(observer)
+            }
+
+            try {
+                assertThat(completableDeferred.awaitUntil(3000)).isTrue()
+                assertThat(AVAILABLE_EXTENSION_MODES.toList())
+                    .contains(completableDeferred.getCompleted())
+            } finally {
+                withContext(Dispatchers.Main) {
+                    cameraExtensionsInfo.currentExtensionMode!!.removeObserver(observer)
+                }
+            }
         } else {
             assertThat(cameraExtensionsInfo.currentExtensionMode).isNull()
         }
@@ -233,27 +217,6 @@ class CameraExtensionsInfoTest(private val config: CameraXExtensionTestParams) {
                     .getAvailableCaptureResultKeys(camera2ExtensionMode)
                     .contains(CaptureResult.EXTENSION_CURRENT_TYPE)
             }
-        }
-        return false
-    }
-
-    private fun isAdvancedExtenderCurrentExtensionModeSupported(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return CameraXExtensionsTestUtil.createAdvancedExtenderImpl(
-                    config.extensionMode,
-                    config.cameraId,
-                    camera.cameraInfo,
-                )
-                .apply {
-                    init(
-                        config.cameraId,
-                        ExtensionsUtils.getCameraCharacteristicsMap(
-                            camera.cameraInfo as CameraInfoInternal
-                        ),
-                    )
-                }
-                .availableCaptureResultKeys
-                .contains(CaptureResult.EXTENSION_CURRENT_TYPE)
         }
         return false
     }

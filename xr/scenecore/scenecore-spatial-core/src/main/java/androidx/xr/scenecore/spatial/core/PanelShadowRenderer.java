@@ -52,38 +52,11 @@ class PanelShadowRenderer {
     private final ActivitySpaceImpl mActivitySpaceImpl;
     private final PerceptionSpaceScenePoseImpl mPerceptionSpaceScenePose;
     private final XrExtensions mExtensions;
-    private SurfaceControlViewHost mSurfaceControlViewHost;
     private final Handler mHandler;
-    private boolean mIsVisible;
     private final Activity mActivity;
     Node mPanelShadowNode;
-
-    /** PanelShadowView is a view with a blue border to enable the shadow effect. */
-    private static class PanelShadowView extends View {
-
-        PanelShadowView(Context context) {
-            super(context);
-        }
-
-        @Override
-        public void onDrawForeground(@NonNull Canvas canvas) {
-            super.onDrawForeground(canvas);
-            Path border = new Path();
-            border.addRoundRect(
-                    HALF_STROKE_WIDTH,
-                    HALF_STROKE_WIDTH,
-                    canvas.getWidth() - HALF_STROKE_WIDTH,
-                    canvas.getHeight() - HALF_STROKE_WIDTH,
-                    CORNER_RADIUS,
-                    CORNER_RADIUS,
-                    Path.Direction.CW);
-            Paint paint = new Paint();
-            paint.setColor(0xFF54639F);
-            paint.setStyle(Paint.Style.STROKE);
-            paint.setStrokeWidth(STROKE_WIDTH);
-            canvas.drawPath(border, paint);
-        }
-    }
+    private SurfaceControlViewHost mSurfaceControlViewHost;
+    private boolean mIsVisible;
 
     PanelShadowRenderer(
             ActivitySpaceImpl activitySpaceImpl,
@@ -109,7 +82,7 @@ class PanelShadowRenderer {
                 getUpdatedPanelPoseInActivitySpace(openXrToProposedPanel, openXrtoPlane);
         try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
             if (!mIsVisible) {
-                NodeTransaction unused = transaction.setVisibility(mPanelShadowNode, true);
+                transaction.setVisibility(mPanelShadowNode, true);
                 mIsVisible = true;
             }
             transaction
@@ -233,5 +206,32 @@ class PanelShadowRenderer {
                                                 openXrtoPlane.getRotation())));
         Pose panelInOxr = openXrtoPlane.compose(planeToProjectedPanel);
         return mPerceptionSpaceScenePose.transformPoseTo(panelInOxr, mActivitySpaceImpl);
+    }
+
+    /** PanelShadowView is a view with a blue border to enable the shadow effect. */
+    private static class PanelShadowView extends View {
+
+        PanelShadowView(Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onDrawForeground(@NonNull Canvas canvas) {
+            super.onDrawForeground(canvas);
+            Path border = new Path();
+            border.addRoundRect(
+                    HALF_STROKE_WIDTH,
+                    HALF_STROKE_WIDTH,
+                    canvas.getWidth() - HALF_STROKE_WIDTH,
+                    canvas.getHeight() - HALF_STROKE_WIDTH,
+                    CORNER_RADIUS,
+                    CORNER_RADIUS,
+                    Path.Direction.CW);
+            Paint paint = new Paint();
+            paint.setColor(0xFF54639F);
+            paint.setStyle(Paint.Style.STROKE);
+            paint.setStrokeWidth(STROKE_WIDTH);
+            canvas.drawPath(border, paint);
+        }
     }
 }

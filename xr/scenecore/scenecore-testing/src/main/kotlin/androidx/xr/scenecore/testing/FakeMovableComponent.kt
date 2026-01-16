@@ -19,13 +19,39 @@ package androidx.xr.scenecore.testing
 import androidx.annotation.RestrictTo
 import androidx.xr.runtime.math.Pose
 import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.MovableComponent
+import androidx.xr.scenecore.runtime.MoveEvent
 import androidx.xr.scenecore.runtime.MoveEventListener
 import java.util.concurrent.Executor
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.MovableComponent] */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class FakeMovableComponent : FakeComponent(), MovableComponent {
+
+    /**
+     * This property reflects the `systemMovable` parameter that was passed to the runtime's factory
+     * method [FakeSceneRuntime.createMovableComponent]. Tests can inspect this value to verify that
+     * the component was created with the correct configuration.
+     */
+    public var systemMovable: Boolean = false
+        internal set
+
+    /**
+     * This property reflects the `scaleInZ` parameter that was passed to the runtime's factory
+     * method [FakeSceneRuntime.createMovableComponent]. Tests can inspect this value to verify that
+     * the component was created with the correct configuration.
+     */
+    public var scaleInZ: Boolean = false
+        internal set
+
+    /**
+     * This property reflects the `userAnchorable` parameter that was passed to the runtime's
+     * factory method [FakeSceneRuntime.createMovableComponent]. Tests can inspect this value to
+     * verify that the component was created with the correct configuration.
+     */
+    public var userAnchorable: Boolean = false
+        internal set
 
     /**
      * Sets the scale with distance mode.
@@ -37,18 +63,32 @@ public class FakeMovableComponent : FakeComponent(), MovableComponent {
     /** Sets the size of the interaction highlight extent. */
     override var size: Dimensions = Dimensions(2.0f, 1.0f, 0.0f)
 
+    /** The default executor for the component */
+    public var defaultExecutor: Executor = FakeScheduledExecutorService()
+
     /**
      * For test purposes only.
      *
      * A map of move event listeners to their executors.
      */
-    public val moveEventListenersMap: MutableMap<MoveEventListener, Executor> = mutableMapOf()
+    internal val moveEventListenersMap: MutableMap<MoveEventListener, Executor> = mutableMapOf()
 
     /** The number of times setPlanePoseForMoveUpdatePose is called */
     public var setPlanePoseForMoveUpdatePoseCallCount: Long = 0
 
     /** The last plane pose set by setPlanePoseForMoveUpdatePose */
     public var lastPlanePose: Pose? = null
+
+    /**
+     * Adds the listener to the set of active listeners for the move events.
+     *
+     * <p>The listener is invoked on the default executor of the runtime.
+     *
+     * @param moveEventListener The move event listener to set.
+     */
+    override fun addMoveEventListener(moveEventListener: MoveEventListener) {
+        moveEventListenersMap.put(moveEventListener, defaultExecutor)
+    }
 
     /**
      * Adds the listener to the set of active listeners for the move events.
@@ -65,7 +105,7 @@ public class FakeMovableComponent : FakeComponent(), MovableComponent {
      */
     @Suppress("ExecutorRegistration")
     override fun addMoveEventListener(executor: Executor, moveEventListener: MoveEventListener) {
-        moveEventListenersMap.put(moveEventListener, executor)
+        moveEventListenersMap[moveEventListener] = executor
     }
 
     /**
@@ -80,5 +120,21 @@ public class FakeMovableComponent : FakeComponent(), MovableComponent {
     override fun setPlanePoseForMoveUpdatePose(planePose: Pose?, moveUpdatePose: Pose) {
         setPlanePoseForMoveUpdatePoseCallCount++
         lastPlanePose = planePose
+    }
+
+    /**
+     * Simulates a move event from the runtime, notifying all registered listeners.
+     *
+     * This function is intended for testing purposes to allow manual triggering of the update
+     * mechanism. It iterates through all currently registered listeners and invokes their
+     * `onMoveEvent` method.
+     *
+     * @param event The new [InputEvent] to be sent in the simulated event.
+     */
+    public fun onMoveEvent(event: MoveEvent) {
+        // Note that MovableComponent uses HandlerExecutor.mainThreadExecutor as the default
+        // executor, which doesn't work in the fake runtime. So we trigger the listener callback
+        // function directly instead of executor.execute { listener.onMoveEvent(event) }.
+        moveEventListenersMap.forEach { entry -> entry.key.onMoveEvent(event) }
     }
 }

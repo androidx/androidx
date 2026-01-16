@@ -18,8 +18,7 @@
 package sample.optin
 
 internal class RegressionTestKotlin298322402 {
-    @Suppress("EXPOSED_PACKAGE_PRIVATE_TYPE_FROM_INTERNAL_WARNING") // b/446693288
-    fun testMethod(player: AnnotatedJavaMembers) {
+    private fun testMethod(player: AnnotatedJavaMembers) {
         player.accessor
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
 import kotlin.math.sign
 
@@ -53,7 +54,7 @@ fun SnapLayoutInfoProvider(
                     0
                 } else {
                     val numberOfItems = layoutInfo.visibleItemsInfo.size
-                    layoutInfo.visibleItemsInfo.sumOf { it.size } / numberOfItems
+                    layoutInfo.visibleItemsInfo.fastSumBy { it.size } / numberOfItems
                 }
             }
 

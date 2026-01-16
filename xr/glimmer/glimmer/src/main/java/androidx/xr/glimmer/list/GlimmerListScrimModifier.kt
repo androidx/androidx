@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceAtMost
 
 /**
@@ -47,7 +46,7 @@ import androidx.compose.ui.util.fastCoerceAtMost
 internal fun Modifier.edgeScrim(
     state: ListState,
     orientation: Orientation,
-    maxScrimSize: Dp = DefaultScrimSize,
+    maxScrimSize: Dp,
 ): Modifier {
     require(maxScrimSize.value >= 0f) { "Scrim size can't be negative: $maxScrimSize." }
     if (maxScrimSize.value == 0f) {
@@ -220,8 +219,6 @@ private fun getScrollOffsetFromEnd(
     val contentSize = layoutInfo.totalItemsCount * averageSize - layoutInfo.mainAxisItemSpacing
     return contentSize - scrollOffsetFromStart - viewPortSize
 }
-
-private val DefaultScrimSize: Dp = 46.dp
 
 private val DefaultGradientStops: Array<Pair<Float, Color>> =
     arrayOf(0.00f to Color.Black, 1.00f to Color.Transparent)

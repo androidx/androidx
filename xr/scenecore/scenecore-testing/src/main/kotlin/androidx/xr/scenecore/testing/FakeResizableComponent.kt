@@ -18,7 +18,9 @@ package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
 import androidx.xr.scenecore.runtime.Dimensions
+import androidx.xr.scenecore.runtime.InputEvent
 import androidx.xr.scenecore.runtime.ResizableComponent
+import androidx.xr.scenecore.runtime.ResizeEvent
 import androidx.xr.scenecore.runtime.ResizeEventListener
 import java.util.concurrent.Executor
 
@@ -64,7 +66,7 @@ public class FakeResizableComponent(
         executor: Executor,
         resizeEventListener: ResizeEventListener,
     ) {
-        resizeEventListenersMap.put(resizeEventListener, executor)
+        resizeEventListenersMap[resizeEventListener] = executor
     }
 
     /**
@@ -74,5 +76,20 @@ public class FakeResizableComponent(
      */
     override fun removeResizeEventListener(resizeEventListener: ResizeEventListener) {
         resizeEventListenersMap.remove(resizeEventListener)
+    }
+
+    /**
+     * Simulates a resize event from the runtime, notifying all registered listeners.
+     *
+     * This function is intended for testing purposes to allow manual triggering of the update
+     * mechanism. It iterates through all currently registered listeners and invokes their
+     * `onResizeEvent` method on their respective [Executor]s.
+     *
+     * @param event The new [InputEvent] to be sent in the simulated event.
+     */
+    public fun onResizeEvent(event: ResizeEvent) {
+        for ((listener, executor) in resizeEventListenersMap) {
+            executor.execute { listener.onResizeEvent(event) }
+        }
     }
 }

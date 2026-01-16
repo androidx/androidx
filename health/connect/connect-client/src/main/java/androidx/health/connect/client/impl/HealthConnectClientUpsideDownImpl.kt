@@ -28,6 +28,7 @@ import android.health.connect.changelog.ChangeLogsRequest
 import android.os.Build
 import android.os.RemoteException
 import android.os.ext.SdkExtensions
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
@@ -35,6 +36,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.os.asOutcomeReceiver
 import androidx.health.connect.client.ExperimentalDeduplicationApi
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregateMetric
@@ -81,6 +83,7 @@ import androidx.health.connect.client.response.ReadMedicalResourcesResponse
 import androidx.health.connect.client.response.ReadRecordResponse
 import androidx.health.connect.client.response.ReadRecordsResponse
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.health.platform.client.impl.logger.Logger
 import kotlin.reflect.KClass
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
@@ -379,36 +382,19 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
             .token
     }
 
+    override suspend fun getChanges(
+        changesToken: String,
+        @IntRange(from = 1, to = 5000) pageSize: Int,
+    ): ChangesResponse {
+        Logger.debug(
+            HEALTH_CONNECT_CLIENT_TAG,
+            "Passing getChanges request with change logs size pageSize = ${pageSize}",
+        )
+        return getChanges(ChangeLogsRequest.Builder(changesToken).setPageSize(pageSize).build())
+    }
+
     override suspend fun getChanges(changesToken: String): ChangesResponse {
-        try {
-            val response = suspendCancellableCoroutine { continuation ->
-                healthConnectManager.getChangeLogs(
-                    ChangeLogsRequest.Builder(changesToken).build(),
-                    executor,
-                    continuation.asOutcomeReceiver(),
-                )
-            }
-            return ChangesResponse(
-                buildList {
-                    response.upsertedRecords.forEach { add(UpsertionChange(it.toSdkRecord())) }
-                    response.deletedLogs.forEach { add(DeletionChange(it.deletedRecordId)) }
-                },
-                response.nextChangesToken,
-                response.hasMorePages(),
-                changesTokenExpired = false,
-            )
-        } catch (e: HealthConnectException) {
-            // Handle invalid token
-            if (e.errorCode == HealthConnectException.ERROR_INVALID_ARGUMENT) {
-                return ChangesResponse(
-                    changes = listOf(),
-                    nextChangesToken = "",
-                    hasMore = false,
-                    changesTokenExpired = true,
-                )
-            }
-            throw e.toKtException()
-        }
+        return getChanges(ChangeLogsRequest.Builder(changesToken).build())
     }
 
     override suspend fun getGrantedPermissions(): Set<String> {
@@ -626,6 +612,38 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
         return try {
             function()
         } catch (e: HealthConnectException) {
+            throw e.toKtException()
+        }
+    }
+
+    private suspend fun getChanges(changeLogsRequest: ChangeLogsRequest): ChangesResponse {
+        try {
+            val response = suspendCancellableCoroutine { continuation ->
+                healthConnectManager.getChangeLogs(
+                    changeLogsRequest,
+                    executor,
+                    continuation.asOutcomeReceiver(),
+                )
+            }
+            return ChangesResponse(
+                buildList {
+                    response.upsertedRecords.forEach { add(UpsertionChange(it.toSdkRecord())) }
+                    response.deletedLogs.forEach { add(DeletionChange(it.deletedRecordId)) }
+                },
+                response.nextChangesToken,
+                response.hasMorePages(),
+                changesTokenExpired = false,
+            )
+        } catch (e: HealthConnectException) {
+            // Handle invalid token
+            if (e.errorCode == HealthConnectException.ERROR_INVALID_ARGUMENT) {
+                return ChangesResponse(
+                    changes = listOf(),
+                    nextChangesToken = "",
+                    hasMore = false,
+                    changesTokenExpired = true,
+                )
+            }
             throw e.toKtException()
         }
     }

@@ -75,10 +75,10 @@ public abstract class PerceivedResolutionResult internal constructor() {
      * spatial user's camera view not being initialized yet. Consider falling back to a predefined
      * resolution.
      */
-    public class InvalidCameraView : PerceivedResolutionResult() {
+    public class InvalidRenderViewpoint : PerceivedResolutionResult() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
-            if (other !is InvalidCameraView) return false
+            if (other !is InvalidRenderViewpoint) return false
 
             return true
         }

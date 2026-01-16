@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.12.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.12.0-alpha04)" variant="all" version="8.12.0-alpha04">
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
 
     <issue
         id="RestrictedApiAndroidX"
@@ -13,8 +13,8 @@
     <issue
         id="RestrictedApiAndroidX"
         message="PendingRecording.start can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            videoCapture.output.prepareRecording(context, mediaStoreOutput).start { event ->"
-        errorLine2="                                                                            ~~~~~">
+        errorLine1="                videoCapture.output.prepareRecording(context, mediaStoreOutput).start { event ->"
+        errorLine2="                                                                                ~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/featurecombo/ui/CameraViewModel.kt"/>
     </issue>

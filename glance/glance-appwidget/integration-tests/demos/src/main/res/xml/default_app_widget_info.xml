@@ -24,4 +24,4 @@
     android:resizeMode="horizontal|vertical"
     android:targetCellHeight="2"
     android:targetCellWidth="2"
-    android:widgetCategory="home_screen" />
+  />

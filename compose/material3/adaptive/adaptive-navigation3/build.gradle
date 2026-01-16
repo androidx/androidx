@@ -32,7 +32,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 36
+        compileSdk { version = release(36) }
         namespace = "androidx.compose.material3.adaptive.navigation3"
         androidResources.enable = true
     }
@@ -42,50 +42,25 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":compose:material3:adaptive:adaptive-navigation"))
-                api("androidx.navigation3:navigation3-ui:1.0.0-beta01")
-                implementation("androidx.collection:collection:1.5.0")
-                implementation("androidx.navigationevent:navigationevent-compose:1.0.0-beta01")
-            }
+        commonMain.dependencies {
+            api(project(":compose:material3:adaptive:adaptive-navigation"))
+            api("androidx.navigation3:navigation3-ui:1.0.0")
+            implementation("androidx.collection:collection:1.5.0")
+            implementation("androidx.navigationevent:navigationevent-compose:1.0.1")
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            implementation("androidx.activity:activity-compose:1.12.2")
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                implementation("androidx.activity:activity-compose:1.10.1")
-            }
-        }
-
-        androidDeviceTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:material3:material3"))
-                implementation(project(":compose:test-utils"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(nonAndroidMain)
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:material3:material3"))
+            implementation(project(":compose:test-utils"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
     }
 }

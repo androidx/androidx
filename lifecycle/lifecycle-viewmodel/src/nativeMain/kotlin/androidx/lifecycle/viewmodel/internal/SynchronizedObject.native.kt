@@ -16,52 +16,9 @@
 
 package androidx.lifecycle.viewmodel.internal
 
-import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.InvocationKind
-import kotlin.contracts.contract
-import kotlin.experimental.ExperimentalNativeApi
-import kotlin.native.ref.createCleaner
+internal actual class SynchronizedObject : kotlinx.atomicfu.locks.SynchronizedObject()
 
-/**
- * Wrapper for platform.posix.PTHREAD_MUTEX_RECURSIVE which is represented as kotlin.Int on darwin
- * platforms and kotlin.UInt on linuxX64 See: https://youtrack.jetbrains.com/issue/KT-41509
- */
-internal expect val PTHREAD_MUTEX_RECURSIVE: Int
-
-internal expect class SynchronizedObjectImpl() {
-    internal fun lock(): Int
-
-    internal fun unlock(): Int
-
-    internal fun dispose()
-}
-
-internal actual class SynchronizedObject actual constructor() {
-    private val impl = SynchronizedObjectImpl()
-
-    @Suppress("unused") // The returned Cleaner must be assigned to a property
-    @OptIn(ExperimentalNativeApi::class)
-    private val cleaner = createCleaner(impl, SynchronizedObjectImpl::dispose)
-
-    fun lock() {
-        impl.lock()
-    }
-
-    fun unlock() {
-        impl.unlock()
-    }
-}
-
-@OptIn(ExperimentalContracts::class)
 internal actual inline fun <T> synchronizedImpl(
     lock: SynchronizedObject,
     crossinline action: () -> T,
-): T {
-    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-    lock.lock()
-    return try {
-        action()
-    } finally {
-        lock.unlock()
-    }
-}
+): T = kotlinx.atomicfu.locks.synchronized(lock, action)

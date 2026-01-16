@@ -54,6 +54,7 @@ fun InCallListContent(
     onRemoveParticipantClick: (String) -> Unit,
     onChangeCallIconClick: (String) -> Unit,
     onLocalCallSilenceClick: (String, Boolean) -> Unit,
+    onCanUserUpdateSilenceClick: (String, Boolean) -> Unit,
 ) {
     LazyColumn(
         modifier =
@@ -72,6 +73,7 @@ fun InCallListContent(
                 onRemoveParticipantClick = onRemoveParticipantClick,
                 onChangeCallIconClick = onChangeCallIconClick,
                 onLocalCallSilenceClick = onLocalCallSilenceClick,
+                onCanUserUpdateSilenceClick = onCanUserUpdateSilenceClick,
             )
         }
         if (calls.isEmpty()) {
@@ -103,6 +105,7 @@ fun InCallListContentPreview() {
             onRemoveParticipantClick = {},
             onChangeCallIconClick = {},
             onLocalCallSilenceClick = { _, _ -> },
+            onCanUserUpdateSilenceClick = { _, _ -> },
         )
     }
 }
@@ -125,6 +128,7 @@ fun InCallListContentEmptyPreview() {
             onRemoveParticipantClick = {},
             onChangeCallIconClick = {},
             onLocalCallSilenceClick = { _, _ -> },
+            onCanUserUpdateSilenceClick = { _, _ -> },
         )
     }
 }

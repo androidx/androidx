@@ -43,7 +43,7 @@ import androidx.xr.runtime.math.Pose
 import java.io.IOException
 
 /** Renders the Geospatial Activity scene. */
-class GeospatialRenderer(private val session: Session, private val anchors: MutableList<Anchor>) :
+class GeospatialRenderer(private val session: Session, private val anchors: List<Anchor>) :
     SampleRender.Companion.Renderer {
 
     private lateinit var backgroundRenderer: BackgroundRenderer

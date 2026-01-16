@@ -89,7 +89,7 @@ internal fun translateComposition(
 
 @VisibleForTesting internal var forceRtl: Boolean? = null
 
-private val Context.isRtl: Boolean
+internal val Context.isRtl: Boolean
     get() = forceRtl ?: (resources.configuration.layoutDirection == View.LAYOUT_DIRECTION_RTL)
 
 @RequiresApi(Build.VERSION_CODES.S)

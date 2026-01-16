@@ -81,7 +81,7 @@ class FirstContentLoadTest {
         pdfView.notifyFirstContentLoad = true
         assertEquals(0, callbackCount)
 
-        // Force invalidation to trigger onDraw
+        // force invalidation to trigger onDraw
         pdfView.invalidate()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
@@ -117,7 +117,7 @@ class FirstContentLoadTest {
         pdfView.notifyFirstContentLoad = true
         assertEquals(0, callbackCount)
 
-        // Force invalidation to trigger onDraw
+        // force invalidation to trigger onDraw
         pdfView.invalidate()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
 
@@ -133,6 +133,81 @@ class FirstContentLoadTest {
         assertFalse(pdfView.notifyFirstContentLoad)
         assertFalse(pdfView.isAnyBitmapAvailable)
         assertEquals(0, callbackCount)
+    }
+
+    @Test
+    fun testPdfView_firstContentLoadEvent_removeListener() {
+        var callbackCount = 0
+        val listener = PdfView.OnFirstContentLoadListener { callbackCount++ }
+
+        // add the listener
+        pdfView.addOnFirstContentLoadListener(listener)
+
+        // reset the listener configuration
+        pdfView.isAnyBitmapAvailable = true
+        pdfView.notifyFirstContentLoad = true
+
+        // verify the listener is working
+        pdfView.invalidate()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        assertEquals(1, callbackCount)
+
+        // remove the listener
+        pdfView.removeOnFirstContentLoadListener(listener)
+
+        // reset the listener configuration
+        pdfView.isAnyBitmapAvailable = true
+        pdfView.notifyFirstContentLoad = true
+
+        // verify the listener was actually removed and won't be called
+        pdfView.invalidate()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+        assertEquals(1, callbackCount)
+    }
+
+    @Test
+    fun testPdfView_firstContentLoadEvent_AddMultipleListenerAndRemoveOneListener() {
+
+        var firstListenerCount = 0
+        var secondListenerCount = 0
+        val firstListener = PdfView.OnFirstContentLoadListener { firstListenerCount += 1 }
+        val secondListener = PdfView.OnFirstContentLoadListener { secondListenerCount += 1 }
+
+        // add multiple onFirstContent load listeners to pdfView
+        pdfView.addOnFirstContentLoadListener(firstListener)
+        pdfView.addOnFirstContentLoadListener(secondListener)
+
+        // reset bitmap is not available
+        pdfView.isAnyBitmapAvailable = true
+        pdfView.notifyFirstContentLoad = true
+
+        // force invalidation to trigger onDraw
+        pdfView.invalidate()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        // check if both listeners are called
+        assertEquals(1, firstListenerCount)
+        assertEquals(1, secondListenerCount)
+        assertEquals(true, pdfView.isAnyBitmapAvailable)
+        assertEquals(false, pdfView.notifyFirstContentLoad)
+
+        // reset firstContentLoad event configuration
+        pdfView.isAnyBitmapAvailable = true
+        pdfView.notifyFirstContentLoad = true
+
+        // remove one listener
+        pdfView.removeOnFirstContentLoadListener(secondListener)
+
+        // force invalidation to trigger onDraw
+        pdfView.invalidate()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        // check only one listener should be called
+        assertEquals(2, firstListenerCount)
+        assertEquals(1, secondListenerCount)
+        assertEquals(true, pdfView.isAnyBitmapAvailable)
+        assertEquals(false, pdfView.notifyFirstContentLoad)
     }
 
     companion object {

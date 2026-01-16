@@ -32,10 +32,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.RotaryInjectionScope
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performRotaryScrollInput
@@ -318,7 +317,6 @@ class PagerTest {
         assertTrue { pagerState.currentPageOffsetFraction.absoluteValue < 0.00001 }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun vertical_pager_scrolled_by_2_pages_with_rotary_high_res() {
         verticalPagerRotaryScrolledBy(
@@ -338,7 +336,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun vertical_pager_scrolled_by_2_pages_with_rotary_lowRes() {
         verticalPagerRotaryScrolledBy(
@@ -355,7 +352,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun vertical_pager_not_rotary_scrolled_with_disabled_userScrolledEnabled() {
         verticalPagerRotaryScrolledBy(
@@ -372,7 +368,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun vertical_pager_not_rotary_scrolled_without_rotaryScrollableBehavior() {
         verticalPagerRotaryScrolledBy(
@@ -389,7 +384,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun horizontal_pager_scrolled_by_2_pages_with_rotary_high_res() {
         horizontalPagerRotaryScrolledBy(
@@ -409,7 +403,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun horizontal_pager_scrolled_by_2_pages_with_rotary_lowRes() {
         horizontalPagerRotaryScrolledBy(
@@ -426,7 +419,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun horizontal_pager_not_rotary_scrolled_with_disabled_userScrolledEnabled() {
         horizontalPagerRotaryScrolledBy(
@@ -443,7 +435,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun horizontal_pager_not_rotary_scrolled_without_rotaryScrollableBehavior() {
         horizontalPagerRotaryScrolledBy(
@@ -460,7 +451,6 @@ class PagerTest {
         )
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun content_in_horizontalPager_rotary_scrolled_without_rotaryScrollableBehavior() {
         lateinit var pagerState: PagerState
@@ -490,7 +480,6 @@ class PagerTest {
         rule.runOnIdle { Assert.assertEquals(5, lcStates[0].firstVisibleItemIndex) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun content_in_horizontalPager_not_rotary_scrolled_with_rotaryScrollableBehavior() {
         lateinit var state: PagerState
@@ -526,7 +515,6 @@ class PagerTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun content_in_verticalPager_rotary_scrolled_without_rotaryScrollableBehavior() {
         lateinit var pagerState: PagerState
@@ -557,7 +545,6 @@ class PagerTest {
         rule.runOnIdle { Assert.assertEquals(5, lcStates[0].firstVisibleItemIndex) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun content_in_verticalPager_not_rotary_scrolled_with_rotaryScrollableBehavior() {
         lateinit var state: PagerState
@@ -593,7 +580,6 @@ class PagerTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     private fun verticalPagerRotaryScrolledBy(
         expectedPageTarget: Int,
         lowRes: Boolean,
@@ -624,7 +610,6 @@ class PagerTest {
         rule.runOnIdle { Assert.assertEquals(expectedPageTarget, pagerState.currentPage) }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     private fun horizontalPagerRotaryScrolledBy(
         expectedPageTarget: Int,
         lowRes: Boolean,

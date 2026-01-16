@@ -97,16 +97,14 @@ class PanelCoordinateActivity : AppCompatActivity() {
 
         setupMainPanelInitialState()
         setupMainPanelListeners()
-    }
 
-    override fun onResume() {
-        super.onResume()
         lifecycleScope.launch {
             val sessionResult = Session.create(this@PanelCoordinateActivity)
             if (sessionResult is SessionCreateSuccess) {
                 session = sessionResult.session
                 setupSecondaryPanelAndGltfEntity(session!!)
                 session!!.scene.mainPanelEntity.size = FloatSize2d(1.2f, 0.8f)
+                session?.scene?.keyEntity = session?.scene?.mainPanelEntity
             } else {
                 this@PanelCoordinateActivity.finish()
             }
@@ -236,7 +234,7 @@ class PanelCoordinateActivity : AppCompatActivity() {
 
     @OptIn(ExperimentalPanelCoordinateApi::class)
     private fun updateXyzPose() {
-        if (!::panel.isInitialized) return
+        if (!(::panel.isInitialized && ::xyzEntity.isInitialized)) return
 
         if (coordinateTypeRadioGroup.checkedRadioButtonId == R.id.pixel_coordinate_radio_button) {
             xyzEntity.setPose(

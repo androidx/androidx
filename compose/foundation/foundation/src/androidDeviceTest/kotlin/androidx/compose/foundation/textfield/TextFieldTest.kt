@@ -102,7 +102,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
@@ -116,7 +115,7 @@ import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -1453,7 +1452,6 @@ class TextFieldTest : FocusedWindowTest {
     }
 
     // Regression test for b/311007530
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun whenToggleReadOnly_onEditedTextField_noChangeNorCrash() {
         val tag = "tag"
@@ -1603,7 +1601,6 @@ class TextFieldTest : FocusedWindowTest {
         inputMethodInterceptor.assertSessionActive()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun singleLineTextField_enterIsNotConsumed_withDefaultKeyboardAction() {
         var keyDownReceived = false

@@ -81,6 +81,14 @@ public class FakeGltfFeature(nodeHolder: NodeHolder<*>) :
         mockGltfFeature?.removeAnimationStateListener(listener)
     }
 
+    override fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        mockGltfFeature?.addOnBoundsUpdateListener(listener)
+    }
+
+    override fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>) {
+        mockGltfFeature?.removeOnBoundsUpdateListener(listener)
+    }
+
     override fun dispose() {
         mockGltfFeature?.dispose()
     }

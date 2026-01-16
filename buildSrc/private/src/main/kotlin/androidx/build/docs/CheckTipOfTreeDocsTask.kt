@@ -48,8 +48,12 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
 
     @get:Input abstract val type: Property<DocsType>
 
+    @get:Input abstract val requiresDocs: Property<Boolean>
+
     @TaskAction
     fun exec() {
+        if (!requiresDocs.get()) return
+
         val projectPath = projectPathProvider.get()
         // Make sure not to allow a partial project path match, e.g. ":activity:activity" shouldn't
         // match ":activity:activity-ktx", both need to be listed separately.
@@ -88,32 +92,29 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
 
     companion object {
         fun Project.setUpCheckDocsTask(extension: AndroidXExtension) {
-            project.afterEvaluate {
-                if (!extension.requiresDocs()) return@afterEvaluate
-
-                val docsType =
-                    if (extension.type == SoftwareType.Companion.SAMPLES) {
+            val docsTypeProvider =
+                extension.type.map { softwareType ->
+                    if (softwareType == SoftwareType.SAMPLES) {
                         DocsType.SAMPLES
                     } else if (multiplatformExtension != null) {
                         DocsType.KMP
                     } else {
                         DocsType.STANDARD
                     }
+                }
 
-                val checkDocs =
-                    project.tasks.register(
-                        "checkDocsTipOfTree",
-                        CheckTipOfTreeDocsTask::class.java,
-                    ) { task ->
-                        task.tipOfTreeBuildFile.set(
-                            project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
-                        )
-                        task.projectPathProvider.set(path)
-                        task.type.set(docsType)
-                        task.cacheEvenIfNoOutputs()
-                    }
-                project.addToBuildOnServer(checkDocs)
-            }
+            val checkDocs =
+                project.tasks.register("checkDocsTipOfTree", CheckTipOfTreeDocsTask::class.java) {
+                    task ->
+                    task.tipOfTreeBuildFile.set(
+                        project.getSupportRootFolder().resolve("docs-tip-of-tree/build.gradle")
+                    )
+                    task.projectPathProvider.set(path)
+                    task.type.set(docsTypeProvider)
+                    task.requiresDocs.set(extension.requiresDocs())
+                    task.cacheEvenIfNoOutputs()
+                }
+            project.addToBuildOnServer(checkDocs)
         }
 
         enum class DocsType(val prefix: String) {
@@ -127,6 +128,6 @@ abstract class CheckTipOfTreeDocsTask : DefaultTask() {
          * unless opted-out with [AndroidXExtension.doNotDocumentReason]
          */
         fun AndroidXExtension.requiresDocs() =
-            shouldConfigureApiTasks() && doNotDocumentReason == null
+            shouldConfigureApiTasks().map { it && doNotDocumentReason == null }
     }
 }

@@ -73,6 +73,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * notifying submitted requests using the associated {@link CameraCaptureCallback} instances or
  * {@link ControlUpdateCallback}.
  */
+@SuppressWarnings("HiddenSuperclass")
 public final class FakeCameraControl implements CameraControlInternal {
     private static final String TAG = "FakeCameraControl";
     static final long AUTO_FOCUS_TIMEOUT_DURATION = 5000;

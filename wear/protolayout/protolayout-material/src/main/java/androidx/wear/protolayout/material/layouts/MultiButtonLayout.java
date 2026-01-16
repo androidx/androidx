@@ -101,6 +101,7 @@ public class MultiButtonLayout implements LayoutElement {
     }
 
     /** Builder class for {@link MultiButtonLayout}. */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
         private final @NonNull List<LayoutElement> mButtonsContent = new ArrayList<>();
         @ButtonDistribution private int mFiveButtonDistribution =

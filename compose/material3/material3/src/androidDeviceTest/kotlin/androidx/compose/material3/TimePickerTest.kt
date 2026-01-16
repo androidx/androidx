@@ -32,7 +32,6 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.SelectableGroup
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.SemanticsMatcher.Companion.keyIsDefined
@@ -57,7 +56,7 @@ import androidx.compose.ui.test.isNotSelected
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onChildren
@@ -411,7 +410,6 @@ class TimePickerTest {
         rule.onNodeWithText("20").assertIsSelected()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_keyboardInput_valid() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -435,7 +433,6 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(4)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_keyboardInput_outOfRange() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -451,7 +448,6 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(4)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_keyboardInput_Nan() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = false)
@@ -483,7 +479,6 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(22)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_keyboardInput_maintainsPm() {
         val state = TimePickerState(initialHour = 23, initialMinute = 23, is24Hour = false)
@@ -497,7 +492,6 @@ class TimePickerTest {
         assertThat(state.isPm).isTrue()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_input12_maintainsAm() {
         val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = false)
@@ -513,7 +507,6 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(0)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_input12_resultsIn23() {
         val state = TimePickerState(initialHour = 14, initialMinute = 0, is24Hour = false)
@@ -529,7 +522,6 @@ class TimePickerTest {
         assertThat(state.hour).isEqualTo(12)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun timeInput_deleting_maintainsPm() {
         val state = TimePickerState(initialHour = 23, initialMinute = 23, is24Hour = false)
@@ -558,7 +550,6 @@ class TimePickerTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun timeInput_24Hour_writePmHour() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
 
@@ -573,7 +564,6 @@ class TimePickerTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun timeInput_24HourStartingPm_writePmHour() {
         val state = TimePickerState(initialHour = 20, initialMinute = 23, is24Hour = true)
 
@@ -588,7 +578,6 @@ class TimePickerTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun timeInput_24Hour_writeNoon() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
 
@@ -603,7 +592,6 @@ class TimePickerTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun timeInput_writeMinute_updatesCurrentAngle() {
         val state =
             AnalogTimePickerState(
@@ -626,7 +614,6 @@ class TimePickerTest {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun timeInput_24Hour_writeMidnight() {
         val state = TimePickerState(initialHour = 10, initialMinute = 23, is24Hour = true)
 
@@ -728,7 +715,6 @@ class TimePickerTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun clockFace_24Hour_everyValue_byKeyboard() {
         val state =
@@ -805,7 +791,6 @@ class TimePickerTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun clockFace_12Hour_everyValue_byKeyboard() {
         val state =
@@ -920,6 +905,59 @@ class TimePickerTest {
                 .performClick()
             rule.runOnIdle { assertThat(state.minute).isEqualTo(number * 5) }
         }
+    }
+
+    @Test
+    fun timeInput_showsError_forInvalidHour() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        // Enter invalid hour
+        rule.onNodeWithText("10").performKeyInput {
+            pressKey(Key.Two)
+            pressKey(Key.Seven)
+        }
+
+        // Check that error is shown
+        rule.runOnIdle {
+            assertThat(state.isHourInputValid).isFalse()
+            state.selection = TimePickerSelectionMode.Hour
+        }
+
+        // Enter valid hour
+        rule.onAllNodesWithText("27").onFirst().performKeyInput {
+            pressKey(Key.Backspace)
+            pressKey(Key.Backspace)
+            pressKey(Key.One)
+            pressKey(Key.Two)
+        }
+
+        rule.runOnIdle { assertThat(state.isHourInputValid).isTrue() }
+    }
+
+    @Test
+    fun timeInput_showsError_forInvalidMinute() {
+        val state = TimePickerState(initialHour = 10, initialMinute = 0, is24Hour = true)
+        state.selection = TimePickerSelectionMode.Minute
+        rule.setMaterialContent(lightColorScheme()) { TimeInput(state = state) }
+
+        rule.onNodeWithText("00").performKeyInput {
+            pressKey(Key.Nine)
+            pressKey(Key.Nine)
+        }
+
+        rule.waitForIdle()
+        rule.runOnIdle { assertThat(state.isMinuteInputValid).isFalse() }
+
+        // Enter valid minute
+        rule.onNodeWithText("99").performKeyInput {
+            pressKey(Key.Backspace)
+            pressKey(Key.Backspace)
+            pressKey(Key.One)
+            pressKey(Key.Two)
+        }
+
+        rule.runOnIdle { assertThat(state.isMinuteInputValid).isTrue() }
     }
 
     @Test

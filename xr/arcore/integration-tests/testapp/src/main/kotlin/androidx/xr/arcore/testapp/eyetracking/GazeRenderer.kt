@@ -16,138 +16,126 @@
 
 package androidx.xr.arcore.testapp.eyetracking
 
-import android.widget.TextView
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
+import android.util.Log
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.Eye
-import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.TrackingState
-import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.scenecore.GltfModel
+import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.GroupEntity
-import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.scene
-import kotlinx.coroutines.CompletableJob
+import java.nio.file.Paths
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.transform
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 
-class GazeRenderer(val session: Session, val lifecycleScope: CoroutineScope, var config: Config) :
-    DefaultLifecycleObserver {
-
-    data class EyeData(val left: Eye.State?, val right: Eye.State?)
+class GazeRenderer {
 
     class EyeWidget(
         private val session: Session,
         private val entity: GroupEntity,
-        private val view: TextView,
+        private val model: GltfModelEntity,
         private val left: Boolean,
     ) {
         private val arDevice = ArDevice.getInstance(session)
 
         companion object {
-            fun create(session: Session, name: String, isLeft: Boolean): EyeWidget {
-                val entity = GroupEntity.create(session, name)
-                val view = TextView(session.activity.applicationContext)
-                view.setBackgroundColor(INVALID)
-                val panel =
-                    PanelEntity.create(
-                        session,
-                        view,
-                        FloatSize2d(PANEL_SIZE, PANEL_SIZE),
-                        name,
-                        Pose(Vector3(0f, 0f, -1f), Quaternion.Identity),
-                    )
-                entity.addChild(panel)
-                return EyeWidget(session, entity, view, isLeft)
+            suspend fun create(session: Session, name: String, isLeft: Boolean): EyeWidget {
+                val rootEntity = GroupEntity.create(session, "$name Root")
+
+                val offsetPose = Pose(Vector3(0f, 0f, -0.2f), Quaternion.Identity)
+                val offsetEntity = GroupEntity.create(session, "$name Offset", offsetPose)
+                rootEntity.addChild(offsetEntity)
+
+                val assetName =
+                    when (isLeft) {
+                        true -> "BoundingBoxGreen.glb"
+                        false -> "BoundingBoxBlue.glb"
+                    }
+                val model = GltfModel.create(session, Paths.get("models", assetName))
+                val modelEntity = GltfModelEntity.create(session, model)
+                modelEntity.setScale(PANEL_SIZE)
+                offsetEntity.addChild(modelEntity)
+                return EyeWidget(session, rootEntity, modelEntity, isLeft)
             }
 
-            const val PANEL_SIZE = 0.05f
+            const val ALPHA_OPEN = 1.0f
+            const val ALPHA_SHUT = 0.5f
+            const val ALPHA_STOPPED = 0.1f
+            const val PANEL_SIZE = 0.01f
         }
-
-        var enabled: Boolean
-            get() = entity.isEnabled()
-            set(value) = entity.setEnabled(value)
 
         fun dispose() {
             entity.dispose()
         }
 
-        fun update(config: Config, eye: Eye.State?) {
-            val gazePose = getEyePose(config, eye)
+        fun update(eyeState: Eye.State) {
+            entity.setEnabled(eyeState.trackingState != TrackingState.STOPPED)
 
-            entity.setEnabled(gazePose != null)
-            gazePose?.let {
-                val headScenePose =
-                    session.scene.perceptionSpace.getScenePoseFromPerceptionPose(
-                        arDevice.state.value.devicePose
-                    )
-                val pose = headScenePose.transformPoseTo(gazePose, session.scene.activitySpace)
-                entity.setPose(pose)
-            }
+            val newPose =
+                eyeState.pose.let {
+                    val headScenePose =
+                        session.scene.perceptionSpace.getScenePoseFromPerceptionPose(
+                            arDevice.state.value.devicePose
+                        )
+                    headScenePose.transformPoseTo(it, session.scene.activitySpace)
+                }
+            entity.setPose(newPose)
 
-            eye?.let {
-                val isOpen = getEyeIsOpen(config, it)
-                val trackingState = getEyeTrackingState(config, it)
-                view.setBackgroundColor(getColor(isOpen!!, trackingState!!))
-            }
+            model.setAlpha(getAlpha(eyeState.isOpen, eyeState.trackingState))
         }
 
-        fun getColor(isOpen: Boolean, trackingState: TrackingState): Int {
-            if (trackingState == TrackingState.PAUSED) return INVALID
+        fun getAlpha(isOpen: Boolean, trackingState: TrackingState): Float {
+            if (trackingState == TrackingState.PAUSED) return ALPHA_STOPPED
 
             return when (isOpen) {
-                true -> if (left) GAZE_LEFT else GAZE_RIGHT
-                false -> if (left) SHUT_LEFT else SHUT_RIGHT
+                true -> ALPHA_OPEN
+                false -> ALPHA_SHUT
             }
         }
     }
 
-    private var leftEyeWidget: EyeWidget = EyeWidget.create(session, "leftEye", true)
-    private var rightEyeWidget: EyeWidget = EyeWidget.create(session, "rightEye", false)
-    private lateinit var updateJob: CompletableJob
+    private lateinit var _coroutineScope: CoroutineScope
+    private lateinit var _supervisorJob: Job
 
-    override fun onResume(owner: LifecycleOwner) {
-        leftEyeWidget.enabled = true
-        rightEyeWidget.enabled = true
-        updateJob = SupervisorJob(lifecycleScope.launch { eyes().collect { renderEyeData(it) } })
-    }
+    fun startRendering(session: Session, coroutineScope: CoroutineScope) {
+        _supervisorJob = SupervisorJob()
+        _coroutineScope = CoroutineScope(coroutineScope.coroutineContext + _supervisorJob)
 
-    override fun onPause(owner: LifecycleOwner) {
-        updateJob.complete()
-        leftEyeWidget.enabled = false
-        rightEyeWidget.enabled = false
-    }
+        Log.d("GazeRenderer", "startRendering()")
 
-    override fun onDestroy(owner: LifecycleOwner) {
-        leftEyeWidget.dispose()
-        rightEyeWidget.dispose()
-    }
+        _coroutineScope.launch {
+            Eye.left(session)?.let {
+                val widget = EyeWidget.create(session, "leftEye", true)
+                try {
+                    it.state.collect { state -> widget.update(state) }
+                } finally {
+                    widget.dispose()
+                }
+            }
+        }
 
-    private fun eyes(): Flow<EyeData> {
-        val leftEye = Eye.left(session)
-        val rightEye = Eye.right(session)
-
-        return when {
-            leftEye != null && rightEye != null ->
-                leftEye.state.zip(rightEye.state) { l, r -> EyeData(l, r) }
-            leftEye != null && rightEye == null ->
-                leftEye.state.transform { emit(EyeData(it, null)) }
-            leftEye == null && rightEye != null ->
-                rightEye.state.transform { emit(EyeData(null, it)) }
-            else -> throw Exception("both eyes are null")
+        _coroutineScope.launch {
+            Eye.right(session)?.let {
+                val widget = EyeWidget.create(session, "rightEye", false)
+                try {
+                    it.state.collect { state -> widget.update(state) }
+                } finally {
+                    widget.dispose()
+                }
+            }
         }
     }
 
-    private fun renderEyeData(eyeData: EyeData) {
-        leftEyeWidget.update(config, eyeData.left)
-        rightEyeWidget.update(config, eyeData.right)
+    fun stopRendering() {
+        Log.d("GazeRenderer", "stopRendering()")
+        check(::_supervisorJob.isInitialized) { "_supervisorJob is not initialized" }
+
+        _supervisorJob.cancel()
     }
 }

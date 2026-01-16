@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,7 +28,7 @@ class PaneExpansionStateTest {
     @Test
     fun draggingPositively_withinBounds() {
         val mockState = PaneExpansionState(PaneExpansionStateData())
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(500f)
 
@@ -37,7 +38,7 @@ class PaneExpansionStateTest {
     @Test
     fun draggingNegatively_withinBounds() {
         val mockState = PaneExpansionState(PaneExpansionStateData())
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(-500f)
 
@@ -47,7 +48,7 @@ class PaneExpansionStateTest {
     @Test
     fun draggingPositively_beyondBounds_shouldBeBounded() {
         val mockState = PaneExpansionState(PaneExpansionStateData())
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(1500f)
 
@@ -57,7 +58,7 @@ class PaneExpansionStateTest {
     @Test
     fun draggingNegatively_beyondBounds_shouldBeBounded() {
         val mockState = PaneExpansionState(PaneExpansionStateData())
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(-1500f)
 
@@ -67,7 +68,7 @@ class PaneExpansionStateTest {
     @Test
     fun noOpPreDrag_shouldDoNothing() {
         val mockState = PaneExpansionState(PaneExpansionStateData()) { delta -> delta }
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(500f)
 
@@ -77,7 +78,7 @@ class PaneExpansionStateTest {
     @Test
     fun preDrag_shouldConsumeDelta() {
         val mockState = PaneExpansionState(PaneExpansionStateData()) { delta -> delta - 200 }
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(500f)
 
@@ -87,7 +88,7 @@ class PaneExpansionStateTest {
     @Test
     fun preDrag_alterDeltaBeyondBounds_shouldBeBounded() {
         val mockState = PaneExpansionState(PaneExpansionStateData()) { delta -> -1200f }
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(500f)
 
@@ -97,7 +98,7 @@ class PaneExpansionStateTest {
     @Test
     fun preDrag_consumeAllDelta_shouldKeepTheSameOffset() {
         val mockState = PaneExpansionState(PaneExpansionStateData()) { delta -> 0f }
-        mockState.onMeasured(MockScaffoldWidth, MockDensity)
+        mockState.onMeasured(MockScaffoldWidth, MockDensity, LayoutDirection.Ltr)
         mockState.onExpansionOffsetMeasured(1000)
         mockState.draggableState.dispatchRawDelta(500f)
 

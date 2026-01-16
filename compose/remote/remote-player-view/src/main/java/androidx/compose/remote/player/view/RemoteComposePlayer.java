@@ -552,6 +552,14 @@ public class RemoteComposePlayer extends FrameLayout implements RemoteContextAct
     }
 
     /**
+     * Reload the palette colors
+     */
+    public void reloadPalette() {
+        mThemeSupport.mapColors(getContext(), mInner);
+        invalidate();
+    }
+
+    /**
      * Id action callback interface
      */
     @RestrictTo(LIBRARY_GROUP)

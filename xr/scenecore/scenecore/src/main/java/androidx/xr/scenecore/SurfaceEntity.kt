@@ -21,16 +21,13 @@ import android.view.Surface
 import androidx.annotation.FloatRange
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
-import androidx.xr.runtime.Config
+import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
-import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.IntSize2d
 import androidx.xr.runtime.math.Pose
-import androidx.xr.scenecore.runtime.RenderingRuntime
-import androidx.xr.scenecore.runtime.SceneRuntime
 import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
 
 /**
@@ -52,7 +49,7 @@ import androidx.xr.scenecore.runtime.SurfaceEntity as RtSurfaceEntity
  */
 public class SurfaceEntity
 private constructor(
-    private val lifecycleManager: LifecycleManager,
+    private val perceptionSpace: PerceptionSpace,
     rtEntity: RtSurfaceEntity,
     entityManager: EntityManager,
     shape: Shape,
@@ -60,7 +57,6 @@ private constructor(
 
     /** Represents the shape of the Canvas that backs a SurfaceEntity. */
     public interface Shape {
-
         /**
          * A Quadrilateral-shaped canvas. Width and height are expressed in the X and Y axis in the
          * local spatial coordinate system of the entity. (0,0) is the center of the Quad mesh; the
@@ -69,7 +65,36 @@ private constructor(
          * @property extents The size of the Quad in the local spatial coordinate system of the
          *   entity.
          */
-        public class Quad(public val extents: FloatSize2d) : Shape {}
+        public class Quad : Shape {
+            public val extents: FloatSize2d
+            @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val cornerRadius: Float
+
+            /**
+             * A Quadrilateral-shaped canvas.
+             *
+             * @param extents The size of the Quad in the local spatial coordinate system of the
+             *   entity.
+             */
+            public constructor(extents: FloatSize2d) : this(extents, 0.0f)
+
+            /**
+             * A Quadrilateral-shaped canvas with rounded corners.
+             *
+             * @param extents The size of the Quad in the local spatial coordinate system of the
+             *   entity.
+             * @param cornerRadius The radius of the rounded corners of the Quad in the local
+             *   spatial coordinate system of the entity. If set to 0.0f, the corners will be sharp.
+             */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            public constructor(extents: FloatSize2d, cornerRadius: Float) {
+                require(extents.width >= 0.0f && extents.height >= 0.0f) {
+                    "extents must be non-negative"
+                }
+                require(cornerRadius >= 0.0f) { "cornerRadius must be non-negative" }
+                this.extents = extents
+                this.cornerRadius = cornerRadius
+            }
+        }
 
         /**
          * cal An inwards-facing sphere-shaped mesh, centered at (0,0,0) in the local coordinate
@@ -83,7 +108,11 @@ private constructor(
          * @property radius The radius of the sphere in the local spatial coordinate system of the
          *   entity.
          */
-        public class Sphere(public val radius: Float) : Shape {}
+        public class Sphere(public val radius: Float) : Shape {
+            init {
+                require(radius >= 0.0f) { "radius must be non-negative" }
+            }
+        }
 
         /**
          * An inwards-facing hemisphere-shaped canvas, where (0,0,0) is the center of the base of
@@ -96,7 +125,11 @@ private constructor(
          * @property radius The radius of the hemisphere in the local spatial coordinate system of
          *   the entity.
          */
-        public class Hemisphere(public val radius: Float) : Shape {}
+        public class Hemisphere(public val radius: Float) : Shape {
+            init {
+                require(radius >= 0.0f) { "radius must be non-negative" }
+            }
+        }
     }
 
     /** Represents edge fading effects for a SurfaceEntity. */
@@ -444,7 +477,6 @@ private constructor(
         /**
          * Factory method for SurfaceEntity.
          *
-         * @param lifecycleManager A SceneCore LifecycleManager
          * @param sceneRuntime SceneRuntime to use.
          * @param renderingRuntime RenderingRuntime to use.
          * @param entityManager A SceneCore EntityManager
@@ -463,29 +495,27 @@ private constructor(
          * @return a SurfaceEntity instance
          */
         internal fun create(
-            lifecycleManager: LifecycleManager,
-            sceneRuntime: SceneRuntime,
-            renderingRuntime: RenderingRuntime,
-            entityManager: EntityManager,
+            session: Session,
             stereoMode: StereoMode = StereoMode.MONO,
             pose: Pose = Pose.Identity,
             shape: Shape = Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
             contentColorMetadata: ContentColorMetadata? = null,
             superSampling: SuperSampling = SuperSampling.PENTAGON,
-            parent: Entity? = entityManager.getEntityForRtEntity(sceneRuntime.activitySpace),
+            parent: Entity? =
+                session.scene.entityManager.getEntityForRtEntity(session.sceneRuntime.activitySpace),
         ): SurfaceEntity {
             val rtShape =
                 when (shape) {
-                    is Shape.Quad -> RtSurfaceEntity.Shape.Quad(shape.extents)
+                    is Shape.Quad -> RtSurfaceEntity.Shape.Quad(shape.extents, shape.cornerRadius)
                     is Shape.Sphere -> RtSurfaceEntity.Shape.Sphere(shape.radius)
                     is Shape.Hemisphere -> RtSurfaceEntity.Shape.Hemisphere(shape.radius)
                     else -> throw IllegalArgumentException("Unsupported shape: $shape")
                 }
             val surfaceEntity =
                 SurfaceEntity(
-                    lifecycleManager,
-                    renderingRuntime.createSurfaceEntity(
+                    session.scene.perceptionSpace,
+                    session.renderingRuntime.createSurfaceEntity(
                         getRtStereoMode(stereoMode),
                         pose,
                         rtShape,
@@ -501,7 +531,7 @@ private constructor(
                             parent?.rtEntity
                         },
                     ),
-                    entityManager,
+                    session.scene.entityManager,
                     shape,
                 )
             surfaceEntity.contentColorMetadata = contentColorMetadata
@@ -533,10 +563,7 @@ private constructor(
             surfaceProtection: SurfaceProtection = SurfaceProtection.NONE,
         ): SurfaceEntity =
             SurfaceEntity.create(
-                session.perceptionRuntime.lifecycleManager,
-                session.sceneRuntime,
-                session.renderingRuntime,
-                session.scene.entityManager,
+                session,
                 stereoMode,
                 pose,
                 shape,
@@ -577,10 +604,7 @@ private constructor(
             parent: Entity? = session.scene.activitySpace,
         ): SurfaceEntity =
             SurfaceEntity.create(
-                session.perceptionRuntime.lifecycleManager,
-                session.sceneRuntime,
-                session.renderingRuntime,
-                session.scene.entityManager,
+                session,
                 stereoMode,
                 pose,
                 shape,
@@ -633,7 +657,7 @@ private constructor(
             checkNotDisposed()
             val rtShape =
                 when (value) {
-                    is Shape.Quad -> RtSurfaceEntity.Shape.Quad(value.extents)
+                    is Shape.Quad -> RtSurfaceEntity.Shape.Quad(value.extents, value.cornerRadius)
                     is Shape.Sphere -> RtSurfaceEntity.Shape.Sphere(value.radius)
                     is Shape.Hemisphere -> RtSurfaceEntity.Shape.Hemisphere(value.radius)
                     else -> throw IllegalArgumentException("Unsupported canvas shape: $value")
@@ -803,15 +827,16 @@ private constructor(
     }
 
     /**
-     * Gets the perceived resolution of the entity in the camera view.
+     * Gets the perceived resolution of the entity in the provided [RenderViewpoint].
      *
      * This API is only intended for use in Full Space Mode and will return
-     * [PerceivedResolutionResult.InvalidCameraView] in Home Space Mode.
+     * [PerceivedResolutionResult.InvalidRenderViewpoint] in Home Space Mode.
      *
      * The entity's own rotation and the camera's viewing direction are disregarded; this value
      * represents the dimensions of the entity on the camera view if its largest surface was facing
      * the camera without changing the distance of the entity to the camera.
      *
+     * @param renderViewpoint that provides the pose and field-of-view of the camera.
      * @return A [PerceivedResolutionResult] which encapsulates the outcome:
      *     - [PerceivedResolutionResult.Success] containing the [PixelDimensions] if the calculation
      *       is successful.
@@ -823,11 +848,16 @@ private constructor(
      *   [Config.DeviceTrackingMode.LAST_KNOWN].
      * @see PerceivedResolutionResult
      */
-    public fun getPerceivedResolution(): PerceivedResolutionResult {
+    public fun getPerceivedResolution(renderViewpoint: RenderViewpoint): PerceivedResolutionResult {
         checkNotDisposed()
-        check(lifecycleManager.config.deviceTracking == Config.DeviceTrackingMode.LAST_KNOWN) {
-            "Config.DeviceTrackingMode is not set to LastKnown."
-        }
-        return rtEntity!!.getPerceivedResolution().toPerceivedResolutionResult()
+        val renderViewpointState = renderViewpoint.state.value
+        return rtEntity!!
+            .getPerceivedResolution(
+                (perceptionSpace.getScenePoseFromPerceptionPose(renderViewpointState.pose)
+                        as PerceptionScenePose)
+                    .rtScenePose,
+                renderViewpointState.fieldOfView,
+            )
+            .toPerceivedResolutionResult()
     }
 }

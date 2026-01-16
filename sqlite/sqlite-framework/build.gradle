@@ -70,46 +70,29 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                api(project(":sqlite:sqlite"))
+        configureEach {
+            if (!it.name.contains("android") && !it.name.contains("common") ) {
+                // For usage of C interop APIs
+                // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
+                languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
             }
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            api(project(":sqlite:sqlite"))
         }
-        androidMain {
-            dependsOn(commonMain)
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
-        androidDeviceTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
-        }
-        nativeMain {
-            dependsOn(commonMain)
-            // For usage of C interop APIs
-            // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
-            languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
-        }
-        nativeTest {
-            dependsOn(commonTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.kotlinTestJunit)
+            implementation(libs.testRunner)
+            implementation(libs.testCore)
         }
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 def main = target.compilations["main"]
-                main.defaultSourceSet {
-                    dependsOn(nativeMain)
-                    // Aligns dependants of nativeMain to have same language settings.
-                    languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
-                }
                 main.cinterops {
                     sqlite3 { cInteropSettings ->
                         includeDirs(configurations.sqliteSources.incoming.files)
@@ -121,9 +104,6 @@ androidXMultiplatform {
                 }
 
                 def test = target.compilations["test"]
-                test.defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
                 if (target.konanTarget.family == Family.LINUX) {
                     // For tests in Linux host, statically include androidx's compiled SQLite
                     // via a generated C interop definition

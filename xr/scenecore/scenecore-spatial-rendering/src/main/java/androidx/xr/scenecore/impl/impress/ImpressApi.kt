@@ -26,7 +26,6 @@ import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
-import com.google.common.util.concurrent.ListenableFuture
 
 /** Interface for the JNI API for communicating with the Impress Split Engine instance. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -184,49 +183,25 @@ public interface ImpressApi {
      * This method loads an image based lighting asset from the assets folder and returns a token
      * that can be used to reference the asset in other JNI calls.
      */
-    public suspend fun loadImageBasedLightingAssetTemp(path: String): ExrImage
-
-    /**
-     * This method loads an image based lighting asset from the assets folder and returns a future
-     * with an ExrImage that can be used to reference the asset in other JNI calls.
-     */
-    public fun loadImageBasedLightingAsset(path: String): ListenableFuture<ExrImage>
+    public suspend fun loadImageBasedLightingAsset(path: String): ExrImage
 
     /**
      * This method loads an image based lighting asset from a byte array and returns a token that
      * can be used to reference the asset in other JNI calls.
      */
-    public suspend fun loadImageBasedLightingAssetTemp(data: ByteArray, key: String): ExrImage
-
-    /**
-     * This method loads an image based lighting asset from a byte array and returns a future with
-     * an ExrImage that can be used to reference the asset in other JNI calls.
-     */
-    public fun loadImageBasedLightingAsset(data: ByteArray, key: String): ListenableFuture<ExrImage>
+    public suspend fun loadImageBasedLightingAsset(data: ByteArray, key: String): ExrImage
 
     /**
      * This method loads a glTF model from the local assets folder or a remote URL, and returns a
      * model token that can be used to reference the model in other JNI calls.
      */
-    public suspend fun loadGltfAssetTemp(path: String): GltfModel
-
-    /**
-     * This method loads a glTF model from the local assets folder or a remote URL, and returns a
-     * future with the GltfModel that can be used to reference the model in other JNI calls.
-     */
-    public fun loadGltfAsset(path: String): ListenableFuture<GltfModel>
+    public suspend fun loadGltfAsset(path: String): GltfModel
 
     /**
      * This method loads a glTF model from a byte array and returns the model token that can be used
      * to reference the model in other JNI calls.
      */
-    public suspend fun loadGltfAssetTemp(data: ByteArray, key: String): GltfModel
-
-    /**
-     * This method loads a glTF model from a byte array and returns a future with the GltfModel that
-     * can be used to reference the model in other JNI calls.
-     */
-    public fun loadGltfAsset(data: ByteArray, key: String): ListenableFuture<GltfModel>
+    public suspend fun loadGltfAsset(data: ByteArray, key: String): GltfModel
 
     /** This method releases the asset pointer of a previously loaded glTF model. */
     // TODO(b/374216912) - Add support for cancellation of loading operations (GLTF, EXR, etc.)
@@ -255,6 +230,14 @@ public interface ImpressApi {
     public fun setGltfModelColliderEnabled(impressNode: ImpressNode, enableCollider: Boolean)
 
     /**
+     * Enable reform affordance for a glTF model.
+     *
+     * @param impressNode The object of Impress node for the instance of the glTF model.
+     * @param enabled If the reform affordance should be added or removed.
+     */
+    public fun setGltfReformAffordanceEnabled(impressNode: ImpressNode, enabled: Boolean)
+
+    /**
      * Starts an animation on an instanced GLTFModel.
      *
      * @param impressNode The object of the Impress node for the instance of the GLTF
@@ -266,29 +249,11 @@ public interface ImpressApi {
      *   animation can't play.
      */
     // TODO: b/362829319 - Remove CompletableFuture from SE integration.
-    public suspend fun animateGltfModelTemp(
+    public suspend fun animateGltfModel(
         impressNode: ImpressNode,
         animationName: String?,
         looping: Boolean,
     ): Void?
-
-    /**
-     * Starts an animation on an instanced GLTFModel.
-     *
-     * @param impressNode The object of the Impress node for the instance of the GLTF
-     * @param animationName A nullable String which contains a requested animation to play. If null
-     *   is provided, this will attempt to play the first animation it finds
-     * @param looping True if the animation should loop. Note that if the animation is looped, the
-     *   returned Future will never fire successfully.
-     * @return a ListenableFuture which fires when the animation stops. It will return an exception
-     *   if the animation can't play.
-     */
-    // TODO: b/362829319 - Remove CompletableFuture from SE integration.
-    public fun animateGltfModel(
-        impressNode: ImpressNode,
-        animationName: String?,
-        looping: Boolean,
-    ): ListenableFuture<Void?>
 
     /**
      * Stops an animation on an instanced GLTFModel.
@@ -401,6 +366,7 @@ public interface ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     )
 
     /**
@@ -529,17 +495,7 @@ public interface ImpressApi {
      * @param path The name of the texture file to load or the URL of the remote texture.
      * @return The loaded texture.
      */
-    public suspend fun loadTextureTemp(path: String): Texture
-
-    /**
-     * This method loads a local texture from the assets folder or a remote texture from a URL and
-     * returns a future with the texture token that can be used to reference the texture in other
-     * JNI calls.
-     *
-     * @param path The name of the texture file to load or the URL of the remote texture.
-     * @return A future that resolves to the texture when it is loaded.
-     */
-    public fun loadTexture(path: String): ListenableFuture<Texture>
+    public suspend fun loadTexture(path: String): Texture
 
     /**
      * This method borrows the reflection texture from the currently set environment IBL.
@@ -563,17 +519,7 @@ public interface ImpressApi {
      * @return A WaterMaterial backed by an imp::WaterMaterial. The WaterMaterial can be destroyed
      *   by passing it to destroyNativeObject.
      */
-    public suspend fun createWaterMaterialTemp(isAlphaMapVersion: Boolean): WaterMaterial
-
-    /**
-     * This method creates a water material and returns a future with the material native handle
-     * that can be used to reference the water material in other JNI calls.
-     *
-     * @param isAlphaMapVersion True if the water material should be the alpha map version.
-     * @return A WaterMaterial backed by an imp::WaterMaterial. The WaterMaterial can be destroyed
-     *   by passing it to destroyNativeObject.
-     */
-    public fun createWaterMaterial(isAlphaMapVersion: Boolean): ListenableFuture<WaterMaterial>
+    public suspend fun createWaterMaterial(isAlphaMapVersion: Boolean): WaterMaterial
 
     /**
      * This method sets the reflection map for the water material.
@@ -699,21 +645,7 @@ public interface ImpressApi {
      * @return A Khronos PBR material.
      * @throws IllegalArgumentException if the Khronos PBR material spec is invalid.
      */
-    public suspend fun createKhronosPbrMaterialTemp(
-        spec: KhronosPbrMaterialSpec
-    ): KhronosPbrMaterial
-
-    /**
-     * This method creates a Khronos PBR material and returns a future with the material native
-     * handle that can be used to reference the Khronos PBR material in other JNI calls.
-     *
-     * @param spec The Khronos PBR material spec to use for the material.
-     * @return A future that resolves to the Khronos PBR material when it is created.
-     * @throws IllegalArgumentException if the Khronos PBR material spec is invalid.
-     */
-    public fun createKhronosPbrMaterial(
-        spec: KhronosPbrMaterialSpec
-    ): ListenableFuture<KhronosPbrMaterial>
+    public suspend fun createKhronosPbrMaterial(spec: KhronosPbrMaterialSpec): KhronosPbrMaterial
 
     /**
      * Sets the base color texture for the Khronos PBR material.

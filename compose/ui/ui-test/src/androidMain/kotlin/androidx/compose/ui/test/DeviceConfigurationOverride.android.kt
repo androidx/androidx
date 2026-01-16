@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalProvidableLocaleList
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -565,6 +566,9 @@ private fun OverriddenConfiguration(configuration: Configuration, content: @Comp
         ContextThemeWrapper(LocalContext.current, 0).apply {
             applyOverrideConfiguration(configuration)
         }
+    val platformLocaleListCompat = ConfigurationCompat.getLocales(configuration)
+    val localeList =
+        LocaleList(List(platformLocaleListCompat.size()) { Locale(platformLocaleListCompat[it]!!) })
 
     CompositionLocalProvider(
         LocalContext provides newContext,
@@ -581,6 +585,7 @@ private fun OverriddenConfiguration(configuration: Configuration, content: @Comp
                 configuration.fontScale,
             ),
         LocalFontFamilyResolver provides createFontFamilyResolver(newContext),
+        @Suppress("VisibleForTests") LocalProvidableLocaleList provides localeList,
         content = content,
     )
 }

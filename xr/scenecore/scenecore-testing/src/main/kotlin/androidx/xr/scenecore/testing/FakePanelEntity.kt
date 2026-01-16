@@ -20,6 +20,7 @@ import android.content.Context
 import android.view.View
 import android.view.WindowManager
 import androidx.annotation.RestrictTo
+import androidx.xr.runtime.FieldOfView
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
 import androidx.xr.runtime.math.Vector3
@@ -27,6 +28,7 @@ import androidx.xr.scenecore.runtime.Dimensions
 import androidx.xr.scenecore.runtime.PanelEntity
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult
 import androidx.xr.scenecore.runtime.PixelDimensions
+import androidx.xr.scenecore.runtime.ScenePose
 import kotlin.math.roundToInt
 
 /** Test-only implementation of [androidx.xr.scenecore.runtime.PanelEntity] */
@@ -102,7 +104,7 @@ public open class FakePanelEntity(private val view: View? = null) : FakeEntity()
         }
 
     private var perceivedResolutionResult: PerceivedResolutionResult =
-        PerceivedResolutionResult.InvalidCameraView()
+        PerceivedResolutionResult.InvalidRenderViewpoint()
 
     /**
      * For test purposes only.
@@ -118,13 +120,15 @@ public open class FakePanelEntity(private val view: View? = null) : FakeEntity()
      * Gets the perceived resolution of the entity in the camera view.
      *
      * This API is only intended for use in Full Space Mode and will return
-     * [androidx.xr.scenecore.runtime.PerceivedResolutionResult.InvalidCameraView] in Home Space
-     * Mode.
+     * [androidx.xr.scenecore.runtime.PerceivedResolutionResult.InvalidRenderViewpoint] in Home
+     * Space Mode.
      *
      * The entity's own rotation and the camera's viewing direction are disregarded; this value
      * represents the dimensions of the entity on the camera view if its largest surface was facing
      * the camera without changing the distance of the entity to the camera.
      *
+     * @param renderViewScenePose The [ScenePose] that represents the camera pose.
+     * @param renderViewFov The [FieldOfView] of the camera.
      * @return A [androidx.xr.scenecore.runtime.PerceivedResolutionResult] which encapsulates the
      *   outcome:
      *     - [PerceivedResolutionResult.Success] containing the [PixelDimensions] if the calculation
@@ -135,7 +139,10 @@ public open class FakePanelEntity(private val view: View? = null) : FakeEntity()
      *
      * @see androidx.xr.scenecore.runtime.PerceivedResolutionResult
      */
-    override fun getPerceivedResolution(): PerceivedResolutionResult {
+    override fun getPerceivedResolution(
+        renderViewScenePose: ScenePose,
+        renderViewFov: FieldOfView,
+    ): PerceivedResolutionResult {
         return perceivedResolutionResult
     }
 

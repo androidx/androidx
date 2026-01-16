@@ -16,28 +16,10 @@
 
 package androidx.xr.glimmer.list
 
-import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
-import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.sign
-
-/**
- * Creates and remembers a focus-aware fling behavior that aligns the focus line with the center of
- * the element expected to gain focus at the end of the fling. This ensures predictable movement for
- * users.
- *
- * @param state The [ListState] to observe for layout and focus information.
- * @return A [FlingBehavior] instance that provides focus-aware snapping.
- */
-@Composable
-public fun rememberSnapFlingBehavior(state: ListState): FlingBehavior {
-    val snapLayoutInfoProvider = remember(state) { SnapLayoutInfoProvider(state) }
-    return rememberSnapFlingBehavior(snapLayoutInfoProvider)
-}
 
 /**
  * List snapping aligns the focus line with the center of the closest item. Combined with adaptive
@@ -70,7 +52,7 @@ public fun SnapLayoutInfoProvider(state: ListState): SnapLayoutInfoProvider =
             if (state.layoutInfo.totalItemsCount == 0) {
                 return 0f
             }
-            val autoFocusMeasureResult = state.autoFocusBehaviour.properties ?: return 0f
+            val autoFocusMeasureResult = state.autoFocusState.properties ?: return 0f
 
             var lowerBoundOffset = Float.NEGATIVE_INFINITY
             var upperBoundOffset = Float.POSITIVE_INFINITY

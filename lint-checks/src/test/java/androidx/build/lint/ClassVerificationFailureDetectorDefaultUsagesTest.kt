@@ -164,24 +164,25 @@ src/com/example/MyClass.java:7: Error: This call references a method guarded by 
         val expectedFixDiffs =
             """
 Fix for src/com/example/MyClass.java line 7: Extract to static inner class:
-@@ -4 +4
-+ import androidx.annotation.DoNotInline;
-+ import androidx.annotation.RequiresAconfigFlag;
-@@ -7 +9
--        FlaggedApiContainer.flaggedApi();
-+        FlagMyFlagImpl.flaggedApi();
-@@ -9 +11
+@@ -3,0 +4,2 @@
++import androidx.annotation.DoNotInline;
++import androidx.annotation.RequiresFlag;
+@@ -7 +9,12 @@
+-       FlaggedApiContainer.flaggedApi();
++       FlagMyFlagImpl.flaggedApi();
++    }
 +
-+ @RequiresAconfigFlag("test.pkg.myFlag")
-+ static class FlagMyFlagImpl {
-+     private FlagMyFlagImpl() {
-+         // This class is not instantiable.
-+     }
-+     @DoNotInline
-+     static void flaggedApi() {
-+         FlaggedApiContainer.flaggedApi();
-+     }
-+ }
++@RequiresApi(10000) // Required when calling pre-release APIs
++@RequiresFlag("test.pkg.myFlag")
++static class FlagMyFlagImpl {
++    private FlagMyFlagImpl() {
++        // This class is not instantiable.
++    }
++    @DoNotInline
++    static void flaggedApi() {
++        FlaggedApiContainer.flaggedApi();
+@@ -8,0 +22 @@
++}
         """
                 .trimIndent()
 

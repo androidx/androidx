@@ -57,6 +57,7 @@ constructor(workerExecutor: WorkerExecutor) : SourceMetalavaTask(workerExecutor)
                 // API version history doesn't need to be generated
                 emptyList(),
                 manifestPath.orNull?.asFile?.absolutePath,
+                multiplatform.get(),
             )
         val args = checkArgs + getCommonBaselineUpdateArgs(baselineFile)
 

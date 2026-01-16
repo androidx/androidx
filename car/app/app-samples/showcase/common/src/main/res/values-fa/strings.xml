@@ -25,7 +25,7 @@
     <string name="grant_access_action_title" msgid="4033140828804350723">"اعطای دسترسی"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"فعال کردن مکان"</string>
     <string name="cancel_action_title" msgid="1149738685397349236">"لغو"</string>
-    <string name="stop_action_title" msgid="1187619482795416314">"توقف"</string>
+    <string name="stop_action_title" msgid="1187619482795416314">"ایست"</string>
     <string name="more_action_title" msgid="1039516575011403837">"بیشتر"</string>
     <string name="call_action_title" msgid="6218977436905001611">"تماس"</string>
     <string name="primary_action_title" msgid="7042003552215710683">"اصلی"</string>
@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"ردیف را هم می‌توان انتخاب کرد"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"کنش فرعی انتخاب شده است"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"کنش اصلی ردیف انتخاب شده است"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"نسخه نمایشی تصویر و کنش‌های انتهای ردیف"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"نمونه فهرست خالی"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"فهرست خالی است"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"الگوهای متفرقه نمونه"</string>

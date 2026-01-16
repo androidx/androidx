@@ -67,6 +67,7 @@ public object TextOrientation {
 }
 
 @IntDef(value = [TextOrientation.MIXED, TextOrientation.UPRIGHT, TextOrientation.SIDEWAYS])
+@Retention(AnnotationRetention.SOURCE)
 internal annotation class OrientationMode
 
 /**

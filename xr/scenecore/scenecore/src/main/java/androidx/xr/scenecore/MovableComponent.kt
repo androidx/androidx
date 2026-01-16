@@ -172,12 +172,7 @@ private constructor(
             if (anchorable) {
                 planesFlow = Plane.subscribe(session)
             }
-            // TODO(b/458152082): Add rtMoveEventListener on the runtime thread executor instead of
-            // the main thread executor.
-            rtMovableComponent.addMoveEventListener(
-                HandlerExecutor.mainThreadExecutor,
-                rtMoveEventListener,
-            )
+            rtMovableComponent.addMoveEventListener(rtMoveEventListener)
             if (initialListener != null) {
                 if (initialListenerExecutor != null) {
                     addMoveListener(initialListenerExecutor, initialListener)

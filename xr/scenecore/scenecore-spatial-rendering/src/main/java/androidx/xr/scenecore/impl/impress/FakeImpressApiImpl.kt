@@ -16,7 +16,6 @@
 
 package androidx.xr.scenecore.impl.impress
 
-import android.content.res.Resources.NotFoundException
 import android.graphics.SurfaceTexture
 import android.os.Handler
 import android.os.Looper
@@ -32,7 +31,6 @@ import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
-import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.CompletableDeferred
 
 /**
@@ -61,6 +59,7 @@ public class FakeImpressApiImpl : ImpressApi {
         public var canvasShape: CanvasShape? = null,
         public var featherRadiusX: Float = 0f,
         public var featherRadiusY: Float = 0f,
+        public var cornerRadius: Float = 0f,
         public var surfaceWidth: Int = 1,
         public var surfaceHeight: Int = 1,
         public var colliderEnabled: Boolean = false,
@@ -107,7 +106,7 @@ public class FakeImpressApiImpl : ImpressApi {
     // Non-functional resource manager.
     private val resourceManager = BindingsResourceManager(Handler(Looper.getMainLooper()))
     // Vector of image based lighting asset tokens.
-    private val imageBasedLightingAssets: MutableList<Long> = ArrayList()
+    private val imageBasedLightingAssets: MutableMap<Long, ExrImage> = mutableMapOf()
     // Map of model tokens to the list of impress nodes that are instances of that model.
     private val gltfModels: MutableMap<Long, MutableList<Int>> = HashMap()
     // Map of impress nodes to their parent impress nodes.
@@ -144,57 +143,31 @@ public class FakeImpressApiImpl : ImpressApi {
     override fun getBindingsResourceManager(): BindingsResourceManager = resourceManager
 
     override fun releaseImageBasedLightingAsset(iblToken: Long) {
-        if (!imageBasedLightingAssets.contains(iblToken)) {
-            throw NotFoundException("Image based lighting asset token not found")
-        }
         imageBasedLightingAssets.remove(iblToken)
     }
 
     @Suppress("RestrictTo")
-    override suspend fun loadImageBasedLightingAssetTemp(path: String): ExrImage {
+    override suspend fun loadImageBasedLightingAsset(path: String): ExrImage {
         val token = (nextImageBasedLightingAssetId++).toLong()
-        imageBasedLightingAssets.add(token)
         val exrImage: ExrImage =
             ExrImage.Builder().setImpressApi(this).setNativeExrImage(token).build()
+        imageBasedLightingAssets[token] = exrImage
         // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         return exrImage
     }
 
-    @Suppress("RestrictTo", "AsyncSuffixFuture")
-    override fun loadImageBasedLightingAsset(path: String): ListenableFuture<ExrImage> {
-        val token = (nextImageBasedLightingAssetId++).toLong()
-        imageBasedLightingAssets.add(token)
-        val exrImage: ExrImage =
-            ExrImage.Builder().setImpressApi(this).setNativeExrImage(token).build()
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
-        return ResolvableFuture.create<ExrImage>().apply { set(exrImage) }
-    }
-
     @Suppress("RestrictTo")
-    override suspend fun loadImageBasedLightingAssetTemp(data: ByteArray, key: String): ExrImage {
+    override suspend fun loadImageBasedLightingAsset(data: ByteArray, key: String): ExrImage {
         val token = (nextImageBasedLightingAssetId++).toLong()
-        imageBasedLightingAssets.add(token)
         val exrImage: ExrImage =
             ExrImage.Builder().setImpressApi(this).setNativeExrImage(token).build()
+        imageBasedLightingAssets[token] = exrImage
         // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         return exrImage
     }
 
-    @Suppress("RestrictTo", "AsyncSuffixFuture")
-    override fun loadImageBasedLightingAsset(
-        data: ByteArray,
-        key: String,
-    ): ListenableFuture<ExrImage> {
-        val token = (nextImageBasedLightingAssetId++).toLong()
-        imageBasedLightingAssets.add(token)
-        val exrImage: ExrImage =
-            ExrImage.Builder().setImpressApi(this).setNativeExrImage(token).build()
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
-        return ResolvableFuture.create<ExrImage>().apply { set(exrImage) }
-    }
-
     @Suppress("RestrictTo")
-    override suspend fun loadGltfAssetTemp(path: String): GltfModel {
+    override suspend fun loadGltfAsset(path: String): GltfModel {
         val token = (nextModelId++).toLong()
         gltfModels[token] = ArrayList()
         val gltfModel: GltfModel =
@@ -203,40 +176,17 @@ public class FakeImpressApiImpl : ImpressApi {
         return gltfModel
     }
 
-    @Suppress("RestrictTo", "AsyncSuffixFuture")
-    override fun loadGltfAsset(path: String): ListenableFuture<GltfModel> {
-        val token = (nextModelId++).toLong()
-        gltfModels[token] = ArrayList()
-        val gltfModel: GltfModel =
-            GltfModel.Builder().setImpressApi(this).setNativeGltfModel(token).build()
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
-        return ResolvableFuture.create<GltfModel>().apply { set(gltfModel) }
-    }
-
     @Suppress("RestrictTo")
-    override suspend fun loadGltfAssetTemp(data: ByteArray, key: String): GltfModel {
+    override suspend fun loadGltfAsset(data: ByteArray, key: String): GltfModel {
         val token = (nextModelId++).toLong()
         gltfModels[token] = ArrayList()
         val gltfModel: GltfModel =
             GltfModel.Builder().setImpressApi(this).setNativeGltfModel(token).build()
         // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
         return gltfModel
-    }
-
-    @Suppress("RestrictTo", "AsyncSuffixFuture")
-    override fun loadGltfAsset(data: ByteArray, key: String): ListenableFuture<GltfModel> {
-        val token = (nextModelId++).toLong()
-        gltfModels[token] = ArrayList()
-        val gltfModel: GltfModel =
-            GltfModel.Builder().setImpressApi(this).setNativeGltfModel(token).build()
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
-        return ResolvableFuture.create<GltfModel>().apply { set(gltfModel) }
     }
 
     override fun releaseGltfAsset(gltfToken: Long) {
-        if (!gltfModels.containsKey(gltfToken)) {
-            throw NotFoundException("Model token not found")
-        }
         gltfModels.remove(gltfToken)
     }
 
@@ -257,8 +207,12 @@ public class FakeImpressApiImpl : ImpressApi {
         throw IllegalArgumentException("not implemented")
     }
 
+    override fun setGltfReformAffordanceEnabled(impressNode: ImpressNode, enabled: Boolean) {
+        throw IllegalArgumentException("not implemented")
+    }
+
     @Suppress("RestrictTo")
-    override suspend fun animateGltfModelTemp(
+    override suspend fun animateGltfModel(
         impressNode: ImpressNode,
         animationName: String?,
         looping: Boolean,
@@ -273,26 +227,6 @@ public class FakeImpressApiImpl : ImpressApi {
             impressAnimatedNodes[impressNode] = animationInProgress
         }
         return null
-    }
-
-    @Suppress("RestrictTo", "AsyncSuffixFuture")
-    override fun animateGltfModel(
-        impressNode: ImpressNode,
-        animationName: String?,
-        looping: Boolean,
-    ): ListenableFuture<Void?> {
-        val future = ResolvableFuture.create<Void?>()
-        if (getGltfNodeData(impressNode) == null) {
-            future.setException(IllegalArgumentException("Impress node not found"))
-            return future
-        }
-        val animationInProgress = AnimationInProgress(animationName, future)
-        if (looping) {
-            impressLoopAnimatedNodes[impressNode] = animationInProgress
-        } else {
-            impressAnimatedNodes[impressNode] = animationInProgress
-        }
-        return future
     }
 
     override fun stopGltfModelAnimation(impressNode: ImpressNode) {
@@ -436,6 +370,7 @@ public class FakeImpressApiImpl : ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     ) {
         val data =
             stereoSurfaceEntities[impressNode]
@@ -443,6 +378,7 @@ public class FakeImpressApiImpl : ImpressApi {
         data.canvasShape = StereoSurfaceEntityData.CanvasShape.QUAD
         data.width = width
         data.height = height
+        data.cornerRadius = cornerRadius
     }
 
     override fun setStereoSurfaceEntityCanvasShapeSphere(impressNode: ImpressNode, radius: Float) {
@@ -526,22 +462,12 @@ public class FakeImpressApiImpl : ImpressApi {
     override fun resetContentColorMetadataForStereoSurface(stereoSurfaceNode: ImpressNode) {}
 
     @Suppress("RestrictTo")
-    override suspend fun loadTextureTemp(path: String): Texture {
+    override suspend fun loadTexture(path: String): Texture {
         val textureImageToken = nextTextureId++
         val texture =
             Texture.Builder().setImpressApi(this).setNativeTexture(textureImageToken).build()
         textureImages[textureImageToken] = texture
         return texture
-    }
-
-    @Suppress("AsyncSuffixFuture")
-    override fun loadTexture(path: String): ListenableFuture<Texture> {
-        val textureImageToken = nextTextureId++
-        val texture =
-            Texture.Builder().setImpressApi(this).setNativeTexture(textureImageToken).build()
-        textureImages[textureImageToken] = texture
-        // TODO(b/352827267): Enforce minSDK API strategy - go/androidx-api-guidelines#compat-newapi
-        return ResolvableFuture.create<Texture>().apply { set(texture) }
     }
 
     override fun borrowReflectionTexture(): Texture {
@@ -555,21 +481,12 @@ public class FakeImpressApiImpl : ImpressApi {
     }
 
     @Suppress("RestrictTo")
-    override suspend fun createWaterMaterialTemp(isAlphaMapVersion: Boolean): WaterMaterial {
+    override suspend fun createWaterMaterial(isAlphaMapVersion: Boolean): WaterMaterial {
         val materialToken = nextMaterialId++
         val material =
             WaterMaterial.Builder().setImpressApi(this).setNativeMaterial(materialToken).build()
         materials[materialToken] = MaterialData(MaterialData.Type.WATER, materialToken)
         return material
-    }
-
-    @Suppress("RestrictTo", "AsyncSuffixFuture")
-    override fun createWaterMaterial(isAlphaMapVersion: Boolean): ListenableFuture<WaterMaterial> {
-        val materialToken = nextMaterialId++
-        val material =
-            WaterMaterial.Builder().setImpressApi(this).setNativeMaterial(materialToken).build()
-        materials[materialToken] = MaterialData(MaterialData.Type.WATER, materialToken)
-        return ResolvableFuture.create<WaterMaterial>().apply { set(material) }
     }
 
     override fun setReflectionMapOnWaterMaterial(
@@ -640,7 +557,7 @@ public class FakeImpressApiImpl : ImpressApi {
     }
 
     @Suppress("RestrictTo")
-    override suspend fun createKhronosPbrMaterialTemp(
+    override suspend fun createKhronosPbrMaterial(
         spec: KhronosPbrMaterialSpec
     ): KhronosPbrMaterial {
         val materialToken = nextMaterialId++
@@ -651,20 +568,6 @@ public class FakeImpressApiImpl : ImpressApi {
                 .build()
         materials[materialToken] = MaterialData(MaterialData.Type.KHRONOS_PBR, materialToken)
         return material
-    }
-
-    @Suppress("RestrictTo")
-    override fun createKhronosPbrMaterial(
-        spec: KhronosPbrMaterialSpec
-    ): ListenableFuture<KhronosPbrMaterial> {
-        val materialToken = nextMaterialId++
-        val material =
-            KhronosPbrMaterial.Builder()
-                .setImpressApi(this)
-                .setNativeMaterial(materialToken)
-                .build()
-        materials[materialToken] = MaterialData(MaterialData.Type.KHRONOS_PBR, materialToken)
-        return ResolvableFuture.create<KhronosPbrMaterial>().apply { set(material) }
     }
 
     override fun setBaseColorTextureOnKhronosPbrMaterial(
@@ -1010,8 +913,8 @@ public class FakeImpressApiImpl : ImpressApi {
     }
 
     // Returns the list of image based lighting assets that have been loaded.
-    public fun getImageBasedLightingAssets(): MutableList<Long> {
-        return imageBasedLightingAssets
+    public fun getImageBasedLightingAssets(): List<Long> {
+        return imageBasedLightingAssets.keys.toList()
     }
 
     // Returns the map of glTF model tokens to their associated impress nodes.

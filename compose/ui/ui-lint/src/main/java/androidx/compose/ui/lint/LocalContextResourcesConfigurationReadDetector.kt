@@ -24,6 +24,7 @@ import androidx.compose.lint.Package
 import androidx.compose.lint.PackageName
 import androidx.compose.lint.inheritsFrom
 import androidx.compose.lint.isInPackageName
+import androidx.compose.lint.isInvokedWithinComposable
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
@@ -199,8 +200,13 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                                 if (valueArgumentText != null && nodeText != null) {
                                     nodeText.substringBefore(valueArgumentText)
                                 } else null
-                            val replaceWith =
-                                textToReplace?.let {
+                            // If this call is not inside a composable scope, don't provide a fix
+                            // that suggests calling a composable function. The refactor required
+                            // can't be easily provided here.
+                            val fix =
+                                if (!node.isInvokedWithinComposable() || textToReplace == null) {
+                                    null
+                                } else {
                                     when (contextGetResourceValueCallName) {
                                         ContextGetString -> {
                                             fix()
@@ -271,7 +277,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                                 node,
                                 context.getNameLocation(node),
                                 "Querying resource values using $LocalContextCurrent",
-                                replaceWith,
+                                fix,
                             )
                         }
                     }
@@ -509,7 +515,7 @@ class LocalContextResourcesConfigurationReadDetector : Detector(), SourceCodeSca
                 "Reading Resources using $LocalContextCurrentResources",
                 "Changes to the Configuration object will not cause " +
                     "$LocalContextCurrentResources reads to be invalidated, so calls to APIs such" +
-                    "as Resources.getString() will not be updated when the Configuration " +
+                    " as Resources.getString() will not be updated when the Configuration " +
                     "changes. Instead, use $LocalResourcesCurrent to retrieve the Resources - " +
                     "this will invalidate callers when the Configuration changes, to ensure that " +
                     "these calls reflect the latest values.",

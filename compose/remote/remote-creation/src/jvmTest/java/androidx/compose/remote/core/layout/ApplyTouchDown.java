@@ -39,11 +39,11 @@ public class ApplyTouchDown extends TestOperation {
     public boolean apply(@NonNull RemoteContext context, @NonNull CoreDocument document,
             @NonNull TestParameters testParameters, @Nullable List<Map<String, Object>> commands) {
         if (commands != null) {
-            Map<String, Object> applyTouchdown = new LinkedHashMap<>();
-            applyTouchdown.put("x", mX);
-            applyTouchdown.put("y", mY);
+            Map<String, Object> applyTouchDown = new LinkedHashMap<>();
+            applyTouchDown.put("x", mX);
+            applyTouchDown.put("y", mY);
             Map<String, Object> testResult = new LinkedHashMap<>();
-            commands.add(command("Apply TouchDown", applyTouchdown, testResult));
+            commands.add(command("Apply TouchDown", applyTouchDown, testResult));
         }
         document.touchDown(context, mX, mY);
         return false;

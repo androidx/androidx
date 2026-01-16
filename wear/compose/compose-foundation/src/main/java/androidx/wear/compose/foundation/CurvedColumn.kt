@@ -71,6 +71,7 @@ internal class CurvedColumnChild(
                 currentMaxRadius - node.estimateThickness(currentMaxRadius)
             }
 
+    @Suppress("ListIterator")
     override fun doRadialPosition(
         parentOuterRadius: Float,
         parentThickness: Float,

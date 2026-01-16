@@ -16,14 +16,17 @@
 
 package androidx.xr.glimmer.stack
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeUp
@@ -39,6 +42,7 @@ import androidx.xr.glimmer.GOLDEN_DIRECTORY
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.samples.VerticalStackSample
 import androidx.xr.glimmer.setGlimmerThemeContent
+import androidx.xr.glimmer.testutils.captureToImage
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -104,6 +108,97 @@ class VerticalStackScreenshotTest {
         rule.setGlimmerThemeContent { VerticalStackWithVaryingSizeItems() }
         rule.onRoot().performTouchInput { swipeUp() }
         assertRootAgainstGolden("verticalStack_varyingSizeItems_scrollToNextItem")
+    }
+
+    @Test
+    fun verticalStack_multipleShapes_clipsToWidest() {
+        rule.setGlimmerThemeContent {
+            VerticalStack(modifier = Modifier.height(300.dp)) {
+                item {
+                    Column {
+                        Card(
+                            modifier =
+                                Modifier.fillMaxWidth(fraction = 0.5f)
+                                    .itemDecoration(CardDefaults.shape)
+                        ) {
+                            Text("Item-0: narrow shape")
+                        }
+                        Card(
+                            modifier = Modifier.fillMaxWidth().itemDecoration(CardDefaults.shape)
+                        ) {
+                            Text("Item-0: wide shape")
+                        }
+                    }
+                }
+                item {
+                    Card(modifier = Modifier.fillMaxSize().itemDecoration(CardDefaults.shape)) {
+                        Text("Item-1")
+                    }
+                }
+            }
+        }
+        assertRootAgainstGolden("verticalStack_multipleShapes_clipsToWidest")
+    }
+
+    @Test
+    fun verticalStack_multipleShapes_clipsToTopMostWidest() {
+        rule.setGlimmerThemeContent {
+            VerticalStack(modifier = Modifier.height(300.dp)) {
+                item {
+                    Column {
+                        Card(
+                            modifier = Modifier.fillMaxWidth().itemDecoration(CardDefaults.shape)
+                        ) {
+                            Text("Item-0: wide shape 1")
+                        }
+                        Card(
+                            modifier = Modifier.fillMaxWidth().itemDecoration(CardDefaults.shape)
+                        ) {
+                            Text("Item-0: wide shape 2")
+                        }
+                    }
+                }
+                item {
+                    Card(modifier = Modifier.fillMaxSize().itemDecoration(CardDefaults.shape)) {
+                        Text("Item-1")
+                    }
+                }
+            }
+        }
+        assertRootAgainstGolden("verticalStack_multipleShapes_clipsToTopMostWidest")
+    }
+
+    @Test
+    fun verticalStack_genericShape_clipsToHighestWidestPoint() {
+        val indentedRhombusShape = GenericShape { size, _ ->
+            apply {
+                moveTo(size.width * 0.5f, 0f)
+                lineTo(size.width, size.height * 0.3f)
+                lineTo(size.width * 0.6f, size.height * 0.5f)
+                lineTo(size.width, size.height * 0.7f)
+                lineTo(size.width * 0.5f, size.height)
+                lineTo(0f, size.height * 0.7f)
+                lineTo(size.width * 0.4f, size.height * 0.5f)
+                lineTo(0f, size.height * 0.3f)
+                close()
+            }
+        }
+        rule.setGlimmerThemeContent {
+            VerticalStack(modifier = Modifier.height(300.dp)) {
+                item {
+                    Card(
+                        modifier = Modifier.fillMaxSize().itemDecoration(indentedRhombusShape),
+                        shape = indentedRhombusShape,
+                    ) {}
+                }
+                item {
+                    Card(modifier = Modifier.fillMaxSize().itemDecoration(CardDefaults.shape)) {
+                        Text("Item-1")
+                    }
+                }
+            }
+        }
+        assertRootAgainstGolden("verticalStack_genericShape_clipsToHighestWidestPoint")
     }
 
     @Composable

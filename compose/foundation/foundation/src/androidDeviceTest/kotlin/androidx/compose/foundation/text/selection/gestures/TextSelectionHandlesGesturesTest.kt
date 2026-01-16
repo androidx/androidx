@@ -106,7 +106,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
             selection = 12 to 17
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         withHandlePressed(Handle.SelectionEnd) {
@@ -115,7 +115,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
                 selection = 12 to 13
                 magnifierShown = true
                 textToolbarShown = false
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
 
             moveHandleToCharacter(12)
@@ -125,7 +125,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
             moveHandleToCharacter(11)
             asserter.applyAndAssert {
                 selection = 12 to 11
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
         }
 
@@ -143,7 +143,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
             selection = 12 to 17
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         withHandlePressed(Handle.SelectionEnd) {
@@ -187,7 +187,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
             selection = 6 to 11
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         withHandlePressed(Handle.SelectionEnd) {
@@ -199,7 +199,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
                 selection = 6 to 7
                 textToolbarShown = false
                 magnifierShown = true
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
 
             val y = fetchHandleInfo().position.y
@@ -233,7 +233,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
             selection = 0 to content.length
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         withHandlePressed(Handle.SelectionEnd) {
@@ -244,7 +244,7 @@ internal class TextSelectionHandlesGesturesTest : AbstractSelectionGesturesTest(
                 selection = 0 to 5
                 magnifierShown = true
                 textToolbarShown = false
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
         }
 

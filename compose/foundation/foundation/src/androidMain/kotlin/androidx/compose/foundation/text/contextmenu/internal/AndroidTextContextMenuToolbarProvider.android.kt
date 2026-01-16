@@ -226,13 +226,13 @@ internal class AndroidTextContextMenuToolbarProvider(
         observeReadsAndGet("dataBuilder", onDataChange) { dataProvider.data() }
 
     private fun observeAndGetBounds(dataProvider: TextContextMenuDataProvider): Rect =
-        observeReadsAndGet("positioner", onPositionChange) { calculateBoundsInRoot(dataProvider) }
-
-    private fun calculateBoundsInRoot(dataProvider: TextContextMenuDataProvider): Rect {
-        val destinationCoordinates = coordinatesProvider()
-        val localBoundingBox = dataProvider.contentBounds(destinationCoordinates)
-        return localBoundingBox.translate(destinationCoordinates.positionInRoot())
-    }
+        observeReadsAndGet("positioner", onPositionChange) {
+            val destinationCoordinates =
+                coordinatesProvider().takeIf { it.isAttached }
+                    ?: return@observeReadsAndGet Rect.Zero
+            val localBoundingBox = dataProvider.contentBounds(destinationCoordinates)
+            localBoundingBox.translate(destinationCoordinates.positionInRoot())
+        }
 
     /**
      * Same functionality as [SnapshotStateObserver.observeReads] except this function returns the

@@ -22,7 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.HeadTrackingMode
+import androidx.xr.runtime.Config.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.scenecore.MovableComponent
 import androidx.xr.scenecore.scene
@@ -45,7 +45,8 @@ class AccessibilityTestActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(headTracking = HeadTrackingMode.LAST_KNOWN))
+        session!!.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // toolbar
         findViewById<Toolbar>(R.id.top_app_bar).also {

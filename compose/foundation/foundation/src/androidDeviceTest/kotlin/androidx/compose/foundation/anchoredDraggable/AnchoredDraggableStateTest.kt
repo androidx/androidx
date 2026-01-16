@@ -487,6 +487,7 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
                 remember {
                     createStateAndModifier(initialValue = B, orientation = Orientation.Horizontal)
                 }
+            @Suppress("FrequentlyChangingValue")
             progress = state.progress(from = A, to = B)
             Box(Modifier.fillMaxSize()) {
                 Box(

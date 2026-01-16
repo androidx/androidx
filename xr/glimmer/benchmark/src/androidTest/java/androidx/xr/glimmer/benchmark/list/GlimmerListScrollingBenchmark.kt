@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -49,31 +48,20 @@ import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.benchmark.sendIndirectSwipe
 import androidx.xr.glimmer.list.ListState
 import androidx.xr.glimmer.list.VerticalList
+import androidx.xr.glimmer.testutils.createGlimmerRule
 import kotlinx.coroutines.runBlocking
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class GlimmerVerticalListScrollingBenchmark() {
+class GlimmerVerticalListScrollingBenchmark {
 
-    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule(0) val benchmarkRule = ComposeBenchmarkRule()
 
-    private val savedInitialFocusAvailability = ComposeUiFlags.isInitialFocusOnFocusableAvailable
-
-    @Before
-    fun setUp() {
-        ComposeUiFlags.isInitialFocusOnFocusableAvailable = true
-    }
-
-    @After
-    fun tearDown() {
-        ComposeUiFlags.isInitialFocusOnFocusableAvailable = savedInitialFocusAvailability
-    }
+    @get:Rule(1) val glimmerRule = createGlimmerRule()
 
     @Test
     fun verticalList_measureAndLayoutPhases_afterProgrammaticScroll() {

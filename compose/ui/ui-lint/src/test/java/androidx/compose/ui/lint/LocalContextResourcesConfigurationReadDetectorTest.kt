@@ -377,6 +377,118 @@ Autofix for src/test/test.kt line 39: Replace with ImageVector.vectorResource:
     }
 
     @Test
+    fun errors_splitReferences_notCalledInAComposableScope() {
+        lint()
+            .files(
+                kotlin(
+                    """
+                package test
+
+                import androidx.compose.runtime.Composable
+                import androidx.compose.ui.platform.LocalContext
+
+                fun runOutsideOfComposable(block: () -> Unit) = block()
+
+                @Composable
+                fun Test1() {
+                    val resources = LocalContext.current.resources
+                    runOutsideOfComposable {
+                        resources.configuration
+                    }
+                }
+
+                @Composable
+                fun Test2() {
+                    val context = LocalContext.current
+                    runOutsideOfComposable {
+                        context.resources.configuration
+                    }
+                }
+
+                @Composable
+                fun Test3() {
+                    val context = LocalContext.current
+                    runOutsideOfComposable {
+                        val res = context.resources
+                        res.configuration
+                    }
+                }
+
+                @Composable
+                fun Test4() {
+                    val context = LocalContext.current
+                    runOutsideOfComposable {
+                        val res = context.resources
+                    }
+                }
+
+                @Composable
+                fun Test5() {
+                    val context = LocalContext.current
+                    runOutsideOfComposable {
+                        context.getText(-1)
+                        context.getString(-1)
+                        context.getString(-1, Any())
+                        context.getColor(-1)
+                        context.getDrawable(-1)
+                        context.getColorStateList(-1)
+                    }
+                }
+            """
+                ),
+                LocalContextStub,
+                Stubs.Composable,
+                Stubs.CompositionLocal,
+                AndroidStubs.Context,
+                AndroidStubs.Resources,
+                AndroidStubs.Configuration,
+                AndroidStubs.Drawable,
+                AndroidStubs.ColorStateList,
+            )
+            .run()
+            .expect(
+                """
+src/test/test.kt:13: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+                        resources.configuration
+                        ~~~~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:21: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+                        context.resources.configuration
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:30: Error: Reading Configuration using LocalContext.current.resources.configuration [LocalContextConfigurationRead]
+                        res.configuration
+                        ~~~~~~~~~~~~~~~~~
+src/test/test.kt:46: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+                        context.getText(-1)
+                        ~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:47: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+                        context.getString(-1)
+                        ~~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:48: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+                        context.getString(-1, Any())
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:49: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+                        context.getColor(-1)
+                        ~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:50: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+                        context.getDrawable(-1)
+                        ~~~~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:51: Error: Querying resource values using LocalContext.current [LocalContextGetResourceValueCall]
+                        context.getColorStateList(-1)
+                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+src/test/test.kt:38: Warning: Reading Resources using LocalContext.current.resources [LocalContextResourcesRead]
+                        val res = context.resources
+                                  ~~~~~~~~~~~~~~~~~
+9 errors, 1 warning
+            """
+            )
+            // Shouldn't have any fixes
+            .expectFixDiffs(
+                """
+                """
+            )
+    }
+
+    @Test
     fun ignoresOtherLocalContextDefinitions() {
         lint()
             .files(

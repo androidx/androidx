@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.subspace.node
 
+import androidx.annotation.RestrictTo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.xr.compose.unit.IntVolumeSize
 import androidx.xr.runtime.math.Pose
@@ -29,6 +30,7 @@ import androidx.xr.scenecore.Entity
  * accessibility services and testing. Each `SubspaceSemanticsInfo` node represents a composable in
  * the UI tree that has semantics attached.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface SubspaceSemanticsInfo {
 
     /** The unique ID of this semantics node. */

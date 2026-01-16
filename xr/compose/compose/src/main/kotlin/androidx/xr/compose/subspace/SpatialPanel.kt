@@ -487,7 +487,7 @@ public fun SpatialPanel(
     AndroidViewPanel(
         factory = {
             ComposeView(context).apply {
-                id = android.R.id.content
+                id = View.generateViewId()
 
                 // Set the strategy to automatically dispose the composition
                 // when the ComposeView is detached from the window.

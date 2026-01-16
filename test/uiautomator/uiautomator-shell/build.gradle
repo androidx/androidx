@@ -51,25 +51,15 @@ androidXMultiplatform {
     }
 
     sourceSets {
-        commonMain {
-            dependencies {
-            }
+        androidMain.dependencies {
+            implementation(libs.testCore)
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.testCore)
-            }
-        }
-
-        androidDeviceTest {
-            dependencies {
-                implementation(libs.testCore)
-                implementation(libs.testExtJunit)
-                implementation(libs.testRunner)
-                implementation(project(":kruth:kruth"))
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testCore)
+            implementation(libs.testExtJunit)
+            implementation(libs.testRunner)
+            implementation(project(":kruth:kruth"))
         }
     }
 

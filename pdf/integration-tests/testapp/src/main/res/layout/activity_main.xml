@@ -65,6 +65,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:text="@string/save_string"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/launch_button"
         app:layout_constraintEnd_toStartOf="@+id/preference_button"
         app:layout_constraintStart_toEndOf="@+id/search_pdf_button"

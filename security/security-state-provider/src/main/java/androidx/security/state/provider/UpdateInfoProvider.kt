@@ -28,8 +28,9 @@ import android.net.Uri
 /**
  * A content provider that serves update information for system components.
  *
- * This class retrieves [UpdateInfo] stored in JSON format and serves it via a content URI. It only
- * supports the [query] operation; [insert], [delete], and [update] operations are not permitted.
+ * This class retrieves [androidx.security.state.UpdateInfo] stored in JSON format and serves it via
+ * a content URI. It only supports the [query] operation; [insert], [delete], and [update]
+ * operations are not permitted.
  *
  * Typically, OTA or other update clients utilize this provider to expose update information to
  * other applications or components within the system that need access to the latest security
@@ -69,7 +70,8 @@ public class UpdateInfoProvider : ContentProvider() {
      * Handles queries for the update information.
      *
      * This method only responds to queries directed at the specific content URI corresponding to
-     * update data. It returns a [Cursor] containing [UpdateInfo] represented in JSON format.
+     * update data. It returns a [Cursor] containing [androidx.security.state.UpdateInfo]
+     * represented in JSON format.
      *
      * @param uri The URI to query. This must match the expected content URI for update data.
      * @param projection The list of columns to put into the cursor. If null, all columns are

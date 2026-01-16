@@ -17,7 +17,7 @@
 package flaggedapi
 
 import android.flagging.FlaggedApiContainer
-import androidx.annotation.RequiresAconfigFlag
+import androidx.annotation.RequiresFlag
 import androidx.core.flagging.Flags
 
 @Suppress("unused")
@@ -32,7 +32,7 @@ class FlaggedUsageInOutline {
         FlagFlaggedApiImpl.innerApi()
     }
 
-    @RequiresAconfigFlag("flaggedapi.myFlag")
+    @RequiresFlag("flaggedapi.myFlag")
     object FlagFlaggedApiImpl {
         fun innerApi(): Boolean {
             return FlaggedApiContainer.innerApi()

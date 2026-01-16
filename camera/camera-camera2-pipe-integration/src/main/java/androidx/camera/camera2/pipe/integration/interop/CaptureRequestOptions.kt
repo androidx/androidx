@@ -33,6 +33,7 @@ import androidx.camera.core.impl.ReadableConfig
  * @constructor Creates a CaptureRequestOptions for reading Camera2 capture request options from the
  *   given config.
  */
+@Suppress("HiddenSuperclass")
 @ExperimentalCamera2Interop
 public open class CaptureRequestOptions
 private constructor(private val config: Config, @Suppress("UNUSED_PARAMETER") unused: Boolean) :

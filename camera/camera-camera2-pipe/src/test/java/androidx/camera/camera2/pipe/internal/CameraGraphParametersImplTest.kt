@@ -20,9 +20,9 @@ import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.graph.GraphProcessorImpl
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
@@ -72,7 +72,7 @@ class CameraGraphParametersImplTest {
                     FakeCamera2MetadataProvider(
                         mapOf(CameraId("0") to FakeCameraMetadata(cameraId = CameraId("0")))
                     ),
-                cameraPipeFlags = CameraPipe.Flags(),
+                strictMode = StrictMode(false),
             ),
         )
     private val surfaceMap = mapOf(StreamId(0) to Surface(SurfaceTexture(1)))

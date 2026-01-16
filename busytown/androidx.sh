@@ -16,6 +16,8 @@ EXIT_VALUE=0
 # Validate translation exports, if present
 if ! busytown/impl/check_translations.sh; then
   EXIT_VALUE=1
+elif ! busytown/impl/verify-gradle-signature.sh; then
+  EXIT_VALUE=1
 else
   # Run Gradle
   # If/when we enable desktop, enable VerifyDependencyVersionsTask.kt/shouldVerifyConfiguration

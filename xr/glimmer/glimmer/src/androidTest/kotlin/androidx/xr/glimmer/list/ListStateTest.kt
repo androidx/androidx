@@ -206,10 +206,10 @@ class ListStateTest(orientation: Orientation) : BaseListTestWithOrientation(orie
         }
 
         // Check the auto focus parameters were calculated correctly.
-        Truth.assertThat(state.autoFocusBehaviour.properties?.focusScroll).isEqualTo(200f)
+        Truth.assertThat(state.autoFocusState.properties?.focusScroll).isEqualTo(200f)
         // TODO(b/462040962): Investigate how viewport adjustments reverses contentScroll by
         //  firstVisibleItemScrollOffset when TestList is focused.
-        Truth.assertThat(state.autoFocusBehaviour.properties?.contentScroll)
+        Truth.assertThat(state.autoFocusState.properties?.contentScroll)
             .isEqualTo(if (orientation == Orientation.Vertical) 5042f else 5000f)
     }
 

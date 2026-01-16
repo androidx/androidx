@@ -18,6 +18,7 @@ package androidx.webgpu
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.webgpu.GPU.createInstance
 import androidx.webgpu.helper.Util
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,8 +35,8 @@ class ObjectTest {
         val surface =
             createInstance()
                 .createSurface(
-                    SurfaceDescriptor(
-                        surfaceSourceAndroidNativeWindow = SurfaceSourceAndroidNativeWindow(0)
+                    GPUSurfaceDescriptor(
+                        surfaceSourceAndroidNativeWindow = GPUSurfaceSourceAndroidNativeWindow(0)
                     )
                 )
 
@@ -57,8 +58,8 @@ class ObjectTest {
         val instance = createInstance()
 
         val surfaceDescriptor =
-            SurfaceDescriptor(
-                surfaceSourceAndroidNativeWindow = SurfaceSourceAndroidNativeWindow(0)
+            GPUSurfaceDescriptor(
+                surfaceSourceAndroidNativeWindow = GPUSurfaceSourceAndroidNativeWindow(0)
             )
 
         val surface1 = instance.createSurface(surfaceDescriptor)

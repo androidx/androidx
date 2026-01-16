@@ -1,131 +1,42 @@
-diff --git a/benchmark/benchmark-darwin-samples/build.gradle b/benchmark/benchmark-darwin-samples/build.gradle
-index 926aac6c970..a458eca42ae 100644
---- a/benchmark/benchmark-darwin-samples/build.gradle
-+++ b/benchmark/benchmark-darwin-samples/build.gradle
-@@ -39,9 +39,6 @@ androidXMultiplatform {
-         iosSimulatorArm64Main {
-             dependsOn(iosMain)
-         }
--        iosX64Main {
--            dependsOn(iosMain)
--        }
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt b/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt
+index a66f676e7b4..5e634e4ab65 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/BinaryCompatibilityValidation.kt
+@@ -42,7 +42,7 @@ import org.gradle.api.file.RegularFile
+ import org.gradle.api.file.RegularFileProperty
+ import org.gradle.api.provider.Provider
+ import org.gradle.api.tasks.TaskProvider
+-import org.jetbrains.kotlin.abi.tools.api.v2.KlibTarget
++import org.jetbrains.kotlin.abi.tools.KlibTarget
+ import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+ import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
+ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+diff --git a/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/GenerateAbiTask.kt b/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/GenerateAbiTask.kt
+index c9da66caf83..477cd2f6630 100644
+--- a/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/GenerateAbiTask.kt
++++ b/buildSrc/private/src/main/kotlin/androidx/build/binarycompatibilityvalidator/GenerateAbiTask.kt
+@@ -37,9 +37,9 @@ import org.gradle.api.tasks.TaskAction
+ import org.gradle.workers.WorkAction
+ import org.gradle.workers.WorkParameters
+ import org.gradle.workers.WorkerExecutor
+-import org.jetbrains.kotlin.abi.tools.AbiToolsFactory
+-import org.jetbrains.kotlin.abi.tools.api.AbiFilters
+-import org.jetbrains.kotlin.abi.tools.api.v2.KlibTarget
++import org.jetbrains.kotlin.abi.tools.AbiFilters
++import org.jetbrains.kotlin.abi.tools.AbiTools
++import org.jetbrains.kotlin.abi.tools.KlibTarget
+ 
+ @CacheableTask
+ abstract class GenerateAbiTask
+@@ -78,7 +78,7 @@ abstract class KlibDumpWorker : WorkAction<KlibDumpWorker.Parameters> {
+         abstract val excludedAnnotatedWith: SetProperty<String>
      }
  
-     targets.configureEach { target ->
-diff --git a/benchmark/benchmark-darwin/build.gradle b/benchmark/benchmark-darwin/build.gradle
-index 197f1ad80c2..0eec578f9d5 100644
---- a/benchmark/benchmark-darwin/build.gradle
-+++ b/benchmark/benchmark-darwin/build.gradle
-@@ -51,9 +51,6 @@ androidXMultiplatform {
-         iosSimulatorArm64Main {
-             dependsOn(iosMain)
-         }
--        iosX64Main {
--            dependsOn(iosMain)
--        }
-         targets.configureEach { target ->
-             if (target.platformType == KotlinPlatformType.native) {
-                 target.compilations["main"].defaultSourceSet {
-diff --git a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
-index 36fb2dca9e2..db1e02439ba 100644
---- a/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
-+++ b/buildSrc/private/src/main/kotlin/androidx/build/AndroidXMultiplatformExtension.kt
-@@ -505,17 +505,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
-     /** Configures all mac targets supported by AndroidX. */
-     @JvmOverloads
-     fun mac(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
--        return listOfNotNull(macosX64(block), macosArm64(block))
--    }
--
--    @JvmOverloads
--    fun macosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
--        supportedPlatforms.add(PlatformIdentifier.MAC_OSX_64)
--        return if (project.enableMac()) {
--            kotlinExtension.macosX64 { block?.execute(this) }
--        } else {
--            null
--        }
-+        return listOfNotNull(macosArm64(block))
-     }
+-    private val abiTools = AbiToolsFactory().get().v2
++    private val abiTools = AbiTools.getInstance()
  
-     @JvmOverloads
-@@ -531,7 +521,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
-     /** Configures all ios targets supported by AndroidX. */
-     @JvmOverloads
-     fun ios(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
--        return listOfNotNull(iosX64(block), iosArm64(block), iosSimulatorArm64(block))
-+        return listOfNotNull(iosArm64(block), iosSimulatorArm64(block))
-     }
- 
-     @JvmOverloads
-@@ -544,16 +534,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
-         }
-     }
- 
--    @JvmOverloads
--    fun iosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
--        supportedPlatforms.add(PlatformIdentifier.IOS_X_64)
--        return if (project.enableMac()) {
--            kotlinExtension.iosX64 { block?.execute(this) }
--        } else {
--            null
--        }
--    }
--
-     @JvmOverloads
-     fun iosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-         supportedPlatforms.add(PlatformIdentifier.IOS_SIMULATOR_ARM_64)
-@@ -568,7 +548,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
-     @JvmOverloads
-     fun watchos(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
-         return listOfNotNull(
--            watchosX64(block),
-             watchosArm32(block),
-             watchosArm64(block),
-             watchosDeviceArm64(block),
-@@ -606,16 +585,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
-         }
-     }
- 
--    @JvmOverloads
--    fun watchosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
--        supportedPlatforms.add(PlatformIdentifier.WATCHOS_X_64)
--        return if (project.enableMac()) {
--            kotlinExtension.watchosX64 { block?.execute(this) }
--        } else {
--            null
--        }
--    }
--
-     @JvmOverloads
-     fun watchosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-         supportedPlatforms.add(PlatformIdentifier.WATCHOS_SIMULATOR_ARM_64)
-@@ -629,7 +598,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
-     /** Configures all tvos targets supported by AndroidX. */
-     @JvmOverloads
-     fun tvos(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
--        return listOfNotNull(tvosX64(block), tvosArm64(block), tvosSimulatorArm64(block))
-+        return listOfNotNull(tvosArm64(block), tvosSimulatorArm64(block))
-     }
- 
-     @JvmOverloads
-@@ -642,16 +611,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
-         }
-     }
- 
--    @JvmOverloads
--    fun tvosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
--        supportedPlatforms.add(PlatformIdentifier.TVOS_X_64)
--        return if (project.enableMac()) {
--            kotlinExtension.tvosX64 { block?.execute(this) }
--        } else {
--            null
--        }
--    }
--
-     @JvmOverloads
-     fun tvosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-         supportedPlatforms.add(PlatformIdentifier.TVOS_SIMULATOR_ARM_64)
+     override fun execute() {
+         val klibTargets = parameters.klibs.get()
 diff --git a/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt b/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
 index abf6e304bcd..1cdc74bc684 100644
 --- a/buildSrc/private/src/main/kotlin/androidx/build/clang/KonanBuildService.kt
@@ -153,34 +64,8 @@ index c666ca828d7..453135288ea 100644
      LATEST(KOTLIN_2_2);
  
      constructor(
-diff --git a/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt b/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
-index 81211bc8665..e11c8cc95af 100644
---- a/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
-+++ b/buildSrc/public/src/main/kotlin/androidx/build/KmpPlatforms.kt
-@@ -65,21 +65,17 @@ enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
-     ANDROID_NATIVE_X86("androidNativeX86", PlatformGroup.ANDROID_NATIVE),
-     ANDROID_NATIVE_X64("androidNativeX64", PlatformGroup.ANDROID_NATIVE),
-     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
--    MAC_OSX_64("macosx64", PlatformGroup.MAC),
-     MINGW_X_64("mingwx64", PlatformGroup.WINDOWS),
-     LINUX_ARM_64("linuxarm64", PlatformGroup.LINUX),
-     LINUX_X_64("linuxx64", PlatformGroup.LINUX),
-     LINUX_X_64_STUBS("linuxx64Stubs", PlatformGroup.LINUX),
-     IOS_SIMULATOR_ARM_64("iossimulatorarm64", PlatformGroup.MAC),
--    IOS_X_64("iosx64", PlatformGroup.MAC),
-     IOS_ARM_64("iosarm64", PlatformGroup.MAC),
-     WATCHOS_SIMULATOR_ARM_64("watchossimulatorarm64", PlatformGroup.MAC),
--    WATCHOS_X_64("watchosx64", PlatformGroup.MAC),
-     WATCHOS_ARM_32("watchosarm32", PlatformGroup.MAC),
-     WATCHOS_ARM_64("watchosarm64", PlatformGroup.MAC),
-     WATCHOS_DEVICE_ARM_64("watchosdevicearm64", PlatformGroup.MAC),
-     TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),
--    TVOS_X_64("tvosx64", PlatformGroup.MAC),
-     TVOS_ARM_64("tvosarm64", PlatformGroup.MAC),
-     DESKTOP("desktop", PlatformGroup.JVM);
- 
 diff --git a/buildSrc/shared.gradle b/buildSrc/shared.gradle
-index b27c1ab28af..add98e68e37 100644
+index 6e87c6dd9b4..5b18e697fd2 100644
 --- a/buildSrc/shared.gradle
 +++ b/buildSrc/shared.gradle
 @@ -48,7 +48,7 @@ tasks.withType(KotlinCompile).configureEach { task ->
@@ -193,25 +78,3 @@ index b27c1ab28af..add98e68e37 100644
 +        apiVersion.set(KotlinVersion.KOTLIN_2_1)
      }
  }
-diff --git a/collection/collection/bcv/native/current.txt b/collection/collection/bcv/native/current.txt
-index 334dcc159d1..3289f1f5928 100644
---- a/collection/collection/bcv/native/current.txt
-+++ b/collection/collection/bcv/native/current.txt
-@@ -1,5 +1,5 @@
- // Klib ABI Dump
--// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, mingwX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
-+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, mingwX64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
- // Rendering settings:
- // - Signature version: 2
- // - Show manifest properties: true
-diff --git a/tracing/tracing/bcv/native/current.txt b/tracing/tracing/bcv/native/current.txt
-index 9fefa573765..e4b95a1ff9b 100644
---- a/tracing/tracing/bcv/native/current.txt
-+++ b/tracing/tracing/bcv/native/current.txt
-@@ -1,5 +1,5 @@
- // Klib ABI Dump
--// Targets: [macosArm64, macosX64]
-+// Targets: [macosArm64]
- // Rendering settings:
- // - Signature version: 2
- // - Show manifest properties: true

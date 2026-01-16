@@ -70,6 +70,7 @@ import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Ray
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 
@@ -85,8 +86,7 @@ class GeospatialActivity : ComponentActivity(), DefaultLifecycleObserver {
     private lateinit var sampleRender: SampleRender
     private lateinit var renderer: SampleRender.Companion.Renderer
 
-    // TODO: b/414825430 - Add synchronization for accessing anchors list.
-    private val anchors = mutableListOf<Anchor>()
+    private val anchors = CopyOnWriteArrayList<Anchor>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<ComponentActivity>.onCreate(savedInstanceState)

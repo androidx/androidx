@@ -90,8 +90,9 @@ class RemoteTimeTextTest {
         val bytes =
             withContext(Dispatchers.Main) {
                 captureSingleRemoteDocument(context, profile = TestProfiles.androidNativeProfile) {
-                    content()
-                }
+                        content()
+                    }
+                    .bytes
             }
         assertTrue(bytes.isNotEmpty())
     }

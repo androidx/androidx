@@ -88,6 +88,7 @@ public class MultiSlotLayout implements LayoutElement {
     }
 
     /** Builder class for {@link MultiSlotLayout}. */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
 
         private final @NonNull List<LayoutElement> mSlotsContent = new ArrayList<>();

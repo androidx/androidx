@@ -60,7 +60,7 @@ public class AuthenticationSampleActivity extends FragmentActivity {
                         // Handle intermediate authentication failure, this is optional and
                         // not needed in most cases
                         @Override
-                        public void onAuthFailure() {
+                        public void onAuthAttemptFailed() {
                             Log.i(TAG, "onAuthenticationFailed, try again");
                         }
                     }

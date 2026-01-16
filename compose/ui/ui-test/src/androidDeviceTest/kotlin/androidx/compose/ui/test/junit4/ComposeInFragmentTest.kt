@@ -47,8 +47,8 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.runComposeUiTest
-import androidx.compose.ui.test.runEmptyComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
+import androidx.compose.ui.test.v2.runEmptyComposeUiTest
 import androidx.compose.ui.unit.dp
 import androidx.core.view.doOnNextLayout
 import androidx.fragment.app.DialogFragment
@@ -62,7 +62,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -132,7 +131,7 @@ class ComposeInFragmentTest {
 
         val latch = CountDownLatch(1)
 
-        runComposeUiTest(StandardTestDispatcher()) {
+        runComposeUiTest {
             val mainFragment = MainFragment()
 
             // Launch fragment containing fragment with dialog

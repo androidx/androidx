@@ -32,6 +32,7 @@ import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -51,6 +52,18 @@ import okhttp3.mockwebserver.RecordedRequest;
 @RunWith(AndroidJUnit4.class)
 public class NavigationListenerTest {
 
+    private static class PerformanceMark {
+        public final Page page;
+        public final String markName;
+        public final long markTimeMs;
+
+        PerformanceMark(Page markPage, String name, long timeMs) {
+            page = markPage;
+            markName = name;
+            markTimeMs = timeMs;
+        }
+    }
+
     public WebViewOnUiThread mWebViewOnUiThread;
     private WebView mWebView;
     private RecordingNavigationListener mListener;
@@ -68,7 +81,14 @@ public class NavigationListenerTest {
         public final BlockingQueue<Page> mOnPageLoadEventFiredQueue = new LinkedBlockingQueue<>();
         public final BlockingQueue<Page> mOnPageDomContentLoadedEventFiredQueue =
                 new LinkedBlockingQueue<>();
+
+        public final BlockingQueue<Pair<Page, Long>> mOnFirstContentfulPaintMicrosQueue =
+                new LinkedBlockingQueue<>();
         public final BlockingQueue<Pair<Page, Long>> mOnFirstContentfulPaintQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<Pair<Page, Long>> mOnLargestContentfulPaintQueue =
+                new LinkedBlockingQueue<>();
+        public final BlockingQueue<PerformanceMark> mOnPerformanceMarkQueue =
                 new LinkedBlockingQueue<>();
 
 
@@ -106,7 +126,22 @@ public class NavigationListenerTest {
 
         @Override
         public void onFirstContentfulPaint(@NonNull Page page, long fcpDurationUs) {
-            mOnFirstContentfulPaintQueue.add(new Pair<>(page, fcpDurationUs));
+            mOnFirstContentfulPaintMicrosQueue.add(new Pair<>(page, fcpDurationUs));
+        }
+
+        @Override
+        public void onFirstContentfulPaintMillis(@NonNull Page page, long fcpDurationMs) {
+            mOnFirstContentfulPaintQueue.add(new Pair<>(page, fcpDurationMs));
+        }
+
+        @Override
+        public void onLargestContentfulPaintMillis(@NonNull Page page, long lcpDurationMs) {
+            mOnLargestContentfulPaintQueue.add(new Pair<>(page, lcpDurationMs));
+        }
+
+        @Override
+        public void onPerformanceMarkMillis(@NonNull Page page, String markName, long markTimeMs) {
+            mOnPerformanceMarkQueue.add(new PerformanceMark(page, markName, markTimeMs));
         }
 
         public void clearRecordedEvents() {
@@ -116,7 +151,10 @@ public class NavigationListenerTest {
             mOnPageDeletedQueue.clear();
             mOnPageLoadEventFiredQueue.clear();
             mOnPageDomContentLoadedEventFiredQueue.clear();
+            mOnFirstContentfulPaintMicrosQueue.clear();
             mOnFirstContentfulPaintQueue.clear();
+            mOnLargestContentfulPaintQueue.clear();
+            mOnPerformanceMarkQueue.clear();
         }
 
     }
@@ -308,17 +346,61 @@ public class NavigationListenerTest {
                     mListener.mOnPageDomContentLoadedEventFiredQueue);
             Assert.assertEquals(navigationCompletePage, domContentLoadedPage);
 
-            Pair<Page, Long> firstContentfulPaint = waitForNextQueueElement(
-                    mListener.mOnFirstContentfulPaintQueue);
-            Page firstContentfulPaintPage = firstContentfulPaint.first;
-            Assert.assertEquals(navigationCompletePage, firstContentfulPaintPage);
-            Assert.assertTrue(firstContentfulPaint.second > 0);
+            Pair<Page, Long> firstContentfulPaintMicros = waitForNextQueueElement(
+                    mListener.mOnFirstContentfulPaintMicrosQueue);
+            Page firstContentfulPaintMicrosPage = firstContentfulPaintMicros.first;
+            Assert.assertEquals(navigationCompletePage, firstContentfulPaintMicrosPage);
+            Assert.assertTrue(firstContentfulPaintMicros.second > 0);
         }
 
         // Tearing down the activity and WebView will delete the page.
         Page deletedPage = waitForNextQueueElement(mListener.mOnPageDeletedQueue);
         Assert.assertEquals(loadedPage, deletedPage);
+    }
 
+    @Test
+    @Ignore("http://b/473998983")
+    public void isSamePageObject_listenerV2() throws Exception {
+        WebkitUtils.checkFeature(
+                WebViewFeature.WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2);
+        // Success URL is obtained outside of the activity scope in order to avoid a
+        // StrictModeViolation for attempting to resolve the hostname on the main thread.
+        final String successUrl = getSuccessUrl();
+        try (ActivityScenario<WebViewTestActivity> scenario = ActivityScenario.launch(
+                WebViewTestActivity.class)) {
+            // The onFirstContentfulPaint event is only triggered if the WebView is attached to
+            // the view hierarchy, so this test runs in an Activity.
+            scenario.onActivity(activity -> {
+                WebView webView = activity.getWebView();
+                WebViewCompat.addNavigationListener(webView, mListener);
+                webView.getSettings().setJavaScriptEnabled(true);
+                webView.loadUrl(successUrl);
+            });
+
+            Navigation completedNavigation = waitForNextQueueElement(
+                    mListener.mOnNavigationCompletedQueue);
+
+            Page navigationCompletePage = completedNavigation.getPage();
+            Assert.assertNotNull(navigationCompletePage);
+
+            Pair<Page, Long> firstContentfulPaint = waitForNextQueueElement(
+                    mListener.mOnFirstContentfulPaintQueue);
+            Page firstContentfulPaintPage = firstContentfulPaint.first;
+            Assert.assertEquals(navigationCompletePage, firstContentfulPaintPage);
+            Assert.assertTrue(firstContentfulPaint.second > 0);
+
+            Pair<Page, Long> largestContentfulPaint = waitForNextQueueElement(
+                    mListener.mOnLargestContentfulPaintQueue);
+            Page largestContentfulPaintPage = largestContentfulPaint.first;
+            Assert.assertEquals(navigationCompletePage, largestContentfulPaintPage);
+            Assert.assertTrue(largestContentfulPaint.second > 0);
+
+            PerformanceMark performanceMark = waitForNextQueueElement(
+                    mListener.mOnPerformanceMarkQueue);
+            Assert.assertEquals(navigationCompletePage, performanceMark.page);
+            Assert.assertTrue(performanceMark.markName.equals("testMark"));
+            Assert.assertTrue(performanceMark.markTimeMs > 0);
+        }
     }
 
     @Test
@@ -400,7 +482,9 @@ public class NavigationListenerTest {
                 response.setHeader("Location", destination);
             } else {
                 response.setHeader("Content-Type", "text/html");
-                response.setBody("<!DOCTYPE html>\n<body><h1>Success</h1></body>");
+                response.setBody("<!DOCTYPE html>\n"
+                        + "<script>performance.mark(\"testMark\");</script>\n"
+                        + "<body><h1>Success</h1></body>");
             }
             return response;
         }

@@ -80,6 +80,7 @@ class VisibilityActivity : AppCompatActivity() {
         // Create rendering session
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // Toolbar action
         findViewById<Toolbar>(R.id.visibility_top_app_bar).also {
@@ -192,6 +193,7 @@ class VisibilityActivity : AppCompatActivity() {
                 session!!.scene.requestHomeSpaceMode()
                 spatialMode = SpatialMode.HSM
             }
+
             SpatialMode.HSM -> {
                 session!!.scene.requestFullSpaceMode()
                 spatialMode = SpatialMode.FSM

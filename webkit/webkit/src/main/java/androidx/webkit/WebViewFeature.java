@@ -126,6 +126,7 @@ public class WebViewFeature {
             NAVIGATION_LISTENER_V1,
             PAYMENT_REQUEST,
             WEBVIEW_BUILDER_EXPERIMENTAL_V1,
+            WEBVIEW_BUILDER_EXPERIMENTAL_V2,
             WARM_UP_RENDERER_PROCESS,
             PRECONNECT,
             PROVIDER_WEAKLY_REF_WEBVIEW,
@@ -133,7 +134,8 @@ public class WebViewFeature {
             ORIGIN_MATCHED_HEADERS,
             CUSTOM_REQUEST_HEADERS,
             ADD_QUIC_HINTS_V1,
-            NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED
+            NAVIGATION_LISTENER_ON_COMPLETED_FIRES_FOR_NON_COMMITTED,
+            WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2
     })
     @Retention(RetentionPolicy.SOURCE)
     @Target({ElementType.PARAMETER, ElementType.METHOD})
@@ -755,6 +757,16 @@ public class WebViewFeature {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers:
+     * {@link WebViewBuilder#applyTo(WebView)}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WebViewBuilder.Experimental
+    public static final String WEBVIEW_BUILDER_EXPERIMENTAL_V2 =
+            "WEBVIEW_BUILDER_EXPERIMENTAL_V2";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
      * {@link WebResourceResponseCompat#setCookies(List)}, as well as
      * {@link WebSettingsCompat#setCookiesIncludedInShouldInterceptRequest(WebSettings, boolean)}
@@ -863,6 +875,18 @@ public class WebViewFeature {
     @WebNavigationClient.ExperimentalNavigationCallback
     public static final String NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS =
             "NAVIGATION_LISTENER_NON_NULL_PAGE_FOR_SAME_DOCUMENT_NAVIGATIONS";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link NavigationListener#onFirstContentfulPaintMillis(Page, long)},
+     * {@link NavigationListener#onLargestContentfulPaintMillis(Page, long)}, and
+     * {@link NavigationListener#onPerformanceMarkMillis(Page, String, long)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @WebNavigationClient.ExperimentalNavigationCallback
+    public static final String WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2 =
+            "WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2";
 
     /**
      * This is an internal only feature that indicate whether it is safe to cache WebView Provider

@@ -22,10 +22,8 @@ import static androidx.xr.runtime.testing.math.MathAssertions.assertVector3;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -43,9 +41,6 @@ import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
-import androidx.xr.scenecore.impl.perception.Plane;
-import androidx.xr.scenecore.impl.perception.Session;
 import androidx.xr.scenecore.runtime.AnchorEntity.OnStateChangedListener;
 import androidx.xr.scenecore.runtime.AnchorEntity.State;
 import androidx.xr.scenecore.runtime.Space;
@@ -77,90 +72,24 @@ import java.util.UUID;
 @Config(sdk = {Config.TARGET_SDK})
 @SuppressLint("NewApi") // TODO: b/413661481 - Remove this suppression prior to JXR stable release.
 public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
-    private static class FakeExportableAnchor implements ExportableAnchor {
-        private final long mNativePointer;
-        private final IBinder mAnchorToken;
-        private final Pose mPose;
-        private final TrackingState mTrackingState;
-        private final PersistenceState mPersistenceState;
-        private final UUID mUuid;
-
-        FakeExportableAnchor(
-                long nativePointer,
-                IBinder anchorToken,
-                Pose pose,
-                TrackingState trackingState,
-                PersistenceState persistenceState,
-                UUID uuid) {
-            mNativePointer = nativePointer;
-            mAnchorToken = anchorToken;
-            mPose = pose;
-            mTrackingState = trackingState;
-            mPersistenceState = persistenceState;
-            mUuid = uuid;
-        }
-
-        @Override
-        public long getNativePointer() {
-            return mNativePointer;
-        }
-
-        @Override
-        public @NonNull IBinder getAnchorToken() {
-            return mAnchorToken;
-        }
-
-        @Override
-        public @NonNull Pose getPose() {
-            return mPose;
-        }
-
-        @Override
-        public @NonNull TrackingState getTrackingState() {
-            return mTrackingState;
-        }
-
-        @Override
-        public @NonNull PersistenceState getPersistenceState() {
-            return mPersistenceState;
-        }
-
-        @Override
-        public UUID getUuid() {
-            return mUuid;
-        }
-
-        @Override
-        public void detach() {}
-
-        @Override
-        public void persist() {}
-    }
-
     private static final long NATIVE_POINTER = 1234567890L;
     private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
-    private final PerceptionLibrary mPerceptionLibrary = Mockito.mock(PerceptionLibrary.class);
-    private final Session mSession = Mockito.mock(Session.class);
-    private final Plane mPlane = mock(Plane.class);
-    private final androidx.xr.scenecore.impl.perception.Anchor mAnchor =
-            Mockito.mock(androidx.xr.scenecore.impl.perception.Anchor.class);
     private final OnStateChangedListener mAnchorStateListener =
             Mockito.mock(OnStateChangedListener.class);
     private final IBinder mSharedAnchorToken = Mockito.mock(IBinder.class);
     private final FakeScheduledExecutorService mExecutor = new FakeScheduledExecutorService();
     private final EntityManager mEntityManager = new EntityManager();
-    private final long mCurrentTimeMillis = 1000000000L;
-    private ActivitySpaceImpl mActivitySpace;
 
     @Rule
     public GrantPermissionRule mGrantPermissionRule =
             GrantPermissionRule.grant("android.permission.SCENE_UNDERSTANDING");
 
+    private ActivitySpaceImpl mActivitySpace;
+
     @Before
     public void doBeforeEachTest() {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
-        when(mPerceptionLibrary.getActivity()).thenReturn(activity);
         Node taskNode = Objects.requireNonNull(mXrExtensions).createNode();
         mActivitySpace =
                 new ActivitySpaceImpl(
@@ -171,9 +100,9 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
                         () -> mXrExtensions.getSpatialState(activity),
                         /* unscaledGravityAlignedActivitySpace= */ false,
                         mExecutor);
-        SystemClock.setCurrentTimeMillis(mCurrentTimeMillis);
-        mEntityManager.addSystemSpaceActivityPose(
-                new PerceptionSpaceScenePoseImpl(mActivitySpace, mActivitySpace));
+        long currentTimeMillis = 1000000000L;
+        SystemClock.setCurrentTimeMillis(currentTimeMillis);
+        mEntityManager.addSystemSpaceActivityPose(new PerceptionSpaceScenePoseImpl(mActivitySpace));
     }
 
     /**
@@ -205,13 +134,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
         return AnchorEntityImpl.create(
-                activity,
-                node,
-                mActivitySpace,
-                mActivitySpace,
-                mXrExtensions,
-                mEntityManager,
-                mExecutor);
+                activity, node, mActivitySpace, mXrExtensions, mEntityManager, mExecutor);
     }
 
     private AnchorEntityImpl createAnchorEntityWithRuntimeAnchor() {
@@ -220,13 +143,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         Activity activity = activityController.create().start().get();
         AnchorEntityImpl anchorEntity =
                 AnchorEntityImpl.create(
-                        activity,
-                        node,
-                        mActivitySpace,
-                        mActivitySpace,
-                        mXrExtensions,
-                        mEntityManager,
-                        mExecutor);
+                        activity, node, mActivitySpace, mXrExtensions, mEntityManager, mExecutor);
         FakeExportableAnchor runtimeAnchor =
                 new FakeExportableAnchor(
                         NATIVE_POINTER,
@@ -244,13 +161,7 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
         Activity activity = activityController.create().start().get();
         return AnchorEntityImpl.create(
-                activity,
-                node,
-                mActivitySpace,
-                mActivitySpace,
-                mXrExtensions,
-                mEntityManager,
-                mExecutor);
+                activity, node, mActivitySpace, mXrExtensions, mEntityManager, mExecutor);
     }
 
     /** Creates a generic glTF entity. */
@@ -430,7 +341,6 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
                         activity,
                         node,
                         /* activitySpace= */ null,
-                        mActivitySpace,
                         mXrExtensions,
                         mEntityManager,
                         mExecutor);
@@ -439,7 +349,6 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         assertThrows(IllegalStateException.class, anchorEntity::getPoseInActivitySpace);
     }
 
-    // Modified for no ActivitySpaceRoot case.
     @Test
     public void getActivitySpacePose_whenAtSamePose_returnsIdentityPose() {
         mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.Identity);
@@ -460,25 +369,6 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
         anchorEntity.setOpenXrReferenceSpaceTransform(Matrix4.fromPose(pose));
 
         assertPose(anchorEntity.getActivitySpacePose(), pose);
-    }
-
-    @Test
-    public void getActivitySpacePose_withNonAndroidXrActivitySpaceRoot_throwsException() {
-        ActivityController<Activity> activityController = Robolectric.buildActivity(Activity.class);
-        Activity activity = activityController.create().start().get();
-        Node node = Objects.requireNonNull(mXrExtensions).createNode();
-        AnchorEntityImpl anchorEntity =
-                AnchorEntityImpl.create(
-                        activity,
-                        node,
-                        mActivitySpace,
-                        /* activitySpaceRoot= */ null,
-                        mXrExtensions,
-                        mEntityManager,
-                        mExecutor);
-
-        assertThat(anchorEntity.getState()).isEqualTo(State.ERROR);
-        assertThrows(IllegalStateException.class, anchorEntity::getActivitySpacePose);
     }
 
     @Test
@@ -535,7 +425,6 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
 
     @Test
     public void disposeAnchor_detachesAnchor() {
-        when(mAnchor.detach()).thenReturn(true);
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         anchorEntity.setOnStateChangedListener(mAnchorStateListener);
         verify(mAnchorStateListener, never()).onStateChanged(State.ERROR);
@@ -559,7 +448,6 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
 
     @Test
     public void disposeAnchorTwice_callsCalbackOnce() {
-        when(mAnchor.detach()).thenReturn(true);
         AnchorEntityImpl anchorEntity = createAnchorEntityWithRuntimeAnchor();
         anchorEntity.setOnStateChangedListener(mAnchorStateListener);
         verify(mAnchorStateListener, never()).onStateChanged(State.ERROR);
@@ -622,5 +510,65 @@ public final class AnchorEntityImplTest extends SystemSpaceEntityImplTest {
                 .isEqualTo(mSharedAnchorToken);
         assertThat(NodeRepository.getInstance().getParent(anchorEntity.getNode()))
                 .isEqualTo(mActivitySpace.getNode());
+    }
+
+    private static class FakeExportableAnchor implements ExportableAnchor {
+        private final long mNativePointer;
+        private final IBinder mAnchorToken;
+        private final Pose mPose;
+        private final TrackingState mTrackingState;
+        private final PersistenceState mPersistenceState;
+        private final UUID mUuid;
+
+        FakeExportableAnchor(
+                long nativePointer,
+                IBinder anchorToken,
+                Pose pose,
+                TrackingState trackingState,
+                PersistenceState persistenceState,
+                UUID uuid) {
+            mNativePointer = nativePointer;
+            mAnchorToken = anchorToken;
+            mPose = pose;
+            mTrackingState = trackingState;
+            mPersistenceState = persistenceState;
+            mUuid = uuid;
+        }
+
+        @Override
+        public long getNativePointer() {
+            return mNativePointer;
+        }
+
+        @Override
+        public @NonNull IBinder getAnchorToken() {
+            return mAnchorToken;
+        }
+
+        @Override
+        public @NonNull Pose getPose() {
+            return mPose;
+        }
+
+        @Override
+        public @NonNull TrackingState getTrackingState() {
+            return mTrackingState;
+        }
+
+        @Override
+        public @NonNull PersistenceState getPersistenceState() {
+            return mPersistenceState;
+        }
+
+        @Override
+        public UUID getUuid() {
+            return mUuid;
+        }
+
+        @Override
+        public void detach() {}
+
+        @Override
+        public void persist() {}
     }
 }

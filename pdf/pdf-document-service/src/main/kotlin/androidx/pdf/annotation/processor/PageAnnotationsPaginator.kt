@@ -18,9 +18,9 @@ package androidx.pdf.annotation.processor
 
 import android.os.Build
 import androidx.annotation.RequiresExtension
+import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.PageAnnotationsProvider
 import androidx.pdf.annotation.models.PaginatedAnnotations
-import androidx.pdf.annotation.models.PdfAnnotationData
 import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor.Companion.unflatten
 
 /**
@@ -35,7 +35,7 @@ internal class PageAnnotationsPaginator(
     private val annotationsProvider: PageAnnotationsProvider,
 ) {
 
-    private val allAnnotationBatches: List<List<PdfAnnotationData>> by lazy {
+    private val allAnnotationBatches: List<List<KeyedPdfAnnotation>> by lazy {
         annotationsProvider
             .getPageAnnotations(pageNum)
             .unflatten(BatchPdfAnnotationsProcessor.MAX_BATCH_SIZE_IN_BYTES)

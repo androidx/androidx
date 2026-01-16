@@ -16,12 +16,12 @@
 
 package androidx.pdf.viewer.fragment
 
-import android.graphics.Point
 import android.graphics.Rect
 import android.net.Uri
 import androidx.core.os.OperationCanceledException
 import androidx.lifecycle.SavedStateHandle
 import androidx.pdf.PdfDocument
+import androidx.pdf.PdfPoint
 import androidx.pdf.SandboxedPdfLoader
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
@@ -303,12 +303,12 @@ class PdfDocumentViewModelTest {
                     latch.countDown()
                 }
             }
-        document.addOnPdfContentInvalidatedListener(listener)
+        document.addOnPdfContentInvalidatedListener({ command -> command.run() }, listener)
 
         // Bounds in content coordinates of the widget on which the edit is applied
         val widgetArea = Rect(135, 70, 155, 90)
         val formEditInfo =
-            FormEditInfo(pageNumber = 0, widgetIndex = 1, clickPoint = Point(145, 80))
+            FormEditInfo.createClick(widgetIndex = 1, clickPoint = PdfPoint(0, 145f, 80f))
 
         // 2. Act: Call the method on the ViewModel.
         pdfDocumentViewModel.applyFormEdit(formEditInfo)
@@ -330,11 +330,11 @@ class PdfDocumentViewModelTest {
         val formEditInfos = ArrayList<FormEditInfo>()
         // CheckBox at index 1 is un-checked, becomes checked post this edit, i.e. textValue = true
         val clickOnCheckBox =
-            FormEditInfo(pageNumber = 0, widgetIndex = 1, clickPoint = Point(145, 80))
+            FormEditInfo.createClick(widgetIndex = 1, clickPoint = PdfPoint(0, 145f, 80f))
         // Radio button at widgetIndex 5 is selected, widgetIndex 7 (derived from metadata) which
         // was initially selected will become unselected.
         val clickOnRadioButton =
-            FormEditInfo(pageNumber = 0, widgetIndex = 5, clickPoint = Point(95, 240))
+            FormEditInfo.createClick(widgetIndex = 5, clickPoint = PdfPoint(0, 95f, 240f))
         formEditInfos.add(clickOnCheckBox)
         formEditInfos.add(clickOnRadioButton)
 
@@ -364,31 +364,28 @@ class PdfDocumentViewModelTest {
         val document = (loadedState as PdfFragmentUiState.DocumentLoaded).pdfDocument
         val formWidgetInfos = document.getFormWidgetInfos(0)
         val expectedFormWidgetInfoIndex1 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = 1,
                 widgetRect = Rect(135, 70, 155, 90),
                 textValue = "true",
                 accessibilityLabel = "checkbox",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedFormWidgetInfoIndex5 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 widgetIndex = 5,
                 widgetRect = Rect(85, 230, 105, 250),
                 textValue = "true",
                 accessibilityLabel = "",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedFormWidgetInfoIndex7 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 widgetIndex = 7,
                 widgetRect = Rect(185, 230, 205, 250),
                 textValue = "false",
                 accessibilityLabel = "",
-                readOnly = false,
+                isReadOnly = false,
             )
 
         for (widget: FormWidgetInfo in formWidgetInfos) {

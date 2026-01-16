@@ -40,7 +40,6 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
@@ -55,7 +54,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -85,7 +84,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalMaterial3Api::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class DatePickerTest {
@@ -977,7 +975,6 @@ class DatePickerTest {
         rule.onNodeWithText("May 11, 2010").captureToImage().assertContainsColor(Color.Yellow)
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun yearGrid_keyboardNavigation() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -1029,7 +1026,6 @@ class DatePickerTest {
         rule.onNodeWithText("January 2010").assertIsFocused()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun firstDayOfMonth_keyboardBehavior() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -1082,7 +1078,6 @@ class DatePickerTest {
         rule.onNodeWithText("December 31, 2009", substring = true).assertIsFocused()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun firstDayOfMonth_keyboardBehavior_rtl() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -1137,7 +1132,6 @@ class DatePickerTest {
         rule.onNodeWithText("December 31, 2009", substring = true).assertIsFocused()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun lastDayOfMonth_keyboardBehavior() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -1189,7 +1183,6 @@ class DatePickerTest {
         rule.onNodeWithText("February 1, 2010", substring = true).assertIsFocused()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun lastDayOfMonth_keyboardBehavior_rtl() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -1244,7 +1237,6 @@ class DatePickerTest {
         rule.onNodeWithText("February 1, 2010", substring = true).assertIsFocused()
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun calendar_keyboardBehavior() {
         rule.setMaterialContent(lightColorScheme()) {
@@ -1280,7 +1272,6 @@ class DatePickerTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun calendar_keyboardBehavior_rtl() {
         rule.setMaterialContent(lightColorScheme()) {

@@ -763,10 +763,11 @@ class UtilsTest {
 
     @Test
     fun rtPerceivedResolutionResultInvalidCameraView_convertsCorrectly() {
-        val runtimeInvalidCamera = RuntimePerceivedResolutionResult.InvalidCameraView()
+        val runtimeInvalidCamera = RuntimePerceivedResolutionResult.InvalidRenderViewpoint()
         val result = runtimeInvalidCamera.toPerceivedResolutionResult()
 
-        assertThat(result).isInstanceOf(PerceivedResolutionResult.InvalidCameraView::class.java)
+        assertThat(result)
+            .isInstanceOf(PerceivedResolutionResult.InvalidRenderViewpoint::class.java)
     }
 
     @Test

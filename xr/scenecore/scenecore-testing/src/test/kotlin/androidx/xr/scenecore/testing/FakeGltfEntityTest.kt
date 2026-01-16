@@ -41,8 +41,8 @@ class FakeGltfEntityTest {
         check(underTest.animationState == GltfEntity.AnimationState.STOPPED)
         check(!underTest.isLooping)
         check(underTest.currentAnimationName == null)
-        check(underTest.getGltfModelBoundingBox().center == Vector3(0.5f, 0.5f, 0.5f))
-        check(underTest.getGltfModelBoundingBox().halfExtents == FloatSize3d(0.5f, 0.5f, 0.5f))
+        check(underTest.gltfModelBoundingBox.center == Vector3(0.5f, 0.5f, 0.5f))
+        check(underTest.gltfModelBoundingBox.halfExtents == FloatSize3d(0.5f, 0.5f, 0.5f))
     }
 
     @Test

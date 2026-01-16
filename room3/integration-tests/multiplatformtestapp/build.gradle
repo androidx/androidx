@@ -60,56 +60,35 @@ androidXMultiplatform {
         }
         // b/432783733: Test source set dedicating to room-paging since watchOS and tvOS are not
         // supported targets.
-        pagingCommonTest {
-            dependsOn(commonTest)
+        pagingCommonTest.dependsOn(commonTest)
+        jvmAndAndroidTest.dependsOn(pagingCommonTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.kotlinTestJunit)
+            implementation(libs.testRunner)
+            implementation(libs.testCore)
         }
-        androidDeviceTest {
-            dependsOn(commonTest)
-            dependsOn(pagingCommonTest)
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
+        jvmTest.dependencies {
+            implementation(libs.kotlinTestJunit)
         }
-        jvmTest {
-            dependsOn(commonTest)
-            dependsOn(pagingCommonTest)
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-            }
-        }
-        nativeTest {
-            dependsOn(commonTest)
-        }
+
         // Host OSes (Linux and Mac)
         hostNativeTest {
             dependsOn(nativeTest)
             dependsOn(pagingCommonTest)
+
         }
+        macosTest.dependsOn(hostNativeTest)
+        linuxTest.dependsOn(hostNativeTest)
+
         // iOS, watchOS and tvOS families, but not Mac OS
-        appleOsNativeTest {
-            dependsOn(nativeTest)
-        }
+        appleOsNativeTest.dependsOn(nativeTest)
+        tvosTest.dependsOn(appleOsNativeTest)
+        watchosTest.dependsOn(appleOsNativeTest)
+
         // iOS family
         iosTest {
             dependsOn(appleOsNativeTest)
             dependsOn(pagingCommonTest)
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["test"].defaultSourceSet {
-                    if (target.konanTarget.family in [Family.IOS, Family.WATCHOS, Family.TVOS]) {
-                        if (target.konanTarget.family == Family.IOS) {
-                            dependsOn(iosTest)
-                        } else {
-                            dependsOn(appleOsNativeTest)
-                        }
-                    } else {
-                        dependsOn(hostNativeTest)
-                    }
-                }
-            }
         }
     }
 }
@@ -123,15 +102,11 @@ dependencies {
     add("kspLinuxX64Test", roomCompilerDependency)
     if (KmpPlatformsKt.enableMac(project)) {
         add("kspIosArm64Test", roomCompilerDependency)
-        add("kspIosX64Test", roomCompilerDependency)
         add("kspIosSimulatorArm64Test", roomCompilerDependency)
-        add("kspMacosX64Test", roomCompilerDependency)
         add("kspMacosArm64Test", roomCompilerDependency)
         add("kspTvosArm64Test", roomCompilerDependency)
-        add("kspTvosX64Test", roomCompilerDependency)
         add("kspTvosSimulatorArm64Test", roomCompilerDependency)
         add("kspWatchosArm64Test", roomCompilerDependency)
-        add("kspWatchosX64Test", roomCompilerDependency)
         add("kspWatchosSimulatorArm64Test", roomCompilerDependency)
     }
 }

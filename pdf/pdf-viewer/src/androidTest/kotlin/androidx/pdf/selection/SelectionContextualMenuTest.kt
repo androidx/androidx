@@ -22,6 +22,7 @@ import android.net.Uri
 import android.os.Build
 import android.view.ViewGroup
 import androidx.pdf.PdfDocument.PdfPageLinks
+import androidx.pdf.TestUtils.assertNotNullObjectByText
 import androidx.pdf.content.PdfPageGotoLinkContent
 import androidx.pdf.content.PdfPageLinkContent
 import androidx.pdf.content.PdfPageTextContent
@@ -33,14 +34,13 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.action.ViewActions.doubleClick
 import androidx.test.espresso.action.ViewActions.longClick
 import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
-import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.RootMatchers
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import kotlin.test.Ignore
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -103,26 +103,22 @@ class SelectionContextualMenuTest {
         PdfViewTestActivity.onCreateCallback = {}
     }
 
-    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
     @Test
-    fun testDoubleTapAfterSelection_stillshowsMenuOption() {
+    fun testDoubleTapAfterSelection_stillShowsMenuOption() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
                 // Create a selection by long-pressing the center of the view.
                 .perform(longClick())
             // Verify that the long press selected started action mode.
-            Espresso.onView(withText("Copy"))
-                .inRoot(RootMatchers.isPlatformPopup())
-                .check(matches(isDisplayed()))
+            assertNotNullObjectByText("Copy")
 
             Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
                 // Double Tap to zoom in.
                 .perform(doubleClick())
 
             // Verify that the contextual menu is still visible.
-            Espresso.onView(withText("Copy"))
-                .inRoot(RootMatchers.isPlatformPopup())
-                .check(matches(isDisplayed()))
+            // Verify that the long press selected started action mode.
+            assertNotNullObjectByText("Copy")
         }
     }
 
@@ -143,24 +139,24 @@ class SelectionContextualMenuTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+    @Ignore(
+        "TODO: b/473956136 - Fails on devices without email clients (failing 100% Cuttlefish in post-submit). Update test, then re-enable."
+    )
     @Test
     fun testEmailSelection_showsEmailAddOptions() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
                 // Create a selection by long-pressing the center of the view.
                 .perform(longClick())
+
             // Verify that the long press selected started action mode showing email add
             // options
-            Espresso.onView(withText("Email"))
-                .inRoot(RootMatchers.isPlatformPopup())
-                .check(matches(isDisplayed()))
+            assertNotNullObjectByText("Email")
         }
     }
 
-    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
     @Test
-    fun testGoToLinkSelection_showsJumptoOption() {
+    fun testGoToLinkSelection_showsJumpToOption() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
                 .check { view, _ ->
@@ -169,16 +165,14 @@ class SelectionContextualMenuTest {
                 }
                 // Create a selection by long-pressing the center of the view.
                 .perform(longClick())
+
             // Verify that the long press selected started action mode showing Jump to option
-            Espresso.onView(withText("Jump to"))
-                .inRoot(RootMatchers.isPlatformPopup())
-                .check(matches(isDisplayed()))
+            assertNotNullObjectByText("Jump to")
         }
     }
 
-    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
     @Test
-    fun testHyperLinkSelection_showsCopylinkOption() {
+    fun testHyperLinkSelection_showsCopyLinkOption() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
             Espresso.onView(ViewMatchers.withId(PDF_VIEW_ID))
                 .check { view, _ ->
@@ -187,14 +181,12 @@ class SelectionContextualMenuTest {
                 }
                 // Create a selection by long-pressing the center of the view.
                 .perform(longClick())
+
             // Verify that the long press selected started action mode showing Copy link option
-            Espresso.onView(withText("Copy link"))
-                .inRoot(RootMatchers.isPlatformPopup())
-                .check(matches(isDisplayed()))
+            assertNotNullObjectByText("Copy link")
         }
     }
 
-    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
     @Test
     fun testLinkSelection_showsOpenOption() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
@@ -206,13 +198,10 @@ class SelectionContextualMenuTest {
                 // Create a selection by long-pressing the center of the view.
                 .perform(longClick())
             // Verify that the long press selected started action mode showing open
-            Espresso.onView(withText("Open"))
-                .inRoot(RootMatchers.isPlatformPopup())
-                .check(matches(isDisplayed()))
+            assertNotNullObjectByText("Open")
         }
     }
 
-    @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
     @Test
     fun testPhoneNumberSelection_showsCallOption() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {
@@ -224,9 +213,7 @@ class SelectionContextualMenuTest {
                 // Create a selection by long-pressing the center of the view.
                 .perform(longClick())
             // Verify that the long press selected started action mode showing call option
-            Espresso.onView(withText("Call"))
-                .inRoot(RootMatchers.isPlatformPopup())
-                .check(matches(isDisplayed()))
+            assertNotNullObjectByText("Call")
         }
     }
 

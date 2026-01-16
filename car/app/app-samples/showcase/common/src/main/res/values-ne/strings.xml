@@ -272,8 +272,7 @@
     <string name="tab_template_demo_title" msgid="7587839101813629975">"ट्याब टेम्प्लेटको डेमो"</string>
     <string name="tab_title_message" msgid="5266710951630087246">"म्यासेज ट्याब"</string>
     <string name="tab_title_pane" msgid="2520606145526537263">"प्यान ट्याब"</string>
-    <!-- no translation found for tab_title_sectioned_item (7299509321019990398) -->
-    <skip />
+    <string name="tab_title_sectioned_item" msgid="7299509321019990398">"खण्ड छुट्याइएको \"आइटम\" ट्याब"</string>
     <string name="tab_title_list" msgid="5104962518489668123">"लिस्ट ट्याब"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ट्याबको लामो शीर्षक भएको ग्रिड ट्याब"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"सर्च ट्याब"</string>
@@ -338,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"रो पनि चयन गर्न सकिन्छ"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"सेकेन्डरी एक्सन चयन गरिएको छ"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"रोको प्राइमरी एक्सन चयन गरिएको छ"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"रोको अन्त्यमा देखाइने फोटो तथा कारबाहीहरूको डेमो"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"खाली सूचीको डेमो"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"यो सूची खाली छ"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"टेम्प्लेटका विविध डेमोहरू"</string>

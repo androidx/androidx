@@ -161,14 +161,73 @@ public final class WebViewBuilder {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }
 
+        WebViewBuilderBoundaryInterface builder = getBuilderStateBoundary();
+        // makeConfig must be called every time in case the builder state changes.
+        WebViewBuilderBoundaryInterface.Config config = makeConfig();
+
+        try {
+            return builder.build(context, config);
+        } catch (RuntimeException e) {
+            throw new WebViewBuilderException(e);
+        }
+    }
+
+    /**
+     * Applies a builder config to an existing but unused WebView.
+     *
+     * <p>This allows the builder to be used in cases where {@link WebViewBuilder#build(Context)} is
+     * not practical, including cases where WebView has been inflated from an XML layout or
+     * subclassed.
+     *
+     * <p>It is not permitted to call any other WebView APIs on the WebView before this. A WebView
+     * may only have a builder configuration applied at most once. This API may not be used with
+     * WebViews that were built with {@link WebViewBuilder#build(Context)}.
+     *
+     * @param webview The WebView to apply the config to.
+     * @throws WebViewBuilderException if there was an issue with validation or constructing the
+     *                                 WebView.
+     * @throws IllegalStateException if the WebView has already been used or configured in some way.
+     */
+    @UiThread
+    @RequiresFeature(
+            name = WebViewFeature.WEBVIEW_BUILDER_EXPERIMENTAL_V2,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public <T extends WebView> @NonNull T applyTo(@NonNull T webview) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.WEBVIEW_BUILDER_V2;
+        if (!feature.isSupportedByWebView()) {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+
+        WebViewBuilderBoundaryInterface builder = getBuilderStateBoundary();
+        // makeConfig must be called every time in case the builder state changes.
+        WebViewBuilderBoundaryInterface.Config config = makeConfig();
+
+        try {
+            builder.applyTo(webview, config);
+        } catch (IllegalStateException e) {
+            // Special case IllegalStateException from any other RuntimeExceptions handled below.
+            // IllegalStateException probably indicates we were passed a bad WebView, rather than a
+            // bad config, so simply rethrow it.
+            throw e;
+        } catch (RuntimeException e) {
+            throw new WebViewBuilderException(e);
+        }
+
+        return webview;
+    }
+
+    private @NonNull WebViewBuilderBoundaryInterface getBuilderStateBoundary() {
         // The boundary interface is lazy loaded but it is built with the
         // assumption that on every call to build, we can re-use the same instance.
-        // Configure and build must be called every time in case the
-        // builder state changes.
         if (mBuilderStateBoundary == null) {
             mBuilderStateBoundary = WebViewGlueCommunicator.getFactory().getWebViewBuilder();
         }
 
+        return mBuilderStateBoundary;
+    }
+
+    private WebViewBuilderBoundaryInterface.@NonNull Config makeConfig() {
         WebViewBuilderBoundaryInterface.Config config =
                 new WebViewBuilderBoundaryInterface.Config();
 
@@ -179,10 +238,10 @@ public final class WebViewBuilder {
             for (RestrictionAllowlist allowList : mAllowLists) {
                 allowList.configure(config);
             }
-
-            return mBuilderStateBoundary.build(context, config);
         } catch (RuntimeException e) {
             throw new WebViewBuilderException(e);
         }
+
+        return config;
     }
 }

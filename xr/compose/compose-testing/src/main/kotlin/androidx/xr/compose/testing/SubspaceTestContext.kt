@@ -16,10 +16,12 @@
 
 package androidx.xr.compose.testing
 
+import android.app.Activity
+import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.util.fastForEach
-import androidx.xr.compose.platform.SceneManager
+import androidx.xr.compose.R
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -35,14 +37,14 @@ public class SubspaceTestContext(private val testRule: AndroidComposeTestRule<*,
     ): Iterable<SubspaceSemanticsInfo> {
         // Block and wait for compose state to settle before looking for root nodes.
         testRule.waitForIdle()
-        val roots = SceneManager.getAllRootSubspaceSemanticsNodes(context = testRule.activity)
+        val roots = testRule.activity.contentView.registeredRoots
         check(!atLeastOneRootRequired || roots.isNotEmpty()) {
             """No subspace compose hierarchies found in the app. Possible reasons include:
-        (1) the Activity that calls setSubspaceContent did not launch;
-        (2) setSubspaceContent was not called;
-        (3) setSubspaceContent was called before the ComposeTestRule ran;
+        (1) the Activity that calls setContent with a Subspace did not launch;
+        (2) setContent with a Subspace was not called;
+        (3) setContent with a Subspace was called before the ComposeTestRule ran;
         (4) a Subspace was not used in setContent
-        If setSubspaceContent is called by the Activity, make sure the Activity is
+        If setContent is called by the Activity, make sure the Activity is
         launched after the ComposeTestRule runs"""
         }
 
@@ -62,3 +64,16 @@ private fun SubspaceSemanticsInfo.getAllSemanticsNodes(): Iterable<SubspaceSeman
 
     return nodes
 }
+
+private val Activity.contentView: View
+    get() = window.decorView
+
+private val View.registeredRoots: MutableList<SubspaceSemanticsInfo>
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        return (getTag(R.id.compose_xr_registered_roots)
+            ?: mutableListOf<SubspaceSemanticsInfo>().also {
+                setTag(R.id.compose_xr_registered_roots, it)
+            })
+            as MutableList<SubspaceSemanticsInfo>
+    }

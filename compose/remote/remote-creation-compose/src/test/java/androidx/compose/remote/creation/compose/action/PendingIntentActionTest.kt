@@ -51,32 +51,27 @@ class PendingIntentActionTest {
     fun toRemoteAction_withDefaultRemoteComposeWriter_throws() {
         val creationState =
             RemoteComposeCreationState(platform = AndroidxRcPlatformServices(), size = Size(1f, 1f))
-        val testAction = PendingIntentAction(creationState, testPendingIntent)
+        val testAction = PendingIntentAction(testPendingIntent)
 
-        assertThrows(IllegalStateException::class.java) { testAction.toRemoteAction() }
+        assertThrows(IllegalStateException::class.java) {
+            with(testAction) { creationState.toRemoteAction() }
+        }
     }
 
     @Test
     fun toRemoteAction_withPendingIntentAwareWriter_storeSuccessfully() {
-        val pendingIntents: MutableList<PendingIntent> = mutableListOf()
+        val writerEvents = WriterEvents()
         val creationState =
             RemoteComposeCreationState(
                 creationDisplayInfo = CreationDisplayInfo(1, 1, 160),
                 profile = RcPlatformProfiles.ANDROIDX,
-                writerEvents =
-                    object : WriterEvents {
-                        override fun storePendingIntent(pendingIntent: PendingIntent): Int {
-                            pendingIntents.add(pendingIntent)
-                            return pendingIntents.lastIndex
-                        }
-
-                        override fun onDocumentAvailable(documentBytes: ByteArray) {}
-                    },
+                writerEvents = writerEvents,
             )
 
-        val testAction = PendingIntentAction(creationState, testPendingIntent)
-        val remoteAction = testAction.toRemoteAction()
+        val testAction = PendingIntentAction(testPendingIntent)
+        val remoteAction = with(testAction) { creationState.toRemoteAction() }
 
+        val pendingIntents = writerEvents.pendingIntents
         assertThat(pendingIntents.size).isEqualTo(1)
         assertThat(pendingIntents[0]).isEqualTo(testPendingIntent)
         assertThat(remoteAction is HostAction).isTrue()

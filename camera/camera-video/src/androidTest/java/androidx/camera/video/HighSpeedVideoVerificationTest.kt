@@ -260,10 +260,9 @@ class HighSpeedVideoVerificationTest(
             it.setDataSource(context, Uri.fromFile(finalize.file))
 
             // Verify video resolution.
-            val videoProfile =
-                videoCapabilities.getProfiles(quality, dynamicRange)!!.defaultVideoProfile
+            val resolution = videoCapabilities.getResolution(quality, dynamicRange)!!
             val expectedResolution =
-                rotateSize(videoProfile.resolution, getRotationNeeded(videoCapture, cameraInfo))
+                rotateSize(resolution, getRotationNeeded(videoCapture, cameraInfo))
 
             assertThat(it.getRotatedResolution()).isEqualTo(expectedResolution)
 

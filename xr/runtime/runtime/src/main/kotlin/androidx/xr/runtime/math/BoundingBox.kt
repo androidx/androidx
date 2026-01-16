@@ -26,12 +26,11 @@ private fun FloatSize3d.hasNaN(): Boolean = width.isNaN() || height.isNaN() || d
  * Represents an axis-aligned bounding box in 3D space, defined by its minimum and maximum corner
  * points.
  *
- * @property min A [Vector3] representing the minimum corner of the box (lowest x, y, and z values).
- * @property max A [Vector3] representing the maximum corner of the box (highest x, y, and z
- *   values).
- * @property center The center point of the box.
- * @property halfExtents The distance from the center to each face of the box along the axes. The
- *   total width, height, and depth of the box are twice the half-extent values.
+ * @property min a [Vector3] representing the minimum corner of the box (lowest x, y, and z values)
+ * @property max a [Vector3] representing the maximum corner of the box (highest x, y, and z values)
+ * @property center the center point of the box
+ * @property halfExtents the distance from the center to each face of the box along the axes. The
+ *   total width, height, and depth of the box are twice the half-extent values
  */
 public class BoundingBox
 private constructor(
@@ -67,16 +66,16 @@ private constructor(
          * Creates a [BoundingBox] with the given minimum and maximum corner points.
          *
          * This factory method ensures that the created bounding box is valid by checking that all
-         * components of `min` and `max` are not `NaN`, and that each component of the `min` point
-         * is less than or equal to the corresponding component of the `max` point.
+         * components of [min] and [max] are not `NaN`, and that each component of the [min] point
+         * is less than or equal to the corresponding component of the [max] point.
          *
-         * @param min A [Vector3] representing the minimum corner of the box (lowest x, y, and z
-         *   values). Its components must not be `NaN`.
-         * @param max A [Vector3] representing the maximum corner of the box (highest x, y, and z
-         *   values). Its components must not be `NaN`.
-         * @return A new [BoundingBox] instance.
-         * @throws IllegalArgumentException if any component of `min` or `max` is `NaN`, or if any
-         *   component of `min` is greater than the corresponding component of `max`.
+         * @param min a [Vector3] representing the minimum corner of the box (lowest x, y, and z
+         *   values). Its components must not be `NaN`
+         * @param max a [Vector3] representing the maximum corner of the box (highest x, y, and z
+         *   values). Its components must not be `NaN`
+         * @return a new [BoundingBox] instance
+         * @throws IllegalArgumentException if any component of [min] or [max] is `NaN`, or if any
+         *   component of [min] is greater than the corresponding component of [max]
          */
         @JvmStatic
         public fun fromMinMax(min: Vector3, max: Vector3): BoundingBox {
@@ -101,15 +100,15 @@ private constructor(
          * Creates a [BoundingBox] from a center point and its half-extents.
          *
          * This factory method ensures that the created bounding box is valid by checking that all
-         * components of `center` and `halfExtents` are not `NaN`, and that each component of
-         * `halfExtents` is greater than or equal to zero.
+         * components of [center] and [halfExtents] are not `NaN`, and that each component of
+         * [halfExtents] is greater than or equal to zero.
          *
-         * @param center The center point of the box. Its components must not be `NaN`.
-         * @param halfExtents The distance from the center to each face of the box. Its components
-         *   must not be `NaN` and must be greater than or equal to zero.
-         * @return A new [BoundingBox] instance.
-         * @throws IllegalArgumentException if any component of `center` or `halfExtents` is `NaN`,
-         *   or if any component of `halfExtents` is negative.
+         * @param center the center point of the box. Its components must not be `NaN`
+         * @param halfExtents the distance from the center to each face of the box. Its components
+         *   must not be `NaN` and must be greater than or equal to zero
+         * @return a new [BoundingBox] instance
+         * @throws IllegalArgumentException if any component of [center] or [halfExtents] is `NaN`,
+         *   or if any component of [halfExtents] is negative
          */
         @JvmStatic
         public fun fromCenterAndHalfExtents(

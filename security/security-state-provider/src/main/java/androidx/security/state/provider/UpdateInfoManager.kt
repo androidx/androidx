@@ -19,6 +19,8 @@ package androidx.security.state.provider
 import android.content.Context
 import androidx.security.state.SecurityPatchState
 import androidx.security.state.SecurityPatchState.Companion.getComponentSecurityPatchLevel
+import androidx.security.state.SerializableUpdateInfo
+import androidx.security.state.UpdateInfo
 import kotlinx.serialization.json.Json
 
 /**

@@ -53,11 +53,11 @@ private data class Benchmark(
 private data class BenchmarkRecord(
     val benchmarkName: String,
     val metricName: String,
-    val timing: Double,
+    val metricValue: Double,
 )
 
 /**
- * Parses benchmark JSON files to extract the raw performance timing data for all tests.
+ * Parses benchmark JSON files to extract the raw performance metricValue data for all tests.
  *
  * The Android Benchmark library produces JSON files with a specific structure. This function
  * navigates that structure to find the `runs` array for each benchmark test, aggregates all runs
@@ -65,7 +65,7 @@ private data class BenchmarkRecord(
  *
  * @param jsonFiles List of benchmark result files to parse.
  * @return A map where each key is a benchmark test name (e.g., "myBenchmark_test") and the value is
- *   a list of all timing runs collected for that test across all input files.
+ *   a list of all metricValue runs collected for that test across all input files.
  */
 internal fun parseBenchmarkRuns(jsonFiles: List<File>): Map<String, Map<String, List<Double>>> {
     val allRuns = mutableMapOf<String, MutableMap<String, MutableList<Double>>>()
@@ -102,9 +102,9 @@ internal fun parseBenchmarkRuns(jsonFiles: List<File>): Map<String, Map<String, 
  * Saves or appends aggregated benchmark data to a structured CSV file.
  *
  * This function writes benchmark results to a CSV file with three columns: `benchmark_name`,
- * `metric_name`, and `timing`. If the file does not exist or is empty, it first writes a header
- * row. Otherwise, it appends the new data to the existing file. This is useful for aggregating
- * results from multiple benchmark runs into a single source.
+ * `metric_name`, and `metric_value`. If the file does not exist or is empty, it first writes a
+ * header row. Otherwise, it appends the new data to the existing file. This is useful for
+ * aggregating results from multiple benchmark runs into a single source.
  *
  * @param benchmarks A nested map where the outer key is the benchmark name (e.g., "startup"), the
  *   inner key is the metric name (e.g., "timeToInitialDisplayMs"), and the value is a list of all
@@ -121,12 +121,12 @@ private fun saveDataToFile(benchmarks: Map<String, Map<String, List<Double>>>, o
     FileWriter(outputFile, true).use { fileWriter ->
         CSVPrinter(fileWriter, csvFormat).use { csvPrinter ->
             if (isNewFile) {
-                csvPrinter.printRecord("benchmark_name", "metric_name", "timing")
+                csvPrinter.printRecord("benchmark_name", "metric_name", "metric_value")
             }
             benchmarks.forEach { (benchmarkName, metrics) ->
-                metrics.forEach { (metricName, timings) ->
-                    timings.forEach { timing ->
-                        csvPrinter.printRecord(benchmarkName, metricName, timing)
+                metrics.forEach { (metricName, metricValues) ->
+                    metricValues.forEach { metricValue ->
+                        csvPrinter.printRecord(benchmarkName, metricName, metricValue)
                     }
                 }
             }
@@ -139,8 +139,8 @@ private fun saveDataToFile(benchmarks: Map<String, Map<String, List<Double>>>, o
  *
  * This function acts as a primary entry point for data processing. It takes a path to a directory
  * containing raw benchmark results, finds all JSON files within it, parses each file to extract the
- * timing data, aggregates all data points from all files into a single list, and finally saves that
- * consolidated list to a
+ * metricValue data, aggregates all data points from all files into a single list, and finally saves
+ * that consolidated list to a
  * - * specified output file.
  *
  * @param resultsPath The root directory containing the raw JSON benchmark results.
@@ -159,14 +159,14 @@ internal fun extractBenchmarkTestResult(resultsPath: String, outputFile: File) {
 /**
  * Loads and parses processed benchmark data from a specified CSV file.
  *
- * It opens a CSV file containing `benchmark_name`, `metric_name`, and `timing` columns. It then
- * groups the timings first by benchmark name and then by metric name, returning them as a nested
- * map suitable for statistical analysis.
+ * It opens a CSV file containing `benchmark_name`, `metric_name`, and `metric_value` columns. It
+ * then groups the metricValues first by benchmark name and then by metric name, returning them as a
+ * nested map suitable for statistical analysis.
  *
  * @param outputFile The CSV file containing the benchmark data.
  * @return A nested map where the outer key is the benchmark name (e.g., "startup"), the inner key
  *   is the metric name (e.g., "timeToInitialDisplayMs"), and the value is a [DoubleArray] of all
- *   its timing measurements.
+ *   its metricValue measurements.
  */
 internal fun getBenchmarkDataFromOutputFile(
     outputFile: File
@@ -189,12 +189,12 @@ internal fun getBenchmarkDataFromOutputFile(
             for (record in csvParser) {
                 val benchmarkName = record.get("benchmark_name")
                 val metricName = record.get("metric_name")
-                val timing = record.get("timing").toDoubleOrNull()
+                val metricValue = record.get("metric_value").toDoubleOrNull()
 
-                if (timing != null) {
-                    allRecords.add(BenchmarkRecord(benchmarkName, metricName, timing))
+                if (metricValue != null) {
+                    allRecords.add(BenchmarkRecord(benchmarkName, metricName, metricValue))
                 } else {
-                    System.err.println("Warning: Could not parse timing value from record: $record")
+                    System.err.println("Warning: Could not parse metric value from record: $record")
                 }
             }
         }
@@ -209,7 +209,7 @@ internal fun getBenchmarkDataFromOutputFile(
             triplesForBenchmark
                 .groupBy { it.metricName } // Group by metric_name
                 .mapValues { (_, triplesForMetric) ->
-                    triplesForMetric.map { it.timing }.toDoubleArray()
+                    triplesForMetric.map { it.metricValue }.toDoubleArray()
                 }
         }
 }

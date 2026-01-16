@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraPipe.CameraMetadataConfig
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.compat.AndroidDevicePolicyManagerWrapper
 import androidx.camera.camera2.pipe.compat.AudioRestrictionController
 import androidx.camera.camera2.pipe.compat.ConcurrentSessionSequencers
@@ -199,6 +200,10 @@ internal abstract class CameraPipeModule {
         }
 
         @Singleton @Provides fun provideCameraSurfaceManager() = CameraSurfaceManager()
+
+        @Singleton
+        @Provides
+        fun provideStrictMode(flags: CameraPipe.Flags) = StrictMode(flags.strictModeEnabled)
 
         @Singleton
         @Provides

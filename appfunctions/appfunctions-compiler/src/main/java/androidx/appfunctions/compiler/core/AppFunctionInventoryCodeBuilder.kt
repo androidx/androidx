@@ -30,7 +30,7 @@ import androidx.appfunctions.compiler.core.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionOneOfTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionParameterMetadata
-import androidx.appfunctions.compiler.core.metadata.AppFunctionPendingIntentTypeMetadata
+import androidx.appfunctions.compiler.core.metadata.AppFunctionParcelableTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionReferenceTypeMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.compiler.core.metadata.AppFunctionSchemaMetadata
@@ -228,8 +228,7 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                 is AppFunctionBytesTypeMetadata,
                 is AppFunctionDoubleTypeMetadata,
                 is AppFunctionFloatTypeMetadata,
-                is AppFunctionUnitTypeMetadata,
-                is AppFunctionPendingIntentTypeMetadata -> {
+                is AppFunctionUnitTypeMetadata -> {
                     val primitiveReturnTypeMetadataPropertyName = "PRIMITIVE_RESPONSE_VALUE_TYPE"
                     addPropertyForPrimitiveTypeMetadata(
                         primitiveReturnTypeMetadataPropertyName,
@@ -274,6 +273,16 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                     )
                     oneOfTypeReturnTypeMetadataPropertyName
                 }
+                is AppFunctionParcelableTypeMetadata -> {
+                    val parcelableTypeReturnTypeMetadataPropertyName =
+                        "PARCELABLE_RESPONSE_VALUE_TYPE"
+                    addPropertyForParcelableTypeMetadata(
+                        parcelableTypeReturnTypeMetadataPropertyName,
+                        functionMetadataObjectClassBuilder,
+                        castDataType,
+                    )
+                    parcelableTypeReturnTypeMetadataPropertyName
+                }
                 else -> {
                     // TODO provide KSNode to improve error message
                     throw ProcessingException(
@@ -301,6 +310,39 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                             IntrospectionHelper.APP_FUNCTION_RESPONSE_METADATA_CLASS,
                             responseMetadataValueTypeName,
                             appFunctionResponseMetadata.description,
+                        )
+                    }
+                )
+                .build()
+        )
+    }
+
+    private fun addPropertyForParcelableTypeMetadata(
+        propertyName: String,
+        functionMetadataObjectClassBuilder: TypeSpec.Builder,
+        parcelableTypeMetadata: AppFunctionParcelableTypeMetadata,
+    ) {
+        functionMetadataObjectClassBuilder.addProperty(
+            PropertySpec.builder(
+                    propertyName,
+                    IntrospectionHelper.APP_FUNCTION_PARCELABLE_TYPE_METADATA_CLASS,
+                )
+                .addModifiers(KModifier.PRIVATE)
+                .initializer(
+                    buildCodeBlock {
+                        addStatement(
+                            """
+                            %T(
+                                qualifiedName = %S,
+                                isNullable = %L,
+                                description = %S
+                            )
+                            """
+                                .trimIndent(),
+                            IntrospectionHelper.APP_FUNCTION_PARCELABLE_TYPE_METADATA_CLASS,
+                            parcelableTypeMetadata.qualifiedName,
+                            parcelableTypeMetadata.isNullable,
+                            parcelableTypeMetadata.description,
                         )
                     }
                 )
@@ -431,8 +473,7 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                 is AppFunctionBytesTypeMetadata,
                 is AppFunctionDoubleTypeMetadata,
                 is AppFunctionFloatTypeMetadata,
-                is AppFunctionUnitTypeMetadata,
-                is AppFunctionPendingIntentTypeMetadata -> {
+                is AppFunctionUnitTypeMetadata -> {
                     val primitiveTypeMetadataPropertyName =
                         getPrimitiveTypeMetadataPropertyNameForParameter(parameterMetadata)
                     addPropertyForPrimitiveTypeMetadata(
@@ -471,6 +512,16 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                         castDataType,
                     )
                     referenceTypeMetadataPropertyName
+                }
+                is AppFunctionParcelableTypeMetadata -> {
+                    val parcelableTypeReturnTypeMetadataPropertyName =
+                        getParcelableTypeMetadataPropertyNameForParameter(parameterMetadata)
+                    addPropertyForParcelableTypeMetadata(
+                        parcelableTypeReturnTypeMetadataPropertyName,
+                        functionMetadataObjectClassBuilder,
+                        castDataType,
+                    )
+                    parcelableTypeReturnTypeMetadataPropertyName
                 }
                 else -> {
                     // TODO provide KSNode to improve error message
@@ -625,8 +676,8 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                 IntrospectionHelper.APP_FUNCTION_STRING_TYPE_METADATA_CLASS
             is AppFunctionUnitTypeMetadata ->
                 IntrospectionHelper.APP_FUNCTION_UNIT_TYPE_METADATA_CLASS
-            is AppFunctionPendingIntentTypeMetadata ->
-                IntrospectionHelper.APP_FUNCTION_PENDING_INTENT_TYPE_METADATA_CLASS
+            is AppFunctionParcelableTypeMetadata ->
+                IntrospectionHelper.APP_FUNCTION_PARCELABLE_TYPE_METADATA_CLASS
             else ->
                 throw IllegalArgumentException(
                     "Unsupported or non-primitive type in AppFunctionDataTypeMetadata: ${this::class.simpleName}"
@@ -647,8 +698,7 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                 is AppFunctionBytesTypeMetadata,
                 is AppFunctionDoubleTypeMetadata,
                 is AppFunctionFloatTypeMetadata,
-                is AppFunctionUnitTypeMetadata,
-                is AppFunctionPendingIntentTypeMetadata -> {
+                is AppFunctionUnitTypeMetadata -> {
                     val primitiveItemTypeVariableName = propertyName + "_PRIMITIVE_ITEM_TYPE"
                     addPropertyForPrimitiveTypeMetadata(
                         primitiveItemTypeVariableName,
@@ -675,6 +725,17 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                     )
                     referenceItemTypeVariableName
                 }
+
+                is AppFunctionParcelableTypeMetadata -> {
+                    val parcelableItemTypeVariableName = propertyName + "_PARCELABLE_ITEM_TYPE"
+                    addPropertyForParcelableTypeMetadata(
+                        parcelableItemTypeVariableName,
+                        functionMetadataObjectClassBuilder,
+                        castItemType,
+                    )
+                    parcelableItemTypeVariableName
+                }
+
                 else -> {
                     // TODO provide KSNode to improve error message
                     throw ProcessingException(
@@ -892,8 +953,7 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                                 is AppFunctionBytesTypeMetadata,
                                 is AppFunctionDoubleTypeMetadata,
                                 is AppFunctionFloatTypeMetadata,
-                                is AppFunctionUnitTypeMetadata,
-                                is AppFunctionPendingIntentTypeMetadata ->
+                                is AppFunctionUnitTypeMetadata ->
                                     addPropertyForPrimitiveTypeMetadata(
                                         dataTypeVariableName,
                                         functionMetadataObjectClassBuilder,
@@ -913,6 +973,12 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
                                     )
                                 is AppFunctionReferenceTypeMetadata ->
                                     addPropertyForReferenceTypeMetadata(
+                                        dataTypeVariableName,
+                                        functionMetadataObjectClassBuilder,
+                                        objectPropertyTypeMetadata,
+                                    )
+                                is AppFunctionParcelableTypeMetadata ->
+                                    addPropertyForParcelableTypeMetadata(
                                         dataTypeVariableName,
                                         functionMetadataObjectClassBuilder,
                                         objectPropertyTypeMetadata,
@@ -1189,6 +1255,12 @@ class AppFunctionInventoryCodeBuilder(private val inventoryClassBuilder: TypeSpe
         parameterMetadata: AppFunctionParameterMetadata
     ): String {
         return "PARAMETER_METADATA_${parameterMetadata.name.uppercase()}_REFERENCE_DATA_TYPE"
+    }
+
+    private fun getParcelableTypeMetadataPropertyNameForParameter(
+        parameterMetadata: AppFunctionParameterMetadata
+    ): String {
+        return "PARAMETER_METADATA_${parameterMetadata.name.uppercase()}_PARCELABLE_DATA_TYPE"
     }
 
     /**

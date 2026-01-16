@@ -18,7 +18,7 @@
 <complications>
     <complication type="SHORT_TEXT">
         <text>
-            <formatted format="@string/formatted_text">
+            <formatted format="@string/formatted_text_of_2">
                 <param><plain value="10" valueType="integer"/></param>
                 <param><time instant="1735699200" /></param>
             </formatted>

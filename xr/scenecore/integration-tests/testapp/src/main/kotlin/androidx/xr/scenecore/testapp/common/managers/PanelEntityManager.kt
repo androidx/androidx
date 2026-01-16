@@ -137,11 +137,21 @@ class PanelEntityManager(
             createPanelEntityButton.text =
                 if (currentCount == maxEntities) "Create panel Entity"
                 else
-                    "Create Panel Entity #${currentCount + 1}-#${minOf(currentCount + entitiesPerClick, maxEntities)}"
+                    "Create Panel Entity #${currentCount + 1}-#${
+                        minOf(
+                            currentCount + entitiesPerClick,
+                            maxEntities,
+                        )
+                    }"
             destroyPanelEntityButton.text =
                 if (currentCount == 0) "Destroy Panel Entity"
                 else
-                    "Destroy Panel Entity #${currentCount}-#${maxOf(currentCount - entitiesPerClick, 1)}"
+                    "Destroy Panel Entity #${currentCount}-#${
+                        maxOf(
+                            currentCount - entitiesPerClick,
+                            1,
+                        )
+                    }"
         }
     }
 }

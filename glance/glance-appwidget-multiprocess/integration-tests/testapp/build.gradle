@@ -30,5 +30,5 @@ dependencies {
 
 android {
     namespace = "androidx.glance.appwidget.multiprocess.testapp"
-    compileSdk = 35
+    compileSdk { version = release(35) }
 }

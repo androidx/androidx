@@ -18,6 +18,8 @@ package androidx.xr.scenecore.impl.impress;
 
 /** Helper class that provides JNI hooks for testing the Impress API bindings. */
 final class ImpressApiTestHelper {
+    private ImpressApiTestHelper() {}
+
     // Hooks for test state management.
     static native long nativeCreateTestView();
 
@@ -43,6 +45,9 @@ final class ImpressApiTestHelper {
     static native void nativeSetExpectedSetGltfModelColliderEnabled(
             int nodeId, boolean enableCollider);
 
+    static native void nativeSetExpectedSetGltfReformAffordanceEnabled(
+            int impressNodeId, boolean enabled);
+
     static native void nativeSetExpectedAnimateGltfModel(
             int nodeId, String animationName, boolean loop);
 
@@ -51,6 +56,8 @@ final class ImpressApiTestHelper {
     static native void nativeSetAnimateGltfModelFailure(String message);
 
     static native void nativeSetExpectedStopGltfModelAnimation(int nodeId);
+
+    static native void nativeSetExpectedToggleGltfModelAnimation(int nodeId, boolean toggle);
 
     static native void nativeSetExpectedGetGltfModelLocalBounds(int nodeId);
 
@@ -93,6 +100,4 @@ final class ImpressApiTestHelper {
     static native void nativeSetGetReflectionTextureFromIblSuccessToken(long textureToken);
 
     static native void nativeSetExpectedBorrowTexture(long textureHandle);
-
-    private ImpressApiTestHelper() {}
 }

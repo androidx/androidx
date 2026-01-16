@@ -80,7 +80,7 @@ class SurfaceTest {
             Assume.assumeTrue("Adapter does not support $desiredFormat for this surface", false)
         }
         val config =
-            SurfaceConfiguration(
+            GPUSurfaceConfiguration(
                 device = webGpu.device,
                 format = desiredFormat,
                 height = HEIGHT,
@@ -104,7 +104,7 @@ class SurfaceTest {
     fun configure_withInvalidParameters_fails() {
         val surface = webGpu.webgpuSurface
         val invalidConfig =
-            SurfaceConfiguration(
+            GPUSurfaceConfiguration(
                 device = webGpu.device,
                 format = TextureFormat.RGBA8Unorm,
                 height = HEIGHT,

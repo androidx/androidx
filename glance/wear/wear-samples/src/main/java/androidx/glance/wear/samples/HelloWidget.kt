@@ -17,7 +17,6 @@
 package androidx.glance.wear.samples
 
 import android.content.Context
-import androidx.compose.remote.creation.compose.capture.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -39,20 +38,17 @@ class HelloWidgetService : GlanceWearWidgetService() {
     override val widget: GlanceWearWidget = HelloWidget()
 }
 
-class HelloWidget : GlanceWearWidget() {
+private class HelloWidget : GlanceWearWidget() {
     override suspend fun provideWidgetData(
         context: Context,
         params: WearWidgetParams,
-    ): WearWidgetData =
-        WearWidgetDocument(backgroundPainter = painterRemoteColor(Color.Red)) {
-            HelloWidgetContent()
-        }
+    ): WearWidgetData = WearWidgetDocument(backgroundColor = Color.Red) { HelloWidgetContent() }
 }
 
 @RemoteComposable
 @Composable
 @Suppress("RestrictedApiAndroidX")
-fun HelloWidgetContent() {
+private fun HelloWidgetContent() {
     RemoteBox(
         modifier = RemoteModifier.fillMaxSize(),
         horizontalAlignment = RemoteAlignment.CenterHorizontally,

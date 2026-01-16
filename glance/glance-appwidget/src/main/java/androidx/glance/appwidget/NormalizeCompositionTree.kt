@@ -51,6 +51,7 @@ import androidx.glance.unit.Dimension
 
 internal fun normalizeCompositionTree(
     root: RemoteViewsRoot,
+    isRemoteCompose: Boolean,
     isPreviewComposition: Boolean = false,
 ) {
     coerceToOneChild(root)
@@ -59,8 +60,13 @@ internal fun normalizeCompositionTree(
         if (isPreviewComposition) {
             view.removeActionModifiers()
         }
-        if (view is EmittableLazyItemWithChildren) normalizeLazyListItem(view)
-        view.transformBackgroundImageAndActionRipple()
+        if (view is EmittableLazyItemWithChildren && !isRemoteCompose) normalizeLazyListItem(view)
+
+        if (!isRemoteCompose) {
+            view.transformBackgroundImageAndActionRipple()
+        } else {
+            view
+        }
     }
 }
 

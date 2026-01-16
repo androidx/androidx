@@ -41,7 +41,7 @@ package androidx.activity {
     property public static int EDGE_RIGHT;
   }
 
-  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.activity.FullyDrawnReporterOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.navigationevent.NavigationEventDispatcherOwner androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.app.OnPictureInPictureUiStateChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.core.app.OnUserLeaveHintProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
+  public class ComponentActivity extends android.app.Activity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.activity.FullyDrawnReporterOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.navigationevent.NavigationEventDispatcherOwner androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.content.OnTrimMemoryProvider androidx.core.app.PictureInPictureProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
     ctor @ContentView public ComponentActivity(@LayoutRes int contentLayoutId);
     method public void addMenuProvider(androidx.core.view.MenuProvider provider);
@@ -55,6 +55,7 @@ package androidx.activity {
     method public final void addOnPictureInPictureUiStateChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureUiStateCompat> listener);
     method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
     method public final void addOnUserLeaveHintListener(Runnable listener);
+    method public final void enterPictureInPictureMode(androidx.core.app.PictureInPictureParamsCompat params);
     method @InaccessibleFromKotlin public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method @InaccessibleFromKotlin public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method @InaccessibleFromKotlin public androidx.activity.FullyDrawnReporter getFullyDrawnReporter();
@@ -82,6 +83,7 @@ package androidx.activity {
     method public final void removeOnPictureInPictureUiStateChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureUiStateCompat> listener);
     method public final void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
     method public final void removeOnUserLeaveHintListener(Runnable listener);
+    method public final void setPictureInPictureParams(androidx.core.app.PictureInPictureParamsCompat params);
     method @Deprecated public void startActivityForResult(android.content.Intent intent, int requestCode);
     method @Deprecated public void startActivityForResult(android.content.Intent intent, int requestCode, android.os.Bundle? options);
     method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void startIntentSenderForResult(android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws android.content.IntentSender.SendIntentException;

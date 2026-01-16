@@ -32,7 +32,8 @@ plugins {
 }
 
 dependencies {
-    api(project(":navigation3:navigation3-ui"))
+    implementation("androidx.navigation3:navigation3-ui:1.0.0")
+    implementation("androidx.navigation3:navigation3-runtime:1.0.0")
     implementation(project(":wear:compose:compose-material3"))
     implementation("androidx.compose.animation:animation:1.9.3")
 
@@ -49,10 +50,10 @@ dependencies {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
 
     defaultConfig {
-        minSdk = 25
+        minSdk { version = release(25) }
     }
     namespace = "androidx.wear.compose.navigation3"
 }
@@ -65,4 +66,5 @@ androidx {
             "for developers to write Jetpack Compose applications for Wearable devices by " +
             "providing functionality to support navigation with Jetpack Navigation3. " +
             "It builds upon the Jetpack Compose libraries."
+    samples(project(":wear:compose:compose-navigation3-samples"))
 }

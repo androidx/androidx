@@ -93,6 +93,8 @@ public object OrbiterDefaults {
     public val Elevation: Dp = SpatialElevationLevel.Level1
 }
 
+private val EmptyContent: @Composable () -> Unit = {}
+
 /**
  * A composable that creates an orbiter along the top or bottom edges of a view.
  *
@@ -234,19 +236,23 @@ internal fun PositionedOrbiter(data: OrbiterData, content: @Composable @UiCompos
     val compositionContext = rememberCompositionContext()
     val parentEntity: CoreEntity? = findNearestParentEntity()
 
-    val holder = remember {
-        SpatialOrbiter(
-            context = context,
-            parentView = parentView,
-            compositionContext = compositionContext,
-            session = session,
-            localId = localId,
-            initialOrbiterData = data,
-            initialParentEntity = parentEntity,
-        )
-    }
+    val holder =
+        remember(parentView) {
+            SpatialOrbiter(
+                context = context,
+                parentView = parentView,
+                compositionContext = compositionContext,
+                session = session,
+                localId = localId,
+                initialOrbiterData = data,
+            )
+        }
 
-    SideEffect { holder.update(data, parentEntity, content) }
+    SideEffect {
+        holder.parentEntity = parentEntity
+        holder.orbiterData = data
+        holder.content = content
+    }
 }
 
 @Composable
@@ -327,10 +333,7 @@ private fun getMainWindowSize(session: Session): IntVolumeSize {
  * @param session The active XR [Session] required for creating the [PanelEntity].
  * @param localId A unique ID used for saving/restoring state within the Orbiter's composition.
  * @param initialOrbiterData The initial configuration data for the [Orbiter], including offset,
- *   elevation, and shape. Subsequent updates are handled via the [update] function.
- * @param initialParentEntity The initial [CoreEntity] in the spatial scene to which the new Orbiter
- *   entity should be parented. This is crucial for the Orbiter to appear in the correct spatial
- *   hierarchy. Subsequent updates are handled via the [update] function.
+ *   elevation, and shape.
  */
 private class SpatialOrbiter(
     private var context: Context,
@@ -339,28 +342,36 @@ private class SpatialOrbiter(
     private var session: Session,
     private var localId: Int,
     initialOrbiterData: OrbiterData,
-    initialParentEntity: CoreEntity?,
 ) : RememberObserver {
-
     private var view: ComposeView? = null
     private var panelEntity: CorePanelEntity? = null
-    private var orbiterData: OrbiterData by mutableStateOf(initialOrbiterData)
-    private var parentEntity: CoreEntity? by mutableStateOf(initialParentEntity)
-    private var content by mutableStateOf<@Composable () -> Unit>({})
+
+    var content: @Composable () -> Unit by mutableStateOf(EmptyContent)
+
+    var orbiterData: OrbiterData by mutableStateOf(initialOrbiterData)
+
+    var parentEntity: CoreEntity? = null
+        set(value) {
+            if (field != value) {
+                field = value
+                panelEntity?.parent = value
+            }
+        }
 
     override fun onRemembered() {
-
         view =
             ComposeView(context).apply {
-                id = android.R.id.content
+                id = View.generateViewId()
+
+                setViewTreeLifecycleOwner(parentView.findViewTreeLifecycleOwner())
+                setViewTreeViewModelStoreOwner(parentView.findViewTreeViewModelStoreOwner())
+                setViewTreeSavedStateRegistryOwner(parentView.findViewTreeSavedStateRegistryOwner())
+                setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent)
 
                 // Set the strategy to automatically dispose the composition
                 // when the ComposeView is detached from the window.
                 setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnDetachedFromWindow)
 
-                setViewTreeLifecycleOwner(parentView.findViewTreeLifecycleOwner())
-                setViewTreeViewModelStoreOwner(parentView.findViewTreeViewModelStoreOwner())
-                setViewTreeSavedStateRegistryOwner(parentView.findViewTreeSavedStateRegistryOwner())
                 // Dispose of the Composition when the view's LifecycleOwner is destroyed
                 setParentCompositionContext(compositionContext)
 
@@ -374,7 +385,6 @@ private class SpatialOrbiter(
                 // Enable children to draw their shadow by not clipping them
                 clipChildren = false
             }
-
         panelEntity =
             view
                 ?.let {
@@ -391,8 +401,6 @@ private class SpatialOrbiter(
                     this?.enabled = false
                     view?.setTag(R.id.compose_xr_local_view_entity, this)
                 }
-
-        view?.setViewTreeDisjointParent(parentView as? ViewParent ?: parentView.parent)
 
         view?.setContent {
             val panelSize: IntVolumeSize =
@@ -445,33 +453,6 @@ private class SpatialOrbiter(
     override fun onAbandoned() {
         // No-op. If resources were created during 'init' (constructor),
         // they should be released here since onRemembered() was never called.
-    }
-
-    /**
-     * Updates the configuration, parent entity, and content of the Orbiter.
-     *
-     * Setting these parameters updates the internal [mutableStateOf] properties, which
-     * automatically triggers a recomposition of the Orbiter's content and a re-layout and
-     * re-positioning of the underlying [CorePanelEntity].
-     *
-     * @param orbiterData The new configuration data to be applied.
-     * @param parentEntity The new spatial parent entity.
-     * @param content The new composable lambda to render inside the Orbiter's surface.
-     */
-    fun update(
-        orbiterData: OrbiterData,
-        parentEntity: CoreEntity?,
-        content: @Composable () -> Unit,
-    ) {
-        if (orbiterData != this.orbiterData) {
-            this.orbiterData = orbiterData
-        }
-        if (parentEntity != this.parentEntity) {
-            this.parentEntity = parentEntity
-        }
-        if (content !== this.content) {
-            this.content = content
-        }
     }
 }
 

@@ -26,7 +26,6 @@ import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.testapp.R
 import java.nio.file.Paths
-import kotlin.text.clear
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
@@ -133,11 +132,21 @@ class GltfManager(
             createGltfEntityButton.text =
                 if (currentCount == maxEntities) "Create Gltf Entity"
                 else
-                    "Create Gltf Entity #${currentCount + 1}-#${minOf(currentCount + entitiesPerClick, maxEntities)}"
+                    "Create Gltf Entity #${currentCount + 1}-#${
+                        minOf(
+                            currentCount + entitiesPerClick,
+                            maxEntities,
+                        )
+                    }"
             destroyGltfEntityButton.text =
                 if (currentCount == 0) "Destroy Gltf Entity"
                 else
-                    "Destroy Gltf Entity #${currentCount}-#${maxOf(currentCount - entitiesPerClick, 1)}"
+                    "Destroy Gltf Entity #${currentCount}-#${
+                        maxOf(
+                            currentCount - entitiesPerClick,
+                            1,
+                        )
+                    }"
         }
     }
 

@@ -16,6 +16,7 @@
 
 package androidx.health.connect.client.testing
 
+import androidx.annotation.IntRange
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
@@ -369,6 +370,13 @@ public class FakeHealthConnectClient(
     }
 
     override suspend fun getChanges(changesToken: String): ChangesResponse {
+        return getChanges(changesToken, pageSizeGetChanges)
+    }
+
+    override suspend fun getChanges(
+        changesToken: String,
+        @IntRange(from = 1, to = 5000) pageSize: Int,
+    ): ChangesResponse {
         // Stubs
         overrides.getChanges?.next(changesToken)?.let {
             return it
@@ -397,21 +405,21 @@ public class FakeHealthConnectClient(
                     }
                 }
                 .values
-        val hasMoreChanges = changes.size > pageSizeGetChanges
+        val hasMoreChanges = changes.size > pageSize
         val nextChangesToken =
             if (hasMoreChanges) {
                 // Next page token
-                generateNewToken(timeInToken + pageSizeGetChanges, recordTypes)
+                generateNewToken(timeInToken + pageSize, recordTypes)
             } else {
                 // Future changes token
                 generateNewToken(timeToChangesLastKey + 1, recordTypes)
             }
 
         // Store metadata for new token
-        tokens[nextChangesToken] = tokenInfo.copy(time = tokenInfo.time + pageSizeGetChanges)
+        tokens[nextChangesToken] = tokenInfo.copy(time = tokenInfo.time + pageSize)
 
         return ChangesResponse(
-            changes.take(pageSizeGetChanges).toList(),
+            changes.take(pageSize).toList(),
             hasMore = hasMoreChanges,
             changesTokenExpired = tokenInfo.expired,
             nextChangesToken = nextChangesToken,

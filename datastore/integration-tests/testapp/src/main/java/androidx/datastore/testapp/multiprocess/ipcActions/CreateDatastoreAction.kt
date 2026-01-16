@@ -24,7 +24,7 @@ import androidx.datastore.core.DataStoreImpl
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.MultiProcessCoordinator
 import androidx.datastore.core.Serializer
-import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
 import androidx.datastore.testapp.ProtoOkioSerializer
@@ -110,7 +110,7 @@ private fun createDatastore(
         }
     val corruptionHandlerInstance =
         corruptionHandler?.getDeclaredConstructor()?.also { it.isAccessible = true }?.newInstance()
-            ?: NoOpCorruptionHandler()
+            ?: ReThrowCorruptionHandler()
     return DataStoreImpl(
         storage = storage,
         scope = datastoreScope,

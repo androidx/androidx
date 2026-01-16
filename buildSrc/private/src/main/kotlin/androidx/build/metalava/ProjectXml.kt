@@ -25,6 +25,7 @@ import org.dom4j.Element
 import org.dom4j.io.OutputFormat
 import org.dom4j.io.XMLWriter
 import org.gradle.api.file.FileCollection
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 internal object ProjectXml {
     /**
@@ -38,18 +39,68 @@ internal object ProjectXml {
         compiledSourceJar: File,
         outputFile: File,
     ) {
+        // Compute the files for each source set initially so they can be checked multiple times
+        // without recomputing.
+        val sourceSetFiles =
+            sourceSets.associate { sourceSet ->
+                sourceSet.sourceSetName to sourceFiles(sourceSet.sourcePaths)
+            }
+        val filteredSourceSets = filterSourceSets(sourceSets, sourceSetFiles)
         val sourceSetElements =
-            sourceSets.map { sourceSet ->
+            filteredSourceSets.map { sourceSet ->
+                val sourceSetDependencies = sourceSet.dependencyClasspath.files
+                // Include Android jars only for JVM and Android source sets (they are needed for
+                // JVM because they provide the java standard libraries).
+                val allDependencies =
+                    if (
+                        KotlinPlatformType.jvm in sourceSet.kotlinPlatforms ||
+                            KotlinPlatformType.androidJvm in sourceSet.kotlinPlatforms
+                    ) {
+                        sourceSetDependencies + bootClasspath
+                    } else {
+                        sourceSetDependencies
+                    }
                 createSourceSetElement(
                     sourceSet.sourceSetName,
                     sourceSet.dependsOnSourceSets,
-                    sourceFiles(sourceSet.sourcePaths),
-                    (sourceSet.dependencyClasspath + bootClasspath),
+                    sourceSetFiles[sourceSet.sourceSetName]!!,
+                    allDependencies,
                     compiledSourceJar,
+                    sourceSet.kotlinPlatforms,
                 )
             }
         val projectElement = createProjectElement(sourceSetElements)
         writeXml(projectElement, outputFile.writer())
+    }
+
+    /**
+     * Returns a filtered list of source sets, removing those that have no source files and are not
+     * depended on by any other source sets.
+     */
+    @VisibleForTesting
+    fun filterSourceSets(
+        sourceSets: List<SourceSetInputs>,
+        sourceSetFiles: Map<String, List<File>>,
+    ): List<SourceSetInputs> {
+        val filtered =
+            sourceSets.filter { sourceSet ->
+                // Include any source sets with source files.
+                sourceSetFiles[sourceSet.sourceSetName]!!.isNotEmpty() ||
+                    // Include any source sets that are depended on by another source set.
+                    sourceSets.any { otherSourceSet ->
+                        sourceSet.sourceSetName in otherSourceSet.dependsOnSourceSets
+                    } ||
+                    // Include androidMain, even if it has no source files, to prevent errors that
+                    // come from excluding the primary source set for the android compilation.
+                    sourceSet.sourceSetName == "androidMain"
+            }
+        // If any source sets were filtered, do another pass as there may be source sets which were
+        // previously depended on by filtered source sets which now can also be filtered.
+        return if (filtered.size == sourceSets.size) {
+            filtered
+        } else {
+            filterSourceSets(filtered, sourceSetFiles)
+        }
     }
 
     /** Writes the [element] as XML to the [writer] and closes the stream. */
@@ -87,16 +138,35 @@ internal object ProjectXml {
         sourceFiles: Collection<File>,
         allDependencies: Collection<File>,
         compiledSourceJar: File,
+        kotlinPlatforms: Set<KotlinPlatformType>,
     ): Element {
         val moduleElement = DocumentHelper.createElement("module")
         moduleElement.addAttribute("name", sourceSetName)
         if (sourceSetName == "androidMain") {
             moduleElement.addAttribute("android", "true")
         }
-        // Currently, we only process JVM compilations in metalava, so it works to set just the JVM
-        // platform for all modules (a common module should list all platforms it is used by).
-        // TODO(b/407737495): use all platforms for non-JVM targets, don't hardcode the java version
-        moduleElement.addAttribute("kotlinPlatforms", "JVM [1.8]")
+        // Create the /-separated string listing all Kotlin platform types that this source set can
+        // be part of. The serializations are from the commented-out Kotlin compiler classes. The
+        // compiler is a compile only dependency for this project, so to generate the strings
+        // instead of hardcoding them it would need to be a runtime dependency as well.
+        val kotlinPlatformStrings =
+            kotlinPlatforms
+                .mapNotNull {
+                    when (it) {
+                        // JvmPlatforms.defaultJvmPlatform
+                        KotlinPlatformType.jvm,
+                        KotlinPlatformType.androidJvm -> "JVM [1.8]"
+                        // NativePlatforms.unspecifiedNativePlatform
+                        KotlinPlatformType.native -> "Native []/Native [general]"
+                        // JsPlatforms.defaultJsPlatform
+                        KotlinPlatformType.js -> "JS []"
+                        // WasmPlatforms.unspecifiedWasmPlatform
+                        KotlinPlatformType.wasm -> "Wasm [general]"
+                        else -> null
+                    }
+                }
+                .toSet()
+        moduleElement.addAttribute("kotlinPlatforms", kotlinPlatformStrings.joinToString("/"))
 
         for (dependsOn in dependsOnSourceSets) {
             val depElement = DocumentHelper.createElement("dep")

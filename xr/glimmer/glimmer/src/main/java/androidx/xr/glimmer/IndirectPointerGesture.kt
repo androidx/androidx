@@ -299,7 +299,7 @@ private class IndirectPointerGestureNode(
     companion object {
         private const val UnassignedPointerId = -1L
         // TODO(b/446216019): Hardcoded constants for now. Use them from ViewConfiguration.
-        private const val SwipeVelocityThresholdPxPerSec = 100f
+        private const val SwipeVelocityThresholdPxPerSec = 34f
         // A swipe must be longer than a scroll to be recognized. This value is multiplied by the
         // system's touch slop, ensuring that a user's intent to scroll isn't interpreted as swipe.
         private const val TouchSlopToSwipeDistanceThresholdRatio = 1.3f

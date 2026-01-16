@@ -41,6 +41,7 @@ actual constructor(
     /** Identifies from where the info object was created. */
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(value = [CREATED_FROM_UNKNOWN, CREATED_FROM_ENTITY, CREATED_FROM_DATABASE])
+    @Suppress("KmpSignatureClash") // also defined in jvmNative
     internal annotation class CreatedFrom()
 
     actual override fun equals(other: Any?): Boolean = equalsCommon(other)

@@ -16,8 +16,8 @@
 
 package androidx.appfunctions.service.internal
 
-import android.app.PendingIntent
 import android.os.Build
+import android.os.Parcelable
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionAppUnknownException
@@ -35,7 +35,7 @@ import androidx.appfunctions.metadata.AppFunctionFloatTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionIntTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
-import androidx.appfunctions.metadata.AppFunctionPendingIntentTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionParcelableTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
@@ -117,11 +117,11 @@ private fun AppFunctionDataTypeMetadata.unsafeBuildReturnValue(
         is AppFunctionBytesTypeMetadata -> {
             throw IllegalStateException("Type of a single byte is not supported")
         }
-        is AppFunctionPendingIntentTypeMetadata -> {
+        is AppFunctionParcelableTypeMetadata -> {
             builder
-                .setPendingIntent(
+                .setParcelable(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    result as PendingIntent,
+                    result as Parcelable,
                 )
                 .build()
         }
@@ -221,12 +221,12 @@ private fun AppFunctionArrayTypeMetadata.unsafeBuildReturnValue(
                 )
                 .build()
         }
-        is AppFunctionPendingIntentTypeMetadata -> {
+        is AppFunctionParcelableTypeMetadata -> {
             @Suppress("UNCHECKED_CAST")
             builder
-                .setPendingIntentList(
+                .setParcelableList(
                     ExecuteAppFunctionResponse.Success.PROPERTY_RETURN_VALUE,
-                    result as List<PendingIntent>,
+                    result as List<Parcelable>,
                 )
                 .build()
         }

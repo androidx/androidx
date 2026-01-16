@@ -124,6 +124,7 @@ internal constructor(
 }
 
 // TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
+@Suppress("KmpVisibilityMismatch") // linked to todo above
 /* internal */ expect class NativePointerButtons
 
 /** Contains the state of pointer buttons (e.g. mouse and stylus buttons). */
@@ -179,6 +180,7 @@ expect fun PointerButtons.indexOfFirstPressed(): Int
 expect fun PointerButtons.indexOfLastPressed(): Int
 
 // TODO mark internal once https://youtrack.jetbrains.com/issue/KT-36695 is fixed
+@Suppress("KmpVisibilityMismatch") // linked to todo above
 /* internal */ expect class NativePointerKeyboardModifiers
 
 /**

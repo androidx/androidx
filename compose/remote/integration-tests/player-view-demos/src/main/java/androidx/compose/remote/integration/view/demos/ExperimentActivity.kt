@@ -85,6 +85,7 @@ import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponent
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2
+import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2b
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo3
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo3b
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo3c
@@ -93,6 +94,7 @@ import androidx.compose.remote.integration.view.demos.examples.RcTextDemo5
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo6
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo7
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo8
+import androidx.compose.remote.integration.view.demos.examples.RcTicker
 import androidx.compose.remote.integration.view.demos.examples.ScrollViewDemo
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendar
 import androidx.compose.remote.integration.view.demos.examples.SimplePath
@@ -156,13 +158,20 @@ fun getRemoteComposables(context: Context, list: ArrayList<RCDoc>) {
 }
 
 class RamDoc(val data: ByteArray, val name: String) : RemoteComposeFunc {
+    private var buildTime: Float = 0f
 
     @Composable
     @Suppress("RestrictedApiAndroidX")
     override fun getDoc(): MutableState<CoreDocument?> {
+        val time = System.nanoTime()
         val doc = RemoteDocument(ByteArrayInputStream(data, 0, data.size))
         val doc2: MutableState<CoreDocument?> = remember { mutableStateOf(doc.document) }
+        buildTime = (System.nanoTime() - time) * 1E-6f
         return doc2
+    }
+
+    override fun getBuildTime(): Float {
+        return buildTime
     }
 
     @Composable override fun Run() {}
@@ -187,6 +196,7 @@ fun getComposeDoc(
         var remoteComposeDocument: RemoteDocument? = null
         var document: CoreDocument? = null
         var created = false
+        private var buildTime: Float = 123f
 
         override fun run() {}
 
@@ -195,8 +205,10 @@ fun getComposeDoc(
                 return remoteComposeDocument!!
             }
             if (!created) {
+                val start = System.nanoTime()
                 created = true
                 rememberRemoteDocument(context, cRun)
+                buildTime = (System.nanoTime() - start) * 1E-6f
             }
             if (document != null && document is CoreDocument) {
                 remoteComposeDocument = RemoteDocument(document!!)
@@ -206,6 +218,10 @@ fun getComposeDoc(
 
         override fun getColor(): Int {
             return color.toArgb()
+        }
+
+        override fun getBuildTime(): Float {
+            return buildTime
         }
 
         override fun size(): Int {
@@ -295,6 +311,7 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
+                    getpc("Stock") { RcTicker(applicationContext) },
                     getpc("2 VText") { RcCanvasComponents5() },
                     getpc("Canvas + HText") { RcCanvasComponents4() },
                     getpc("Canvas + VText") { RcCanvasComponents3() },
@@ -312,6 +329,7 @@ class ExperimentActivity : ComponentActivity() {
                     getpc("Long Text Ellipsis") { RcTextDemo3c() },
                     getpc("Line height Text") { RcTextDemo3() },
                     getpc("Autosize Text") { RcTextDemo2() },
+                    getpc("Autosize Card") { RcTextDemo2b() },
                     getpc("Text baseline") { RcTextDemo() },
                     getpc("CountDown") { countDown() },
                     getpc("Cube 3D") { cube3d() },
@@ -334,6 +352,8 @@ class ExperimentActivity : ComponentActivity() {
         gen: () -> RemoteComposeWriter,
     ): RemoteComposeFunc {
         return object : RemoteComposeFunc {
+            private var buildTime: Float = 0f
+
             @Composable
             override fun Run() {
                 println()
@@ -341,10 +361,17 @@ class ExperimentActivity : ComponentActivity() {
 
             @Composable
             override fun getDoc(): MutableState<CoreDocument?> {
+                val time = System.nanoTime()
+
                 val doc =
                     RemoteDocument(ByteArrayInputStream(gen().buffer(), 0, gen().bufferSize()))
                 val doc2: MutableState<CoreDocument?> = remember { mutableStateOf(doc.document) }
+                buildTime = (System.nanoTime() - time) * 1E-6f
                 return doc2
+            }
+
+            override fun getBuildTime(): Float {
+                return buildTime
             }
 
             override fun getColor(): Color {
@@ -363,6 +390,8 @@ class ExperimentActivity : ComponentActivity() {
         cRun: @Composable () -> Unit,
     ): RemoteComposeFunc {
         return object : RemoteComposeFunc {
+            private var buildTime: Float = 0f
+
             @Composable
             override fun Run() {
                 cRun()
@@ -370,11 +399,18 @@ class ExperimentActivity : ComponentActivity() {
 
             @Composable
             override fun getDoc(): MutableState<CoreDocument?> {
-                return rememberRemoteDocument(cRun)
+                val time = System.nanoTime()
+                val d = rememberRemoteDocument(cRun)
+                buildTime = (System.nanoTime() - time) * 1E-6f
+                return d
             }
 
             override fun getColor(): Color {
                 return color
+            }
+
+            override fun getBuildTime(): Float {
+                return buildTime
             }
 
             override fun toString(): String {
@@ -747,6 +783,7 @@ fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
         val currentDocument = func.getDoc() // remember(func) {  }
         val stats = currentDocument.value?.stats
         val docSize = currentDocument.value?.let { docSize(it) }
+        val buildTime = currentDocument.value?.let { build(func) }
         val zipSize = currentDocument.value?.let { compressDocSize(it) }
         val playerRef = remember { mutableStateOf<RemoteComposePlayer?>(null) }
         val evalTime = remember { mutableFloatStateOf(0f) }
@@ -784,6 +821,16 @@ fun DisplayStats(fileReady: Boolean, func: RemoteComposeFunc) {
 
             if (stats != null) {
                 LazyColumn {
+                    item {
+                        Row() {
+                            Text(
+                                text = "Build ",
+                                modifier = Modifier.fillMaxWidth(0.6f),
+                                textAlign = TextAlign.Right,
+                            )
+                            Text(text = "%.2f".format(buildTime) + "ms")
+                        }
+                    }
                     item {
                         Row() {
                             Text(
@@ -917,33 +964,35 @@ fun DisplayMain(
         }
         println("launching $func")
         if (fileReady && showOrigami) {
-            Box(modifier = Modifier.background(Color(0xFFFFFFFF)).fillMaxHeight(0.5f)) {
-                // Button(onClick = { /*TODO*/}) { Text(text = "hello world") }
-                val currentDocument = func.getDoc() // remember(func) {  }
+            Row {
+                Box(modifier = Modifier.background(Color(0xFF0FFFFF))) { // .fillMaxHeight(0.5f)) {
+                    // Button(onClick = { /*TODO*/}) { Text(text = "hello world") }
+                    val currentDocument = func.getDoc() // remember(func) {  }
 
-                AndroidView(
-                    modifier = Modifier.size(documentWidth.dp, documentHeight.dp),
-                    factory = {
-                        val player = RemoteComposePlayer(it)
-                        if (currentDocument.value != null) {
-                            player.setDocument(RemoteDocument(currentDocument.value!!))
-                        }
-                        player.setShaderControl(shaderControl)
-                        player.addIdActionListener { _id, _metadata ->
-                            id = _id
-                            metadata = _metadata ?: "empty"
-                        }
+                    AndroidView(
+                        modifier = Modifier, // .size(documentWidth.dp, documentHeight.dp),
+                        factory = {
+                            val player = RemoteComposePlayer(it)
+                            if (currentDocument.value != null) {
+                                player.setDocument(RemoteDocument(currentDocument.value!!))
+                            }
+                            player.setShaderControl(shaderControl)
+                            player.addIdActionListener { _id, _metadata ->
+                                id = _id
+                                metadata = _metadata ?: "empty"
+                            }
 
-                        player
-                    },
-                    update = {
-                        it.setTheme(playbackTheme)
-                        if (currentDocument.value != null) {
-                            it.setDocument(RemoteDocument(currentDocument.value!!))
-                        }
-                        it.setDebug(debugMode)
-                    },
-                )
+                            player
+                        },
+                        update = {
+                            it.setTheme(playbackTheme)
+                            if (currentDocument.value != null) {
+                                it.setDocument(RemoteDocument(currentDocument.value!!))
+                            }
+                            it.setDebug(debugMode)
+                        },
+                    )
+                }
             }
         } else {
             Text(if (showOrigami) "Waiting for file..." else "RC not shown")
@@ -973,6 +1022,8 @@ interface RemoteComposeFunc {
     fun getColor(): Color
 
     @Composable fun getDoc(): MutableState<CoreDocument?>
+
+    fun getBuildTime(): Float
 }
 
 @Suppress("RestrictedApiAndroidX")
@@ -1077,6 +1128,11 @@ fun docSize(doc: CoreDocument): Int {
     val wb = doc.buffer.buffer
     val len = wb.size
     return len
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun build(doc: RemoteComposeFunc): Float {
+    return doc.getBuildTime()
 }
 
 @Suppress("RestrictedApiAndroidX")

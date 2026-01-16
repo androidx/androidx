@@ -25,8 +25,6 @@
 import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
@@ -57,88 +55,43 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinCoroutinesCore)
-                api(project(":compose:runtime:runtime-annotation"))
-                implementation("androidx.collection:collection:1.5.0")
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api(project(":compose:runtime:runtime-annotation"))
+            implementation("androidx.collection:collection:1.5.0")
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinReflect)
-                implementation(project(":compose:runtime:runtime-test-utils"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinReflect)
+            implementation(project(":compose:runtime:runtime-test-utils"))
         }
 
-        nonEmulatorCommonMain {
-            dependsOn(commonMain)
+        nonEmulatorCommonTest.dependsOn(commonTest)
+        nonEmulatorJvmTest.dependsOn(nonEmulatorCommonTest)
+
+        androidMain.dependencies {
+            api(libs.kotlinCoroutinesAndroid)
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
-        nonEmulatorCommonTest {
-            dependsOn(commonTest)
+        androidDeviceTest.dependencies {
+            implementation(libs.testExtJunit)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.truth)
         }
 
-        nonEmulatorJvmMain {
-            dependsOn(nonEmulatorCommonMain)
-        }
+        androidHostTest.dependsOn(nonEmulatorJvmTest)
 
-        nonEmulatorJvmTest {
-            dependsOn(nonEmulatorCommonTest)
-        }
+        nonAndroidMain.dependsOn(commonMain)
+        nonAndroidTest.dependsOn(commonTest)
 
-        jvmMain {
-            dependsOn(nonEmulatorJvmMain)
-            dependencies {
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api(libs.kotlinCoroutinesAndroid)
-                api("androidx.annotation:annotation-experimental:1.4.1")
-            }
-        }
-
-        androidDeviceTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.testExtJunit)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.truth)
-            }
-        }
-
-        androidHostTest {
-            dependsOn(jvmTest)
-            dependsOn(nonEmulatorJvmTest)
-        }
-
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-
-        nonAndroidTest {
-            dependsOn(commonTest)
-        }
-
-        desktopMain {
-            dependsOn(jvmMain)
-            dependsOn(nonAndroidMain)
-        }
+        desktopMain.dependsOn(nonAndroidMain)
 
         desktopTest {
-            dependsOn(jvmTest)
             dependsOn(nonEmulatorJvmTest)
             dependsOn(nonAndroidTest)
         }
@@ -150,45 +103,24 @@ androidXMultiplatform {
             }
         }
 
-        nonJvmTest {
-            dependsOn(nonAndroidTest)
-        }
-
-        nativeMain {
-            dependsOn(nonAndroidMain)
-            dependsOn(nonJvmMain)
-        }
+        nativeMain.dependsOn(nonAndroidMain)
 
         nativeTest {
             dependsOn(nonAndroidTest)
-            dependsOn(nonJvmTest)
             dependsOn(nonEmulatorCommonTest)
         }
 
-        webMain {
-            dependsOn(nonJvmMain)
+        webTest.dependsOn(nonEmulatorCommonTest)
+
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinXw3c)
         }
 
-        webTest {
-            dependsOn(nonJvmTest)
-            dependsOn(nonEmulatorCommonTest)
-        }
+        unixMain.dependsOn(nativeMain)
 
-        wasmJsMain {
-            dependencies {
-                implementation(libs.kotlinXw3c)
-            }
-        }
+        appleMain.dependsOn(unixMain)
 
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
-        }
+        linuxMain.dependsOn(unixMain)
     }
 }
 

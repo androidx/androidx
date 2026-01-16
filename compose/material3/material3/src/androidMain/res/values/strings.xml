@@ -128,6 +128,12 @@
     <string name="m3c_time_picker_dialog_title">Select Time</string>
     <!-- Title for a dialog that allows the user to enter the time with a text input. -->
     <string name="m3c_time_input_dialog_title">Enter Time</string>
+    <!-- The label for a text field to show an error on the selection of the minute [CHAR_LIMIT=24] -->
+    <string name="m3c_time_picker_minute_error">Minute must be 0–59</string>
+    <!-- The label for a text field to show an error on the selection of the hour [CHAR_LIMIT=24] -->
+    <string name="m3c_time_picker_hour_error">Hour must be 1–12</string>
+    <!-- The label for a text field to show an error on the selection of the 24-hour [CHAR_LIMIT=24] -->
+    <string name="m3c_time_picker_hour_error_24h">Hour must be 0–23</string>
     <!-- Spoken content description of an element which will close the modal rail when clicked. -->
     <string name="m3c_wide_navigation_rail_close_rail">"Close rail"</string>
     <!-- Accessibility pane title for the modal rail. -->

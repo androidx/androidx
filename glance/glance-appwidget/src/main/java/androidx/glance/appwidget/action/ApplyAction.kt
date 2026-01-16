@@ -375,7 +375,7 @@ private object ApplyActionApi29Impl {
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
-private object ApplyActionApi26Impl {
+internal object ApplyActionApi26Impl {
     fun getForegroundServicePendingIntent(context: Context, intent: Intent): PendingIntent {
         return PendingIntent.getForegroundService(
             context,

@@ -72,7 +72,7 @@ class ArDeviceTest {
         activityController.create()
 
         session = (Session.create(activity, testDispatcher) as SessionCreateSuccess).session
-        session.configure(Config(headTracking = Config.HeadTrackingMode.LAST_KNOWN))
+        session.configure(Config(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN))
         xrResourcesManager.lifecycleManager = session.perceptionRuntime.lifecycleManager
     }
 
@@ -95,9 +95,9 @@ class ArDeviceTest {
         }
 
     @Test
-    fun getInstance_headTrackingDisabled_throwsIllegalStateException() {
+    fun getInstance_deviceTrackingDisabled_throwsIllegalStateException() {
         val configureResult =
-            session.configure(Config(headTracking = Config.HeadTrackingMode.DISABLED))
+            session.configure(Config(deviceTracking = Config.DeviceTrackingMode.DISABLED))
         check(configureResult is SessionConfigureSuccess)
 
         assertFailsWith<IllegalStateException> { ArDevice.getInstance(session) }

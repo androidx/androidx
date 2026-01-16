@@ -25,7 +25,6 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
@@ -46,6 +45,7 @@ import androidx.compose.foundation.text.input.internal.TextFieldDecoratorModifie
 import androidx.compose.foundation.text.input.internal.TextFieldTextLayoutModifier
 import androidx.compose.foundation.text.input.internal.TextLayoutState
 import androidx.compose.foundation.text.input.internal.TransformedTextFieldState
+import androidx.compose.foundation.text.input.internal.collectIsDragAndDropHoveredAsState
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState.InputType
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarHandler
@@ -258,7 +258,7 @@ internal fun BasicTextField(
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
     val isFocused = interactionSource.collectIsFocusedAsState().value
-    val isDragHovered = interactionSource.collectIsHoveredAsState().value
+    val isDragHovered = interactionSource.collectIsDragAndDropHoveredAsState().value
     // Avoid reading LocalWindowInfo.current.isWindowFocused when the text field is not focused;
     // otherwise all text fields in a window will be recomposed when it becomes focused.
     val isWindowAndTextFieldFocused = isFocused && LocalWindowInfo.current.isWindowFocused

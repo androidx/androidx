@@ -20,12 +20,12 @@ package androidx.wear.compose.remote.material3
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
-import androidx.compose.remote.creation.compose.capture.shapes.RemoteCircleShape
-import androidx.compose.remote.creation.compose.capture.shapes.RemoteRoundedCornerShape
-import androidx.compose.remote.creation.compose.capture.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.size
+import androidx.compose.remote.creation.compose.shapes.RemoteCircleShape
+import androidx.compose.remote.creation.compose.shapes.RemoteRoundedCornerShape
+import androidx.compose.remote.creation.compose.shapes.RemoteShape
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteDp
@@ -52,6 +52,7 @@ import androidx.compose.ui.graphics.Color
  *
  * Example of an [RemoteIconButton] with shape animation of rounded corners on press:
  *
+ * @sample androidx.wear.compose.remote.material3.samples.RemoteIconButtonSimpleSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param shape Defines the shape for this button. Defaults to a static shape based on
@@ -71,7 +72,7 @@ import androidx.compose.ui.graphics.Color
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Suppress("RestrictedApiAndroidX")
 public fun RemoteIconButton(
-    vararg onClick: Action,
+    onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteIconButtonColors = RemoteIconButtonDefaults.iconButtonColors(),
     enabled: RemoteBoolean = true.rb,

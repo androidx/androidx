@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="true" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBooleanKt.getRb can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    RemoteTextButton(enabled = true.rb) { RemoteText(&quot;ABC&quot;.rs) }"
+        errorLine2="                                    ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteStringKt.getRs can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    RemoteTextButton(enabled = true.rb) { RemoteText(&quot;ABC&quot;.rs) }"
+        errorLine2="                                                           ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonEnabled() } }"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonEnabled() } }"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonEnabled() } }"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBooleanKt.getRb can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    RemoteTextButton(enabled = true.rb, colors = filledTonalColor()) { RemoteText(&quot;ABC&quot;.rs) }"
+        errorLine2="                                    ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteStringKt.getRs can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    RemoteTextButton(enabled = true.rb, colors = filledTonalColor()) { RemoteText(&quot;ABC&quot;.rs) }"
+        errorLine2="                                                                                        ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonTonal() } }"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonTonal() } }"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonTonal() } }"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteDpKt.getRdp can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        border = 1.rdp,"
+        errorLine2="                   ~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBooleanKt.getRb can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        enabled = true.rb,"
+        errorLine2="                       ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteStringKt.getRs can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        RemoteText(&quot;ABC&quot;.rs)"
+        errorLine2="                         ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonOutline() } }"
+        errorLine2="    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonOutline() } }"
+        errorLine2="                            ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemotePreviewKt.RemotePreview can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1=") = RemotePreview(profile = profile) { Container { RemoteTextButtonOutline() } }"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContainerColor = RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),"
+        errorLine2="                                                                             ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContainerColor = RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),"
+        errorLine2="                                                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatKt.getRf can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContainerColor = RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),"
+        errorLine2="                                                                                                ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),"
+        errorLine2="                                                                           ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),"
+        errorLine2="                                                                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatKt.getRf can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),"
+        errorLine2="                                                                                      ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            containerColor = RemoteColor(Color.Transparent),"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContainerColor = RemoteColor(Color.Transparent),"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),"
+        errorLine2="                                                                           ~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteColor.copy can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),"
+        errorLine2="                                                                                ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteFloatKt.getRf can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="            disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),"
+        errorLine2="                                                                                      ~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteModifier can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    modifier: RemoteModifier = RemoteModifier.fillMaxSize(),"
+        errorLine2="              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SizeModifierKt.fillMaxSize can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    modifier: RemoteModifier = RemoteModifier.fillMaxSize(),"
+        errorLine2="                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="SizeModifierKt.fillMaxSize can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    modifier: RemoteModifier = RemoteModifier.fillMaxSize(),"
+        errorLine2="                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBoxKt.RemoteBox can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="    RemoteBox("
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBoxKt.RemoteBox can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        modifier,"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.CenterHorizontally can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        horizontalAlignment = RemoteAlignment.CenterHorizontally,"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBoxKt.RemoteBox can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        horizontalAlignment = RemoteAlignment.CenterHorizontally,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Companion.Center can only be accessed from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        verticalArrangement = RemoteArrangement.Center,"
+        errorLine2="                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBoxKt.RemoteBox can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        verticalArrangement = RemoteArrangement.Center,"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="RemoteBoxKt.RemoteBox can only be called from within the same library group (referenced groupId=`androidx.compose.remote` from groupId=`androidx.wear.compose.remote`)"
+        errorLine1="        content = content,"
+        errorLine2="                  ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/remote/material3/previews/RemoteTextButtonPreview.kt"/>
+    </issue>
+
+</issues>

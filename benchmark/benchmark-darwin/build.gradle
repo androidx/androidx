@@ -28,40 +28,12 @@ androidXMultiplatform {
     // the only platform built on all machines
     defaultPlatform(PlatformIdentifier.JVM)
     sourceSets {
-        darwinMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
+        iosMain.dependencies {
+            api(project(":benchmark:benchmark-darwin-core"))
         }
-        darwinTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
-        }
-        iosMain {
-            dependsOn(darwinMain)
-            dependencies {
-                api(project(":benchmark:benchmark-darwin-core"))
-            }
-        }
-        iosArm64Main {
-            dependsOn(iosMain)
-        }
-        iosSimulatorArm64Main {
-            dependsOn(iosMain)
-        }
-        iosX64Main {
-            dependsOn(iosMain)
-        }
+
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(darwinMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(darwinTest)
-                }
                 target.compilations.configureEach {
                     compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 }

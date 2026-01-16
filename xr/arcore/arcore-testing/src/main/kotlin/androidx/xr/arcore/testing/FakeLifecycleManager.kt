@@ -107,7 +107,10 @@ public class FakeLifecycleManager(
             throw UnsupportedOperationException()
         }
 
-        if (!shouldSupportFaceTracking && config.faceTracking == Config.FaceTrackingMode.USER) {
+        if (
+            !shouldSupportFaceTracking &&
+                config.faceTracking == Config.FaceTrackingMode.BLEND_SHAPES
+        ) {
             throw UnsupportedOperationException()
         }
 

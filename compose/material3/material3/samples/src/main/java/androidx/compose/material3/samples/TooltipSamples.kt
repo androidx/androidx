@@ -24,7 +24,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -47,7 +46,6 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -64,7 +62,6 @@ fun PlainTooltipSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Sampled
 @Composable
@@ -92,7 +89,6 @@ fun PlainTooltipWithManualInvocationSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun PlainTooltipWithCaret() {
@@ -110,7 +106,6 @@ fun PlainTooltipWithCaret() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun PlainTooltipWithCaretBelowAnchor() {
@@ -128,7 +123,6 @@ fun PlainTooltipWithCaretBelowAnchor() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun PlainTooltipWithCaretLeftOfAnchor() {
@@ -146,7 +140,6 @@ fun PlainTooltipWithCaretLeftOfAnchor() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun PlainTooltipWithCaretRightOfAnchor() {
@@ -164,7 +157,6 @@ fun PlainTooltipWithCaretRightOfAnchor() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun PlainTooltipWithCaretStartOfAnchor() {
@@ -182,7 +174,6 @@ fun PlainTooltipWithCaretStartOfAnchor() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun PlainTooltipWithCaretEndOfAnchor() {
@@ -200,7 +191,6 @@ fun PlainTooltipWithCaretEndOfAnchor() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun PlainTooltipWithCustomCaret() {
@@ -220,7 +210,6 @@ fun PlainTooltipWithCustomCaret() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun RichTooltipSample() {
@@ -250,7 +239,6 @@ fun RichTooltipSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun RichTooltipWithManualInvocationSample() {
@@ -286,7 +274,6 @@ fun RichTooltipWithManualInvocationSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun RichTooltipWithCaretSample() {
@@ -317,7 +304,6 @@ fun RichTooltipWithCaretSample() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun RichTooltipWithCustomCaretSample() {

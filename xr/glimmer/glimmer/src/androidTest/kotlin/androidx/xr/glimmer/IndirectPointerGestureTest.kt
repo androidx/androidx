@@ -41,7 +41,7 @@ import androidx.compose.ui.input.indirect.IndirectPointerEvent
 import androidx.compose.ui.input.indirect.IndirectPointerEventPrimaryDirectionalMotionAxis
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
 import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
@@ -49,6 +49,7 @@ import androidx.test.core.view.MotionEventBuilder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.xr.glimmer.testutils.createGlimmerRule
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
@@ -804,10 +805,10 @@ class IndirectPointerGestureTest {
 
         eventTime += 10L
 
-        val repeatCount = 30
+        val repeatCount = 100
         val eachDragMovement = (touchSlop * 1.4f) / repeatCount
         var lastEvent = p0Down
-        // The resulting X velocity is 76, which is below the 100f threshold.
+        // The resulting X velocity is 23, which is below the 34f threshold.
         repeat(repeatCount) {
             eventTime += 10
             p0Coords.x += eachDragMovement

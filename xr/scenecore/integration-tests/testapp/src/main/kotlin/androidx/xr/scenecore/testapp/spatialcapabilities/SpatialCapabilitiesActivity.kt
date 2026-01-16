@@ -42,8 +42,10 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 @SuppressLint("SetTextI18n", "RestrictedApi")
 class SpatialCapabilitiesActivity : AppCompatActivity() {
+    @Suppress("DEPRECATION")
     private val renderingSession: Session by lazy {
-        (Session.create(this) as SessionCreateSuccess).session
+        (Session.create(this, unscaledGravityAlignedActivitySpace = true) as SessionCreateSuccess)
+            .session
     }
     private var spatialMode = SpatialMode.FSM
     private var spatialEventLogList = mutableListOf<SpatialEventLog>()
@@ -61,6 +63,8 @@ class SpatialCapabilitiesActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        renderingSession.scene.keyEntity = renderingSession.scene.mainPanelEntity
 
         // toolbar
         findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
@@ -147,6 +151,7 @@ class SpatialCapabilitiesActivity : AppCompatActivity() {
                 )
                 return getString(R.string.switch_to_fsm_button_text)
             }
+
             SpatialMode.HSM -> {
                 session.scene.requestFullSpaceMode()
                 spatialMode = SpatialMode.FSM

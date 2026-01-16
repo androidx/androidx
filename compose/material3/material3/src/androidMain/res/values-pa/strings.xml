@@ -83,6 +83,9 @@
     <string name="m3c_time_picker_toggle_touch" msgid="1380272826693645088">"ਘੜੀ ਮੋਡ \'ਤੇ ਸਵਿੱਚ ਕਰੋ"</string>
     <string name="m3c_time_picker_dialog_title" msgid="7412665527536641863">"ਸਮਾਂ ਚੁਣੋ"</string>
     <string name="m3c_time_input_dialog_title" msgid="409352516511718051">"ਸਮਾਂ ਦਾਖਲ ਕਰੋ"</string>
+    <string name="m3c_time_picker_minute_error" msgid="8576727470211431214">"ਮਿੰਟ 0–59 ਹੋਣੇ ਲਾਜ਼ਮੀ ਹਨ"</string>
+    <string name="m3c_time_picker_hour_error" msgid="1097071570318581307">"ਘੰਟੇ 1–12 ਹੋਣੇ ਲਾਜ਼ਮੀ ਹਨ"</string>
+    <string name="m3c_time_picker_hour_error_24h" msgid="7720688108712561777">"ਘੰਟੇ 0–23 ਹੋਣੇ ਲਾਜ਼ਮੀ ਹਨ"</string>
     <string name="m3c_wide_navigation_rail_close_rail" msgid="6564222473543418073">"ਰੇਲ ਬੰਦ ਕਰੋ"</string>
     <string name="m3c_wide_navigation_rail_pane_title" msgid="8350283435461615411">"ਨੈਵੀਗੇਸ਼ਨ ਰੇਲ"</string>
 </resources>

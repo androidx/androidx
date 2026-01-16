@@ -135,7 +135,8 @@ fun main(args: Array<String>) {
             val stats = calculateStatistics(dataA, dataB)
             printSummary(benchmarkName, stats)
             printCsvOutput(benchmarkName, stats)
-            createHistogramPlot(benchmarkName, dataA, dataB, outputPath)
+            println("\n--- Graphical Plot ---")
+            createHistogramPlot(benchmarkName, dataA, dataB, outputPath, "timing")
         } else {
             println(
                 "\nSkipping comparison for '$benchmarkName': data is missing or empty in one of the revisions."

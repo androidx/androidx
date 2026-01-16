@@ -68,10 +68,12 @@ constructor(
         }
 
     override fun reset() {
-        updateTorchState(TorchMode.OFF)
         stopRunningTaskInternal()
-        setTorchAsync(false)
-        torchMode = null
+        if (torchMode != null) {
+            updateTorchState(TorchMode.OFF)
+            setTorchAsync(false)
+            torchMode = null
+        }
     }
 
     private val hasFlashUnit: Boolean = cameraProperties.isFlashAvailable()
@@ -143,8 +145,9 @@ constructor(
             // Hold the internal AE mode to ON while the torch is turned ON. If torch is OFF, a
             // value of null will make the state3AControl calculate the correct AE mode based on
             // other settings.
-            state3AControl.preferredAeMode =
+            state3AControl.setPreferredAeModeAsync(
                 if (isFlashUnitOn(mode)) CaptureRequest.CONTROL_AE_MODE_ON else null
+            )
             val aeMode: AeMode =
                 AeMode.fromIntOrNull(state3AControl.getFinalSupportedAeMode())
                     ?: run {

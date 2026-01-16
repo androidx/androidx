@@ -10,6 +10,7 @@
                 <itemType>
                     <id>unused</id>
                     <isNullable>false</isNullable>
+                    <objectQualifiedName>android.app.PendingIntent</objectQualifiedName>
                     <type>13</type>
                 </itemType>
                 <type>10</type>
@@ -39,6 +40,7 @@
                 <itemType>
                     <id>unused</id>
                     <isNullable>false</isNullable>
+                    <objectQualifiedName>android.app.PendingIntent</objectQualifiedName>
                     <type>13</type>
                 </itemType>
                 <type>10</type>
@@ -53,6 +55,7 @@
             <dataTypeMetadata>
                 <id>unused</id>
                 <isNullable>false</isNullable>
+                <objectQualifiedName>android.app.PendingIntent</objectQualifiedName>
                 <type>13</type>
             </dataTypeMetadata>
             <id>unused</id>
@@ -77,6 +80,7 @@
             <valueType>
                 <id>unused</id>
                 <isNullable>false</isNullable>
+                <objectQualifiedName>android.app.PendingIntent</objectQualifiedName>
                 <type>13</type>
             </valueType>
         </response>

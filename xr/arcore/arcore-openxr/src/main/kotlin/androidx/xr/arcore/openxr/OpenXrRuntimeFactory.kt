@@ -27,7 +27,7 @@ import kotlin.coroutines.CoroutineContext
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public class OpenXrRuntimeFactory() : PerceptionRuntimeFactory {
     public companion object {
-        private const val LIBRARY_NAME: String = "androidx.xr.runtime.openxr"
+        private const val LIBRARY_NAME: String = "androidx.xr.arcore.openxr"
 
         init {
             try {

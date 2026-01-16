@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function usage() {
-  echo "Usage: studiow [--clear-caches] [--clean] [--reinstall] [--profile] <project subset>"
+  echo "Usage: studiow [--clear-caches] [--clean] [--reinstall] [--profile] <project subset>|<comma-separated project prefixes>"
   echo
   echo "OPTIONS"
   echo
@@ -53,6 +53,10 @@ function usage() {
   echo " a, all"
   echo "  Open the project subset all"
   echo
+  echo "Or use project prefixes to scope down even further. For example:"
+  echo " studiow :palette:palette"
+  echo " studiow :room3,:sqlite"
+  echo
   exit 1
 }
 
@@ -63,6 +67,7 @@ clearCaches=false
 cleanSettings=false
 reinstall=false
 projectSubset=""
+projectPrefix=""
 profile=false
 acceptTos=false
 while [ "$1" != "" ]; do
@@ -95,6 +100,7 @@ while [ "$1" != "" ]; do
   # parse arguments
   subsetArg="$arg"
   newSubset=""
+  newPrefix=""
   if [ "$subsetArg" == "m" -o "$subsetArg" == "main" ]; then
     newSubset=main
   fi
@@ -134,7 +140,10 @@ while [ "$1" != "" ]; do
   if [ "$subsetArg" == "x" -o "$subsetArg" == "xr" ]; then
       newSubset=xr
   fi
-  if [ "$newSubset" == "" ]; then
+  if [[ $subsetArg == :* ]]; then
+    newPrefix=$subsetArg
+  fi
+  if [ "$newSubset" == "" ] && [ "$newPrefix" == "" ]; then
     echo "Unrecognized argument: '$subsetArg'"
     usage
   fi
@@ -142,15 +151,26 @@ while [ "$1" != "" ]; do
     echo "Unrecognized argument '$subsetArg', cannot specify project subset more than once"
     usage
   fi
+  if [ "$projectPrefix" != "" ]; then
+    echo "Unrecognized argument '$subsetArg', cannot specify project prefix more than once"
+    usage
+  fi
   projectSubset=$newSubset
+  projectPrefix=$newPrefix
 done
 
-if [ "$projectSubset" == "" ]; then
-  echo "Project subset is required"
+if [ "$projectSubset" == "" ] && [ "$projectPrefix" == "" ]; then
+  echo "Project subset or project prefix is required"
   usage
 fi
 
-export ANDROIDX_PROJECTS=$projectSubset
+if [ "$projectSubset" != "" ]; then
+  unset PROJECT_PREFIX
+  export ANDROIDX_PROJECTS=$projectSubset
+else
+  unset ANDROIDX_PROJECTS
+  export PROJECT_PREFIX=$projectPrefix
+fi
 
 # ensures the nonexistence of a file or directory, and makes a backup
 function remove() {

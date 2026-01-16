@@ -44,7 +44,6 @@ import androidx.wear.compose.foundation.LocalScreenIsActive
 import androidx.wear.compose.foundation.ScrollInfoProvider
 import androidx.wear.compose.foundation.pager.PagerDefaults
 import androidx.wear.compose.foundation.pager.PagerState
-import androidx.wear.compose.material3.PagerScaffoldDefaults.snapWithSpringFlingBehavior
 import androidx.wear.compose.materialcore.screenHeightDp
 import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.absoluteValue
@@ -231,93 +230,31 @@ public fun AnimatedPage(
     }
 }
 
-/**
- * Represents the sensitivity level of pager for snapping algorithms, such as during fling or rotary
- * scrolling (either horizontal or vertical).
- */
-@JvmInline
-public value class PagerSensitivity private constructor(private val sensitivityLevel: Int) {
-    public companion object {
-        /**
-         * Low sensitivity. Recommended for screens used with gross motor activity, such as during
-         * exercise, where accidental or imprecise touches are more likely.
-         */
-        public val Low: PagerSensitivity = PagerSensitivity(1)
-
-        /** Medium sensitivity. Intended for use when the user is moving, but less vigorously. */
-        public val Medium: PagerSensitivity = PagerSensitivity(2)
-
-        /**
-         * High sensitivity. Recommended for contexts where even a light or minimal gesture should
-         * trigger movement, such as navigating a long list (e.g. at least 10 items) where quick
-         * scrolling is desired.
-         */
-        public val High: PagerSensitivity = PagerSensitivity(3)
-    }
-}
-
 /** Contains default values used for [HorizontalPagerScaffold] and [VerticalPagerScaffold]. */
 public object PagerScaffoldDefaults {
     /**
-     * Recommended fling behavior for pagers on Wear when using Material3, providing a smooth,
-     * spring-like snapping effect.
+     * High `SnapPositionalThreshold` value, recommended for contexts where even a light or minimal
+     * gesture should trigger movement, such as navigating a long list (e.g. at least 10 items)
+     * where quick scrolling is desired.
      *
-     * [PagerSensitivity.Low]: Provides high-stiffness for better control during exercise or other
-     * gross-motor activities
+     * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldSample
+     */
+    public val HighSnapPositionalThreshold: Float = 0.35f
+
+    /**
+     * Recommended `SnapPositionalThreshold` value for screens used when the user is moving or there
+     * are a low number of screens (i.e., fewer than 10).
      *
-     * [PagerSensitivity.Medium]: Intended for use when the user is moving but less vigorously.
-     *
-     * [PagerSensitivity.High] (default value): Recommended for screens with at least 10 pages,
-     * where the user is expected to scroll quickly through many pages.
-     *
-     * Example of using [HorizontalPager] with [snapWithSpringFlingBehavior] and
-     * [PagerSensitivity.Low]:
-     *
-     * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldWithLowSensitivitySample
-     *
-     * Example of using [VerticalPager] with [snapWithSpringFlingBehavior] and
-     * [PagerSensitivity.Low]:
+     * Example of a [VerticalPager] with a small number of pages and low sensitivity:
      *
      * @sample androidx.wear.compose.material3.samples.VerticalPagerScaffoldWithLowSensitivitySample
-     * @param state The [PagerState] that controls the [Pager] to which this FlingBehavior will be
-     *   applied to.
-     * @param sensitivity Configures the snap sensitivity. Defaults to [PagerSensitivity.High].
+     *
+     * Example of a [HorizontalPager] with a small number of pages and low sensitivity:
+     *
+     * @sample androidx.wear.compose.material3.samples.HorizontalPagerScaffoldWithLowSensitivitySample
      */
-    @Composable
-    public fun snapWithSpringFlingBehavior(
-        state: PagerState,
-        sensitivity: PagerSensitivity = PagerSensitivity.High,
-    ): TargetedFlingBehavior =
-        when (sensitivity) {
-            PagerSensitivity.Low ->
-                PagerDefaults.snapFlingBehavior(
-                    state = state,
-                    maxFlingPages = 0,
-                    snapPositionalThreshold = 0.1f,
-                    snapAnimationSpec = PagerDefaults.SnapAnimationSpec,
-                )
-            PagerSensitivity.Medium ->
-                PagerDefaults.snapFlingBehavior(
-                    state = state,
-                    maxFlingPages = 0,
-                    snapPositionalThreshold = 0.1f,
-                    snapAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
-                )
-            else ->
-                PagerDefaults.snapFlingBehavior(
-                    state = state,
-                    maxFlingPages = 1,
-                    snapPositionalThreshold = 0.35f,
-                    snapAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
-                )
-        }
+    public val LowSnapPositionalThreshold: Float = 0.1f
 
-    @Deprecated(
-        "This snapWithSpringFlingBehavior overload is provided for backwards " +
-            "compatibility with Wear Compose 1.5. Please use the new snapWithSpringFlingBehavior " +
-            "function that takes optional sensitivity parameter.",
-        level = DeprecationLevel.HIDDEN,
-    )
     /**
      * Recommended fling behavior for pagers on Wear when using Material3, snaps at most one page at
      * a time. This behavior is tailored for a smooth, spring-like snapping effect, enhancing the
@@ -339,7 +276,7 @@ public object PagerScaffoldDefaults {
             state = state,
             maxFlingPages = 1,
             snapAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec(),
-            snapPositionalThreshold = 0.35f,
+            snapPositionalThreshold = HighSnapPositionalThreshold,
         )
     }
 

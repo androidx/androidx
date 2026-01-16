@@ -53,6 +53,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -64,7 +65,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.platform.LocalSpatialCapabilities
-import androidx.xr.compose.platform.LocalSpatialConfiguration
+import androidx.xr.compose.platform.requestFullSpace
+import androidx.xr.compose.platform.requestHomeSpace
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
@@ -80,12 +82,12 @@ import androidx.xr.compose.subspace.SpatialCurvedRow
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SubspaceComposable
+import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.layout.PlaneOrientation
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SpatialRoundedCornerShape
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.alpha
 import androidx.xr.compose.subspace.layout.aspectRatio
 import androidx.xr.compose.subspace.layout.depth
 import androidx.xr.compose.subspace.layout.fillMaxHeight
@@ -94,8 +96,8 @@ import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.padding
 import androidx.xr.compose.subspace.layout.rotate
-import androidx.xr.compose.subspace.layout.testTag
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.subspace.semantics.testTag
 import androidx.xr.compose.testapp.common.AnotherActivity
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TestDialog
@@ -113,6 +115,7 @@ import java.time.Clock
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class SpatialCompose : ComponentActivity() {
 
@@ -141,8 +144,10 @@ class SpatialCompose : ComponentActivity() {
 
     @Composable
     fun MainPanelContent() {
+        val scope = rememberCoroutineScope()
         var title = intent.getStringExtra("TITLE")
         if (title == null) title = "Spatial Compose Test"
+
         CommonTestScaffold(
             title = title,
             showBottomBar = true,
@@ -156,14 +161,15 @@ class SpatialCompose : ComponentActivity() {
                 ) {
                     Text("Panel Center - main task window")
                     val isSpatialUiEnabled = LocalSpatialCapabilities.current.isSpatialUiEnabled
-                    val config = LocalSpatialConfiguration.current
 
                     Button(
                         onClick = {
-                            if (isSpatialUiEnabled) {
-                                config.requestHomeSpaceMode()
-                            } else {
-                                config.requestFullSpaceMode()
+                            scope.launch {
+                                if (isSpatialUiEnabled) {
+                                    requestHomeSpace()
+                                } else {
+                                    requestFullSpace()
+                                }
                             }
                         }
                     ) {
@@ -440,7 +446,7 @@ class SpatialCompose : ComponentActivity() {
 
                     // 2. Only calculate the bounding box if the animation is actually playing.
                     if (entity.animationState == AnimationState.PLAYING) {
-                        entitySize = entity.getGltfModelBoundingBox().halfExtents.times(2f)
+                        entitySize = entity.gltfModelBoundingBox.halfExtents.times(2f)
                     }
 
                     delay(16L)

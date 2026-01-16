@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"De rij kan ook worden geselecteerd"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Secundaire actie is geselecteerd"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Rij voor primaire actie is geselecteerd"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demo voor eindafbeelding en acties in een rij"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Lege lijstdemo"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"De lijst is leeg"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Diverse templatedemo\'s"</string>

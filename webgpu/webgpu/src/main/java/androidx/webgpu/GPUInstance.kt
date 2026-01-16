@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@ package androidx.webgpu
 
 import dalvik.annotation.optimization.FastNative
 import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** The entry point for the WebGPU API; used for adapter and surface discovery/creation. */
 public class GPUInstance private constructor(public val handle: Long) : AutoCloseable {
@@ -34,13 +31,13 @@ public class GPUInstance private constructor(public val handle: Long) : AutoClos
     @JvmName("createSurface")
     @JvmOverloads
     public external fun createSurface(
-        descriptor: SurfaceDescriptor = SurfaceDescriptor()
+        descriptor: GPUSurfaceDescriptor = GPUSurfaceDescriptor()
     ): GPUSurface
 
     /** Gets the set of WGSL language features supported by the instance. */
     @FastNative
     @JvmName("getWGSLLanguageFeatures")
-    public external fun getWGSLLanguageFeatures(): SupportedWGSLLanguageFeatures
+    public external fun getWGSLLanguageFeatures(): GPUSupportedWGSLLanguageFeatures
 
     /**
      * Checks if a specific WGSL language feature is supported.
@@ -61,8 +58,8 @@ public class GPUInstance private constructor(public val handle: Long) : AutoClos
     @JvmOverloads
     public external fun requestAdapter(
         callbackExecutor: java.util.concurrent.Executor,
-        options: RequestAdapterOptions? = null,
-        callback: RequestAdapterCallback,
+        options: GPURequestAdapterOptions? = null,
+        callback: GPURequestCallback<GPUAdapter>,
     ): Unit
 
     /**
@@ -71,25 +68,9 @@ public class GPUInstance private constructor(public val handle: Long) : AutoClos
      * @param options Options for selecting the adapter.
      */
     @Throws(WebGpuException::class)
-    public suspend fun requestAdapter(options: RequestAdapterOptions? = null): GPUAdapter =
-        suspendCancellableCoroutine {
-            requestAdapter(
-                Executor(Runnable::run),
-                options,
-                { status, message, adapter ->
-                    if (!it.isActive) {
-                        // Coroutine was aborted.
-                    } else if (status != Status.Success) {
-                        it.resumeWithException(WebGpuException(status = status, reason = message))
-                    } else if (adapter == null) {
-                        it.resumeWithException(
-                            WebGpuException(status = status, reason = "Null value returned")
-                        )
-                    } else {
-                        it.resume(adapter)
-                    }
-                },
-            )
+    public suspend fun requestAdapter(options: GPURequestAdapterOptions? = null): GPUAdapter =
+        awaitGPURequest { callback ->
+            requestAdapter(Executor(Runnable::run), options, callback)
         }
 
     external override fun close()

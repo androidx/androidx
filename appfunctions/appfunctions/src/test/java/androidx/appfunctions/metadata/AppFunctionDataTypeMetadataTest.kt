@@ -412,14 +412,51 @@ class AppFunctionDataTypeMetadataTest {
                 AppFunctionDataTypeMetadata.TYPE_STRING to AppFunctionStringTypeMetadata(false),
                 AppFunctionDataTypeMetadata.TYPE_BYTES to AppFunctionBytesTypeMetadata(false),
                 AppFunctionDataTypeMetadata.TYPE_UNIT to AppFunctionUnitTypeMetadata(false),
-                AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT to
-                    AppFunctionPendingIntentTypeMetadata(false),
             )
         primitiveTypes.forEach { (type, expectedMetadata) ->
             val document = AppFunctionDataTypeMetadataDocument(type = type, isNullable = false)
             val metadata = document.toAppFunctionDataTypeMetadata()
             assertThat(metadata).isEqualTo(expectedMetadata)
         }
+    }
+
+    @Test
+    fun appFunctionDataTypeMetadataDocument_toAppFunctionParcelableTypeMetadata_returnsCorrectMetadata() {
+        val document =
+            AppFunctionDataTypeMetadataDocument(
+                type = AppFunctionDataTypeMetadata.TYPE_PARCELABLE,
+                isNullable = false,
+                objectQualifiedName = "android.os.Bundle",
+            )
+
+        val metadata = document.toAppFunctionDataTypeMetadata()
+
+        assertThat(metadata)
+            .isEqualTo(
+                AppFunctionParcelableTypeMetadata(
+                    qualifiedName = "android.os.Bundle",
+                    isNullable = false,
+                )
+            )
+    }
+
+    @Test
+    fun appFunctionDataTypeMetadataDocument_toAppFunctionParcelableTypeMetadata_defaultsToPendingIntentIfQualifiedNameIsMissing() {
+        val document =
+            AppFunctionDataTypeMetadataDocument(
+                type = AppFunctionDataTypeMetadata.TYPE_PARCELABLE,
+                isNullable = false,
+            )
+
+        val metadata = document.toAppFunctionDataTypeMetadata()
+
+        assertThat(metadata)
+            .isEqualTo(
+                AppFunctionParcelableTypeMetadata(
+                    qualifiedName = "android.app.PendingIntent",
+                    isNullable = false,
+                )
+            )
     }
 
     @Test

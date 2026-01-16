@@ -27,7 +27,7 @@ import androidx.sqlite.SQLiteDriver
 import kotlin.coroutines.CoroutineContext
 
 /** Configuration class for a [RoomDatabase]. */
-@Suppress("UNUSED_PARAMETER")
+@Suppress("UNUSED_PARAMETER", "KmpModifierMismatch") // expect is not open
 public actual open class DatabaseConfiguration
 @SuppressLint("LambdaLast")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code

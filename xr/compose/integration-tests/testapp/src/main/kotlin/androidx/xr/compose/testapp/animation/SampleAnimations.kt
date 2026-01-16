@@ -63,7 +63,7 @@ class SampleAnimations : ComponentActivity() {
         val (animationStyle, setAnimationStyle) =
             remember { mutableStateOf(AnimationStyle.SequentialExample) }
         MainPanelContent(setAnimationStyle)
-        Subspace {
+        Subspace(allowUnboundedSubspace = true) {
             SpatialCurvedRow(modifier = SubspaceModifier.fillMaxSize(), curveRadius = 1025.dp) {
                 SpatialMainPanel(modifier = SubspaceModifier.width(600.dp).height(400.dp))
                 SpatialColumn(modifier = SubspaceModifier.padding(50.dp)) {

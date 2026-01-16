@@ -28,8 +28,7 @@ import org.jspecify.annotations.NonNull;
 final class OpenXrScenePoseHelper {
     private final @NonNull ActivitySpaceImpl mActivitySpace;
 
-    OpenXrScenePoseHelper(
-            @NonNull ActivitySpaceImpl activitySpace, @NonNull AndroidXrEntity activitySpaceRoot) {
+    OpenXrScenePoseHelper(@NonNull ActivitySpaceImpl activitySpace) {
         mActivitySpace = activitySpace;
     }
 

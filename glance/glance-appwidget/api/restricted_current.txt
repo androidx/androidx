@@ -392,7 +392,7 @@ package androidx.glance.appwidget.lazy {
     field public static final long UnspecifiedItemId = -9223372036854775808L; // 0x8000000000000000L
   }
 
-  @kotlin.DslMarker public @interface LazyScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface LazyScopeMarker {
   }
 
   public final class LazyVerticalGridKt {

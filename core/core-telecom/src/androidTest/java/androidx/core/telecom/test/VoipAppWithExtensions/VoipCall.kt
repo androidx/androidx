@@ -42,7 +42,8 @@ class VoipCall(
     private val callsManager: CallsManager,
     private val callback: ITestAppControlCallback?,
     private val capabilities: List<Capability>,
-    private val initLcsValue: Boolean,
+    private val isLocallySilenced: Boolean,
+    private val canUserUpdateSilence: Boolean,
 ) {
     companion object {
         private const val TAG = "VoipCall"
@@ -94,7 +95,7 @@ class VoipCall(
                 }
                 Extensions.LOCAL_CALL_SILENCE -> {
                     localCallSilenceUpdater =
-                        addLocalCallSilenceExtension(initLcsValue) {
+                        addLocalCallSilenceExtension(isLocallySilenced, canUserUpdateSilence) {
                             Log.i(TAG, "addLocalSilenceExtension: callId=[$callId], it=[$it]")
                             callback?.setLocalCallSilenceState(callId, it)
                         }

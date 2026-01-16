@@ -19,6 +19,7 @@ package androidx.xr.compose.testapp.spatialcompose
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -34,13 +35,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.platform.LocalSpatialCapabilities
-import androidx.xr.compose.platform.LocalSpatialConfiguration
+import androidx.xr.compose.platform.requestFullSpace
+import androidx.xr.compose.platform.requestHomeSpace
 import androidx.xr.compose.spatial.ContentEdge
 import androidx.xr.compose.spatial.Orbiter
 import androidx.xr.compose.spatial.OrbiterOffsetType
@@ -56,6 +59,7 @@ import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.testapp.ui.components.TestDialog
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private const val MAIN_PANEL_EXTRA: String = "main panel"
 private const val INITIAL_LAUNCH_EXTRA: String = "launch"
@@ -213,10 +217,16 @@ fun Counter(name: String, modifier: Modifier = Modifier) {
 
 @Composable
 fun SwitchSpaceModeButton() {
-    val config = LocalSpatialConfiguration.current
+    val activity = LocalActivity.current as? ComponentActivity
+    val scope = rememberCoroutineScope()
+
     if (LocalSpatialCapabilities.current.isSpatialUiEnabled) {
-        Button(onClick = config::requestHomeSpaceMode) { Text("Request Home Space Mode") }
+        Button(onClick = { scope.launch { activity?.requestHomeSpace() } }) {
+            Text("Request Home Space Mode")
+        }
     } else {
-        Button(onClick = config::requestFullSpaceMode) { Text("Request Full Space Mode") }
+        Button(onClick = { scope.launch { activity?.requestFullSpace() } }) {
+            Text("Request Full Space Mode")
+        }
     }
 }

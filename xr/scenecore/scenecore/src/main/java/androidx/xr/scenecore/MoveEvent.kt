@@ -80,6 +80,7 @@ internal class MoveEvent(
     }
 
     @IntDef(value = [MOVE_STATE_START, MOVE_STATE_ONGOING, MOVE_STATE_END])
+    @Retention(AnnotationRetention.SOURCE)
     public annotation class MoveState
 }
 

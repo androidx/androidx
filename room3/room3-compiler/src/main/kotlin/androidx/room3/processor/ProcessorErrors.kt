@@ -27,6 +27,7 @@ import androidx.room3.ext.RoomTypeNames
 import androidx.room3.ext.RoomTypeNames.ROOM_DB
 import androidx.room3.parser.QueryType
 import androidx.room3.parser.SQLTypeAffinity
+import androidx.room3.vo.CustomDaoReturnTypeConverter
 import androidx.room3.vo.CustomTypeConverter
 import androidx.room3.vo.Property
 
@@ -151,8 +152,16 @@ object ProcessorErrors {
     const val QUERY_PARAMETERS_CANNOT_START_WITH_UNDERSCORE =
         "Query/Insert function parameters cannot " + "start with underscore (_)."
 
+    const val DAO_RETURN_TYPE_CONVERTER_WARNING =
+        "Did you forget to provide a " +
+            "@DaoReturnTypeConverter to your @Database or @Dao via @DaoReturnTypeConverters? If " +
+            "you are using a @DaoReturnTypeConverter, you must also verify that the converter " +
+            "function and the corresponding DAO function are either both suspending or both" +
+            " blocking."
+
     fun cannotFindQueryResultAdapter(returnTypeName: String) =
-        "Not sure how to convert the query result to this function's return type ($returnTypeName)."
+        "Not sure how to convert the query result to this function's return type " +
+            "($returnTypeName). $DAO_RETURN_TYPE_CONVERTER_WARNING"
 
     fun classMustImplementEqualsAndHashCode(keyType: String) =
         "The key" +
@@ -195,10 +204,10 @@ object ProcessorErrors {
             "is an error. Consider changing the return type or removing the suspend modifier."
 
     const val CANNOT_FIND_INSERT_RESULT_ADAPTER =
-        "Not sure how to handle insert function's return type."
+        "Not sure how to handle insert function's return type. $DAO_RETURN_TYPE_CONVERTER_WARNING"
 
     const val CANNOT_FIND_UPSERT_RESULT_ADAPTER =
-        "Not sure how to handle upsert function's return type."
+        "Not sure how to handle upsert function's return type. $DAO_RETURN_TYPE_CONVERTER_WARNING"
 
     const val INSERT_MULTI_PARAM_SINGLE_RETURN_MISMATCH =
         "Insert function accepts multiple parameters " +
@@ -251,6 +260,12 @@ object ProcessorErrors {
 
     val DB_MUST_EXTEND_ROOM_DB =
         "Classes annotated with @Database should extend " + ROOM_DB.canonicalName
+
+    const val DAO_RETURN_TYPE_CONVERTER_MUST_HAVE_ONE_LAMBDA_PARAM_THAT_IS_SUSPEND =
+        "DaoReturnTypeConverter functions must have exactly ONE lambda parameter, must be suspend and can have at most one parameter."
+
+    const val DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITHOUT_TYPE_PARAM_SHOULD_RETURN_UNIT =
+        "DaoReturnTypeConverter functions without a type parameter should have a suspend lambda returning `Unit`."
 
     const val OBSERVABLE_QUERY_NOTHING_TO_OBSERVE =
         "Observable query return type (LiveData, Flowable" +
@@ -398,19 +413,49 @@ object ProcessorErrors {
 
     const val TYPE_CONVERTER_UNBOUND_GENERIC = "Cannot use unbound generics in Type Converters."
     const val TYPE_CONVERTER_BAD_RETURN_TYPE = "Invalid return type for a type converter."
+    const val DAO_RETURN_TYPE_CONVERTER_BAD_RETURN_TYPE =
+        "Invalid return type for a DAO return type converter."
     const val TYPE_CONVERTER_MUST_RECEIVE_1_PARAM = "Type converters must receive 1 parameter."
     const val TYPE_CONVERTER_EMPTY_CLASS =
         "Class is referenced as a converter but it does not have any" + " converter functions."
+    const val DAO_RETURN_TYPE_CONVERTER_EMPTY_CLASS =
+        "Class is referenced as a DAO return type converter but it does not have any member functions."
+    const val DAO_RETURN_TYPE_CONVERTER_MUST_CONTAIN_AN_ANNOTATED_FUNCTION =
+        "A Dao Return Type Converter must contain at least 1 function annotated with `@DaoReturnTypeConverter`."
+    const val DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_MUST_HAVE_AT_MOST_ONE_TYPE_PARAMETER =
+        "Dao Return Type Converter functions can have at most 1 type parameter."
+
+    fun daoReturnTypeConverterFunctionsWithATypeParamShouldHaveReturnTypeContainingTheSameTypeArg(
+        functionArg: String,
+        returnArgs: String,
+    ): String {
+        return "Dao Return Type Converter functions with a type parameter should have a return " +
+            "type that contains that generic type argument. Found function with type " +
+            "parameter [$functionArg], found return type with type argument(s) [${returnArgs}]."
+    }
+
+    const val DAO_RETURN_TYPE_CONVERTER_FUNCTIONS_WITH_A_TYPE_PARAM_SHOULD_HAVE_RETURN_TYPE_WITH_ONLY_ONE_GENERIC_ARG =
+        "Dao Return Type Converter functions with a type parameter should have a return type that contains only one generic type argument. The converter functions also cannot contain more than one instance of the same generic type argument, e.g. Foo<T,T>."
     const val TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR =
         "Classes that are used as TypeConverters must" +
             " have no-argument public constructors. Use a ProvidedTypeConverter annotation if you" +
             " need to take control over creating an instance of a TypeConverter."
     const val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
+    const val DAO_RETURN_TYPE_CONVERTER_MUST_BE_PUBLIC =
+        "DAO return type converters must be public."
     const val INNER_CLASS_TYPE_CONVERTER_MUST_BE_STATIC =
         "An inner class TypeConverter must be " + "static."
 
+    const val INNER_CLASS_DAO_RETURN_TYPE_CONVERTER_MUST_BE_STATIC =
+        "An inner class DaoReturnTypeConverter must be static."
+
     fun duplicateTypeConverters(converters: List<CustomTypeConverter>): String {
         return "Multiple functions define the same conversion. Conflicts with these:" +
+            " ${converters.joinToString(", ") { it.className.toString() }}"
+    }
+
+    fun duplicateDaoReturnTypeConverters(converters: List<CustomDaoReturnTypeConverter>): String {
+        return "Multiple DaoReturnTypeConverters found for the same conversion. Conflicts with these:" +
             " ${converters.joinToString(", ") { it.toString() }}"
     }
 
@@ -925,6 +970,8 @@ object ProcessorErrors {
                         "DELETE query functions must either return void " +
                             "or int (the number of deleted rows)."
                     )
+                } else {
+                    append(DAO_RETURN_TYPE_CONVERTER_WARNING)
                 }
             }
             .toString()

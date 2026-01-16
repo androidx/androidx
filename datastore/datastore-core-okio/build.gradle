@@ -49,68 +49,24 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
 
-        commonMain {
-            dependencies {
-                api(project(":datastore:datastore-core"))
-                api(libs.kotlinCoroutinesCore)
-                api(libs.okio)
-                implementation(libs.kotlinSerializationJson)
-            }
+        commonMain.dependencies {
+            api(project(":datastore:datastore-core"))
+            api(libs.kotlinCoroutinesCore)
+            api(libs.okio)
+            implementation(libs.kotlinSerializationJson)
         }
-        jvmMain {
-            dependsOn(commonMain)
-        }
-        commonTest {
-            dependencies {
-                implementation(project(":kruth:kruth"))
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(project(":internal-testutils-datastore"))
-            }
-        }
-        nonWebCommonTest {
-            dependsOn(commonTest)
-        }
-        jvmTest {
-            dependsOn(nonWebCommonTest)
+        commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+            implementation(project(":internal-testutils-datastore"))
         }
 
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.atomicFu)
-            }
+        nativeMain.dependencies {
+            implementation(libs.atomicFu)
         }
-
-        webCommonMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
-            }
-        }
-
-        wasmJsMain {
-            dependsOn(webCommonMain)
-        }
-
-        jsMain {
-            dependsOn(webCommonMain)
-        }
-
-        webCommonTest {
-            dependsOn(commonTest)
-        }
-
-        wasmJsTest {
-            dependsOn(webCommonTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            }
+        webMain.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
         }
     }
 }

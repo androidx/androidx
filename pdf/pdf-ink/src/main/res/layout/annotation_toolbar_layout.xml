@@ -25,6 +25,4 @@
     android:focusable="true"
     android:elevation="@dimen/annotation_toolbar_elevation"
     android:padding="@dimen/padding_8dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintStart_toStartOf="parent" />
+    android:layout_gravity="bottom|center_horizontal"/>

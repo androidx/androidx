@@ -30,7 +30,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.runtime.openxr.test"
+// TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.arcore.openxr.test"
 // supports a lower SDK version.
 @SdkSuppress(minSdkVersion = 29)
 @LargeTest
@@ -39,7 +39,7 @@ class OpenXrFaceTest {
 
     companion object {
         init {
-            System.loadLibrary("androidx.xr.runtime.openxr.test")
+            System.loadLibrary("androidx.xr.arcore.openxr.test")
         }
     }
 
@@ -98,9 +98,9 @@ class OpenXrFaceTest {
 
             // Configure twice because the stubs return false calibration the first time
             try {
-                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
             } catch (e: FaceTrackingNotCalibratedException) {
-                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+                openXrManager.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
             }
 
             testBody()

@@ -60,7 +60,7 @@ class ImportMavenPlugin : Plugin<Project> {
             if (project.providers.gradleProperty("importToml").isPresent) {
                 ImportVersionCatalog.load(project)
             } else {
-                project.providers.gradleProperty("artifacts").get().split(",")
+                project.providers.gradleProperty("artifacts").get().split(",").filterNot { it.isBlank() }
             }
         println("Artifacts: ")
         artifactsToBeResolved.forEach { println(it) }

@@ -17,12 +17,8 @@
 package androidx.xr.scenecore.spatial.core;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.util.concurrent.Futures.immediateFuture;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 import android.content.Context;
@@ -35,15 +31,11 @@ import android.view.ViewGroup.LayoutParams;
 import androidx.xr.runtime.NodeHolder;
 import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
-import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
-import androidx.xr.scenecore.impl.perception.Session;
 import androidx.xr.scenecore.runtime.ActivityPanelEntity;
 import androidx.xr.scenecore.runtime.ActivitySpace;
 import androidx.xr.scenecore.runtime.AnchorEntity;
-import androidx.xr.scenecore.runtime.CameraViewScenePose;
 import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.GltfEntity;
-import androidx.xr.scenecore.runtime.HeadScenePose;
 import androidx.xr.scenecore.runtime.PanelEntity;
 import androidx.xr.scenecore.runtime.PerceptionSpaceScenePose;
 import androidx.xr.scenecore.runtime.PixelDimensions;
@@ -71,8 +63,6 @@ public class EntityManagerTest {
     private static final int VGA_HEIGHT = 480;
     private final XrExtensions mXrExtensions = XrExtensionsProvider.getXrExtensions();
     private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
-    private final PerceptionLibrary mPerceptionLibrary = mock(PerceptionLibrary.class);
-    private final Session mSession = mock(Session.class);
     private final AndroidXrEntity mActivitySpaceRoot = mock(AndroidXrEntity.class);
     private final FakeScheduledExecutorService mExecutor = new FakeScheduledExecutorService();
     private final Node mPanelEntityNode = mXrExtensions.createNode();
@@ -90,17 +80,9 @@ public class EntityManagerTest {
                 Robolectric.buildActivity(Activity.class)) {
             mActivity = activityController.create().start().get();
         }
-        when(mPerceptionLibrary.initSession(eq(mActivity), anyInt(), eq(mFakeExecutor)))
-                .thenReturn(immediateFuture(mSession));
-        when(mPerceptionLibrary.getActivity()).thenReturn(mActivity);
         mSpatialSceneRuntime =
                 SpatialSceneRuntime.create(
-                        mActivity,
-                        mFakeExecutor,
-                        mXrExtensions,
-                        mEntityManager,
-                        mPerceptionLibrary,
-                        false);
+                        mActivity, mFakeExecutor, mXrExtensions, mEntityManager, false);
         Node taskNode = mXrExtensions.createNode();
         mActivitySpace =
                 new ActivitySpaceImpl(
@@ -214,8 +196,8 @@ public class EntityManagerTest {
     }
 
     @Test
-    public void getAllSystemSpaceScenePoses_returnsAllSystemSpaceScenePoses() throws Exception {
-        assertThat(mEntityManager.getAllSystemSpaceActivityPoses().size()).isAtLeast(4);
+    public void getAllSystemSpaceScenePoses_returnsAllSystemSpaceScenePoses() {
+        assertThat(mEntityManager.getAllSystemSpaceActivityPoses().size()).isAtLeast(2);
         assertThat(mEntityManager.getAllSystemSpaceActivityPoses())
                 .containsAtLeast(
                         mSpatialSceneRuntime.getActivitySpace(),
@@ -223,7 +205,7 @@ public class EntityManagerTest {
     }
 
     @Test
-    public void getSystemSpaceScenePoseOfType_returnsSystemSpaceScenePoseOfType() throws Exception {
+    public void getSystemSpaceScenePoseOfType_returnsSystemSpaceScenePoseOfType() {
         assertThat(mEntityManager.getSystemSpaceActivityPoseOfType(ActivitySpace.class).get(0))
                 .isInstanceOf(ActivitySpaceImpl.class);
         assertThat(
@@ -231,13 +213,6 @@ public class EntityManagerTest {
                                 .getSystemSpaceActivityPoseOfType(PerceptionSpaceScenePose.class)
                                 .get(0))
                 .isInstanceOf(PerceptionSpaceScenePoseImpl.class);
-        assertThat(mEntityManager.getSystemSpaceActivityPoseOfType(HeadScenePose.class).get(0))
-                .isInstanceOf(HeadScenePoseImpl.class);
-        assertThat(
-                        mEntityManager
-                                .getSystemSpaceActivityPoseOfType(CameraViewScenePose.class)
-                                .get(0))
-                .isInstanceOf(CameraViewScenePoseImpl.class);
     }
 
     @Test
@@ -333,7 +308,6 @@ public class EntityManagerTest {
                         mActivity,
                         mAnchorEntityNode,
                         mActivitySpace,
-                        mActivitySpaceRoot,
                         mXrExtensions,
                         mEntityManager,
                         mExecutor);

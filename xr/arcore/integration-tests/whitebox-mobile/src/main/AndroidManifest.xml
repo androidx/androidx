@@ -35,17 +35,7 @@
       </intent-filter>
     </activity>
     <activity
-        android:name=".anchors.AnchorsActivity"
-        android:exported="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-    </activity>
-    <activity
-        android:name=".planes.PlanesActivity"
-        android:exported="true"
-        android:theme="@style/Theme.AppCompat.NoActionBar">
-    </activity>
-    <activity
-        android:name=".hittest.HitTestActivity"
+        android:name=".anchorsplaneshittest.AnchorsPlanesHitTestActivity"
         android:exported="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
     </activity>

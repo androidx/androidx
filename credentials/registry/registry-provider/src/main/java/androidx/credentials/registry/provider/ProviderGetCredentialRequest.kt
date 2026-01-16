@@ -19,12 +19,10 @@
 package androidx.credentials.registry.provider
 
 import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.provider.ProviderGetCredentialRequest
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialEntry
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-@VisibleForTesting
 public const val EXTRA_CREDENTIAL_ID: String =
     "androidx.credentials.registry.provider.extra.CREDENTIAL_ID"
 

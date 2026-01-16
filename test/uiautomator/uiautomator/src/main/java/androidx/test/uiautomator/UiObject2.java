@@ -72,7 +72,7 @@ public class UiObject2 implements Searchable {
     private static final int DEFAULT_DRAG_SPEED = 2_500; // dp/s
     private static final int DEFAULT_PINCH_SPEED = 1_000; // dp/s
     // Retry if scrollFinished has null result
-    private static final int MAX_NULL_SCROLL_RETRY = 2;
+    private static final int MAX_NULL_SCROLL_RETRY = 5;
 
     private static final int WAIT_FOR_SNAPPING_BACK = 1_000;
     // b/278551289
@@ -860,12 +860,12 @@ public class UiObject2 implements Searchable {
                 break;
             } else if (scrollFinishedResult == null) {
                 // Couldn't determine whether scroll finished after retries.
-                if (nullScrollRetryCount++ >= MAX_NULL_SCROLL_RETRY) {
+                if (++nullScrollRetryCount >= MAX_NULL_SCROLL_RETRY) {
                     Log.i(TAG, "scrollUntil reached max retries for null events.");
                     break;
                 }
                 Log.i(TAG, String.format("Couldn't determine whether scroll was finished, "
-                        + "retrying: count %d", nullScrollRetryCount - 1));
+                        + "retrying: count %d", nullScrollRetryCount));
             }
             if (scrollCount++ >= MAX_RECYCLERVIEW_SCROLL && isRecyclerView()) {
                 Log.d(TAG, String.format("Exit scrollUntil as Recyclerview has scrolled %d times, "

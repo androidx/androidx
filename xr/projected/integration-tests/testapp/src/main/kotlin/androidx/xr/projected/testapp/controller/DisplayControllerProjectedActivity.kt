@@ -135,8 +135,8 @@ class DisplayControllerProjectedActivity : ComponentActivity() {
                 }
                 deviceControllerReady.value = true
             } catch (e: Exception) {
-                statusMessage = "Failed to start ProjectedDisplayController."
-                Log.e(TAG, "Failed to start ProjectedDisplayController with error: ${e.message}")
+                statusMessage = "Failed to start ProjectedDeviceController."
+                Log.e(TAG, "Failed to start ProjectedDeviceController with error: ${e.message}")
             }
         }
     }

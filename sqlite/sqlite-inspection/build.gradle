@@ -55,7 +55,7 @@ androidx {
 android {
     defaultConfig {
         // studio pipeline works only starting with Android O
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     sourceSets {
         main.resources.srcDirs += "src/main/proto"

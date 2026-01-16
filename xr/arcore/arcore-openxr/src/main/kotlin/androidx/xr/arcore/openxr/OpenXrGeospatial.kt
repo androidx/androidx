@@ -40,7 +40,10 @@ internal constructor(
         private set
 
     override public fun createPoseFromGeospatialPose(geospatialPose: GeospatialPose): Pose {
-        throw NotImplementedError("Not implemented yet.")
+        val xrTime = timeSource.getXrTime(timeSource.markNow())
+        val result = nativeLocatePoseFromGeospatialPose(xrTime, geospatialPose)
+        // The native implementation returns null when not tracking.
+        return result ?: throw GeospatialPoseNotTrackingException()
     }
 
     override public fun createGeospatialPoseFromPose(pose: Pose): Geospatial.GeospatialPoseResult {
@@ -98,6 +101,11 @@ internal constructor(
     }
 
     private external fun nativeGetGeospatialState(monotonicTimeNs: Long): Geospatial.State?
+
+    private external fun nativeLocatePoseFromGeospatialPose(
+        monotonicTimeNs: Long,
+        geospatialPose: GeospatialPose,
+    ): Pose?
 
     private external fun nativeCreateGeospatialPoseFromPose(
         monotonicTimeNs: Long,

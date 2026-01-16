@@ -28,14 +28,14 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  * @see ContextAwareHelper
  */
-interface ContextAware {
+public interface ContextAware {
     /**
      * Get the [Context] if it is currently available. If this returns `null`, you can use
      * [addOnContextAvailableListener] to receive a callback for when it available.
      *
      * @return the Context if it is currently available.
      */
-    fun peekAvailableContext(): Context?
+    public fun peekAvailableContext(): Context?
 
     /**
      * Add a new [OnContextAvailableListener] for receiving a callback for when this class is
@@ -48,7 +48,7 @@ interface ContextAware {
      * @param listener The listener that should be added.
      * @see removeOnContextAvailableListener
      */
-    fun addOnContextAvailableListener(listener: OnContextAvailableListener)
+    public fun addOnContextAvailableListener(listener: OnContextAvailableListener)
 
     /**
      * Remove a [OnContextAvailableListener] previously added via [addOnContextAvailableListener].
@@ -56,7 +56,7 @@ interface ContextAware {
      * @param listener The listener that should be removed.
      * @see addOnContextAvailableListener
      */
-    fun removeOnContextAvailableListener(listener: OnContextAvailableListener)
+    public fun removeOnContextAvailableListener(listener: OnContextAvailableListener)
 }
 
 /**
@@ -66,7 +66,7 @@ interface ContextAware {
  * current coroutine context. Otherwise, [onContextAvailable] will be called on the UI thread
  * immediately when the Context becomes available.
  */
-suspend inline fun <R> ContextAware.withContextAvailable(
+public suspend inline fun <R> ContextAware.withContextAvailable(
     crossinline onContextAvailable: (@JvmSuppressWildcards Context) -> @JvmSuppressWildcards R
 ): @JvmSuppressWildcards R {
     val availableContext = peekAvailableContext()

@@ -17,59 +17,46 @@
 package androidx.xr.scenecore
 
 import androidx.activity.ComponentActivity
-import androidx.xr.arcore.testing.FakePerceptionRuntimeFactory
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.SessionCreateSuccess
 import androidx.xr.runtime.math.IntSize2d
+import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector2
-import androidx.xr.scenecore.runtime.ActivitySpace as RtActivitySpace
+import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.runtime.PixelDimensions as RtPixelDimensions
 import androidx.xr.scenecore.runtime.SceneRuntime
-import androidx.xr.scenecore.runtime.SpatialCapabilities
+import androidx.xr.scenecore.testing.FakePanelEntity
+import androidx.xr.scenecore.testing.FakeSceneRuntime
 import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.MoreExecutors.directExecutor
 import java.util.function.Consumer
 import kotlin.test.assertFailsWith
+import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.never
-import org.mockito.kotlin.times
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 @org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class MainPanelEntityTest {
-    private val fakePerceptionRuntimeFactory = FakePerceptionRuntimeFactory()
     private val activityController = Robolectric.buildActivity(ComponentActivity::class.java)
     private val activity = activityController.create().start().get()
-    private val mockSceneRuntime = mock<SceneRuntime>()
+    private lateinit var sceneRuntime: SceneRuntime
 
     lateinit var session: Session
 
     @Before
     fun setUp() {
-        whenever(mockSceneRuntime.spatialEnvironment).thenReturn(mock())
-        val mockActivitySpace = mock<RtActivitySpace>()
-        whenever(mockSceneRuntime.activitySpace).thenReturn(mockActivitySpace)
-        whenever(mockSceneRuntime.headActivityPose).thenReturn(mock())
-        whenever(mockSceneRuntime.perceptionSpaceActivityPose).thenReturn(mock())
-        whenever(mockSceneRuntime.mainPanelEntity).thenReturn(mock())
-        whenever(mockSceneRuntime.spatialCapabilities).thenReturn(SpatialCapabilities(0))
-        session =
-            Session(
-                activity,
-                runtimes =
-                    listOf(fakePerceptionRuntimeFactory.createRuntime(activity), mockSceneRuntime),
-            )
-        session.configure(Config(headTracking = Config.HeadTrackingMode.LAST_KNOWN))
+        val testDispatcher = StandardTestDispatcher()
+        val result = Session.create(activity, testDispatcher)
+
+        assertThat(result).isInstanceOf(SessionCreateSuccess::class.java)
+
+        session = (result as SessionCreateSuccess).session
+        sceneRuntime = session.sceneRuntime
     }
 
     @Test
@@ -77,15 +64,22 @@ class MainPanelEntityTest {
         val listener = Consumer<IntSize2d> {}
         val executor = directExecutor()
         session.scene.mainPanelEntity.addPerceivedResolutionChangedListener(executor, listener)
-        verify(mockSceneRuntime).addPerceivedResolutionChangedListener(eq(executor), any())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(1)
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap.values.toList()[0])
+            .isEqualTo(executor)
     }
 
     @Test
     fun addPerceivedResolutionChangedListener_withNoExecutor_callsRuntimeWithMainThreadExecutor() {
         val listener = Consumer<IntSize2d> {}
         session.scene.mainPanelEntity.addPerceivedResolutionChangedListener(listener)
-        verify(mockSceneRuntime)
-            .addPerceivedResolutionChangedListener(eq(HandlerExecutor.mainThreadExecutor), any())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(1)
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap.values.toList()[0])
+            .isEqualTo(HandlerExecutor.mainThreadExecutor)
     }
 
     @Test
@@ -112,30 +106,28 @@ class MainPanelEntityTest {
             directExecutor(),
             listener,
         )
-        val rtListenerCaptor = argumentCaptor<Consumer<RtPixelDimensions>>()
-        verify(mockSceneRuntime)
-            .addPerceivedResolutionChangedListener(any(), rtListenerCaptor.capture())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(1)
 
         session.scene.mainPanelEntity.removePerceivedResolutionChangedListener(listener)
-        verify(mockSceneRuntime)
-            .removePerceivedResolutionChangedListener(eq(rtListenerCaptor.firstValue))
+
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(0)
     }
 
     @Test
     fun perceivedResolutionChangedListener_isCalledWithConvertedValues() {
         var receivedDimensions: IntSize2d? = null
         val listener = Consumer<IntSize2d> { dims -> receivedDimensions = dims }
-        val rtListenerCaptor = argumentCaptor<Consumer<RtPixelDimensions>>()
         val executor = directExecutor()
 
         session.scene.mainPanelEntity.addPerceivedResolutionChangedListener(executor, listener)
-        verify(mockSceneRuntime)
-            .addPerceivedResolutionChangedListener(eq(executor), rtListenerCaptor.capture())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
-        val rtListener = rtListenerCaptor.firstValue
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(1)
 
         val testRtDimensions = RtPixelDimensions(100, 200)
-        rtListener.accept(testRtDimensions)
+        fakeSceneRuntime.perceivedResolutionChangedMap.keys.toList()[0].accept(testRtDimensions)
 
         assertThat(receivedDimensions).isNotNull()
         assertThat(receivedDimensions!!.width).isEqualTo(100)
@@ -143,38 +135,39 @@ class MainPanelEntityTest {
 
         // Simulate another callback
         val anotherRtDimensions = RtPixelDimensions(300, 400)
-        rtListener.accept(anotherRtDimensions)
+        fakeSceneRuntime.perceivedResolutionChangedMap.keys.toList()[0].accept(anotherRtDimensions)
+
         assertThat(receivedDimensions.width).isEqualTo(300)
         assertThat(receivedDimensions.height).isEqualTo(400)
     }
 
     @Test
     fun addMultiplePerceivedResolutionListeners_allAreRegisteredAndCalled() {
-        val listener1 = mock<Consumer<IntSize2d>>()
-        val listener2 = mock<Consumer<IntSize2d>>()
-        val rtListenerCaptor = argumentCaptor<Consumer<RtPixelDimensions>>()
+        var receivedDimensions1 = IntSize2d(0, 0)
+        val listener1 = Consumer<IntSize2d> { dims -> receivedDimensions1 = dims }
+        var receivedDimensions2 = IntSize2d(0, 0)
+        val listener2 = Consumer<IntSize2d> { dims -> receivedDimensions2 = dims }
         val executor = directExecutor()
 
         session.scene.mainPanelEntity.addPerceivedResolutionChangedListener(executor, listener1)
         session.scene.mainPanelEntity.addPerceivedResolutionChangedListener(executor, listener2)
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
 
-        verify(mockSceneRuntime, times(2))
-            .addPerceivedResolutionChangedListener(eq(executor), rtListenerCaptor.capture())
-
-        val rtListeners = rtListenerCaptor.allValues
-        assertThat(rtListeners).hasSize(2)
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(2)
 
         // Simulate callback for the first registered listener only
         val testRtDimensions1 = RtPixelDimensions(10, 20)
-        rtListeners[0].accept(testRtDimensions1)
-        verify(listener1).accept(IntSize2d(10, 20))
-        verify(listener2, never()).accept(any())
+        fakeSceneRuntime.perceivedResolutionChangedMap.keys.toList()[0].accept(testRtDimensions1)
+
+        assertThat(receivedDimensions1).isEqualTo(IntSize2d(10, 20))
+        assertThat(receivedDimensions2).isEqualTo(IntSize2d(0, 0))
 
         // Simulate callback for the second registered listener
         val testRtDimensions2 = RtPixelDimensions(30, 40)
-        rtListeners[1].accept(testRtDimensions2)
-        verify(listener1).accept(IntSize2d(10, 20)) // Still called once
-        verify(listener2).accept(IntSize2d(30, 40))
+        fakeSceneRuntime.perceivedResolutionChangedMap.keys.toList()[1].accept(testRtDimensions2)
+
+        assertThat(receivedDimensions1).isEqualTo(IntSize2d(10, 20))
+        assertThat(receivedDimensions2).isEqualTo(IntSize2d(30, 40))
     }
 
     @Test
@@ -184,29 +177,44 @@ class MainPanelEntityTest {
         val mainPanelEntity = session.scene.mainPanelEntity
 
         mainPanelEntity.addPerceivedResolutionChangedListener(executor, listener)
-        val rtListenerCaptor = argumentCaptor<Consumer<RtPixelDimensions>>()
-        verify(mockSceneRuntime)
-            .addPerceivedResolutionChangedListener(eq(executor), rtListenerCaptor.capture())
+        val fakeSceneRuntime = sceneRuntime as FakeSceneRuntime
+
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(1)
 
         mainPanelEntity.dispose()
 
-        verify(mockSceneRuntime)
-            .removePerceivedResolutionChangedListener(rtListenerCaptor.firstValue)
+        assertThat(fakeSceneRuntime.perceivedResolutionChangedMap).hasSize(0)
     }
 
     @Test
     @OptIn(ExperimentalPanelCoordinateApi::class)
     fun transformPixelCoordinatesToPose_callsRuntime() {
         val input = Vector2(100f, 100f)
-        session.scene.mainPanelEntity.transformPixelCoordinatesToPose(input)
-        verify(mockSceneRuntime.mainPanelEntity).transformPixelCoordinatesToPose(input)
+        val result = session.scene.mainPanelEntity.transformPixelCoordinatesToPose(input)
+
+        val sizeInPixels = (session.scene.mainPanelEntity.rtEntity as FakePanelEntity).sizeInPixels
+        val u = input.x / sizeInPixels.width
+        val v = input.y / sizeInPixels.height
+        val coordinates = Vector2(u * 2 - 1, (1 - v) * 2 - 1)
+        val size = (session.scene.mainPanelEntity.rtEntity as FakePanelEntity).size
+        val xInLocal3DSpace = coordinates.x * size.width / 2f
+        val yInLocal3DSpace = coordinates.y * size.height / 2f
+        val expected = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
+
+        assertThat(result).isEqualTo(expected)
     }
 
     @Test
     @OptIn(ExperimentalPanelCoordinateApi::class)
     fun transformNormalizedCoordinatesToPose_callsRuntime() {
         val input = Vector2(0.5f, 0.5f)
-        session.scene.mainPanelEntity.transformNormalizedCoordinatesToPose(input)
-        verify(mockSceneRuntime.mainPanelEntity).transformNormalizedCoordinatesToPose(input)
+        val result = session.scene.mainPanelEntity.transformNormalizedCoordinatesToPose(input)
+
+        val size = (session.scene.mainPanelEntity.rtEntity as FakePanelEntity).size
+        val xInLocal3DSpace = input.x * size.width / 2f
+        val yInLocal3DSpace = input.y * size.height / 2f
+        val expected = Pose(Vector3(xInLocal3DSpace, yInLocal3DSpace, 0f))
+
+        assertThat(result).isEqualTo(expected)
     }
 }

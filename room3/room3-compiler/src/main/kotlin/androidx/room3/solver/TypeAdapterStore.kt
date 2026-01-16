@@ -47,6 +47,7 @@ import androidx.room3.processor.ProcessorErrors.DO_NOT_USE_GENERIC_IMMUTABLE_MUL
 import androidx.room3.processor.ProcessorErrors.invalidQueryForSingleColumnArray
 import androidx.room3.processor.PropertyProcessor
 import androidx.room3.solver.binderprovider.CoroutineFlowResultBinderProvider
+import androidx.room3.solver.binderprovider.DaoReturnTypeQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.GuavaListenableFutureQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.InstantQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
@@ -55,6 +56,7 @@ import androidx.room3.solver.binderprovider.PagingSourceQueryResultBinderProvide
 import androidx.room3.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.RxLambdaQueryResultBinderProvider
 import androidx.room3.solver.binderprovider.RxQueryResultBinderProvider
+import androidx.room3.solver.binderprovider.SuspendResultBinderProvider
 import androidx.room3.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room3.solver.prepared.binderprovider.GuavaListenableFuturePreparedQueryResultBinderProvider
 import androidx.room3.solver.prepared.binderprovider.InstantPreparedQueryResultBinderProvider
@@ -106,6 +108,7 @@ import androidx.room3.solver.types.ByteArrayWrapperColumnTypeAdapter
 import androidx.room3.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room3.solver.types.ColumnTypeAdapter
 import androidx.room3.solver.types.CompositeAdapter
+import androidx.room3.solver.types.DaoReturnTypeConverter
 import androidx.room3.solver.types.EnumColumnTypeAdapter
 import androidx.room3.solver.types.PrimitiveBooleanToIntConverter
 import androidx.room3.solver.types.PrimitiveColumnTypeAdapter
@@ -136,6 +139,7 @@ private constructor(
     private val columnTypeAdapters: List<ColumnTypeAdapter>,
     @get:VisibleForTesting internal val typeConverterStore: TypeConverterStore,
     private val builtInConverterFlags: BuiltInConverterFlags,
+    private val daoReturnTypeConverters: List<DaoReturnTypeConverter>,
 ) {
 
     companion object {
@@ -145,6 +149,7 @@ private constructor(
                 columnTypeAdapters = store.columnTypeAdapters,
                 typeConverterStore = store.typeConverterStore,
                 builtInConverterFlags = store.builtInConverterFlags,
+                daoReturnTypeConverters = store.daoReturnTypeConverters,
             )
         }
 
@@ -155,11 +160,13 @@ private constructor(
         ): TypeAdapterStore {
             val adapters = arrayListOf<ColumnTypeAdapter>()
             val converters = arrayListOf<TypeConverter>()
+            val daoReturnTypeConverters = arrayListOf<DaoReturnTypeConverter>()
             fun addAny(extra: Any?) {
                 when (extra) {
                     is TypeConverter -> converters.add(extra)
                     is ColumnTypeAdapter -> adapters.add(extra)
                     is List<*> -> extra.forEach(::addAny)
+                    is DaoReturnTypeConverter -> daoReturnTypeConverters.add(extra)
                     else -> throw IllegalArgumentException("unknown extra $extra")
                 }
             }
@@ -197,9 +204,20 @@ private constructor(
                         knownColumnTypes = adapters.map { it.out },
                     ),
                 builtInConverterFlags = builtInConverterFlags,
+                daoReturnTypeConverters = daoReturnTypeConverters,
             )
         }
     }
+
+    private val coroutineQueryResultBinderProviders =
+        mutableListOf<QueryResultBinderProvider>().apply {
+            addAll(
+                daoReturnTypeConverters
+                    .filter { it.isSuspend }
+                    .map { DaoReturnTypeQueryResultBinderProvider(context, it) }
+            )
+            add(SuspendResultBinderProvider(context))
+        }
 
     private val queryResultBinderProviders: List<QueryResultBinderProvider> =
         mutableListOf<QueryResultBinderProvider>().apply {
@@ -211,6 +229,11 @@ private constructor(
             add(ListenableFuturePagingSourceQueryResultBinderProvider(context))
             add(PagingSourceQueryResultBinderProvider(context))
             add(CoroutineFlowResultBinderProvider(context))
+            addAll(
+                daoReturnTypeConverters
+                    .filterNot { it.isSuspend }
+                    .map { DaoReturnTypeQueryResultBinderProvider(context, it) }
+            )
             add(InstantQueryResultBinderProvider(context))
         }
 
@@ -447,6 +470,16 @@ private constructor(
         extras: TypeAdapterExtras,
     ): QueryResultBinder {
         return queryResultBinderProviders
+            .first { it.matches(typeMirror) }
+            .provide(typeMirror, query, extras)
+    }
+
+    fun findCoroutineQueryResultBinder(
+        typeMirror: XType,
+        query: ParsedQuery,
+        extras: TypeAdapterExtras,
+    ): QueryResultBinder {
+        return coroutineQueryResultBinderProviders
             .first { it.matches(typeMirror) }
             .provide(typeMirror, query, extras)
     }

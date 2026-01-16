@@ -36,9 +36,9 @@ android {
     defaultConfig {
         // TODO: This should be lower, possibly 21.
         //       Address API calls that require higher versions.
-        minSdk = 34
+        minSdk { version = release(34) }
     }
-    compileSdk = 35
+    compileSdk { version = release(35) }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.scenecore.samples.videoplayerdrmtest"
 
@@ -82,7 +82,7 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.5.0")
     implementation("androidx.savedstate:savedstate:1.2.1")
 
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    compileOnly(libs.androidExtensionsXr)
 }
 
 // Making this APK available via Android Build so the QA team can

@@ -28,7 +28,7 @@ plugins {
     id("com.android.application")
 }
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
 
     buildTypes {
         release {

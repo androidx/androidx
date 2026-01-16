@@ -207,6 +207,10 @@ GetterSetterNames: androidx.core.graphics.drawable.RoundedBitmapDrawable#setMipM
     Symmetric method for `hasMipMap` must be named `setHasMipMap`; was `setMipMap`
 
 
+HiddenSuperclass: androidx.core.graphics.drawable.IconCompat:
+    Public class androidx.core.graphics.drawable.IconCompat stripped of unavailable superclass androidx.versionedparcelable.CustomVersionedParcelable
+
+
 InvalidNullabilityOverride: androidx.core.content.FileProvider#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #0:
     Invalid nullability on type android.content.Context in parameter `context` in method `attachInfo`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.core.content.FileProvider#attachInfo(android.content.Context, android.content.pm.ProviderInfo) parameter #1:

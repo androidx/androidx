@@ -49,6 +49,7 @@ androidComponents {
                         AndroidXConfig.getPrebuiltsRoot(project),
                         "androidx/webgpu/jni").absolutePath
         )
+        variant.sources.assets.addStaticSourceDirectory('meta')
     }
 }
 
@@ -61,6 +62,9 @@ androidx {
 
 android {
     namespace = "androidx.webgpu"
+    defaultConfig {
+        minSdk { version = release(24) }
+    }
 }
 
 

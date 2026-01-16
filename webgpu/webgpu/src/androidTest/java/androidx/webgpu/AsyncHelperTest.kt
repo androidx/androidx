@@ -61,7 +61,7 @@ class AsyncHelperTest {
             /* Set up a shader module to support the async call. */
             val shaderModule =
                 device.createShaderModule(
-                    ShaderModuleDescriptor(shaderSourceWGSL = ShaderSourceWGSL(""))
+                    GPUShaderModuleDescriptor(shaderSourceWGSL = GPUShaderSourceWGSL(""))
                 )
 
             val exception =
@@ -69,7 +69,9 @@ class AsyncHelperTest {
                     runBlocking {
                         /* Call an asynchronous method, converted from a callback pattern by a helper. */
                         device.createRenderPipelineAndAwait(
-                            RenderPipelineDescriptor(vertex = VertexState(module = shaderModule))
+                            GPURenderPipelineDescriptor(
+                                vertex = GPUVertexState(module = shaderModule)
+                            )
                         )
                     }
                 }
@@ -89,19 +91,19 @@ class AsyncHelperTest {
             /* Set up a valid shader module and descriptor */
             val shaderModule =
                 device.createShaderModule(
-                    ShaderModuleDescriptor(shaderSourceWGSL = ShaderSourceWGSL(BASIC_SHADER))
+                    GPUShaderModuleDescriptor(shaderSourceWGSL = GPUShaderSourceWGSL(BASIC_SHADER))
                 )
 
             /* Call an asynchronous method, converted from a callback pattern by a helper. */
             val unused =
                 device.createRenderPipelineAndAwait(
-                    RenderPipelineDescriptor(
-                        vertex = VertexState(module = shaderModule),
+                    GPURenderPipelineDescriptor(
+                        vertex = GPUVertexState(module = shaderModule),
                         fragment =
-                            FragmentState(
+                            GPUFragmentState(
                                 module = shaderModule,
                                 targets =
-                                    arrayOf(ColorTargetState(format = TextureFormat.RGBA8Unorm)),
+                                    arrayOf(GPUColorTargetState(format = TextureFormat.RGBA8Unorm)),
                             ),
                     )
                 )
@@ -116,20 +118,22 @@ class AsyncHelperTest {
         runBlocking {
             val shaderModule =
                 device.createShaderModule(
-                    ShaderModuleDescriptor(shaderSourceWGSL = ShaderSourceWGSL(BASIC_SHADER))
+                    GPUShaderModuleDescriptor(shaderSourceWGSL = GPUShaderSourceWGSL(BASIC_SHADER))
                 )
 
             /* Launch the function in a new coroutine, giving us a job handle we can cancel. */
             val job = launch {
                 var unused =
                     device.createRenderPipelineAndAwait(
-                        RenderPipelineDescriptor(
-                            vertex = VertexState(module = shaderModule),
+                        GPURenderPipelineDescriptor(
+                            vertex = GPUVertexState(module = shaderModule),
                             fragment =
-                                FragmentState(
+                                GPUFragmentState(
                                     module = shaderModule,
                                     targets =
-                                        arrayOf(ColorTargetState(format = TextureFormat.RGBA8Unorm)),
+                                        arrayOf(
+                                            GPUColorTargetState(format = TextureFormat.RGBA8Unorm)
+                                        ),
                                 ),
                         )
                     )

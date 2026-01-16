@@ -104,7 +104,7 @@ public class AnchorGuavaTest {
                             new Config(
                                     Config.PlaneTrackingMode.DISABLED,
                                     Config.HandTrackingMode.DISABLED,
-                                    Config.HeadTrackingMode.DISABLED,
+                                    Config.DeviceTrackingMode.DISABLED,
                                     Config.DepthEstimationMode.DISABLED,
                                     AnchorPersistenceMode.DISABLED));
 

@@ -215,6 +215,8 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputServiceAndroid
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -227,6 +229,7 @@ import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.compose.ui.viewinterop.InteropView
+import androidx.core.os.ConfigurationCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.InputDeviceCompat.SOURCE_ROTARY_ENCODER
 import androidx.core.view.InputDeviceCompat.SOURCE_TOUCH_NAVIGATION
@@ -622,6 +625,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     var configuration: Configuration by
         mutableStateOf(Configuration(context.resources.configuration))
 
+    override val localeList: LocaleList by derivedStateOf {
+        val platformLocaleListCompat = ConfigurationCompat.getLocales(configuration)
+        LocaleList(List(platformLocaleListCompat.size()) { Locale(platformLocaleListCompat[it]!!) })
+    }
+
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
 
     internal val _autofillManager =
@@ -876,14 +884,8 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 removeCallbacks(this)
                 val lastMotionEvent = previousMotionEvent
                 if (lastMotionEvent != null) {
-                    val wasMouseEvent = lastMotionEvent.getToolType(0) == TOOL_TYPE_MOUSE
                     val action = lastMotionEvent.actionMasked
-                    val resend =
-                        if (wasMouseEvent) {
-                            action != ACTION_HOVER_EXIT && action != ACTION_UP
-                        } else {
-                            action != ACTION_UP
-                        }
+                    val resend = action != ACTION_HOVER_EXIT && action != ACTION_UP
                     if (resend) {
                         val newAction =
                             if (action == ACTION_HOVER_MOVE || action == ACTION_HOVER_ENTER) {
@@ -2183,6 +2185,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         invalidateLayers(root)
     }
 
+    override fun invalidateRootLayer() {
+        invalidate()
+    }
+
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
@@ -2758,7 +2764,6 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 /* flags */ motionEvent.flags,
             )
         val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(event, this)!!
-
         pointerInputEventProcessor.process(pointerInputEvent, this, true)
         event.recycle()
     }
@@ -2972,6 +2977,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                     previousMotionEvent?.recycle()
                     previousMotionEvent = MotionEvent.obtainNoHistory(event)
                     hoverExitReceived = true
+
                     // There are cases where the hover exit will incorrectly trigger because this
                     // post is called right before the end of the frame and the new frame checks for
                     // a press/down event (which hasn't occurred yet). Therefore, we delay the post
@@ -3274,11 +3280,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                                     val oldValue = it.showLayoutBounds
                                     it.showLayoutBounds = getIsShowingLayoutBounds()
                                     if (oldValue != it.showLayoutBounds) {
-                                        it.invalidateDescendants()
+                                        it.post { it.invalidateDescendants() }
                                     }
                                 }
                             } else {
-                                composeViews.forEach { it.invalidateDescendants() }
+                                composeViews.forEach { it.post { it.invalidateDescendants() } }
                             }
                         }
                     }

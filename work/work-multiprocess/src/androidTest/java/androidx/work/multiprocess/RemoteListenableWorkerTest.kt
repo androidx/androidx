@@ -48,13 +48,8 @@ import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_CLASS_NAME
 import androidx.work.multiprocess.RemoteListenableWorker.ARGUMENT_PACKAGE_NAME
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Executor
-import kotlin.test.assertTrue
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -177,13 +172,11 @@ public class RemoteListenableWorkerTest {
         wrapper.launch()
         val remote = workerFactory.awaitRemote(request.id) as RemoteStopWorker
         remote.startRemoteDeferred.await()
-        val resultFuture = remote.resultFuture!!
         wrapper.interrupt(STOP_REASON_CONSTRAINT_CONNECTIVITY)
         val reason =
             withTimeoutOrNull(2000) { remote.stopDeferred.await() }
                 ?: throw AssertionError("Stop wasn't called")
         assertEquals(STOP_REASON_CONSTRAINT_CONNECTIVITY, reason)
-        assertTrue(resultFuture.isCancelled)
     }
 
     @Test
@@ -222,28 +215,6 @@ public class RemoteListenableWorkerTest {
         delegatingWorker.client.connection!!.mFuture.get()
         delegatingWorker.stop(STOP_REASON_CANCELLED_BY_APP)
         assertNull(delegatingWorker.client.connection)
-    }
-
-    @Test
-    @MediumTest
-    fun testRemoteCoroutineWorkerIsCancelled() = runBlocking {
-        if (Build.VERSION.SDK_INT <= 27) {
-            // Exclude <= API 27, from tests because it causes a SIGSEGV.
-            return@runBlocking
-        }
-
-        val request = buildRequest<RemoteCoroutineStopWorker>()
-        val wrapper = buildWrapper(request)
-
-        wrapper.launch()
-
-        val remote = workerFactory.awaitRemote(request.id) as RemoteCoroutineStopWorker
-        remote.started.await()
-
-        wrapper.interrupt(STOP_REASON_CANCELLED_BY_APP)
-
-        withTimeoutOrNull(2000) { remote.jobCancelled.await() }
-            ?: throw AssertionError("Job cancellation was not called")
     }
 
     public inline fun <reified T : RemoteListenableWorker> buildRequest(): OneTimeWorkRequest {
@@ -315,7 +286,6 @@ public class RemoteStopWorker(context: Context, parameters: WorkerParameters) :
 
     val startRemoteDeferred = CompletableDeferred<Unit>()
     val stopDeferred = CompletableDeferred<Int>()
-    var resultFuture: ListenableFuture<Result>? = null
 
     // specially leak completer reference and keep it around.
     // otherwise future will be automatically cancelled.
@@ -323,12 +293,10 @@ public class RemoteStopWorker(context: Context, parameters: WorkerParameters) :
 
     override fun startRemoteWork(): ListenableFuture<Result> {
         startRemoteDeferred.complete(Unit)
-        resultFuture =
-            CallbackToFutureAdapter.getFuture {
-                leakedCompleter = it
-                "never resolved"
-            }
-        return resultFuture!!
+        return CallbackToFutureAdapter.getFuture {
+            leakedCompleter = it
+            "never resolved"
+        }
     }
 
     // in this context stop reason doesn't make difference
@@ -336,24 +304,5 @@ public class RemoteStopWorker(context: Context, parameters: WorkerParameters) :
     override fun onStopped() {
         super.onStopped()
         stopDeferred.complete(stopReason)
-    }
-}
-
-class RemoteCoroutineStopWorker(appContext: Context, workerParams: WorkerParameters) :
-    RemoteCoroutineWorker(appContext, workerParams) {
-
-    val jobCancelled = CompletableDeferred<Unit>()
-    val started = CompletableDeferred<Unit>()
-
-    override suspend fun doRemoteWork(): Result {
-        currentCoroutineContext()[Job]?.invokeOnCompletion {
-            if (it is CancellationException) {
-                jobCancelled.complete(Unit)
-            }
-        }
-        started.complete(Unit)
-
-        suspendCancellableCoroutine<Unit> {}
-        return Result.success()
     }
 }

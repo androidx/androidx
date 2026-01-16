@@ -20,8 +20,6 @@ import android.graphics.Matrix
 import android.net.Uri
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.ink.brush.Brush
-import androidx.ink.brush.StockBrushes
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -29,16 +27,17 @@ import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.AP
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.pdf.EditablePdfDocument
 import androidx.pdf.PdfDocument
 import androidx.pdf.PdfLoader
 import androidx.pdf.SandboxedPdfLoader
-import androidx.pdf.annotation.EditablePdfDocument
-import androidx.pdf.annotation.manager.AnnotationsManager
+import androidx.pdf.annotation.PdfAnnotationsEditor
+import androidx.pdf.annotation.history.AnnotationRecordsHistoryManager
+import androidx.pdf.annotation.manager.PdfAnnotationsManager
 import androidx.pdf.annotation.models.AnnotationsDisplayState
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.ink.edits.AnnotationEditOperationsHandler
-import androidx.pdf.ink.history.AnnotationEditsHistoryManager
+import androidx.pdf.annotation.models.PdfEdits
+import androidx.pdf.annotation.models.VisiblePdfAnnotations
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.state.AnnotationDrawingMode
 import androidx.pdf.ink.util.InkDefaults
@@ -48,31 +47,35 @@ import androidx.pdf.ink.view.tool.Highlighter
 import androidx.pdf.ink.view.tool.Pen
 import androidx.pdf.viewer.fragment.PdfDocumentViewModel
 import java.util.concurrent.Executors
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class EditableDocumentViewModel(private val state: SavedStateHandle, loader: PdfLoader) :
     PdfDocumentViewModel(state, loader) {
-    private var editsHistoryManager: AnnotationEditsHistoryManager? = null
-    private var editOperationsHandler: AnnotationEditOperationsHandler? = null
+    private var recordsHistoryManager: AnnotationRecordsHistoryManager? = null
+    private var annotationsEditor: PdfAnnotationsEditor? = null
+    private var annotationsManager: PdfAnnotationsManager? = null
+    private var historyCollectionJob: Job? = null
 
     private val _annotationDisplayStateFlow = MutableStateFlow(AnnotationsDisplayState.EMPTY)
 
-    private val _canUndo = MutableStateFlow(false)
-    internal val canUndo: StateFlow<Boolean>
-        get() = _canUndo.asStateFlow()
-
-    private val _canRedo = MutableStateFlow(false)
-    internal val canRedo: StateFlow<Boolean>
-        get() = _canRedo.asStateFlow()
-
     internal val annotationsDisplayStateFlow: StateFlow<AnnotationsDisplayState> =
         _annotationDisplayStateFlow.asStateFlow()
+
+    private val _canUndo = MutableStateFlow(false)
+    internal val canUndo: StateFlow<Boolean> = _canUndo.asStateFlow()
+
+    private val _canRedo = MutableStateFlow(false)
+    internal val canRedo: StateFlow<Boolean> = _canRedo.asStateFlow()
 
     internal val isEditModeEnabledFlow: StateFlow<Boolean> =
         state.getStateFlow(EDIT_MODE_ENABLED_KEY, false)
@@ -81,14 +84,14 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
         get() = state[EDIT_MODE_ENABLED_KEY] ?: false
         set(value) {
             state[EDIT_MODE_ENABLED_KEY] = value
-            updateAnnotationInteractionState()
+            // Discard any draft changes when exiting edit mode
+            if (!value) discardUnsavedChanges()
         }
 
     internal var areAnnotationsVisible: Boolean
         get() = state[ANNOTATION_VISIBLE_KEY] ?: true
         set(value) {
             state[ANNOTATION_VISIBLE_KEY] = value
-            updateAnnotationInteractionState()
         }
 
     internal var areAnnotationsVisibleFlow: StateFlow<Boolean> =
@@ -98,25 +101,38 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     internal val applyEditsStatus: StateFlow<ApplyEditsState> = _applyEditsStatus.asStateFlow()
 
     // TODO: b/441634479 Refactor to extract the document from `DocumentLoaded` UI state.
-    private var editablePdfDocument: EditablePdfDocument? = null
+    internal var editablePdfDocument: EditablePdfDocument? = null
 
     private val _drawingMode =
         MutableStateFlow<AnnotationDrawingMode>(
-            AnnotationDrawingMode.PenMode(InkDefaults.PEN_BRUSH)
+            AnnotationDrawingMode.PenMode(
+                InkDefaults.DEFAULT_BRUSH_SIZE,
+                InkDefaults.DEFAULT_INK_COLOR,
+            )
         )
-    internal val drawingMode: StateFlow<AnnotationDrawingMode>
-        get() = _drawingMode.asStateFlow()
+    internal val drawingMode: StateFlow<AnnotationDrawingMode> = _drawingMode.asStateFlow()
 
-    private val _isAnnotationInteractionEnabled =
-        MutableStateFlow(isEditModeEnabled && areAnnotationsVisible)
-    internal val isAnnotationInteractionEnabled: StateFlow<Boolean> =
-        _isAnnotationInteractionEnabled.asStateFlow()
+    private val _isPdfViewGestureActive = MutableStateFlow(false)
 
-    internal var isPdfViewGestureActive: Boolean = false
+    internal var isPdfViewGestureActive: Boolean
+        get() = _isPdfViewGestureActive.value
         set(value) {
-            field = value
-            updateAnnotationInteractionState()
+            _isPdfViewGestureActive.value = value
         }
+
+    internal var visiblePageRange: IntRange = 0..0
+
+    /** Reactive state that combines multiple flows to determine if interaction is enabled. */
+    internal val isAnnotationInteractionEnabled: StateFlow<Boolean> =
+        combine(
+                isEditModeEnabledFlow,
+                areAnnotationsVisibleFlow,
+                _applyEditsStatus,
+                _isPdfViewGestureActive,
+            ) { isEditMode, isVisible, status, isGestureActive ->
+                isEditMode && isVisible && status != ApplyEditsState.InProgress && !isGestureActive
+            }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, false)
 
     @VisibleForTesting
     public override fun resetState() {
@@ -126,13 +142,16 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
         _annotationDisplayStateFlow.value = AnnotationsDisplayState.EMPTY
     }
 
-    internal fun maybeInitialiseForDocument(document: PdfDocument) {
+    internal fun maybeInitialiseForDocument(
+        document: PdfDocument,
+        initialMatrices: Map<Int, Matrix>? = null,
+    ) {
         if (document is EditablePdfDocument) {
             val documentUri = document.uri
 
             // If the document has changed, reset the edit states
             if (documentUri != state.get<Uri>(LOADED_DOCUMENT_URI_KEY)) {
-                setupManagersAndHandlers(documentUri, document)
+                setupManagersAndHandlers(documentUri, document, initialMatrices ?: emptyMap())
             } else if (editablePdfDocument == null) {
                 editablePdfDocument = document
             }
@@ -141,97 +160,80 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
         }
     }
 
-    /** Adds a [PdfAnnotation] to the draft state. */
+    // Annotation Operations
     internal fun addDraftAnnotation(annotation: PdfAnnotation) {
-        if (editOperationsHandler == null) {
-            setupManagersAndHandlers(
-                documentUri = state.get<Uri>(LOADED_DOCUMENT_URI_KEY),
-                document = editablePdfDocument,
-            )
+        withEditor { editor ->
+            editor.addDraftAnnotation(annotation)
+            refreshVisibleAnnotations(visiblePageRange)
         }
-        editOperationsHandler?.addDraftAnnotation(annotation)
     }
 
-    /** Undoes the last edit operation. */
     internal fun undo() {
-        if (editOperationsHandler == null) {
-            setupManagersAndHandlers(
-                documentUri = state.get<Uri>(LOADED_DOCUMENT_URI_KEY),
-                document = editablePdfDocument,
-            )
+        withEditor { editor ->
+            editor.undo()
+            refreshVisibleAnnotations(visiblePageRange)
         }
-        editOperationsHandler?.undo()
     }
 
-    /** Redoes the last undo edit operation. */
     internal fun redo() {
-        if (editOperationsHandler == null) {
-            setupManagersAndHandlers(
-                documentUri = state.get<Uri>(LOADED_DOCUMENT_URI_KEY),
-                document = editablePdfDocument,
-            )
+        withEditor { editor ->
+            editor.redo()
+            refreshVisibleAnnotations(visiblePageRange)
         }
-        editOperationsHandler?.redo()
     }
+
+    internal fun removeAnnotation(annotationKey: String) {
+        withEditor { editor ->
+            editor.removeAnnotation(annotationKey)
+            refreshVisibleAnnotations(visiblePageRange)
+        }
+    }
+
+    // Data Loading & Saving
 
     /** Updates the transformation matrices for rendering annotations. */
     internal fun updateTransformationMatrices(transformationMatrices: Map<Int, Matrix>) {
         if (editablePdfDocument != null) {
-            _annotationDisplayStateFlow.update { displayState ->
-                displayState.copy(transformationMatrices = transformationMatrices)
+            _annotationDisplayStateFlow.update {
+                it.copy(transformationMatrices = transformationMatrices)
             }
         }
     }
 
     /**
-     * Fetches annotations from the [AnnotationsManager] for the defined page range.
+     * Fetches annotations from the [PdfAnnotationsManager] for the defined page range.
      *
      * @param startPage The starting page number (inclusive).
      * @param endPage The ending page number (inclusive).
      */
     internal fun fetchAnnotationsForPageRange(startPage: Int, endPage: Int) {
-        val document = editablePdfDocument ?: return
+        if (editablePdfDocument == null) return
 
-        viewModelScope.launch {
-            val annotationsByPage = mutableMapOf<Int, List<PdfAnnotationData>>()
-            for (page in startPage..endPage) {
-                annotationsByPage[page] = document.getEditsForPage(page)
-            }
-            _annotationDisplayStateFlow.update { displayState ->
-                displayState.copy(edits = document.getAllEdits())
-            }
-        }
+        viewModelScope.launch { refreshVisibleAnnotations(startPage..endPage) }
     }
 
     internal fun applyDraftEdits() {
         val document = editablePdfDocument
-        if (document == null) {
+        val localAnnotationsManager = annotationsManager
+
+        if (document == null || localAnnotationsManager == null) {
             _applyEditsStatus.value =
-                ApplyEditsState.Failure(IllegalStateException("Document not available for saving."))
+                ApplyEditsState.Failure(IllegalStateException("Document not available"))
             return
         }
+
         _applyEditsStatus.value = ApplyEditsState.InProgress
-        updateAnnotationInteractionState()
 
         viewModelScope.launch {
             try {
-                val annotations =
-                    document
-                        .getAllEdits()
-                        .editsByPage
-                        .flatMap { it.value }
-                        .filterIsInstance<PdfAnnotationData>()
-
-                document.applyEdits(annotations)
-
+                val editsDraft = localAnnotationsManager.getAnnotationModifications()
+                document.applyEdits(editsDraft)
                 val handle = document.createWriteHandle()
 
-                editsHistoryManager?.clear()
+                recordsHistoryManager?.clear()
                 _applyEditsStatus.value = ApplyEditsState.Success(handle)
             } catch (e: Exception) {
                 _applyEditsStatus.value = ApplyEditsState.Failure(e)
-            } finally {
-                updateAnnotationInteractionState()
             }
         }
     }
@@ -241,97 +243,121 @@ public class EditableDocumentViewModel(private val state: SavedStateHandle, load
     }
 
     /**
-     * Checks for unsaved changes by verifying if there are any edits in the edits history.
+     * Checks for unsaved changes by verifying if there are any edits in the history.
      *
      * @return `true` if unsaved changes exist, `false` if the document is not loaded or there are
      *   no changes.
      */
     internal fun hasUnsavedChanges(): Boolean =
-        editablePdfDocument != null && editsHistoryManager?.canUndo?.value ?: false
+        editablePdfDocument != null && (recordsHistoryManager?.canUndo?.value ?: false)
 
     /** Discards all uncommitted edits, reverting the document to its last saved state. */
-    internal fun discardUnsavedChanges() {
-        val document = editablePdfDocument ?: return
-
-        document.clearUncommittedEdits()
-        editsHistoryManager?.clear()
-
-        _annotationDisplayStateFlow.update { displayState ->
-            displayState.copy(edits = document.getAllEdits())
+    private fun discardUnsavedChanges() {
+        withEditor { editor ->
+            editor.clear()
+            refreshVisibleAnnotations(visiblePageRange)
         }
-        isEditModeEnabled = false
     }
 
-    private fun setupManagersAndHandlers(documentUri: Uri?, document: EditablePdfDocument?) {
+    /**
+     * Shared logic to re-fetch annotations for the screen and update the UI flow. Consolidating
+     * this reduces code duplication and allocation errors.
+     */
+    private suspend fun refreshVisibleAnnotations(range: IntRange) {
+        val manager = annotationsManager ?: return
+
+        val pageAnnotations =
+            range
+                .associateWith { pageNum -> manager.getAnnotations(pageNum) }
+                .filterValues { it.isNotEmpty() }
+
+        _annotationDisplayStateFlow.update {
+            it.copy(visiblePageAnnotations = VisiblePdfAnnotations(pageAnnotations))
+        }
+    }
+
+    private fun setupManagersAndHandlers(
+        documentUri: Uri?,
+        document: EditablePdfDocument?,
+        initialMatrices: Map<Int, Matrix> = emptyMap(),
+    ) {
+        // Cleanup previous flows to prevent memory leaks
+        historyCollectionJob?.cancel()
+
         if (documentUri != null && document != null) {
             state[LOADED_DOCUMENT_URI_KEY] = documentUri
             editablePdfDocument = document
 
-            val localEditsHistoryManager = AnnotationEditsHistoryManager()
-            val localEditOperationsHandler =
-                AnnotationEditOperationsHandler(document, localEditsHistoryManager) {
-                    _annotationDisplayStateFlow
+            val manager = PdfAnnotationsManager.create(document)
+            val history = AnnotationRecordsHistoryManager()
+            val editor = PdfAnnotationsEditor(history, manager)
+
+            recordsHistoryManager = history
+            annotationsEditor = editor
+            annotationsManager = manager
+
+            // Collect history states in a tracked job
+            historyCollectionJob =
+                viewModelScope.launch {
+                    launch { history.canUndo.collect { _canUndo.value = it } }
+                    launch { history.canRedo.collect { _canRedo.value = it } }
                 }
 
-            editsHistoryManager = localEditsHistoryManager
-            editOperationsHandler = localEditOperationsHandler
-
             viewModelScope.launch {
-                localEditsHistoryManager.canUndo.collect { canUndo -> _canUndo.value = canUndo }
+                val visiblePdfAnnotations =
+                    VisiblePdfAnnotations(
+                        pageAnnotations =
+                            visiblePageRange
+                                .associateWith { pageNum -> manager.getAnnotations(pageNum) }
+                                .filterValues { it.isNotEmpty() }
+                    )
+                _annotationDisplayStateFlow.value =
+                    AnnotationsDisplayState(
+                        edits = PdfEdits(editsByPage = emptyMap()),
+                        transformationMatrices = initialMatrices,
+                        visiblePageAnnotations = visiblePdfAnnotations,
+                    )
             }
-
-            viewModelScope.launch {
-                localEditsHistoryManager.canRedo.collect { canRedo -> _canRedo.value = canRedo }
-            }
-
-            _annotationDisplayStateFlow.value =
-                AnnotationsDisplayState(
-                    edits = document.getAllEdits(),
-                    transformationMatrices = HashMap(),
-                )
         } else {
             editablePdfDocument = null
+            recordsHistoryManager = null
+            annotationsEditor = null
+            annotationsManager = null
         }
     }
 
     internal fun setCurrentToolInfo(toolInfo: AnnotationToolInfo) {
+        val pdfDocument = editablePdfDocument
         when (toolInfo) {
-            is Pen -> {
-                val brush =
-                    Brush.createWithColorIntArgb(
-                        family = StockBrushes.pressurePen(),
-                        colorIntArgb = toolInfo.color,
-                        size = toolInfo.brushSize,
-                        epsilon = InkDefaults.EPSILON_VALUE,
-                    )
-                _drawingMode.value = AnnotationDrawingMode.PenMode(brush)
-            }
-
+            is Pen ->
+                _drawingMode.value =
+                    AnnotationDrawingMode.PenMode(toolInfo.brushSize, toolInfo.color)
             is Highlighter -> {
-                if (toolInfo.color != null) {
-                    val brush =
-                        Brush.createWithColorIntArgb(
-                            family = StockBrushes.highlighter(),
-                            colorIntArgb = toolInfo.color,
-                            size = toolInfo.brushSize,
-                            epsilon = InkDefaults.EPSILON_VALUE,
+                if (toolInfo.color != null && pdfDocument != null) {
+                    _drawingMode.value =
+                        AnnotationDrawingMode.HighlighterMode(
+                            toolInfo.brushSize,
+                            toolInfo.color,
+                            pdfDocument,
                         )
-                    _drawingMode.value = AnnotationDrawingMode.HighlighterMode(brush)
                 } else {
                     // TODO: Add support for emoji highlighter
                 }
             }
-
             is Eraser -> _drawingMode.value = AnnotationDrawingMode.EraserMode
         }
     }
 
-    private fun updateAnnotationInteractionState() {
-        _isAnnotationInteractionEnabled.value =
-            isEditModeEnabled &&
-                areAnnotationsVisible &&
-                _applyEditsStatus.value != ApplyEditsState.InProgress &&
-                !isPdfViewGestureActive
+    private fun withEditor(block: suspend (PdfAnnotationsEditor) -> Unit) {
+        viewModelScope.launch {
+            if (annotationsEditor == null) {
+                setupManagersAndHandlers(
+                    documentUri = state.get<Uri>(LOADED_DOCUMENT_URI_KEY),
+                    document = editablePdfDocument,
+                )
+            }
+            annotationsEditor?.let { block(it) }
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

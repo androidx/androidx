@@ -26,23 +26,6 @@ androidXMultiplatform {
     watchos()
 
     defaultPlatform(PlatformIdentifier.JVM)
-
-    sourceSets {
-        commonMain {
-            dependencies {
-            }
-        }
-
-        nonJvmMain {
-            dependsOn(commonMain)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.common]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nonJvmMain)
-            }
-        }
-    }
 }
 
 jvmJar {

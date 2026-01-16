@@ -1,0 +1,30 @@
+// Signature format: 4.0
+package androidx.paging.compose {
+
+  public final class LazyFoundationExtensionsKt {
+    method public static <T> kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object?> itemContentType(androidx.paging.compose.LazyPagingItems<T>, optional kotlin.jvm.functions.Function1<T,? extends java.lang.Object?>? contentType);
+    method @BytecodeOnly public static kotlin.jvm.functions.Function1! itemContentType$default(androidx.paging.compose.LazyPagingItems!, kotlin.jvm.functions.Function1!, int, Object!);
+    method public static <T> kotlin.jvm.functions.Function1<java.lang.Integer,java.lang.Object> itemKey(androidx.paging.compose.LazyPagingItems<T>, optional kotlin.jvm.functions.Function1<T,?>? key);
+    method @BytecodeOnly public static kotlin.jvm.functions.Function1! itemKey$default(androidx.paging.compose.LazyPagingItems!, kotlin.jvm.functions.Function1!, int, Object!);
+  }
+
+  public final class LazyPagingItems<T> {
+    method public operator T? get(int index);
+    method @InaccessibleFromKotlin public int getItemCount();
+    method @InaccessibleFromKotlin public androidx.paging.ItemSnapshotList<T> getItemSnapshotList();
+    method @InaccessibleFromKotlin public androidx.paging.CombinedLoadStates getLoadState();
+    method public T? peek(int index);
+    method public void refresh();
+    method public void retry();
+    property public int itemCount;
+    property public androidx.paging.ItemSnapshotList<T> itemSnapshotList;
+    property public androidx.paging.CombinedLoadStates loadState;
+  }
+
+  public final class LazyPagingItemsKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.paging.compose.LazyPagingItems<T> collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T>>, optional kotlin.coroutines.CoroutineContext context);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.paging.compose.LazyPagingItems<T!> collectAsLazyPagingItems(kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<T!>!>, kotlin.coroutines.CoroutineContext?, androidx.compose.runtime.Composer?, int, int);
+  }
+
+}
+

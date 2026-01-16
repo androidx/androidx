@@ -26,10 +26,8 @@ package androidx.glance.wear {
   }
 
   public final class WearWidgetDocument implements androidx.glance.wear.WearWidgetData {
-    ctor public WearWidgetDocument(kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    ctor @BytecodeOnly public WearWidgetDocument(kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,kotlin.Unit!>);
-    method @InaccessibleFromKotlin public kotlin.jvm.functions.Function0<kotlin.Unit> getContent();
-    property public kotlin.jvm.functions.Function0<kotlin.Unit> content;
+    ctor @KotlinOnly public WearWidgetDocument(androidx.compose.ui.graphics.Color backgroundColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    ctor @BytecodeOnly public WearWidgetDocument(long, kotlin.jvm.functions.Function2!, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
 }

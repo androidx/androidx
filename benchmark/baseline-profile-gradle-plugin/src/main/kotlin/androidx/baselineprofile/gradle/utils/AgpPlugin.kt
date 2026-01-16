@@ -24,6 +24,7 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.ApplicationVariantBuilder
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.LibraryVariant
 import com.android.build.api.variant.LibraryVariantBuilder
@@ -48,7 +49,7 @@ internal abstract class AgpPlugin(
     private val maxAgpVersionExclusive: AndroidPluginVersion,
 ) {
 
-    // Properties that can be specified by cmd line using -P<property_name> when invoking gradle.
+    // Properties that can be specified by cmd line using -P<property_name> when invoking Gradle.
     val testMaxAgpVersion by lazy {
         project.providers.gradleProperty("androidx.benchmark.test.maxagpversion").orNull?.let { str
             ->
@@ -85,7 +86,7 @@ internal abstract class AgpPlugin(
         for (agpPluginId in supportedAgpPlugins) {
             project.pluginManager.withPlugin(agpPluginId.value) {
                 foundPlugins.add(agpPluginId)
-                configureWithAndroidPlugin()
+                configureWithAndroidPlugin(agpPluginId)
             }
         }
 
@@ -102,7 +103,7 @@ internal abstract class AgpPlugin(
         }
     }
 
-    private fun configureWithAndroidPlugin() {
+    private fun configureWithAndroidPlugin(agpPluginId: AgpPluginId) {
 
         fun setWarnings() {
             if (suppressWarnings) {
@@ -172,7 +173,13 @@ internal abstract class AgpPlugin(
                 getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
                 checkAgpVersion()
             }
-            commonComponent.beforeVariants { onBeforeVariants(it) }
+            // When calling onBeforeVariants for a `KotlinMultiplatformAndroidComponentsExtension`
+            // AGP until 9.0.0-RC3 throws an unhelpful `RuntimeException`. Once we know exactly
+            // which AGP version includes the patch to no longer throw the exception we can resume
+            // calling this method again.
+            if (commonComponent !is KotlinMultiplatformAndroidComponentsExtension) {
+                commonComponent.beforeVariants { onBeforeVariants(it) }
+            }
             commonComponent.onVariants {
                 variantsConfigured = true
                 onVariantBlockScheduler.onVariant(it)
@@ -291,7 +298,9 @@ internal abstract class AgpPlugin(
 
     protected fun isTestModule() = testAndroidComponentExtension() != null
 
-    protected fun isLibraryModule() = libraryAndroidComponentsExtension() != null
+    protected fun isLibraryModule() =
+        libraryAndroidComponentsExtension() != null ||
+            kotlinMultiplatformAndroidLibraryComponentsExtension() != null
 
     protected fun isApplicationModule() = applicationAndroidComponentsExtension() != null
 
@@ -346,6 +355,10 @@ internal abstract class AgpPlugin(
     private fun libraryAndroidComponentsExtension(): LibraryAndroidComponentsExtension? =
         project.extensions.findByType(LibraryAndroidComponentsExtension::class.java)
 
+    private fun kotlinMultiplatformAndroidLibraryComponentsExtension():
+        KotlinMultiplatformAndroidComponentsExtension? =
+        project.extensions.findByType(KotlinMultiplatformAndroidComponentsExtension::class.java)
+
     private fun androidComponentsExtension(): AndroidComponentsExtension<*, *, *>? =
         project.extensions.findByType(AndroidComponentsExtension::class.java)
 }
@@ -368,10 +381,11 @@ internal enum class AgpPluginId(val value: String) {
     ID_ANDROID_APPLICATION_PLUGIN("com.android.application"),
     ID_ANDROID_LIBRARY_PLUGIN("com.android.library"),
     ID_ANDROID_TEST_PLUGIN("com.android.test"),
+    ID_ANDROID_KOTLIN_MULTIPLATFORM_LIBRARY("com.android.kotlin.multiplatform.library"),
 }
 
 /**
- * This class is basically an help to manage executing callbacks on a variant. Because of how agp
+ * This class is basically a helper to manage executing callbacks on a variant. Because of how agp
  * variants are published, there is no way to directly access it. This class stores a callback and
  * executes it when the variant is published in the agp onVariants callback.
  */

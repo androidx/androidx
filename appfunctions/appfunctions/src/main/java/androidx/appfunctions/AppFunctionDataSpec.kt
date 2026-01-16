@@ -16,7 +16,7 @@
 
 package androidx.appfunctions
 
-import android.app.PendingIntent
+import android.os.Parcelable
 import androidx.appfunctions.metadata.AppFunctionAllOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionArrayTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionBooleanTypeMetadata
@@ -30,7 +30,7 @@ import androidx.appfunctions.metadata.AppFunctionLongTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionObjectTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionOneOfTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionParameterMetadata
-import androidx.appfunctions.metadata.AppFunctionPendingIntentTypeMetadata
+import androidx.appfunctions.metadata.AppFunctionParcelableTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionReferenceTypeMetadata
 import androidx.appfunctions.metadata.AppFunctionResponseMetadata
 import androidx.appfunctions.metadata.AppFunctionStringTypeMetadata
@@ -329,8 +329,10 @@ internal abstract class AppFunctionDataSpec {
                 // against AppFunctionBytesTypeMetadata, it must always be a collection.
                 isCollection && typeClazz == Byte::class.java
             }
-            is AppFunctionPendingIntentTypeMetadata -> {
-                !isCollection && typeClazz == PendingIntent::class.java
+            is AppFunctionParcelableTypeMetadata -> {
+                !isCollection &&
+                    Parcelable::class.java.isAssignableFrom(typeClazz) &&
+                    typeClazz.name == qualifiedName
             }
             is AppFunctionArrayTypeMetadata -> {
                 isCollection && this.conform(typeClazz)

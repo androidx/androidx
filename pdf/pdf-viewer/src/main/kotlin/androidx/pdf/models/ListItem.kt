@@ -19,34 +19,32 @@ package androidx.pdf.models
 import android.annotation.SuppressLint
 import android.os.Parcel
 import android.os.Parcelable
-import androidx.annotation.RestrictTo
 import java.util.Objects
 
 /** Represents a single option in a combo box or list box PDF form widget. */
 @SuppressLint("BanParcelableUsage")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ListItem(public val label: String, public val selected: Boolean) : Parcelable {
+public class ListItem(public val label: String, public val isSelected: Boolean) : Parcelable {
 
     private constructor(
         parcel: Parcel?
-    ) : this(label = parcel?.readString() ?: "", selected = parcel?.readBoolean() ?: false)
+    ) : this(label = parcel?.readString() ?: "", isSelected = parcel?.readBoolean() ?: false)
 
     override fun describeContents(): Int = 0
 
     override fun writeToParcel(dest: Parcel, flags: Int) {
         dest.writeString(label)
-        dest.writeBoolean(selected)
+        dest.writeBoolean(isSelected)
     }
 
     override fun hashCode(): Int {
-        return Objects.hash(label, selected)
+        return Objects.hash(label, isSelected)
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || other !is ListItem) return false
 
-        return label == other.label && selected == other.selected
+        return label == other.label && isSelected == other.isSelected
     }
 
     public companion object {

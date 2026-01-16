@@ -51,15 +51,15 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation("com.google.errorprone:error_prone_annotations:2.30.0")
 
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    compileOnly(libs.androidExtensionsXr)
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.xr.arcore.projected.testapp"
 
     defaultConfig {
-        minSdk = 36
+        minSdk { version = release(36) }
     }
 
     buildTypes {

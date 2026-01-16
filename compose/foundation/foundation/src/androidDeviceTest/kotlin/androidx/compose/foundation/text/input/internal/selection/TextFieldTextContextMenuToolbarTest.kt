@@ -70,7 +70,7 @@ import androidx.compose.ui.test.KeyInjectionScope
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -80,6 +80,7 @@ import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextInputSelection
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipeLeft
@@ -539,6 +540,13 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
     }
 
     @Test
+    fun interactingWithTextFieldByTrackpad_doesNotShowTheToolbar() = runTest {
+        clickOffset(2)
+        Handle.Cursor.trackpadClick()
+        assertTextToolbarNotShown()
+    }
+
+    @Test
     fun toolbarDisappears_whenFocusIsLost() = runTest {
         clickOffset(2)
         Handle.Cursor.click()
@@ -754,6 +762,11 @@ class TextFieldTextContextMenuToolbarTest : FocusedWindowTest {
         fun Handle.mouseClick() {
             assertShown()
             interaction.performMouseInput { click() }
+        }
+
+        fun Handle.trackpadClick() {
+            assertShown()
+            interaction.performTrackpadInput { click() }
         }
 
         fun Handle.assertShown() {

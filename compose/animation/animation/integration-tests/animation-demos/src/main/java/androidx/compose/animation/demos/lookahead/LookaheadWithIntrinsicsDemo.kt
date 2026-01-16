@@ -17,6 +17,7 @@
 package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.animateBounds
+import androidx.compose.animation.demos.sharedelement.LookaheadAnimationVisualDebuggingToggle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,40 +45,47 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.unit.dp
 
+@Suppress("DisallowLookaheadAnimationVisualDebug")
 @Composable
 fun LookaheadWithIntrinsicsDemo() {
-    Column {
-        LookaheadScope {
-            var isWide by remember { mutableStateOf(true) }
-            Column {
-                Button(
-                    modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
-                    onClick = { isWide = !isWide },
-                ) {
-                    Text("Toggle")
-                }
-                Text("IntrinsicSize.Min Column")
-                Spacer(Modifier.size(5.dp))
-                Column(
-                    Modifier.background(Color(0xfffdedac), RoundedCornerShape(10))
-                        .padding(20.dp)
-                        .width(IntrinsicSize.Min)
-                ) {
-                    Box(
-                        Modifier.animateBounds(
-                                lookaheadScope = this@LookaheadScope,
-                                if (isWide) Modifier.width(300.dp) else Modifier.width(150.dp),
-                            )
-                            .height(50.dp)
-                            .background(colors[1])
+    LookaheadAnimationVisualDebuggingToggle {
+        Column {
+            LookaheadScope {
+                var isWide by remember { mutableStateOf(true) }
+                Column {
+                    Button(
+                        modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
+                        onClick = { isWide = !isWide },
                     ) {
-                        Text("Width: ${if (isWide) 300 else 150}.dp")
+                        Text("Toggle")
                     }
-                    Box(modifier = Modifier.fillMaxWidth().height(50.dp).background(colors[2])) {
-                        Text("Match parent")
-                    }
-                    Box(modifier = Modifier.fillMaxWidth().height(50.dp).background(colors[3])) {
-                        Text("Match parent", color = Color.White)
+                    Text("IntrinsicSize.Min Column")
+                    Spacer(Modifier.size(5.dp))
+                    Column(
+                        Modifier.background(Color(0xfffdedac), RoundedCornerShape(10))
+                            .padding(20.dp)
+                            .width(IntrinsicSize.Min)
+                    ) {
+                        Box(
+                            Modifier.animateBounds(
+                                    lookaheadScope = this@LookaheadScope,
+                                    if (isWide) Modifier.width(300.dp) else Modifier.width(150.dp),
+                                )
+                                .height(50.dp)
+                                .background(colors[1])
+                        ) {
+                            Text("Width: ${if (isWide) 300 else 150}.dp")
+                        }
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(50.dp).background(colors[2])
+                        ) {
+                            Text("Match parent")
+                        }
+                        Box(
+                            modifier = Modifier.fillMaxWidth().height(50.dp).background(colors[3])
+                        ) {
+                            Text("Match parent", color = Color.White)
+                        }
                     }
                 }
             }

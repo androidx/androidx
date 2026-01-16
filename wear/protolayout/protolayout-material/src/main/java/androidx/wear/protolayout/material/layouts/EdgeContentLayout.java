@@ -168,6 +168,7 @@ public class EdgeContentLayout implements LayoutElement {
     }
 
     /** Builder class for {@link EdgeContentLayout}. */
+    @SuppressWarnings("HiddenSuperclass")
     public static final class Builder implements LayoutElement.Builder {
         private final @NonNull DeviceParameters mDeviceParameters;
         private @Nullable LayoutElement mEdgeContent = null;

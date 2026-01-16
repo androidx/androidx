@@ -20,6 +20,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaMetadataRetriever
 import android.net.Uri
+import android.os.Build
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraEffect
@@ -63,6 +64,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -104,6 +106,10 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
 
     @Before
     fun setUp(): Unit = runBlocking {
+        assumeFalse(
+            "Test fails on cuttlefish b/467708340",
+            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
+        )
         assumeTrue(packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_CONCURRENT))
 
         ProcessCameraProvider.configureInstance(cameraConfig)
@@ -811,6 +817,7 @@ class ConcurrentCameraTest(private val implName: String, private val cameraConfi
             assertThat(finalize!!.outputResults.outputUri).isEqualTo(uri)
 
             // Cleanup.
+            activeRecording?.close()
             recordingFile!!.delete()
         }
 

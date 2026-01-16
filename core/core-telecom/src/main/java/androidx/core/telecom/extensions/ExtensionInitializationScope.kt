@@ -115,6 +115,11 @@ public interface ExtensionInitializationScope {
      * @param initialCallSilenceState The initial call silence value at the start of the call. True,
      *   signals silence the user and do not transmit audio data to the remote users. False signals
      *   the mic is transmitting audio data at the application layer.
+     * @param initialCanUserUpdateSilenceState The initial state determining if the user is allowed
+     *   to toggle the silence state. Set this to 'false' if the user joins the call in a restricted
+     *   state, such as being restricted by a moderator (e.g. a host hard-muting participants) ,
+     *   joining a live stream as a passive viewer, or using a hardware mode with no audio input.
+     *   Defaults to 'true'.
      * @param onLocalSilenceUpdate This is called when the user has requested to change their
      *   silence state on a remote surface. If true, this user has requested to silence the
      *   microphone. If false, this user has unsilenced the microphone. This operation should not
@@ -124,6 +129,7 @@ public interface ExtensionInitializationScope {
      */
     public fun addLocalCallSilenceExtension(
         initialCallSilenceState: Boolean,
+        initialCanUserUpdateSilenceState: Boolean = true,
         onLocalSilenceUpdate: (suspend (Boolean) -> Unit),
     ): LocalCallSilenceExtension
 

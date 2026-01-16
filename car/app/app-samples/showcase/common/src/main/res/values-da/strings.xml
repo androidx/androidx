@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Rækken kan også vælges"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Sekundær handling er valgt"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Primær handling for rækken er valgt"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demo af billeder og handlinger i slutningen af en række"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Demo på tom liste"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Listen er tom"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demonstrationer af diverse skabeloner"</string>

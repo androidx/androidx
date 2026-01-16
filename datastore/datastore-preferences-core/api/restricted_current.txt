@@ -36,6 +36,7 @@ package androidx.datastore.preferences.core {
   public abstract class Preferences {
     method public abstract java.util.Map<androidx.datastore.preferences.core.Preferences.Key<? extends java.lang.Object?>,java.lang.Object> asMap();
     method public abstract operator <T> boolean contains(androidx.datastore.preferences.core.Preferences.Key<T> key);
+    method public final androidx.datastore.preferences.core.Preferences copy(kotlin.jvm.functions.Function1<? super androidx.datastore.preferences.core.MutablePreferences,kotlin.Unit> block);
     method public abstract operator <T> T? get(androidx.datastore.preferences.core.Preferences.Key<T> key);
     method public final androidx.datastore.preferences.core.MutablePreferences toMutablePreferences();
     method public final androidx.datastore.preferences.core.Preferences toPreferences();

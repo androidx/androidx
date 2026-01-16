@@ -39,56 +39,13 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api("androidx.annotation:annotation:1.9.1")
-                api(project(":compose:runtime:runtime"))
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api(project(":compose:runtime:runtime"))
         }
 
-        commonTest {
-            dependencies {
-            }
-        }
-
-        jvmMain {
-            dependsOn(commonMain)
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        androidDeviceTest {
-            dependsOn(jvmTest)
-            dependencies {
-            }
-        }
-
-        androidHostTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.junit)
-            }
-        }
-
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-            dependsOn(jvmMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
+        androidHostTest.dependencies {
+            implementation(libs.junit)
         }
     }
 }

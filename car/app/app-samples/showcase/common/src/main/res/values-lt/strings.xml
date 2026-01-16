@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Taip pat galima pasirinkti eilutę"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Pasirinktas antrinis veiksmas"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Pasirinktas pagrindinis eilutės veiksmas"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Eilutės pabaigos vaizdo ir veiksmų demonstracinė versija"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Tuščio sąrašo demonstracinė versija"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Sąrašas yra tuščias"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Įvairių šablonų demonstracinės versijos"</string>

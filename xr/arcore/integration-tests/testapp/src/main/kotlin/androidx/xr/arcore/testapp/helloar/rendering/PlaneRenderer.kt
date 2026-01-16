@@ -56,7 +56,10 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
     override fun onResume(owner: LifecycleOwner) {
         updateJob =
             SupervisorJob(
-                coroutineScope.launch { Plane.subscribe(session).collect { updatePlaneModels(it) } }
+                coroutineScope.launch {
+                    preloadModels()
+                    Plane.subscribe(session).collect { updatePlaneModels(it) }
+                }
             )
     }
 
@@ -65,7 +68,25 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
         _renderedPlanes.value = emptyList<PlaneModel>()
     }
 
-    private suspend fun updatePlaneModels(planes: Collection<Plane>) {
+    private suspend fun preloadModels() {
+        if (_planesModelsMap.isNotEmpty()) return
+
+        val assetsToLoad =
+            SUPPORTED_OBJECT_MODELS.values.toMutableSet().apply { add(DEFAULT_OBJECT_MODEL) }
+
+        val assetToModel =
+            assetsToLoad.associateWith { assetName ->
+                GltfModel.create(session, Paths.get("models", assetName))
+            }
+
+        for ((category, assetName) in SUPPORTED_OBJECT_MODELS) {
+            _planesModelsMap[category] = assetToModel[assetName]
+        }
+
+        _planesModelsMap["DEFAULT"] = assetToModel[DEFAULT_OBJECT_MODEL]
+    }
+
+    private fun updatePlaneModels(planes: Collection<Plane>) {
         val planesToRender = _renderedPlanes.value.toMutableList()
         // Create renderers for new planes.
         for (plane in planes) {
@@ -83,20 +104,11 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
         _renderedPlanes.value = planesToRender
     }
 
-    private suspend fun addPlaneModel(plane: Plane, planesToRender: MutableList<PlaneModel>) {
+    private fun addPlaneModel(plane: Plane, planesToRender: MutableList<PlaneModel>) {
         val category = plane.state.value.label.toString()
-        val asset =
-            if (SUPPORTED_OBJECT_MODELS.containsKey(category)) {
-                SUPPORTED_OBJECT_MODELS[category]
-            } else {
-                DEFAULT_OBJECT_MODEL
-            }
-        _planesModelsMap.putIfAbsent(
-            category,
-            GltfModel.create(session, Paths.get("models", asset)),
-        )
-        val modelEntity: GltfModelEntity? =
-            GltfModelEntity.create(session, _planesModelsMap[category]!!)
+        val model = _planesModelsMap[category] ?: _planesModelsMap["DEFAULT"]
+        val modelEntity: GltfModelEntity = GltfModelEntity.create(session, model!!)
+
         // The counter starts at max to trigger the resize on the first update loop since emulators
         // only
         // update their static planes once.
@@ -107,12 +119,12 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
                 plane.state.collect { state ->
                     if (state.trackingState == TrackingState.TRACKING) {
                         if (state.label == Plane.Label.UNKNOWN) {
-                            modelEntity!!.setEnabled(false)
+                            modelEntity.setEnabled(false)
                         } else {
-                            modelEntity!!.setEnabled(true)
-                            modelEntity!!.setAlpha(.5f)
+                            modelEntity.setEnabled(true)
+                            modelEntity.setAlpha(.5f)
                             counter++
-                            modelEntity!!.setPose(
+                            modelEntity.setPose(
                                 session.scene.perceptionSpace
                                     .transformPoseTo(state.centerPose, session.scene.activitySpace)
                                     // Planes are X-Y while Panels are X-Z, so we need to rotate the
@@ -122,12 +134,12 @@ internal class PlaneRenderer(val session: Session, val coroutineScope: Coroutine
                             )
 
                             if (counter > PANEL_RESIZE_UPDATE_COUNT) {
-                                modelEntity!!.setScale(scaledExtents(state.extents))
+                                modelEntity.setScale(scaledExtents(state.extents))
                                 counter = 0
                             }
                         }
                     } else if (state.trackingState == TrackingState.STOPPED) {
-                        modelEntity!!.setEnabled(false)
+                        modelEntity.setEnabled(false)
                     }
                 }
             }

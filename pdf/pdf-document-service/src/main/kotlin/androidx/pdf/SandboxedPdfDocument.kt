@@ -31,20 +31,11 @@ import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.annotation.WorkerThread
 import androidx.pdf.PdfDocument.BitmapSource
-import androidx.pdf.PdfDocument.Companion.INCLUDE_FORM_WIDGET_INFO
 import androidx.pdf.PdfDocument.DocumentClosedException
 import androidx.pdf.PdfDocument.PdfPageContent
-import androidx.pdf.annotation.EditablePdfDocument
-import androidx.pdf.annotation.manager.InMemoryAnnotationsManager
-import androidx.pdf.annotation.models.AnnotationResult
-import androidx.pdf.annotation.models.EditId
-import androidx.pdf.annotation.models.EditsResult
-import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.annotation.models.PdfEdit
-import androidx.pdf.annotation.models.PdfEditEntry
-import androidx.pdf.annotation.models.PdfEdits
-import androidx.pdf.annotation.processor.PdfAnnotationsProcessor
+import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.PdfObject
+import androidx.pdf.annotation.processor.BatchPdfAnnotationsProcessor
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.SelectionBoundary
@@ -54,6 +45,7 @@ import androidx.pdf.service.connect.PdfServiceConnection
 import androidx.pdf.utils.toAndroidClass
 import androidx.pdf.utils.toContentClass
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.Executor
 import java.util.concurrent.TimeoutException
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
@@ -100,19 +92,17 @@ public class SandboxedPdfDocument(
     override val pageCount: Int,
     override val isLinearized: Boolean,
     override val formType: Int,
-    private val annotationsProcessor: PdfAnnotationsProcessor,
+    override val renderParams: RenderParams,
+    private val batchPdfAnnotationsProcessor: BatchPdfAnnotationsProcessor,
 ) : EditablePdfDocument() {
 
     private val refCount = AtomicInteger(1)
-
-    private val annotationsManager =
-        InMemoryAnnotationsManager(::getAnnotationsForPage, annotationsProcessor)
 
     /** The [CoroutineScope] we use to close [BitmapSource]s asynchronously */
     private val closeScope = CoroutineScope(coroutineContext + SupervisorJob())
 
     private val onPdfContentInvalidatedListeners:
-        CopyOnWriteArrayList<PdfDocument.OnPdfContentInvalidatedListener> =
+        CopyOnWriteArrayList<Pair<Executor, PdfDocument.OnPdfContentInvalidatedListener>> =
         CopyOnWriteArrayList()
 
     /**
@@ -123,14 +113,12 @@ public class SandboxedPdfDocument(
      */
     private var isDocumentClosedExplicitly = false
 
+    @Suppress("WrongConstant")
     override suspend fun getPageInfo(pageNumber: Int): PdfDocument.PageInfo {
-        return getPageInfo(pageNumber, PdfDocument.PageInfoFlags.of(0))
+        return getPageInfo(pageNumber, PdfDocument.PAGE_INFO_EXCLUDE_FORM_WIDGETS)
     }
 
-    override suspend fun getPageInfo(
-        pageNumber: Int,
-        pageInfoFlags: PdfDocument.PageInfoFlags,
-    ): PdfDocument.PageInfo {
+    override suspend fun getPageInfo(pageNumber: Int, pageInfoFlags: Long): PdfDocument.PageInfo {
         return withDocument { document ->
             // TODO(b/407777410): Update the logic so that callers can refetch the information in
             // case
@@ -139,10 +127,10 @@ public class SandboxedPdfDocument(
 
             // Check if the INCLUDE_FORM_WIDGET_INFO flag is set
             val formWidgetInfo =
-                if (pageInfoFlags.value and INCLUDE_FORM_WIDGET_INFO != 0L) {
+                if (pageInfoFlags and PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET != 0L) {
                     document.getFormWidgetInfos(pageNumber).map { it.toContentClass() }
                 } else {
-                    null
+                    emptyList()
                 }
 
             if (dimensions == null || dimensions.height <= 0 || dimensions.width <= 0) {
@@ -164,7 +152,7 @@ public class SandboxedPdfDocument(
 
     override suspend fun getPageInfos(
         pageRange: IntRange,
-        pageInfoFlags: PdfDocument.PageInfoFlags,
+        pageInfoFlags: Long,
     ): List<PdfDocument.PageInfo> {
         return pageRange.map { getPageInfo(pageNumber = it, pageInfoFlags = pageInfoFlags) }
     }
@@ -234,36 +222,59 @@ public class SandboxedPdfDocument(
 
     override fun getPageBitmapSource(pageNumber: Int): BitmapSource = PageBitmapSource(pageNumber)
 
-    override suspend fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo> {
-        return getFormWidgetInfos(pageNum, intArrayOf())
+    override suspend fun getFormWidgetInfos(pageNum: Int, types: Long): List<FormWidgetInfo> {
+        return withDocument { document ->
+            document.getFormWidgetInfosOfType(pageNum, getFormWidgetTypesArray(types)).map {
+                it.toContentClass()
+            }
+        }
     }
 
-    override suspend fun getFormWidgetInfos(pageNum: Int, types: IntArray): List<FormWidgetInfo> {
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 19)
+    override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
         return withDocument { document ->
-            document.getFormWidgetInfosOfType(pageNum, types).map { it.toContentClass() }
+            document.getTopPageObjectAtPosition(pageNum, point, intArrayOf())
         }
     }
 
     override fun addOnPdfContentInvalidatedListener(
-        listener: PdfDocument.OnPdfContentInvalidatedListener
+        executor: Executor,
+        listener: PdfDocument.OnPdfContentInvalidatedListener,
     ) {
-        onPdfContentInvalidatedListeners.add(listener)
+        onPdfContentInvalidatedListeners.add(Pair(executor, listener))
     }
 
     override fun removeOnPdfContentInvalidatedListener(
         listener: PdfDocument.OnPdfContentInvalidatedListener
     ) {
-        onPdfContentInvalidatedListeners.remove(listener)
+        onPdfContentInvalidatedListeners.removeIf { it.second == listener }
     }
 
     override suspend fun applyEdit(record: FormEditInfo) {
         val dirtyAreas = withDocument { document ->
             document.applyEdit(record.pageNumber, record.toAndroidClass())
         }
-        onPdfContentInvalidatedListeners.forEach {
-            it.onPdfContentInvalidated(record.pageNumber, dirtyAreas)
+        onPdfContentInvalidatedListeners.forEach { (executor, listener) ->
+            executor.execute { listener.onPdfContentInvalidated(record.pageNumber, dirtyAreas) }
         }
     }
+
+    override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {
+        return batchPdfAnnotationsProcessor.process(editsDraft)
+    }
+
+    /**
+     * Generates a handle for writing the document. This handle should be closed after use.
+     *
+     * @return A [PdfWriteHandle] for the document.
+     */
+    override fun createWriteHandle(): PdfWriteHandle {
+        refCount.incrementAndGet()
+        return PdfWriteHandleImpl(this)
+    }
+
+    override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> =
+        getKeyedAnnotationsForPage(pageNum)
 
     @WorkerThread
     override fun close() {
@@ -289,6 +300,7 @@ public class SandboxedPdfDocument(
          *
          * @param scaledPageSizePx The desired size of the bitmap in pixels.
          * @param tileRegion The optional region of the page to render (null for the entire page).
+         * @param renderParams The render params used to render contents on the bitmap.
          * @return The bitmap of the specified page or region.
          */
         override suspend fun getBitmap(scaledPageSizePx: Size, tileRegion: Rect?): Bitmap {
@@ -298,6 +310,7 @@ public class SandboxedPdfDocument(
                         pageNumber,
                         scaledPageSizePx.width,
                         scaledPageSizePx.height,
+                        renderParams,
                     ) ?: getDefaultBitmap(scaledPageSizePx.width, scaledPageSizePx.height)
                 } else {
                     val offsetX = tileRegion.left
@@ -310,6 +323,7 @@ public class SandboxedPdfDocument(
                         scaledPageSizePx.height,
                         offsetX,
                         offsetY,
+                        renderParams,
                     ) ?: getDefaultBitmap(tileRegion.width(), tileRegion.height())
                 }
             }
@@ -407,91 +421,19 @@ public class SandboxedPdfDocument(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    override suspend fun <T : PdfEditEntry<out PdfEdit>> getEditsForPage(pageNum: Int): List<T> =
-        annotationsManager.getAnnotationsForPage(pageNum) as List<T>
-
-    override suspend fun applyEdits(annotations: List<PdfAnnotationData>): AnnotationResult {
-        // Wrapping the process method inside withDocument is important because if the service
-        // disconnected/crashed, withDocument is responsible for retrying the request.
-        return withDocument { annotationsProcessor.process(annotations) }
-    }
-
-    override suspend fun applyEdits(sourcePfd: ParcelFileDescriptor): AnnotationResult {
-        val annotationResult = withDocument { pdfDocumentRemote ->
-            pdfDocumentRemote.addAnnotations(sourcePfd)
-        }
-        if (annotationResult != null) {
-            return annotationResult
-        }
-
-        return AnnotationResult(listOf(), listOf())
-    }
-
-    override fun <T : PdfEdit> addPdfEditEntry(entry: PdfEditEntry<T>) {
-        when (entry) {
-            is PdfAnnotationData -> annotationsManager.addAnnotationById(entry.id, entry.annotation)
-            else ->
-                throw UnsupportedOperationException("Unsupported edit type: ${entry.edit::class}")
-        }
-    }
-
-    override fun addEdit(edit: PdfEdit): EditId {
-        return when (edit) {
-            is PdfAnnotation -> annotationsManager.addAnnotation(edit)
-            else -> throw UnsupportedOperationException("Unsupported edit type: ${edit::class}")
-        }
-    }
-
-    override fun removeEdit(editId: EditId): PdfEdit = annotationsManager.removeAnnotation(editId)
-
-    override fun updateEdit(editId: EditId, edit: PdfEdit): PdfEdit {
-        return when (edit) {
-            is PdfAnnotation -> annotationsManager.updateAnnotation(editId, edit)
-            else -> throw UnsupportedOperationException("Unsupported edit type: ${edit::class}")
-        }
-    }
-
-    override fun clearUncommittedEdits() {
-        return annotationsManager.clearUncommittedEdits()
-    }
-
-    /**
-     * Generates a handle for writing the document. This handle should be closed after use.
-     *
-     * @return A [PdfWriteHandle] for the document.
-     */
-    override fun createWriteHandle(): PdfWriteHandle {
-        refCount.incrementAndGet()
-        return PdfWriteHandleImpl(this)
-    }
-
-    // TODO: b/438309514 - Remove GetAnnotationsFromDraftState from SandboxPdfDocument
-    internal suspend fun getAnnotationsFromDraftState(pageNum: Int): List<PdfAnnotationData> {
-        return annotationsManager.getAnnotationsForPage(pageNum)
-    }
-
-    override suspend fun commitEdits(): EditsResult {
-        return annotationsManager.commitEdits()
-    }
-
-    override fun getAllEdits(): PdfEdits = annotationsManager.getSnapshot()
-
-    private suspend fun getAnnotationsForPage(pageNum: Int): List<PdfAnnotation> {
-        val firstBatch = withDocument { it.getAllPageAnnotations(pageNum) } ?: return emptyList()
+    private suspend fun getKeyedAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
+        val firstBatch = withDocument { it.getPageAnnotations(pageNum) } ?: return emptyList()
         if (firstBatch.totalBatchCount <= 1) {
-            return firstBatch.annotations.map { it.annotation }
+            return firstBatch.annotations
         }
 
         return coroutineScope {
-            val firstAnnotations = firstBatch.annotations.map { it.annotation }
+            val firstAnnotations = firstBatch.annotations
             val deferredRemainingBatches =
                 (1 until firstBatch.totalBatchCount).map { batchIndex ->
                     async {
                         withDocument { remote ->
-                            remote.getBatchedPageAnnotations(pageNum, batchIndex).annotations.map {
-                                it.annotation
-                            }
+                            remote.getBatchedPageAnnotations(pageNum, batchIndex).annotations
                         }
                     }
                 }
@@ -499,6 +441,28 @@ public class SandboxedPdfDocument(
             val remainingAnnotations = deferredRemainingBatches.awaitAll().flatten()
             firstAnnotations + remainingAnnotations
         }
+    }
+
+    private fun getFormWidgetTypesArray(types: Long): IntArray {
+        if (types == PdfDocument.FORM_WIDGET_INCLUDE_ALL_TYPES) return intArrayOf()
+
+        return buildList {
+                if (types and PdfDocument.FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE != 0L)
+                    add(FormWidgetInfo.WIDGET_TYPE_TEXTFIELD)
+                if (types and PdfDocument.FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE != 0L)
+                    add(FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON)
+                if (types and PdfDocument.FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE != 0L)
+                    add(FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON)
+                if (types and PdfDocument.FORM_WIDGET_INCLUDE_CHECKBOX_TYPE != 0L)
+                    add(FormWidgetInfo.WIDGET_TYPE_CHECKBOX)
+                if (types and PdfDocument.FORM_WIDGET_INCLUDE_COMBOBOX_TYPE != 0L)
+                    add(FormWidgetInfo.WIDGET_TYPE_COMBOBOX)
+                if (types and PdfDocument.FORM_WIDGET_INCLUDE_LISTBOX_TYPE != 0L)
+                    add(FormWidgetInfo.WIDGET_TYPE_LISTBOX)
+                if (types and PdfDocument.FORM_WIDGET_INCLUDE_SIGNATURE_TYPE != 0L)
+                    add(FormWidgetInfo.WIDGET_TYPE_SIGNATURE)
+            }
+            .toIntArray()
     }
 
     private companion object {

@@ -93,7 +93,7 @@ class SysUiSceneTransitionLayoutHeroBenchmark(private val compilationMode: Compi
     }
 
     companion object {
-        const val ITERATIONS = 5
+        const val ITERATIONS = 10
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

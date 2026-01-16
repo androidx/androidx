@@ -83,26 +83,6 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
         private set
 
     /**
-     * The [SpatialUser] represents the user within the XR scene, providing access to tracking
-     * information for the user's head and eyes.
-     *
-     * Use it to get the following:
-     * - **Head Pose**: Access [SpatialUser.head] to get the position and orientation of the user's
-     *   head in the scene.
-     * - **Camera Views**: Access [SpatialUser.cameraViews] to get the pose and field of view for
-     *   each of the user's camera views.
-     *
-     * Note: Accessing properties on [SpatialUser] requires head tracking to be enabled in the
-     * session [androidx.xr.runtime.Session.config].
-     *
-     * @see SpatialUser
-     * @see Head
-     * @see CameraView
-     */
-    public lateinit var spatialUser: SpatialUser
-        private set
-
-    /**
      * A spatialized [MainPanelEntity] associated with the "main window" for the Activity. When in
      * Home Space Mode, this is the application's "main window".
      *
@@ -134,6 +114,12 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
      * This field can be `null` if no key entity has been set (default), or if the key entity was
      * cleared by setting this value to `null`. When `null`, the default listener takes no action
      * during spatial mode changes.
+     *
+     * When a new non-null [Entity] is assigned as [keyEntity], the [spatialModeChangedListener] is
+     * immediately invoked with the last known recommended pose and scale values if the following
+     * conditions are met:
+     * 1. The previous value of [keyEntity] was `null`.
+     * 2. There are cached pose and scale values, provided by the system earlier.
      */
     public var keyEntity: Entity?
         get() = _keyEntity
@@ -143,11 +129,46 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
                     throw IllegalArgumentException("AnchorEntity cannot be set as the keyEntity.")
                 is ActivitySpace ->
                     throw IllegalArgumentException("ActivitySpace cannot be set as the keyEntity.")
-                else -> _keyEntity = value
+                else -> {
+                    // If the previous keyEntity was from null value, invoke the
+                    // spatialModeChangedListener to apply cached values to new keyEntity.
+                    if (
+                        _keyEntity == null &&
+                            value != null &&
+                            lastRecommendedPose != null &&
+                            lastRecommendedScale != null
+                    ) {
+                        val event =
+                            SpatialModeChangeEvent(lastRecommendedPose!!, lastRecommendedScale!!.x)
+                        spatialModeChangedExecutor.execute {
+                            spatialModeChangedListener.accept(event)
+                        }
+                    }
+                    _keyEntity = value
+                }
             }
         }
 
+    /**
+     * Checks if boundary consent has been granted, which is a key safety prerequisite before
+     * showing immersive content(i.e.,content that fully or substantially obscures the passthrough
+     * view).
+     *
+     * @return `true` if the user has granted consent. Returns `false` otherwise, in which case
+     *   showing immersive content is strongly discouraged.
+     *
+     * **Note:** Advanced users may disable the entire boundary system in developer settings. If the
+     * boundary system is disabled, this method will also return `true`, as this is treated as an
+     * **implicit** form of consent. However, in this specific scenario, the system will not present
+     * the boundary line to the user upon approach.
+     */
+    public val isBoundaryConsentGranted: Boolean
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        get() = sceneRuntime.isBoundaryConsentGranted
+
     private var _keyEntity: Entity? = null
+    private var lastRecommendedPose: Pose? = null
+    private var lastRecommendedScale: Vector3? = null
 
     private val defaultSpatialModeChangedListener =
         Consumer<SpatialModeChangeEvent> { event ->
@@ -177,18 +198,19 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
         perceptionSpace = PerceptionSpace.create(sceneRuntime)
         activitySpace = ActivitySpace.create(sceneRuntime, entityManager)
         val perceptionRuntime = runtimes.filterIsInstance<PerceptionRuntime>().first()
-        spatialUser = SpatialUser.create(perceptionRuntime.lifecycleManager, sceneRuntime)
         mainPanelEntity =
-            MainPanelEntity.create(perceptionRuntime.lifecycleManager, sceneRuntime, entityManager)
+            MainPanelEntity.create(
+                perceptionRuntime.lifecycleManager,
+                sceneRuntime,
+                perceptionSpace,
+                entityManager,
+            )
         sceneRuntime.spatialModeChangeListener =
-            object : RtSpatialModeChangeListener {
-                override fun onSpatialModeChanged(
-                    recommendedPose: Pose,
-                    recommendedScale: Vector3,
-                ) {
-                    val event = SpatialModeChangeEvent(recommendedPose, recommendedScale.x)
-                    spatialModeChangedExecutor.execute { spatialModeChangedListener.accept(event) }
-                }
+            RtSpatialModeChangeListener { recommendedPose, recommendedScale ->
+                lastRecommendedPose = recommendedPose
+                lastRecommendedScale = recommendedScale
+                val event = SpatialModeChangeEvent(recommendedPose, recommendedScale.x)
+                spatialModeChangedExecutor.execute { spatialModeChangedListener.accept(event) }
             }
 
         spatialCapabilities = sceneRuntime.spatialCapabilities.toSpatialCapabilities()
@@ -221,6 +243,51 @@ public class Scene @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public con
             field = value
             sceneRuntime.enablePanelDepthTest(value.isDepthTestEnabled)
         }
+
+    /**
+     * Adds the given [Consumer] as a listener to be invoked when the boundary consent state
+     * changes.
+     *
+     * The listener will be invoked asynchronously on the **main thread executor**.
+     *
+     * @param listener The [Consumer] to be invoked with the new boundary consent state (`true` if
+     *   granted, `false` otherwise). Refer to [Scene.isBoundaryConsentGranted] for a detailed
+     *   explanation of the states.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun addOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+        addOnBoundaryConsentChangedListener(HandlerExecutor.mainThreadExecutor, listener)
+    }
+
+    /**
+     * Adds the given [Consumer] as a listener to be invoked when the boundary consent state
+     * changes.
+     *
+     * @param callbackExecutor The [Executor] on which to invoke the listener.
+     * @param listener The [Consumer] to be invoked asynchronously on the given [callbackExecutor]
+     *   with the new boundary consent state (`true` if granted, `false` otherwise). Refer to
+     *   [Scene.isBoundaryConsentGranted] for a detailed explanation of the states.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun addOnBoundaryConsentChangedListener(
+        callbackExecutor: Executor,
+        listener: Consumer<Boolean>,
+    ) {
+        sceneRuntime.addOnBoundaryConsentChangedListener(callbackExecutor, listener)
+    }
+
+    /**
+     * Releases the given [Consumer] from receiving updates when the boundary consent state changes.
+     *
+     * The listeners are automatically released at the end of the Scene's lifecycle even if this
+     * method is not explicitly called.
+     *
+     * @param listener The [Consumer] to be removed. It will no longer receive change events.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public fun removeOnBoundaryConsentChangedListener(listener: Consumer<Boolean>) {
+        sceneRuntime.removeOnBoundaryConsentChangedListener(listener)
+    }
 
     /**
      * Adds the given [Consumer] as a listener to be invoked when this

@@ -25,9 +25,9 @@ plugins {
 
 android {
     namespace = "androidx.xr.compose.testapp"
-    compileSdk = 35
+    compileSdk { version = release(35) }
     defaultConfig {
-        minSdk = 34
+        minSdk { version = release(34) }
     }
     buildTypes {
         release {
@@ -69,7 +69,7 @@ dependencies {
     implementation(libs.kotlinSerializationJson)
     implementation(libs.kotlinCoroutinesGuava)
 
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    compileOnly(libs.androidExtensionsXr)
 }
 
 // Making this APK available via Android Build so the QA team can

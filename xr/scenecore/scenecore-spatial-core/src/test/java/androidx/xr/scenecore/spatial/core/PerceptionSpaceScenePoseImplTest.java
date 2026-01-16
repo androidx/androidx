@@ -85,8 +85,7 @@ public final class PerceptionSpaceScenePoseImplTest {
 
     @Before
     public void setUp() {
-        mPerceptionSpaceScenePose =
-                new PerceptionSpaceScenePoseImpl(mActivitySpace, mActivitySpace);
+        mPerceptionSpaceScenePose = new PerceptionSpaceScenePoseImpl(mActivitySpace);
     }
 
     @Test
@@ -148,7 +147,7 @@ public final class PerceptionSpaceScenePoseImplTest {
     }
 
     @Test
-    public void getActivitySpaceScale_returnsInverseOfActivitySpaceWorldScale() throws Exception {
+    public void getActivitySpaceScale_returnsInverseOfActivitySpaceWorldScale() {
         float activitySpaceScale = 5f;
         mActivitySpace.setOpenXrReferenceSpaceTransform(Matrix4.fromScale(activitySpaceScale));
 

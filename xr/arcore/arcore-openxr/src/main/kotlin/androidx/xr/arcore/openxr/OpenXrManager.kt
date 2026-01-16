@@ -23,6 +23,7 @@ import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.xr.runtime.Config
+import androidx.xr.runtime.Log
 import androidx.xr.runtime.internal.FaceTrackingNotCalibratedException
 import androidx.xr.runtime.internal.LifecycleManager
 import androidx.xr.runtime.manifest.HAND_TRACKING
@@ -41,6 +42,7 @@ internal constructor(
 ) : LifecycleManager {
 
     private companion object {
+        private const val KEY_API_KEY = "com.google.android.ar.API_KEY"
         private val activityList = mutableListOf<Activity>()
     }
 
@@ -55,14 +57,16 @@ internal constructor(
      * A pointer to the native XrSession. Only valid after [create] and before [stop] have been
      * called.
      */
-    internal var sessionPointer: Long = 0L
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override var sessionPointer: Long = 0L
         private set
 
     /**
      * A pointer to the native XrInstance. Only valid after [create] and before [stop] have been
      * called.
      */
-    internal var instancePointer: Long = 0L
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override var instancePointer: Long = 0L
         private set
 
     override fun create() {
@@ -70,6 +74,9 @@ internal constructor(
         // Only initialize the OpenXrManager and bring up resources.
         check(nativeInit(activity, startPollingThread = false))
         activityList.add(activity)
+        setAuthentication(activity)
+        sessionPointer = nativeGetXrSessionHandle()
+        instancePointer = nativeGetXrInstanceHandle()
     }
 
     /** The current state of the runtime configuration for the session. */
@@ -180,7 +187,7 @@ internal constructor(
         }
 
         if (config.faceTracking != this.config.faceTracking) {
-            if (config.faceTracking == Config.FaceTrackingMode.USER) {
+            if (config.faceTracking == Config.FaceTrackingMode.BLEND_SHAPES) {
                 if (!nativeGetFaceTrackerCalibration()) {
                     throw FaceTrackingNotCalibratedException()
                 }
@@ -255,11 +262,52 @@ internal constructor(
         if (activityList.isEmpty()) {
             nativeDeInit()
             nativePointer = 0L
+            sessionPointer = 0L
+            instancePointer = 0L
             perceptionManager.clear()
         }
     }
 
+    private fun setAuthentication(activity: Activity) {
+        var apiKey: String? = null
+        try {
+            val appInfo =
+                activity.packageManager.getApplicationInfo(
+                    activity.packageName,
+                    PackageManager.GET_META_DATA,
+                )
+            apiKey = appInfo.metaData?.getString(KEY_API_KEY)?.takeIf { it.isNotEmpty() }
+        } catch (e: PackageManager.NameNotFoundException) {
+            // Did not read an API key from Application
+        }
+
+        if (apiKey == null) {
+            try {
+                val activityInfo =
+                    activity.packageManager.getActivityInfo(
+                        activity.componentName,
+                        PackageManager.GET_META_DATA,
+                    )
+                apiKey = activityInfo.metaData?.getString(KEY_API_KEY)?.takeIf { it.isNotEmpty() }
+            } catch (e: PackageManager.NameNotFoundException) {
+                // Did not read an API key from Activity
+            }
+        }
+
+        if (apiKey == null) {
+            Log.verbose("No API Key provided, using keyless authentication.")
+            nativeSetKeylessAuth()
+        } else {
+            Log.verbose("Using provided API Key.")
+            nativeSetApiKeyAuth(apiKey)
+        }
+    }
+
     private external fun nativeGetPointer(): Long
+
+    private external fun nativeGetXrSessionHandle(): Long
+
+    private external fun nativeGetXrInstanceHandle(): Long
 
     private external fun nativeInit(context: Context, startPollingThread: Boolean): Boolean
 
@@ -281,4 +329,8 @@ internal constructor(
     ): Long
 
     private external fun nativeGetFaceTrackerCalibration(): Boolean
+
+    private external fun nativeSetApiKeyAuth(apiKey: String)
+
+    private external fun nativeSetKeylessAuth()
 }

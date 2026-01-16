@@ -99,12 +99,6 @@ class GltfEntityImpl extends BaseRenderingEntity implements GltfEntity {
         mFeature.clearMaterialOverride(nodeName, primitiveIndex);
     }
 
-    @SuppressWarnings("ObjectToString")
-    @Override
-    public void dispose() {
-        super.dispose();
-    }
-
     public void setColliderEnabled(boolean enableCollider) {
         mFeature.setColliderEnabled(enableCollider);
     }
@@ -118,5 +112,13 @@ class GltfEntityImpl extends BaseRenderingEntity implements GltfEntity {
     @Override
     public void removeAnimationStateListener(@NonNull Consumer<@NonNull Integer> listener) {
         mFeature.removeAnimationStateListener(listener);
+    }
+
+    public void addOnBoundsUpdateListener(@NonNull Consumer<@NonNull BoundingBox> listener) {
+        mFeature.addOnBoundsUpdateListener(listener);
+    }
+
+    public void removeOnBoundsUpdateListener(@NonNull Consumer<@NonNull BoundingBox> listener) {
+        mFeature.removeOnBoundsUpdateListener(listener);
     }
 }

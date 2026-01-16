@@ -105,6 +105,8 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
      * @param resId ID to locate
      * @return the node with ID resId
      */
+    // not expect/actual, nonAndroid has RestrictTo
+    @Suppress("KmpHideShowAnnotationMismatch")
     public fun findNode(@IdRes resId: Int): NavDestination? = impl.findNode(resId)
 
     /**

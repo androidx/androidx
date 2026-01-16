@@ -20,10 +20,10 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.compose.remote.integration.view.demos"
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
 }
 

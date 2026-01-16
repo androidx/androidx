@@ -641,8 +641,15 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
     private inline fun dispatchIfNeeded(block: () -> Unit): Boolean {
         // If there are no relevant changes, there is nothing to process so return false.
         if (relevantChanges.isEmpty()) return false
-        // If the input filter is not attached, avoid dispatching
+        // If the input filter is not attached, avoid dispatching.
         if (!modifierNode.isAttached) return false
+
+        // If the ui node with input is not placed, avoid dispatching.
+        // There is no direct callback for placement status changes (unlike the onAttach listener).
+        // Consequently, the hit path tree is not pruned when a node becomes "unplaced"
+        // programmatically. Instead, we verify that the node isPlaced during event dispatch.
+        val isPlaced = modifierNode.coordinator?.layoutNode?.isPlaced ?: false
+        if (!isPlaced) return false
 
         block()
 

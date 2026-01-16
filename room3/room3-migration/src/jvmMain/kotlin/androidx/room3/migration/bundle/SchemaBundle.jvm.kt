@@ -38,6 +38,7 @@ actual constructor(
             SchemaEqualityUtil.checkSchemaEquality(database, other.database)
     }
 
+    @Suppress("KmpSignatureClash") // also defined in native
     public companion object {
         public fun deserialize(fis: InputStream): SchemaBundle =
             fis.use {

@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.widget.RemoteViewsCompat.setViewStubInflatedId
 import androidx.core.widget.RemoteViewsCompat.setViewStubLayoutResource
 
-internal fun Dp.toPixels(context: Context) = toPixels(context.resources.displayMetrics)
+internal fun Dp.toPixels(context: Context): Int = toPixels(context.resources.displayMetrics)
 
-internal fun Dp.toPixels(displayMetrics: DisplayMetrics) =
+internal fun Dp.toPixels(displayMetrics: DisplayMetrics): Int =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, displayMetrics).toInt()
 
 internal fun Int.pixelsToDp(displayMetrics: DisplayMetrics) = (this / displayMetrics.density).dp

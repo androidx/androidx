@@ -519,6 +519,7 @@ class PendingIntentHandler {
                                 frameworkReq.callingAppInfo.origin,
                             ),
                         biometricPromptResult = biometricPromptResult,
+                        sourceBundle = intent.extras,
                     )
                 } catch (e: IllegalArgumentException) {
                     return null

@@ -103,25 +103,16 @@ class TestUseCaseCamera(
             )
 
         val cameraStateAdapter = CameraStateAdapter()
-        val graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter)
         val useCaseCameraConfig =
             UseCaseCameraConfig.create(
-                useCases = useCases,
                 cameraGraphConfigProvider = configProvider,
                 cameraGraphFactory = { config -> cameraPipe.createCameraGraph(config) },
-                graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
+                graphStateToCameraStateAdapter = GraphStateToCameraStateAdapter(cameraStateAdapter),
                 sessionConfigAdapter = sessionConfigAdapter,
                 isExtensions = false,
                 sessionProcessor = null,
             )
-        useCaseGraphContext =
-            UseCaseGraphContext(
-                cameraGraphProvider = { useCaseCameraConfig.provideCameraGraph() },
-                cameraStateAdapter = cameraStateAdapter,
-                streamConfigMapProvider = { useCaseCameraConfig.provideStreamConfigMap() },
-                graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
-            )
-
+        useCaseGraphContext = useCaseCameraConfig.provideUseCaseGraphContext(cameraStateAdapter)
         sessionConfigAdapter.getValidSessionConfigOrNull()?.let { sessionConfig ->
             CameraInteropStateCallbackRepository().updateCallbacks(sessionConfig)
         }
@@ -129,7 +120,7 @@ class TestUseCaseCamera(
 
     override val requestControl: UseCaseCameraRequestControl =
         UseCaseCameraRequestControlImpl(
-                capturePipeline =
+                capturePipelineProvider = {
                     object : CapturePipeline {
                         override var template: Int = CameraDevice.TEMPLATE_PREVIEW
 
@@ -149,14 +140,16 @@ class TestUseCaseCamera(
                             flashMode: Int,
                             flashType: Int,
                         ): CameraCapturePipeline = FakeCameraCapturePipeline()
-                    },
-                state =
+                    }
+                },
+                useCaseCameraStateProvider = {
                     UseCaseCameraState(
                         useCaseGraphContext,
                         templateParamsOverride = NoOpTemplateParamsOverride,
-                    ),
+                    )
+                },
                 useCaseGraphContext = useCaseGraphContext,
-                useCaseSurfaceManager = useCaseSurfaceManager,
+                useCaseSurfaceManagerProvider = { useCaseSurfaceManager },
                 threads = threads,
             )
             .apply {

@@ -21,6 +21,7 @@ import static androidx.car.app.model.constraints.ActionsConstraints.ACTIONS_CONS
 import static java.util.Objects.requireNonNull;
 
 import androidx.car.app.annotations.CarProtocol;
+import android.annotation.SuppressLint;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.Action;
@@ -168,6 +169,12 @@ public final class MapWithContentTemplate implements Template {
          *     <li>{@code MessageTemplate}
          * </ul>
          *
+         * <p>From Car API 8 onward, the following template type is supported as content in
+         * addition to all previously supported template types:
+         * <ul>
+         *     <li>{@code SectionedItemTemplate}
+         * </ul>
+         *
          *  @throws NullPointerException     if {@code template} is null
          *  @throws IllegalArgumentException if {@code template} does not meet the requirements
          */
@@ -193,9 +200,11 @@ public final class MapWithContentTemplate implements Template {
          * See {@link Builder#setContentTemplate(Template)} for the list of supported content
          * templates.
          */
+        @SuppressLint("UnsafeOptInUsageError")
         public @NonNull MapWithContentTemplate build() {
-            ContentTemplateConstraints.MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS
-                    .validateOrThrow(mContentTemplate);
+            ContentTemplateConstraints.MAP_WITH_CONTENT_TEMPLATE_CONSTRAINTS_API_8
+                .validateOrThrow(mContentTemplate);
+
             return new MapWithContentTemplate(this);
         }
     }

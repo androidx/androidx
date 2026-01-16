@@ -811,12 +811,27 @@ internal constructor(
     private val lazyRemoteString: LazyRemoteString,
 ) : RemoteString(), MutableRemoteState<String> {
 
+    /** Create a MutableRemoteString from an existing id. */
     public constructor(
         id: Int
     ) : this(
         constantValue = null,
         object : LazyRemoteString {
             override fun reserveTextId(creationState: RemoteComposeCreationState) = id
+
+            override fun computeRequiredCodePointSet(creationState: RemoteComposeCreationState) =
+                null
+        },
+    )
+
+    /** Create a MutableRemoteString for a default value. */
+    public constructor(
+        value: String
+    ) : this(
+        constantValue = null,
+        object : LazyRemoteString {
+            override fun reserveTextId(creationState: RemoteComposeCreationState) =
+                creationState.document.addText(value)
 
             override fun computeRequiredCodePointSet(creationState: RemoteComposeCreationState) =
                 null
@@ -849,8 +864,20 @@ public fun rememberRemoteString(
     val state = LocalRemoteComposeCreationState.current
     return rememberNamedState(name, domain) {
         val string = content()
-        val id = state.document.addNamedString("$domain:$name", string)
-        MutableRemoteString(id)
+        MutableRemoteString(
+            null,
+            object : LazyRemoteString {
+                override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
+                    return state.document.addNamedString("$domain:$name", string)
+                }
+
+                override fun computeRequiredCodePointSet(
+                    creationState: RemoteComposeCreationState
+                ): Set<String>? {
+                    return null
+                }
+            },
+        )
     }
 }
 
@@ -862,11 +889,9 @@ public fun rememberRemoteString(
  */
 @Composable
 public fun rememberRemoteString(content: () -> String): MutableRemoteString {
-    val state = LocalRemoteComposeCreationState.current
     return remember {
         val string = content()
-        val id = state.document.textCreateId(string)
-        MutableRemoteString(id)
+        MutableRemoteString(string)
     }
 }
 

@@ -79,10 +79,10 @@
             android:name=".headlockedui.HeadLockedUiActivity"
             android:exported="true" />
         <activity
-            android:name=".model.GltfModelMaterialTexture"
+            android:name=".model.GltfModelMaterialTextureActivity"
             android:exported="true" />
         <activity
-            android:name=".model.GltfModelAnimation"
+            android:name=".model.GltfModelAnimationActivity"
             android:exported="true" />
         <activity
             android:name=".surfaceimage.SurfaceEntityImageActivity"

@@ -177,14 +177,26 @@ class HandTrackingActivity : ComponentActivity() {
                                 }
 
                             launch {
-                                Hand.left(session)?.state?.collect { leftHandState ->
-                                    renderHandGizmos(leftHandState, leftHandJointEntityMap)
+                                try {
+                                    Hand.left(session)?.state?.collect { leftHandState ->
+                                        renderHandGizmos(leftHandState, leftHandJointEntityMap)
+                                    }
+                                } finally {
+                                    for (entity in leftHandJointEntityMap.values) {
+                                        entity.dispose()
+                                    }
                                 }
                             }
 
                             launch {
-                                Hand.right(session)?.state?.collect { rightHandState ->
-                                    renderHandGizmos(rightHandState, rightHandJointEntityMap)
+                                try {
+                                    Hand.right(session)?.state?.collect { rightHandState ->
+                                        renderHandGizmos(rightHandState, rightHandJointEntityMap)
+                                    }
+                                } finally {
+                                    for (entity in rightHandJointEntityMap.values) {
+                                        entity.dispose()
+                                    }
                                 }
                             }
                         }

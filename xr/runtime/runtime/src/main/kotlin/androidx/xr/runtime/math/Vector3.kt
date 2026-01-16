@@ -28,9 +28,9 @@ import kotlin.math.sqrt
  * The coordinate system is right-handed. The [x]-axis points to the right, the [y]-axis up and the
  * [z]-axis back.
  *
- * @property x the value of the horizontal component.
- * @property y the value of the vertical component.
- * @property z the value of the forward component.
+ * @property x the value of the horizontal component
+ * @property y the value of the vertical component
+ * @property z the value of the forward component
  */
 public class Vector3
 @JvmOverloads
@@ -57,7 +57,11 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
     public operator fun minus(other: Vector3): Vector3 =
         Vector3(x - other.x, y - other.y, z - other.z)
 
-    /** Get a new vector multiplied by a scalar amount. */
+    /**
+     * Get a new vector multiplied by a scalar amount.
+     *
+     * @param c the scalar to multiply by
+     */
     public operator fun times(c: Float): Vector3 = Vector3(x * c, y * c, z * c)
 
     /**
@@ -66,7 +70,11 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
      */
     public fun scale(other: Vector3): Vector3 = Vector3(x * other.x, y * other.y, z * other.z)
 
-    /** Returns a new vector with this vector divided by a scalar amount. */
+    /**
+     * Returns a new vector with this vector divided by a scalar amount.
+     *
+     * @param c the scalar to divide by
+     */
     public operator fun div(c: Float): Vector3 = Vector3(x / c, y / c, z / c)
 
     /** Returns the dot product of this vector and the [other] vector. */
@@ -93,16 +101,27 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
         return Vector3(x * norm, y * norm, z * norm)
     }
 
-    /** Returns a new vector with its values clamped between [min] and [max] vectors. */
+    /**
+     * Returns a new vector with its values clamped between [min] and [max] vectors.
+     *
+     * @param min the minimum clamp values
+     * @param max the maximum clamp values
+     */
     public fun clamp(min: Vector3, max: Vector3): Vector3 {
-        var clampedX = clamp(x, min.x, max.x)
-        var clampedY = clamp(y, min.y, max.y)
-        var clampedZ = clamp(z, min.z, max.z)
+        val clampedX = clamp(x, min.x, max.x)
+        val clampedY = clamp(y, min.y, max.y)
+        val clampedZ = clamp(z, min.z, max.z)
 
         return Vector3(clampedX, clampedY, clampedZ)
     }
 
-    /** Returns a copy of the vector. */
+    /**
+     * Returns a copy of the vector.
+     *
+     * @param x the new x value for the copied vector
+     * @param y the new y value for the copied vector
+     * @param z the new z value for the copied vector
+     */
     @JvmOverloads
     public fun copy(x: Float = this.x, y: Float = this.y, z: Float = this.z): Vector3 =
         Vector3(x, y, z)
@@ -153,8 +172,11 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
         @JvmStatic public fun fromValue(value: Float): Vector3 = Vector3(value, value, value)
 
         /**
-         * Returns the angle between this vector and the [other] vector in degrees. The result is
-         * never greater than 180 degrees.
+         * Returns the angle between [vector1] and [vector2] in degrees. The result is never greater
+         * than 180 degrees.
+         *
+         * @param vector1 the first vector
+         * @param vector2 the second vector
          */
         @JvmStatic
         public fun angleBetween(vector1: Vector3, vector2: Vector3): Float {
@@ -172,7 +194,12 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
             return acos(cos)
         }
 
-        /** Returns the distance between this vector and the [other] vector. */
+        /**
+         * Returns the distance between [vector1] and [vector2].
+         *
+         * @param vector1 the first vector
+         * @param vector2 the second vector
+         */
         @JvmStatic
         public fun distance(vector1: Vector3, vector2: Vector3): Float = (vector1 - vector2).length
 
@@ -181,6 +208,10 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
          * interpolated amount [ratio].
          *
          * If [ratio] is outside of the range `[0, 1]`, the returned vector will be extrapolated.
+         *
+         * @param start the starting vector
+         * @param end the ending vector
+         * @param ratio the interpolation ratio
          */
         @JvmStatic
         public fun lerp(start: Vector3, end: Vector3, ratio: Float): Vector3 =
@@ -190,22 +221,41 @@ constructor(public val x: Float = 0F, public val y: Float = 0F, public val z: Fl
                 lerp(start.z, end.z, ratio),
             )
 
-        /** Returns the minimum of each component of the two vectors. */
+        /**
+         * Returns the minimum of each component of the two vectors.
+         *
+         * @param a the first vector
+         * @param b the second vector
+         */
         @JvmStatic
         public fun min(a: Vector3, b: Vector3): Vector3 =
             Vector3(min(a.x, b.x), min(a.y, b.y), min(a.z, b.z))
 
-        /** Returns the maximum of each component of the two vectors. */
+        /**
+         * Returns the maximum of each component of the two vectors.
+         *
+         * @param a the first vector
+         * @param b the second vector
+         */
         @JvmStatic
         public fun max(a: Vector3, b: Vector3): Vector3 =
             Vector3(max(a.x, b.x), max(a.y, b.y), max(a.z, b.z))
 
-        /** Computes the vector projected from [vector] onto [planeNormal]. */
+        /**
+         * Computes the vector projected from [vector] onto [planeNormal].
+         *
+         * @param vector the vector to project
+         * @param planeNormal the normal of the plane to project onto
+         */
         @JvmStatic
         public fun projectOnPlane(vector: Vector3, planeNormal: Vector3): Vector3 =
             vector - planeNormal * (vector dot planeNormal) / (planeNormal dot planeNormal)
 
-        /** Returns the absolute values of each component of the vector. */
+        /**
+         * Returns the absolute values of each component of the vector.
+         *
+         * @param vector the vector to get the absolute values of
+         */
         @JvmStatic
         public fun abs(vector: Vector3): Vector3 =
             Vector3(abs(vector.x), abs(vector.y), abs(vector.z))

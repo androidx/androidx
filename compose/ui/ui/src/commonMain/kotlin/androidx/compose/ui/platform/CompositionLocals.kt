@@ -19,11 +19,13 @@
 package androidx.compose.ui.platform
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
 import androidx.compose.runtime.retain.LocalRetainedValuesStore
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -42,6 +44,8 @@ import androidx.compose.ui.node.Owner
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.lifecycle.LifecycleOwner
@@ -148,6 +152,22 @@ val LocalInputModeManager =
 val LocalLayoutDirection =
     staticCompositionLocalOf<LayoutDirection> { noLocalProvidedFor("LocalLayoutDirection") }
 
+/** The providable CompositionLocal to provide the locale list. This list can never be empty. */
+@get:VisibleForTesting
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+val LocalProvidableLocaleList: ProvidableCompositionLocal<LocaleList> = staticCompositionLocalOf {
+    noLocalProvidedFor("LocalProvidableLocaleList")
+}
+
+/** The CompositionLocal to provide the locale list. This list will never be empty. */
+val LocalLocaleList: CompositionLocal<LocaleList>
+    get() = LocalProvidableLocaleList
+
+/** The CompositionLocal to provide the locale. */
+val LocalLocale: CompositionLocal<Locale> = compositionLocalWithComputedDefaultOf {
+    LocalLocaleList.currentValue.first()
+}
+
 /** The CompositionLocal to provide communication with platform text input service. */
 @Deprecated("Use PlatformTextInputModifierNode instead.")
 val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
@@ -238,6 +258,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalPointerIconService provides owner.pointerIconService,
         LocalGraphicsContext provides owner.graphicsContext,
         LocalRetainedValuesStore provides owner.retainedValuesStore,
+        LocalProvidableLocaleList provides owner.localeList,
         content = content,
     )
 }

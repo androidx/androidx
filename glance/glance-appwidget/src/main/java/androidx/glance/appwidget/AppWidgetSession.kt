@@ -18,6 +18,7 @@ package androidx.glance.appwidget
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.RemoteViews
@@ -36,12 +37,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.util.fastForEach
+import androidx.glance.Backend
 import androidx.glance.EmittableWithChildren
+import androidx.glance.GlanceBackendPreference
 import androidx.glance.GlanceComposable
+import androidx.glance.LocalBackend
 import androidx.glance.LocalContext
 import androidx.glance.LocalGlanceId
 import androidx.glance.LocalState
 import androidx.glance.action.LambdaAction
+import androidx.glance.appwidget.remotecompose.GLANCE_OPTION_APPWIDGET_FORCE_REMOTE_VIEWS
+import androidx.glance.appwidget.remotecompose.GlanceRemoteComposeTranslator.translateCompositionUsingRemoteCompose
 import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
@@ -116,6 +122,14 @@ public open class AppWidgetSession(
             LocalGlanceId provides id,
             LocalAppWidgetOptions provides (options ?: Bundle.EMPTY),
             LocalState provides glanceState,
+            LocalBackend provides
+                if (
+                    isRemoteCompose(hostOptions = options, appPreference = widget.backendPreference)
+                ) {
+                    Backend.RemoteCompose
+                } else {
+                    Backend.RemoteView
+                },
         ) {
             var minSize by remember { mutableStateOf(DpSize.Zero) }
             val configIsReady by
@@ -166,6 +180,7 @@ public open class AppWidgetSession(
         context: Context,
         root: EmittableWithChildren,
     ): Boolean {
+        val isRemoteCompose: Boolean = isRemoteCompose(options, widget.backendPreference)
         if (root.shouldIgnoreResult()) return false
         root as RemoteViewsRoot
         val layoutConfig = LayoutConfiguration.load(context, id.appWidgetId)
@@ -177,23 +192,38 @@ public open class AppWidgetSession(
                             "No app widget info for ${id.appWidgetId}"
                         }
                         .provider
-            normalizeCompositionTree(root)
+            normalizeCompositionTree(root, isRemoteCompose = isRemoteCompose)
             lambdas = root.updateLambdaActionKeys()
-            val rv =
-                translateComposition(
-                    context,
-                    id.appWidgetId,
-                    root,
-                    layoutConfig,
-                    layoutConfig.addLayout(root),
-                    DpSize.Unspecified,
-                    receiver,
-                    widget.getComponents(context) ?: GlanceComponents.getDefault(context),
-                )
+
+            val remoteViews: RemoteViews =
+                if (
+                    isRemoteCompose &&
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+                ) {
+                    translateCompositionUsingRemoteCompose(
+                        remoteViewsRoot = root,
+                        context = context,
+                        appWidgetId = id.appWidgetId,
+                        glanceComponents =
+                            widget.getComponents(context) ?: GlanceComponents.getDefault(context),
+                        actionBroadcastReceiver = receiver,
+                    )
+                } else {
+                    translateComposition(
+                        context,
+                        id.appWidgetId,
+                        root,
+                        layoutConfig,
+                        layoutConfig.addLayout(root),
+                        DpSize.Unspecified,
+                        receiver,
+                        widget.getComponents(context) ?: GlanceComponents.getDefault(context),
+                    )
+                }
             if (shouldPublish) {
-                appWidgetManager.updateAppWidget(id.appWidgetId, rv)
+                appWidgetManager.updateAppWidget(id.appWidgetId, remoteViews)
             }
-            lastRemoteViews.value = rv
+            lastRemoteViews.value = remoteViews
         } catch (ex: CancellationException) {
             // Nothing to do
         } catch (throwable: Throwable) {
@@ -253,6 +283,7 @@ public open class AppWidgetSession(
         parentJob.cancel()
     }
 
+    @Suppress("ListIterator")
     override suspend fun recreateWithEvents(events: List<Any>): AppWidgetSession {
         // We can skip the UpdateGlanceState events because the new session will pull the state
         // when it starts. We can also skip WaitForReady because any waiters will be cancelled
@@ -319,4 +350,35 @@ public open class AppWidgetSession(
             return super.equals(other) || other is RunLambda && other.key == key
         }
     }
+}
+
+/**
+ * @return Given the host options, app preference, and api version, should we run composition with
+ *   remote compose?
+ *
+ * TODO: b/462177167 Right now we call this twice. Can we call this once and have it be a constant
+ *   throughout the session?
+ */
+internal fun isRemoteCompose(
+    hostOptions: Bundle?,
+    appPreference: GlanceBackendPreference,
+): Boolean {
+    val default = GlanceBackendPreference.RemoteViews
+
+    val remoteComposeIsAvailable = Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM
+    val appSelection =
+        if (appPreference == GlanceBackendPreference.Default) {
+            default
+        } else {
+            appPreference
+        }
+
+    val hostForcesRemoteViews: Boolean =
+        hostOptions?.getBoolean(GLANCE_OPTION_APPWIDGET_FORCE_REMOTE_VIEWS, false) ?: false
+
+    val isRemoteCompose =
+        remoteComposeIsAvailable &&
+            !hostForcesRemoteViews &&
+            appSelection == GlanceBackendPreference.RemoteCompose
+    return isRemoteCompose
 }

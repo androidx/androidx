@@ -45,8 +45,8 @@ import androidx.xr.scenecore.testapp.headlockedui.HeadLockedUiActivity
 import androidx.xr.scenecore.testapp.hittest.HitTestActivity
 import androidx.xr.scenecore.testapp.inputmoveresize.InputMoveResizeTestActivity
 import androidx.xr.scenecore.testapp.memoryleak.MemoryLeakActivity
-import androidx.xr.scenecore.testapp.model.GltfModelAnimation
-import androidx.xr.scenecore.testapp.model.GltfModelMaterialTexture
+import androidx.xr.scenecore.testapp.model.GltfModelAnimationActivity
+import androidx.xr.scenecore.testapp.model.GltfModelMaterialTextureActivity
 import androidx.xr.scenecore.testapp.movable.MovableActivity
 import androidx.xr.scenecore.testapp.panelcoordinate.PanelCoordinateActivity
 import androidx.xr.scenecore.testapp.panelroundedcorner.PanelRoundedCornerActivity
@@ -71,6 +71,7 @@ class MainActivity : AppCompatActivity() {
     private var session: Session? = null
 
     private val sessionManager = SessionManager(this)
+    private var pendingPanelSize: FloatSize2d? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,7 +103,12 @@ class MainActivity : AppCompatActivity() {
                 finish()
             } else {
                 session = createdSession
+                session?.scene?.keyEntity = session?.scene?.mainPanelEntity
                 setUpMainPanelMovable()
+                pendingPanelSize?.let {
+                    session?.scene?.mainPanelEntity?.size = it // restore panel size
+                    pendingPanelSize = null // reset
+                }
             }
         }
     }
@@ -223,20 +229,20 @@ class MainActivity : AppCompatActivity() {
             Tests.HEAD_LOCKED_UI_TEST.test -> startActivity(createIntent<HeadLockedUiActivity>())
 
             Tests.GLTF_MODEL_MATERIAL_TEXTURE_TEST.test ->
-                startActivity(createIntent<GltfModelMaterialTexture>())
+                startActivity(createIntent<GltfModelMaterialTextureActivity>())
 
             Tests.MOVABLE_PANEL_TEST.test -> startActivity(createIntent<MovableActivity>())
 
             Tests.INPUT_MOVE_RESIZE_1_TEST.test -> {
-                val intent = createIntent<InputMoveResizeTestActivity>()
+                val intent = Intent(this@MainActivity, InputMoveResizeTestActivity::class.java)
                 intent.putExtra("MAIN_PANEL_TITLE", getString(R.string.cuj_input_move_resize_test))
-                startActivity(intent)
+                activityLauncher.launch(intent)
             }
 
             Tests.INPUT_MOVE_RESIZE_2_TEST.test -> {
-                val intent = createIntent<InputMoveResizeTestActivity>()
+                val intent = Intent(this@MainActivity, InputMoveResizeTestActivity::class.java)
                 intent.putExtra("MAIN_PANEL_TITLE", getString(R.string.cuj_movable_component_test))
-                startActivity(intent)
+                activityLauncher.launch(intent)
             }
 
             Tests.INPUT_MOVE_RESIZE_3_TEST.test -> {
@@ -295,7 +301,7 @@ class MainActivity : AppCompatActivity() {
                 startActivity(createIntent<PanelCoordinateActivity>())
 
             Tests.GLTF_MODEL_ANIMATION_TEST.test ->
-                startActivity(createIntent<GltfModelAnimation>())
+                startActivity(createIntent<GltfModelAnimationActivity>())
 
             else -> {
                 Log.i(ACTIVITY_NAME, "DO_NOTHING")
@@ -321,9 +327,19 @@ class MainActivity : AppCompatActivity() {
                     if (defaultPanelSizeWidth != null && defaultPanelSizeHeight != null) {
                         val defaultPanelSize =
                             FloatSize2d(defaultPanelSizeWidth, defaultPanelSizeHeight)
-                        session?.scene?.mainPanelEntity?.size = defaultPanelSize
-
-                        Log.d(ACTIVITY_NAME, "Recover defaultPanelSize: $defaultPanelSize")
+                        if (session == null) {
+                            Log.d(
+                                ACTIVITY_NAME,
+                                "Session is null, pending size update: $defaultPanelSize",
+                            )
+                            pendingPanelSize = defaultPanelSize
+                        } else {
+                            Log.d(
+                                ACTIVITY_NAME,
+                                "Session exists, recover defaultPanelSize directly: $defaultPanelSize",
+                            )
+                            session?.scene?.mainPanelEntity?.size = defaultPanelSize
+                        }
                     }
                 }
             }

@@ -18,10 +18,13 @@ package androidx.pdf.view
 
 import android.R as androidR
 import android.graphics.Point
+import android.graphics.RectF
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.ViewGroup
 import androidx.pdf.R
+import androidx.pdf.TestUtils.assertNotNullObjectByText
+import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.selection.PdfSelectionMenuKeys
 import androidx.pdf.selection.SelectionMenuComponent
@@ -50,16 +53,30 @@ import org.junit.runner.RunWith
 @LargeTest
 class PdfViewSelectionMenuTest {
 
+    lateinit var pdfView: PdfView
+
     @Before
     fun before() {
-        val fakePdfDocument = FakePdfDocument(List(100) { Point(500, 1000) })
+        val fakePdfDocument =
+            FakePdfDocument(
+                pages = List(100) { Point(500, 1000) },
+                textContents =
+                    listOf(
+                        PdfPageTextContent(
+                            bounds = listOf(RectF(0f, 0f, 500f, 1000f)),
+                            text = "Dummy text",
+                        )
+                    ),
+            )
         PdfViewTestActivity.onCreateCallback = { activity ->
             with(activity) {
-                container.addView(
+                pdfView =
                     PdfView(activity).apply {
                         pdfDocument = fakePdfDocument
                         id = R.id.pdf_view
-                    },
+                    }
+                container.addView(
+                    pdfView,
                     ViewGroup.LayoutParams(
                         ViewGroup.LayoutParams.WRAP_CONTENT,
                         ViewGroup.LayoutParams.MATCH_PARENT,
@@ -74,7 +91,6 @@ class PdfViewSelectionMenuTest {
         PdfViewTestActivity.onCreateCallback = {}
     }
 
-    @SdkSuppress(maxSdkVersion = 35)
     @Test
     fun testContextMenu_withDefaultOptions() {
         val selectionMenuItemPreparer = SelectionMenuItemPreparer()
@@ -90,12 +106,8 @@ class PdfViewSelectionMenuTest {
         longClickAtCenter()
 
         assert(selectionMenuItemPreparer.components.size == 2)
-        onView(withText(androidR.string.copy))
-            .inRoot(RootMatchers.isPlatformPopup())
-            .check(matches(isDisplayed()))
-        onView(withText(androidR.string.selectAll))
-            .inRoot(RootMatchers.isPlatformPopup())
-            .check(matches(isDisplayed()))
+        assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.copy))
+        assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.selectAll))
     }
 
     @SdkSuppress(maxSdkVersion = 35)
@@ -139,7 +151,6 @@ class PdfViewSelectionMenuTest {
         assert(addCommentClickCounter == 1)
     }
 
-    @SdkSuppress(maxSdkVersion = 35)
     @Test
     fun testContextMenu_afterRemovingSelectAll() {
         val selectionMenuItemPreparer = SelectionMenuItemPreparer { components ->
@@ -157,9 +168,7 @@ class PdfViewSelectionMenuTest {
         longClickAtCenter()
 
         assert(selectionMenuItemPreparer.components.size == 1)
-        onView(withText(androidR.string.copy))
-            .inRoot(RootMatchers.isPlatformPopup())
-            .check(matches(isDisplayed()))
+        assertNotNullObjectByText(pdfView.context.resources.getString(androidR.string.copy))
     }
 
     private fun longClickAtCenter() {

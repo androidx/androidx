@@ -33,18 +33,19 @@ androidx {
 
 android {
     namespace = "androidx.compose.remote.creation.compose"
-    compileSdk = 35
+    compileSdk { version = release(35) }
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
 }
 
 dependencies {
     api(libs.jspecify)
+    api("androidx.collection:collection:1.5.0")
     implementation(project(":compose:remote:remote-core"))
     implementation(project(":compose:remote:remote-creation"))
     implementation(project(":compose:remote:remote-player-core"))
-    implementation(project(":graphics:graphics-path"))
+    implementation("androidx.graphics:graphics-path:1.1.0-alpha01")
     implementation("androidx.compose.ui:ui:1.8.3")
     implementation("androidx.compose.ui:ui-text:1.8.3")
     implementation("androidx.core:core-ktx:1.16.0")
@@ -57,8 +58,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.testParameterInjector)
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.testRules)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
@@ -68,6 +71,9 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testParameterInjector)
+    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.mockitoKotlin)
     androidTestImplementation(project(":test:uiautomator:uiautomator"))
     androidTestImplementation(project(":test:uiautomator:uiautomator-shell"))
     androidTestImplementation(project(":compose:remote:remote-core-testutils"))

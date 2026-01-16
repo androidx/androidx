@@ -36,6 +36,7 @@ open class ClickVideoInputHandler(val player: ExoPlayer) : VideoInputManager.Inp
                     player.play()
                 }
             }
+
             2 -> {
                 // Double Click: Restart the video
                 player.seekTo(0)

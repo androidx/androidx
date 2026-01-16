@@ -50,28 +50,25 @@ final class SpatialEnvironmentImpl
     public static final String PASSTHROUGH_NODE_NAME = "EnvironmentPassthroughNode";
     @VisibleForTesting final Node mPassthroughNode;
     private final XrExtensions mXrExtensions;
-    private boolean mIsPreferredSpatialEnvironmentActive = false;
     private final AtomicReference<SpatialEnvironmentPreference> mSpatialEnvironmentPreference =
             new AtomicReference<>(null);
     private final @NonNull Activity mActivity;
-
+    private final Supplier<SpatialState> mSpatialStateProvider;
+    // Store listeners with their executors
+    private final Map<Consumer<Boolean>, Executor> mOnSpatialEnvironmentChangedListeners =
+            new ConcurrentHashMap<>();
+    private final Map<Consumer<Float>, Executor> mOnPassthroughOpacityChangedListeners =
+            new ConcurrentHashMap<>();
+    private boolean mIsPreferredSpatialEnvironmentActive = false;
     // The active passthrough opacity value is updated with every opacity change event. A null value
     // indicates it has not yet been initialized and the value should be read from the
     // spatialStateProvider.
     private float mActivePassthroughOpacity = NO_PASSTHROUGH_OPACITY_PREFERENCE;
     // Initialized to null to let system control opacity until preference is explicitly set.
     private float mPassthroughOpacityPreference = NO_PASSTHROUGH_OPACITY_PREFERENCE;
-    private final Supplier<SpatialState> mSpatialStateProvider;
     private SpatialState mPreviousSpatialState = null;
     private @Nullable SpatialEnvironmentFeature mSpatialEnvironmentFeature = null;
     private @Nullable Consumer<Node> mOnBeforeNodeAttachedListener = null;
-
-    // Store listeners with their executors
-    private final Map<Consumer<Boolean>, Executor> mOnSpatialEnvironmentChangedListeners =
-            new ConcurrentHashMap<>();
-
-    private final Map<Consumer<Float>, Executor> mOnPassthroughOpacityChangedListeners =
-            new ConcurrentHashMap<>();
 
     SpatialEnvironmentImpl(
             @NonNull Activity activity,
@@ -126,12 +123,6 @@ final class SpatialEnvironmentImpl
                 != currentPassthroughVisibility.getOpacity();
     }
 
-    // Package Private enum to return which spatial states have changed.
-    enum ChangedSpatialStates {
-        ENVIRONMENT_CHANGED,
-        PASSTHROUGH_CHANGED
-    }
-
     // Package Private method to set the current passthrough opacity and
     // isPreferredSpatialEnvironmentActive from SceneRuntime.
     // This method is synchronized because it sets several internal state variables at once, which
@@ -158,6 +149,33 @@ final class SpatialEnvironmentImpl
 
         mPreviousSpatialState = spatialState;
         return changedSpatialStates;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void accept(Consumer<Node> nodeConsumer) {
+        if (mSpatialEnvironmentFeature instanceof Consumer) {
+            try {
+                ((Consumer<Consumer<Node>>) mSpatialEnvironmentFeature).accept(nodeConsumer);
+            } catch (ClassCastException e) {
+                mOnBeforeNodeAttachedListener = nodeConsumer;
+            }
+        }
+    }
+
+    // Synchronized because we may need to update the entire Spatial State if the opacity has not
+    // been initialized previously.
+    @Override
+    public synchronized float getCurrentPassthroughOpacity() {
+        if (mActivePassthroughOpacity == NO_PASSTHROUGH_OPACITY_PREFERENCE) {
+            setSpatialState(mSpatialStateProvider.get());
+        }
+        return mActivePassthroughOpacity;
+    }
+
+    @Override
+    public float getPreferredPassthroughOpacity() {
+        return mPassthroughOpacityPreference;
     }
 
     @Override
@@ -201,39 +219,11 @@ final class SpatialEnvironmentImpl
         }
     }
 
-    @Override
-    @SuppressWarnings("unchecked")
-    public void accept(Consumer<Node> nodeConsumer) {
-        if (mSpatialEnvironmentFeature instanceof Consumer) {
-            try {
-                ((Consumer<Consumer<Node>>) mSpatialEnvironmentFeature).accept(nodeConsumer);
-            } catch (ClassCastException e) {
-                mOnBeforeNodeAttachedListener = nodeConsumer;
-            }
-        }
-    }
-
-    // Synchronized because we may need to update the entire Spatial State if the opacity has not
-    // been initialized previously.
-    @Override
-    public synchronized float getCurrentPassthroughOpacity() {
-        if (mActivePassthroughOpacity == NO_PASSTHROUGH_OPACITY_PREFERENCE) {
-            setSpatialState(mSpatialStateProvider.get());
-        }
-        return mActivePassthroughOpacity;
-    }
-
-    @Override
-    public float getPreferredPassthroughOpacity() {
-        return mPassthroughOpacityPreference;
-    }
-
     // This is called on the Activity's UI thread - so we should be careful to not block it.
     synchronized void firePassthroughOpacityChangedEvent() {
         mOnPassthroughOpacityChangedListeners.forEach(
-                (listener, executor) -> {
-                    executor.execute(() -> listener.accept(getCurrentPassthroughOpacity()));
-                });
+                (listener, executor) ->
+                        executor.execute(() -> listener.accept(getCurrentPassthroughOpacity())));
     }
 
     @Override
@@ -262,6 +252,15 @@ final class SpatialEnvironmentImpl
     }
 
     @Override
+    public @Nullable SpatialEnvironmentPreference getPreferredSpatialEnvironment() {
+        if (mSpatialEnvironmentFeature == null) {
+            throw new UnsupportedOperationException(
+                    "Did you forget to add scenecore-spatial-rendering in dependencies?");
+        }
+        return mSpatialEnvironmentFeature.getPreferredSpatialEnvironment();
+    }
+
+    @Override
     public void setPreferredSpatialEnvironment(
             @Nullable SpatialEnvironmentPreference newPreference) {
         if (mSpatialEnvironmentFeature == null) {
@@ -277,21 +276,13 @@ final class SpatialEnvironmentImpl
                         skyboxMode,
                         Runnable::run,
                         (result) -> {});
-            } else
+            } else {
                 throw new UnsupportedOperationException(
                         "Did you forget to add scenecore-spatial-rendering in dependencies?");
+            }
         } else {
             mSpatialEnvironmentFeature.setPreferredSpatialEnvironment(newPreference);
         }
-    }
-
-    @Override
-    public @Nullable SpatialEnvironmentPreference getPreferredSpatialEnvironment() {
-        if (mSpatialEnvironmentFeature == null) {
-            throw new UnsupportedOperationException(
-                    "Did you forget to add scenecore-spatial-rendering in dependencies?");
-        }
-        return mSpatialEnvironmentFeature.getPreferredSpatialEnvironment();
     }
 
     @Override
@@ -303,9 +294,7 @@ final class SpatialEnvironmentImpl
     synchronized void fireOnSpatialEnvironmentChangedEvent() {
         final boolean isActive = mIsPreferredSpatialEnvironmentActive;
         mOnSpatialEnvironmentChangedListeners.forEach(
-                (listener, executor) -> {
-                    executor.execute(() -> listener.accept(isActive));
-                });
+                (listener, executor) -> executor.execute(() -> listener.accept(isActive)));
     }
 
     @Override
@@ -335,5 +324,11 @@ final class SpatialEnvironmentImpl
         mIsPreferredSpatialEnvironmentActive = false;
         mOnPassthroughOpacityChangedListeners.clear();
         mOnSpatialEnvironmentChangedListeners.clear();
+    }
+
+    // Package Private enum to return which spatial states have changed.
+    enum ChangedSpatialStates {
+        ENVIRONMENT_CHANGED,
+        PASSTHROUGH_CHANGED
     }
 }

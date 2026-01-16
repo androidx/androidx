@@ -88,6 +88,7 @@ fun InCallScreen(inCallViewModel: InCallViewModel) {
         onRemoveParticipantClick = inCallViewModel::removeParticipant,
         onChangeCallIconClick = inCallViewModel::changeCallIcon,
         onLocalCallSilenceClick = inCallViewModel::toggleLocalCallSilence,
+        onCanUserUpdateSilenceClick = inCallViewModel::toggleCanUserUpdateSilence,
     )
 }
 

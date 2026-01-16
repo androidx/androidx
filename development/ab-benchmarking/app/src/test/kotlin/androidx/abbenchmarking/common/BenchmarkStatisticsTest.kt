@@ -177,10 +177,10 @@ class BenchmarkStatisticsTest {
         System.setOut(PrintStream(outContent))
 
         // WHEN the createHistogramPlot function is called
-        createHistogramPlot(benchmarkName, data1, data2, tempPath)
+        createHistogramPlot(benchmarkName, data1, data2, tempPath, "timing")
 
         // THEN a file with the correct name should exist in the temporary directory
-        val expectedFileName = "${benchmarkName}_histogram.png"
+        val expectedFileName = "${benchmarkName}_timing_histogram.png"
         val expectedFile = tempPath.resolve(expectedFileName)
 
         assertThat(expectedFile.exists()).isTrue()
@@ -188,8 +188,8 @@ class BenchmarkStatisticsTest {
 
         // AND the console output should confirm the file was saved
         val consoleOutput = outContent.toString()
-        assertThat(consoleOutput).contains("--- Graphical Plot ---")
-        val actualPathInOutput = consoleOutput.substringAfter("Saved histogram to: ").trim()
+        val actualPathInOutput =
+            consoleOutput.substringAfter("Saved histogram for MyPlotTest - timing to: ").trim()
         assertThat(actualPathInOutput).isEqualTo(expectedFile.toRealPath().toString())
 
         // FINALLY, restore the original standard output

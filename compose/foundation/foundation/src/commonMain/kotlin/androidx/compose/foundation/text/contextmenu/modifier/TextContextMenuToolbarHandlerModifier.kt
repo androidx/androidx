@@ -219,13 +219,16 @@ internal class TextContextMenuToolbarHandlerNode(
     override fun position(destinationCoordinates: LayoutCoordinates): Offset =
         contentBounds(destinationCoordinates).topLeft
 
-    // This can update as the modifier is getting disposed,
-    // so return zero if we aren't attached to avoid crashing.
+    /**
+     * This can update as the modifier is getting disposed, so return zero if we aren't attached to
+     * avoid crashing. However the caller is responsible for providing a valid and attached
+     * [destinationCoordinates].
+     */
     override fun contentBounds(destinationCoordinates: LayoutCoordinates): Rect {
         if (!isAttached) return previousContentBounds
 
-        val computedContentBounds = computeContentBounds(destinationCoordinates)
-        if (computedContentBounds == null) return previousContentBounds
+        val computedContentBounds =
+            computeContentBounds(destinationCoordinates) ?: return previousContentBounds
 
         previousContentBounds = computedContentBounds
         return computedContentBounds

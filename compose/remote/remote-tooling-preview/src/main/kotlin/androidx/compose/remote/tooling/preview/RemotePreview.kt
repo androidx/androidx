@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 /** Display a Remote Compose Composable in the Android Studio Preview. */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
-@Suppress("RestrictedApiAndroidX")
 public fun RemotePreview(
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     content: @RemoteComposable @Composable () -> Unit,

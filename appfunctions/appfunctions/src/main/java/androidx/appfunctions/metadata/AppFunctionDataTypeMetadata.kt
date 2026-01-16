@@ -17,6 +17,7 @@
 package androidx.appfunctions.metadata
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import androidx.annotation.IntDef
 import androidx.appsearch.annotation.Document
 import java.util.Objects
@@ -34,8 +35,8 @@ import java.util.Objects
     AppFunctionDataTypeMetadata.TYPE_ARRAY,
     AppFunctionDataTypeMetadata.TYPE_REFERENCE,
     AppFunctionDataTypeMetadata.TYPE_ALL_OF,
-    AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT,
     AppFunctionDataTypeMetadata.TYPE_ONE_OF,
+    AppFunctionDataTypeMetadata.TYPE_PARCELABLE,
 )
 @Retention(AnnotationRetention.SOURCE)
 internal annotation class AppFunctionDataType
@@ -84,8 +85,9 @@ internal constructor(
          * All of type. The schema of the all of type is defined in a [AppFunctionAllOfTypeMetadata]
          */
         internal const val TYPE_ALL_OF: Int = 12
-        /** Pending Intent type. */
-        internal const val TYPE_PENDING_INTENT: Int = 13
+
+        /** Parcelable type. */
+        internal const val TYPE_PARCELABLE: Int = 13
 
         /**
          * One of type. The schema of the one of type is defined in a [AppFunctionOneOfTypeMetadata]
@@ -932,43 +934,44 @@ constructor(
 }
 
 /**
- * Defines the schema of a PendingIntent data type.
+ * Defines the schema of a Parcelable data type.
  *
- * Corresponds to [android.app.PendingIntent].
+ * Corresponds to [android.os.Parcelable].
  */
-public class AppFunctionPendingIntentTypeMetadata
+public class AppFunctionParcelableTypeMetadata
 @JvmOverloads
 constructor(
+    /** The qualified name of the [android.os.Parcelable] represented by this metadata. */
+    public val qualifiedName: String,
     /** Whether the data type is nullable. */
     isNullable: Boolean,
     /** A description of the data type and its intended use. */
     description: String = "",
 ) : AppFunctionDataTypeMetadata(isNullable = isNullable, description = description) {
-
-    /**
-     * Converts this [AppFunctionPendingIntentTypeMetadata] to an
-     * [AppFunctionDataTypeMetadataDocument].
-     */
-    override fun toAppFunctionDataTypeMetadataDocument(): AppFunctionDataTypeMetadataDocument {
-        return AppFunctionDataTypeMetadataDocument(
-            type = TYPE_PENDING_INTENT,
+    override fun toAppFunctionDataTypeMetadataDocument() =
+        AppFunctionDataTypeMetadataDocument(
+            type = TYPE_PARCELABLE,
             isNullable = isNullable,
             description = description.ifEmpty { null },
+            objectQualifiedName = qualifiedName,
         )
-    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is AppFunctionPendingIntentTypeMetadata) return false
-        return super.equals(other)
+        if (other !is AppFunctionParcelableTypeMetadata) return false
+        if (!super.equals(other)) return false
+
+        return qualifiedName == other.qualifiedName
     }
 
     override fun hashCode(): Int {
-        return super.hashCode()
+        var result = super.hashCode()
+        result = 31 * result + qualifiedName.hashCode()
+        return result
     }
 
     override fun toString(): String {
-        return "AppFunctionPendingIntentTypeMetadata(isNullable=$isNullable, description=$description)"
+        return "AppFunctionParcelableTypeMetadata(qualifiedName=$qualifiedName, isNullable=$isNullable, description=$description)"
     }
 }
 
@@ -1133,8 +1136,14 @@ internal data class AppFunctionDataTypeMetadataDocument(
                     description = description ?: "",
                     enumValues = enumValues.toSet().ifEmpty { null },
                 )
-            AppFunctionDataTypeMetadata.TYPE_PENDING_INTENT ->
-                AppFunctionPendingIntentTypeMetadata(
+            AppFunctionDataTypeMetadata.TYPE_PARCELABLE ->
+                AppFunctionParcelableTypeMetadata(
+                    // In library versions alpha01 through alpha07, PendingIntent was represented
+                    // by AppFunctionPendingIntentTypeMetadata. To maintain runtime backward
+                    // compatibility, we use the same type constant for all parcelables and
+                    // default to "android.app.PendingIntent" if the indexed AppFunctionMetadata
+                    // does not contain a qualified name.
+                    qualifiedName = objectQualifiedName ?: PendingIntent::class.java.name,
                     isNullable = isNullable,
                     description = description ?: "",
                 )

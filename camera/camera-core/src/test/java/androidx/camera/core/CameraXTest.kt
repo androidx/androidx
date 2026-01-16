@@ -155,6 +155,16 @@ class CameraXTest {
         assertThat(cameraInfo2.cameraUseCaseAdapterProvider).isNotNull()
     }
 
+    @Test
+    fun rotationProviderIsShutdown() {
+        val cameraX = CameraX(context) { createConfigProvider().getCameraXConfig() }
+        cameraX.initializeFuture.get()
+        val rotationProvider = cameraX.rotationProvider
+        assertThat(rotationProvider.isShutdown).isFalse()
+        cameraX.shutdown().get()
+        assertThat(rotationProvider.isShutdown).isTrue()
+    }
+
     private fun createCameraFactoryProvider(
         cameras: List<FakeCamera>,
         cameraCoordinator: CameraCoordinator = FakeCameraCoordinator(),

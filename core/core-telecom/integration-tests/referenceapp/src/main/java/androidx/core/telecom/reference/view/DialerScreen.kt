@@ -175,6 +175,19 @@ fun DialerScreen(
                     onCheckedChange = { dialerViewModel.updateIsInitiallyMuted(it) },
                 )
             }
+
+            Row(
+                modifier =
+                    Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp), // Add some padding
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text("Can user update Local Silence?")
+                Switch(
+                    checked = uiState.canUserUpdateSilence,
+                    onCheckedChange = { dialerViewModel.updateCanUserUpdateSilence(it) },
+                )
+            }
         }
 
         // --- Pre-Call Endpoint List ---

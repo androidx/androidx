@@ -37,7 +37,7 @@ class FeaturesTest {
             val webGpu =
                 createWebGpu(
                     deviceDescriptor =
-                        DeviceDescriptor(
+                        GPUDeviceDescriptor(
                             requiredFeatures = requiredFeatures,
                             deviceLostCallback = null,
                             deviceLostCallbackExecutor = Executor(Runnable::run),

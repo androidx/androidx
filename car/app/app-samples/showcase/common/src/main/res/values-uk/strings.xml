@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Рядок також можна вибрати"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Вибрано додаткову дію"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Вибрано основну дію рядка"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Демонстрація зображення й дій у кінці рядка"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Демонстрація пустого списку"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Список пустий"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Демонстрації інших шаблонів"</string>

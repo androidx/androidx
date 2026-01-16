@@ -29,7 +29,7 @@ class FictionalFunctionAbiBuilderTest {
     fun createsAnAbiWithExpectedInterfaces() {
         val abi = FictionalFunctionAbiBuilder.build()
         val expectedInterfaces =
-            listOf("kotlin/Function") + (1..22).map { num -> "kotlin/Function$num" }
+            listOf("kotlin/Function") + (0..22).map { num -> "kotlin/Function$num" }
         assertThat(
                 abi.topLevelDeclarations.declarations.filterIsInstance<AbiClass>().map {
                     it.qualifiedName.toString()

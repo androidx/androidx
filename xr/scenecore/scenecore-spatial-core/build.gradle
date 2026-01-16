@@ -63,15 +63,16 @@ dependencies {
     androidTestImplementation(project(":xr:scenecore:scenecore-testing"))
 
     // For com.android.xr.extensions.
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    compileOnly(libs.androidExtensionsXr)
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
-    testImplementation("com.android.extensions.xr:extensions-xr:1.1.0")
+    testImplementation(libs.androidExtensionsXr)
+
 }
 
 android {
     defaultConfig {
         consumerProguardFiles("proguard-rules.pro")
-        minSdk = 24
+        minSdk { version = release(24) }
     }
     sourceSets {
         androidTest {

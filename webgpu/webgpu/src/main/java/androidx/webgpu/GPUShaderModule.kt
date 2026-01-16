@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,6 @@ package androidx.webgpu
 
 import dalvik.annotation.optimization.FastNative
 import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Represents the compiled code for one or more shader stages (e.g., WGSL or SPIR-V). */
 public class GPUShaderModule private constructor(public val handle: Long) : AutoCloseable {
@@ -29,24 +26,13 @@ public class GPUShaderModule private constructor(public val handle: Long) : Auto
     @JvmName("getCompilationInfo")
     public external fun getCompilationInfo(
         callbackExecutor: java.util.concurrent.Executor,
-        callback: CompilationInfoCallback,
+        callback: GPURequestCallback<GPUCompilationInfo>,
     ): Unit
 
     /** Asynchronously requests detailed information about the shader module's compilation. */
     @Throws(WebGpuException::class)
-    public suspend fun getCompilationInfo(): CompilationInfo = suspendCancellableCoroutine {
-        getCompilationInfo(
-            Executor(Runnable::run),
-            { status, compilationInfo ->
-                if (!it.isActive) {
-                    // Coroutine was aborted.
-                } else if (status != Status.Success) {
-                    it.resumeWithException(WebGpuException(status = status))
-                } else {
-                    it.resume(compilationInfo)
-                }
-            },
-        )
+    public suspend fun getCompilationInfo(): GPUCompilationInfo = awaitGPURequest { callback ->
+        getCompilationInfo(Executor(Runnable::run), callback)
     }
 
     /**

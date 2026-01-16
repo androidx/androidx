@@ -25,11 +25,11 @@ plugins {
 
 android {
     namespace = "androidx.xr.scenecore.testapp"
-    compileSdk = 35
+    compileSdk { version = release(35) }
 
     defaultConfig {
         applicationId = "androidx.xr.scenecore.testapp"
-        minSdk = 34
+        minSdk { version = release(34) }
     }
     buildTypes {
         release {
@@ -65,7 +65,7 @@ dependencies {
     implementation("com.google.android.material:material:1.12.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.9.0")
 
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    compileOnly(libs.androidExtensionsXr)
 }
 
 // Making this APK available via Android Build so the QA team can

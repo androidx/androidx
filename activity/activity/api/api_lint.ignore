@@ -15,6 +15,10 @@ ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+HiddenSuperclass: androidx.activity.ComponentActivity:
+    Public class androidx.activity.ComponentActivity stripped of unavailable superclass androidx.core.app.ComponentActivity
+
+
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#dispatchKeyEvent(android.view.KeyEvent) parameter #0:
     Invalid nullability on type android.view.KeyEvent in parameter `event` in method `dispatchKeyEvent`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.activity.ComponentActivity#dispatchKeyShortcutEvent(android.view.KeyEvent) parameter #0:

@@ -173,6 +173,7 @@ public object TargetWatchFaceSafety {
     value =
         [TargetWatchFaceSafety.UNKNOWN, TargetWatchFaceSafety.SAFE, TargetWatchFaceSafety.UNSAFE],
 )
+@Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public annotation class IsForSafeWatchFace
 

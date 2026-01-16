@@ -18,7 +18,6 @@ package androidx.xr.glimmer.samples
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -35,10 +34,7 @@ import androidx.xr.glimmer.list.VerticalList
 @Composable
 fun TypographySample() {
     val typography = GlimmerTheme.typography
-    VerticalList(
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp),
-    ) {
+    VerticalList {
         item { TypeItem("titleLarge", style = typography.titleLarge) }
         item { TypeItem("titleMedium", style = typography.titleMedium) }
         item { TypeItem("titleSmall", style = typography.titleSmall) }

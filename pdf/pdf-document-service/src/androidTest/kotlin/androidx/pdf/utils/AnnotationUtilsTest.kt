@@ -92,10 +92,12 @@ class AnnotationUtilsTest {
             }
         }
 
-        fun isRequiredSdkExtensionAvailable(): Boolean {
+        fun isRequiredSdkExtensionAvailable(
+            extensionVersion: Int = REQUIRED_EXTENSION_VERSION
+        ): Boolean {
             // Get the device's version for the specified SDK extension
-            val deviceExtensionVersion = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
-            return deviceExtensionVersion >= REQUIRED_EXTENSION_VERSION
+            val deviceExtensionVersion = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S)
+            return deviceExtensionVersion >= extensionVersion
         }
 
         private const val TEST_ANNOTATIONS_FILE = "annotationsTest.json"

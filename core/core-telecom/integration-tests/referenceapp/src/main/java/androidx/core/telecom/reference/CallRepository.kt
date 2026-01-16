@@ -219,12 +219,21 @@ class CallRepository {
 
     // --- Service Interaction Methods ---
 
-    fun addOutgoingCall(callAttributesCompat: CallAttributesCompat, isInitiallyMuted: Boolean) {
+    fun addOutgoingCall(
+        callAttributesCompat: CallAttributesCompat,
+        isInitiallyMuted: Boolean,
+        canUserUpdateSilence: Boolean,
+    ) {
         if (!mIsBound || mBinder == null) {
             Log.w(LOG_TAG, "addOutgoingCall: Service is not connected/bound.")
             return
         }
-        mBinder?.addCall(callAttributesCompat, getNextNotificationId(), isInitiallyMuted)
+        mBinder?.addCall(
+            callAttributesCompat,
+            getNextNotificationId(),
+            isInitiallyMuted,
+            canUserUpdateSilence,
+        )
     }
 
     fun onIncomingCallDetected(attributes: CallAttributesCompat, id: Int) {
@@ -233,7 +242,7 @@ class CallRepository {
             return
         }
         Log.i(LOG_TAG, "onIncomingCallDetected: ")
-        mBinder?.addCall(attributes, id, false)
+        mBinder?.addCall(attributes, id, false, true)
     }
 
     fun setCallActive(callId: String) {
@@ -282,6 +291,14 @@ class CallRepository {
             return
         }
         mBinder?.toggleLocalCallSilence(callId, isMuted)
+    }
+
+    fun toggleCanUserUpdateSilence(callId: String, canUserUpdateSilence: Boolean) {
+        if (!mIsBound || mBinder == null) {
+            Log.w(LOG_TAG, "toggleCanUserUpdateSilence: Service is not connected/bound.")
+            return
+        }
+        mBinder?.toggleCanUserUpdateSilence(callId, canUserUpdateSilence)
     }
 
     fun addParticipant(callId: String) {

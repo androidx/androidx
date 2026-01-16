@@ -18,6 +18,7 @@ package androidx.compose.runtime.tooling
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composer
+import androidx.compose.runtime.CompositionImpl
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ExperimentalComposeRuntimeApi
 import androidx.compose.runtime.ReusableContent
@@ -694,6 +695,31 @@ class ErrorTraceTests {
             state = false
             advance()
         }
+
+    @Test
+    fun setContentNoSourceInformation() {
+        Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.SourceInformation)
+        assertTrace(expected = null) {
+            compositionTest {
+                var state by mutableStateOf(false)
+                compose {
+                    InlineLinear {
+                        if (state) {
+                            throwTestException()
+                        }
+                    }
+                }
+
+                // Remove source information stored for this composition
+                // `Composer.disableSourceInformation` does not work here as it is used for
+                // configuring stack trace mode as well.
+                (composition as CompositionImpl).slotTable.sourceInformationMap = null
+
+                state = true
+                advance()
+            }
+        }
+    }
 }
 
 private fun throwTestException(): Nothing = throw TestComposeException()
@@ -715,7 +741,7 @@ private fun exceptionTest(
     Composer.setDiagnosticStackTraceMode(ComposeStackTraceMode.Auto)
 }
 
-private fun assertTrace(expected: List<String>, block: () -> Unit) {
+private fun assertTrace(expected: List<String>?, block: () -> Unit) {
     var exception: TestComposeException? = null
     try {
         block()
@@ -726,6 +752,12 @@ private fun assertTrace(expected: List<String>, block: () -> Unit) {
 
     val composeTrace =
         exception.suppressedExceptions.firstOrNull { it is DiagnosticComposeException }
+    if (expected == null && composeTrace == null) {
+        return
+    }
+    if (expected == null) {
+        throw exception
+    }
     if (composeTrace == null) {
         throw exception
     }

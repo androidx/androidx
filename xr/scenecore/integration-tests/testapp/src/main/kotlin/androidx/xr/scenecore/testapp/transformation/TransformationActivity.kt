@@ -94,6 +94,7 @@ class TransformationActivity : AppCompatActivity() {
         session!!.configure(
             Config(planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL)
         )
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // toolbar
         findViewById<Toolbar>(R.id.topAppBar).also { toolbar ->
@@ -398,7 +399,8 @@ class TransformationActivity : AppCompatActivity() {
             val labelPixelHeight =
                 (labelDimensions.height * entityScaleInRealWorld).toInt().coerceAtLeast(10)
 
-            DebugTextPanel( // This is a separate label, parented to the trackedEntity
+            DebugTextPanel(
+                // This is a separate label, parented to the trackedEntity
                 this,
                 session!!,
                 trackedEntity,

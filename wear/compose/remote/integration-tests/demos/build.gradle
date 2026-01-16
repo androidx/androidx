@@ -20,10 +20,10 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.wear.compose.remote.integration.demos"
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
     useLibrary("wear-sdk")
 }
@@ -43,6 +43,7 @@ dependencies {
     implementation(project(":compose:remote:remote-player-core"))
     implementation(project(":compose:remote:remote-tooling-preview"))
     implementation(project(":wear:compose:remote:remote-material3"))
+    implementation(project(":wear:compose:remote:remote-material3-samples"))
     implementation("androidx.activity:activity-compose:1.11.0")
     implementation("androidx.compose.runtime:runtime:1.9.5")
     implementation("androidx.compose.ui:ui:1.9.5")
@@ -51,6 +52,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview:1.9.5")
     implementation("androidx.wear.compose:compose-foundation:1.5.5")
     implementation("androidx.wear.compose:compose-material3:1.5.5")
+    implementation("androidx.wear.compose:compose-navigation:1.5.6")
     implementation("androidx.wear.compose:compose-ui-tooling:1.5.5")
     implementation("androidx.wear:wear-tooling-preview:1.0.0")
 }

@@ -30,7 +30,7 @@ import androidx.window.core.ExperimentalWindowApi
  * @see WindowAreaController.presentContentOnWindowArea
  */
 @ExperimentalWindowApi
-public interface WindowAreaSessionPresenter : WindowAreaSession {
+public interface WindowAreaSessionPresenter : AutoCloseable {
     /** Returns the [Context] associated with the window area. */
     public val context: Context
 
@@ -48,4 +48,7 @@ public interface WindowAreaSessionPresenter : WindowAreaSession {
      * corresponding display and start showing content.
      */
     public fun setContentView(view: View)
+
+    /** Closes the active session, no-op if the session is not currently active. */
+    public override fun close()
 }

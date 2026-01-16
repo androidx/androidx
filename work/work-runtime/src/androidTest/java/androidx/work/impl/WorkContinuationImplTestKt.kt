@@ -85,7 +85,8 @@ class WorkContinuationImplTestKt {
                     it.state == WorkInfo.State.SUCCEEDED
                 }
             assertThat(info.outputData.size()).isEqualTo(2)
-            assertThat(info.outputData.getStringArray(stringTag)).isEqualTo(arrayOf("hello"))
+            assertThat(info.outputData.getNullableStringArray(stringTag))
+                .isEqualTo(arrayOf("hello"))
             val intArray = info.outputData.getIntArray(intTag)!!.sortedArray()
             assertThat(intArray).isEqualTo(intArrayOf(1, 3))
         }

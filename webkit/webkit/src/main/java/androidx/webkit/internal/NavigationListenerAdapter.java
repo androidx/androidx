@@ -29,7 +29,8 @@ import java.lang.reflect.InvocationHandler;
 @WebNavigationClient.ExperimentalNavigationCallback
 public class NavigationListenerAdapter implements WebViewNavigationListenerBoundaryInterface {
 
-    private static final String[] SUPPORTED_FEATURES = {Features.WEB_VIEW_NAVIGATION_LISTENER_V1};
+    private static final String[] SUPPORTED_FEATURES = {Features.WEB_VIEW_NAVIGATION_LISTENER_V1,
+            Features.WEB_VIEW_NAVIGATION_LISTENER_V2};
 
     private final NavigationListener mImpl;
 
@@ -70,6 +71,24 @@ public class NavigationListenerAdapter implements WebViewNavigationListenerBound
     @Override
     public void onFirstContentfulPaint(@NonNull InvocationHandler page, long loadTimeUs) {
         mImpl.onFirstContentfulPaint(PageImpl.forInvocationHandler(page), loadTimeUs);
+    }
+
+    @Override
+    public void onFirstContentfulPaintMillis(@NonNull InvocationHandler page, long durationMillis) {
+        mImpl.onFirstContentfulPaintMillis(PageImpl.forInvocationHandler(page), durationMillis);
+    }
+
+    @Override
+    public void onLargestContentfulPaintMillis(@NonNull InvocationHandler page,
+            long durationMillis) {
+        mImpl.onLargestContentfulPaintMillis(PageImpl.forInvocationHandler(page), durationMillis);
+    }
+
+    @Override
+    public void onPerformanceMarkMillis(@NonNull InvocationHandler page,
+            @NonNull String markName, long markTimeMillis) {
+        mImpl.onPerformanceMarkMillis(PageImpl.forInvocationHandler(page),
+                markName, markTimeMillis);
     }
 
     @SuppressWarnings("NullableProblems")

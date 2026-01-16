@@ -16,7 +16,12 @@
 
 package androidx.xr.runtime.math
 
-/** Size of a 2d object represented as an Int, such as the dimensions of the panel in pixels. */
+/**
+ * Size of a 2d object represented as an Int, such as the dimensions of the panel in pixels.
+ *
+ * @property width the width of the object
+ * @property height the height of the object
+ */
 public class IntSize2d(public val width: Int = 0, public val height: Int = 0) {
     override fun toString(): String {
         return super.toString() + ": w $width x h $height"

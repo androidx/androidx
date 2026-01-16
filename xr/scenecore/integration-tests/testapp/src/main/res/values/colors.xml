@@ -14,7 +14,7 @@
   ~ limitations under the License.
   -->
 <resources>
-    <color name="black">#FF000000</color>
+    <color name="black" description="Beware that black will turn see-through in OST devices since it is the OST clear color, use dark_gray instead">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>
@@ -23,4 +23,5 @@
     <color name="teal_700">#FF018786</color>
     <color name="google_blue">#4285F4</color>
     <color name="purple_gray_80">#FFCCC2DC</color>
+    <color name="dark_gray">#18181c</color>
 </resources>

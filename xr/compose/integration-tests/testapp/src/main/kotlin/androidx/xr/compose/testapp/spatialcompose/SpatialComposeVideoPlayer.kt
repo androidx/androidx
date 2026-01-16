@@ -82,24 +82,26 @@ import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialExternalSurface
 import androidx.xr.compose.subspace.SpatialExternalSurface180Hemisphere
 import androidx.xr.compose.subspace.SpatialExternalSurface360Sphere
-import androidx.xr.compose.subspace.SpatialExternalSurfaceDefaults
-import androidx.xr.compose.subspace.SpatialLayoutSpacer
 import androidx.xr.compose.subspace.SpatialMainPanel
 import androidx.xr.compose.subspace.SpatialPanel
+import androidx.xr.compose.subspace.SpatialSpacer
 import androidx.xr.compose.subspace.StereoMode
 import androidx.xr.compose.subspace.SurfaceProtection
+import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.layout.InteractionPolicy
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialFeatheringEffect
 import androidx.xr.compose.subspace.layout.SpatialSmoothFeatheringEffect
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.alpha
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.onPointSourceParamsAvailable
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.testapp.common.isDrmSupported
+import androidx.xr.compose.testapp.common.isMvHevcSupported
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
+import androidx.xr.compose.unit.Meter
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.SessionCreateSuccess
@@ -168,7 +170,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        session.configure(Config(headTracking = Config.HeadTrackingMode.LAST_KNOWN))
+        session.configure(Config(deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN))
         session.scene.spatialEnvironment.preferredPassthroughOpacity = 0.0f
 
         val file = File(defaultVideoUri)
@@ -237,7 +239,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                 val animatedOffset = remember { Animatable(initialValue = -1000f) }
                 LaunchedEffect(Unit) {
                     animatedRadius.animateTo(
-                        targetValue = SpatialExternalSurfaceDefaults.sphereRadius.value,
+                        targetValue = Meter(15f).toDp().value,
                         animationSpec = tween(durationMillis = 2000, easing = FastOutLinearInEasing),
                     )
                 }
@@ -450,6 +452,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
 
                                 VideoMenuState.VIDEO_IN_SPATIAL_EXTERNAL_SURFACE -> {
                                     val scrollState = rememberScrollState()
+                                    val isDrmSupported = remember { isDrmSupported() }
                                     Column(
                                         modifier =
                                             Modifier.verticalScroll(scrollState).padding(24.dp)
@@ -473,13 +476,21 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                             }
                                         }
 
-                                        Button(
-                                            onClick = { useDrmState.value = !useDrmState.value }
-                                        ) {
-                                            if (useDrmState.value) {
-                                                Text("Use picker video uri")
-                                            } else {
-                                                Text("Use drm video uri")
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Button(
+                                                onClick = { useDrmState.value = !useDrmState.value }
+                                            ) {
+                                                if (useDrmState.value) {
+                                                    Text("Use picker video uri")
+                                                } else {
+                                                    Text("Use drm video uri")
+                                                }
+                                            }
+                                            if (!isDrmSupported) {
+                                                Text(
+                                                    "Drm is not supported on this device.",
+                                                    modifier = Modifier.padding(start = 16.dp),
+                                                )
                                             }
                                         }
 
@@ -533,19 +544,24 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                                             verticalAlignment = Alignment.CenterVertically,
                                         ) {
                                             Button(
+                                                enabled = isMvHevcSupported(),
                                                 onClick = {
                                                     stereoMode = StereoMode.MultiviewLeftPrimary
-                                                }
+                                                },
                                             ) {
                                                 Text("Multiview Left Primary")
                                             }
                                             Button(
+                                                enabled = isMvHevcSupported(),
                                                 onClick = {
                                                     stereoMode = StereoMode.MultiviewRightPrimary
-                                                }
+                                                },
                                             ) {
                                                 Text("Multiview Right Primary")
                                             }
+                                        }
+                                        if (!isMvHevcSupported()) {
+                                            Text("MV-HEVC is not supported on this device.")
                                         }
 
                                         val surfaceText =
@@ -669,7 +685,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     }
                 }
 
-                SpatialLayoutSpacer(SubspaceModifier.height(20.dp))
+                SpatialSpacer(SubspaceModifier.height(20.dp))
 
                 if (videoPlaying && menu == VideoMenuState.VIDEO_IN_SPATIAL_PANEL) {
                     VideoInSpatialPanel(isAudioSpatialized = isAudioSpatialized)
@@ -683,7 +699,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         useMainPanelOverlay,
                     )
                 } else {
-                    SpatialLayoutSpacer(SubspaceModifier.height(600.dp))
+                    SpatialSpacer(SubspaceModifier.height(600.dp))
                 }
             }
         }
@@ -745,6 +761,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
         SpatialBox(modifier = SubspaceModifier.fillMaxSize()) {
             val interactionSource = remember { MutableInteractionSource() }
             val isPanelHovered by interactionSource.collectIsHoveredAsState()
+            val isDrmSupported = remember { isDrmSupported() }
 
             // Having an alpha helps reduce depth perception issues with stereo video.
             SpatialPanel(
@@ -774,8 +791,16 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                         Text("Play/Pause")
                     }
                     Spacer(modifier = Modifier.weight(1f))
-                    Button(onClick = { useDrmState.value = !useDrmState.value }) {
-                        Text(text = if (useDrmState.value) "Use non-drm video" else "Use drm video")
+                    Column {
+                        Button(onClick = { useDrmState.value = !useDrmState.value }) {
+                            Text(
+                                text =
+                                    if (useDrmState.value) "Use non-drm video" else "Use drm video"
+                            )
+                        }
+                        if (!isDrmSupported) {
+                            Text("Drm is not supported on this device.", color = Color.White)
+                        }
                     }
                     Spacer(modifier = Modifier.weight(1f))
                     Button(onClick = { videoPlayingState.value = false }) { Text("End Video") }
@@ -1016,6 +1041,7 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
     fun SurfaceEntityUI(session: Session) {
         val movableComponentMP = remember { mutableStateOf<MovableComponent?>(null) }
         val videoPaused = remember { mutableStateOf(false) }
+        val isDrmSupported = remember { isDrmSupported() }
         movableComponentMP.value = MovableComponent.createSystemMovable(session)
         @Suppress("UNUSED_VARIABLE")
         val unused = session.scene.mainPanelEntity.addComponent(movableComponentMP.value!!)
@@ -1031,11 +1057,19 @@ class SpatialComposeVideoPlayer : ComponentActivity() {
                     Button(onClick = { menuState.value = VideoMenuState.HOME }) {
                         Text("Main Menu")
                     }
-                    Button(onClick = { useDrmState.value = !useDrmState.value }) {
-                        if (useDrmState.value) {
-                            Text("Use picker video uri")
-                        } else {
-                            Text("Use drm video uri")
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Button(onClick = { useDrmState.value = !useDrmState.value }) {
+                            if (useDrmState.value) {
+                                Text("Use picker video uri")
+                            } else {
+                                Text("Use drm video uri")
+                            }
+                        }
+                        if (!isDrmSupported) {
+                            Text(
+                                "Drm is not supported on this device.",
+                                modifier = Modifier.padding(start = 16.dp),
+                            )
                         }
                     }
                     LaunchSurfaceEntityButton()

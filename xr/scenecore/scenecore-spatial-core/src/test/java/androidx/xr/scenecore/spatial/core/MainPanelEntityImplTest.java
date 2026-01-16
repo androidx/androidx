@@ -17,19 +17,12 @@
 package androidx.xr.scenecore.spatial.core;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.util.concurrent.Futures.immediateFuture;
-
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 
 import android.app.Activity;
 
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Vector2;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.impl.perception.PerceptionLibrary;
-import androidx.xr.scenecore.impl.perception.Session;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.PixelDimensions;
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider;
@@ -43,7 +36,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
@@ -57,22 +49,17 @@ public class MainPanelEntityImplTest {
             Robolectric.buildActivity(Activity.class);
     private final Activity mHostActivity = mActivityController.create().start().get();
     private final FakeScheduledExecutorService mFakeExecutor = new FakeScheduledExecutorService();
-    private final PerceptionLibrary mPerceptionLibrary = Mockito.mock(PerceptionLibrary.class);
     private SpatialSceneRuntime mTestRuntime;
     private MainPanelEntityImpl mMainPanelEntity;
 
     @Before
     public void setUp() {
-        when(mPerceptionLibrary.initSession(eq(mHostActivity), anyInt(), eq(mFakeExecutor)))
-                .thenReturn(immediateFuture(Mockito.mock(Session.class)));
-
         mTestRuntime =
                 SpatialSceneRuntime.create(
                         mHostActivity,
                         mFakeExecutor,
                         mXrExtensions,
                         new EntityManager(),
-                        mPerceptionLibrary,
                         /* unscaledGravityAlignedActivitySpace= */ false);
 
         mMainPanelEntity = (MainPanelEntityImpl) mTestRuntime.getMainPanelEntity();

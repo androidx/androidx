@@ -70,6 +70,7 @@ public object ComplicationPersistencePolicies {
         ],
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Retention(AnnotationRetention.SOURCE)
 public annotation class ComplicationPersistencePolicy
 
 /** The policies that control when complications should be displayed. */
@@ -90,6 +91,7 @@ public object ComplicationDisplayPolicies {
         ],
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Retention(AnnotationRetention.SOURCE)
 public annotation class ComplicationDisplayPolicy
 
 /**
@@ -1250,6 +1252,7 @@ internal constructor(
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = [TYPE_UNDEFINED, TYPE_RATING, TYPE_PERCENTAGE])
+    @Retention(AnnotationRetention.SOURCE)
     public annotation class RangedValueType
 
     /**

@@ -29,6 +29,22 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
+fun createKeyedPdfAnnotationList(
+    numAnnots: Int,
+    pathLength: Int,
+    invalidRatio: Float = 0f,
+): List<KeyedPdfAnnotation> {
+    require(invalidRatio >= 0 && invalidRatio <= 1) { "Ratio should be between 0 and 1" }
+
+    val invalidCount = (numAnnots * invalidRatio).toInt()
+    return List(numAnnots) { index ->
+        val isInvalid = index < invalidCount
+        val pageNum = if (isInvalid) -1 else 0
+
+        createDummyKeyedPdfAnnotation(pageNum, pathLength)
+    }
+}
+
 fun createPdfAnnotationDataList(
     numAnnots: Int,
     pathLength: Int,
@@ -43,6 +59,13 @@ fun createPdfAnnotationDataList(
 
         createPdfAnnotationData(pageNum, pathLength)
     }
+}
+
+fun createDummyKeyedPdfAnnotation(pageNum: Int, pathLength: Int): KeyedPdfAnnotation {
+    val annotation = createStampAnnotationWithPath(pageNum, pathLength)
+    val key =
+        AnnotationHandleIdGenerator.composeAnnotationId(pageNum, id = UUID.randomUUID().toString())
+    return KeyedPdfAnnotation(key, annotation)
 }
 
 fun createPdfAnnotationData(pageNum: Int, pathLength: Int): PdfAnnotationData =

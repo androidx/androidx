@@ -46,7 +46,6 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.SemanticsNodeInteractionsProvider
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
-import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
@@ -62,7 +61,6 @@ import androidx.test.filters.MediumTest
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.performIndirectSwipe
 import com.google.common.truth.Truth
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -80,12 +78,9 @@ class GlimmerListAutoFocusTest : BaseListTestWithOrientation(Orientation.Vertica
     }
 
     @Test
-    @Ignore("b/447024357")
     fun performScrollToIndex_movesAutoFocus() {
         rule.setAutoFocusContent { FocusableTestList(itemsCount = 100) }
 
-        // TODO: b/447024357 - Focus is lost at the beginning of the animation
-        //  and can't be gained again because the List no longer has focus.
         rule.onNodeWithTag(LIST_TEST_TAG).performScrollToIndex(25)
 
         // TODO: b/433687753 - performScrollToIndex() isn't aligned with the auto-focused item.

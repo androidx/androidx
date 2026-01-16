@@ -281,8 +281,6 @@ package androidx.xr.glimmer.list {
 
   public final class ListFocusSnapFlingBehaviorKt {
     method public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.xr.glimmer.list.ListState state);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.FlingBehavior rememberSnapFlingBehavior(androidx.xr.glimmer.list.ListState state);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.FlingBehavior rememberSnapFlingBehavior(androidx.xr.glimmer.list.ListState, androidx.compose.runtime.Composer?, int);
   }
 
   @androidx.compose.runtime.Stable public sealed nonexhaustive interface ListItemScope {
@@ -325,7 +323,7 @@ package androidx.xr.glimmer.list {
     method @BytecodeOnly public static void items$default(androidx.xr.glimmer.list.ListScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
-  @kotlin.DslMarker public @interface ListScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface ListScopeMarker {
   }
 
   public final class ListScopesKt {
@@ -370,6 +368,18 @@ package androidx.xr.glimmer.list {
   public final class ListStateKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.ListState rememberListState(optional int initialFirstVisibleItemIndex, optional int initialFirstVisibleItemScrollOffset);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.xr.glimmer.list.ListState rememberListState(int, int, androidx.compose.runtime.Composer?, int, int);
+  }
+
+  public final class VerticalListDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.xr.glimmer.list.ListState state);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.xr.glimmer.list.ListState, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @BytecodeOnly public float getScrimMaxHeight-D9Ej5fM();
+    method @InaccessibleFromKotlin public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement();
+    property public androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public androidx.compose.ui.unit.Dp ScrimMaxHeight;
+    property public androidx.compose.foundation.layout.Arrangement.Vertical VerticalArrangement;
+    field public static final androidx.xr.glimmer.list.VerticalListDefaults INSTANCE;
   }
 
 }

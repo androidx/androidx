@@ -49,10 +49,10 @@ public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt 
      * Note that because the `Executor` is used as the key, only one listener can be associated with
      * each unique `Executor` instance.
      */
-    public val passthroughOpacityChangedListenerMap: MutableMap<Executor, Consumer<Float>> =
+    public val passthroughOpacityChangedListenerMap: MutableMap<Consumer<Float>, Executor> =
         mutableMapOf(
-            Executor { command -> command.run() } to
-                Consumer<Float> { opacity -> _currentPassthroughOpacity = opacity }
+            Consumer<Float> { opacity -> _currentPassthroughOpacity = opacity } to
+                Executor { command -> command.run() }
         )
 
     /**
@@ -67,10 +67,10 @@ public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt 
      * <p>Note that because the `Executor` is used as the key, only one listener can be associated
      * with each unique `Executor` instance.
      */
-    public val spatialEnvironmentChangedListenerMap: MutableMap<Executor, Consumer<Boolean>> =
+    public val spatialEnvironmentChangedListenerMap: MutableMap<Consumer<Boolean>, Executor> =
         mutableMapOf(
-            Executor { command -> command.run() } to
-                Consumer<Boolean> { active -> _isPreferredSpatialEnvironmentActive = active }
+            Consumer<Boolean> { active -> _isPreferredSpatialEnvironmentActive = active } to
+                Executor { command -> command.run() }
         )
 
     override val currentPassthroughOpacity: Float
@@ -102,11 +102,11 @@ public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt 
         executor: Executor,
         listener: Consumer<Float>,
     ) {
-        passthroughOpacityChangedListenerMap[executor] = listener
+        passthroughOpacityChangedListenerMap[listener] = executor
     }
 
     override fun removeOnPassthroughOpacityChangedListener(listener: Consumer<Float>) {
-        passthroughOpacityChangedListenerMap.values.remove(listener)
+        passthroughOpacityChangedListenerMap.remove(listener)
     }
 
     override val isPreferredSpatialEnvironmentActive: Boolean
@@ -116,11 +116,11 @@ public class FakeSpatialEnvironment : SpatialEnvironment, SpatialEnvironmentExt 
         executor: Executor,
         listener: Consumer<Boolean>,
     ) {
-        spatialEnvironmentChangedListenerMap[executor] = listener
+        spatialEnvironmentChangedListenerMap[listener] = executor
     }
 
     override fun removeOnSpatialEnvironmentChangedListener(listener: Consumer<Boolean>) {
-        spatialEnvironmentChangedListenerMap.values.remove(listener)
+        spatialEnvironmentChangedListenerMap.remove(listener)
     }
 
     override fun onRenderingFeatureReady(feature: SpatialEnvironmentFeature) {

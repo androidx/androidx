@@ -21,7 +21,6 @@ import android.os.Looper
 import android.view.Surface
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Vector3
@@ -33,7 +32,6 @@ import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
 import com.google.ar.imp.view.View
-import com.google.common.util.concurrent.ListenableFuture
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -167,7 +165,7 @@ public class ImpressApiImpl : ImpressApi {
     override fun releaseImageBasedLightingAsset(iblToken: Long): Unit =
         nReleaseImageBasedLightingAsset(getViewNativeHandle(view), iblToken)
 
-    override suspend fun loadImageBasedLightingAssetTemp(path: String): ExrImage =
+    override suspend fun loadImageBasedLightingAsset(path: String): ExrImage =
         suspendCancellableCoroutine { continuation ->
             // TODO: b/374216912 - Add a cancellationListener to the completer here when the
             // loading APIs support cancellation.
@@ -209,49 +207,7 @@ public class ImpressApiImpl : ImpressApi {
             "LoadImageBasedLightingAsset Operation"
         }
 
-    override fun loadImageBasedLightingAsset(path: String): ListenableFuture<ExrImage> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            // TODO: b/374216912 - Add a cancellationListener to the completer here when the
-            // loading APIs support cancellation.
-            nLoadImageBasedLightingAssetFromPath(
-                getViewNativeHandle(view),
-                // The underlying C++ code will hold a reference to this (anoynomous)
-                // AssetLoader until the load is complete.
-                object : AssetLoader {
-                    override fun onSuccess(value: Long) {
-                        val exrImage: ExrImage =
-                            ExrImage.Builder()
-                                .setImpressApi(this@ImpressApiImpl)
-                                .setNativeExrImage(value)
-                                .build()
-                        completer.set(exrImage)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated. Ideally the native code would generate a separate
-                        // signal call for this.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            completer.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        completer.setCancelled()
-                    }
-                },
-                path,
-            )
-            "LoadImageBasedLightingAsset Operation"
-        }
-
-    override suspend fun loadImageBasedLightingAssetTemp(data: ByteArray, key: String): ExrImage =
+    override suspend fun loadImageBasedLightingAsset(data: ByteArray, key: String): ExrImage =
         suspendCancellableCoroutine { continuation ->
             nLoadImageBasedLightingAssetFromByteArray(
                 getViewNativeHandle(view),
@@ -292,51 +248,7 @@ public class ImpressApiImpl : ImpressApi {
             "LoadImageBasedLightingAsset Operation"
         }
 
-    override fun loadImageBasedLightingAsset(
-        data: ByteArray,
-        key: String,
-    ): ListenableFuture<ExrImage> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            nLoadImageBasedLightingAssetFromByteArray(
-                getViewNativeHandle(view),
-                // The underlying C++ code will hold a reference to this (anoynomous)
-                // AssetLoader until the load is complete.
-                object : AssetLoader {
-                    override fun onSuccess(value: Long) {
-                        val exrImage: ExrImage =
-                            ExrImage.Builder()
-                                .setImpressApi(this@ImpressApiImpl)
-                                .setNativeExrImage(value)
-                                .build()
-                        completer.set(exrImage)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated. Ideally the native code would generate a separate
-                        // signal call for this.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            completer.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        completer.setCancelled()
-                    }
-                },
-                data,
-                key,
-            )
-            "LoadImageBasedLightingAsset Operation"
-        }
-
-    override suspend fun loadGltfAssetTemp(path: String): GltfModel =
+    override suspend fun loadGltfAsset(path: String): GltfModel =
         suspendCancellableCoroutine { continuation ->
             // TODO: b/374216912 - Add a cancellationListener to the completer here when the
             // loading APIs support cancellation.
@@ -378,47 +290,7 @@ public class ImpressApiImpl : ImpressApi {
             "LoadGltfAsset Operation"
         }
 
-    override fun loadGltfAsset(path: String): ListenableFuture<GltfModel> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            // TODO: b/374216912 - Add a cancellationListener to the completer here when the
-            // loading APIs support cancellation.
-            nLoadGltfAssetFromPath(
-                getViewNativeHandle(view),
-                object : AssetLoader {
-                    override fun onSuccess(value: Long) {
-                        val model: GltfModel =
-                            GltfModel.Builder()
-                                .setImpressApi(this@ImpressApiImpl)
-                                .setNativeGltfModel(value)
-                                .build()
-                        completer.set(model)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated. Ideally the native code would generate a separate
-                        // signal call for this.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            completer.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        completer.setCancelled()
-                    }
-                },
-                path,
-            )
-            "LoadGltfAsset Operation"
-        }
-
-    override suspend fun loadGltfAssetTemp(data: ByteArray, key: String): GltfModel =
+    override suspend fun loadGltfAsset(data: ByteArray, key: String): GltfModel =
         suspendCancellableCoroutine { continuation ->
             // TODO: b/374216912 - Add a cancellationListener to the completer here when the
             // loading APIs support cancellation.
@@ -453,48 +325,6 @@ public class ImpressApiImpl : ImpressApi {
 
                     override fun onCancelled(message: String) {
                         continuation.cancel(Exception(message))
-                    }
-                },
-                data,
-                key,
-            )
-            "LoadGltfAsset Operation"
-        }
-
-    override fun loadGltfAsset(data: ByteArray, key: String): ListenableFuture<GltfModel> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            // TODO: b/374216912 - Add a cancellationListener to the completer here when the
-            // loading APIs support cancellation.
-            nLoadGltfAssetFromByteArray(
-                getViewNativeHandle(view),
-                // The underlying C++ code will hold a reference to this (anoynomous)
-                // AssetLoader until the load is complete.
-                object : AssetLoader {
-                    override fun onSuccess(value: Long) {
-                        val model: GltfModel =
-                            GltfModel.Builder()
-                                .setImpressApi(this@ImpressApiImpl)
-                                .setNativeGltfModel(value)
-                                .build()
-                        completer.set(model)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            completer.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        completer.setCancelled()
                     }
                 },
                 data,
@@ -525,6 +355,16 @@ public class ImpressApiImpl : ImpressApi {
         )
 
     /**
+     * Enables reform affordance on an instanced gLTF model.
+     *
+     * @param impressNode The integer ID of the impress node for the instance of the gLTF
+     * @param enabled A boolean indicated whether to add or remove the reform affordance for the
+     *   gLTF model.
+     */
+    override fun setGltfReformAffordanceEnabled(impressNode: ImpressNode, enabled: Boolean): Unit =
+        nSetGltfReformAffordanceEnabled(getViewNativeHandle(view), impressNode.handle, enabled)
+
+    /**
      * Starts an animation on an instanced GLTFModel.
      *
      * @param impressNode The integer ID of the Impress node for the instance of the GLTF
@@ -532,10 +372,10 @@ public class ImpressApiImpl : ImpressApi {
      *   is provided, this will attempt to play the first animation it finds
      * @param looping True if the animation should loop. Note that if the animation is looped, the
      *   returned Future will never fire successfully.
-     * @return a ListenableFuture which fires when the animation stops. It will return an exception
-     *   if the animation can't play.
+     * @return a [Void] result when the animation stops. An exception is thrown if the animation
+     *   can't play.
      */
-    override suspend fun animateGltfModelTemp(
+    override suspend fun animateGltfModel(
         impressNode: ImpressNode,
         animationName: String?,
         looping: Boolean,
@@ -546,18 +386,6 @@ public class ImpressApiImpl : ImpressApi {
             animationName,
             looping,
             object : AssetAnimator {
-                // Hold a reference to the completer to ensure it isn't garbage
-                // collected until the C++ side releases the reference to the
-                // AssetAnimator. The future returned by
-                // CallbackToFutureAdapter.getFuture() aggressively tries to let the
-                // garbage collector clean up the completer as an optimization, we
-                // are concerned that this could cause the future to never fire, or
-                // cancel incorrectly and return an error, especially since the code
-                // that calls this simply allows the future to go out of scope
-                // without storing it. This might not actually be a problem, but
-                // this code shouldn't be harmful and should reduce the uncertainty.
-                // We should eventually have a different way of communicating
-                // animation completion back to the application. See b/362368652. {
                 override fun onComplete() {
                     continuation.resume(null)
                 }
@@ -584,72 +412,6 @@ public class ImpressApiImpl : ImpressApi {
         )
         "AnimateGltfModel Operation"
     }
-
-    /**
-     * Starts an animation on an instanced GLTFModel.
-     *
-     * @param impressNode The integer ID of the Impress node for the instance of the GLTF
-     * @param animationName A nullable String which contains a requested animation to play. If null
-     *   is provided, this will attempt to play the first animation it finds
-     * @param looping True if the animation should loop. Note that if the animation is looped, the
-     *   returned Future will never fire successfully.
-     * @return a ListenableFuture which fires when the animation stops. It will return an exception
-     *   if the animation can't play.
-     */
-    override fun animateGltfModel(
-        impressNode: ImpressNode,
-        animationName: String?,
-        looping: Boolean,
-    ): ListenableFuture<Void?> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            nAnimateGltfModel(
-                getViewNativeHandle(view),
-                impressNode.handle,
-                animationName,
-                looping,
-                object : AssetAnimator {
-                    // Hold a reference to the completer to ensure it isn't garbage
-                    // collected until the C++ side releases the reference to the
-                    // AssetAnimator. The future returned by
-                    // CallbackToFutureAdapter.getFuture() aggressively tries to let the
-                    // garbage collector clean up the completer as an optimization, we
-                    // are concerned that this could cause the future to never fire, or
-                    // cancel incorrectly and return an error, especially since the code
-                    // that calls this simply allows the future to go out of scope
-                    // without storing it. This might not actually be a problem, but
-                    // this code shouldn't be harmful and should reduce the uncertainty.
-                    // We should eventually have a different way of communicating
-                    // animation completion back to the application. See b/362368652.
-                    val mCompleter: CallbackToFutureAdapter.Completer<Void?> = completer
-
-                    override fun onComplete() {
-                        // Setting null here is required since we don't have a return
-                        // value.
-                        mCompleter.set(null)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated. Ideally the native code would generate a separate
-                        // signal call for this.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            mCompleter.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        mCompleter.setCancelled()
-                    }
-                },
-            )
-            "AnimateGltfModel Operation"
-        }
 
     /**
      * Stops an animation on an instanced GLTFModel.
@@ -743,12 +505,14 @@ public class ImpressApiImpl : ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     ): Unit =
         nSetStereoSurfaceEntityCanvasShapeQuad(
             getViewNativeHandle(view),
             impressNode.handle,
             width,
             height,
+            cornerRadius,
         )
 
     override fun setStereoSurfaceEntityCanvasShapeSphere(
@@ -860,7 +624,7 @@ public class ImpressApiImpl : ImpressApi {
             alphaMask,
         )
 
-    override suspend fun loadTextureTemp(path: String): Texture =
+    override suspend fun loadTexture(path: String): Texture =
         suspendCancellableCoroutine { continuation ->
             // TODO: b/374216912 - Add a cancellationListener to the completer here when the
             // loading APIs support cancellation.
@@ -904,46 +668,6 @@ public class ImpressApiImpl : ImpressApi {
             "LoadTexture Operation"
         }
 
-    override fun loadTexture(path: String): ListenableFuture<Texture> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            // TODO: b/374216912 - Add a cancellationListener to the completer here when the
-            // loading APIs support cancellation.
-            nLoadTexture(
-                getViewNativeHandle(view),
-                object : AssetLoader {
-                    override fun onSuccess(value: Long) {
-                        val texture =
-                            Texture.Builder()
-                                .setImpressApi(this@ImpressApiImpl)
-                                .setNativeTexture(value)
-                                .build()
-                        completer.set(texture)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated. Ideally the native code would generate a separate
-                        // signal call for this.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            completer.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        completer.setCancelled()
-                    }
-                },
-                path,
-            )
-            "LoadTexture Operation"
-        }
-
     override fun borrowReflectionTexture(): Texture {
         val textureHandle = nBorrowReflectionTexture(getViewNativeHandle(view))
         return Texture.Builder()
@@ -960,7 +684,7 @@ public class ImpressApiImpl : ImpressApi {
             .build()
     }
 
-    override suspend fun createWaterMaterialTemp(isAlphaMapVersion: Boolean): WaterMaterial =
+    override suspend fun createWaterMaterial(isAlphaMapVersion: Boolean): WaterMaterial =
         suspendCancellableCoroutine { continuation ->
             // TODO: b/374216912 - Add a cancellationListener to the completer here when the
             // loading APIs support cancellation.
@@ -1002,48 +726,6 @@ public class ImpressApiImpl : ImpressApi {
                 isAlphaMapVersion,
             )
             // This string is used for debugging purposes by the Coroutine.
-            "CreateWaterMaterial Operation"
-        }
-
-    override fun createWaterMaterial(isAlphaMapVersion: Boolean): ListenableFuture<WaterMaterial> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            // TODO: b/374216912 - Add a cancellationListener to the completer here when the
-            // loading APIs support cancellation.
-            nCreateWaterMaterial(
-                getViewNativeHandle(view),
-                object : AssetLoader {
-
-                    override fun onSuccess(value: Long) {
-                        val waterMaterial =
-                            WaterMaterial.Builder()
-                                .setImpressApi(this@ImpressApiImpl)
-                                .setNativeMaterial(value)
-                                .build()
-                        completer.set(waterMaterial)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated. Ideally the native code would generate a separate
-                        // signal call for this.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            completer.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        completer.setCancelled()
-                    }
-                },
-                isAlphaMapVersion,
-            )
-            // This string is used for debugging purposes by the Future.
             "CreateWaterMaterial Operation"
         }
 
@@ -1155,7 +837,7 @@ public class ImpressApiImpl : ImpressApi {
         w: Float,
     ): Unit = throw UnsupportedOperationException("Stub API to be removed.")
 
-    override suspend fun createKhronosPbrMaterialTemp(
+    override suspend fun createKhronosPbrMaterial(
         spec: KhronosPbrMaterialSpec
     ): KhronosPbrMaterial = suspendCancellableCoroutine { continuation ->
         // TODO: b/374216912 - Add a cancellationListener to the completer here when the
@@ -1202,51 +884,6 @@ public class ImpressApiImpl : ImpressApi {
         // This string is used for debugging purposes by the Coroutine.
         "CreateKhronosPbrMaterial Operation"
     }
-
-    override fun createKhronosPbrMaterial(
-        spec: KhronosPbrMaterialSpec
-    ): ListenableFuture<KhronosPbrMaterial> =
-        CallbackToFutureAdapter.getFuture { completer ->
-            // TODO: b/374216912 - Add a cancellationListener to the completer here when the
-            // loading APIs support cancellation.
-            nCreateGenericMaterial(
-                getViewNativeHandle(view),
-                object : AssetLoader {
-                    override fun onSuccess(value: Long) {
-                        val khronosPbrMaterial =
-                            KhronosPbrMaterial.Builder()
-                                .setImpressApi(this@ImpressApiImpl)
-                                .setNativeMaterial(value)
-                                .build()
-                        completer.set(khronosPbrMaterial)
-                    }
-
-                    override fun onFailure(message: String) {
-                        // We can safely check for the CANCELLED string here since we
-                        // know that the underlying absl Status code is being
-                        // translated to a java Exception and the message is being
-                        // propagated. Ideally the native code would generate a separate
-                        // signal call for this.
-                        // TODO: b/374217508 - Publish a more precisely typed Exception
-                        // interface for this.
-                        if (message.contains("CANCELLED")) {
-                            onCancelled(message)
-                        } else {
-                            completer.setException(Exception(message))
-                        }
-                    }
-
-                    override fun onCancelled(message: String) {
-                        completer.setCancelled()
-                    }
-                },
-                spec.lightingModel,
-                spec.blendMode,
-                spec.doubleSidedMode,
-            )
-            // This string is used for debugging purposes by the Future.
-            "CreateKhronosPbrMaterial Operation"
-        }
 
     override fun setBaseColorTextureOnKhronosPbrMaterial(
         nativeKhronosPbrMaterial: Long,
@@ -1838,6 +1475,12 @@ public class ImpressApiImpl : ImpressApi {
         enableCollider: Boolean,
     )
 
+    private external fun nSetGltfReformAffordanceEnabled(
+        view: Long,
+        impressNode: Int,
+        enabled: Boolean,
+    )
+
     private external fun nAnimateGltfModel(
         view: Long,
         impressNode: Int,
@@ -1886,6 +1529,7 @@ public class ImpressApiImpl : ImpressApi {
         impressNode: Int,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     )
 
     private external fun nSetStereoSurfaceEntityCanvasShapeSphere(

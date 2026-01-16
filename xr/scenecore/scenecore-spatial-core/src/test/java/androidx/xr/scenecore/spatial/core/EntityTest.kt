@@ -24,9 +24,6 @@ import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.runtime.testing.math.assertVector3
-import androidx.xr.scenecore.impl.perception.PerceptionLibrary
-import androidx.xr.scenecore.impl.perception.PerceptionLibraryConstants
-import androidx.xr.scenecore.impl.perception.Session
 import androidx.xr.scenecore.runtime.HitTestResult
 import androidx.xr.scenecore.runtime.ScenePose
 import androidx.xr.scenecore.runtime.Space
@@ -37,7 +34,6 @@ import com.android.extensions.xr.XrExtensions
 import com.android.extensions.xr.node.Node
 import com.android.extensions.xr.node.Vec3
 import com.google.common.truth.Truth.assertThat
-import com.google.common.util.concurrent.Futures.immediateFuture
 import java.util.concurrent.ScheduledExecutorService
 import kotlin.test.expect
 import kotlinx.coroutines.CoroutineStart
@@ -48,8 +44,6 @@ import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -80,26 +74,12 @@ class EntityTest {
 
         activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
 
-        val perceptionLibrary = mock(PerceptionLibrary::class.java)
-        ShadowXrExtensions.extract(xrExtensions!!)
-            .setOpenXrWorldSpaceType(PerceptionLibraryConstants.OPEN_XR_SPACE_TYPE_VIEW)
-        `when`(
-                perceptionLibrary.initSession(
-                    activity,
-                    PerceptionLibraryConstants.OPEN_XR_SPACE_TYPE_VIEW,
-                    fakeScheduledExecutorService,
-                )
-            )
-            .thenReturn(immediateFuture(mock(Session::class.java)))
-        `when`(perceptionLibrary.activity).thenReturn(activity)
-
         spatialSceneRuntime =
             SpatialSceneRuntime.create(
                 activity,
                 fakeScheduledExecutorService,
                 xrExtensions!!,
                 entityManager,
-                perceptionLibrary,
                 /* unscaledGravityAlignedActivitySpace= */ false,
             )
         entity =
@@ -492,48 +472,34 @@ class EntityTest {
 
     @Test
     fun getAlpha_parentSpace_returnsParentAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
 
         assertThat(entity.getAlpha(Space.PARENT)).isEqualTo(0.5f)
     }
 
     @Test
     fun getAlpha_activitySpace_returnsActivitySpaceAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
 
         assertThat(entity.getAlpha(Space.ACTIVITY)).isEqualTo(0.5f)
     }
 
     @Test
     fun getAlpha_worldSpace_returnsWorldSpaceAlpha() {
-        entity.setAlpha(0.5f, Space.REAL_WORLD)
+        entity.setAlpha(0.5f)
 
         assertThat(entity.getAlpha(Space.REAL_WORLD)).isEqualTo(0.5f)
     }
 
     @Test
     fun getAlpha_invalidSpace_throwsException() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
         assertThrows(IllegalArgumentException::class.java) { entity.getAlpha(999) }
     }
 
     @Test
-    fun setAlpha_setsAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
-
-        assertThat(entity.getAlpha(Space.PARENT)).isEqualTo(0.5f)
-    }
-
-    @Test
-    fun setAlpha_parentSpace_setsParentAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
-
-        assertThat(entity.getAlpha(Space.PARENT)).isEqualTo(0.5f)
-    }
-
-    @Test
     fun setAlpha_activitySpace_setsActivitySpaceAlpha() {
-        entity.setAlpha(0.5f, Space.PARENT)
+        entity.setAlpha(0.5f)
         val child =
             TestEntity(
                 activity,
@@ -543,15 +509,15 @@ class EntityTest {
                 fakeScheduledExecutorService,
             )
         child.parent = entity
-        child.setAlpha(0.5f, Space.PARENT)
+        child.setAlpha(0.5f)
 
         assertThat(child.getAlpha(Space.ACTIVITY)).isEqualTo(0.25f)
     }
 
     @Test
     fun setAlpha_worldSpace_setsWorldSpaceAlpha() {
-        spatialSceneRuntime.activitySpace.setAlpha(4f, Space.PARENT)
-        entity.setAlpha(0.5f, Space.PARENT)
+        spatialSceneRuntime.activitySpace.setAlpha(4f)
+        entity.setAlpha(0.5f)
         val child =
             TestEntity(
                 activity,
@@ -561,14 +527,9 @@ class EntityTest {
                 fakeScheduledExecutorService,
             )
         child.parent = entity
-        child.setAlpha(0.5f, Space.PARENT)
+        child.setAlpha(0.5f)
 
         assertThat(child.getAlpha(Space.REAL_WORLD)).isEqualTo(0.25f)
-    }
-
-    @Test
-    fun setAlpha_invalidSpace_throwsException() {
-        assertThrows(IllegalArgumentException::class.java) { entity.setAlpha(0.5f, 999) }
     }
 
     @Test

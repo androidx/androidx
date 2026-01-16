@@ -42,10 +42,16 @@ import java.util.function.BiConsumer;
 /** Implementation of ResizableComponent. */
 @SuppressWarnings({"BanConcurrentHashMap"})
 class ResizableComponentImpl implements ResizableComponent {
+    private static final @NonNull Dimensions DIMS_ZERO = new Dimensions(0f, 0f, 0f);
+    private static final @NonNull Dimensions DIMS_ONE = new Dimensions(1f, 1f, 1f);
+    private static final @NonNull Dimensions DIMS_INF =
+            new Dimensions(
+                    Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
     private final XrExtensions mExtensions;
     private final ExecutorService mExecutor;
     private final ConcurrentHashMap<ResizeEventListener, Executor> mResizeEventListenerMap =
             new ConcurrentHashMap<>();
+    private final AtomicBoolean mIsContentHidden = new AtomicBoolean(false);
     // Visible for testing.
     Consumer<ReformEvent> mReformEventConsumer;
     private Entity mEntity = null;
@@ -56,8 +62,6 @@ class ResizableComponentImpl implements ResizableComponent {
     private boolean mAutoHideContent = true;
     private boolean mAutoUpdateSize = true;
     private boolean mForceShowResizeOverlay = false;
-
-    private final AtomicBoolean mIsContentHidden = new AtomicBoolean(false);
 
     /**
      * The constructor sanitizes the provided minimum and maximum sizes to ensure they are valid.
@@ -84,6 +88,64 @@ class ResizableComponentImpl implements ResizableComponent {
         mExecutor = executor;
     }
 
+    private static @NonNull Dimensions dimsClampPositive(
+            @NonNull Dimensions dimValue, @NonNull Dimensions nanFallback) {
+        return new Dimensions(
+                clampPositive(dimValue.width, nanFallback.width),
+                clampPositive(dimValue.height, nanFallback.height),
+                clampPositive(dimValue.depth, nanFallback.depth));
+    }
+
+    private static @NonNull Dimensions dimsClamp(
+            @NonNull Dimensions dimValue,
+            @NonNull Dimensions min,
+            @NonNull Dimensions max,
+            @NonNull Dimensions nanFallback) {
+        return new Dimensions(
+                clamp(dimValue.width, min.width, max.width, nanFallback.width),
+                clamp(dimValue.height, min.height, max.height, nanFallback.height),
+                clamp(dimValue.depth, min.depth, max.depth, nanFallback.depth));
+    }
+
+    private static @NonNull Dimensions dimsMin(@NonNull Dimensions a, @NonNull Dimensions b) {
+        return new Dimensions(
+                Math.min(a.width, b.width),
+                Math.min(a.height, b.height),
+                Math.min(a.depth, b.depth));
+    }
+
+    private static @NonNull Dimensions dimsMax(@NonNull Dimensions a, @NonNull Dimensions b) {
+        return new Dimensions(
+                Math.max(a.width, b.width),
+                Math.max(a.height, b.height),
+                Math.max(a.depth, b.depth));
+    }
+
+    private static boolean dimsAnyLessThen(@NonNull Dimensions a, @NonNull Dimensions b) {
+        return a.width < b.width || a.height < b.height || a.depth < b.depth;
+    }
+
+    private static @NonNull Vec3 dimsToVec3(@NonNull Dimensions value) {
+        return new Vec3(value.width, value.height, value.depth);
+    }
+
+    private static @NonNull Dimensions vec3ToDims(Vec3 value) {
+        if (value == null) {
+            return new Dimensions(Float.NaN, Float.NaN, Float.NaN);
+        }
+        return new Dimensions(value.x, value.y, value.z);
+    }
+
+    private static float clampPositive(float value, float nanReplace) {
+        return clamp(value, 0f, Float.POSITIVE_INFINITY, nanReplace);
+    }
+
+    private static float clamp(float value, float min, float max, float nanFallback) {
+        if (Float.isNaN(value)) value = nanFallback;
+        if (value < min) return min;
+        return Math.min(value, max);
+    }
+
     @Override
     public boolean onAttach(@NonNull Entity entity) {
         if (mEntity != null) {
@@ -101,21 +163,19 @@ class ResizableComponentImpl implements ResizableComponent {
         }
 
         ReformOptions reformOptions = ((AndroidXrEntity) entity).getReformOptions();
-        ReformOptions unused =
-                reformOptions.setEnabledReform(
-                        reformOptions.getEnabledReform() | ReformOptions.ALLOW_RESIZE);
+        reformOptions.setEnabledReform(
+                reformOptions.getEnabledReform() | ReformOptions.ALLOW_RESIZE);
 
         if (entitySize != null) {
             updateAndSanitizeCurrentSize(entitySize);
-            unused = reformOptions.setCurrentSize(dimsToVec3(mCurrentSize));
+            reformOptions.setCurrentSize(dimsToVec3(mCurrentSize));
         }
 
-        unused =
-                reformOptions
-                        .setMinimumSize(dimsToVec3(mMinSize))
-                        .setMaximumSize(dimsToVec3(mMaxSize))
-                        .setFixedAspectRatio(mFixedAspectRatio)
-                        .setForceShowResizeOverlay(mForceShowResizeOverlay);
+        reformOptions
+                .setMinimumSize(dimsToVec3(mMinSize))
+                .setMaximumSize(dimsToVec3(mMaxSize))
+                .setFixedAspectRatio(mFixedAspectRatio)
+                .setForceShowResizeOverlay(mForceShowResizeOverlay);
         ((AndroidXrEntity) entity).updateReformOptions();
         if (mReformEventConsumer != null) {
             ((AndroidXrEntity) entity).addReformEventConsumer(mReformEventConsumer, mExecutor);
@@ -129,9 +189,8 @@ class ResizableComponentImpl implements ResizableComponent {
     public void onDetach(@NonNull Entity entity) {
         restoreEntityContent();
         ReformOptions reformOptions = ((AndroidXrEntity) entity).getReformOptions();
-        ReformOptions unused =
-                reformOptions.setEnabledReform(
-                        reformOptions.getEnabledReform() & ~ReformOptions.ALLOW_RESIZE);
+        reformOptions.setEnabledReform(
+                reformOptions.getEnabledReform() & ~ReformOptions.ALLOW_RESIZE);
         ((AndroidXrEntity) entity).updateReformOptions();
         if (mReformEventConsumer != null) {
             ((AndroidXrEntity) entity).removeReformEventConsumer(mReformEventConsumer);
@@ -146,6 +205,22 @@ class ResizableComponentImpl implements ResizableComponent {
             return DIMS_ONE;
         }
         return mCurrentSize;
+    }
+
+    @Override
+    public void setSize(@NonNull Dimensions size) {
+        // TODO: b/350821054 - Implement synchronization policy around Entity/Component updates.
+        boolean outOfDate = updateAndSanitizeCurrentSize(size);
+        if (!outOfDate || mEntity == null) {
+            return;
+        }
+
+        ReformOptions reformOptions = ((AndroidXrEntity) mEntity).getReformOptions();
+        reformOptions.setCurrentSize(dimsToVec3(mCurrentSize));
+        if (mFixedAspectRatio != 0) {
+            reformOptions.setFixedAspectRatio(mFixedAspectRatio);
+        }
+        ((AndroidXrEntity) mEntity).updateReformOptions();
     }
 
     /**
@@ -169,22 +244,6 @@ class ResizableComponentImpl implements ResizableComponent {
             updateFixedAspectRatio(true);
         }
         return true;
-    }
-
-    @Override
-    public void setSize(@NonNull Dimensions size) {
-        // TODO: b/350821054 - Implement synchronization policy around Entity/Component updates.
-        boolean outOfDate = updateAndSanitizeCurrentSize(size);
-        if (!outOfDate || mEntity == null) {
-            return;
-        }
-
-        ReformOptions reformOptions = ((AndroidXrEntity) mEntity).getReformOptions();
-        ReformOptions unused = reformOptions.setCurrentSize(dimsToVec3(mCurrentSize));
-        if (mFixedAspectRatio != 0) {
-            unused = reformOptions.setFixedAspectRatio(mFixedAspectRatio);
-        }
-        ((AndroidXrEntity) mEntity).updateReformOptions();
     }
 
     @Override
@@ -213,9 +272,9 @@ class ResizableComponentImpl implements ResizableComponent {
 
         if (updateMin) {
             ReformOptions reformOptions = ((AndroidXrEntity) mEntity).getReformOptions();
-            ReformOptions unused = reformOptions.setMinimumSize(dimsToVec3(mMinSize));
+            reformOptions.setMinimumSize(dimsToVec3(mMinSize));
             if (updateMax) {
-                unused = reformOptions.setMaximumSize(dimsToVec3(mMaxSize));
+                reformOptions.setMaximumSize(dimsToVec3(mMaxSize));
             }
             ((AndroidXrEntity) mEntity).updateReformOptions();
         }
@@ -247,9 +306,9 @@ class ResizableComponentImpl implements ResizableComponent {
 
         if (updateMax) {
             ReformOptions reformOptions = ((AndroidXrEntity) mEntity).getReformOptions();
-            ReformOptions unused = reformOptions.setMaximumSize(dimsToVec3(mMaxSize));
+            reformOptions.setMaximumSize(dimsToVec3(mMaxSize));
             if (updateMin) {
-                unused = reformOptions.setMinimumSize(dimsToVec3(mMinSize));
+                reformOptions.setMinimumSize(dimsToVec3(mMinSize));
             }
             ((AndroidXrEntity) mEntity).updateReformOptions();
         }
@@ -272,7 +331,7 @@ class ResizableComponentImpl implements ResizableComponent {
             return;
         }
         ReformOptions reformOptions = ((AndroidXrEntity) mEntity).getReformOptions();
-        ReformOptions unused = reformOptions.setFixedAspectRatio(mFixedAspectRatio);
+        reformOptions.setFixedAspectRatio(mFixedAspectRatio);
         ((AndroidXrEntity) mEntity).updateReformOptions();
     }
 
@@ -319,7 +378,7 @@ class ResizableComponentImpl implements ResizableComponent {
             return;
         }
         ReformOptions reformOptions = ((AndroidXrEntity) mEntity).getReformOptions();
-        ReformOptions unused = reformOptions.setForceShowResizeOverlay(show);
+        reformOptions.setForceShowResizeOverlay(show);
         ((AndroidXrEntity) mEntity).updateReformOptions();
     }
 
@@ -410,69 +469,5 @@ class ResizableComponentImpl implements ResizableComponent {
         if (mResizeEventListenerMap.isEmpty()) {
             ((AndroidXrEntity) mEntity).removeReformEventConsumer(mReformEventConsumer);
         }
-    }
-
-    private static final @NonNull Dimensions DIMS_ZERO = new Dimensions(0f, 0f, 0f);
-    private static final @NonNull Dimensions DIMS_ONE = new Dimensions(1f, 1f, 1f);
-    private static final @NonNull Dimensions DIMS_INF =
-            new Dimensions(
-                    Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
-
-    private static @NonNull Dimensions dimsClampPositive(
-            @NonNull Dimensions dimValue, @NonNull Dimensions nanFallback) {
-        return new Dimensions(
-                clampPositive(dimValue.width, nanFallback.width),
-                clampPositive(dimValue.height, nanFallback.height),
-                clampPositive(dimValue.depth, nanFallback.depth));
-    }
-
-    private static @NonNull Dimensions dimsClamp(
-            @NonNull Dimensions dimValue,
-            @NonNull Dimensions min,
-            @NonNull Dimensions max,
-            @NonNull Dimensions nanFallback) {
-        return new Dimensions(
-                clamp(dimValue.width, min.width, max.width, nanFallback.width),
-                clamp(dimValue.height, min.height, max.height, nanFallback.height),
-                clamp(dimValue.depth, min.depth, max.depth, nanFallback.depth));
-    }
-
-    private static @NonNull Dimensions dimsMin(@NonNull Dimensions a, @NonNull Dimensions b) {
-        return new Dimensions(
-                Math.min(a.width, b.width),
-                Math.min(a.height, b.height),
-                Math.min(a.depth, b.depth));
-    }
-
-    private static @NonNull Dimensions dimsMax(@NonNull Dimensions a, @NonNull Dimensions b) {
-        return new Dimensions(
-                Math.max(a.width, b.width),
-                Math.max(a.height, b.height),
-                Math.max(a.depth, b.depth));
-    }
-
-    private static boolean dimsAnyLessThen(@NonNull Dimensions a, @NonNull Dimensions b) {
-        return a.width < b.width || a.height < b.height || a.depth < b.depth;
-    }
-
-    private static @NonNull Vec3 dimsToVec3(@NonNull Dimensions value) {
-        return new Vec3(value.width, value.height, value.depth);
-    }
-
-    private static @NonNull Dimensions vec3ToDims(Vec3 value) {
-        if (value == null) {
-            return new Dimensions(Float.NaN, Float.NaN, Float.NaN);
-        }
-        return new Dimensions(value.x, value.y, value.z);
-    }
-
-    private static float clampPositive(float value, float nanReplace) {
-        return clamp(value, 0f, Float.POSITIVE_INFINITY, nanReplace);
-    }
-
-    private static float clamp(float value, float min, float max, float nanFallback) {
-        if (Float.isNaN(value)) value = nanFallback;
-        if (value < min) return min;
-        return Math.min(value, max);
     }
 }

@@ -2321,11 +2321,13 @@ package androidx.collection {
   }
 
   public final class ScatterMapKt {
-    method public static <K, V> androidx.collection.MutableScatterMap<K,V> MutableScatterMap(androidx.collection.ScatterMap<K,V> from);
-    method public static <K, V> androidx.collection.MutableScatterMap<K,V> MutableScatterMap(java.util.Map<K,? extends V> from);
     method public static <K, V> androidx.collection.ScatterMap<K,V> emptyScatterMap();
     method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf();
     method public static <K, V> androidx.collection.MutableScatterMap<K,V> mutableScatterMapOf(kotlin.Pair<? extends K,? extends V>... pairs);
+    method public static <K, V> androidx.collection.MutableScatterMap<K,V> toMutableScatterMap(androidx.collection.ScatterMap<K,V>);
+    method public static <K, V> androidx.collection.MutableScatterMap<K,V> toMutableScatterMap(java.util.Map<K,? extends V>);
+    method public static <K, V> androidx.collection.ScatterMap<K,V> toScatterMap(androidx.collection.ScatterMap<K,V>);
+    method public static <K, V> androidx.collection.ScatterMap<K,V> toScatterMap(java.util.Map<K,? extends V>);
   }
 
   public abstract sealed exhaustive class ScatterSet<E> {
@@ -2358,8 +2360,6 @@ package androidx.collection {
   }
 
   public final class ScatterSetKt {
-    method public static <E> androidx.collection.MutableScatterSet<E> MutableScatterSet(androidx.collection.ScatterSet<E> from);
-    method public static <E> androidx.collection.MutableScatterSet<E> MutableScatterSet(java.util.Set<? extends E> from);
     method public static <E> androidx.collection.ScatterSet<E> emptyScatterSet();
     method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf();
     method public static <E> androidx.collection.MutableScatterSet<E> mutableScatterSetOf(E element1);
@@ -2371,6 +2371,10 @@ package androidx.collection {
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2);
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E element1, E element2, E element3);
     method public static <E> androidx.collection.ScatterSet<E> scatterSetOf(E... elements);
+    method public static <E> androidx.collection.MutableScatterSet<E> toMutableScatterSet(androidx.collection.ScatterSet<E>);
+    method public static <E> androidx.collection.MutableScatterSet<E> toMutableScatterSet(java.util.Collection<? extends E>);
+    method public static <E> androidx.collection.ScatterSet<E> toScatterSet(androidx.collection.ScatterSet<E>);
+    method public static <E> androidx.collection.ScatterSet<E> toScatterSet(java.util.Collection<? extends E>);
   }
 
   public final class SieveCache<K, V> {

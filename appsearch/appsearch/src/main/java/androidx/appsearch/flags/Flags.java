@@ -366,6 +366,18 @@ public final class Flags {
     public static final String FLAG_ENABLE_NON_EXISTENT_QUALIFIED_ID_JOIN =
             FLAG_PREFIX + "enable_non_existent_qualified_id_join";
 
+    /**
+     * Whether to enable skipping the unnecessary schema type equality check.
+     */
+    public static final String FLAG_ENABLE_SKIP_SET_SCHEMA_TYPE_EQUALITY_CHECK =
+            FLAG_PREFIX + "enable_skip_set_schema_type_equality_check";
+
+    /**
+     * Whether to enable the query optimization to rewrite AND'd embedding queries.
+     */
+    public static final String FLAG_ENABLE_EMBED_QUERY_OPTIMIZATION =
+            FLAG_PREFIX + "enable_embed_query_optimization";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -800,6 +812,20 @@ public final class Flags {
      * Whether to enable indexing non existent parent qualified id in the join index.
      */
     public static boolean enableNonExistentQualifiedIdJoin() {
+        return true;
+    }
+
+    /**
+     * Whether to enable skipping the unnecessary schema type equality check.
+     */
+    public static boolean enableSkipSetSchemaTypeEqualityCheck() {
+        return true;
+    }
+
+    /**
+     * Whether to enable the query optimization to rewrite AND'd embedding queries.
+     */
+    public static boolean enableEmbedQueryOptimization() {
         return true;
     }
 }

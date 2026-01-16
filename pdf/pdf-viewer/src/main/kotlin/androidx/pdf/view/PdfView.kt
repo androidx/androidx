@@ -179,8 +179,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             pageLayoutManager?.let {
                 val lastVisiblePage = fullyVisiblePages.lower
                 updateLayoutStrategy()
-                // Restore scroll position after layout change.
-                scrollToPage(lastVisiblePage)
+                // Restore scroll position, prioritizing active selection.
+                val firstSelectedBound = currentSelection?.bounds?.firstOrNull()
+                if (firstSelectedBound != null) {
+                    scrollToPage(firstSelectedBound.pageNum)
+                    updateSelectionActionModeVisibility()
+                } else {
+                    scrollToPage(lastVisiblePage)
+                }
             }
         }
 
@@ -243,8 +249,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             invalidate()
         }
 
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    /** Enables / Disables the form- filling feature surface. */
     public var isFormFillingEnabled: Boolean = false
         set(value) {
             if (field == value) return
@@ -477,7 +482,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private val onViewportChangedListeners = mutableListOf<OnViewportChangedListener>()
 
     /** Listener interface for handling form edits on a PDF Document. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface OnFormWidgetInfoUpdatedListener {
         /**
          * Called when a user interacts with a form widget which leads to the change in state of the
@@ -485,7 +489,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          *
          * @param formEditInfo The edit to be applied to the [PdfDocument] Note: In order to
          *   correctly update the state the formEditInfo at the document the [formEditInfo] must be
-         *   applied to the document via [androidx.pdf.annotation.EditablePdfDocument.applyEdit].
+         *   applied to the document via [androidx.pdf.EditablePdfDocument.applyEdit].
          */
         public fun onFormWidgetInfoUpdated(formEditInfo: FormEditInfo)
     }
@@ -498,18 +502,16 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      *
      * @param listener The listener to add
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun addOnFormWidgetInfoUpdatedListener(listener: OnFormWidgetInfoUpdatedListener) {
         onFormWidgetInfoUpdatedListeners.add(listener)
     }
 
     /**
-     * Adds the specified listener to the list of listeners that is notified when any form widget is
-     * updated due to an edit action on the widget e.g. click on a radio button.
+     * Removes the specified listener from the list of listeners that is notified when any form
+     * widget is updated due to an edit action on the widget e.g. click on a radio button.
      *
      * @param listener The listener to remove
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public fun removeOnFormWidgetInfoUpdatedListener(listener: OnFormWidgetInfoUpdatedListener) {
         onFormWidgetInfoUpdatedListeners.remove(listener)
     }
@@ -586,7 +588,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     /** Listener interface to receive updates when the [currentSelection] changes */
     public interface OnSelectionChangedListener {
         /** Called when the [Selection] has changed */
-        public fun onSelectionChanged(newSelection: Selection?)
+        @MainThread public fun onSelectionChanged(newSelection: Selection?)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -610,7 +612,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      */
     public fun interface OnFirstContentLoadListener {
         /** Called when the content of the document has been loaded for the first time. */
-        public fun onFirstContentLoad()
+        @MainThread public fun onFirstContentLoad()
     }
 
     private val onFirstContentLoadListeners = mutableListOf<OnFirstContentLoadListener>()
@@ -807,20 +809,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             zoom,
             pageLayoutManager?.visiblePageAreas,
         ) ?: true
-    }
-
-    /** Returns a [SparseArray] of page locations ([RectF]) in view coordinates. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun getCurrentPageLocations(): SparseArray<RectF> {
-        val localPageLayoutManager = pageLayoutManager ?: return SparseArray()
-        val pageLocations = localPageLayoutManager.pageLocations
-
-        val pageLocationsInViewCoords = SparseArray<RectF>(pageLocations.size())
-        pageLocations.forEach { page, pageLocationsInContentCoords ->
-            val rectToTransform = RectF(pageLocationsInContentCoords)
-            pageLocationsInViewCoords.put(page, rectToTransform.asViewRectF())
-        }
-        return pageLocationsInViewCoords
     }
 
     @VisibleForTesting internal var pdfViewAccessibilityManager: PdfViewAccessibilityManager? = null
@@ -1840,7 +1828,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 this.formFillingEditText = formFillingEditText
             }
 
-        localPdfDocument.addOnPdfContentInvalidatedListener(onPdfContentInvalidatedListener)
+        localPdfDocument.addOnPdfContentInvalidatedListener(
+            context.mainExecutor,
+            onPdfContentInvalidatedListener,
+        )
 
         val fastScrollCalculator = FastScrollCalculator(context)
         val fastScrollDrawer =
@@ -2234,7 +2225,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
         visiblePageAreas.keyIterator().forEach { pageNum ->
             val editableFormWidgetsInPage =
-                pageManager?.pages[pageNum]?.formWidgetInfos?.filter { !it.readOnly }
+                pageManager?.pages[pageNum]?.formWidgetInfos?.filter { !it.isReadOnly }
 
             editableFormWidgetsInPage?.forEach { widget ->
                 if (visiblePageAreas.get(pageNum).contains(widget.widgetRect.toRectF())) {

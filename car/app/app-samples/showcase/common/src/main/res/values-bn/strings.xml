@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"সারিও বেছে নেওয়া যেতে পারে"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"সেকেন্ডারি অ্যাকশন বেছে নেওয়া হয়েছে"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"সারির প্রাইমারি অ্যাকশন বেছে নেওয়া হয়েছে"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"রো এন্ড ইমেজ ও অ্যাকশনের ডেমো"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"ডেমোর খালি তালিকা"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"তালিকায় কিছু নেই"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"অন্যান্য টেমপ্লেটের ডেমো"</string>

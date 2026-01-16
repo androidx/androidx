@@ -464,6 +464,17 @@ package androidx.xr.arcore {
     method public static java.util.List<androidx.xr.arcore.HitResult> hitTest(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Ray ray);
   }
 
+  public final class NativeData {
+    method @InaccessibleFromKotlin public Long? getNativeInstancePointer();
+    method @InaccessibleFromKotlin public long getNativeSessionPointer();
+    property public Long? nativeInstancePointer;
+    property public long nativeSessionPointer;
+  }
+
+  @SuppressCompatibility public final class NativeDataExt {
+    method @SuppressCompatibility @androidx.xr.arcore.UnstableNativeResourceApi public static androidx.xr.arcore.NativeData getNativeData(androidx.xr.runtime.Session);
+  }
+
   public final class PerceptionState {
     method @InaccessibleFromKotlin public androidx.xr.arcore.ArDevice getArDevice();
     method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap? getLeftDepthMap();
@@ -574,6 +585,32 @@ package androidx.xr.arcore {
     property public androidx.xr.runtime.math.Pose pose;
   }
 
+  public final class Tilt {
+    field public static final androidx.xr.arcore.Tilt.Companion Companion;
+    field public static final androidx.xr.arcore.Tilt DOWN;
+    field public static final androidx.xr.arcore.Tilt UP;
+  }
+
+  public static final class Tilt.Companion {
+    property public androidx.xr.arcore.Tilt DOWN;
+    property public androidx.xr.arcore.Tilt UP;
+  }
+
+  public final class TiltGesture {
+    method public kotlinx.coroutines.flow.Flow<androidx.xr.arcore.TiltGesture.State> detect(androidx.xr.runtime.Session session);
+    field public static final androidx.xr.arcore.TiltGesture INSTANCE;
+  }
+
+  public static final class TiltGesture.State {
+    ctor public TiltGesture.State();
+    ctor public TiltGesture.State(optional androidx.xr.arcore.Tilt tilt, optional @FloatRange(from=0.0, to=1.0) float progress);
+    ctor @BytecodeOnly public TiltGesture.State(androidx.xr.arcore.Tilt!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getProgress();
+    method @InaccessibleFromKotlin public androidx.xr.arcore.Tilt getTilt();
+    property public float progress;
+    property public androidx.xr.arcore.Tilt tilt;
+  }
+
   public interface Trackable<State> {
     method public androidx.xr.arcore.AnchorCreateResult createAnchor(androidx.xr.runtime.math.Pose pose);
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.StateFlow<androidx.xr.arcore.Trackable.State> getState();
@@ -583,6 +620,9 @@ package androidx.xr.arcore {
   public static interface Trackable.State {
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     property public abstract androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="Access to native pointers is discouraged and the data returned by this API may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface UnstableNativeResourceApi {
   }
 
 }

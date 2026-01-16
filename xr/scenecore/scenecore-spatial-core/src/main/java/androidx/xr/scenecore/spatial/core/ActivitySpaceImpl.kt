@@ -38,7 +38,6 @@ import com.android.extensions.xr.node.Vec3
 import com.android.extensions.xr.space.Bounds
 import com.android.extensions.xr.space.SpatialState
 import java.util.Collections
-import java.util.HashSet
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Supplier
@@ -108,8 +107,7 @@ public class ActivitySpaceImpl(
 
     override var parent: Entity?
         get() = super.parent
-        set(newParent) =
-            throw UnsupportedOperationException("Cannot set 'parent' on an ActivitySpace.")
+        set(_) = throw UnsupportedOperationException("Cannot set 'parent' on an ActivitySpace.")
 
     /**
      * Return a recommended box for content to be placed in when in Full Space Mode.
@@ -212,7 +210,9 @@ public class ActivitySpaceImpl(
                 Vector3(abs(transformScale.x), abs(transformScale.y), abs(transformScale.z))
             // Get the unscaled rotation of the activity space.
             activitySpaceRotation = newTransform.unscaled().rotation
-            val gravityAlignedRotation = activitySpaceRotation.inverse
+            val yaw = activitySpaceRotation.eulerAngles.y
+            val yawRotation = Quaternion.fromEulerAngles(0.0f, yaw, 0.0f)
+            val gravityAlignedRotation = activitySpaceRotation.inverse * yawRotation
             mExtensions.createNodeTransaction().use { transaction ->
                 transaction
                     .setScale(
@@ -230,6 +230,10 @@ public class ActivitySpaceImpl(
                     )
                     .apply()
             }
+            // Update the rotation to be sent out in onSpatialModeChanged.
+            // It needs to provide identity yaw rotation since we already preserved that part of
+            // original rotation for the activity space origin.
+            activitySpaceRotation = yawRotation.inverse * activitySpaceRotation
         }
 
         // The translation is zero - since the activity space origin has been already translated by
@@ -240,6 +244,10 @@ public class ActivitySpaceImpl(
             transformScaleAbsolute,
         )
     }
+
+    // TODO: b/469860602 - Remove this override once transform listener fix lands.
+    override val worldSpaceScale: Vector3
+        get() = if (unscaledGravityAlignedActivitySpace) Vector3.One else super.worldSpaceScale
 
     override fun addOnBoundsChangedListener(listener: ActivitySpace.OnBoundsChangedListener) {
         boundsListeners.add(listener)

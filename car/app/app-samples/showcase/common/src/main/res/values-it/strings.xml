@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Anche la riga può essere selezionata"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"È stata selezionata l\'azione secondaria"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"È stata selezionata l\'azione principale della riga"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Demo Azioni e immagine finale della riga"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Demo dell\'elenco vuoto"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"L\'elenco è vuoto"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Demo modelli vari"</string>

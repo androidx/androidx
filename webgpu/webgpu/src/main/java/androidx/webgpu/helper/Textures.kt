@@ -1,7 +1,7 @@
 @file:JvmName("TexturesUtils")
 
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import androidx.webgpu.*
 import java.nio.ByteBuffer
 
 public fun Bitmap.createGpuTexture(device: GPUDevice): GPUTexture {
-    val size = Extent3D(width = width, height = height)
+    val size = GPUExtent3D(width = width, height = height)
     return device
         .createTexture(
-            TextureDescriptor(
+            GPUTextureDescriptor(
                 size = size,
                 format = TextureFormat.RGBA8Unorm,
                 usage =
@@ -39,12 +39,12 @@ public fun Bitmap.createGpuTexture(device: GPUDevice): GPUTexture {
                 copyPixelsToBuffer(pixels)
                 device.queue.writeTexture(
                     dataLayout =
-                        TexelCopyBufferLayout(
+                        GPUTexelCopyBufferLayout(
                             bytesPerRow = width * Int.SIZE_BYTES,
                             rowsPerImage = height,
                         ),
                     data = pixels,
-                    destination = TexelCopyTextureInfo(texture = texture),
+                    destination = GPUTexelCopyTextureInfo(texture = texture),
                     writeSize = size,
                 )
             }
@@ -59,7 +59,7 @@ public suspend fun GPUTexture.createBitmap(device: GPUDevice): Bitmap {
     val size = width * height * Int.SIZE_BYTES
     val readbackBuffer =
         device.createBuffer(
-            BufferDescriptor(
+            GPUBufferDescriptor(
                 size = size.toLong(),
                 usage = BufferUsage.CopyDst or BufferUsage.MapRead,
             )
@@ -68,18 +68,18 @@ public suspend fun GPUTexture.createBitmap(device: GPUDevice): Bitmap {
         arrayOf(
             device.createCommandEncoder().let {
                 it.copyTextureToBuffer(
-                    source = TexelCopyTextureInfo(texture = this),
+                    source = GPUTexelCopyTextureInfo(texture = this),
                     destination =
-                        TexelCopyBufferInfo(
+                        GPUTexelCopyBufferInfo(
                             layout =
-                                TexelCopyBufferLayout(
+                                GPUTexelCopyBufferLayout(
                                     offset = 0,
                                     bytesPerRow = width * Int.SIZE_BYTES,
                                     rowsPerImage = height,
                                 ),
                             buffer = readbackBuffer,
                         ),
-                    copySize = Extent3D(width = width, height = height),
+                    copySize = GPUExtent3D(width = width, height = height),
                 )
                 it.finish()
             }

@@ -102,6 +102,7 @@
             android:label="RC Player"
             android:icon="@drawable/viewer"
             android:roundIcon="@drawable/viewer"
+            android:resizeableActivity="true"
             android:theme="@android:style/Theme.Material.Light.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
@@ -114,7 +115,7 @@
 
         <activity
             android:name=".ExperimentRecyclerActivity"
-            android:configChanges="uiMode"
+            android:configChanges="uiMode|assetsPaths"
             android:exported="true"
             android:label="RC View"
             android:icon="@drawable/recycler"
@@ -143,5 +144,39 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/launcher_widget" />
         </receiver>
+
+
+        <activity
+            android:name=".TickerActivity"
+            android:configChanges="uiMode|assetsPaths"
+            android:exported="true"
+            android:label="RC View"
+            android:icon="@drawable/chart"
+            android:roundIcon="@drawable/chart"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <receiver
+            android:name=".TickerWidgetProvider"
+            android:exported="true"
+            android:label="RemoteCompose Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="androidx.compose.remote.integration.view.demos.TickerWidgetProvider"
+                android:value="androidx.compose.remote.integration.view.demos" />
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/ticker_widget" />
+        </receiver>
+
     </application>
 </manifest>

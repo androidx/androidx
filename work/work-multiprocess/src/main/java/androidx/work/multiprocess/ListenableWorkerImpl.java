@@ -73,7 +73,6 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
     final Map<String, ListenableWorker> mListenableWorkerMap;
     // Synthetic access
     final Map<String, Throwable> mThrowableMap;
-    final Map<String, ListenableFuture<ListenableWorker.Result>> mFutureMap;
 
     ListenableWorkerImpl(@NonNull Context context) {
         mContext = context.getApplicationContext();
@@ -88,7 +87,6 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
         // to both the maps are the unique work request ids.
         mListenableWorkerMap = new HashMap<>();
         mThrowableMap = new HashMap<>();
-        mFutureMap = new HashMap<>();
     }
 
     @Override
@@ -119,10 +117,6 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             final ListenableFuture<ListenableWorker.Result> futureResult =
                     executeWorkRequest(workerClassName, workerParameters);
 
-            synchronized (sLock) {
-                mFutureMap.put(id, futureResult);
-            }
-
             futureResult.addListener(new Runnable() {
                 @Override
                 public void run() {
@@ -140,7 +134,6 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
                         synchronized (sLock) {
                             mListenableWorkerMap.remove(id);
                             mThrowableMap.remove(id);
-                            mFutureMap.remove(id);
                         }
                     }
                 }
@@ -162,27 +155,17 @@ public class ListenableWorkerImpl extends IListenableWorkerImpl.Stub {
             Logger.get().debug(TAG, "Interrupting work with id (" + id + ")");
             // No need to remove the ListenableWorker from the map here, given after interruption
             // the future gets notified and the cleanup happens automatically.
-            final ListenableFuture<ListenableWorker.Result> future;
-            final ListenableWorker worker;
-            synchronized (sLock) {
-                future = mFutureMap.get(id);
-                worker = mListenableWorkerMap.get(id);
-            }
-
+            final ListenableWorker worker = mListenableWorkerMap.get(id);
             if (worker != null) {
                 mTaskExecutor.getSerialTaskExecutor()
                         .execute(() -> {
                             worker.stop(stopReason);
-                            if (future != null) {
-                                future.cancel(false);
-                            }
                             reportSuccess(callback, sEMPTY);
                         });
             } else {
                 // Nothing to do.
                 reportSuccess(callback, sEMPTY);
             }
-
         } catch (Throwable throwable) {
             reportFailure(callback, throwable);
         }

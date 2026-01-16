@@ -1,4 +1,5 @@
 <resources>
   <item name="rendered_metadata_tag" type="id" />
   <item name="clickable_id_tag" type="id" />
+  <item name="element_metadata_tag" type="id" />
 </resources>

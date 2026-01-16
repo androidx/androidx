@@ -110,4 +110,29 @@ public interface GltfFeature : RenderingFeature {
 
     /** Removes an animation state updated listener. */
     @MainThread public fun removeAnimationStateListener(listener: Consumer<Int>)
+
+    /**
+     * Registers a listener to be notified of changes to the GLTF model's bounds.
+     *
+     * The listener is invoked on the main thread for each frame that the entity's animation is in
+     * the [GltfEntity.AnimationState.PLAYING] state and the bounds has changed since the last
+     * frame. To conserve resources, updates are only processed while an animation is actively
+     * playing.
+     *
+     * When the first listener is added, a frame listener is registered with the underlying
+     * renderer.
+     *
+     * @param listener The consumer to be invoked with the updated [BoundingBox].
+     */
+    @MainThread public fun addOnBoundsUpdateListener(listener: Consumer<BoundingBox>)
+
+    /**
+     * Unregisters a previously added bounds listener.
+     *
+     * If this is the last registered listener, the feature will stop monitoring for bounds changes
+     * on each frame to conserve resources by unregistering its frame listener from the renderer.
+     *
+     * @param listener The listener to remove.
+     */
+    @MainThread public fun removeOnBoundsUpdateListener(listener: Consumer<BoundingBox>)
 }

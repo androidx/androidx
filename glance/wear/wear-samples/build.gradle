@@ -34,16 +34,16 @@ dependencies {
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-graphics"))
     implementation(project(":glance:wear:wear"))
-    implementation(project(":compose:remote:remote-creation-compose"))
+    implementation(project(":wear:compose:remote:remote-material3"))
 }
 
 android {
     namespace = "androidx.glance.wear.samples"
-    compileSdk = 36
+    compileSdk { version = release(36) }
 
     defaultConfig {
         applicationId = "androidx.glance.wear.samples"
-        minSdk = 29
+        minSdk { version = release(29) }
     }
 }
 

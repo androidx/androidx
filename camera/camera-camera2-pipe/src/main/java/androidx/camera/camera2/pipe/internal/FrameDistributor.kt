@@ -16,17 +16,24 @@
 
 package androidx.camera.camera2.pipe.internal
 
+import android.hardware.HardwareBuffer
+import android.os.Build
+import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraTimestamp
 import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameCapture
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.FrameReference
+import androidx.camera.camera2.pipe.ImageSourceConfig
 import androidx.camera.camera2.pipe.OutputStatus
+import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.media.ClosingFinalizer
 import androidx.camera.camera2.pipe.media.ImageSource
 import androidx.camera.camera2.pipe.media.NoOpFinalizer
@@ -52,8 +59,10 @@ import androidx.camera.camera2.pipe.media.OutputImage
  * that were previously started.
  */
 internal class FrameDistributor(
-    imageSources: Map<StreamId, ImageSource>,
+    streamGraphImpl: StreamGraphImpl,
     private val frameCaptureQueue: FrameCaptureQueue,
+    isCameraTimebaseRealtime: Boolean,
+    realtimeToMonotonicOffsetNs: Long,
 ) : AutoCloseable, Request.Listener {
     /**
      * Listener to observe new [FrameReferences][FrameReference] as they are started by the camera.
@@ -66,7 +75,11 @@ internal class FrameDistributor(
         fun onFrameStarted(frameReference: FrameReference)
     }
 
-    private val frameInfoDistributor = OutputDistributor<FrameInfo>(outputFinalizer = NoOpFinalizer)
+    private val frameInfoDistributor =
+        OutputDistributor<FrameInfo>(
+            outputFinalizer = NoOpFinalizer,
+            outputMatcher = OutputMatcher.EXACT,
+        )
 
     // This is an example CameraGraph configuration a camera configured with both capture and
     // non capture output streams, as well as physical outputs:
@@ -82,9 +95,23 @@ internal class FrameDistributor(
     // to Stream-3 if they are configured with an ImageSource. Each of these streams is
     // associated with its own OutputDistributor for error handling and grouping.
     private val imageDistributors =
-        imageSources.mapValues { (_, imageSource) ->
+        streamGraphImpl.imageSourceMap.mapValues { (cameraStreamId, imageSource) ->
+            val cameraStreamConfig = streamGraphImpl.getCameraStreamConfig(cameraStreamId)!!
+            val imageSourceConfig = cameraStreamConfig.imageSourceConfig!!
+            val outputMatcher =
+                selectTimestampMatcher(
+                    cameraStreamId,
+                    cameraStreamConfig,
+                    imageSourceConfig,
+                    isCameraTimebaseRealtime,
+                    realtimeToMonotonicOffsetNs,
+                )
+
             val imageDistributor =
-                OutputDistributor<OutputImage>(outputFinalizer = ClosingFinalizer)
+                OutputDistributor<OutputImage>(
+                    outputFinalizer = ClosingFinalizer,
+                    outputMatcher = outputMatcher,
+                )
 
             // Bind the listener on the ImageSource to the imageDistributor. This listener
             // and the imageDistributor may be invoked on a different thread.
@@ -126,7 +153,7 @@ internal class FrameDistributor(
         frameInfoDistributor.onOutputStarted(
             cameraFrameNumber = frameNumber,
             cameraTimestamp = timestamp,
-            outputNumber = frameNumber.value, // Number to match output against
+            cameraOutputNumber = frameNumber.value, // Number to match output against
             outputListener = frameState.frameInfoOutput,
         )
 
@@ -139,7 +166,7 @@ internal class FrameDistributor(
             imageDistributor.onOutputStarted(
                 cameraFrameNumber = frameNumber,
                 cameraTimestamp = timestamp,
-                outputNumber = timestamp.value, // Number to match output against
+                cameraOutputNumber = timestamp.value, // Number to match output against
                 outputListener = imageOutput,
             )
 
@@ -240,5 +267,90 @@ internal class FrameDistributor(
         for (imageDistributor in imageDistributors.values) {
             imageDistributor.close()
         }
+    }
+
+    @Suppress("NOTHING_TO_INLINE")
+    companion object {
+        @JvmStatic
+        private fun selectTimestampMatcher(
+            cameraStreamId: StreamId,
+            cameraStreamConfig: CameraStream.Config,
+            imageSourceConfig: ImageSourceConfig,
+            isCameraTimebaseRealtime: Boolean,
+            realtimeToMonotonicOffsetNs: Long,
+        ): OutputMatcher {
+            // This logic mirrors the behavior of Camera3OutputStream.cpp which uses similar logic
+            // to determine the timebase for outputs.
+            //
+            // See frameworks/av/services/camera/libcameraservice/device3/Camera3OutputStream.cpp
+            // for more details.
+
+            // TODO: Add support for OutputConfiguration.setReadoutTimestampEnabled which changes
+            //   the timestamps of images being produced by the ImageReader.
+
+            // TODO: Consider altering the detection delta for inexact ratios during high-speed
+            //   recording.
+            if (isCameraTimebaseRealtime) {
+                if (
+                    cameraStreamConfig.isDefaultTimebase() &&
+                        !imageSourceConfig.isVideoEncodeUsage() &&
+                        !imageSourceConfig.isHwComposerUsage()
+                ) {
+                    return OutputMatcher.EXACT
+                } else if (
+                    cameraStreamConfig.isRealtimeTimebase() || cameraStreamConfig.isSensorTimebase()
+                ) {
+                    return OutputMatcher.EXACT
+                }
+                Log.debug {
+                    "Configuring $cameraStreamId with inexact realtime-to-monotonic" +
+                        " timestamp matching rules."
+                }
+                return OutputMatcher.forTimestampsWithOffset(realtimeToMonotonicOffsetNs)
+            }
+
+            // If the Camera Timebase is monotonic...
+
+            if (cameraStreamConfig.isRealtimeTimebase()) {
+                Log.debug {
+                    "Configuring $cameraStreamId with inexact monotonic-to-realtime" +
+                        " timestamp matching rules."
+                }
+                // Camera is in monotonic but outputs are using the realtime timebase.
+                return OutputMatcher.forTimestampsWithOffset(-realtimeToMonotonicOffsetNs)
+            }
+
+            // Default case for most non-realtime devices.
+            return OutputMatcher.EXACT
+        }
+
+        private inline fun CameraStream.Config.isRealtimeTimebase() =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                this.outputs.any {
+                    it.timestampBase == OutputStream.TimestampBase.TIMESTAMP_BASE_REALTIME
+                }
+
+        private inline fun CameraStream.Config.isSensorTimebase() =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                this.outputs.any {
+                    it.timestampBase == OutputStream.TimestampBase.TIMESTAMP_BASE_SENSOR
+                }
+
+        private inline fun CameraStream.Config.isDefaultTimebase() =
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                this.outputs.all {
+                    it.timestampBase == null ||
+                        it.timestampBase == OutputStream.TimestampBase.TIMESTAMP_BASE_DEFAULT
+                }
+
+        private inline fun ImageSourceConfig.isVideoEncodeUsage(): Boolean =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                this.usageFlags != null &&
+                this.usageFlags and HardwareBuffer.USAGE_VIDEO_ENCODE != 0L
+
+        private inline fun ImageSourceConfig.isHwComposerUsage(): Boolean =
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                this.usageFlags != null &&
+                this.usageFlags and HardwareBuffer.USAGE_COMPOSER_OVERLAY != 0L
     }
 }

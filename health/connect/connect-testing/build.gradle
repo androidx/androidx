@@ -41,11 +41,11 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.health.connect.testing"
     testOptions.unitTests.includeAndroidResources = true
-    compileSdk = 36
+    compileSdk { version = release(36) }
 }
 
 androidx {
@@ -56,4 +56,3 @@ androidx {
     description = "Test utils for Health Connect. This library should be added as a test dependency when writing unit tests that call HealthConnect APIs."
     samples(project(":health:connect:connect-testing-samples"))
 }
-

@@ -34,7 +34,7 @@ internal fun ListLayoutProperties.applyMeasureResult(
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): MeasureResult {
     return if (state.canScrollForward || state.canScrollBackward) {
-        applyMeasureResultWithAutoFocus(
+        applyScrollableMeasureResult(
             state = state,
             itemsCount = itemsCount,
             measuredItemProvider = measuredItemProvider,
@@ -59,7 +59,7 @@ internal fun ListLayoutProperties.applyMeasureResult(
                 density = density,
                 layout = layout,
             )
-        state.autoFocusBehaviour.applyAutoFocusProperties(null)
+        state.autoFocusState.applyAutoFocusProperties(null)
         state.applyMeasureResult(
             result = measureResult,
             consumedScroll = 0f,
@@ -69,7 +69,7 @@ internal fun ListLayoutProperties.applyMeasureResult(
     }
 }
 
-private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
+private fun ListLayoutProperties.applyScrollableMeasureResult(
     state: ListState,
     itemsCount: Int,
     measuredItemProvider: GlimmerListMeasuredItemProvider,
@@ -80,14 +80,18 @@ private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
     density: Density,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): MeasureResult {
-    // The user-dispatched scroll (ΔSu) is shared between the scroll of the content (ΔSc) and the
-    // moving focus line (ΔSf). The proportion is not constant and depends on the state of the list.
-    // This method calculates a proper share of `ΔSu = ΔSc + ΔSf`.
     val expectedContentScrollDelta =
-        convertUserScrollDeltaToContentScrollDelta(
-            properties = state.autoFocusBehaviour.properties,
-            userScrollToBeConsumed = state.scrollToBeConsumed,
-        )
+        if (state.autoFocusState.isAutoFocusEnabled) {
+            // The user-dispatched scroll (ΔSu) is shared between the scroll of the content (ΔSc)
+            // and the moving focus line (ΔSf). The proportion is not constant and depends on the
+            // state of the list. This method calculates a proper share of `ΔSu = ΔSc + ΔSf`.
+            convertUserScrollDeltaToContentScrollDelta(
+                properties = state.autoFocusState.properties,
+                userScrollToBeConsumed = state.scrollToBeConsumed,
+            )
+        } else {
+            state.scrollToBeConsumed
+        }
 
     // Here's the original logic, with a modified input - the content scroll (ΔSc) is passed instead
     // of the user-dispatched scroll (ΔSu).
@@ -103,10 +107,6 @@ private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
             density = density,
             layout = layout,
         )
-
-    // Calculates new auto focus properties based on the latest list measure result.
-    val autoFocusProperties =
-        calculateAutoFocusProperties(layoutProperties = this, measureResult = measureResult)
 
     val consumedContentScrollDelta = measureResult.consumedScroll
     val unconsumedContentDelta = expectedContentScrollDelta - consumedContentScrollDelta
@@ -131,8 +131,12 @@ private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
             else -> 0f
         }
 
+    // Calculates new auto focus properties based on the latest list measure result.
+    val autoFocusProperties =
+        calculateAutoFocusProperties(layoutProperties = this, measureResult = measureResult)
+
     // Save auto focus measure result for the next pass.
-    state.autoFocusBehaviour.applyAutoFocusProperties(autoFocusProperties)
+    state.autoFocusState.applyAutoFocusProperties(autoFocusProperties)
 
     state.applyMeasureResult(
         result = measureResult,

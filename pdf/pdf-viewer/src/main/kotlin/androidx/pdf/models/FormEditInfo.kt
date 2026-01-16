@@ -17,13 +17,12 @@
 package androidx.pdf.models
 
 import android.annotation.SuppressLint
-import android.graphics.Point
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
-import androidx.core.os.ParcelCompat
+import androidx.pdf.PdfPoint
 import java.util.Objects
 
 /**
@@ -35,7 +34,6 @@ import java.util.Objects
  *   32000-1:2008</a>
  */
 @SuppressLint("BanParcelableUsage")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FormEditInfo
 private constructor(
     /** Represents the page number on which the edit occurred */
@@ -43,35 +41,14 @@ private constructor(
     /** Represents the index of the widget that was edited. */
     public val widgetIndex: Int,
     @EditType public val type: Int,
-    public val clickPoint: Point? = null,
-    public val selectedIndices: IntArray? = null,
+    public val clickPoint: PdfPoint? = null,
     public val text: String? = null,
+    private val selectedIndices: IntArray? = null,
 ) : Parcelable {
     init {
         require(pageNumber >= 0) { "pageNumber should be greater than or equal to 0" }
         require(widgetIndex >= 0) { "widgetIndex should be greater than or equal to 0" }
     }
-
-    /** Construct a FormEditInfo of type [EDIT_TYPE_SET_INDICES] */
-    public constructor(
-        @IntRange(from = 0) pageNumber: Int,
-        @IntRange(from = 0) widgetIndex: Int,
-        selectedIndices: IntArray,
-    ) : this(pageNumber, widgetIndex, EDIT_TYPE_SET_INDICES, selectedIndices = selectedIndices)
-
-    /** Construct a FormEditInfo of type [EDIT_TYPE_SET_TEXT] */
-    public constructor(
-        @IntRange(from = 0) pageNumber: Int,
-        @IntRange(from = 0) widgetIndex: Int,
-        text: String,
-    ) : this(pageNumber, widgetIndex, EDIT_TYPE_SET_TEXT, text = text)
-
-    /** Construct a FormEditInfo of type [EDIT_TYPE_CLICK] */
-    public constructor(
-        @IntRange(from = 0) pageNumber: Int,
-        @IntRange(from = 0) widgetIndex: Int,
-        clickPoint: Point,
-    ) : this(pageNumber, widgetIndex, EDIT_TYPE_CLICK, clickPoint = clickPoint)
 
     private constructor(
         parcel: Parcel
@@ -79,11 +56,36 @@ private constructor(
         pageNumber = parcel.readInt(),
         widgetIndex = parcel.readInt(),
         type = parcel.readInt(),
-        clickPoint =
-            ParcelCompat.readParcelable(parcel, Point::class.java.classLoader, Point::class.java),
         selectedIndices = parcel.createIntArray(),
         text = parcel.readString(),
+        clickPoint = readPdfPointFromParcel(parcel),
     )
+
+    /**
+     * Returns the count of the selected items.
+     *
+     * @see 'selectedIndices' in [FormEditInfo.createSetIndices].
+     */
+    public val selectedIndexCount: Int
+        get() = selectedIndices?.size ?: 0
+
+    /**
+     * Returns the index of the selected item in the list [FormWidgetInfo.listItems] at the given
+     * [index] in the list of selected indices.
+     *
+     * @param index The position of the selected index to retrieve, from 0 to [selectedIndexCount]
+     *     - 1.
+     *
+     * @return The index of the selected item from the list [FormWidgetInfo.listItems], returns -1
+     *   in case there is no selection or the index is invalid.
+     */
+    public fun getSelectedIndexAt(index: Int): Int {
+        return if (selectedIndices == null || index !in 0..<selectedIndexCount) {
+            -1
+        } else {
+            selectedIndices[index]
+        }
+    }
 
     override fun describeContents(): Int = 0
 
@@ -91,9 +93,15 @@ private constructor(
         dest.writeInt(pageNumber)
         dest.writeInt(widgetIndex)
         dest.writeInt(type)
-        dest.writeParcelable(clickPoint, flags)
         dest.writeIntArray(selectedIndices)
         dest.writeString(text)
+        if (clickPoint == null) {
+            dest.writeInt(-1)
+        } else {
+            dest.writeInt(clickPoint.pageNum)
+            dest.writeFloat(clickPoint.x)
+            dest.writeFloat(clickPoint.y)
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -122,6 +130,7 @@ private constructor(
     /** Form edit operation type */
     @IntDef(EDIT_TYPE_CLICK, EDIT_TYPE_SET_INDICES, EDIT_TYPE_SET_TEXT)
     @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public annotation class EditType
 
     public companion object {
@@ -132,10 +141,77 @@ private constructor(
         /** Represents setting text on a text field or editable combobox form widget */
         public const val EDIT_TYPE_SET_TEXT: Int = 2
 
+        /**
+         * Create a FormEditInfo object of type [EDIT_TYPE_CLICK]
+         *
+         * @param widgetIndex The index of the widget that was edited.
+         * @param clickPoint The point on the [pageNumber] in PDF coordinates where the click
+         *   occurred. Note: The origin exists at the top left corner of the page.
+         * @see [androidx.pdf.view.PdfView.viewToPdfPoint]
+         */
+        @JvmStatic
+        public fun createClick(
+            @IntRange(from = 0) widgetIndex: Int,
+            clickPoint: PdfPoint,
+        ): FormEditInfo {
+            return FormEditInfo(
+                clickPoint.pageNum,
+                widgetIndex,
+                EDIT_TYPE_CLICK,
+                clickPoint = clickPoint,
+            )
+        }
+
+        /**
+         * Create a FormEditInfo object of type [EDIT_TYPE_SET_INDICES]
+         *
+         * @param pageNumber The page number on which the edit occurred.
+         * @param widgetIndex The index of the widget that was edited.
+         * @param selectedIndices The indices of the selected items from [FormWidgetInfo.listItems]
+         */
+        @JvmStatic
+        public fun createSetIndices(
+            @IntRange(from = 0) pageNumber: Int,
+            @IntRange(from = 0) widgetIndex: Int,
+            selectedIndices: IntArray,
+        ): FormEditInfo {
+            return FormEditInfo(
+                pageNumber,
+                widgetIndex,
+                EDIT_TYPE_SET_INDICES,
+                selectedIndices = selectedIndices,
+            )
+        }
+
+        /**
+         * Create a FormEditInfo object of type [EDIT_TYPE_SET_TEXT]
+         *
+         * @param pageNumber The page number on which the edit occurred.
+         * @param widgetIndex The index of the widget that was edited.
+         * @param text The text to set on the widget.
+         */
+        @JvmStatic
+        public fun createSetText(
+            @IntRange(from = 0) pageNumber: Int,
+            @IntRange(from = 0) widgetIndex: Int,
+            text: String,
+        ): FormEditInfo {
+            return FormEditInfo(pageNumber, widgetIndex, EDIT_TYPE_SET_TEXT, text = text)
+        }
+
+        private fun readPdfPointFromParcel(parcel: Parcel): PdfPoint? {
+            val pageNumber = parcel.readInt()
+            return if (pageNumber == -1) {
+                null
+            } else {
+                PdfPoint(pageNumber, parcel.readFloat(), parcel.readFloat())
+            }
+        }
+
         @JvmField
         public val CREATOR: Parcelable.Creator<FormEditInfo> =
             object : Parcelable.Creator<FormEditInfo> {
-                override fun createFromParcel(parcel: Parcel): FormEditInfo? {
+                override fun createFromParcel(parcel: Parcel): FormEditInfo {
                     return FormEditInfo(parcel)
                 }
 

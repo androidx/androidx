@@ -33,6 +33,7 @@ public sealed class Dimension {
 
     public object Fill : Dimension()
 
+    /** represents defaultWeight() */
     public object Expand : Dimension()
 
     public class Resource(@DimenRes public val res: Int) : Dimension()

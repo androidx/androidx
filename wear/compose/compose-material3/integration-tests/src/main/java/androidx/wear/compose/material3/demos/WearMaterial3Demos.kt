@@ -19,6 +19,7 @@ package androidx.wear.compose.material3.demos
 import android.content.Context
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.Material3DemoCategory
@@ -28,6 +29,7 @@ import androidx.wear.compose.material3.samples.AnimatedTextSampleSharedFontRegis
 import androidx.wear.compose.material3.samples.ButtonGroupSample
 import androidx.wear.compose.material3.samples.ButtonGroupThreeButtonsSample
 import androidx.wear.compose.material3.samples.ButtonWithImageSample
+import androidx.wear.compose.material3.samples.CustomCompositingStrategyTransformationSpecSample
 import androidx.wear.compose.material3.samples.EdgeButtonListSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
@@ -37,6 +39,7 @@ import androidx.wear.compose.material3.samples.LevelIndicatorSample
 import androidx.wear.compose.material3.samples.ListHeaderSample
 import androidx.wear.compose.material3.samples.NonClickableImageCardSample
 import androidx.wear.compose.material3.samples.NonClickableTitleCardWithImageWithTimeAndTitleSample
+import androidx.wear.compose.material3.samples.ResponsiveTransformingLazyColumnWithSnapSample
 import androidx.wear.compose.material3.samples.SimpleResponsiveTransformingLazyColumnSample
 import androidx.wear.compose.material3.samples.SimpleSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
@@ -257,6 +260,11 @@ val WearMaterial3Demos =
                         ComposableDemo("Notifications") {
                             TransformingLazyColumnNotificationsDemo()
                         },
+                        ComposableDemo("Notifications with Offscreen compositing") {
+                            TransformingLazyColumnNotificationsDemo(
+                                containerCompositingStrategy = CompositingStrategy.Offscreen
+                            )
+                        },
                         ComposableDemo("Morphing Notifications") {
                             TransformingLazyColumnMorphingNotificationsDemo()
                         },
@@ -273,6 +281,9 @@ val WearMaterial3Demos =
                         ComposableDemo("Reduced Motion") {
                             TransformingLazyColumnReducedMotionSample()
                         },
+                        ComposableDemo("Custom container CompositingStrategy") {
+                            CustomCompositingStrategyTransformationSpecSample()
+                        },
                     ),
                 ),
                 Material3DemoCategory(
@@ -280,6 +291,9 @@ val WearMaterial3Demos =
                     listOf(
                         ComposableDemo("Basic Sample") {
                             SimpleResponsiveTransformingLazyColumnSample()
+                        },
+                        ComposableDemo("With Snap") {
+                            ResponsiveTransformingLazyColumnWithSnapSample()
                         },
                         ComposableDemo("Responsive padding Demo") {
                             ResponsiveTransformingLazyColumnDemo()

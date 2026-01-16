@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Cette ligne peut également être sélectionnée"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"L\'action secondaire est sélectionnée"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"L\'action primaire de la ligne est sélectionnée"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Démo d\'actions et d\'image de fin de ligne"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Démo de liste vide"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"La liste est vide"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Démos de divers modèles"</string>

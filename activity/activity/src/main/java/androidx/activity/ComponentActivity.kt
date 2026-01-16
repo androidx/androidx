@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import android.content.IntentSender.SendIntentException
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
@@ -61,10 +62,9 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.core.app.MultiWindowModeChangedInfo
 import androidx.core.app.OnMultiWindowModeChangedProvider
 import androidx.core.app.OnNewIntentProvider
-import androidx.core.app.OnPictureInPictureModeChangedProvider
-import androidx.core.app.OnPictureInPictureUiStateChangedProvider
-import androidx.core.app.OnUserLeaveHintProvider
 import androidx.core.app.PictureInPictureModeChangedInfo
+import androidx.core.app.PictureInPictureParamsCompat
+import androidx.core.app.PictureInPictureProvider
 import androidx.core.app.PictureInPictureUiStateCompat
 import androidx.core.content.OnConfigurationChangedProvider
 import androidx.core.content.OnTrimMemoryProvider
@@ -111,7 +111,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * level building blocks are included. Higher level components can then be used as needed without
  * enforcing a deep Activity class hierarchy or strong coupling between components.
  */
-open class ComponentActivity() :
+public open class ComponentActivity() :
     androidx.core.app.ComponentActivity(),
     ContextAware,
     LifecycleOwner,
@@ -126,9 +126,7 @@ open class ComponentActivity() :
     OnTrimMemoryProvider,
     OnNewIntentProvider,
     OnMultiWindowModeChangedProvider,
-    OnPictureInPictureModeChangedProvider,
-    OnPictureInPictureUiStateChangedProvider,
-    OnUserLeaveHintProvider,
+    PictureInPictureProvider,
     MenuHost,
     FullyDrawnReporterOwner {
     internal class NonConfigurationInstances {
@@ -145,7 +143,7 @@ open class ComponentActivity() :
     // Lazily recreated from NonConfigurationInstances by val viewModelStore
     private var _viewModelStore: ViewModelStore? = null
     private val reportFullyDrawnExecutor = createFullyDrawnExecutor()
-    override val fullyDrawnReporter by lazy {
+    override val fullyDrawnReporter: FullyDrawnReporter by lazy {
         FullyDrawnReporter(reportFullyDrawnExecutor) { reportFullyDrawn() }
     }
 
@@ -255,6 +253,8 @@ open class ComponentActivity() :
         input
     }
 
+    private var hasPictureInPictureSystemFeature: Boolean = false
+
     /**
      * Default constructor for ComponentActivity. All Activities must have a default constructor for
      * API 27 and lower devices or when using the default [android.app.AppComponentFactory].
@@ -325,7 +325,7 @@ open class ComponentActivity() :
      * required for API 27 and lower or when using the default [android.app.AppComponentFactory].
      */
     @ContentView
-    constructor(@LayoutRes contentLayoutId: Int) : this() {
+    public constructor(@LayoutRes contentLayoutId: Int) : this() {
         this.contentLayoutId = contentLayoutId
     }
 
@@ -345,6 +345,8 @@ open class ComponentActivity() :
         if (contentLayoutId != 0) {
             setContentView(contentLayoutId)
         }
+        hasPictureInPictureSystemFeature =
+            packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
     }
 
     @CallSuper
@@ -387,12 +389,12 @@ open class ComponentActivity() :
      * [lastCustomNonConfigurationInstance].
      */
     @Deprecated("Use a {@link androidx.lifecycle.ViewModel} to store non config state.")
-    open fun onRetainCustomNonConfigurationInstance(): Any? {
+    public open fun onRetainCustomNonConfigurationInstance(): Any? {
         return null
     }
 
     @get:Deprecated("Use a {@link androidx.lifecycle.ViewModel} to store non config state.")
-    open val lastCustomNonConfigurationInstance: Any?
+    public open val lastCustomNonConfigurationInstance: Any?
         /** Return the value previously returned from [onRetainCustomNonConfigurationInstance]. */
         get() {
             val nc = lastNonConfigurationInstance as NonConfigurationInstances?
@@ -428,7 +430,7 @@ open class ComponentActivity() :
      * attach listeners will see them already present.
      */
     @CallSuper
-    open fun initializeViewTreeOwners() {
+    public open fun initializeViewTreeOwners() {
         window.decorView.setViewTreeLifecycleOwner(this)
         window.decorView.setViewTreeViewModelStoreOwner(this)
         window.decorView.setViewTreeSavedStateRegistryOwner(this)
@@ -588,7 +590,7 @@ open class ComponentActivity() :
     /**
      * Called when the activity has detected the user's press of the back key. The
      * [onBackPressedDispatcher] will be given a chance to handle the back button before the default
-     * behavior of [android.app.Activity.onBackPressed] is invoked.
+     * behavior of [Activity.onBackPressed] is invoked.
      *
      * @see onBackPressedDispatcher
      */
@@ -1027,6 +1029,22 @@ open class ComponentActivity() :
         listener: Consumer<PictureInPictureUiStateCompat>
     ) {
         onPictureInPictureUiStateChangedListeners.remove(listener)
+    }
+
+    final override fun enterPictureInPictureMode(params: PictureInPictureParamsCompat) {
+        if (hasPictureInPictureSystemFeature && params.isEnabled) {
+            if (Build.VERSION.SDK_INT >= 26) {
+                enterPictureInPictureMode(params.toPictureInPictureParams())
+            } else if (Build.VERSION.SDK_INT >= 24) {
+                @Suppress("deprecation") enterPictureInPictureMode()
+            }
+        }
+    }
+
+    final override fun setPictureInPictureParams(params: PictureInPictureParamsCompat) {
+        if (hasPictureInPictureSystemFeature && Build.VERSION.SDK_INT >= 26) {
+            setPictureInPictureParams(params.toPictureInPictureParams())
+        }
     }
 
     /**

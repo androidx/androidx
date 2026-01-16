@@ -45,5 +45,5 @@ dependencies {
 
 android {
     namespace = "androidx.core.backported.fixes.testapp"
-    compileSdk = 35
+    compileSdk { version = release(35) }
 }

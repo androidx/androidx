@@ -30,7 +30,10 @@ public final class Texture extends BindingsResource implements TextureResource {
     private final ImpressApi mImpressApi;
 
     private Texture(Builder builder) {
-        super(builder.mImpressapi.getBindingsResourceManager(), builder.mNativeTexture);
+        super(
+                builder.mImpressapi.getBindingsResourceManager(),
+                builder.mNativeTexture,
+                (handle) -> builder.mImpressapi.destroyNativeObject(handle));
         mImpressApi = builder.mImpressapi;
     }
 

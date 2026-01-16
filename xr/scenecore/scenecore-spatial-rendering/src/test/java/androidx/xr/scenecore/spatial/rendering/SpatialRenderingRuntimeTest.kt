@@ -77,12 +77,12 @@ class SpatialRenderingRuntimeTest {
 
     private val fakeExecutor = FakeScheduledExecutorService()
     private val fakeImpressApi = FakeImpressApiImpl()
-    private lateinit var modelImpressNode: ImpressNode
 
     @Mock private lateinit var splitEngineSubspaceManager: SplitEngineSubspaceManager
     @Mock private lateinit var splitEngineRenderer: ImpSplitEngineRenderer
 
     private val xrExtensions = XrExtensionsProvider.getXrExtensions()!!
+    private var modelImpressNode: ImpressNode? = null
 
     companion object {
         private const val OPEN_XR_REFERENCE_SPACE_TYPE = 1
@@ -123,120 +123,67 @@ class SpatialRenderingRuntimeTest {
         }
     }
 
-    private fun createGltfEntityAsync(
+    private fun createGltfEntity(
         pose: Pose = Pose(),
         impressApi: ImpressApi = fakeImpressApi,
     ): GltfEntity {
         var feature: GltfFeatureImpl? = null
 
         runBlocking {
-            val gltfModel = renderingRuntime.loadGltfByAssetNameAsync("FakeAsset.glb")
+            val gltfModel = renderingRuntime.loadGltfByAssetName("FakeAsset.glb")
 
             assertThat(gltfModel).isNotNull()
 
-            val modelToken = (gltfModel as GltfModel).nativeHandle
-            modelImpressNode = fakeImpressApi.instanceGltfModel(modelToken)
-            `when`(impressApi.createImpressNode()).thenReturn(fakeImpressApi.createImpressNode())
-            `when`(impressApi.instanceGltfModel(modelToken)).thenReturn(modelImpressNode)
-            `when`(impressApi.getGltfModelBoundingBox(modelImpressNode))
-                .thenReturn(fakeImpressApi.getGltfModelBoundingBox(modelImpressNode))
+            if (impressApi == fakeImpressApi) {
+                val modelToken = (gltfModel as GltfModel).nativeHandle
+                modelImpressNode = fakeImpressApi.instanceGltfModel(modelToken)
+            } else {
+                val modelToken = (gltfModel as GltfModel).nativeHandle
+                modelImpressNode = fakeImpressApi.instanceGltfModel(modelToken)
+                `when`(impressApi.createImpressNode())
+                    .thenReturn(fakeImpressApi.createImpressNode())
+                `when`(impressApi.instanceGltfModel(modelToken)).thenReturn(modelImpressNode)
+                `when`(impressApi.getGltfModelBoundingBox(modelImpressNode!!))
+                    .thenReturn(fakeImpressApi.getGltfModelBoundingBox(modelImpressNode!!))
+            }
 
             feature =
-                GltfFeatureImpl(gltfModel, impressApi, splitEngineSubspaceManager, xrExtensions)
+                GltfFeatureImpl(
+                    gltfModel,
+                    impressApi,
+                    splitEngineSubspaceManager,
+                    xrExtensions,
+                    splitEngineRenderer,
+                )
         }
 
         return renderingEntityFactory.createGltfEntity(feature!!, pose, sceneRuntime.activitySpace)
     }
 
-    private fun createGltfEntity(pose: Pose = Pose()): GltfEntity {
-        val modelFuture = renderingRuntime.loadGltfByAssetName("FakeAsset.glb")
-        assertThat(modelFuture).isNotNull()
-        // This resolves the transformation of the Future from a SplitEngine token to the JXR
-        // GltfModelResource. This is a hidden detail from the API surface's perspective.
-        fakeExecutor.runAll()
-        val model = modelFuture.get()
-
-        val feature =
-            GltfFeatureImpl(
-                model as GltfModel,
-                fakeImpressApi,
-                splitEngineSubspaceManager,
-                xrExtensions,
-            )
-        return renderingEntityFactory.createGltfEntity(feature, pose, sceneRuntime.activitySpace)
-    }
-
-    private fun loadTextureAsync(): TextureResource {
+    private fun loadTexture(): TextureResource {
         var texture: TextureResource? = null
         runBlocking {
-            texture = renderingRuntime.loadTextureAsync("FakeTexture.png")
+            texture = renderingRuntime.loadTexture("FakeTexture.png")
 
             assertThat(texture).isNotNull()
         }
         return texture!!
     }
 
-    private fun loadTexture(): TextureResource {
-        val textureFuture = renderingRuntime.loadTexture("FakeTexture.png")
-        assertThat(textureFuture).isNotNull()
-        // This resolves the transformation of the Future from a SplitEngine token to the JXR
-        // Texture. This is a hidden detail from the API surface's perspective.
-        fakeExecutor.runAll()
-        return textureFuture.get()
-    }
-
-    private fun createWaterMaterialAsync(): MaterialResource {
+    private fun createWaterMaterial(): MaterialResource {
         var material: MaterialResource? = null
         runBlocking {
-            material = renderingRuntime.createWaterMaterialAsync(/* isAlphaMapVersion= */ false)
+            material = renderingRuntime.createWaterMaterial(/* isAlphaMapVersion= */ false)
 
             assertThat(material).isNotNull()
         }
         return material!!
     }
 
-    private fun createWaterMaterial(): MaterialResource {
-        val materialFuture = renderingRuntime.createWaterMaterial(/* isAlphaMapVersion= */ false)
-        assertThat(materialFuture).isNotNull()
-        // This resolves the transformation of the Future from a SplitEngine token to the JXR
-        // Texture. This is a hidden detail from the API surface's perspective.
-        fakeExecutor.runAll()
-        return materialFuture.get()
-    }
-
-    @Test
-    fun loadExrImageByAssetNameAsync_returnsModel() {
-        runBlocking {
-            val image = renderingRuntime.loadExrImageByAssetNameAsync("FakeAsset.zip")
-            val imageImpl = image as ExrImage
-
-            assertThat(image).isNotNull()
-            assertThat(imageImpl).isNotNull()
-
-            val token = imageImpl.nativeHandle
-
-            assertThat(token).isEqualTo(1)
-        }
-    }
-
     @Test
     fun loadExrImageByAssetName_returnsModel() {
-        val imageFuture = renderingRuntime.loadExrImageByAssetName("FakeAsset.zip")
-        assertThat(imageFuture).isNotNull()
-
-        val image = imageFuture.get()
-        assertThat(image).isNotNull()
-        val imageImpl = image as ExrImage
-        assertThat(imageImpl).isNotNull()
-        val token = imageImpl.nativeHandle
-        assertThat(token).isEqualTo(1)
-    }
-
-    @Test
-    fun loadExrImageByByteArrayAsync_returnsModel() {
         runBlocking {
-            val image =
-                renderingRuntime.loadExrImageByByteArrayAsync(byteArrayOf(1, 2, 3), "FakeAsset.zip")
+            val image = renderingRuntime.loadExrImageByAssetName("FakeAsset.zip")
             val imageImpl = image as ExrImage
 
             assertThat(image).isNotNull()
@@ -250,35 +197,24 @@ class SpatialRenderingRuntimeTest {
 
     @Test
     fun loadExrImageByByteArray_returnsModel() {
-        val imageFuture =
-            renderingRuntime.loadExrImageByByteArray(byteArrayOf(1, 2, 3), "FakeAsset.zip")
-        assertThat(imageFuture).isNotNull()
+        runBlocking {
+            val image =
+                renderingRuntime.loadExrImageByByteArray(byteArrayOf(1, 2, 3), "FakeAsset.zip")
+            val imageImpl = image as ExrImage
 
-        val image = imageFuture.get()
-        assertThat(image).isNotNull()
-        val imageImpl = image as ExrImage
-        assertThat(imageImpl).isNotNull()
-        val token = imageImpl.nativeHandle
-        assertThat(token).isEqualTo(1)
+            assertThat(image).isNotNull()
+            assertThat(imageImpl).isNotNull()
+
+            val token = imageImpl.nativeHandle
+
+            assertThat(token).isEqualTo(1)
+        }
     }
 
     @Test
-    fun loadGltfByAssetName_returnsModel() {
-        val modelFuture = renderingRuntime.loadGltfByAssetName("FakeAsset.glb")
-        assertThat(modelFuture).isNotNull()
-
-        val model = modelFuture.get()
-        assertThat(model).isNotNull()
-        val modelImpl = model as GltfModel
-        assertThat(modelImpl).isNotNull()
-        val token = modelImpl.nativeHandle
-        assertThat(token).isEqualTo(1)
-    }
-
-    @Test
-    fun loadGltfByByteArrayAsync_returnsModel() {
+    fun loadGltfByByteArray_returnsModel() {
         val model = runBlocking {
-            renderingRuntime.loadGltfByByteArrayAsync(byteArrayOf(1, 2, 3), "FakeAsset.glb")
+            renderingRuntime.loadGltfByByteArray(byteArrayOf(1, 2, 3), "FakeAsset.glb")
         }
         assertThat(model).isNotNull()
 
@@ -289,27 +225,8 @@ class SpatialRenderingRuntimeTest {
     }
 
     @Test
-    fun loadGltfByByteArray_returnsModel() {
-        val modelFuture =
-            renderingRuntime.loadGltfByByteArray(byteArrayOf(1, 2, 3), "FakeAsset.glb")
-        assertThat(modelFuture).isNotNull()
-
-        val model = modelFuture.get()
-        assertThat(model).isNotNull()
-        val modelImpl = model as GltfModel
-        assertThat(modelImpl).isNotNull()
-        val token = modelImpl.nativeHandle
-        assertThat(token).isEqualTo(1)
-    }
-
-    @Test
-    fun createGltfEntityAsync_returnsEntity() {
-        assertThat(createGltfEntityAsync(impressApi = mock(ImpressApi::class.java))).isNotNull()
-    }
-
-    @Test
     fun createGltfEntity_returnsEntity() {
-        assertThat(createGltfEntity()).isNotNull()
+        assertThat(createGltfEntity(impressApi = mock(ImpressApi::class.java))).isNotNull()
     }
 
     @Test
@@ -319,14 +236,14 @@ class SpatialRenderingRuntimeTest {
         runBlocking {
             Mockito.doAnswer { COROUTINE_SUSPENDED }
                 .`when`(mockImpressApi)
-                .animateGltfModelTemp(
+                .animateGltfModel(
                     any(ImpressNode::class.java) ?: fakeImpressApi.createImpressNode(),
                     Mockito.anyString(),
                     Mockito.eq(false),
                 )
         }
 
-        val gltfEntity = createGltfEntityAsync(impressApi = mockImpressApi)
+        val gltfEntity = createGltfEntity(impressApi = mockImpressApi)
         gltfEntity.startAnimation(false, "animation_name")
         fakeExecutor.runAll()
         val loopingAnimatingNodes = fakeImpressApi.impressNodeLoopAnimatingSize()
@@ -344,14 +261,14 @@ class SpatialRenderingRuntimeTest {
         runBlocking {
             Mockito.doAnswer { COROUTINE_SUSPENDED }
                 .`when`(mockImpressApi)
-                .animateGltfModelTemp(
+                .animateGltfModel(
                     any(ImpressNode::class.java) ?: fakeImpressApi.createImpressNode(),
                     Mockito.anyString(),
                     Mockito.eq(true),
                 )
         }
 
-        val gltfEntity = createGltfEntityAsync(impressApi = mockImpressApi)
+        val gltfEntity = createGltfEntity(impressApi = mockImpressApi)
         gltfEntity.startAnimation(true, "animation_name")
         val animatingNodes = fakeImpressApi.impressNodeAnimatingSize()
 
@@ -366,14 +283,14 @@ class SpatialRenderingRuntimeTest {
         runBlocking {
             Mockito.doAnswer { COROUTINE_SUSPENDED }
                 .`when`(mockImpressApi)
-                .animateGltfModelTemp(
+                .animateGltfModel(
                     any(ImpressNode::class.java) ?: fakeImpressApi.createImpressNode(),
                     Mockito.anyString(),
                     Mockito.eq(false),
                 )
         }
 
-        val gltfEntity = createGltfEntityAsync(impressApi = mockImpressApi)
+        val gltfEntity = createGltfEntity(impressApi = mockImpressApi)
         gltfEntity.startAnimation(true, "animation_name")
         gltfEntity.stopAnimation()
         val animatingNodes = fakeImpressApi.impressNodeAnimatingSize()
@@ -430,11 +347,6 @@ class SpatialRenderingRuntimeTest {
     }
 
     @Test
-    fun loadTextureAsync_returnsTexture() {
-        assertThat(loadTextureAsync()).isNotNull()
-    }
-
-    @Test
     fun loadTexture_returnsTexture() {
         assertThat(loadTexture()).isNotNull()
     }
@@ -448,11 +360,6 @@ class SpatialRenderingRuntimeTest {
 
         val finalTextureCount = fakeImpressApi.getTextureImages().size
         assertThat(finalTextureCount).isEqualTo(initialTextureCount - 1)
-    }
-
-    @Test
-    fun createWaterMaterialAsync_returnsWaterMaterial() {
-        assertThat(createWaterMaterialAsync()).isNotNull()
     }
 
     @Test
@@ -504,7 +411,7 @@ class SpatialRenderingRuntimeTest {
     }
 
     @Test
-    fun dispose_clearsAllApiResources() {
+    fun dispose_clearsAllApiResources() = runBlocking {
         renderingRuntime.loadExrImageByAssetName("FakeAsset.zip")
         renderingRuntime.loadGltfByAssetName("FakeAsset.glb")
         createWaterMaterial()

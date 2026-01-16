@@ -28,11 +28,14 @@ import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequest
 import androidx.camera.camera2.pipe.CaptureSequences.invokeOnRequests
 import androidx.camera.camera2.pipe.FrameNumber
+import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.SensorTimestamp
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
 import kotlinx.coroutines.CompletableDeferred
 
@@ -48,7 +51,10 @@ internal class Camera2CaptureSequence(
     override val captureMetadataList: List<RequestMetadata>,
     override val listeners: List<Request.Listener>,
     override val sequenceListener: CaptureSequence.CaptureSequenceListener,
-    private val surfaceMap: Map<Surface, StreamId>,
+    private val surfaceToStreamMap: Map<Surface, StreamId>,
+    private val surfaceToOutputMap: Map<Surface, OutputId>,
+    private val streamGraph: StreamGraph,
+    private val strictMode: StrictMode,
 ) :
     Camera2CaptureCallback,
     CameraCaptureSession.CaptureCallback(),
@@ -249,10 +255,8 @@ internal class Camera2CaptureSequence(
     ) {
         Debug.traceStart { "onCaptureBufferLost" }
         val frameNumber = FrameNumber(frameId)
-        val streamId =
-            checkNotNull(surfaceMap[surface]) {
-                "Unable to find the streamId for $surface on frame $frameNumber"
-            }
+        val streamId = getStreamId(surface)
+        checkNotNull(streamId) { "Unable to find the streamId for $surface on frame $frameNumber" }
 
         // Load the request and throw if we are not able to find an associated request. Under
         // normal circumstances this should never happen.
@@ -260,6 +264,18 @@ internal class Camera2CaptureSequence(
 
         invokeOnRequest(request) { it.onBufferLost(request, frameNumber, streamId) }
         Debug.traceStop() // onCaptureBufferLost
+    }
+
+    private fun getStreamId(surface: Surface): StreamId? {
+        // First, check Surface to StreamId map.
+        val streamId = surfaceToStreamMap[surface]
+        if (streamId != null) {
+            return streamId
+        }
+
+        // Next, check Surface to OutputId map, for multi-output streams.
+        val outputStream = surfaceToOutputMap[surface]?.let { streamGraph[it] }
+        return outputStream?.stream?.id
     }
 
     override fun onCaptureSequenceCompleted(
@@ -273,7 +289,7 @@ internal class Camera2CaptureSequence(
         hasStarted.complete(Unit)
         sequenceListener.onCaptureSequenceComplete(this)
 
-        check(sequenceNumber == captureSequenceId) {
+        strictMode.check(sequenceNumber == captureSequenceId) {
             "onCaptureSequenceCompleted was invoked on $sequenceNumber, but expected " +
                 "$captureSequenceId!"
         }
@@ -295,7 +311,7 @@ internal class Camera2CaptureSequence(
         hasStarted.complete(Unit)
         sequenceListener.onCaptureSequenceComplete(this)
 
-        check(sequenceNumber == captureSequenceId) {
+        strictMode.check(sequenceNumber == captureSequenceId) {
             "onCaptureSequenceAborted was invoked on $sequenceNumber, but expected " +
                 "$captureSequenceId!"
         }

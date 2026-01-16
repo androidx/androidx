@@ -16,6 +16,7 @@
 
 package androidx.xr.compose.subspace.node
 
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.xr.compose.subspace.layout.LayoutSubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.ParentLayoutParamsAdjustable
 import androidx.xr.compose.subspace.layout.SubspaceLayoutCoordinates
@@ -65,8 +66,8 @@ internal class SubspaceLayoutModifierNodeCoordinator(
     /**
      * The pose of this layout modifier node relative to its parent entity in the Compose hierarchy.
      */
-    override val poseInParentEntity: Pose
-        get() = coordinatesInParentEntity?.poseInParentEntity?.compose(pose) ?: pose
+    override val poseInParent: Pose
+        get() = coordinatesInParentEntity?.poseInParent?.compose(pose) ?: pose
 
     /**
      * The pose of this layout modifier node relative to the root entity of the Compose hierarchy.
@@ -121,6 +122,9 @@ internal class SubspaceLayoutModifierNodeCoordinator(
         logger?.nodePlaced(layoutModifierNode, pose)
         subspaceMeasureResult?.placeChildren(
             object : SubspacePlacementScope() {
+                override val parentLayoutDirection =
+                    this@SubspaceLayoutModifierNodeCoordinator.layoutNode?.layoutDirection
+                        ?: LayoutDirection.Ltr
                 public override val coordinates = this@SubspaceLayoutModifierNodeCoordinator
             }
         )

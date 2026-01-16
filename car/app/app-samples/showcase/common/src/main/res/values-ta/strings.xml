@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"வரிசையையும் தேர்ந்தெடுக்க முடியும்"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"இரண்டாம்நிலைச் செயல் தேர்ந்தெடுக்கப்பட்டது"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"வரிசையின் முதன்மைச் செயல் தேர்ந்தெடுக்கப்பட்டது"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"வரிசையின் முடிவுப் படம் மற்றும் செயல்களுக்கான டெமோ"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"காலிப் பட்டியலுக்கான டெமோ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"பட்டியல் காலியாக உள்ளது"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"மற்ற டெம்ப்ளேட்டுகளின் டெமோக்கள்"</string>

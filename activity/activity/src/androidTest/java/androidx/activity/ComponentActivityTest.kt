@@ -16,9 +16,13 @@
 
 package androidx.activity
 
+import android.app.PictureInPictureParams
+import android.util.Rational
+import androidx.core.app.PictureInPictureParamsCompat
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import androidx.testutils.withUse
 import com.google.common.truth.Truth.assertThat
@@ -59,6 +63,79 @@ class ComponentActivityTest {
             }
             assertThat(dispatcher).isNotNull()
         }
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun enterPictureInPictureMode_disabledParams_doesNotCallEnterPip() {
+        withUse(ActivityScenario.launch(PictureInPictureActivity::class.java)) {
+            val activity = withActivity { this }
+            val disabledParams: PictureInPictureParamsCompat =
+                PictureInPictureParamsCompat.Builder()
+                    .setEnabled(false)
+                    .setAspectRatio(Rational(16, 9))
+                    .build()
+
+            activity.enterPictureInPictureMode(disabledParams)
+
+            assertThat(activity.isEnterPictureInPictureModeCalled).isFalse()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun enterPictureInPictureMode_enabledParams_callEnterPip() {
+        withUse(ActivityScenario.launch(PictureInPictureActivity::class.java)) {
+            val activity = withActivity { this }
+            val disabledParams: PictureInPictureParamsCompat =
+                PictureInPictureParamsCompat.Builder()
+                    .setEnabled(true)
+                    .setAspectRatio(Rational(16, 9))
+                    .build()
+
+            activity.enterPictureInPictureMode(disabledParams)
+
+            assertThat(activity.isEnterPictureInPictureModeCalled).isTrue()
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun setPictureInPictureParams() {
+        withUse(ActivityScenario.launch(PictureInPictureActivity::class.java)) {
+            val activity = withActivity { this }
+            val enabledParams: PictureInPictureParamsCompat =
+                PictureInPictureParamsCompat.Builder()
+                    .setEnabled(true)
+                    .setAspectRatio(Rational(16, 9))
+                    .build()
+
+            activity.setPictureInPictureParams(enabledParams)
+
+            assertThat(activity.isSetPictureInPictureParamsCalled).isTrue()
+        }
+    }
+}
+
+class PictureInPictureActivity : ComponentActivity() {
+    var isEnterPictureInPictureModeCalled: Boolean = false
+    var isSetPictureInPictureParamsCalled: Boolean = false
+
+    // This Activity declares Picture-in-Picture in the AndroidManifest.
+    @Deprecated("Deprecated in Java")
+    override fun enterPictureInPictureMode() {
+        @Suppress("deprecation") super.enterPictureInPictureMode()
+        isEnterPictureInPictureModeCalled = true
+    }
+
+    override fun enterPictureInPictureMode(params: PictureInPictureParams): Boolean {
+        isEnterPictureInPictureModeCalled = true
+        return super.enterPictureInPictureMode(params)
+    }
+
+    override fun setPictureInPictureParams(params: PictureInPictureParams) {
+        super.setPictureInPictureParams(params)
+        isSetPictureInPictureParamsCalled = true
     }
 }
 

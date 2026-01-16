@@ -71,6 +71,13 @@ public class PaintBundle implements Serializable {
                         p.setTypeFace(font_type, weight, italic);
                     }
                     break;
+                case FALLBACK_TYPEFACE:
+                    int fStyle = (cmd >> 16);
+                    int fWeight = fStyle & 0x3ff;
+                    boolean fItalic = (fStyle >> 10) > 0;
+                    int fFont_type = mOutArray[i++];
+                    p.setFallbackTypeFace(fFont_type, fWeight, fItalic);
+                    break;
                 case COLOR_ID: // mOutArray should have already decoded it
                 case COLOR:
                     p.setColor(mOutArray[i++]);
@@ -236,6 +243,15 @@ public class PaintBundle implements Serializable {
                     int font_type = mArray[i++];
                     ret.append("    TypeFace(" + (font_type + ", " + weight + ", " + italic));
                     break;
+                case FALLBACK_TYPEFACE:
+                    int fstyle = (cmd >> 16);
+                    int fweight = fstyle & 0x3ff;
+                    boolean fitalic = (fstyle >> 10) > 0;
+                    int ffont_type = mArray[i++];
+                    ret.append("    FallbackTypeFace("
+                            + (ffont_type + ", " + fweight + ", " + fitalic));
+                    break;
+
                 case COLOR:
                     ret.append("    Color(" + colorInt(mArray[i++]));
                     break;
@@ -634,6 +650,7 @@ public class PaintBundle implements Serializable {
     public static final int FONT_AXIS = 23;
     public static final int TEXTURE = 24;
     public static final int PATH_EFFECT = 25;
+    public static final int FALLBACK_TYPEFACE = 26;
 
     public static final int BLEND_MODE_CLEAR = 0;
     public static final int BLEND_MODE_SRC = 1;
@@ -873,11 +890,21 @@ public class PaintBundle implements Serializable {
     /**
      * @param fontType 0 = default 1 = sans serif 2 = serif 3 = monospace
      * @param weight   100-1000
-     * @param italic   tur
+     * @param italic   true = italic
      */
     public void setTextStyle(int fontType, int weight, boolean italic) {
         int style = (weight & 0x3FF) | (italic ? 2048 : 0); // pack the weight and italic
         mArray[mPos++] = TYPEFACE | (style << 16);
+        mArray[mPos++] = fontType;
+    }
+    /**
+     * @param fontType 0 = default 1 = sans serif 2 = serif 3 = monospace
+     * @param weight   100-1000
+     * @param italic   true
+     */
+    public void setFallbackTypeFace(int fontType, int weight, boolean italic) {
+        int style = (weight & 0x3FF) | (italic ? 2048 : 0); // pack the weight and italic
+        mArray[mPos++] = FALLBACK_TYPEFACE | (style << 16);
         mArray[mPos++] = fontType;
     }
 

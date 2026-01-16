@@ -101,6 +101,17 @@ class FlowQueryTest(driver: UseDriver) : TestDatabaseTest(driver) {
     }
 
     @Test
+    fun collectBooks_takeOne_customReturnType() = runBlocking {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1, TestUtil.BOOK_2)
+
+        val data = booksDao.getBooksCustomDaoReturnType().data
+        assertThat(data[0]).isEqualTo(TestUtil.BOOK_1)
+        assertThat(data[1]).isEqualTo(TestUtil.BOOK_2)
+    }
+
+    @Test
     fun collectBooks_first() = runBlocking {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)

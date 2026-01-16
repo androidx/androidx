@@ -18,7 +18,7 @@ package androidx.car.app.sample.showcase.common.audio;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.media.AudioAttributes.CONTENT_TYPE_MUSIC;
-import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
+import static android.media.AudioAttributes.USAGE_ASSISTANT;
 import static android.media.AudioFormat.CHANNEL_OUT_MONO;
 import static android.media.AudioFormat.ENCODING_DEFAULT;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
@@ -102,7 +102,7 @@ public class VoiceInteraction {
                         AudioAttributes audioAttributes =
                                 new AudioAttributes.Builder()
                                         .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                                        .setUsage(USAGE_ASSISTANT)
                                         .build();
 
                         audioFocusRequest = new AudioFocusRequest.Builder(
@@ -150,7 +150,7 @@ public class VoiceInteraction {
 
         AudioTrack audioTrack = new AudioTrack.Builder()
                 .setAudioAttributes(new AudioAttributes.Builder()
-                        .setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+                        .setUsage(USAGE_ASSISTANT)
                         .setContentType(CONTENT_TYPE_MUSIC)
                         .build())
                 .setAudioFormat(new AudioFormat.Builder()

@@ -22,7 +22,7 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.latency.aggregators.internal.runEvery
-import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.Executor
 import kotlin.collections.ArrayDeque
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -79,7 +79,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
     public fun interface Callback {
         /**
          * Callback invoked at most once per [window] in the [CoroutineScope] (or, for Java clients,
-         * on the [ScheduledExecutorService]) passed to [create].
+         * on the [Executor]) passed to [create].
          *
          * @param bucketCounts An array of counts for each bucket (one more than the size of
          *   [inclusiveLowerBoundsNanos]), giving the number of latency samples that fell in each
@@ -119,7 +119,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          *   associated context should be distinct from the UI thread.
          * @param callback The [Callback] with which to report the histogram.
          */
-        @JvmSynthetic
+        @JvmStatic
         public fun create(
             window: Duration,
             inclusiveLowerBoundsNanos: List<Long>,
@@ -144,15 +144,16 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          *   boundaries of 1ms and 5ms, giving three buckets: (-inf, 1ms), [1ms, 5ms), and [5ms,
          *   +inf). An empty boundary list is valid and produces just 1 bucket. Otherwise, boundary
          *   values must be finite and strictly increasing.
-         * @param executor A [ScheduledExecutorService] on which to compute and report histograms.
-         *   Should be distinct from the UI thread.
+         * @param executor An [Executor] on which to compute and report histograms. Should be
+         *   distinct from the UI thread. More efficient if the [Executor] is an instance of
+         *   [java.util.concurrent.ScheduledExecutorService].
          * @param callback The [Callback] with which to report the histogram.
          */
         @JvmStatic
         public fun create(
             windowMilliseconds: Int,
             inclusiveLowerBoundsNanos: List<Long>,
-            executor: ScheduledExecutorService,
+            executor: Executor,
             callback: Callback,
         ): HistogramLatencyAggregator {
             return create(

@@ -33,7 +33,6 @@ import com.intellij.psi.util.findParentInFile
 import org.jetbrains.kotlin.analysis.api.analyze
 import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
 import org.jetbrains.kotlin.analysis.api.resolution.symbol
-import org.jetbrains.kotlin.analysis.api.types.KaType
 import org.jetbrains.kotlin.idea.references.KtReference
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtElement
@@ -90,7 +89,7 @@ class ComposableLambdaInMeasurePolicyDetector : Detector(), SourceCodeScanner {
                     .resolveToCall()
                     ?.singleFunctionCallOrNull()
                     ?.argumentMapping
-                    ?.filter { it.value.symbol.returnType.isComposable() }
+                    ?.filter { it.value.symbol.returnType.isComposable }
                     ?.keys
                     ?.firstOrNull()
             } ?: return
@@ -128,11 +127,6 @@ class ComposableLambdaInMeasurePolicyDetector : Detector(), SourceCodeScanner {
             }
         }
     }
-
-    private fun KaType.isComposable(): Boolean =
-        annotations.any { annotation ->
-            annotation.classId?.asFqNameString() == Names.Runtime.Composable.javaFqn
-        }
 
     companion object {
         private const val Explanation =

@@ -2729,11 +2729,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 if (isLayoutRtl) {
                     val startBound = (width - (paddingRight + lp.rightMargin + slideableView.width))
                     val endBound = startBound - slideRange
-                    newLeft.coerceIn(endBound, startBound)
+                    newLeft.coerceAtMost(startBound).coerceAtLeast(endBound)
                 } else {
                     val startBound = paddingLeft + lp.leftMargin
                     val endBound = startBound + slideRange
-                    newLeft.coerceIn(startBound, endBound)
+                    newLeft.coerceAtMost(endBound).coerceAtLeast(startBound)
                 }
             return newLeft
         }
@@ -2880,15 +2880,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 leftChild = getChildAt(0)
                 rightChild = getChildAt(1)
             }
-            return proposedPositionX.coerceIn(
-                paddingLeft +
-                    leftChild.spLayoutParams.horizontalMargin +
-                    getMinimumChildWidth(leftChild),
-                width -
-                    paddingRight -
-                    rightChild.spLayoutParams.horizontalMargin -
-                    getMinimumChildWidth(rightChild),
-            )
+            return proposedPositionX
+                .coerceAtMost(
+                    width -
+                        paddingRight -
+                        rightChild.spLayoutParams.horizontalMargin -
+                        getMinimumChildWidth(rightChild)
+                )
+                .coerceAtLeast(
+                    paddingLeft +
+                        leftChild.spLayoutParams.horizontalMargin +
+                        getMinimumChildWidth(leftChild)
+                )
         }
 
         override fun onUserResizeStarted() {

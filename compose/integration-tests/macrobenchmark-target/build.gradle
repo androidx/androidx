@@ -12,7 +12,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.compose.integration.macrobenchmark.target"
     buildTypes {
         release {

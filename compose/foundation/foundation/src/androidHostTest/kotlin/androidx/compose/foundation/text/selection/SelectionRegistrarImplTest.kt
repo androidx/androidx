@@ -18,10 +18,12 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 
@@ -76,16 +78,16 @@ class SelectionRegistrarImplTest {
     }
 
     @Test
-    fun sort() {
+    fun sort_vertical_oriented() {
         val handlerId0 = 1L
         val handlerId1 = 2L
         val handlerId2 = 3L
         val handlerId3 = 4L
 
-        val layoutCoordinates0 = mock<LayoutCoordinates>()
-        val layoutCoordinates1 = mock<LayoutCoordinates>()
-        val layoutCoordinates2 = mock<LayoutCoordinates>()
-        val layoutCoordinates3 = mock<LayoutCoordinates>()
+        val layoutCoordinates0 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates1 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates2 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates3 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
 
         // Setup.
         val handler0 = mockSelectable(handlerId0, layoutCoordinates0)
@@ -129,16 +131,69 @@ class SelectionRegistrarImplTest {
     }
 
     @Test
+    fun sort_horizontal_oriented() {
+        val handlerId0 = 1L
+        val handlerId1 = 2L
+        val handlerId2 = 3L
+        val handlerId3 = 4L
+
+        val layoutCoordinates0 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates1 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates2 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates3 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+
+        // Setup.
+        val handler0 = mockSelectable(handlerId0, layoutCoordinates0)
+        val handler1 = mockSelectable(handlerId1, layoutCoordinates1)
+        val handler2 = mockSelectable(handlerId2, layoutCoordinates2)
+        val handler3 = mockSelectable(handlerId3, layoutCoordinates3)
+
+        // The order of the 4 handlers should be 3, 0, 1, 2.
+        val relativeCoordinates0 = Offset(15f, 0f)
+        val relativeCoordinates1 = Offset(30f, 0f)
+        val relativeCoordinates2 = Offset(15f, 15f)
+        val relativeCoordinates3 = Offset(0f, 5f)
+
+        val containerLayoutCoordinates =
+            mock<LayoutCoordinates> {
+                on { localPositionOf(layoutCoordinates0, Offset.Zero) } doAnswer
+                    relativeCoordinates0
+                on { localPositionOf(layoutCoordinates1, Offset.Zero) } doAnswer
+                    relativeCoordinates1
+                on { localPositionOf(layoutCoordinates2, Offset.Zero) } doAnswer
+                    relativeCoordinates2
+                on { localPositionOf(layoutCoordinates3, Offset.Zero) } doAnswer
+                    relativeCoordinates3
+            }
+
+        val selectionRegistrar = SelectionRegistrarImpl()
+        selectionRegistrar.subscribe(handler0)
+        selectionRegistrar.subscribe(handler1)
+        selectionRegistrar.subscribe(handler2)
+        selectionRegistrar.subscribe(handler3)
+
+        // Act.
+        selectionRegistrar.sort(containerLayoutCoordinates)
+
+        // Assert.
+        assertThat(selectionRegistrar.selectables[0]).isEqualTo(handler3)
+        assertThat(selectionRegistrar.selectables[1]).isEqualTo(handler0)
+        assertThat(selectionRegistrar.selectables[2]).isEqualTo(handler1)
+        assertThat(selectionRegistrar.selectables[3]).isEqualTo(handler2)
+        assertThat(selectionRegistrar.sorted).isTrue()
+    }
+
+    @Test
     fun unsubscribe_after_sorting() {
         val handlerId0 = 1L
         val handlerId1 = 2L
         val handlerId2 = 3L
         val handlerId3 = 4L
 
-        val layoutCoordinates0 = mock<LayoutCoordinates>()
-        val layoutCoordinates1 = mock<LayoutCoordinates>()
-        val layoutCoordinates2 = mock<LayoutCoordinates>()
-        val layoutCoordinates3 = mock<LayoutCoordinates>()
+        val layoutCoordinates0 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates1 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates2 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
+        val layoutCoordinates3 = mock<LayoutCoordinates> { on { size } doReturn IntSize(10, 10) }
 
         // Setup.
         val handler0 = mockSelectable(handlerId0, layoutCoordinates0)

@@ -23,7 +23,6 @@ import android.util.Range
 import android.util.SparseArray
 import androidx.core.util.keyIterator
 import androidx.pdf.PdfDocument
-import androidx.pdf.PdfDocument.Companion.INCLUDE_FORM_WIDGET_INFO
 import androidx.pdf.PdfDocument.Companion.PDF_FORM_TYPE_ACRO_FORM
 import androidx.pdf.models.FormWidgetInfo
 import com.google.common.truth.Truth.assertThat
@@ -71,9 +70,8 @@ class PageLayoutManagerTest {
             on { formType } doReturn PDF_FORM_TYPE_ACRO_FORM
             onBlocking { getPageInfo(any(), any()) } doAnswer
                 { invocationOnMock ->
-                    val pageInfoFlag =
-                        invocationOnMock.getArgument<PdfDocument.PageInfoFlags>(1).value
-                    if (pageInfoFlag and INCLUDE_FORM_WIDGET_INFO != 0L) {
+                    val pageInfoFlag = invocationOnMock.getArgument<Long>(1)
+                    if (pageInfoFlag and PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET != 0L) {
                         PdfDocument.PageInfo(
                             pageNum = invocationOnMock.getArgument(0),
                             height = PAGE_HEIGHT,
@@ -490,7 +488,7 @@ class PageLayoutManagerTest {
         assertThat(pageLayoutManagerLocal.reach).isEqualTo(20)
         assertThat(pageMetaData.size).isEqualTo(21)
         for (i in 0..20) {
-            assertThat(pageMetaData[i].formWidgetInfos).isNull()
+            assertThat(pageMetaData[i].formWidgetInfos).isEmpty()
         }
     }
 
@@ -512,7 +510,7 @@ class PageLayoutManagerTest {
         assertThat(pageLayoutManagerLocal.reach).isEqualTo(20)
         assertThat(pageMetaData.size).isEqualTo(21)
         for (i in 0..20) {
-            assertThat(pageMetaData[i].formWidgetInfos).isNull()
+            assertThat(pageMetaData[i].formWidgetInfos).isEmpty()
         }
     }
 
@@ -529,7 +527,7 @@ class PageLayoutManagerTest {
         assertThat(pageLayoutManager.reach).isEqualTo(20)
         assertThat(pageMetadata.size).isEqualTo(21)
         for (i in 0..20) {
-            assertThat(pageMetadata[i].formWidgetInfos).isNull()
+            assertThat(pageMetadata[i].formWidgetInfos).isEmpty()
         }
     }
 }
@@ -543,11 +541,11 @@ private const val PAGE_HEIGHT = 200
 
 private val FORM_WIDGET_INFOS =
     listOf(
-        FormWidgetInfo(
-            FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+        FormWidgetInfo.createCheckbox(
             widgetIndex = 0,
             widgetRect = Rect(10, 10, 20, 20),
             textValue = "Hello",
             accessibilityLabel = "Hello",
+            isReadOnly = false,
         )
     )

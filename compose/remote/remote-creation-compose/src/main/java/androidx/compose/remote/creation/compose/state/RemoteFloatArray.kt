@@ -29,7 +29,7 @@ public class RemoteFloatArray(public override val constantValue: List<RemoteFloa
     BaseRemoteState<List<RemoteFloat>>() {
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        val asFloat = constantValue!!.fastMap { it.toFloat() }.toFloatArray()
+        val asFloat = with(creationState) { constantValue!!.fastMap { it.floatId }.toFloatArray() }
         return Utils.idFromNan(creationState.document.addFloatArray(asFloat))
     }
 

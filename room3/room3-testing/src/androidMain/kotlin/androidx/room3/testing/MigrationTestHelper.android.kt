@@ -97,6 +97,7 @@ import org.junit.runner.Description
  * See also
  * [Room's Test Migrations Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#test)
  */
+@Suppress("KmpModifierMismatch") // the expect is not open
 public actual open class MigrationTestHelper : TestWatcher {
     private val delegate: AndroidMigrationTestHelper
 

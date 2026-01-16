@@ -26,12 +26,14 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMinByOrNull
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.fastSumBy
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.wear.compose.foundation.lazy.layout.hasAnimations
 import kotlin.math.abs
-import kotlin.math.roundToInt
+import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 
 private val DEBUG_TLC_LAYOUT = false
@@ -149,7 +151,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                         return it
                 }
 
-                return minBy { abs(it.offset + it.transformedHeight / 2 - maxHeight / 2) }
+                return fastMinByOrNull { abs(it.offset + it.transformedHeight / 2 - maxHeight / 2) }
             }
 
         /**
@@ -162,51 +164,54 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
          */
         private fun gradientDescent(
             delta: List<TransformingLazyColumnMeasuredItem>.() -> Int
-        ): Unit =
+        ): Int =
             with(visibleItems) {
                 if (isEmpty()) {
-                    return
+                    return 0
                 }
-                var delta = delta(this)
+                var deltaValue = delta(this)
                 var repetitions = 0
-                while (abs(delta) > 1 && repetitions < GRADIENT_DESCENT_REPETITIONS) {
-                    val anchorItem = anchorItem() ?: return
-                    anchorItem.moveBy(-delta, MeasurementDirection.DOWNWARD)
+                var totalMoved = 0
+                while (abs(deltaValue) > 1 && repetitions < GRADIENT_DESCENT_REPETITIONS) {
+                    val anchorItem = anchorItem() ?: return totalMoved
+                    anchorItem.moveBy(-deltaValue, MeasurementDirection.DOWNWARD)
+                    totalMoved -= deltaValue
                     correctLayout(anchorItem)
-                    delta = delta(this)
+                    deltaValue = delta(this)
                     repetitions += 1
                 }
+                return totalMoved
             }
 
         /**
          * Pins the content to the start of the scrollable area. This is used to correct overscroll
          * at the beginning of the list or when content fits the screen.
          */
-        fun pinToStart(): Unit = gradientDescent { first().offset - beforeContentPadding }
+        fun pinToStart(): Int = gradientDescent { first().offset - beforeContentPadding }
 
         /**
          * Pins the content to the end of the scrollable area. This is used to correct overscroll at
          * the end of the list.
          */
-        fun pinToEnd(): Unit = gradientDescent {
+        fun pinToEnd(): Int = gradientDescent {
             last().offset + last().transformedHeight - maxHeight + afterContentPadding
         }
 
-        fun restoreLayoutTopToBottom(): Unit =
+        fun restoreLayoutTopToBottom(): Int =
             if (!reverseLayout) {
                 pinToStart()
             } else {
                 pinToEnd()
             }
 
-        fun restoreLayoutBottomToTop(): Unit =
+        fun restoreLayoutBottomToTop(): Int =
             if (!reverseLayout) {
                 pinToEnd()
             } else {
                 pinToStart()
             }
 
-        fun restoreLayoutCentered(): Unit = gradientDescent {
+        fun restoreLayoutCentered(): Int = gradientDescent {
             val topSpace = first().offset - beforeContentPadding
             val bottomSpace =
                 maxHeight - last().offset - last().transformedHeight - afterContentPadding
@@ -301,6 +306,9 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
         // subsequent animations (`shouldAnimate` = true).
         val shouldAnimate = !isScrollInProgress()
 
+        val scrollDelta = scrollToBeConsumed.fastRoundToInt()
+        var scrollAdjustment = 0
+
         with(measurementScope) {
             this.itemsCount = itemsCount
             this.itemSpacing = itemSpacing
@@ -320,7 +328,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             // This is done to make sure we only apply scroll to the items that are not scaled and
             // therefore it visually looks like content is following user's finger as it gets
             // scrolled.
-            previousAnchorItem.offset += scrollToBeConsumed.roundToInt()
+            previousAnchorItem.offset += scrollDelta
 
             // Add the rest of the items.
             addVisibleItemsAfter(measuredItemProvider)
@@ -373,13 +381,13 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 } else if (isAtStartOrOverscrolledBackwards) {
                     // Top item moved where it is not supposed to be.
                     // Pinning top item to the top most position.
-                    pinToStart()
+                    scrollAdjustment += pinToStart()
                     addVisibleItemsAfter(measuredItemProvider)
                     canScrollBackward = false
                 } else if (isAtEndOrOverscrolledForward) {
                     // Bottom item moved where it is not supposed to be.
                     // Pinning top item to the bottom most position.
-                    pinToEnd()
+                    scrollAdjustment += pinToEnd()
                     addVisibleItemsBefore(measuredItemProvider)
                     canScrollForward = false
                 }
@@ -429,6 +437,14 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
 
         actuallyVisibleItems.fastForEach { it.markMeasured() }
 
+        val appliedScroll = scrollDelta + scrollAdjustment
+        val consumedScroll =
+            if (scrollDelta.sign == appliedScroll.sign && abs(scrollDelta) >= abs(appliedScroll)) {
+                appliedScroll.toFloat()
+            } else {
+                scrollToBeConsumed
+            }
+
         return TransformingLazyColumnMeasureResult(
                 anchorItemKey = anchorItem.key,
                 anchorItemIndex = anchorItem.index,
@@ -448,6 +464,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                 afterContentPadding = afterContentPadding,
                 childConstraints = childConstraints,
                 reverseLayout = reverseLayout,
+                consumedScroll = consumedScroll,
                 measureResult =
                     layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {
                         actuallyVisibleItems.fastForEach { it.place(this) }

@@ -30,6 +30,7 @@ private object ThreadLocalData {
 }
 
 /** Container of thread-local data. */
+@Suppress("KmpHideShowAnnotationMismatch") // RestrictTo is not applicable to typealias
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public actual class ThreadLocal<T> {
     private val threadId = currentThreadId()

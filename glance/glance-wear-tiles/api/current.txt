@@ -138,7 +138,7 @@ package androidx.glance.wear.tiles.curved {
     method @BytecodeOnly @Deprecated public static void curvedText$default(androidx.glance.wear.tiles.curved.CurvedScope!, String!, androidx.glance.wear.tiles.curved.GlanceCurvedModifier!, androidx.glance.wear.tiles.curved.CurvedTextStyle!, int, Object!);
   }
 
-  @Deprecated @kotlin.DslMarker public @interface CurvedScopeMarker {
+  @Deprecated @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface CurvedScopeMarker {
   }
 
   @Deprecated @androidx.compose.runtime.Immutable public final class CurvedTextStyle {

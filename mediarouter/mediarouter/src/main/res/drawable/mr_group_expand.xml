@@ -14,22 +14,31 @@
      limitations under the License.
 -->
 
-<animation-list xmlns:android="http://schemas.android.com/apk/res/android"
-        android:oneshot="true">
-    <item android:drawable="@drawable/ic_group_expand_00" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_01" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_02" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_03" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_04" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_05" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_06" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_07" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_08" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_09" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_10" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_11" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_12" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_13" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_14" android:duration="13" />
-    <item android:drawable="@drawable/ic_group_expand_15" android:duration="13" />
-</animation-list>
+<animated-vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <target android:name="chevron">
+        <aapt:attr name="android:animation">
+            <set>
+                <objectAnimator
+                    android:duration="@android:integer/config_shortAnimTime"
+                    android:propertyName="pathData"
+                    android:valueFrom="M480,616 L240,376l56,-56 184,184 184,-184 56,56 -240,240Z"
+                    android:valueTo="M480,432 L296,616l-56,-56 240,-240 240,240 -56,56 -184,-184Z"
+                    android:valueType="pathType" />
+            </set>
+        </aapt:attr>
+    </target>
+
+    <aapt:attr name="android:drawable">
+        <vector
+            android:width="24dp"
+            android:height="24dp"
+            android:viewportHeight="960"
+            android:viewportWidth="960">
+            <path
+                android:name="chevron"
+                android:fillColor="#000000"
+                android:pathData="M480,616 L240,376l56,-56 184,184 184,-184 56,56 -240,240Z" />
+        </vector>
+    </aapt:attr>
+</animated-vector>

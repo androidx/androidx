@@ -634,13 +634,17 @@ internal class CanvasMeshRenderer(
         coatIndex: Int,
         meshIndex: Int,
     ): AndroidMesh? {
-        val vertexCount = inProgressStroke.getVertexCount(coatIndex, meshIndex)
-        if (vertexCount < 3) {
-            // Fail gracefully when mesh doesn't contain enough vertices for a full triangle.
-            return null
-        }
         val bounds = BoxAccumulator().apply { inProgressStroke.populateMeshBounds(coatIndex, this) }
         if (bounds.isEmpty()) return null // Empty mesh; nothing to render.
+        val vertexCount = inProgressStroke.getVertexCount(coatIndex, meshIndex)
+        if (vertexCount < 3) {
+            // Fail gracefully when mesh doesn't contain enough vertices for a full triangle. The
+            // empty
+            // bounds check above should cover a truly empty mesh, so this case should log only on
+            // even
+            // stranger cases with just 1 or 2 vertices.
+            return null
+        }
         return AndroidMesh(
             obtainShaderMetadata(inProgressStroke.getMeshFormat(coatIndex), isPacked = false)
                 .meshSpecification,

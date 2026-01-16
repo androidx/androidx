@@ -36,7 +36,7 @@ dependencies {
     api(project(":xr:scenecore:scenecore-runtime"))
 
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("com.google.ar:impress:0.0.10")
+    implementation("com.google.ar:impress:0.0.11")
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
@@ -57,15 +57,15 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation("androidx.appcompat:appcompat:1.2.0")
 
-    // For com.android.xr.extensions.
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    // For com.android.extensions.xr
+    compileOnly(libs.androidExtensionsXr)
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
-    testImplementation("com.android.extensions.xr:extensions-xr:1.1.0")
+    testImplementation(libs.androidExtensionsXr)
 }
 
 android {
     defaultConfig {
-        minSdk = 24
+        minSdk { version = release(24) }
     }
     sourceSets {
         test {

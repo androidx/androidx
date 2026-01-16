@@ -102,6 +102,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             CAPABILITY_BASELINE,
             CAPABILITY_SUPPORTS_VIDEO_CALLING,
             CAPABILITY_SUPPORTS_CALL_STREAMING,
+            CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK,
             flag = true,
         )
         @Retention(AnnotationRetention.SOURCE)
@@ -160,6 +161,19 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
          * capability on a stricter basis.
          */
         public const val CAPABILITY_SUPPORTS_CALL_STREAMING: Int = 1 shl 2
+
+        /**
+         * Flag indicating that this VoIP application opts out of automatic requests for premium
+         * network capabilities.
+         *
+         * By default, the system may automatically request a premium network slice for voice and
+         * video calls to improve quality of service. Applications with their own sophisticated
+         * network management logic can use this flag to disable the system's behavior and manage
+         * network requests themselves.
+         *
+         * This capability should be passed in {@link #registerAppWithTelecom(int, int)}.
+         */
+        public const val CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK: Int = 1 shl 3
 
         // identifiers that indicate the call was established with core-telecom
         internal const val PACKAGE_HANDLE_ID: String = "Jetpack"

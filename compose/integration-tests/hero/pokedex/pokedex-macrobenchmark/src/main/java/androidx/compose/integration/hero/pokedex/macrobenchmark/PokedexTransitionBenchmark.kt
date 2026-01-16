@@ -31,7 +31,6 @@ import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.Pokedex
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexDatabaseCleanupRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
@@ -133,20 +132,17 @@ class PokedexTransitionBenchmark(
         ) {
             homeToDetailsAndBackAction(
                 FirstPokemonToClickOn,
-                backButtonSelector = byResContains("pokedexDetailsBack"),
                 waitForProgressBarAnimation = waitForProgressBarAnimation,
             )
             device.waitForIdle()
             homeToDetailsAndBackAction(
                 SecondPokemonToClickOn,
-                backButtonSelector = byResContains("pokedexDetailsBack"),
                 waitForProgressBarAnimation = waitForProgressBarAnimation,
             )
         }
 
     private fun MacrobenchmarkScope.homeToDetailsAndBackAction(
         pokemonName: String,
-        backButtonSelector: BySelector,
         waitForProgressBarAnimation: Boolean,
     ) {
         trace("Home -> Details ($pokemonName)") {
@@ -163,7 +159,7 @@ class PokedexTransitionBenchmark(
             }
             device.waitForIdle()
 
-            device.findObjectOrThrow(backButtonSelector).click()
+            device.pressBack()
 
             device.waitForTransitionStatus("home", active = false, 1500)
             trace("Wait for $pokemonName on home screen") {

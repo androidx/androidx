@@ -29,6 +29,21 @@ public interface GltfEntity : Entity {
     @AnimationStateValue public val animationState: Int
 
     /**
+     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
+     * model's local coordinate space.
+     *
+     * Note that this bounding box can change over time, for example, if the glTF model contains
+     * animations that alter the bounds of the geometry. There is currently no listener mechanism to
+     * be notified of such changes. Follow b/451424385 for updates on making this observable.
+     *
+     * @return A [BoundingBox] object representing the model's bounding box. The
+     *   [BoundingBox.center] defines the geometric center of the box, and the
+     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
+     *   of the box is twice the half-extent. All values are in meters.
+     */
+    public val gltfModelBoundingBox: BoundingBox
+
+    /**
      * Starts the animation with the given name.
      *
      * @param animationName The name of the animation to start. If null is supplied, will play the
@@ -72,17 +87,6 @@ public interface GltfEntity : Entity {
 
     // TODO: b/451424385 -GltfEntity.getGltfModelBoundingBox() becomes a Flow if the bounding box
     //  can change during animation.
-    /**
-     * Retrieves the axis-aligned bounding box (AABB) of an instanced glTF model in meters in the
-     * model's local coordinate space.
-     *
-     * @return A [BoundingBox] object representing the model's bounding box. The
-     *   [BoundingBox.center] defines the geometric center of the box, and the
-     *   [BoundingBox.halfExtents] defines the distance from the center to each face. The total size
-     *   of the box is twice the half-extent. All values are in meters.
-     */
-    public fun getGltfModelBoundingBox(): BoundingBox
-
     /** Adds a listener to be invoked when the [animationState] value changes. */
     public fun addAnimationStateListener(executor: Executor, listener: Consumer<Int>)
 

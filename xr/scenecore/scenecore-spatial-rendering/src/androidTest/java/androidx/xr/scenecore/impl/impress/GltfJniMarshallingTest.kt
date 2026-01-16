@@ -19,10 +19,9 @@ package androidx.xr.scenecore.impl.impress
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit.SECONDS
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,7 +51,7 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetExpectedLoadGltfPath(TEST_GLTF_PATH)
         ImpressApiTestHelper.nativeSetLoadGltfAssetSuccess(TEST_NATIVE_TOKEN)
 
-        val actualModel = mImpressApi.loadGltfAssetTemp(TEST_GLTF_PATH)
+        val actualModel = mImpressApi.loadGltfAsset(TEST_GLTF_PATH)
 
         val actualToken = actualModel.nativeHandle
         assertThat(actualToken).isEqualTo(TEST_NATIVE_TOKEN)
@@ -65,7 +64,7 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetExpectedLoadGltfAssetTestPattern(testSize, TEST_GLTF_KEY)
         ImpressApiTestHelper.nativeSetLoadGltfAssetSuccess(TEST_NATIVE_TOKEN)
 
-        val actualModel = mImpressApi.loadGltfAssetTemp(testData, TEST_GLTF_KEY)
+        val actualModel = mImpressApi.loadGltfAsset(testData, TEST_GLTF_KEY)
 
         val actualToken = actualModel.nativeHandle
         assertThat(actualToken).isEqualTo(TEST_NATIVE_TOKEN)
@@ -76,7 +75,7 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetExpectedLoadGltfPath(TEST_GLTF_PATH)
         ImpressApiTestHelper.nativeSetLoadGltfAssetFailure(TEST_ERROR_MESSAGE)
 
-        val exception = assertFailsWith<Exception> { mImpressApi.loadGltfAssetTemp(TEST_GLTF_PATH) }
+        val exception = assertFailsWith<Exception> { mImpressApi.loadGltfAsset(TEST_GLTF_PATH) }
 
         assertThat(exception).hasMessageThat().contains(TEST_ERROR_MESSAGE)
     }
@@ -89,7 +88,7 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetLoadGltfAssetFailure(TEST_ERROR_MESSAGE)
 
         val exception =
-            assertFailsWith<Exception> { mImpressApi.loadGltfAssetTemp(testData, TEST_GLTF_KEY) }
+            assertFailsWith<Exception> { mImpressApi.loadGltfAsset(testData, TEST_GLTF_KEY) }
 
         assertThat(exception).hasMessageThat().contains(TEST_ERROR_MESSAGE)
     }
@@ -129,21 +128,33 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
     }
 
     @Test
-    fun animateGltfModel_marshalsParams_invokesOnComplete() {
-        val expectedLoop = true
-        ImpressApiTestHelper.nativeSetExpectedAnimateGltfModel(
+    fun setGltfReformAffordanceEnabled_marshalsParams() {
+        val expectedEnabled = false
+        ImpressApiTestHelper.nativeSetExpectedSetGltfReformAffordanceEnabled(
             TEST_NODE_ID,
-            TEST_ANIM_NAME,
-            expectedLoop,
+            expectedEnabled,
         )
-        ImpressApiTestHelper.nativeSetAnimateGltfModelSuccess()
-        val node = ImpressNode(TEST_NODE_ID)
+        val impressNode = ImpressNode(TEST_NODE_ID)
 
-        val future = mImpressApi.animateGltfModel(node, TEST_ANIM_NAME, expectedLoop)
+        mImpressApi.setGltfReformAffordanceEnabled(impressNode, expectedEnabled)
 
-        // If calling get() on the future does not throw an exception it means onComplete was
-        // called.
-        future.get(5, SECONDS)
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
+    fun animateGltfModel_marshalsParams_invokesOnComplete() {
+        runBlocking {
+            val expectedLoop = true
+            ImpressApiTestHelper.nativeSetExpectedAnimateGltfModel(
+                TEST_NODE_ID,
+                TEST_ANIM_NAME,
+                expectedLoop,
+            )
+            ImpressApiTestHelper.nativeSetAnimateGltfModelSuccess()
+            val node = ImpressNode(TEST_NODE_ID)
+
+            withTimeout(5000) { mImpressApi.animateGltfModel(node, TEST_ANIM_NAME, expectedLoop) }
+        }
     }
 
     @Test
@@ -157,10 +168,11 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetAnimateGltfModelFailure(TEST_ERROR_MESSAGE)
         val node = ImpressNode(TEST_NODE_ID)
 
-        val future = mImpressApi.animateGltfModel(node, TEST_ANIM_NAME, expectedLoop)
+        val exception =
+            assertThrows(Exception::class.java) {
+                runBlocking { mImpressApi.animateGltfModel(node, TEST_ANIM_NAME, expectedLoop) }
+            }
 
-        val exception = assertThrows(ExecutionException::class.java) { future.get(5, SECONDS) }
-        assertThat(exception).hasCauseThat().isInstanceOf(Exception::class.java)
         assertThat(exception).hasMessageThat().contains(TEST_ERROR_MESSAGE)
     }
 
@@ -170,6 +182,30 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
         val node = ImpressNode(TEST_NODE_ID)
 
         mImpressApi.stopGltfModelAnimation(node)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
+    fun toggleGltfModelAnimation_marshalsParams_invokesOnPause() {
+        // Set toggle as false to pause the animation.
+        val expectedToggle = false
+        ImpressApiTestHelper.nativeSetExpectedToggleGltfModelAnimation(TEST_NODE_ID, expectedToggle)
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.toggleGltfModelAnimation(node, expectedToggle)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
+    fun toggleGltfModelAnimation_marshalsParams_invokesOnResume() {
+        // Set toggle as false to pause the animation.
+        val expectedToggle = true
+        ImpressApiTestHelper.nativeSetExpectedToggleGltfModelAnimation(TEST_NODE_ID, expectedToggle)
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.toggleGltfModelAnimation(node, expectedToggle)
 
         // This JNI call does not return any data, so the only assertion is on the native side.
     }

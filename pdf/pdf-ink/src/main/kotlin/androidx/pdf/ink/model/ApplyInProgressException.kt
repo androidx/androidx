@@ -22,5 +22,5 @@ import androidx.pdf.ink.EditablePdfViewerFragment
  * Exception thrown when [EditablePdfViewerFragment.applyDraftEdits] is called while an apply
  * operation is already in progress.
  */
-public class ApplyInProgressException :
+public class ApplyInProgressException internal constructor() :
     IllegalStateException("Another apply operation is already in progress.")

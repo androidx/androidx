@@ -18,7 +18,6 @@ package androidx.xr.compose.platform
 
 import android.content.Context
 import android.view.View
-import androidx.annotation.RestrictTo
 import androidx.xr.compose.R
 import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
 
@@ -29,14 +28,16 @@ import androidx.xr.compose.subspace.node.SubspaceSemanticsInfo
  * as well as developer tooling to help semantically identify parts of the compose tree. It is not
  * intended to be used in individual apps. Scenes are scoped to the current View hierarchy.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public object SceneManager {
+internal object SceneManager {
     internal fun onSceneCreated(scene: SpatialComposeScene) {
-        scene.context.decorView?.registeredScenes?.takeIf { scene !in it }?.add(scene)
+        scene.context.contentView
+            ?.registeredRoots
+            ?.takeIf { scene.semanticsInfo !in it }
+            ?.add(scene.semanticsInfo)
     }
 
     internal fun onSceneDisposed(scene: SpatialComposeScene) {
-        scene.context.decorView?.registeredScenes?.remove(scene)
+        scene.context.contentView?.registeredRoots?.remove(scene.semanticsInfo)
     }
 
     /**
@@ -44,28 +45,29 @@ public object SceneManager {
      *
      * @param context The context to search for registered scenes.
      */
-    public fun getAllRootSubspaceSemanticsNodes(context: Context): List<SubspaceSemanticsInfo> =
-        context.decorView?.registeredScenes?.map {
-            it.rootElement.compositionOwner.root.measurableLayout
-        } ?: emptyList()
+    fun getAllRootSubspaceSemanticsNodes(context: Context): List<SubspaceSemanticsInfo> =
+        context.contentView?.registeredRoots ?: emptyList()
 
     /**
      * Returns the number of registered scene for the given context.
      *
      * @param context The context to search for registered scenes.
      */
-    public fun getSceneCount(context: Context): Int = context.decorView?.registeredScenes?.size ?: 0
-
-    private val Context.decorView: View?
-        get() = getActivity()?.window?.decorView
-
-    private val View.registeredScenes: MutableList<SpatialComposeScene>
-        get() {
-            @Suppress("UNCHECKED_CAST")
-            return (getTag(R.id.compose_xr_registered_scenes)
-                ?: mutableListOf<SpatialComposeScene>().also {
-                    setTag(R.id.compose_xr_registered_scenes, it)
-                })
-                as MutableList<SpatialComposeScene>
-        }
+    fun getSceneCount(context: Context): Int = context.contentView?.registeredRoots?.size ?: 0
 }
+
+private val SpatialComposeScene.semanticsInfo: SubspaceSemanticsInfo
+    get() = rootElement.compositionOwner.root.measurableLayout
+
+private val Context.contentView: View?
+    get() = getActivity()?.window?.decorView
+
+private val View.registeredRoots: MutableList<SubspaceSemanticsInfo>
+    get() {
+        @Suppress("UNCHECKED_CAST")
+        return (getTag(R.id.compose_xr_registered_roots)
+            ?: mutableListOf<SubspaceSemanticsInfo>().also {
+                setTag(R.id.compose_xr_registered_roots, it)
+            })
+            as MutableList<SubspaceSemanticsInfo>
+    }

@@ -34,6 +34,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.pdf.PdfDocument
 import androidx.pdf.R
 import androidx.pdf.content.ExternalLink
+import androidx.pdf.models.FormEditInfo
 import androidx.pdf.selection.ContextMenuComponent
 import androidx.pdf.view.PdfView
 import kotlin.random.Random
@@ -44,6 +45,7 @@ import kotlin.random.Random
  * @param pdfDocument the PDF content to present
  * @param state the state object used to observe and control content position
  * @param modifier the [Modifier] to be applied to this PDF viewer
+ * @param isFormFillingEnabled boolean flag to enable / disable the form-filling feature surface.
  * @param minZoom the minimum zoom / scaling factor that can be applied to the PDF viewer
  * @param maxZoom the maximum zoom / scaling factor that can be applied to the PDF viewer
  * @param verticalAlignment the alignment of the top page within the view
@@ -53,6 +55,8 @@ import kotlin.random.Random
  * @param fastScrollConfig a [FastScrollConfiguration] instance to customize the fast scoller's
  *   appearance
  * @param onUrlLinkClicked a callback to be invoked when the user taps a URL link in this PDF viewer
+ * @param onFormWidgetInfoUpdated a callback to be invoked when a form widget is updated due to a
+ *   user interaction. @see [PdfView.OnFormWidgetInfoUpdatedListener]
  * @param onFirstContentLoad a callback that is invoked when the document's content is first loaded
  *   It resets and trigger again if a new document is loaded or if the underlying view is recreated.
  * @param appendContextMenuComponents a callback that can be used to add context menu items.
@@ -65,6 +69,7 @@ public fun PdfViewer(
     pdfDocument: PdfDocument?,
     state: PdfViewerState,
     modifier: Modifier = Modifier,
+    isFormFillingEnabled: Boolean = false,
     minZoom: Float = PdfView.MIN_PERMISSIBLE_ZOOM,
     maxZoom: Float = PdfView.MAX_PERMISSIBLE_ZOOM,
     verticalAlignment: Int = PdfView.VERTICAL_ALIGNMENT_CENTER,
@@ -75,6 +80,7 @@ public fun PdfViewer(
         FastScrollConfiguration.withDrawableAndDimensionIds(),
     appendContextMenuComponents: (PdfSelectionMenuBuilderScope.() -> Unit)? = null,
     filterContextMenuComponents: ((ContextMenuComponent) -> Boolean)? = null,
+    onFormWidgetInfoUpdated: ((FormEditInfo) -> Unit)? = null,
     onFirstContentLoad: (() -> Unit)? = null,
     onUrlLinkClicked: ((Uri) -> Boolean)? = null,
 ) {

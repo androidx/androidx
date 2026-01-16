@@ -36,9 +36,11 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 internal class LocalCallSilenceExtensionRemoteImpl(
     private val callScope: CoroutineScope,
     private val onLocalSilenceStateUpdated: suspend (Boolean) -> Unit,
+    private val onCanUserUpdateSilence: suspend (Boolean) -> Unit,
 ) : LocalCallSilenceExtensionRemote {
 
     companion object {
+        internal const val VERSION = 2
         val TAG: String = LocalCallSilenceExtensionRemoteImpl::class.java.simpleName
     }
 
@@ -101,6 +103,12 @@ internal class LocalCallSilenceExtensionRemoteImpl(
                 },
                 finishSync = { remoteBinder ->
                     callScope.launch { continuation.resume(remoteBinder) }
+                },
+                updateCanUserUpdateSilence = {
+                    callScope.launch {
+                        Log.i(TAG, "LCS_SL: updateCanUserUpdateSilence: state=[$it]")
+                        onCanUserUpdateSilence(it)
+                    }
                 },
             )
         remote.onCreateLocalCallSilenceExtension(

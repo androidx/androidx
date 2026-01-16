@@ -53,8 +53,7 @@ class RemoteFloatArrayTest {
 
     @Test
     fun arrayDeref_fetchesVariableFromArray() {
-        val remoteFloatArray =
-            RemoteFloatArray(listOf(1.rf, RemoteFloat(2.rf.internalAsFloat()), 3.rf))
+        val remoteFloatArray = RemoteFloatArray(listOf(1.rf, RemoteFloat(2f), 3.rf))
 
         val result = remoteFloatArray[1.rf]
         val resultId = result.getIdForCreationState(creationState)
@@ -67,7 +66,7 @@ class RemoteFloatArrayTest {
     @Test
     fun arrayDeref_variableIndexFetchesFromArray() {
         val remoteFloatArray = RemoteFloatArray(listOf(1.rf, 2.rf, 3.rf, 4.rf))
-        val index = RemoteFloat(1.rf.internalAsFloat())
+        val index = RemoteFloat(1f)
 
         val result = remoteFloatArray[index]
         val resultId = result.getIdForCreationState(creationState)

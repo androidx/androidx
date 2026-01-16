@@ -388,4 +388,18 @@ class AppFunctionSerializableProcessorTest {
             "Type com.testdata.NestedSerializable cannot be optional",
         )
     }
+
+    @Test
+    fun testProcessor_serializableWithParcelables_success() {
+        val report =
+            compilationTestHelper.compileAll(
+                sourceFileNames = listOf("SerializableWithParcelables.KT")
+            )
+
+        compilationTestHelper.assertSuccessWithSourceContent(
+            report,
+            "\$SerializableWithParcelablesFactory.kt",
+            "\$SerializableWithParcelablesFactory.KT",
+        )
+    }
 }

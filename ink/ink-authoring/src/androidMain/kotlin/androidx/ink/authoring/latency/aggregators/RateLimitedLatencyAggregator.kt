@@ -21,7 +21,7 @@ import androidx.annotation.UiThread
 import androidx.ink.authoring.ExperimentalLatencyDataApi
 import androidx.ink.authoring.latency.aggregators.internal.ConcurrentIntervalQueue
 import androidx.ink.authoring.latency.aggregators.internal.runEvery
-import java.util.concurrent.ScheduledExecutorService
+import java.util.concurrent.Executor
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -61,7 +61,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
         /**
          * Callback invoked at most once per [period] to report the latest start and end values
          * passed to [aggregate]. This callback runs in the [CoroutineScope] (or, for Java clients,
-         * the [ScheduledExecutorService]) passed to [create].
+         * the [Executor]) passed to [create].
          */
         public suspend fun onLatencySample(startNanos: Long, endNanos: Long): Unit
     }
@@ -89,7 +89,7 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          *   associated context should be distinct from the UI thread.
          * @param callback The callback with which to report samples.
          */
-        @JvmSynthetic
+        @JvmStatic
         public fun create(
             period: Duration,
             scope: CoroutineScope,
@@ -104,14 +104,15 @@ private constructor(private val implementationHelper: ImplementationHelper) : La
          *
          * @param periodMilliseconds The period of time, in milliseconds, over which at most one
          *   sample will be reported.
-         * @param executor A [ScheduledExecutorService] on which which to perform reporting. Should
-         *   be distinct from the UI thread.
+         * @param executor An [Executor] on which which to perform reporting. Should be distinct
+         *   from the UI thread. More efficient if the [Executor] is an instance of
+         *   [java.util.concurrent.ScheduledExecutorService].
          * @param callback The callback with which to report samples.
          */
         @JvmStatic
         public fun create(
             periodMilliseconds: Int,
-            executor: ScheduledExecutorService,
+            executor: Executor,
             callback: Callback,
         ): RateLimitedLatencyAggregator =
             create(

@@ -394,14 +394,15 @@ class MediaRoute2Provider extends MediaRouteProvider {
         return new MediaRouteDiscoveryRequest(selector, request.isActiveScan());
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     /* package */ void setRouteListingPreference(
             @Nullable RouteListingPreference routeListingPreference) {
-        Api34Impl.setPlatformRouteListingPreference(
-                mMediaRouter2,
-                routeListingPreference != null
-                        ? routeListingPreference.toPlatformRouteListingPreference()
-                        : null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Api34Impl.setPlatformRouteListingPreference(
+                    mMediaRouter2,
+                    routeListingPreference != null
+                            ? routeListingPreference.toPlatformRouteListingPreference()
+                            : null);
+        }
     }
 
     abstract static class Callback {

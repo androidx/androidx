@@ -50,9 +50,52 @@ class VideoInputManager() {
         var downOrigin: Vector3 = Vector3(),
         var downDirection: Vector3 = Vector3(),
         var upTime: Long = 0,
-        var clickCount: Int = 0,
-        var isDragging: Boolean = false,
-    )
+    ) {
+        private companion object {
+            const val DRAG_WITHOUT_EMIT = -1
+            const val DRAG_WITH_EMIT = -2
+        }
+
+        // when >=0: click count
+        // when -1: drag without emitting drag event
+        // when -2: drag with emitting drag event
+        private var clickOrDrag: Int = 0
+
+        val clickCount: Int
+            get() {
+                return if (clickOrDrag < 0) 0 else clickOrDrag
+            }
+
+        fun incClickCount() {
+            clickOrDrag = clickCount + 1
+        }
+
+        fun resetClickCount() {
+            clickOrDrag = 0
+        }
+
+        val isDragging: Boolean
+            get() {
+                return clickOrDrag < 0
+            }
+
+        val isDragWithEmit: Boolean
+            get() {
+                return clickOrDrag == DRAG_WITH_EMIT
+            }
+
+        fun setDragWithoutEmit() {
+            clickOrDrag = DRAG_WITHOUT_EMIT
+        }
+
+        fun setDragWithEmit() {
+            clickOrDrag = DRAG_WITH_EMIT
+        }
+
+        fun resetDrag() {
+            clickOrDrag = 0
+        }
+    }
 
     var handler: InputHandler? = null
     var singleClickEnabled = true
@@ -60,7 +103,7 @@ class VideoInputManager() {
     var dragEnabled = true
 
     val clickInterval = 200L
-    val dragStartLen = 0.008f
+    val dragStartLen = 0.015f
 
     private val pointersStateMap = mutableMapOf<InputEvent.Pointer, PointerState>()
 
@@ -78,22 +121,32 @@ class VideoInputManager() {
                 state.downOrigin = inputEvent.origin
                 state.downDirection = inputEvent.direction
                 if (inputEvent.timestamp - state.upTime > clickInterval) {
-                    state.clickCount = 0
+                    state.resetClickCount()
                 }
             }
+
             InputEvent.Action.MOVE -> {
-                if (!state.isDragging) {
-                    if (canDrag && dragEnabled) {
-                        // detect if need to start drag
-                        val currDistPos = inputEvent.origin + inputEvent.direction
-                        val downDistPos = state.downOrigin + state.downDirection
-                        val dragStartLenSqr = dragStartLen * dragStartLen
-                        if (
-                            (currDistPos - downDistPos).lengthSquared > dragStartLenSqr ||
-                                (inputEvent.origin - state.downOrigin).lengthSquared >
-                                    dragStartLenSqr
-                        ) {
-                            state.isDragging = true
+                if (state.isDragging) {
+                    if (state.isDragWithEmit) {
+                        hdl.onDragMove(
+                            inputEvent.pointerType,
+                            inputEvent.origin,
+                            inputEvent.direction,
+                        )
+                    }
+                } else {
+                    // detect if need to start drag
+                    val currDistPos = inputEvent.origin + inputEvent.direction
+                    val downDistPos = state.downOrigin + state.downDirection
+                    val dragStartLenSqr = dragStartLen * dragStartLen
+                    if (
+                        (currDistPos - downDistPos).lengthSquared > dragStartLenSqr ||
+                            (inputEvent.origin - state.downOrigin).lengthSquared > dragStartLenSqr
+                    ) {
+                        if (!dragEnabled || !hdl.canDrag()) {
+                            state.setDragWithoutEmit()
+                        } else {
+                            state.setDragWithEmit()
                             hdl.onDragStart(
                                 inputEvent.pointerType,
                                 state.downOrigin,
@@ -106,39 +159,45 @@ class VideoInputManager() {
                             )
                         }
                     }
-                } else {
-                    hdl.onDragMove(inputEvent.pointerType, inputEvent.origin, inputEvent.direction)
                 }
             }
+
             InputEvent.Action.UP -> {
                 state.upTime = inputEvent.timestamp
                 if (!state.isDragging) {
-                    if (inputEvent.timestamp - state.downTime < clickInterval) {
-                        state.clickCount++
-                        if (
-                            when (state.clickCount) {
-                                1 -> singleClickEnabled
-                                2 -> doubleClickEnabled
-                                else -> true
-                            }
-                        ) {
-                            hdl.onClick(
-                                inputEvent.pointerType,
-                                inputEvent.origin,
-                                inputEvent.direction,
-                                state.clickCount,
-                            )
+                    state.incClickCount()
+                    if (
+                        when (state.clickCount) {
+                            1 -> singleClickEnabled
+                            2 -> doubleClickEnabled
+                            else -> true
                         }
+                    ) {
+                        hdl.onClick(
+                            inputEvent.pointerType,
+                            inputEvent.origin,
+                            inputEvent.direction,
+                            state.clickCount,
+                        )
                     }
                 } else {
-                    hdl.onDragEnd(inputEvent.pointerType, inputEvent.origin, inputEvent.direction)
-                    state.isDragging = false
+                    if (state.isDragWithEmit) {
+                        hdl.onDragEnd(
+                            inputEvent.pointerType,
+                            inputEvent.origin,
+                            inputEvent.direction,
+                        )
+                    }
+                    state.resetDrag()
                 }
             }
+
             InputEvent.Action.CANCEL -> {
                 if (state.isDragging) {
-                    hdl.onDragCanceled(inputEvent.pointerType)
-                    state.isDragging = false
+                    if (state.isDragWithEmit) {
+                        hdl.onDragCanceled(inputEvent.pointerType)
+                    }
+                    state.resetDrag()
                 }
                 pointersStateMap.remove(inputEvent.pointerType)
             }

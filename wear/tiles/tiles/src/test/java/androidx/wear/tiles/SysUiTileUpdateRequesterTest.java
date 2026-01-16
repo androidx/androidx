@@ -121,7 +121,13 @@ public class SysUiTileUpdateRequesterTest {
                 otherSysUiIntent,
                 OTHER_SYSUI_RECEIVER_COMPONENT_NAME,
                 mOtherSysUiFakeReceiver.asBinder());
-        mUpdateRequester = new SysUiTileUpdateRequester(getApplicationContext());
+        mUpdateRequester =
+                new SysUiTileUpdateRequester(
+                        getApplicationContext(),
+                        runnable -> {
+                            // Main thread executor
+                            runnable.run();
+                        });
     }
 
     @Test

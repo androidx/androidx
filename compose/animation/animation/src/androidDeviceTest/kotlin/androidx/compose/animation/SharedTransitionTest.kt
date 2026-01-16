@@ -102,7 +102,7 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
@@ -5327,6 +5327,102 @@ class SharedTransitionTest {
         }
         rule.waitForIdle()
         removeScope = true
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun testSkipSharedTransitionPlacement() {
+        var state by mutableIntStateOf(0)
+
+        var detach by mutableStateOf(false)
+
+        rule.setContent {
+            SharedTransitionLayout(
+                Modifier.size(100.dp).layout { m, c ->
+                    m.measure(c).run {
+                        layout(width, height) {
+                            // Skip placement.
+                        }
+                    }
+                }
+            ) {
+                if (!detach) {
+                    AnimatedContent(
+                        targetState = state,
+                        transitionSpec = {
+                            // Add a delay to the animation just so that it takes a known time
+                            // to
+                            // complete
+                            fadeIn(snap()).togetherWith(fadeOut(snap()))
+                        },
+                    ) {
+                        Box(
+                            Modifier
+                                // Using shared bounds so that we control when the item enters
+                                // and leaves in every case. Particularly, we want the target to
+                                // show immediately
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "key"),
+                                    animatedVisibilityScope = this,
+                                    enter = fadeIn(tween(500)),
+                                    exit = fadeOut(tween(500)),
+                                )
+                                .fillMaxSize()
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        detach = true
+
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun testSkipSharedBoundsModifierPlacement() {
+        var state by mutableIntStateOf(0)
+        var detach by mutableStateOf(false)
+
+        rule.setContent {
+            SharedTransitionLayout(Modifier.size(100.dp)) {
+                if (!detach) {
+                    AnimatedContent(
+                        targetState = state,
+                        modifier =
+                            Modifier.layout { m, c ->
+                                m.measure(c).run {
+                                    layout(width, height) {
+                                        // Skip placement for the sharedBounds modifier below,
+                                        // to verify that when detach is called, the bounds
+                                        // calculation functions correctly.
+                                    }
+                                }
+                            },
+                        transitionSpec = { fadeIn(snap()).togetherWith(fadeOut(snap())) },
+                    ) {
+                        Box(
+                            Modifier
+                                // Using shared bounds so that we control when the item enters
+                                // and leaves in every case. Particularly, we want the target to
+                                // show immediately
+                                .sharedBounds(
+                                    rememberSharedContentState(key = "key"),
+                                    animatedVisibilityScope = this,
+                                    enter = fadeIn(tween(500)),
+                                    exit = fadeOut(tween(500)),
+                                )
+                                .fillMaxSize()
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        detach = true
+
         rule.waitForIdle()
     }
 }

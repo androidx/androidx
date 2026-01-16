@@ -93,41 +93,41 @@ class ServiceLoaderExtTest {
     }
 
     @Test
-    fun getDeviceActivityFeatures_onRobolectric_returnsEmptySet() {
-        assertThat(getDeviceActivityFeatures(ApplicationProvider.getApplicationContext())).isEmpty()
+    fun getDeviceContextFeatures_onRobolectric_returnsEmptySet() {
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext())).isEmpty()
     }
 
     @Test
-    fun getDeviceActivityFeatures_notOnRobolectric_addsFullStack() {
+    fun getDeviceContextFeatures_notOnRobolectric_addsFullStack() {
         ShadowBuild.setFingerprint("a_real_device")
 
-        assertThat(getDeviceActivityFeatures(ApplicationProvider.getApplicationContext()))
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext()))
             .containsExactly(Feature.FULLSTACK)
     }
 
     @Test
-    fun getDeviceActivityFeatures_onOpenXrDevice_addsOpenXr() {
+    fun getDeviceContextFeatures_onOpenXrDevice_addsOpenXr() {
         ShadowBuild.setFingerprint("a_real_device")
         val context: Context = ApplicationProvider.getApplicationContext()
         shadowOf(context.packageManager)
             .setSystemFeature(FEATURE_XR_API_OPENXR, /* supported= */ true)
 
-        assertThat(getDeviceActivityFeatures(context)).contains(Feature.OPEN_XR)
+        assertThat(getDeviceContextFeatures(context)).contains(Feature.OPEN_XR)
     }
 
     @Test
-    fun getDeviceActivityFeatures_onSpatialDevice_addsSpatial() {
+    fun getDeviceContextFeatures_onSpatialDevice_addsSpatial() {
         ShadowBuild.setFingerprint("a_real_device")
         val context: Context = ApplicationProvider.getApplicationContext()
         shadowOf(context.packageManager)
             .setSystemFeature(FEATURE_XR_API_SPATIAL, /* supported= */ true)
 
-        assertThat(getDeviceActivityFeatures(context)).contains(Feature.SPATIAL)
+        assertThat(getDeviceContextFeatures(context)).contains(Feature.SPATIAL)
     }
 
     @Test
     @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
-    fun getDeviceActivityFeatures_onProjectedActivity_addsProjected() {
+    fun getDeviceContextFeatures_onProjectedActivity_addsProjected() {
         ShadowBuild.setFingerprint("a_real_device")
         val activity = Robolectric.buildActivity(Activity::class.java).create().get()
         val activityInfo = ActivityInfo()
@@ -141,14 +141,14 @@ class ServiceLoaderExtTest {
 
         shadowOf(activity.packageManager).installPackage(packageInfo)
 
-        assertThat(getDeviceActivityFeatures(activity)).contains(Feature.PROJECTED)
+        assertThat(getDeviceContextFeatures(activity)).contains(Feature.PROJECTED)
     }
 
     @Test
-    fun getDeviceActivityFeatures_onNonProjectedActivity_doesNotAddProjected() {
+    fun getDeviceContextFeatures_onNonProjectedActivity_doesNotAddProjected() {
         ShadowBuild.setFingerprint("a_real_device")
 
-        assertThat(getDeviceActivityFeatures(ApplicationProvider.getApplicationContext()))
+        assertThat(getDeviceContextFeatures(ApplicationProvider.getApplicationContext()))
             .doesNotContain(Feature.PROJECTED)
     }
 

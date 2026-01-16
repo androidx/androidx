@@ -213,7 +213,7 @@ internal class PageManager(
 
     fun maybeLoadFormWidgetMetadata(formWidgetMetadataLoader: FormWidgetMetadataLoader) {
         pages.valueIterator().forEach {
-            if (it.formWidgetInfos == null) {
+            if (it.formWidgetInfos?.isEmpty() == true) {
                 it.maybeUpdateFormWidgetInfos(formWidgetMetadataLoader)
             }
         }

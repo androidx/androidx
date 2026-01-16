@@ -17,8 +17,7 @@
 package androidx.xr.compose.subspace.layout
 
 /**
- * Interface holding the size and alignment lines of the measured layout, as well as the children
- * positioning logic.
+ * Interface holding the size of the measured layout, as well as the children positioning logic.
  *
  * Based on [androidx.compose.ui.layout.MeasureResult].
  */

@@ -127,7 +127,7 @@ package androidx.compose.runtime {
     property public static androidx.compose.runtime.RecomposeScope currentRecomposeScope;
   }
 
-  @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ComposeCompilerApi {
   }
 
   public interface ComposeNodeLifecycleCallback {
@@ -692,6 +692,11 @@ package androidx.compose.runtime {
     method public static inline operator void setValue(androidx.compose.runtime.MutableDoubleState, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, double value);
   }
 
+  public final class SnapshotFlowManager {
+    ctor public SnapshotFlowManager();
+    method public void dispose();
+  }
+
   public final class SnapshotIntStateKt {
     method public static inline operator int getValue(androidx.compose.runtime.IntState, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property);
     method @androidx.compose.runtime.snapshots.StateFactoryMarker public static androidx.compose.runtime.MutableIntState mutableIntStateOf(int value);
@@ -747,6 +752,7 @@ package androidx.compose.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T> rememberUpdatedState(T newValue);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.compose.runtime.State<T!> rememberUpdatedState(T!, androidx.compose.runtime.Composer?, int);
     method public static inline operator <T> void setValue(androidx.compose.runtime.MutableState<T>, Object? thisObj, kotlin.reflect.KProperty<? extends java.lang.Object?> property, T value);
+    method public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(androidx.compose.runtime.SnapshotFlowManager manager, kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> kotlinx.coroutines.flow.Flow<T> snapshotFlow(kotlin.jvm.functions.Function0<? extends T> block);
     method public static <T> androidx.compose.runtime.SnapshotMutationPolicy<T> structuralEqualityPolicy();
     method public static <T> androidx.compose.runtime.snapshots.SnapshotStateList<T> toMutableStateList(java.util.Collection<? extends T>);
@@ -884,7 +890,7 @@ package androidx.compose.runtime.internal {
     method @BytecodeOnly @androidx.compose.runtime.Composable @androidx.compose.runtime.ComposeCompilerApi public static androidx.compose.runtime.internal.ComposableLambdaN rememberComposableLambdaN(int, boolean, int, Object, androidx.compose.runtime.Composer?, int);
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface Decoy {
     ctor @KotlinOnly public Decoy(String targetName, java.lang.String... signature);
     method @InaccessibleFromKotlin public abstract String[] signature();
     method @InaccessibleFromKotlin public abstract String targetName();
@@ -892,7 +898,7 @@ package androidx.compose.runtime.internal {
     property public abstract String targetName;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface DecoyImplementation {
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CONSTRUCTOR}) public @interface DecoyImplementation {
     ctor @KotlinOnly public DecoyImplementation(String name, long id);
     method @InaccessibleFromKotlin public abstract long id();
     method @InaccessibleFromKotlin public abstract String name();
@@ -904,7 +910,7 @@ package androidx.compose.runtime.internal {
     method @androidx.compose.runtime.ComposeCompilerApi public static Void illegalDecoyCallException(String fName);
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
     ctor @KotlinOnly public FunctionKeyMeta(int key, int startOffset, int endOffset);
     method @InaccessibleFromKotlin public abstract int endOffset();
     method @InaccessibleFromKotlin public abstract int key();
@@ -914,7 +920,7 @@ package androidx.compose.runtime.internal {
     property public abstract int startOffset;
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
     method public abstract androidx.compose.runtime.internal.FunctionKeyMeta[] value();
   }
 

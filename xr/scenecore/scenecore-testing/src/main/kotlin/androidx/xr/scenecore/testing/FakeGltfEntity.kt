@@ -61,7 +61,7 @@ public open class FakeGltfEntity(
             return feature?.animationState ?: _animationState
         }
 
-    override fun getGltfModelBoundingBox(): BoundingBox =
+    override val gltfModelBoundingBox: BoundingBox =
         BoundingBox.fromMinMax(Vector3.Zero, Vector3.One)
 
     /**

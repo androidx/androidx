@@ -30,6 +30,7 @@ import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationCompos
 import androidx.compose.remote.creation.compose.action.pendingIntentAction
 import androidx.compose.remote.creation.compose.capture.DisplayPool
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCapture
+import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -51,9 +52,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.core.os.BundleCompat
 import androidx.glance.wear.WearWidgetRawContent
@@ -65,9 +65,7 @@ import org.junit.Test
 
 class WearWidgetCaptureTest {
 
-    @OptIn(ExperimentalTestApi::class)
-    @get:Rule
-    val composeTestRule = createComposeRule(StandardTestDispatcher())
+    @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     companion object {
         val context: Context = ApplicationProvider.getApplicationContext()
@@ -93,7 +91,7 @@ class WearWidgetCaptureTest {
 
         @Composable
         internal fun CollectPendingIntent(
-            widgetPendingIntents: WidgetPendingIntents,
+            widgetPendingIntents: WriterEvents,
             content: @Composable () -> Unit,
         ) {
             val creationDisplayInfo =
@@ -185,20 +183,21 @@ class WearWidgetCaptureTest {
 
     @Test
     fun pendingIntentCollection() {
-        var pendingIntents = WidgetPendingIntents()
-        composeTestRule.setContent { CollectPendingIntent(pendingIntents) { TestLayout() } }
+        val writerEvents = WriterEvents()
+        composeTestRule.setContent { CollectPendingIntent(writerEvents) { TestLayout() } }
+        val pendingIntents = writerEvents.pendingIntents
 
-        assertThat(pendingIntents.size()).isEqualTo(2)
-        assertThat(pendingIntents.get(0)).isEqualTo(testPendingIntent0)
-        assertThat(pendingIntents.get(1)).isEqualTo(testPendingIntent1)
+        assertThat(pendingIntents.size).isEqualTo(2)
+        assertThat(pendingIntents[0]).isEqualTo(testPendingIntent0)
+        assertThat(pendingIntents[1]).isEqualTo(testPendingIntent1)
     }
 
     @Test
     fun pendingIntentCollection_addToBundle() {
         val result =
             """
-DATA_TEXT<42> = "text-0"
-DATA_TEXT<44> = "text-1"
+DATA_TEXT<43> = "text-0"
+DATA_TEXT<45> = "text-1"
 ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
     MODIFIERS
@@ -206,15 +205,15 @@ ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0 dp
         HEIGHT = 100.0 dp
-    TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (42:"null")
+    TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (43:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 46 : 43
+          HOST_NAMED_ACTION = 46 : 42
         SEMANTICS = SEMANTICS BUTTON
-    TEXT_LAYOUT [-9:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (44:"null")
+    TEXT_LAYOUT [-9:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (45:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 46 : 45
+          HOST_NAMED_ACTION = 46 : 44
         SEMANTICS = SEMANTICS BUTTON
 """
 

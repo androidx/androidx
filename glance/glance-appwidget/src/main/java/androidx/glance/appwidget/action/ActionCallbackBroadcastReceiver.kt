@@ -27,6 +27,7 @@ import androidx.glance.action.ActionParameters
 import androidx.glance.action.mutableActionParametersOf
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.AsyncRequestWorker.Companion.toBytes
+import androidx.glance.appwidget.GlanceComponents
 import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.goAsync
 import androidx.glance.appwidget.logException
@@ -87,10 +88,23 @@ public open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
             callbackClass: Class<out ActionCallback>,
             parameters: ActionParameters,
         ) =
+            createIntent(
+                glanceComponents = translationContext.glanceComponents,
+                appWidgetId = translationContext.appWidgetId,
+                callbackClass = callbackClass,
+                parameters = parameters,
+            )
+
+        internal fun createIntent(
+            glanceComponents: GlanceComponents,
+            appWidgetId: Int,
+            callbackClass: Class<out ActionCallback>,
+            parameters: ActionParameters,
+        ) =
             Intent()
-                .setComponent(translationContext.glanceComponents.actionCallbackBroadcastReceiver)
+                .setComponent(glanceComponents.actionCallbackBroadcastReceiver)
                 .putExtra(ExtraCallbackClassName, callbackClass.canonicalName)
-                .putExtra(AppWidgetId, translationContext.appWidgetId)
+                .putExtra(AppWidgetId, appWidgetId)
                 .putParameterExtras(parameters)
 
         internal fun Intent.putParameterExtras(parameters: ActionParameters): Intent {

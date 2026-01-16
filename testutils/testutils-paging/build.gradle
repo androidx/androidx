@@ -44,11 +44,9 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(project(":paging:paging-common"))
-                implementation(libs.kotlinTest)
-            }
+        commonMain.dependencies {
+            implementation(project(":paging:paging-common"))
+            implementation(libs.kotlinTest)
         }
     }
 }

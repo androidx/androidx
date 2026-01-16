@@ -33,7 +33,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
-// TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.runtime.openxr.test"
+// TODO - b/382119583: Remove the @SdkSuppress annotation once "androidx.xr.arcore.openxr.test"
 // supports a
 // lower SDK version.
 @SdkSuppress(minSdkVersion = 29)
@@ -43,7 +43,7 @@ class OpenXrManagerTest {
 
     companion object {
         init {
-            System.loadLibrary("androidx.xr.runtime.openxr.test")
+            System.loadLibrary("androidx.xr.arcore.openxr.test")
         }
     }
 
@@ -57,6 +57,24 @@ class OpenXrManagerTest {
     fun setUp() {
         timeSource = OpenXrTimeSource()
         perceptionManager = OpenXrPerceptionManager(timeSource)
+    }
+
+    @Test
+    fun sessionPointer_initializedAfterCreate() = initOpenXrManagerAndRunTest {
+        check(underTest.sessionPointer == 0L)
+
+        underTest.create()
+
+        assertThat(underTest.sessionPointer).isGreaterThan(0L)
+    }
+
+    @Test
+    fun instancePointer_initializedAfterCreate() = initOpenXrManagerAndRunTest {
+        check(underTest.instancePointer == 0L)
+
+        underTest.create()
+
+        assertThat(underTest.instancePointer).isGreaterThan(0L)
     }
 
     @Test
@@ -88,9 +106,9 @@ class OpenXrManagerTest {
         // Configure twice because the first attempt will throw an exception during testing due to
         // calibration being read as false the first time the OpenXR stub is called.
         try {
-            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
         } catch (e: FaceTrackingNotCalibratedException) {
-            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
         }
 
         assertThat(perceptionManager.xrResources.updatables)
@@ -101,9 +119,9 @@ class OpenXrManagerTest {
     fun configure_faceTrackingDisabled_removesFaceFromUpdatables() = initOpenXrManagerAndRunTest {
         underTest.create()
         try {
-            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
         } catch (e: FaceTrackingNotCalibratedException) {
-            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+            underTest.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
         }
         check(
             perceptionManager.xrResources.updatables.contains(
@@ -123,7 +141,7 @@ class OpenXrManagerTest {
             underTest.create()
 
             assertFailsWith<FaceTrackingNotCalibratedException> {
-                underTest.configure(Config(faceTracking = Config.FaceTrackingMode.USER))
+                underTest.configure(Config(faceTracking = Config.FaceTrackingMode.BLEND_SHAPES))
             }
         }
 
@@ -163,7 +181,7 @@ class OpenXrManagerTest {
         underTest.configure(
             Config(
                 planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                headTracking = Config.HeadTrackingMode.DISABLED,
+                deviceTracking = Config.DeviceTrackingMode.DISABLED,
                 depthEstimation = Config.DepthEstimationMode.DISABLED,
                 anchorPersistence = Config.AnchorPersistenceMode.LOCAL,
             )
@@ -185,7 +203,7 @@ class OpenXrManagerTest {
                 Config(
                     Config.PlaneTrackingMode.DISABLED,
                     Config.HandTrackingMode.DISABLED,
-                    Config.HeadTrackingMode.DISABLED,
+                    Config.DeviceTrackingMode.DISABLED,
                     Config.DepthEstimationMode.SMOOTH_AND_RAW,
                     Config.AnchorPersistenceMode.DISABLED,
                 )
@@ -202,7 +220,7 @@ class OpenXrManagerTest {
                 Config(
                     Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
                     Config.HandTrackingMode.DISABLED,
-                    Config.HeadTrackingMode.DISABLED,
+                    Config.DeviceTrackingMode.DISABLED,
                     Config.DepthEstimationMode.DISABLED,
                     Config.AnchorPersistenceMode.DISABLED,
                 )
@@ -385,6 +403,7 @@ class OpenXrManagerTest {
 
             // Stop the OpenXR manager here in lieu of an @After method to ensure that the
             // calls to the OpenXR manager are coming from the same thread.
+            underTest.pause()
             underTest.stop()
         }
     }

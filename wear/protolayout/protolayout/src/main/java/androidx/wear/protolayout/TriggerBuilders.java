@@ -340,7 +340,9 @@ public final class TriggerBuilders {
         @Override
         public int hashCode() {
             DynamicBool condition = getCondition();
-            return condition == null ? 4 : DynamicProtoHashEquals.hashCode(condition);
+            return condition == null
+                    ? 4
+                    : DynamicProtoHashEquals.hashCode(condition.toDynamicBoolProto());
         }
 
         @Override
@@ -351,8 +353,11 @@ public final class TriggerBuilders {
             if (!(obj instanceof OnConditionMetTrigger)) {
                 return false;
             }
-            OnConditionMetTrigger that = (OnConditionMetTrigger) obj;
-            return DynamicProtoHashEquals.equals(getCondition(), that.getCondition());
+            DynamicBool condition = getCondition();
+            DynamicBool thatCondition = ((OnConditionMetTrigger) obj).getCondition();
+            return DynamicProtoHashEquals.equals(
+                    condition != null ? condition.toDynamicBoolProto() : null,
+                    thatCondition != null ? thatCondition.toDynamicBoolProto() : null);
         }
 
         @Override

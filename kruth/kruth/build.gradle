@@ -46,73 +46,23 @@ androidXMultiplatform {
 
     defaultPlatform(PlatformIdentifier.JVM)
 
-    // Source Structure
-    //            commonMain
-    //    ┌────────────────────────┐
-    //    ▼                        ▼
-    // jvmMain                nonJvmMain
-    //                    ┌────────────────┐
-    //                    ▼                ▼
-    //                nativeMain        webMain
-    //                               ┌───────────┐
-    //                               ▼           ▼
-    //                             jsMain   wasmJsMain
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinTest)
-            }
+        commonMain.dependencies {
+            api(libs.kotlinTest)
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.guavaAndroid)
-                implementation(libs.junit)
-            }
+        jvmMain.dependencies {
+            implementation(libs.guavaAndroid)
+            implementation(libs.junit)
         }
 
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                api(libs.kotlinCoroutinesTest)
-            }
+        jvmTest.dependencies {
+            api(libs.kotlinCoroutinesTest)
         }
 
-        nonJvmMain {
-            dependsOn(commonMain)
-        }
-
-        nonJvmTest {
-            dependsOn(commonTest)
-        }
-
-        webMain {
-            dependsOn(nonJvmMain)
-        }
-        webTest {
-            dependsOn(nonJvmTest)
-            dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
-            }
-        }
-
-        nativeMain {
-            dependsOn(nonJvmMain)
-        }
-        nativeTest {
-            dependsOn(nonJvmTest)
-        }
-
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        webTest.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
         }
     }
 }

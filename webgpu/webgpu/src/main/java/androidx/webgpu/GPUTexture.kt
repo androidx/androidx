@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ public class GPUTexture private constructor(public val handle: Long) : AutoClose
     @FastNative
     @JvmName("createView")
     @JvmOverloads
-    public external fun createView(descriptor: TextureViewDescriptor? = null): GPUTextureView
+    public external fun createView(descriptor: GPUTextureViewDescriptor? = null): GPUTextureView
 
     /** Immediately destroys the texture resource. */
     @FastNative @JvmName("destroy") public external fun destroy(): Unit

@@ -1268,7 +1268,7 @@ package androidx.compose.foundation.lazy {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.compose.foundation.lazy.LazyListState rememberLazyListState(int, int, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @kotlin.DslMarker public @interface LazyScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface LazyScopeMarker {
   }
 
 }
@@ -1428,7 +1428,7 @@ package androidx.compose.foundation.lazy.grid {
     method @BytecodeOnly public static void stickyHeader$default(androidx.compose.foundation.lazy.grid.LazyGridScope!, Object!, Object!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
-  @kotlin.DslMarker public @interface LazyGridScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface LazyGridScopeMarker {
   }
 
   public final class LazyGridScrollScopeKt {

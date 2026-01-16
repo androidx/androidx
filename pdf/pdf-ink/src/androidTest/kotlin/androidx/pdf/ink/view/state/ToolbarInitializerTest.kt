@@ -19,6 +19,7 @@ package androidx.pdf.ink.view.state
 import android.content.Context
 import androidx.pdf.ink.view.colorpalette.model.getHighlightPaletteItems
 import androidx.pdf.ink.view.colorpalette.model.getPenPaletteItems
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState
 import androidx.pdf.ink.view.tool.model.AnnotationToolsKey
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -66,5 +67,7 @@ class ToolbarInitializerTest {
             .isEqualTo(defaultHighlighterColorIndex)
         assertThat(initialState.highlighterState.paletteItem)
             .isEqualTo(highlightPaletteItems[defaultHighlighterColorIndex])
+        assertThat(initialState.dockedState).isEqualTo(ToolbarDockState.DOCK_STATE_BOTTOM)
+        assertThat(initialState.isExpanded).isTrue()
     }
 }

@@ -62,6 +62,13 @@
             android:theme="@android:style/Theme.DeviceDefault"
             android:label="NavHostWithNamedArgumentActivity">
         </activity>
+
+        <activity
+            android:name=".ListDetailNavDisplaySampleActivity"
+            android:theme="@android:style/Theme.DeviceDefault"
+            android:label="ListDetailNavDisplaySampleActivity">
+        </activity>
+
     </application>
 
     <uses-feature android:name="android.hardware.type.watch"/>

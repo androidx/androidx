@@ -1,9 +1,0 @@
-// Signature format: 4.0
-package androidx.privacysandbox.activity.core {
-
-  @Deprecated public interface SdkActivityLauncher {
-    method @Deprecated public suspend Object? launchSdkActivity(android.os.IBinder sdkActivityHandlerToken, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
-  }
-
-}
-

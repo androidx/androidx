@@ -339,13 +339,24 @@ public class ExifInterfaceTest {
 
     @Test
     @LargeTest
-    public void testJpegWithFillBytes() throws Throwable {
-        // Fill bytes are added before APP1 and SOS markers.
+    public void testJpegWithFill1Byte() throws Throwable {
+        // One fill bytes added before each marker
         File imageFile =
                 copyFromResourceToFile(
-                        R.raw.jpeg_with_fill_bytes, "jpeg_with_fill_bytes.jpg");
-        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_BYTES);
-        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_BYTES);
+                        R.raw.jpeg_with_fill_1byte, "jpeg_with_fill_1byte.jpg");
+        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_1BYTE);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_1BYTE);
+    }
+
+    @Test
+    @LargeTest
+    public void testJpegWithFill2Bytes() throws Throwable {
+        // Two fill bytes added before each marker
+        File imageFile =
+                copyFromResourceToFile(
+                        R.raw.jpeg_with_fill_2bytes, "jpeg_with_fill_2bytes.jpg");
+        readFromFilesWithExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_2BYTES);
+        testWritingExif(imageFile, ExpectedAttributes.JPEG_WITH_FILL_2BYTES);
     }
 
     @Test

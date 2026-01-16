@@ -51,6 +51,7 @@ constructor(
      * into the mic when it is muted. */
     val isLocalCallSilenceEnabled: Boolean = false,
     val isLocallyMuted: Boolean = false,
+    val canUserUpdateSilence: Boolean = true,
     val localCallSilenceExtension: LocalCallSilenceExtension? = null,
     /* Call Icon Extension - This data is all optional and allows voip apps to share a call
      * icon with remote surfaces (e.g. watch face, auto, etc.) */

@@ -42,38 +42,42 @@ class PdfFormFillingStateTest {
         mPdfFormFillingState.addPageFormWidgetInfos(
             0,
             listOf(
-                FormWidgetInfo(
-                    widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+                FormWidgetInfo.createRadioButton(
                     widgetIndex = 0,
                     widgetRect = Rect(50, 500, 100, 600),
                     textValue = "false",
                     accessibilityLabel = "Radio",
+                    isReadOnly = false,
                 ),
-                FormWidgetInfo(
-                    widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+                FormWidgetInfo.createRadioButton(
                     widgetIndex = 1,
                     widgetRect = Rect(50, 500, 100, 600),
                     textValue = "false",
                     accessibilityLabel = "Radio",
+                    isReadOnly = false,
                 ),
             ),
         )
         mPdfFormFillingState.addPageFormWidgetInfos(
             1,
             listOf(
-                FormWidgetInfo(
-                    widgetType = FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+                FormWidgetInfo.createTextField(
                     widgetIndex = 0,
                     widgetRect = Rect(50, 500, 100, 600),
                     textValue = "false",
                     accessibilityLabel = "Radio",
+                    isReadOnly = false,
+                    isEditableText = true,
+                    isMultiLineText = false,
+                    maxLength = 10,
+                    fontSize = 10f,
                 ),
-                FormWidgetInfo(
-                    widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+                FormWidgetInfo.createCheckbox(
                     widgetIndex = 1,
                     widgetRect = Rect(50, 500, 100, 600),
                     textValue = "false",
                     accessibilityLabel = "Radio",
+                    isReadOnly = false,
                 ),
             ),
         )

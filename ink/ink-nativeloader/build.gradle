@@ -28,8 +28,7 @@ androidXMultiplatform {
     namespace = "androidx.ink.nativeloader"
     optimization {
       it.consumerKeepRules.publish = true
-      it.consumerKeepRules.files.add(new File("used_by_native.pgcfg"))
-      it.consumerKeepRules.files.add(new File("external_referenced_by_native.pgcfg"))
+      it.consumerKeepRules.files.add(new File("ink_jni.pgcfg"))
     }
     androidResources.enable = true
   }
@@ -37,22 +36,23 @@ androidXMultiplatform {
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
-    commonMain {
-      dependencies {
-
-        implementation("androidx.annotation:annotation:1.8.0")
-      }
+    commonMain.dependencies {
+      implementation("androidx.annotation:annotation:1.8.0")
     }
 
     jvmMain {
-      dependsOn(commonMain)
       resources.srcDir(new File(
           AndroidXConfig.getPrebuiltsRoot(project),
           "androidx/ink/jvm"))
     }
 
-    androidMain {
-      dependsOn(commonMain)
+    jvmAndAndroidTest.dependencies {
+      implementation(libs.junit)
+    }
+
+    androidDeviceTest.dependencies {
+      implementation(libs.testExtJunit)
+      implementation(libs.testRunner)
     }
   }
 }

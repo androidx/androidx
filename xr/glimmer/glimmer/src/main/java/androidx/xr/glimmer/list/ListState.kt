@@ -96,7 +96,7 @@ public class ListState(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOff
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
 
     /** Includes information for requesting focus for children as the list scrolls. */
-    internal val autoFocusBehaviour = GlimmerListAutoFocusBehaviour()
+    internal val autoFocusState = GlimmerListAutoFocusState()
 
     /** Stores currently pinned items which are always composed. */
     internal val pinnedItems = LazyLayoutPinnedItemList()

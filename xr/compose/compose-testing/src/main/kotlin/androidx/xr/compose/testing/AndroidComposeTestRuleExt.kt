@@ -21,7 +21,7 @@ import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.xr.runtime.Session
 
 /**
- * The XR [Session] for the current [androidx.compose.ui.test.junit4.AndroidComposeTestRule].
+ * The XR [Session] for the current [AndroidComposeTestRule].
  *
  * This will be null until the value is set or `LocalSession.current` is accessed in compose, after
  * which the value will be non-null and return the current [Session]. Setting this value after

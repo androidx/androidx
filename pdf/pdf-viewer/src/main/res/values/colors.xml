@@ -18,5 +18,6 @@
     <!-- m3_sys_color_primary_fixed_dim doesn't have a day/night version, therefore defined only once -->
     <color name="pdf_viewer_selection_handles">@color/m3_sys_color_primary_fixed_dim</color>
     <color name="form_fields_highlight_color">#d3e3fd</color>
+    <color name="default_highlight_color">#99FFED45</color>
 </resources>
 

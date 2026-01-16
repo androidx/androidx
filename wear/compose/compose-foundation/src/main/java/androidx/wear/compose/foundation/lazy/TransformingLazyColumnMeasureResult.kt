@@ -64,6 +64,8 @@ internal class TransformingLazyColumnMeasureResult(
     var canScrollBackward: Boolean,
     /** True if the direction of scrolling and layout is reversed. */
     override val reverseLayout: Boolean,
+    /** The amount of scroll consumed during the measure pass. */
+    val consumedScroll: Float,
 ) : TransformingLazyColumnLayoutInfo, MeasureResult by measureResult {
     /** see [TransformingLazyColumnLayoutInfo.viewportSize] */
     override val viewportSize: IntSize

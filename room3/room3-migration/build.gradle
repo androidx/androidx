@@ -44,40 +44,20 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(project(":room3:room3-common"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
-            }
+        commonMain.dependencies {
+            implementation(project(":room3:room3-common"))
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
         }
-        commonTest {
-            dependencies {
-                implementation(project(":kruth:kruth"))
-                implementation(libs.kotlinTest)
-            }
+        commonTest.dependencies {
+            implementation(project(":kruth:kruth"))
+            implementation(libs.kotlinTest)
         }
-        jvmMain {
-            dependsOn(commonMain)
+        jvmTest.dependencies {
+            implementation(libs.kotlinTestJunit)
         }
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-            }
-        }
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.okio)
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:1.8.1")
-            }
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            }
+        nativeMain.dependencies {
+            api(libs.okio)
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json-okio:1.8.1")
         }
     }
 }

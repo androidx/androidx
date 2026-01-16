@@ -51,6 +51,18 @@ GetterSetterNames: androidx.appcompat.widget.SwitchCompat#getSplitTrack():
     Symmetric method for `setSplitTrack` must be named `isSplitTrack`; was `getSplitTrack`
 
 
+HiddenSuperclass: androidx.appcompat.widget.AppCompatButton:
+    Public class androidx.appcompat.widget.AppCompatButton stripped of unavailable superclass androidx.core.widget.AutoSizeableTextView
+HiddenSuperclass: androidx.appcompat.widget.AppCompatCheckedTextView:
+    Public class androidx.appcompat.widget.AppCompatCheckedTextView stripped of unavailable superclass androidx.core.widget.TintableCheckedTextView
+HiddenSuperclass: androidx.appcompat.widget.AppCompatImageButton:
+    Public class androidx.appcompat.widget.AppCompatImageButton stripped of unavailable superclass androidx.core.widget.TintableImageSourceView
+HiddenSuperclass: androidx.appcompat.widget.AppCompatImageView:
+    Public class androidx.appcompat.widget.AppCompatImageView stripped of unavailable superclass androidx.core.widget.TintableImageSourceView
+HiddenSuperclass: androidx.appcompat.widget.AppCompatTextView:
+    Public class androidx.appcompat.widget.AppCompatTextView stripped of unavailable superclass androidx.core.widget.AutoSizeableTextView
+
+
 InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onSupportActionModeFinished(androidx.appcompat.view.ActionMode) parameter #0:
     Invalid nullability on type androidx.appcompat.view.ActionMode in parameter `mode` in method `onSupportActionModeFinished`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.appcompat.app.AppCompatActivity#onSupportActionModeStarted(androidx.appcompat.view.ActionMode) parameter #0:

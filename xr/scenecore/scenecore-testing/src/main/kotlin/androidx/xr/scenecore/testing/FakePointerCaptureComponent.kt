@@ -17,6 +17,8 @@
 package androidx.xr.scenecore.testing
 
 import androidx.annotation.RestrictTo
+import androidx.xr.scenecore.runtime.InputEvent
+import androidx.xr.scenecore.runtime.InputEventListener
 import androidx.xr.scenecore.runtime.PointerCaptureComponent
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState
 import androidx.xr.scenecore.runtime.PointerCaptureComponent.StateListener
@@ -46,6 +48,14 @@ public class FakePointerCaptureComponent(
 ) : FakeComponent(), PointerCaptureComponent {
 
     /**
+     * This property reflects the `inputListener` parameter that was passed to the runtime's factory
+     * method [FakeSceneRuntime.createPointerCaptureComponent]. Tests can inspect this value to
+     * verify that the component was created with the correct configuration.
+     */
+    public var inputListener: InputEventListener? = null
+        internal set
+
+    /**
      * Simulates a pointer capture state change event, invoking the registered [stateListener].
      *
      * This function is a test utility to manually trigger the state change callback. It respects
@@ -56,11 +66,28 @@ public class FakePointerCaptureComponent(
      *   [androidx.xr.scenecore.runtime.PointerCaptureComponent.PointerCaptureState] to propagate to
      *   the listener.
      */
-    internal fun onStateChanged(@PointerCaptureState newState: Int) {
+    public fun onStateChanged(@PointerCaptureState newState: Int) {
         if (stateListener != null) {
             executor?.let { currentExecutor ->
                 currentExecutor.execute { stateListener.onStateChanged(newState) }
             } ?: run { stateListener!!.onStateChanged(newState) }
+        }
+    }
+
+    /**
+     * Simulates an input event from the runtime, invoking the registered [inputListener]
+     *
+     * This function is intended for testing purposes to allow manual triggering of the update
+     * mechanism. It respects the provided [executor], dispatching the callback to it if non-null,
+     * or invoking it synchronously otherwise.
+     *
+     * @param event The new [InputEvent] to be sent in the simulated event.
+     */
+    public fun onInputEvent(event: InputEvent) {
+        inputListener?.let {
+            executor?.let { currentExecutor ->
+                currentExecutor.execute { inputListener!!.onInputEvent(event) }
+            } ?: run { inputListener!!.onInputEvent(event) }
         }
     }
 }

@@ -632,6 +632,12 @@ public final class ImageAnalysis extends UseCase {
         }
     }
 
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    protected void onProviderRotationChanged(int rotation) {
+        setTargetRotation(rotation);
+    }
+
     /**
      * Sets an analyzer to receive and analyze images.
      *
@@ -904,6 +910,17 @@ public final class ImageAnalysis extends UseCase {
                         getRelativeRotation(cameraInternal));
             }
         }
+    }
+
+    /**
+     * Returns whether the use case supports auto-rotation.
+     *
+     * @return true if the use case supports auto-rotation, false otherwise.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public boolean isAutoRotationSupported() {
+        return true;
     }
 
     /**

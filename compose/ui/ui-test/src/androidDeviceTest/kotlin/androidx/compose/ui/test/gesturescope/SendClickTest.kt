@@ -27,7 +27,7 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.test.CustomComposeHostActivity
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.ComposeTestRule
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performGesture
 import androidx.compose.ui.test.util.ClickableTestBox

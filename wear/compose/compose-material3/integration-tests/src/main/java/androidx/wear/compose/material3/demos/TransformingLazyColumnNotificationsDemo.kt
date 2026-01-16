@@ -16,8 +16,11 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
@@ -41,6 +44,7 @@ import androidx.wear.compose.material3.lazy.transformedHeight
 fun TransformingLazyColumnNotificationsDemo(
     modifier: Modifier = Modifier,
     notifications: List<NotificationItem> = NotificationItem.all,
+    containerCompositingStrategy: CompositingStrategy = CompositingStrategy.ModulateAlpha,
 ) {
     val state = rememberTransformingLazyColumnState()
     val transformationSpec = rememberTransformationSpec()
@@ -61,21 +65,39 @@ fun TransformingLazyColumnNotificationsDemo(
                     }
                 }
                 items(notifications) { notification ->
-                    TitleCard(
-                        onClick = {},
-                        title = {
-                            Text(
-                                notification.title,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.labelLarge,
-                                maxLines = 1,
-                            )
-                        },
-                        subtitle = { Text(notification.body) },
-                        transformation = SurfaceTransformation(transformationSpec),
+                    Box(
                         modifier =
-                            Modifier.transformedHeight(this, transformationSpec).animateItem(),
-                    )
+                            Modifier.transformedHeight(scope = this@items, transformationSpec)
+                                .animateItem()
+                                .graphicsLayer {
+                                    with(transformationSpec) {
+                                        applyContainerTransformation(scrollProgress)
+                                    }
+                                    compositingStrategy = containerCompositingStrategy
+                                    clip = false
+                                }
+                    ) {
+                        TitleCard(
+                            onClick = {},
+                            title = {
+                                Text(
+                                    notification.title,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    maxLines = 1,
+                                )
+                            },
+                            subtitle = { Text(notification.body) },
+                            modifier =
+                                Modifier.graphicsLayer {
+                                    with(this@items) {
+                                        with(transformationSpec) {
+                                            applyContentTransformation(scrollProgress)
+                                        }
+                                    }
+                                },
+                        )
+                    }
                 }
             }
         }

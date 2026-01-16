@@ -46,7 +46,7 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.isPopup
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performMouseInput
@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.Ignore
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -194,6 +195,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
             expectedClipboardContent = "clip",
         )
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf1_contextMenu_onClickProcessText() {
@@ -488,6 +490,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         }
     }
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf1_contextMenu_processText_itemsMatch() = runTest {
@@ -660,6 +663,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         )
     }
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf2_contextMenu_onClickProcessText() {
@@ -935,6 +939,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
             )
         }
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf2_contextMenu_processText_itemsMatch() = runBtf2CorrectItemsTest {

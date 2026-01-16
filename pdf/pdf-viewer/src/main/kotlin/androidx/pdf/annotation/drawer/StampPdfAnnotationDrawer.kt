@@ -27,9 +27,13 @@ internal class StampPdfAnnotationDrawer(
 ) : PdfAnnotationDrawer<StampAnnotation> {
     override fun draw(pdfAnnotation: StampAnnotation, canvas: Canvas, transform: Matrix) {
         pdfAnnotation.pdfObjects.forEach { pdfObject ->
-            val drawer = pdfObjectDrawerFactory.create(pdfObject)
-            @Suppress("UNCHECKED_CAST")
-            (drawer as PdfObjectDrawer<PdfObject>).draw(pdfObject, canvas, transform)
+            try {
+                val drawer = pdfObjectDrawerFactory.create(pdfObject)
+                @Suppress("UNCHECKED_CAST")
+                (drawer as PdfObjectDrawer<PdfObject>).draw(pdfObject, canvas, transform)
+            } catch (e: UnsupportedOperationException) {
+                // TODO: b/440966572 - Handle Logging of Unsupported Annotations and Pfd Objects.
+            }
         }
     }
 }

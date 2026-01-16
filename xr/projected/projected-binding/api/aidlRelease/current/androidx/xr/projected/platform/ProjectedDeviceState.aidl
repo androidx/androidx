@@ -36,4 +36,5 @@ package androidx.xr.projected.platform;
 enum ProjectedDeviceState {
   INACTIVE = 0,
   ACTIVE = 1,
+  DESTROYED = 2,
 }

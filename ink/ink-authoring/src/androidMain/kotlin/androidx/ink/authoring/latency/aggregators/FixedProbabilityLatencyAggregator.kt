@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.ink.authoring.ExperimentalLatencyDataApi
+import java.util.concurrent.Executor
 import java.util.concurrent.ScheduledExecutorService
 import kotlin.random.Random
 import kotlinx.coroutines.CoroutineScope
@@ -129,7 +130,7 @@ private constructor(
          *   should be distinct from the UI thread.
          * @param callback The [Callback] with which to report selected samples.
          */
-        @JvmSynthetic
+        @JvmStatic
         public fun create(
             sampleProbability: Float,
             scope: CoroutineScope,
@@ -151,14 +152,15 @@ private constructor(
          *
          * @param sampleProbability The probability of reporting each aggregated sample to
          *   [callback].
-         * @param executor A [ScheduledExecutorService] on which to call the callback. Should be
-         *   distinct from the UI thread.
+         * @param executor An [Executor] on which to call the callback. Should be distinct from the
+         *   UI thread. More efficient if the [Executor] is an instance of
+         *   [ScheduledExecutorService].
          * @param callback The [Callback] with which to report selected samples.
          */
         @JvmStatic
         public fun create(
             sampleProbability: Float,
-            executor: ScheduledExecutorService,
+            executor: Executor,
             callback: Callback,
         ): FixedProbabilityLatencyAggregator {
             return create(
@@ -192,8 +194,8 @@ private constructor(
         }
 
         /**
-         * Same as the other [create] that takes an [ScheduledExecutorService], but with the ability
-         * to specify a [Random] implementation.
+         * Same as the other [create] that takes an [Executor], but with the ability to specify a
+         * [Random] implementation.
          */
         @VisibleForTesting
         internal fun create(

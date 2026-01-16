@@ -93,6 +93,15 @@ public class RemoteComposeContextAndroid : RemoteComposeContext {
         content()
     }
 
+    public constructor(
+        platform: RcPlatformServices,
+        apiLevel: Int,
+        vararg tags: RemoteComposeWriter.HTag,
+        content: RemoteComposeContextAndroid.() -> Unit,
+    ) : super(RemoteComposeWriterAndroid(platform, apiLevel, *tags)) {
+        content()
+    }
+
     public fun addBitmap(image: Bitmap): Int {
         return mRemoteWriter.addBitmap(image)
     }
@@ -194,6 +203,17 @@ public class RemoteComposeContextAndroid : RemoteComposeContext {
         flags: Int,
     ) {
         drawTextAnchored(id, x.toFloat(), y.toFloat(), panX.toFloat(), panY.toFloat(), flags)
+    }
+
+    public fun drawTextAnchored(
+        str: String,
+        x: Number,
+        y: Number,
+        panX: Number,
+        panY: Number,
+        flags: Int,
+    ) {
+        drawTextAnchored(str, x.toFloat(), y.toFloat(), panX.toFloat(), panY.toFloat(), flags)
     }
 
     public fun loop(from: Float, step: Float, until: Float, content: RcFloatArgumentCallback) {

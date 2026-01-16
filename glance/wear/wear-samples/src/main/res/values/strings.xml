@@ -19,4 +19,6 @@
     <string name="hello_widget_label">AX Hello widget</string>
     <string name="hello_widget_description">AX Hello widget sample</string>
     <string name="hello">Hello Wear Widget!</string>
+    <string name="material3_theme_widget_label">AX Material3 theme widget</string>
+    <string name="material3_theme_widget_description">AX Material3 theme sample</string>
 </resources>

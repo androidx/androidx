@@ -26,11 +26,11 @@ package androidx.xr.runtime.math
  * - Orientation approximates the direction the user is facing in the EUS coordinate system. The EUS
  *   coordinate system has X+ pointing east, Y+ pointing up, and Z+ pointing south.
  *
- * @property latitude The latitude of the GeospatialPose in degrees.
- * @property longitude The longitude of the GeospatialPose in degrees.
- * @property altitude The altitude of the GeospatialPose in meters.
- * @property eastUpSouthQuaternion The orientation of the GeospatialPose in the EUS coordinate
- *   system.
+ * @property latitude the latitude of the GeospatialPose in degrees
+ * @property longitude the longitude of the GeospatialPose in degrees
+ * @property altitude the altitude of the GeospatialPose in meters
+ * @property eastUpSouthQuaternion the orientation of the GeospatialPose in the EUS coordinate
+ *   system
  */
 public class GeospatialPose
 constructor(

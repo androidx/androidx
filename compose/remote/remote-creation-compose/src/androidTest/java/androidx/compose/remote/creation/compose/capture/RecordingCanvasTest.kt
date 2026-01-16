@@ -27,19 +27,26 @@ import android.graphics.Rect
 import android.graphics.Typeface
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RecordingRemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
+import androidx.compose.remote.core.operations.paint.PaintBundle
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.shaders.RemoteLinearShader
+import androidx.compose.remote.creation.compose.shaders.RemoteSweepShader
+import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteBlendModeColorFilter
 import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.tween
 import androidx.compose.remote.creation.compose.test.R
@@ -47,6 +54,8 @@ import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color as ComposeColor
+import androidx.compose.ui.graphics.TileMode
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -58,11 +67,13 @@ import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.ArrayList
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.argumentCaptor
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
 
 private const val WIDTH = 400
 private const val HEIGHT = 400
@@ -303,7 +314,7 @@ class RecordingCanvasTest {
 
         val operations = inflateOperations()
         val paintOp = operations[operations.size - 1] as PaintData
-        assertThat(paintOp.mPaintData.toString()).contains("ColorId([45])")
+        assertThat(paintOp.mPaintData.toString()).containsMatch("ColorId\\(\\[\\d+]\\)")
     }
 
     @Test
@@ -347,7 +358,7 @@ class RecordingCanvasTest {
         val operations = inflateOperations()
         val paintOp = operations[operations.size - 1] as PaintData
         assertThat(paintOp.mPaintData.toString())
-            .contains("ColorFilterID(color=[45], mode=MULTIPLY)")
+            .containsMatch("ColorFilterID\\(color=\\[\\d+], mode=MULTIPLY\\)")
     }
 
     @Test
@@ -415,26 +426,26 @@ class RecordingCanvasTest {
             (HEIGHT - 20).rf,
             Paint().apply { color = Color.YELLOW },
         )
-        val bitmap =
-            recordingCanvas.drawToOffscreenBitmap(WIDTH, HEIGHT, Color.BLACK) {
-                recordingCanvas.drawOval(
-                    20.rf,
-                    20.rf,
-                    (WIDTH - 20).rf,
-                    (HEIGHT - 20).rf,
-                    Paint().apply { color = Color.RED },
-                )
-                recordingCanvas.drawText(
-                    "HI",
-                    20.rf,
-                    (HEIGHT - 50).rf,
-                    Paint().apply {
-                        textSize = 380f
-                        typeface = Typeface.DEFAULT_BOLD
-                        blendMode = BlendMode.CLEAR
-                    },
-                )
-            }
+        val bitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        recordingCanvas.drawToOffscreenBitmap(bitmap, Color.TRANSPARENT) {
+            recordingCanvas.drawOval(
+                20.rf,
+                20.rf,
+                (WIDTH - 20).rf,
+                (HEIGHT - 20).rf,
+                Paint().apply { color = Color.RED },
+            )
+            recordingCanvas.drawText(
+                "HI",
+                20.rf,
+                (HEIGHT - 50).rf,
+                Paint().apply {
+                    textSize = 380f
+                    typeface = Typeface.DEFAULT_BOLD
+                    blendMode = BlendMode.CLEAR
+                },
+            )
+        }
         val rect = Rect(0, 0, WIDTH, HEIGHT)
         recordingCanvas.drawBitmap(
             bitmap,
@@ -448,6 +459,56 @@ class RecordingCanvasTest {
     }
 
     @Test
+    fun drawRepeatedlyToOffscreenBitmap() {
+        recordingCanvas.drawRect(
+            0.rf,
+            0.rf,
+            WIDTH.rf,
+            HEIGHT.rf,
+            Paint().apply { color = Color.BLACK },
+        )
+        recordingCanvas.drawRect(
+            20.rf,
+            20.rf,
+            (WIDTH - 20).rf,
+            (HEIGHT - 20).rf,
+            Paint().apply { color = Color.YELLOW },
+        )
+        val bitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        recordingCanvas.drawToOffscreenBitmap(bitmap, Color.TRANSPARENT) {
+            recordingCanvas.drawOval(
+                20.rf,
+                20.rf,
+                (WIDTH - 20).rf,
+                (HEIGHT - 20).rf,
+                Paint().apply { color = Color.RED },
+            )
+        }
+        recordingCanvas.drawToOffscreenBitmap(bitmap) {
+            recordingCanvas.drawText(
+                "TEXT",
+                20.rf,
+                (HEIGHT - 50).rf,
+                Paint().apply {
+                    textSize = 380f
+                    typeface = Typeface.DEFAULT_BOLD
+                    blendMode = BlendMode.CLEAR
+                },
+            )
+        }
+        val rect = Rect(0, 0, WIDTH, HEIGHT)
+        recordingCanvas.drawBitmap(
+            bitmap,
+            rect,
+            rect,
+            Paint().apply { blendMode = BlendMode.SRC_OVER },
+        )
+
+        val document = constructDocument()
+        assertScreenshot(document, "offscreenBitmapRepeated")
+    }
+
+    @Test
     fun drawToOffscreenBitmap_nested() {
         recordingCanvas.drawRect(
             0.rf,
@@ -458,52 +519,113 @@ class RecordingCanvasTest {
         )
 
         // Create the outer offscreen bitmap.
-        val outerBitmap =
-            recordingCanvas.drawToOffscreenBitmap(WIDTH, HEIGHT, Color.TRANSPARENT) {
-                // Draw a blue background on the outer bitmap.
-                recordingCanvas.drawRect(
-                    0.rf,
-                    0.rf,
-                    WIDTH.rf,
-                    HEIGHT.rf,
-                    Paint().apply { color = Color.BLUE },
+        val outerBitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH, HEIGHT)
+        recordingCanvas.drawToOffscreenBitmap(outerBitmap, Color.TRANSPARENT) {
+            // Draw a blue background on the outer bitmap.
+            recordingCanvas.drawRect(
+                0.rf,
+                0.rf,
+                WIDTH.rf,
+                HEIGHT.rf,
+                Paint().apply { color = Color.BLUE },
+            )
+
+            recordingCanvas.save()
+
+            // Create the inner (nested) offscreen bitmap.
+            val innerBitmap = RemoteBitmap.createOffscreenRemoteBitmap(WIDTH / 2, HEIGHT / 2)
+            recordingCanvas.drawToOffscreenBitmap(innerBitmap, Color.TRANSPARENT) {
+                // Draw a red circle in the inner bitmap.
+                recordingCanvas.drawOval(
+                    0f,
+                    0f,
+                    (WIDTH / 2).toFloat(),
+                    (HEIGHT / 2).toFloat(),
+                    Paint().apply { color = Color.RED },
                 )
-
-                recordingCanvas.save()
-
-                // Create the inner (nested) offscreen bitmap.
-                val innerBitmap =
-                    recordingCanvas.drawToOffscreenBitmap(
-                        WIDTH / 2,
-                        HEIGHT / 2,
-                        Color.TRANSPARENT,
-                    ) {
-                        // Draw a red circle in the inner bitmap.
-                        recordingCanvas.drawOval(
-                            0f,
-                            0f,
-                            (WIDTH / 2).toFloat(),
-                            (HEIGHT / 2).toFloat(),
-                            Paint().apply { color = Color.RED },
-                        )
-                    }
-
-                // Draw the inner bitmap onto the outer bitmap. This tests that the canvas context
-                // was restored correctly to the outer bitmap's canvas.
-                val innerRect = Rect(0, 0, WIDTH / 2, HEIGHT / 2)
-                val dstRect = Rect(100, 100, 100 + WIDTH / 2, 100 + HEIGHT / 2)
-                recordingCanvas.drawBitmap(innerBitmap, innerRect, dstRect, Paint())
-
-                // This restore isn't strictly needed, but if we're drawing to the wrong canvas it
-                // will lead to an exception.
-                recordingCanvas.restore()
             }
+
+            // Draw the inner bitmap onto the outer bitmap. This tests that the canvas context
+            // was restored correctly to the outer bitmap's canvas.
+            val innerRect = Rect(0, 0, WIDTH / 2, HEIGHT / 2)
+            val dstRect = Rect(100, 100, 100 + WIDTH / 2, 100 + HEIGHT / 2)
+            recordingCanvas.drawBitmap(innerBitmap, innerRect, dstRect, Paint())
+
+            // This restore isn't strictly needed, but if we're drawing to the wrong canvas it
+            // will lead to an exception.
+            recordingCanvas.restore()
+        }
 
         val outerRect = Rect(0, 0, WIDTH, HEIGHT)
         recordingCanvas.drawBitmap(outerBitmap, outerRect, outerRect, Paint())
 
         val document = constructDocument()
         assertScreenshot(document, "offscreenBitmap_nested")
+    }
+
+    @Test
+    fun setShaderMatrixCalledOnce() {
+        val remoteShader =
+            RemoteSweepShader(
+                    100f.rf,
+                    100f.rf,
+                    listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
+                    null,
+                )
+                .apply { remoteMatrix3x3 = RemoteMatrix3x3.createRotate(90f.rf) }
+        val paintWithShader = RemotePaint().apply { shader = remoteShader }
+        val paintWithShader2 =
+            RemotePaint().apply {
+                shader =
+                    RemoteLinearShader(
+                        10f.rf,
+                        100f.rf,
+                        200f.rf,
+                        200f.rf,
+                        listOf(ComposeColor.Red.rc, ComposeColor.Green.rc, ComposeColor.Blue.rc),
+                        null,
+                        TileMode.Repeated,
+                    )
+            }
+        val paintWithShader3 =
+            RemotePaint().apply {
+                shader =
+                    RemoteLinearShader(
+                        10f.rf,
+                        100f.rf,
+                        100f.rf,
+                        200f.rf,
+                        listOf(ComposeColor.Red.rc, ComposeColor.Blue.rc),
+                        null,
+                        TileMode.Repeated,
+                    )
+            }
+        recordingCanvas.usePaint(paintWithShader)
+        recordingCanvas.usePaint(paintWithShader2)
+        recordingCanvas.usePaint(paintWithShader3)
+        val operations = inflateOperations()
+
+        val shaderMatricies =
+            operations
+                .filter { it is PaintData }
+                .map {
+                    val mockPaintContext = mock<PaintContext>()
+                    val captor = argumentCaptor<PaintBundle>()
+                    (it as PaintData).paint(mockPaintContext)
+                    verify(mockPaintContext).applyPaint(captor.capture())
+
+                    captor.lastValue
+                        .toString()
+                        .split("\n")
+                        .filter { it.contains("ShaderMatrix") }
+                        .map {
+                            val trimmed = it.trim()
+                            trimmed.subSequence(0, trimmed.length - 1)
+                        }
+                }
+
+        assertThat(shaderMatricies.joinToString(","))
+            .matches("\\[ShaderMatrix\\(\\[\\d+]\\)],\\[ShaderMatrix\\(0.0\\)],\\[]")
     }
 
     private fun constructDocument() =

@@ -32,7 +32,7 @@ internal class FormWidgetContentDescriptionFactory {
 
             val typeName = getWidgetNameFromWidgetType(formWidgetInfo.widgetType, context)
             val typeString =
-                if (formWidgetInfo.multiSelect) {
+                if (formWidgetInfo.isMultiSelect) {
                     context.getString(R.string.form_multiselect_type, typeName)
                 } else {
                     context.getString(R.string.form_type, typeName)
@@ -49,7 +49,7 @@ internal class FormWidgetContentDescriptionFactory {
             builder.append(context.getString(R.string.form_title, accessibilityLabel))
             builder.append(SPACE)
 
-            if (formWidgetInfo.readOnly) {
+            if (formWidgetInfo.isReadOnly) {
                 builder.append(context.getString(R.string.form_value, getTextValue(formWidgetInfo)))
                 builder.append(SPACE)
                 builder.append(context.getString(R.string.form_read_only))

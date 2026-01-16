@@ -175,6 +175,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         rule.setContent {
             val state = rememberPagerState(pageCount = { 10 })
             // Read state in composition, should never be Nan
+            @Suppress("FrequentlyChangingValue")
             assertFalse { state.currentPageOffsetFraction.isNaN() }
             HorizontalOrVerticalPager(state = state) { Page(index = it) }
         }

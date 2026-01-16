@@ -16,4 +16,5 @@
 
 package androidx.sqlite.driver.bundled
 
+@Suppress("KmpHideShowAnnotationMismatch") // RestrictTo is not applicable to typealias
 public actual typealias OpenFlag = androidx.sqlite.driver.OpenFlag

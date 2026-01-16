@@ -9,10 +9,11 @@ import androidx.core.telecom.test.ITestAppControlCallback;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ITestAppControl {
   void setCallback(in ITestAppControlCallback callback);
-  void addCall(in int requestId, in List<Capability> capabilities, boolean isOutgoing, boolean initLcsValue);
+  void addCall(in int requestId, in List<Capability> capabilities, boolean isOutgoing, boolean isLocallySilenced, boolean canUserUpdateSilence);
   void updateParticipants(in List<ParticipantParcelable> participants);
   void updateActiveParticipant(in ParticipantParcelable participant);
   void updateRaisedHands(in List<ParticipantParcelable> raisedHandsParticipants);
   void updateIsLocallySilenced(boolean isLocallySilenced);
+  void updateCanUserToggleSilence(boolean canUserUpdateSilence);
   void updateCallIcon(in Uri uri);
 }

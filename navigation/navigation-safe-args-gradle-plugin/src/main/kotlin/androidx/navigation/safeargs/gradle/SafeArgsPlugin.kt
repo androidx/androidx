@@ -115,6 +115,9 @@ abstract class SafeArgsPlugin protected constructor() : Plugin<Project> {
     }
 
     private fun navigationFiles(variant: Variant): Provider<List<File>> {
+        val flavorName = variant.flavorName
+        val buildType = variant.buildType
+        val name = variant.name
         return variant.sources.res!!.all.map { resSources ->
             resSources
                 .flatten()
@@ -132,13 +135,13 @@ abstract class SafeArgsPlugin protected constructor() : Plugin<Project> {
                         ?: entry.value.minBy { file ->
                             when {
                                 // matches variant name exactly
-                                file.path.substringBefore("/res/").endsWith(variant.name) -> 0
+                                file.path.substringBefore("/res/").endsWith(name) -> 0
                                 // matches variant flavor
-                                variant.flavorName?.let {
+                                flavorName?.let {
                                     file.path.substringBefore("/res/").endsWith(it)
                                 } == true -> 1
                                 // matches variant buildType
-                                variant.buildType?.let {
+                                buildType?.let {
                                     file.path.substringBefore("/res/").endsWith(it)
                                 } == true -> 2
                                 // fall back to main

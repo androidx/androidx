@@ -35,6 +35,7 @@ interface LocalServiceBinder {
         callAttributes: CallAttributesCompat,
         notificationId: Int,
         isInitiallyMuted: Boolean,
+        canUserUpdateSilence: Boolean,
     )
 
     fun setCallActive(callId: String)
@@ -48,6 +49,8 @@ interface LocalServiceBinder {
     fun toggleGlobalMute(isMuted: Boolean)
 
     fun toggleLocalCallSilence(callId: String, isMuted: Boolean)
+
+    fun toggleCanUserUpdateSilence(callId: String, canUserUpdateSilence: Boolean)
 
     fun addParticipant(callId: String)
 

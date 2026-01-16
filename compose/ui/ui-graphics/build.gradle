@@ -34,7 +34,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.ui.graphics"
         androidResources.enable = true
         optimization {
@@ -48,66 +48,49 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.androidx.annotation)
+        commonMain.dependencies {
+            api(libs.androidx.annotation)
 
-                api(project(":compose:ui:ui-unit"))
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
-                implementation("androidx.collection:collection:1.4.2")
-            }
+            api(project(":compose:ui:ui-unit"))
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui-util"))
+            implementation("androidx.collection:collection:1.4.2")
         }
 
-        commonTest {
-            dependencies {
-                implementation(kotlin("test"))
-            }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                // This has stub APIs for access to legacy Android APIs, so we don't want
-                // any dependency on this module.
-                compileOnly(project(":compose:ui:ui-android-stubs"))
-                implementation("androidx.graphics:graphics-path:1.0.1")
-                implementation libs.androidx.core
-                api("androidx.annotation:annotation-experimental:1.4.1")
-            }
+        androidMain.dependencies {
+            // This has stub APIs for access to legacy Android APIs, so we don't want
+            // any dependency on this module.
+            compileOnly(project(":compose:ui:ui-android-stubs"))
+            implementation("androidx.graphics:graphics-path:1.0.1")
+            implementation libs.androidx.core
+            api("androidx.annotation:annotation-experimental:1.4.1")
         }
 
-        commonStubsMain {
-            dependsOn(commonMain)
-        }
-        jvmStubsMain {
-            dependsOn(commonStubsMain)
-        }
-        linuxx64StubsMain {
-            dependsOn(commonStubsMain)
+        commonStubsMain.dependsOn(commonMain)
+        jvmStubsMain.dependsOn(commonStubsMain)
+        linuxx64StubsMain.dependsOn(commonStubsMain)
+
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":compose:test-utils"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.espressoCore)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
 
-        androidDeviceTest {
-            dependencies {
-                implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-
-        androidHostTest {
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(project(":compose:test-utils"))
-            }
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":compose:test-utils"))
         }
     }
 }

@@ -21,8 +21,9 @@ import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.xr.arcore.ArDevice
 import androidx.xr.runtime.Config
-import androidx.xr.runtime.Config.HeadTrackingMode
+import androidx.xr.runtime.Config.DeviceTrackingMode
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.IntSize2d
@@ -70,6 +71,7 @@ class GravityAlignedPoseTest : AppCompatActivity() {
         }
 
     private var session: Session? = null
+    private lateinit var arDevice: ArDevice
     private val _surfaceEntityFlow = MutableStateFlow<SurfaceEntity?>(null)
     var surfaceEntity: SurfaceEntity?
         get() = _surfaceEntityFlow.value
@@ -83,7 +85,9 @@ class GravityAlignedPoseTest : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
-        session!!.configure(Config(headTracking = HeadTrackingMode.LAST_KNOWN))
+        session!!.configure(Config(deviceTracking = DeviceTrackingMode.LAST_KNOWN))
+        arDevice = ArDevice.getInstance(session!!)
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // Toolbar action
         findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
@@ -178,9 +182,9 @@ class GravityAlignedPoseTest : AppCompatActivity() {
         parentPanelView.findViewById<Button>(R.id.create_surface_entity_button).setOnClickListener {
             session!!
                 .scene
-                .spatialUser
-                .head
-                ?.transformPoseTo(Pose(Vector3(0f, 0f, -1f)), session!!.scene.activitySpace)
+                .perceptionSpace
+                .getScenePoseFromPerceptionPose(arDevice.state.value.devicePose)
+                .transformPoseTo(Pose(Vector3(0f, 0f, -1f)), session!!.scene.activitySpace)
                 .let {
                     if (surfaceEntity == null) {
                         surfaceEntity =

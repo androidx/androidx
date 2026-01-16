@@ -34,16 +34,12 @@ androidXMultiplatform {
     mac()
 
     sourceSets {
-        commonMain {
-            dependencies {
+        commonMain.dependencies {
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinCoroutinesTest)
-            }
         }
-        jvmMain {
-            dependencies {
-                api(libs.junit)
-            }
+        jvmMain.dependencies {
+            api(libs.junit)
         }
     }
 }

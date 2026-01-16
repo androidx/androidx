@@ -41,7 +41,7 @@ class TextureJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetExpectedLoadTexturePath(TEST_TEXTURE_PATH)
         ImpressApiTestHelper.nativeSetLoadTextureAssetSuccess(TEST_NATIVE_TOKEN)
 
-        val texture = mImpressApi.loadTextureTemp(TEST_TEXTURE_PATH)
+        val texture = mImpressApi.loadTexture(TEST_TEXTURE_PATH)
 
         assertThat(texture).isNotNull()
         assertThat(texture.nativeHandle).isEqualTo(TEST_NATIVE_TOKEN)
@@ -52,8 +52,7 @@ class TextureJniMarshallingTest : BaseJniMarshallingTest() {
         ImpressApiTestHelper.nativeSetExpectedLoadTexturePath(TEST_TEXTURE_PATH)
         ImpressApiTestHelper.nativeSetLoadTextureAssetFailure(TEST_ERROR_MESSAGE)
 
-        val exception =
-            assertFailsWith<Exception> { mImpressApi.loadTextureTemp(TEST_TEXTURE_PATH) }
+        val exception = assertFailsWith<Exception> { mImpressApi.loadTexture(TEST_TEXTURE_PATH) }
 
         assertThat(exception).hasMessageThat().contains(TEST_ERROR_MESSAGE)
     }

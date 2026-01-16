@@ -18,6 +18,7 @@ package androidx.compose.remote.core;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.compose.remote.core.operations.BitmapData;
+import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.DataListFloat;
 import androidx.compose.remote.core.operations.DrawContent;
@@ -82,11 +83,26 @@ public class CoreDocument implements Serializable {
 
     private static final boolean UPDATE_VARIABLES_BEFORE_LAYOUT = false;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // Default feature values
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    private static final int DEFAULT_FEATURE_PAINT_MEASURE = 1;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     @NonNull
     ArrayList<Operation> mOperations = new ArrayList<>();
 
     @Nullable
     RootLayoutComponent mRootLayoutComponent = null;
+
+    @Nullable
+    Header mHeader = null;
+
+    boolean mUseFeaturePaintMeasure = false;
+
+    boolean mNeedsInitialMeasure = true;
 
     @NonNull
     RemoteComposeState mRemoteComposeState = new RemoteComposeState();
@@ -118,6 +134,8 @@ public class CoreDocument implements Serializable {
 
     private final HashMap<Integer, FloatExpression> mFloatExpressions = new HashMap<>();
 
+    private @Nullable ArrayList<ColorTheme> mThemeColors = null;
+
     private final @NonNull Clock mClock;
 
     private final HashSet<Component> mAppliedTouchOperations = new HashSet<>();
@@ -130,6 +148,16 @@ public class CoreDocument implements Serializable {
     private boolean mIsUpdateDoc = false;
     private int mHostExceptionID = 0;
     private int mBitmapMemory = 0;
+
+    private @Nullable LayoutCallback mLayoutCallback;
+
+    /**
+     * Set a layout callback for integration in the host platform measure/layout cycle
+     * @param layoutCallback
+     */
+    public void setLayoutCallback(@NonNull LayoutCallback layoutCallback) {
+        mLayoutCallback = layoutCallback;
+    }
 
     public CoreDocument() {
         this(new SystemClock());
@@ -169,7 +197,10 @@ public class CoreDocument implements Serializable {
     }
 
     public int getWidth() {
-        return mWidth;
+        if (mUseFeaturePaintMeasure || mRootLayoutComponent == null) {
+            return mWidth;
+        }
+        return (int) mRootLayoutComponent.getWidth();
     }
 
     /**
@@ -183,7 +214,10 @@ public class CoreDocument implements Serializable {
     }
 
     public int getHeight() {
-        return mHeight;
+        if (mUseFeaturePaintMeasure || mRootLayoutComponent == null) {
+            return mHeight;
+        }
+        return (int) mRootLayoutComponent.getHeight();
     }
 
     /**
@@ -602,6 +636,31 @@ public class CoreDocument implements Serializable {
         return mBitmapMemory;
     }
 
+    /**
+     * Check if the feature is enabled
+     *
+     * @param featureId
+     * @return
+     */
+    public boolean useFeature(short featureId, int defaultValue) {
+        if (mHeader == null) {
+            return false;
+        }
+        return mHeader.getInt(featureId, defaultValue) == 1;
+    }
+
+    /**
+     * Check if the feature is enabled
+     *
+     * @return
+     */
+    public boolean useFeature(short featureId) {
+        if (featureId == Header.FEATURE_PAINT_MEASURE) {
+            return useFeature(featureId, DEFAULT_FEATURE_PAINT_MEASURE);
+        }
+        return useFeature(featureId, 0);
+    }
+
     private interface Visitor {
         void visit(Operation op);
     }
@@ -866,6 +925,7 @@ public class CoreDocument implements Serializable {
                 // Make sure we parse the version at init time...
                 Header header = (Header) op;
                 header.setVersion(this);
+                mHeader = header;
             }
             if (op instanceof IntegerExpression) {
                 IntegerExpression expression = (IntegerExpression) op;
@@ -879,6 +939,7 @@ public class CoreDocument implements Serializable {
                 hasTouchOperations = true;
             }
         }
+        mUseFeaturePaintMeasure = useFeature(Header.FEATURE_PAINT_MEASURE);
         mBitmapMemory = 0;
         mOperations = inflateComponents(mOperations);
 
@@ -1043,10 +1104,11 @@ public class CoreDocument implements Serializable {
                 ((Component) op).updateVariables(context);
             }
             op.markNotDirty();
-            op.apply(context);
             context.incrementOpCount();
             if (op instanceof Container) {
                 applyOperations(context, ((Container) op).getList());
+            } else {
+                op.apply(context);
             }
         }
     }
@@ -1060,6 +1122,7 @@ public class CoreDocument implements Serializable {
      */
     public void initializeContext(@NonNull RemoteContext context) {
         initializeContext(context, null);
+        applyDataOperations(context);
     }
 
     /**
@@ -1081,9 +1144,15 @@ public class CoreDocument implements Serializable {
                 mRemoteComposeState.cacheData(i, bitmapMap.get(i));
             }
         }
-
         context.mDocument = this;
         context.mRemoteComposeState = mRemoteComposeState;
+    }
+
+    /**
+     * Apply operations in data mode. Used in the initialization phase.
+     * @param context
+     */
+    public void applyDataOperations(@NonNull RemoteContext context) {
         // mark context to be in DATA mode, which will skip the painting ops.
         context.mMode = RemoteContext.ContextMode.DATA;
         mTimeVariables.updateTime(context);
@@ -1372,6 +1441,39 @@ public class CoreDocument implements Serializable {
     }
 
     /**
+     * Gets all colors theme objects
+     */
+    @Nullable
+    public ArrayList<ColorTheme> getThemedColors() {
+        if (mThemeColors == null) {
+            ArrayList<ColorTheme> newColors = new ArrayList<>();
+            IntMap<String> strings = new IntMap<>();
+            getColorThemes(mOperations, newColors, strings);
+            mThemeColors = newColors;
+        }
+        return mThemeColors;
+    }
+
+    /**
+     * Gets all colors theme
+     */
+    private void getColorThemes(@NonNull ArrayList<Operation> ops,
+            @NonNull List<ColorTheme> list,
+            IntMap<String> strings) {
+        for (Operation op : ops) {
+            if (op instanceof ColorTheme) {
+                ColorTheme colorTheme = (ColorTheme) op;
+                colorTheme.mColorGroupName = strings.get(colorTheme.mColorGroupId);
+                list.add(colorTheme);
+            } else if (op instanceof TextData) {
+                strings.put(((TextData) op).mTextId, ((TextData) op).mText);
+            } else if (op instanceof Container) {
+                getColorThemes(((Container) op).getList(), list, strings);
+            }
+        }
+    }
+
+    /**
      * Gets the names of all named Variables.
      *
      * @return array of named variables or null
@@ -1436,12 +1538,38 @@ public class CoreDocument implements Serializable {
         for (int i = 0; i < operations.size(); i++) {
             Operation op = operations.get(i);
             if (op.isDirty() && op instanceof VariableSupport) {
+                op.markNotDirty();
                 ((VariableSupport) op).updateVariables(context);
                 op.apply(context);
-                op.markNotDirty();
             }
             if (op instanceof Container) {
                 updateVariables(context, theme, ((Container) op).getList());
+            }
+        }
+    }
+
+    /**
+     * Measure the document
+     *
+     * @param context
+     * @param minWidth
+     * @param maxWidth
+     * @param minHeight
+     * @param maxHeight
+     */
+    public void measure(@NonNull RemoteContext context, float minWidth, float maxWidth,
+            float minHeight, float maxHeight) {
+        int h = getHeight();
+        int w = getWidth();
+        if (mRootLayoutComponent != null) {
+            context.mWidth = maxWidth;
+            context.mHeight = maxHeight;
+            mRootLayoutComponent.invalidateMeasure();
+            mRootLayoutComponent.measure(context, minWidth, maxWidth, minHeight, maxHeight);
+            setWidth((int) mRootLayoutComponent.getWidth());
+            setHeight((int) mRootLayoutComponent.getHeight());
+            if ((getHeight() != h || getWidth() != w) && mLayoutCallback != null) {
+                mLayoutCallback.onRequestLayout();
             }
         }
     }
@@ -1453,6 +1581,12 @@ public class CoreDocument implements Serializable {
      * @param theme   the theme we want to use for this document.
      */
     public void paint(@NonNull RemoteContext context, int theme) {
+        if (theme != context.getPaintTheme() && mThemeColors != null) {
+            for (ColorTheme themeColor : mThemeColors) {
+                themeColor.setTheme(context, theme);
+            }
+            context.setPaintTheme(theme);
+        }
         context.clearLastOpCount();
         assert context.getPaintContext() != null;
         context.getPaintContext().clearNeedsRepaint();
@@ -1516,7 +1650,17 @@ public class CoreDocument implements Serializable {
                 }
             }
             if (mRootLayoutComponent.needsMeasure()) {
-                mRootLayoutComponent.layout(context);
+                if (mUseFeaturePaintMeasure) {
+                    mRootLayoutComponent.layout(context);
+                } else {
+                    if (mNeedsInitialMeasure || mLayoutCallback == null) {
+                        mRootLayoutComponent.layout(context);
+                        mNeedsInitialMeasure = false;
+                    }
+                    if (mLayoutCallback != null) {
+                        mLayoutCallback.onRequestLayout();
+                    }
+                }
             }
             if (mRootLayoutComponent.needsBoundsAnimation()) {
                 mRepaintNext = 1;
@@ -1824,7 +1968,10 @@ public class CoreDocument implements Serializable {
             RemoteContext context, ShaderControl ctl, List<Operation> operations) {
         for (Operation op : operations) {
             if (op instanceof TextData) {
-                op.apply(context);
+                if (op.isDirty()) {
+                    op.markNotDirty();
+                    op.apply(context);
+                }
             }
             if (op instanceof Container) {
                 checkShaders(context, ctl, ((Container) op).getList());

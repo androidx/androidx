@@ -18,6 +18,7 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveComponentOverrideApi
+import androidx.compose.material3.adaptive.layout.DefaultThreePaneScaffoldOverride.ThreePaneScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
+import androidx.compose.ui.util.fastSumBy
 import kotlin.math.max
 import kotlin.math.min
 
@@ -214,8 +216,10 @@ internal fun ThreePaneScaffold(
                 )
                 .ThreePaneScaffold()
 
-            LaunchedEffect(scaffoldValue.currentDestination) {
-                scaffoldScope.focusRequesters[scaffoldValue.currentDestination]?.requestFocus()
+            if (scaffoldDirective.shouldAutoFocusCurrentDestination) {
+                LaunchedEffect(scaffoldValue.currentDestination) {
+                    scaffoldScope.focusRequesters[scaffoldValue.currentDestination]?.requestFocus()
+                }
             }
         }
     }
@@ -352,7 +356,7 @@ private class ThreePaneContentMeasurePolicy(
             val verticalSpacerSize = scaffoldDirective.horizontalPartitionSpacerSize.roundToPx()
             val horizontalSpacerSize = scaffoldDirective.verticalPartitionSpacerSize.roundToPx()
             if (!isLookingAhead) {
-                paneExpansionState.onMeasured(outerBounds.width, this@measure)
+                paneExpansionState.onMeasured(outerBounds.width, this@measure, layoutDirection)
             }
 
             if (!paneExpansionState.isUnspecified() && expandedPanes.size == 2) {
@@ -744,7 +748,8 @@ private class ThreePaneContentMeasurePolicy(
             return
         }
         val allocatableWidth = bounds.width - (expandedPanes.size - 1) * verticalSpacerSize
-        val totalPreferredWidth = expandedPanes.sumOf { it.measuringWidth }
+        val totalPreferredWidth = expandedPanes.fastSumBy { it.measuringWidth }
+        @Suppress("ListIterator")
         if (allocatableWidth > totalPreferredWidth) {
             // Allocate the remaining space to the pane with the highest priority.
             expandedPanes.maxBy { it.priority }.measuringWidth +=

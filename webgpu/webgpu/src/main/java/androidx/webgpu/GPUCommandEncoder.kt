@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ public class GPUCommandEncoder private constructor(public val handle: Long) : Au
     @JvmName("beginComputePass")
     @JvmOverloads
     public external fun beginComputePass(
-        descriptor: ComputePassDescriptor? = null
+        descriptor: GPUComputePassDescriptor? = null
     ): GPUComputePassEncoder
 
     /**
@@ -41,7 +41,7 @@ public class GPUCommandEncoder private constructor(public val handle: Long) : Au
      */
     @FastNative
     @JvmName("beginRenderPass")
-    public external fun beginRenderPass(descriptor: RenderPassDescriptor): GPURenderPassEncoder
+    public external fun beginRenderPass(descriptor: GPURenderPassDescriptor): GPURenderPassEncoder
 
     /**
      * Clears a range of a buffer to zero.
@@ -88,9 +88,9 @@ public class GPUCommandEncoder private constructor(public val handle: Long) : Au
     @FastNative
     @JvmName("copyBufferToTexture")
     public external fun copyBufferToTexture(
-        source: TexelCopyBufferInfo,
-        destination: TexelCopyTextureInfo,
-        copySize: Extent3D,
+        source: GPUTexelCopyBufferInfo,
+        destination: GPUTexelCopyTextureInfo,
+        copySize: GPUExtent3D,
     ): Unit
 
     /**
@@ -103,9 +103,9 @@ public class GPUCommandEncoder private constructor(public val handle: Long) : Au
     @FastNative
     @JvmName("copyTextureToBuffer")
     public external fun copyTextureToBuffer(
-        source: TexelCopyTextureInfo,
-        destination: TexelCopyBufferInfo,
-        copySize: Extent3D,
+        source: GPUTexelCopyTextureInfo,
+        destination: GPUTexelCopyBufferInfo,
+        copySize: GPUExtent3D,
     ): Unit
 
     /**
@@ -118,9 +118,9 @@ public class GPUCommandEncoder private constructor(public val handle: Long) : Au
     @FastNative
     @JvmName("copyTextureToTexture")
     public external fun copyTextureToTexture(
-        source: TexelCopyTextureInfo,
-        destination: TexelCopyTextureInfo,
-        copySize: Extent3D,
+        source: GPUTexelCopyTextureInfo,
+        destination: GPUTexelCopyTextureInfo,
+        copySize: GPUExtent3D,
     ): Unit
 
     /**
@@ -132,7 +132,7 @@ public class GPUCommandEncoder private constructor(public val handle: Long) : Au
     @FastNative
     @JvmName("finish")
     @JvmOverloads
-    public external fun finish(descriptor: CommandBufferDescriptor? = null): GPUCommandBuffer
+    public external fun finish(descriptor: GPUCommandBufferDescriptor? = null): GPUCommandBuffer
 
     /**
      * Inserts a debug marker command into the command stream.

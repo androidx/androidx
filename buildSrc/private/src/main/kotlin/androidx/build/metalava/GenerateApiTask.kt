@@ -99,6 +99,7 @@ internal abstract class GenerateApiTask @Inject constructor(workerExecutor: Work
             kotlinSourceLevel.get(),
             workerExecutor,
             manifestPath.orNull?.asFile?.absolutePath,
+            multiplatform.get(),
         )
     }
 }

@@ -1,5 +1,5 @@
 // Klib ABI Dump
-// Targets: [iosArm64, iosSimulatorArm64, iosX64, linuxArm64, linuxX64, macosArm64, macosX64, tvosArm64, tvosSimulatorArm64, tvosX64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64, watchosX64]
+// Targets: [iosArm64, iosSimulatorArm64, linuxArm64, linuxX64, macosArm64, tvosArm64, tvosSimulatorArm64, watchosArm32, watchosArm64, watchosDeviceArm64, watchosSimulatorArm64]
 // Rendering settings:
 // - Signature version: 2
 // - Show manifest properties: true
@@ -101,6 +101,20 @@ open annotation class androidx.room3/ConstructedBy : kotlin/Annotation { // andr
 
 open annotation class androidx.room3/Dao : kotlin/Annotation { // androidx.room3/Dao|null[0]
     constructor <init>() // androidx.room3/Dao.<init>|<init>(){}[0]
+}
+
+open annotation class androidx.room3/DaoReturnTypeConverter : kotlin/Annotation { // androidx.room3/DaoReturnTypeConverter|null[0]
+    constructor <init>(kotlin/Array<out androidx.room3/OperationType>...) // androidx.room3/DaoReturnTypeConverter.<init>|<init>(kotlin.Array<out|androidx.room3.OperationType>...){}[0]
+
+    final val operations // androidx.room3/DaoReturnTypeConverter.operations|{}operations[0]
+        final fun <get-operations>(): kotlin/Array<out androidx.room3/OperationType> // androidx.room3/DaoReturnTypeConverter.operations.<get-operations>|<get-operations>(){}[0]
+}
+
+open annotation class androidx.room3/DaoReturnTypeConverters : kotlin/Annotation { // androidx.room3/DaoReturnTypeConverters|null[0]
+    constructor <init>(kotlin/Array<out kotlin.reflect/KClass<*>>... = ...) // androidx.room3/DaoReturnTypeConverters.<init>|<init>(kotlin.Array<out|kotlin.reflect.KClass<*>>...){}[0]
+
+    final val value // androidx.room3/DaoReturnTypeConverters.value|{}value[0]
+        final fun <get-value>(): kotlin/Array<out kotlin.reflect/KClass<*>> // androidx.room3/DaoReturnTypeConverters.value.<get-value>|<get-value>(){}[0]
 }
 
 open annotation class androidx.room3/Database : kotlin/Annotation { // androidx.room3/Database|null[0]
@@ -417,6 +431,17 @@ open annotation class androidx.room3/Upsert : kotlin/Annotation { // androidx.ro
 
     final val entity // androidx.room3/Upsert.entity|{}entity[0]
         final fun <get-entity>(): kotlin.reflect/KClass<*> // androidx.room3/Upsert.entity.<get-entity>|<get-entity>(){}[0]
+}
+
+final enum class androidx.room3/OperationType : kotlin/Enum<androidx.room3/OperationType> { // androidx.room3/OperationType|null[0]
+    enum entry READ // androidx.room3/OperationType.READ|null[0]
+    enum entry WRITE // androidx.room3/OperationType.WRITE|null[0]
+
+    final val entries // androidx.room3/OperationType.entries|#static{}entries[0]
+        final fun <get-entries>(): kotlin.enums/EnumEntries<androidx.room3/OperationType> // androidx.room3/OperationType.entries.<get-entries>|<get-entries>#static(){}[0]
+
+    final fun valueOf(kotlin/String): androidx.room3/OperationType // androidx.room3/OperationType.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<androidx.room3/OperationType> // androidx.room3/OperationType.values|values#static(){}[0]
 }
 
 open class androidx.room3/RoomWarnings { // androidx.room3/RoomWarnings|null[0]

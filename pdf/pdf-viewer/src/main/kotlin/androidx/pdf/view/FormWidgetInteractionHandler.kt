@@ -17,8 +17,6 @@
 package androidx.pdf.view
 
 import android.content.Context
-import android.graphics.Point
-import android.graphics.PointF
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -27,7 +25,6 @@ import androidx.pdf.R
 import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -52,16 +49,15 @@ internal class FormWidgetInteractionHandler(
 
     /** Entry point to handle interaction with the formWidget. */
     fun handleInteraction(touchPoint: PdfPoint, formWidgetInfo: FormWidgetInfo) {
-        if (formWidgetInfo.readOnly) return
+        if (formWidgetInfo.isReadOnly) return
 
         val pageNum = touchPoint.pageNum
-        val pdfCoordinates = PointF(touchPoint.x, touchPoint.y)
         // switch case to delegate to the appropriate handler
         when (formWidgetInfo.widgetType) {
             FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
             FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
             FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON -> {
-                handleInteractionWithClickTypeWidget(pageNum, pdfCoordinates, formWidgetInfo)
+                handleInteractionWithClickTypeWidget(touchPoint, formWidgetInfo)
             }
 
             FormWidgetInfo.WIDGET_TYPE_TEXTFIELD -> {
@@ -77,16 +73,11 @@ internal class FormWidgetInteractionHandler(
 
     /** Implements logic to take user input in a click-type widget. */
     private fun handleInteractionWithClickTypeWidget(
-        pageNum: Int,
-        pdfCoordinates: PointF,
+        clickPoint: PdfPoint,
         formWidgetInfo: FormWidgetInfo,
     ) {
         val formEditInfo =
-            FormEditInfo(
-                pageNum,
-                formWidgetInfo.widgetIndex,
-                clickPoint = Point(pdfCoordinates.x.roundToInt(), pdfCoordinates.y.roundToInt()),
-            )
+            FormEditInfo.createClick(formWidgetInfo.widgetIndex, clickPoint = clickPoint)
         relayFormEditInfo(formEditInfo)
     }
 
@@ -129,7 +120,7 @@ internal class FormWidgetInteractionHandler(
         formFillingEditText.editText.clearFocus()
         hideKeyboard(formFillingEditText.editText)
         val formEditInfo =
-            FormEditInfo(
+            FormEditInfo.createSetText(
                 formFillingEditText.pageNum,
                 formFillingEditText.formWidget.widgetIndex,
                 formFillingEditText.editText.text.toString(),
@@ -145,7 +136,7 @@ internal class FormWidgetInteractionHandler(
         pageNum: Int,
         formWidgetInfo: FormWidgetInfo,
     ) {
-        if (formWidgetInfo.multiSelect) {
+        if (formWidgetInfo.isMultiSelect) {
             showMultiChoiceSelectMenu(pageNum, formWidgetInfo)
         } else {
             showSingleChoiceSelectMenu(pageNum, formWidgetInfo)
@@ -153,7 +144,7 @@ internal class FormWidgetInteractionHandler(
     }
 
     private fun showSingleChoiceSelectMenu(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
-        var selectedItemIndex: Int = formWidgetInfo.listItems.indexOfFirst { it.selected }
+        var selectedItemIndex: Int = formWidgetInfo.listItems.indexOfFirst { it.isSelected }
         val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
 
         MaterialAlertDialogBuilder(context)
@@ -171,7 +162,7 @@ internal class FormWidgetInteractionHandler(
     private fun showMultiChoiceSelectMenu(pageNum: Int, formWidgetInfo: FormWidgetInfo) {
         val selectedItems =
             BooleanArray(formWidgetInfo.listItems.size) { i ->
-                formWidgetInfo.listItems[i].selected
+                formWidgetInfo.listItems[i].isSelected
             }
         val listItemValues: List<String> = formWidgetInfo.listItems.map { it.label }
 
@@ -199,7 +190,7 @@ internal class FormWidgetInteractionHandler(
         selectedItemIndices: List<Int>,
     ) {
         val formEditInfo =
-            FormEditInfo(
+            FormEditInfo.createSetIndices(
                 pageNum,
                 formWidgetInfo.widgetIndex,
                 selectedIndices = selectedItemIndices.toIntArray(),

@@ -232,7 +232,7 @@
     <string name="msg_template_demo_text" msgid="2275291617716161409">"Hemen idatzi behar da mezua.\nBigarren lerroan testu gehiago duzu."</string>
     <string name="short_msg_template_demo_title" msgid="6798738013668580714">"Mezu laburren txantiloiaren demo-bertsioa"</string>
     <string name="sectioned_item_template_demo_title" msgid="8377594346379786774">"Banatutako elementuen txantiloiaren demo-bertsioa"</string>
-    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Elementu ataldunen AlphaJump demo-bertsio gaituta"</string>
+    <string name="sectioned_item_alpha_jump_demo_title" msgid="1923794280863081616">"Elementu ataldunen AlphaJump demo-bertsioa gaituta"</string>
     <string name="sectioned_item_template_radio_button_section_title" msgid="1014325865070733609">"Aukera-botoien atala"</string>
     <string name="sectioned_item_template_toggle_section_title" msgid="3197227971733559949">"Etengailuen atala"</string>
     <string name="sectioned_item_template_lots_of_rows_section_title" msgid="1501401956386938735">"Errenkada askoren atala"</string>
@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Errenkada ere hauta daiteke"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Bigarren mailako ekintza hautatuta dago"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Errenkadari dagokion ekintza nagusia hautatuta dago"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Errenkadaren amaierako irudiaren eta ekintzen demo-bertsioa"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Zerrenda huts baten adibidea"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Zerrenda hutsik dago"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Bestelako txantiloien demo-bertsioak"</string>

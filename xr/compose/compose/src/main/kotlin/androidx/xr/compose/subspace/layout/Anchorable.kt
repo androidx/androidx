@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Density
 import androidx.core.content.ContextCompat
 import androidx.xr.compose.platform.LocalSession
 import androidx.xr.compose.subspace.node.CompositionLocalConsumerSubspaceModifierNode
-import androidx.xr.compose.subspace.node.LayoutCoordinatesAwareModifierNode
+import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.subspace.node.currentValueOf
@@ -163,7 +163,7 @@ internal class AnchorableNode(
     SubspaceModifier.Node(),
     CompositionLocalConsumerSubspaceModifierNode,
     CoreEntityNode,
-    LayoutCoordinatesAwareModifierNode,
+    SubspaceLayoutAwareModifierNode,
     EntityMoveListener,
     SubspaceLayoutModifierNode {
     private inline val density: Density
@@ -201,7 +201,7 @@ internal class AnchorableNode(
         }
     }
 
-    override fun onLayoutCoordinates(coordinates: SubspaceLayoutCoordinates) {
+    override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         // Update the size of the component to match the final size of the layout.
         component?.size = coordinates.size.toDimensionsInMeters(density)
     }

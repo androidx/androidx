@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
  * Remembers the platform-specific implementation for scheduling lazy layout item prefetch
  * (pre-composing next items in advance during the scrolling).
  */
+@Suppress("KmpVisibilityMismatch") // public in commonStubsMain
 @ExperimentalFoundationApi
 @Composable
 internal expect fun rememberDefaultPrefetchScheduler(): PrefetchScheduler

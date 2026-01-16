@@ -34,7 +34,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdk = 31
+        minSdk { version = release(31) }
     }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.arcore.testapp"
@@ -74,7 +74,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended-android:1.7.8")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
 
-    compileOnly("com.android.extensions.xr:extensions-xr:1.1.0")
+    compileOnly(libs.androidExtensionsXr)
 }
 
 // Making this APK available via Android Build

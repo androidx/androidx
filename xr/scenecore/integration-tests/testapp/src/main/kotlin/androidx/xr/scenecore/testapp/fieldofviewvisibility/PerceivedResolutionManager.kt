@@ -19,6 +19,9 @@ package androidx.xr.scenecore.testapp.fieldofviewvisibility
 import android.os.Handler
 import android.os.Looper
 import android.widget.Button
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.xr.arcore.RenderViewpoint
 import androidx.xr.runtime.Session
 import androidx.xr.runtime.math.FloatSize3d
@@ -43,7 +46,7 @@ class PerceivedResolutionManager(
     private val activity: FieldOfViewVisibilityActivity,
     private val surfaceEntityManager: SurfaceEntityManager,
     private val panelEntityManager: PanelEntityManager,
-) {
+) : LifecycleEventObserver {
     private val cameraLeft: RenderViewpoint = RenderViewpoint.left(session)!!
     private val _mPanelEntityFlow = MutableStateFlow<PanelEntity?>(null)
     var mPanelEntity: PanelEntity?
@@ -93,7 +96,7 @@ class PerceivedResolutionManager(
                     )
                     mTextView?.setLine(
                         "Main Panel Perceived Resolution",
-                        session.scene.mainPanelEntity.getPerceivedResolution().toString(),
+                        session.scene.mainPanelEntity.getPerceivedResolution(cameraLeft).toString(),
                     )
 
                     mTextView?.setLine(
@@ -113,7 +116,9 @@ class PerceivedResolutionManager(
                         )
                         mTextView?.setLine(
                             "Panel Entity Perceived Resolution",
-                            panelEntityManager.panelEntity!!.getPerceivedResolution().toString(),
+                            panelEntityManager.panelEntity!!
+                                .getPerceivedResolution(cameraLeft)
+                                .toString(),
                         )
                     } else {
                         mTextView?.setLine(
@@ -147,7 +152,9 @@ class PerceivedResolutionManager(
                         )
                         mTextView?.setLine(
                             "Surface Entity Perceived Resolution",
-                            surfaceEntityManager.surfaceEntity?.getPerceivedResolution().toString(),
+                            surfaceEntityManager.surfaceEntity
+                                ?.getPerceivedResolution(cameraLeft)
+                                .toString(),
                         )
                     } else {
                         mTextView?.setLine("Surface Entity dimensions", "Can't Retrieve it")
@@ -170,12 +177,13 @@ class PerceivedResolutionManager(
         activity.findViewById<Button>(R.id.button_destroy_perceived_resolution_panel)
 
     init {
+        activity.lifecycle.addObserver(this)
         buttonCreatePerceivedResolutionPanel.setOnClickListener { createPanelEntity() }
 
         buttonDestroyPerceivedResolutionPanel.setOnClickListener {
             destroyPerceivedResolutionPanel()
-            updateButtonStates()
         }
+        updateButtonStates()
     }
 
     private fun updateButtonStates() {
@@ -199,17 +207,14 @@ class PerceivedResolutionManager(
 
             mMovableComponent = MovableComponent.createSystemMovable(session)
             mPanelEntity!!.addComponent(mMovableComponent!!)
-
-            // Start the periodic update for perceived resolution
-            mStopLoop = false
-            mHandler.post(mUpdatePerceivedResolutionRunnable)
         }
+        updateButtonStates()
     }
 
     private fun destroyPerceivedResolutionPanel() {
-        mStopLoop = true
         mPanelEntity?.dispose()
         mPanelEntity = null
+        updateButtonStates()
     }
 
     private fun distanceToCamera(cameraPose: ScenePose?, pose: ScenePose?): String {
@@ -222,5 +227,27 @@ class PerceivedResolutionManager(
                     .toString()
             else "Can't retrieve distance to Camera"
         return distance
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> {
+                mStopLoop = false
+                mHandler.post(mUpdatePerceivedResolutionRunnable)
+            }
+
+            Lifecycle.Event.ON_STOP -> {
+                mStopLoop = true
+                mHandler.removeCallbacks(mUpdatePerceivedResolutionRunnable)
+            }
+
+            Lifecycle.Event.ON_DESTROY -> {
+                destroyPerceivedResolutionPanel()
+            }
+
+            else -> {
+                // Do nothing
+            }
+        }
     }
 }

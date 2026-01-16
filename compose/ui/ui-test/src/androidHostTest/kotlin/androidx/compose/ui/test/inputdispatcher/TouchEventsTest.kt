@@ -16,23 +16,32 @@
 
 package androidx.compose.ui.test.inputdispatcher
 
+import android.view.MotionEvent.ACTION_BUTTON_PRESS
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_HOVER_ENTER
+import android.view.MotionEvent.ACTION_HOVER_EXIT
+import android.view.MotionEvent.ACTION_HOVER_MOVE
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
+import android.view.MotionEvent.BUTTON_PRIMARY
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.AndroidInputDispatcher
 import androidx.compose.ui.test.InputDispatcher.Companion.eventPeriodMillis
+import androidx.compose.ui.test.MouseButton
 import androidx.compose.ui.test.RobolectricMinSdk
 import androidx.compose.ui.test.util.assertHasValidEventTimes
 import androidx.compose.ui.test.util.assertNoTouchGestureInProgress
+import androidx.compose.ui.test.util.verifyMouseEvent
 import androidx.compose.ui.test.util.verifyTouchEvent
 import androidx.compose.ui.test.util.verifyTouchPointer
+import androidx.compose.ui.test.util.verifyTrackpadEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import kotlin.collections.removeFirst as removeFirstKt
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
@@ -722,4 +731,274 @@ class TouchEventsTest : InputDispatcherTest() {
         subject.enqueueTouchCancel()
         expectError<IllegalStateException> { subject.enqueueTouchCancel() }
     }
+
+    @Test
+    fun enqueueTouchDown_exitsMouse() {
+        // Scenario:
+        // enter mouse
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueMouseEnter(position1)
+        expectedEvents += 1 // enter
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // exit + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // enter
+        var t = 0L
+        events.removeFirst(1).let { (enterEvent) ->
+            enterEvent.verifyMouseEvent(ACTION_HOVER_ENTER, t, position1, 0)
+        }
+
+        // exit
+        t += eventPeriodMillis
+        events.removeFirst(1).let { (exitEvent) ->
+            exitEvent.verifyMouseEvent(ACTION_HOVER_EXIT, t, position1, 0)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+
+    @Test
+    fun enqueueTouchDown_cancelsMouse() {
+        // Scenario:
+        // press mouse
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueMousePress(MouseButton.Primary.buttonId)
+        expectedEvents += 2 // down + press
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // cancel + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // down + press
+        var t = 0L
+        var buttonState = BUTTON_PRIMARY
+        events.removeFirst(2).let { (downEvent, pressEvent) ->
+            downEvent.verifyMouseEvent(ACTION_DOWN, t, Offset.Zero, buttonState)
+            pressEvent.verifyMouseEvent(ACTION_BUTTON_PRESS, t, Offset.Zero, buttonState)
+        }
+
+        // cancel
+        t += eventPeriodMillis
+        events.removeFirst(1).let { (cancelEvent) ->
+            cancelEvent.verifyMouseEvent(ACTION_CANCEL, t, Offset.Zero, 0)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+
+    @Test
+    fun enqueueTouchDown_exitsTrackpad() {
+        // Scenario:
+        // enter trackpad
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueTrackpadEnter(position1)
+        expectedEvents += 1 // enter
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // exit + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // enter
+        var t = 0L
+        events.removeFirst(1).let { (enterEvent) ->
+            enterEvent.verifyTrackpadEvent(ACTION_HOVER_ENTER, t, position1, 0)
+        }
+
+        // exit
+        t += eventPeriodMillis
+        events.removeFirst(1).let { (exitEvent) ->
+            exitEvent.verifyTrackpadEvent(ACTION_HOVER_EXIT, t, position1, 0)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+
+    @Test
+    fun enqueueTouchDown_cancelsMouseAfterMove() {
+        // Scenario:
+        // move mouse
+        // press mouse
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueMouseMove(position3)
+        expectedEvents += 2 // enter + hover
+        subject.enqueueMousePress(MouseButton.Primary.buttonId)
+        expectedEvents += 3 // exit + down + press
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // cancel + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // enter + hover
+        var t = 0L
+        var buttonState = 0
+        events.removeFirst(2).let { (enterEvent, hoverEvent) ->
+            enterEvent.verifyMouseEvent(ACTION_HOVER_ENTER, t, position3, buttonState)
+            hoverEvent.verifyMouseEvent(ACTION_HOVER_MOVE, t, position3, buttonState)
+        }
+
+        // exit + down + press
+        buttonState = BUTTON_PRIMARY
+        events.removeFirst(3).let { (exitEvent, downEvent, pressEvent) ->
+            exitEvent.verifyMouseEvent(ACTION_HOVER_EXIT, t, position3, buttonState)
+            downEvent.verifyMouseEvent(ACTION_DOWN, t, position3, buttonState)
+            pressEvent.verifyMouseEvent(ACTION_BUTTON_PRESS, t, position3, buttonState)
+        }
+
+        // cancel
+        t += eventPeriodMillis
+        buttonState = 0
+        events.removeFirst(1).let { (cancelEvent) ->
+            cancelEvent.verifyMouseEvent(ACTION_CANCEL, t, position3, buttonState)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+
+    @Test
+    fun enqueueTouchDown_cancelsTrackpad() {
+        // Scenario:
+        // press trackpad
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        expectedEvents += 2 // down + press
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // cancel + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // down + press
+        var t = 0L
+        var buttonState = BUTTON_PRIMARY
+        events.removeFirst(2).let { (downEvent, pressEvent) ->
+            downEvent.verifyTrackpadEvent(ACTION_DOWN, t, Offset.Zero, buttonState)
+            pressEvent.verifyTrackpadEvent(ACTION_BUTTON_PRESS, t, Offset.Zero, buttonState)
+        }
+
+        // cancel
+        t += eventPeriodMillis
+        events.removeFirst(1).let { (cancelEvent) ->
+            cancelEvent.verifyTrackpadEvent(ACTION_CANCEL, t, Offset.Zero, 0)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+
+    @Test
+    fun enqueueTouchDown_cancelsTrackpadAfterMove() {
+        // Scenario:
+        // move trackpad
+        // press trackpad
+        // press finger 1
+
+        var expectedEvents = 0
+
+        subject.enqueueTrackpadMove(position3)
+        expectedEvents += 2 // enter + hover
+        subject.enqueueTrackpadPress(MouseButton.Primary.buttonId)
+        expectedEvents += 3 // exit + down + press
+        subject.advanceEventTime()
+        subject.enqueueTouchDown(pointer1, position2)
+        expectedEvents += 2 // cancel + down
+        subject.flush()
+
+        recorder.assertHasValidEventTimes()
+        assertThat(recorder.events).hasSize(expectedEvents)
+        val events = recorder.events.toMutableList()
+
+        // enter + hover
+        var t = 0L
+        var buttonState = 0
+        events.removeFirst(2).let { (enterEvent, hoverEvent) ->
+            enterEvent.verifyTrackpadEvent(ACTION_HOVER_ENTER, t, position3, buttonState)
+            hoverEvent.verifyTrackpadEvent(ACTION_HOVER_MOVE, t, position3, buttonState)
+        }
+
+        // exit + down + press
+        buttonState = BUTTON_PRIMARY
+        events.removeFirst(3).let { (exitEvent, downEvent, pressEvent) ->
+            exitEvent.verifyTrackpadEvent(ACTION_HOVER_EXIT, t, position3, buttonState)
+            downEvent.verifyTrackpadEvent(ACTION_DOWN, t, position3, buttonState)
+            pressEvent.verifyTrackpadEvent(ACTION_BUTTON_PRESS, t, position3, buttonState)
+        }
+
+        // cancel
+        t += eventPeriodMillis
+        buttonState = 0
+        events.removeFirst(1).let { (cancelEvent) ->
+            cancelEvent.verifyTrackpadEvent(ACTION_CANCEL, t, position3, buttonState)
+        }
+
+        // down
+        t = 0L // down resets downTime
+        events.removeFirst(1).let { (downEvent) ->
+            downEvent.verifyTouchEvent(1, ACTION_DOWN, 0, t) // pointer1
+            downEvent.verifyTouchPointer(pointer1, position2)
+        }
+    }
+}
+
+private fun <E> MutableList<E>.removeFirst(n: Int): List<E> {
+    return mutableListOf<E>().also { result -> repeat(n) { result.add(removeFirstKt()) } }
 }

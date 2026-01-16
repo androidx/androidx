@@ -29,7 +29,6 @@ import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.RenderNode
 import android.os.Build
-import android.os.Handler
 import android.os.Looper
 import android.view.SurfaceView
 import android.view.View
@@ -60,7 +59,6 @@ import kotlin.math.floor
  * @param callback How to render the desired content within the front buffer.
  * @param renderer Draws individual stroke objects using [Canvas].
  * @param canvasFrontBufferedRendererWrapper Override the default only for testing.
- * @param uiThreadHandler Override the default only for testing.
  */
 @Suppress("ObsoleteSdkInt") // TODO(b/262911421): Should not need to suppress.
 @RequiresApi(Build.VERSION_CODES.Q)
@@ -84,7 +82,6 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                 callback::onStrokeCohortHandoffToHwuiComplete,
             )
         },
-    private val uiThreadHandler: Handler = Handler(Looper.getMainLooper()),
 ) : InProgressStrokesRenderHelper<ShapeSpecT, InProgressShapeT, CompletedShapeT> {
 
     // The front buffer is updated each time rather than cleared and completely redrawn every time
@@ -120,7 +117,7 @@ internal class CanvasInProgressStrokesRenderHelperV29<
             @UiThread
             override fun onViewDetachedFromWindow(v: View) {
                 frontBufferToHwuiHandoff.cleanup()
-                canvasFrontBufferedRendererWrapper.release(::recordRenderThreadIdentity)
+                canvasFrontBufferedRendererWrapper.release()
                 mainView.removeView(surfaceView)
             }
         }
@@ -147,8 +144,6 @@ internal class CanvasInProgressStrokesRenderHelperV29<
                 bufferWidth: Int,
                 bufferHeight: Int,
             ) {
-                recordRenderThreadIdentity()
-
                 ensureOffScreenFrameBuffer(bufferWidth, bufferHeight)
 
                 // Just in case save/restores get imbalanced among callbacks
@@ -191,9 +186,6 @@ internal class CanvasInProgressStrokesRenderHelperV29<
     }
 
     private val frontBufferToHwuiHandoff = frontBufferToHwuiHandoffFactory(surfaceView)
-
-    /** Saved to later ensure that certain operations are running on the appropriate thread. */
-    private lateinit var renderThread: Thread
 
     private var offScreenFrameBuffer: RenderNode? = null
 
@@ -347,9 +339,20 @@ internal class CanvasInProgressStrokesRenderHelperV29<
 
     @WorkerThread
     override fun assertOnRenderThread() {
-        check(::renderThread.isInitialized) { "Don't yet know how to identify the render thread." }
-        check(Thread.currentThread() == renderThread) {
-            "Should be running on the render thread, but instead running on ${Thread.currentThread()}."
+        // Actually just checks that this is not on the UI thread.
+        //
+        // This implementation doesn't have control over its own thread, which is initialized by
+        // CanvasFrontBufferedRenderer and can't be read from there. While we could try to record it
+        // in
+        // the callback and check that here, the old thread is released asynchronously (canceling
+        // pending tasks, but still possibly waiting on in-progress tasks), so there's no guarantee
+        // that
+        // there aren't still callbacks in flight on the old thread when this assertion is called by
+        // something on the new thread. Instead, just assert that we're not on the main thread,
+        // which
+        // will catch most of the cases where one of these methods is called from the wrong thread.
+        check(Looper.myLooper() != Looper.getMainLooper()) {
+            "Should not be running on the UI thread."
         }
     }
 
@@ -391,15 +394,6 @@ internal class CanvasInProgressStrokesRenderHelperV29<
         )
         canvasFrontBufferedRendererWrapper.init(surfaceView, canvasFrontBufferedRendererCallback)
         frontBufferToHwuiHandoff.setup()
-    }
-
-    @WorkerThread
-    private fun recordRenderThreadIdentity() {
-        if (!::renderThread.isInitialized) {
-            renderThread = Thread.currentThread()
-        }
-        // Catch cases where the render thread changes since we recorded its identity.
-        assertOnRenderThread()
     }
 
     /**

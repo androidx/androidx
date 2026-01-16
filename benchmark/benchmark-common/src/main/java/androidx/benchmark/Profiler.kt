@@ -373,7 +373,7 @@ internal object StackSamplingSimpleperf : Profiler() {
     @RequiresApi(29)
     override fun stop() {
         Log.d(TAG, "Stopping profiling session")
-        session!!.stopRecording()
+        session?.stopRecording()
         securityPerfHarden.resetIfOverridden()
     }
 

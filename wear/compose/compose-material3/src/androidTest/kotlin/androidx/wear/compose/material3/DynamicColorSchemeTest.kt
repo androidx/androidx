@@ -19,7 +19,7 @@ package androidx.wear.compose.material3
 import android.os.Build
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Assert.assertEquals

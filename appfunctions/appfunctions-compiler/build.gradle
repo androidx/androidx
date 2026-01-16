@@ -41,7 +41,7 @@ dependencies {
     testImplementationAarAsJar(project(":appfunctions:appfunctions"))
     testImplementationAarAsJar(project(":appfunctions:appfunctions-service"))
     // TODO(b/438455972): Use ToT of compiler-processing-testing
-    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0-rc02")
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 

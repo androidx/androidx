@@ -32,8 +32,8 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 26
-        compileSdk = 35
+        minSdk { version = release(26) }
+        compileSdk { version = release(35) }
     }
     namespace = "androidx.glance.wear.tiles.demos"
 }

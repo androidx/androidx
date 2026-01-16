@@ -84,9 +84,10 @@ class SpatialUserActivity : AppCompatActivity() {
         session!!.configure(
             Config(
                 planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                headTracking = Config.HeadTrackingMode.LAST_KNOWN,
+                deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
             )
         )
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
         device = ArDevice.getInstance(session!!)
         cameraLeft = RenderViewpoint.left(session!!)
         cameraRight = RenderViewpoint.right(session!!)

@@ -60,6 +60,7 @@ class ActivityPanelActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // Set toolbar
         findViewById<Toolbar>(R.id.top_app_bar_activity_panel).also {
@@ -104,6 +105,7 @@ class ActivityPanelActivity : AppCompatActivity() {
                     val resizeableComponent =
                         ResizableComponent.create(session!!, resizeEventListener = resizeListener)
                     activityPanelEntity.addComponent(resizeableComponent)
+                    activityPanelEntity.parent = session!!.scene.keyEntity
 
                     secondaryPanelLaunched = true
                 }

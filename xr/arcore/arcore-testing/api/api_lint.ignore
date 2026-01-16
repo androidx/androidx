@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+HiddenSuperclass: androidx.xr.arcore.testing.FakeLifecycleManager:
+    Public class androidx.xr.arcore.testing.FakeLifecycleManager stripped of unavailable superclass androidx.xr.runtime.internal.LifecycleManager
+HiddenSuperclass: androidx.xr.arcore.testing.FakeRuntimeAnchor:
+    Public class androidx.xr.arcore.testing.FakeRuntimeAnchor stripped of unavailable superclass androidx.xr.arcore.runtime.Anchor
+HiddenSuperclass: androidx.xr.arcore.testing.FakeRuntimeDepthMap:
+    Public class androidx.xr.arcore.testing.FakeRuntimeDepthMap stripped of unavailable superclass androidx.xr.arcore.runtime.DepthMap
+HiddenSuperclass: androidx.xr.arcore.testing.FakeRuntimeEye:
+    Public class androidx.xr.arcore.testing.FakeRuntimeEye stripped of unavailable superclass androidx.xr.arcore.runtime.Eye
+HiddenSuperclass: androidx.xr.arcore.testing.FakeRuntimeFace:
+    Public class androidx.xr.arcore.testing.FakeRuntimeFace stripped of unavailable superclass androidx.xr.arcore.runtime.Face
+HiddenSuperclass: androidx.xr.arcore.testing.FakeRuntimeHand:
+    Public class androidx.xr.arcore.testing.FakeRuntimeHand stripped of unavailable superclass androidx.xr.arcore.runtime.Hand

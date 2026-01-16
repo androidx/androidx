@@ -38,10 +38,9 @@ import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.input.rotary.findRotaryInputDevice
 import androidx.compose.ui.input.rotary.onPreRotaryScrollEvent
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performKeyPress
 import androidx.compose.ui.test.performRotaryScrollInput
@@ -491,7 +490,6 @@ class FocusAwareEventPropagationTest(private val nodeType: NodeType) {
             }
             RotaryInput -> {
                 check(sentEvent is RotaryScrollEvent)
-                @OptIn(ExperimentalTestApi::class)
                 performRotaryScrollInput {
                     rotateToScrollVertically(sentEvent.verticalScrollPixels)
                 }

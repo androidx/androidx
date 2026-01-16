@@ -117,8 +117,8 @@ internal object AutoFocusScrollConverter : GlimmerListAutoFocusScrollConverter {
 /**
  * No conversion: content scroll is always equal to user scroll as in common lazy lists (Su==Sc).
  *
- * We use this behaviour when a list is small enough to fully fit into viewport size (L < h). So we
- * don't need to apply the AutoFocus behaviour to such a list, instead, the system moves focus by
+ * We use this behavior when a list is small enough to fully fit into viewport size (L < h). So we
+ * don't need to apply the AutoFocus behavior to such a list, instead, the system moves focus by
  * swiping.
  */
 private object NoConversion : GlimmerListAutoFocusScrollConverter {
@@ -230,7 +230,7 @@ private object AdaptiveScrollConverter : GlimmerListAutoFocusScrollConverter {
         val L = contentLength
         val t = d + h / 2
         // Please refer to the description of the sibling method [convertUserScrollToContentScroll].
-        // The difference is that there it performed the transformation x->y, while here it is y->x.
+        // The difference is that there it performs the transformation x->y, while here it is y->x.
         //
         // We have guarantees that both parabolas have only a single root within the given range.
         val x =
@@ -328,7 +328,7 @@ internal fun GlimmerListAutoFocusScrollConverter.convertContentScrollToUserScrol
  * focus will reach the center after scrolling 300dp of the content — that is, sixth of the viewport
  * height.
  *
- * Note that this behaviour only applies to lists with enough content to scroll. If the list is too
+ * Note that this behavior only applies to lists with enough content to scroll. If the list is too
  * short to scroll, the focus line moves using different rules.
  */
 internal const val ProportionalThresholdFactor = 0.6f

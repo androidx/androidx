@@ -65,7 +65,7 @@ private fun RememberLauncherForAuthResult(id: String) {
                 authResult = id + result.toText()
             }
 
-            override fun onAuthFailure() {
+            override fun onAuthAttemptFailed() {
                 authResult = id + "fail, try again"
             }
         }

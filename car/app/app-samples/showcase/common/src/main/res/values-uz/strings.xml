@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"Qator ham tanlanishi mumkin"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"Ikkilamchi amal tanlandi"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"Asosiy amal qatori tanlandi"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"Qator oxiridagi rasm va amallar demosi"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"Boʻsh roʻyxat demosi"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"Roʻyxat boʻsh"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"Aralash andozalar demolari"</string>

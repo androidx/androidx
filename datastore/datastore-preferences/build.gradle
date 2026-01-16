@@ -45,47 +45,18 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinCoroutinesCore)
-                api(project(":datastore:datastore"))
-                api(project(":datastore:datastore-preferences-core"))
-            }
+        commonMain.dependencies {
+            api(libs.kotlinCoroutinesCore)
+            api(project(":datastore:datastore"))
+            api(project(":datastore:datastore-preferences-core"))
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
         }
-        commonJvmMain {
-            dependsOn(commonMain)
-        }
-        commonJvmTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.kotlinTest)
-            }
-        }
-        jvmMain {
-            dependsOn(commonJvmMain)
-        }
-        jvmTest {
-            dependsOn(commonJvmTest)
-        }
-        androidMain {
-            dependsOn(commonJvmMain)
-        }
-        androidHostTest {
-            dependsOn(commonJvmTest)
-        }
-        androidDeviceTest {
-            dependsOn(commonJvmTest)
-            dependencies {
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
+            implementation(libs.testCore)
         }
     }
 }

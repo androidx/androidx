@@ -23,7 +23,10 @@ import android.net.Uri
 import android.util.Size
 import android.util.SparseArray
 import androidx.annotation.IntDef
+import androidx.annotation.LongDef
 import androidx.annotation.RestrictTo
+import androidx.pdf.annotation.KeyedPdfAnnotation
+import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageGotoLinkContent
@@ -32,6 +35,7 @@ import androidx.pdf.content.PdfPageLinkContent
 import androidx.pdf.content.PdfPageTextContent
 import androidx.pdf.models.FormWidgetInfo
 import java.io.Closeable
+import java.util.concurrent.Executor
 import kotlinx.coroutines.CancellationException
 
 /** Represents a PDF document and provides methods to interact with its content. */
@@ -46,8 +50,20 @@ public interface PdfDocument : Closeable {
     /** Indicates whether the document is linearized (optimized for fast web viewing). */
     public val isLinearized: Boolean
 
-    /** The type of form present in the document. */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) public val formType: Int
+    /**
+     * The render params used to determine the contents that will be rendered on the bitmap.
+     *
+     * @see RenderParams
+     * @see BitmapSource.getBitmap
+     */
+    public val renderParams: RenderParams
+
+    /**
+     * The type of form present in the document.
+     *
+     * @see [FormType] for the supported types.
+     */
+    @FormType public val formType: Int
 
     /**
      * Asynchronously retrieves information about the specified page.
@@ -61,13 +77,13 @@ public interface PdfDocument : Closeable {
      * Asynchronously retrieves information about the specified page.
      *
      * @param pageNumber The page number (0-based).
-     * @param pageInfoFlags The flags for retrieving additional page information.
+     * @param pageInfoFlags A bitmask for retrieving additional page information. Does not include
+     *   any additional information by default.
      * @return A [PageInfo] object containing information about the page.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun getPageInfo(
         pageNumber: Int,
-        pageInfoFlags: PageInfoFlags = PageInfoFlags.of(0),
+        @PageInfoFlags pageInfoFlags: Long = PAGE_INFO_EXCLUDE_FORM_WIDGETS,
     ): PageInfo
 
     /**
@@ -82,13 +98,13 @@ public interface PdfDocument : Closeable {
      * Asynchronously retrieves information about a range of pages.
      *
      * @param pageRange The range of page numbers (0-based, inclusive).
-     * @param pageInfoFlags The flags for retrieving additional page information.
+     * @param pageInfoFlags A bitmask for retrieving additional page information. Does not include
+     *   any additional information by default.
      * @return A list of [PageInfo] objects, one for each page in the range.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun getPageInfos(
         pageRange: IntRange,
-        pageInfoFlags: PageInfoFlags,
+        @PageInfoFlags pageInfoFlags: Long = PAGE_INFO_EXCLUDE_FORM_WIDGETS,
     ): List<PageInfo>
 
     /**
@@ -146,6 +162,17 @@ public interface PdfDocument : Closeable {
     public suspend fun getPageLinks(pageNumber: Int): PdfPageLinks
 
     /**
+     * Retrieves a list of all annotations for the specified page.
+     *
+     * @param pageNum The page number (0-indexed) from which to retrieve edits.
+     * @return A list of [KeyedPdfAnnotation] objects on the page. Returns an empty list if there
+     *   are no edits on the page.
+     * @throws IllegalArgumentException if the page number is invalid.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation>
+
+    /**
      * Gets a [BitmapSource] for retrieving bitmap representations of the specified page.
      *
      * @param pageNumber The page number (0-based).
@@ -154,37 +181,37 @@ public interface PdfDocument : Closeable {
     public fun getPageBitmapSource(pageNumber: Int): BitmapSource
 
     /**
-     * Returns the list of [FormWidgetInfo] on [pageNum]
-     *
-     * @property pageNum The page number (0-based).
-     * @return A list of [FormWidgetInfo] objects representing the form widgets on the given page.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public suspend fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo>
-
-    /**
      * Returns the list of [FormWidgetInfo] on [pageNum], optionally filtered by widget type.
      *
-     * @property pageNum The page number (0-based).
-     * @property types The [FormWidgetInfo.WidgetType] of form widgets to return, or an empty array
-     *   to return all widgets.
+     * @param pageNum The page number (0-based).
+     * @param types Bitmask to determine the types of form widgets to include in the result.
+     *   Includes all types of form widgets by default.
      * @return A list of [FormWidgetInfo] objects representing the form widgets of the specified
      *   types on the specified page.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public suspend fun getFormWidgetInfos(
         pageNum: Int,
-        types: IntArray = intArrayOf(),
+        @FormWidgetTypeFlags types: Long = FORM_WIDGET_INCLUDE_ALL_TYPES,
     ): List<FormWidgetInfo>
 
     /**
-     * Listener interface for receiving notifications when some regions of the pdf content are
-     * invalidated.
+     * Returns the topmost page object at a specific point on the page.
+     *
+     * @param pageNum The page number (0-based).
+     * @param point The point on the page to query.
+     * @return The topmost [PdfObject] at the specified point or returns null if no page object is
+     *   present.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject?
+
+    /**
+     * Listener interface for receiving notifications when some regions of the PDF content are
+     * invalidated.
+     */
     public interface OnPdfContentInvalidatedListener {
         /**
-         * Invoked when some regions of the pdf content are invalidated, and need to be re-rendered.
+         * Invoked when some regions of the PDF content are invalidated, and need to be re-rendered.
          * (example scenario - when a form field is edited in the PDF.)
          *
          * @param pageNumber The page number (0-index based) on which the content was invalidated.
@@ -195,10 +222,25 @@ public interface PdfDocument : Closeable {
         public fun onPdfContentInvalidated(pageNumber: Int, dirtyAreas: List<Rect>)
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public fun addOnPdfContentInvalidatedListener(listener: OnPdfContentInvalidatedListener)
+    /**
+     * Adds a listener to receive notifications when some regions of the PDF content are
+     * invalidated.
+     *
+     * @param executor The executor on which the listener's methods will be called.
+     * @param listener The listener to add.
+     * @see [OnPdfContentInvalidatedListener]
+     */
+    public fun addOnPdfContentInvalidatedListener(
+        executor: Executor,
+        listener: OnPdfContentInvalidatedListener,
+    )
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    /**
+     * Removes the listener from the list of listeners which are notified when some regions of the
+     * PDF content are invalidated.
+     *
+     * @param listener The listener to remove.
+     */
     public fun removeOnPdfContentInvalidatedListener(listener: OnPdfContentInvalidatedListener)
 
     /**
@@ -207,22 +249,18 @@ public interface PdfDocument : Closeable {
      * @property pageNum The page number (0-based).
      * @property height The height of the page in points.
      * @property width The width of the page in points.
+     * @property formWidgetInfos (Optional) A list of [FormWidgetInfo] objects representing the form
+     *   widgets present on the given [pageNum]. This property is only populated if
+     *   [PdfDocument.INCLUDE_PAGE_FORM_WIDGET_INFO] is set in the 'pageInfoFlags' passed to
+     *   [PdfDocument.getPageInfo]. It will be empty if FormWidgetInfo is not requested or if there
+     *   are no form widgets present on the page.
      */
-    public class PageInfo
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public constructor(
+    public class PageInfo(
         public val pageNum: Int,
         public val height: Int,
         public val width: Int,
-        @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-        public val formWidgetInfos: List<FormWidgetInfo>? = null,
-    ) {
-        public constructor(
-            pageNum: Int,
-            height: Int,
-            width: Int,
-        ) : this(pageNum, height, width, formWidgetInfos = null)
-    }
+        public val formWidgetInfos: List<FormWidgetInfo> = emptyList(),
+    )
 
     /** A source for retrieving bitmap representations of PDF pages. */
     public interface BitmapSource : Closeable {
@@ -230,7 +268,8 @@ public interface PdfDocument : Closeable {
 
         /**
          * Asynchronously retrieves a bitmap representation of the page, optionally constrained to a
-         * specific tile region.
+         * specific tile region. [renderParams] is used to determine what contents are rendered on
+         * the bitmap.
          *
          * @param scaledPageSizePx The scaled page size in pixels, representing the page size in
          *   case of no zoom, and scaled page size in case of zooming.
@@ -238,6 +277,7 @@ public interface PdfDocument : Closeable {
          *   within the `scaledPageSizePx`. This identifies the tile. If null, the entire page is
          *   included.
          * @return The bitmap representation of the page.
+         * @see renderParams
          */
         public suspend fun getBitmap(scaledPageSizePx: Size, tileRegion: Rect? = null): Bitmap
     }
@@ -281,14 +321,6 @@ public interface PdfDocument : Closeable {
         public override val cause: Throwable? = null,
     ) : CancellationException()
 
-    /** Specifies the flags for loading pageInfo. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public class PageInfoFlags private constructor(public val value: Long) {
-        public companion object {
-            @JvmStatic public fun of(value: Long): PageInfoFlags = PageInfoFlags(value)
-        }
-    }
-
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         PDF_FORM_TYPE_NONE,
@@ -299,21 +331,67 @@ public interface PdfDocument : Closeable {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public annotation class FormType
 
-    public companion object {
-        /** Flag used with [getPageInfo] to include form widget metadata in the [PageInfo] */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        public const val INCLUDE_FORM_WIDGET_INFO: Long = 1 shl 0
+    @LongDef(flag = true, value = [PAGE_INFO_EXCLUDE_FORM_WIDGETS, PAGE_INFO_INCLUDE_FORM_WIDGET])
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public annotation class PageInfoFlags
 
+    @LongDef(
+        flag = true,
+        value =
+            [
+                FORM_WIDGET_INCLUDE_ALL_TYPES,
+                FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE,
+                FORM_WIDGET_INCLUDE_CHECKBOX_TYPE,
+                FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE,
+                FORM_WIDGET_INCLUDE_COMBOBOX_TYPE,
+                FORM_WIDGET_INCLUDE_LISTBOX_TYPE,
+                FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE,
+                FORM_WIDGET_INCLUDE_SIGNATURE_TYPE,
+            ],
+    )
+    @Retention(AnnotationRetention.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public annotation class FormWidgetTypeFlags
+
+    public companion object {
         /** Represents a PDF with no form fields */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_NONE: Int = 0
+        public const val PDF_FORM_TYPE_NONE: Int = 0
 
         /** Represents a PDF with form fields specified using the AcroForm spec */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_ACRO_FORM: Int = 1
+        public const val PDF_FORM_TYPE_ACRO_FORM: Int = 1
 
         /** Represents a PDF with form fields specified using the entire XFA spec */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_XFA_FULL: Int = 2
+        public const val PDF_FORM_TYPE_XFA_FULL: Int = 2
 
         /** Represents a PDF with form fields specified using the XFAF subset of the XFA spec */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) public const val PDF_FORM_TYPE_XFA_FOREGROUND: Int = 3
+        public const val PDF_FORM_TYPE_XFA_FOREGROUND: Int = 3
+
+        /**
+         * Flag used with [getPageInfo] to exclude any additional information in the returned
+         * [PageInfo]
+         */
+        public const val PAGE_INFO_EXCLUDE_FORM_WIDGETS: Long = 0L
+        /** Flag used with [getPageInfo] to include form widget metadata in the [PageInfo] */
+        public const val PAGE_INFO_INCLUDE_FORM_WIDGET: Long = 1 shl 0
+
+        /** Flag to include all types of form widgets in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_ALL_TYPES: Long = -1
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_UNKNOWN] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_UNKNOWN_TYPE: Long = 1 shl 0
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_PUSHBUTTON_TYPE: Long = 1 shl 1
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_CHECKBOX] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_CHECKBOX_TYPE: Long = 1 shl 2
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_RADIOBUTTON_TYPE: Long = 1 shl 3
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_COMBOBOX] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_COMBOBOX_TYPE: Long = 1 shl 4
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_LISTBOX] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_LISTBOX_TYPE: Long = 1 shl 5
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_TEXTFIELD] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_TEXTFIELD_TYPE: Long = 1 shl 6
+        /** Flag to include [FormWidgetInfo.WIDGET_TYPE_SIGNATURE] in [getFormWidgetInfos] */
+        public const val FORM_WIDGET_INCLUDE_SIGNATURE_TYPE: Long = 1 shl 7
     }
 }

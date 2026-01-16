@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"เลือกแถวได้ด้วย"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"เลือกการดำเนินการสำรองแล้ว"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"เลือกการดำเนินการหลักของแถวแล้ว"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"การสาธิตรูปภาพและการดำเนินการส่วนท้ายของแถว"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"การสาธิตรายการที่ว่างเปล่า"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"รายการว่างเปล่า"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"การสาธิตเทมเพลตเบ็ดเตล็ด"</string>

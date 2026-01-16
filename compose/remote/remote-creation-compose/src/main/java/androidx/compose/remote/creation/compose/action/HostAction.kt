@@ -20,17 +20,18 @@ package androidx.compose.remote.creation.compose.action
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.HostNamedActionOperation
 import androidx.compose.remote.creation.actions.HostAction
-import androidx.compose.remote.creation.compose.state.FallbackCreationState
-import androidx.compose.remote.creation.compose.state.MutableRemoteInt
-import androidx.compose.remote.creation.compose.state.MutableRemoteString
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteInt
+import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
+import androidx.compose.remote.creation.compose.state.RemoteString
 
 /** Run the named host action when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class HostAction(
-    public val name: String,
+    public val name: RemoteString,
     public val type: Type = Type.INT,
-    public var id: Int = -1,
+    public val value: RemoteState<*>? = null,
 ) : Action {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -43,23 +44,20 @@ public class HostAction(
     }
 
     // TODO: Add a RemoteFloatArray type and use it here!
-    public constructor(
-        name: String,
-        value: RemoteFloat,
-        type: Type = Type.FLOAT,
-    ) : this(name, type, value.getIdForCreationState(FallbackCreationState.state))
+    public constructor(name: RemoteString, value: RemoteFloat) : this(name, Type.FLOAT, value)
 
-    public constructor(
-        name: String,
-        value: MutableRemoteInt,
-    ) : this(name, Type.INT, value.getIdForCreationState(FallbackCreationState.state))
+    public constructor(name: RemoteString, value: RemoteInt) : this(name, Type.INT, value)
 
-    public constructor(
-        name: String,
-        value: MutableRemoteString,
-    ) : this(name, Type.STRING, value.getIdForCreationState(FallbackCreationState.state))
+    public constructor(name: RemoteString, value: RemoteString) : this(name, Type.STRING, value)
 
-    override fun toRemoteAction(): androidx.compose.remote.creation.actions.Action {
-        return HostAction(name, type.ordinal, id)
+    override fun RemoteStateScope.toRemoteAction():
+        androidx.compose.remote.creation.actions.Action {
+        val valueId = value?.id ?: -1
+        val constantValue = name.constantValue
+        return if (constantValue != null) {
+            HostAction(constantValue, type.ordinal, valueId)
+        } else {
+            HostAction(name.id, valueId)
+        }
     }
 }

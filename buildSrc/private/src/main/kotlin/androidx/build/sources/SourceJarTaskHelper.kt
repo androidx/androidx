@@ -46,6 +46,7 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 
 /** Sets up a source jar task for an Android library project. */
@@ -261,13 +262,18 @@ fun createSourceSetMetadata(kmpExtension: KotlinMultiplatformExtension): Map<Str
             sourceSetsByName.getOrPut(it.name) {
                 mapOf(
                     "name" to it.name,
-                    "dependencies" to it.dependsOn.map { it.name }.sorted(),
+                    "dependencies" to it.transitiveDependsOn().map { it.name }.sorted(),
                     "analysisPlatform" to target.docsPlatform().jsonName,
                 )
             }
         }
     }
     return mapOf("sourceSets" to sourceSetsByName.keys.sorted().map { sourceSetsByName[it] })
+}
+
+private fun KotlinSourceSet.transitiveDependsOn(): Set<KotlinSourceSet> {
+    val directDependencies = this.dependsOn
+    return directDependencies + directDependencies.flatMap { it.transitiveDependsOn() }
 }
 
 private fun Project.registerSamplesLibraries(

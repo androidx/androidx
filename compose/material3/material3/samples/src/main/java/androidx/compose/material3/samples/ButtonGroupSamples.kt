@@ -285,6 +285,7 @@ fun VerticalButtonGroupSample() {
                         shape = shape,
                         checkedShape = ButtonGroupDefaults.connectedButtonCheckedShape,
                     ),
+                modifier = Modifier.semantics { role = Role.RadioButton },
             ) {
                 Text(label)
             }

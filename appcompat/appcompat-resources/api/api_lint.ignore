@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+HiddenSuperclass: androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat:
+    Public class androidx.appcompat.graphics.drawable.AnimatedStateListDrawableCompat stripped of unavailable superclass androidx.core.graphics.drawable.TintAwareDrawable
+
+
 InvalidNullabilityOverride: androidx.appcompat.graphics.drawable.DrawableContainerCompat#setTintMode(android.graphics.PorterDuff.Mode) parameter #0:
     Invalid nullability on type android.graphics.PorterDuff.Mode in parameter `tintMode` in method `setTintMode`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is nullable.
 

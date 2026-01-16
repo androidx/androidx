@@ -255,7 +255,7 @@
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"不兼容的主机"</string>
     <string name="email_hint" msgid="7205549445477319606">"电子邮件"</string>
     <string name="sign_in_title" msgid="4551967308262681703">"登录"</string>
-    <string name="sign_in_instructions" msgid="9044850228284294762">"输入您的凭据"</string>
+    <string name="sign_in_instructions" msgid="9044850228284294762">"输入您的凭证"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"用户名必须是有效的电子邮件地址"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"用户名的长度必须至少为 %s 个字符"</string>
     <string name="invalid_password_error_msg" msgid="1090359893902674610">"密码无效"</string>
@@ -337,6 +337,7 @@
     <string name="secondary_actions_decoration_test_subtitle" msgid="155884606592724532">"也可以选择行"</string>
     <string name="secondary_action_toast" msgid="5076434693504006565">"次要操作处于选中状态"</string>
     <string name="row_primary_action_toast" msgid="756516694751965204">"行主要操作处于选中状态"</string>
+    <string name="row_end_image_and_actions_demo_title" msgid="4581677315854620705">"行尾图片和操作演示"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"空列表演示"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"列表为空"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"其他模板演示"</string>

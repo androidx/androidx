@@ -28,7 +28,7 @@ import kotlin.math.sqrt
  * [2, 5, 8]
  * ```
  *
- * @param dataToCopy the array with 9 elements that will be copied over.
+ * @param dataToCopy the array with 9 elements that will be copied over
  */
 public class Matrix3(dataToCopy: FloatArray) {
     init {
@@ -226,7 +226,11 @@ public class Matrix3(dataToCopy: FloatArray) {
             data[8] +
             " ]"
 
-    /** Returns a copy of the matrix. */
+    /**
+     * Returns a copy of the matrix.
+     *
+     * @param data the new data for the copied matrix
+     */
     public fun copy(data: FloatArray = this.data): Matrix3 = Matrix3(data)
 
     public companion object {
@@ -238,12 +242,20 @@ public class Matrix3(dataToCopy: FloatArray) {
         @JvmField
         public val ZERO: Matrix3 = Matrix3(floatArrayOf(0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f))
 
-        /** Returns a new scale matrix. */
+        /**
+         * Returns a new scale matrix.
+         *
+         * @param scale the scale vector
+         */
         @JvmStatic
         public fun fromScale(scale: Vector3): Matrix3 =
             Matrix3(floatArrayOf(scale.x, 0.0f, 0.0f, 0.0f, scale.y, 0.0f, 0.0f, 0.0f, scale.z))
 
-        /** Returns a new uniform scale matrix. */
+        /**
+         * Returns a new uniform scale matrix.
+         *
+         * @param scale the uniform scale factor
+         */
         @JvmStatic
         public fun fromScale(scale: Float): Matrix3 =
             Matrix3(floatArrayOf(scale, 0.0f, 0.0f, 0.0f, scale, 0.0f, 0.0f, 0.0f, scale))
@@ -253,6 +265,8 @@ public class Matrix3(dataToCopy: FloatArray) {
          * This function uses a standard formula for the conversion, though alternative algebraic
          * expressions exist due to differing conventions. The resulting matrix typically transforms
          * 3D column vectors by pre-multiplication (e.g., $v'_{new} = M \cdot v_{old}$).
+         *
+         * @param quaternion the quaternion to convert
          */
         @JvmStatic
         public fun fromQuaternion(quaternion: Quaternion): Matrix3 {

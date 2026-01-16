@@ -16,6 +16,8 @@
 
 package androidx.xr.scenecore.spatial.core;
 
+import static androidx.xr.scenecore.spatial.core.PerceivedResolutionUtils.getDisplayResolutionInPixels;
+
 import static java.lang.Math.min;
 
 import android.content.Context;
@@ -23,14 +25,15 @@ import android.content.res.Resources;
 import android.util.TypedValue;
 
 import androidx.core.util.TypedValueCompat;
+import androidx.xr.runtime.FieldOfView;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Vector2;
 import androidx.xr.runtime.math.Vector3;
-import androidx.xr.scenecore.runtime.CameraViewScenePose;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.PanelEntity;
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult;
 import androidx.xr.scenecore.runtime.PixelDimensions;
+import androidx.xr.scenecore.runtime.ScenePose;
 import androidx.xr.scenecore.runtime.Space;
 
 import com.android.extensions.xr.XrExtensions;
@@ -39,6 +42,7 @@ import com.android.extensions.xr.node.NodeTransaction;
 
 import org.jspecify.annotations.NonNull;
 
+import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
 
 /** BasePanelEntity provides implementations of capabilities common to PanelEntities. */
@@ -119,38 +123,23 @@ abstract class BasePanelEntity extends AndroidXrEntity implements PanelEntity {
     }
 
     @Override
-    public @NonNull PerceivedResolutionResult getPerceivedResolution() {
-        // Get the Camera View with which to compute Perceived Resolution
-        CameraViewScenePose cameraView =
-                PerceivedResolutionUtils.getPerceivedResolutionCameraView(mEntityManager);
-        if (cameraView == null) {
-            return new PerceivedResolutionResult.InvalidCameraView();
-        }
-
+    public @NonNull PerceivedResolutionResult getPerceivedResolution(
+            @NonNull ScenePose renderViewScenePose, @NonNull FieldOfView renderViewFov) {
         // Compute the width, height, and distance to camera, of the panel in activity space units
         float panelWidthInActivitySpace = getSize().width * getScale(Space.ACTIVITY).getX();
         float panelHeightInActivitySpace = getSize().height * getScale(Space.ACTIVITY).getY();
-        Vector3 cameraPositionInActivitySpace = cameraView.getActivitySpacePose().getTranslation();
+        Vector3 cameraPositionInActivitySpace =
+                renderViewScenePose.getActivitySpacePose().getTranslation();
         float PanelDistanceToCameraInActivitySpace =
                 Vector3.distance(
                         cameraPositionInActivitySpace, getPose(Space.ACTIVITY).getTranslation());
 
         return PerceivedResolutionUtils.getPerceivedResolutionOfPanel(
-                cameraView,
+                renderViewFov,
+                getDisplayResolutionInPixels(Objects.requireNonNull(getContext())),
                 panelWidthInActivitySpace,
                 panelHeightInActivitySpace,
                 PanelDistanceToCameraInActivitySpace);
-    }
-
-    @Override
-    public void setCornerRadius(float value) {
-        if (value < 0.0f) {
-            throw new IllegalArgumentException("Corner radius can't be negative: " + value);
-        }
-        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
-            transaction.setCornerRadius(mNode, value).apply();
-            mCornerRadius = value;
-        }
     }
 
     // Sets just the value of the corner radius, without updating the node. This should be only be
@@ -163,6 +152,17 @@ abstract class BasePanelEntity extends AndroidXrEntity implements PanelEntity {
     @Override
     public float getCornerRadius() {
         return mCornerRadius;
+    }
+
+    @Override
+    public void setCornerRadius(float value) {
+        if (value < 0.0f) {
+            throw new IllegalArgumentException("Corner radius can't be negative: " + value);
+        }
+        try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
+            transaction.setCornerRadius(mNode, value).apply();
+            mCornerRadius = value;
+        }
     }
 
     @Override

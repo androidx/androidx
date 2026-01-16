@@ -85,6 +85,7 @@ internal constructor(
                 ERROR_CATEGORY_SYSTEM,
             ]
     )
+    @Retention(AnnotationRetention.SOURCE)
     internal annotation class ErrorCategory
 
     @IntDef(
@@ -104,6 +105,7 @@ internal constructor(
                 ERROR_NOT_SUPPORTED,
             ]
     )
+    @Retention(AnnotationRetention.SOURCE)
     internal annotation class ErrorCode
 
     public companion object {

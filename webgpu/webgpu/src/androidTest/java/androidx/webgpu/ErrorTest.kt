@@ -38,7 +38,7 @@ class ErrorTest {
             val device = webGpu.device
             assertThrows(ValidationException::class.java) {
                 device.createTexture(
-                    TextureDescriptor(usage = TextureUsage.None, size = Extent3D(0))
+                    GPUTextureDescriptor(usage = TextureUsage.None, size = GPUExtent3D(0))
                 )
             }
         }

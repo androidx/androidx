@@ -30,6 +30,7 @@ import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import java.lang.reflect.InvocationTargetException
 import kotlin.reflect.KClass
 
+@Suppress("KmpModifierMismatch") // expect is not open
 public actual open class ViewModelProvider
 private constructor(private val impl: ViewModelProviderImpl) {
 
@@ -168,6 +169,7 @@ private constructor(private val impl: ViewModelProviderImpl) {
     }
 
     /** Simple factory, which calls empty constructor on the give class. */
+    @Suppress("KmpSignatureClash") // also defined in desktop
     public open class NewInstanceFactory
     /**
      * Construct a new [NewInstanceFactory] instance.
@@ -190,6 +192,7 @@ private constructor(private val impl: ViewModelProviderImpl) {
             extras: CreationExtras,
         ): T = create(modelClass.java, extras)
 
+        @Suppress("KmpSignatureClash") // also defined in desktop
         public companion object {
             private var _instance: NewInstanceFactory? = null
 

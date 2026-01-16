@@ -35,6 +35,7 @@ class UiIssueRegistry : IssueRegistry() {
                 LocalContextResourcesConfigurationReadDetector.LocalContextGetResourceValueCall,
                 LocalContextResourcesConfigurationReadDetector.LocalContextResourcesRead,
                 ConfigurationScreenWidthHeightDetector.ConfigurationScreenWidthHeight,
+                NonObservableLocaleDetector.NonObservableLocale,
                 ModifierDeclarationDetector.ModifierFactoryExtensionFunction,
                 ModifierDeclarationDetector.ModifierFactoryReturnType,
                 ModifierDeclarationDetector.ModifierFactoryUnreferencedReceiver,

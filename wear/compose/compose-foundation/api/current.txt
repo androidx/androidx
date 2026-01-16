@@ -1,6 +1,27 @@
 // Signature format: 4.0
 package androidx.wear.compose.foundation {
 
+  @androidx.compose.runtime.Immutable public sealed exhaustive interface AmbientMode {
+  }
+
+  public static final class AmbientMode.Ambient implements androidx.wear.compose.foundation.AmbientMode {
+    ctor public AmbientMode.Ambient(boolean isBurnInProtectionRequired, boolean isLowBitAmbientSupported);
+    method @InaccessibleFromKotlin public boolean isBurnInProtectionRequired();
+    method @InaccessibleFromKotlin public boolean isLowBitAmbientSupported();
+    property public boolean isBurnInProtectionRequired;
+    property public boolean isLowBitAmbientSupported;
+  }
+
+  public static final class AmbientMode.Interactive implements androidx.wear.compose.foundation.AmbientMode {
+    field public static final androidx.wear.compose.foundation.AmbientMode.Interactive INSTANCE;
+  }
+
+  public interface AmbientModeManager {
+    method @InaccessibleFromKotlin public androidx.wear.compose.foundation.AmbientMode getCurrentAmbientMode();
+    method public suspend Object? withAmbientTick(kotlin.jvm.functions.Function0<kotlin.Unit> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract androidx.wear.compose.foundation.AmbientMode currentAmbientMode;
+  }
+
   @kotlin.jvm.JvmInline public final value class AnchorType {
     method @BytecodeOnly public static androidx.wear.compose.foundation.AnchorType! box-impl(float);
     method @BytecodeOnly public float unbox-impl();
@@ -387,6 +408,15 @@ package androidx.wear.compose.foundation {
     method public static androidx.compose.ui.Modifier requestFocusOnHierarchyActive(androidx.compose.ui.Modifier);
   }
 
+  public final class LocalAmbientModeManagerKt {
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void AmbientTickEffect(androidx.wear.compose.foundation.AmbientModeManager, kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static void AmbientTickEffect(androidx.wear.compose.foundation.AmbientModeManager, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
+    method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.AmbientModeManager?> getLocalAmbientModeManager();
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.AmbientModeManager rememberAmbientModeManager(android.app.Activity activity);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.AmbientModeManager rememberAmbientModeManager(android.app.Activity, androidx.compose.runtime.Composer?, int);
+    property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.AmbientModeManager?> LocalAmbientModeManager;
+  }
+
   @Deprecated @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi @kotlin.jvm.JvmInline public final value class RevealActionType {
     method @BytecodeOnly @Deprecated public static androidx.wear.compose.foundation.RevealActionType! box-impl(int);
     method @InaccessibleFromKotlin @Deprecated public int getValue();
@@ -694,7 +724,7 @@ package androidx.wear.compose.foundation.lazy {
     method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.lazy.ScalingLazyListState rememberScalingLazyListState(int, int, androidx.compose.runtime.Composer?, int, int);
   }
 
-  @kotlin.DslMarker public @interface ScalingLazyScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface ScalingLazyScopeMarker {
   }
 
   @androidx.compose.runtime.Stable public interface ScalingParams {
@@ -714,6 +744,12 @@ package androidx.wear.compose.foundation.lazy {
     property @FloatRange(from=0.0, to=1.0) public abstract float minElementHeight;
     property @FloatRange(from=0.0, to=1.0) public abstract float minTransitionArea;
     property public abstract androidx.compose.animation.core.Easing scaleInterpolator;
+  }
+
+  public final class TransformingLazyColumnDefaults {
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior snapFlingBehavior(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState state, optional androidx.compose.ui.unit.Dp snapOffset, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decay);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior snapFlingBehavior-uFdPcIQ(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, float, androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float!>?, androidx.compose.runtime.Composer?, int, int);
+    field public static final androidx.wear.compose.foundation.lazy.TransformingLazyColumnDefaults INSTANCE;
   }
 
   public final class TransformingLazyColumnDslKt {
@@ -786,7 +822,7 @@ package androidx.wear.compose.foundation.lazy {
     method @BytecodeOnly public static void items$default(androidx.wear.compose.foundation.lazy.TransformingLazyColumnScope!, int, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function4!, int, Object!);
   }
 
-  @kotlin.DslMarker public @interface TransformingLazyColumnScopeMarker {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface TransformingLazyColumnScopeMarker {
   }
 
   @androidx.compose.runtime.Stable public final class TransformingLazyColumnState implements androidx.compose.foundation.gestures.ScrollableState {
@@ -921,16 +957,22 @@ package androidx.wear.compose.foundation.rotary {
   public final class RotaryScrollableDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional boolean hapticFeedbackEnabled);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior(androidx.compose.foundation.gestures.ScrollableState, androidx.compose.foundation.gestures.FlingBehavior?, boolean, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider layoutInfoProvider, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional androidx.wear.compose.foundation.rotary.RotarySnapSensitivity snapSensitivity);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollableState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional androidx.wear.compose.foundation.rotary.RotarySnapSensitivity snapSensitivity);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional androidx.wear.compose.foundation.rotary.RotarySnapSensitivity snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider layoutInfoProvider, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollableState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollableState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior! snapBehavior-942rkJo(androidx.compose.foundation.gestures.ScrollableState!, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider!, float, boolean, androidx.compose.runtime.Composer!, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-Sb7vFlk(androidx.compose.foundation.gestures.ScrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider, float, boolean, int, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-YuiaVEA(androidx.wear.compose.foundation.lazy.ScalingLazyListState, float, boolean, int, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-YuiaVEA(androidx.wear.compose.foundation.pager.PagerState, float, boolean, int, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-DzVHIIc(androidx.wear.compose.foundation.lazy.ScalingLazyListState, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-DzVHIIc(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-DzVHIIc(androidx.wear.compose.foundation.pager.PagerState, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-TN_CM5M(androidx.compose.foundation.gestures.ScrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior! snapBehavior-uFdPcIQ(androidx.wear.compose.foundation.lazy.ScalingLazyListState!, float, boolean, androidx.compose.runtime.Composer!, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior! snapBehavior-uFdPcIQ(androidx.wear.compose.foundation.pager.PagerState!, float, boolean, androidx.compose.runtime.Composer!, int, int);
+    property public static float HighSnapSensitivity;
+    property public static float LowSnapSensitivity;
+    field public static final float HighSnapSensitivity = 0.8f;
     field public static final androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults INSTANCE;
+    field public static final float LowSnapSensitivity = 0.4f;
   }
 
   public final class RotaryScrollableKt {
@@ -949,19 +991,6 @@ package androidx.wear.compose.foundation.rotary {
     property public abstract int currentItemIndex;
     property public abstract float currentItemOffset;
     property public abstract int totalItemCount;
-  }
-
-  @kotlin.jvm.JvmInline public final value class RotarySnapSensitivity {
-    method @BytecodeOnly public static androidx.wear.compose.foundation.rotary.RotarySnapSensitivity! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
-    field public static final androidx.wear.compose.foundation.rotary.RotarySnapSensitivity.Companion Companion;
-  }
-
-  public static final class RotarySnapSensitivity.Companion {
-    method @BytecodeOnly public int getDefault-AoiQc-I();
-    method @BytecodeOnly public int getHigh-AoiQc-I();
-    property public androidx.wear.compose.foundation.rotary.RotarySnapSensitivity Default;
-    property public androidx.wear.compose.foundation.rotary.RotarySnapSensitivity High;
   }
 
 }

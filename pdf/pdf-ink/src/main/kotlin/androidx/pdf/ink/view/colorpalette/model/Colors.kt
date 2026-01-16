@@ -123,56 +123,56 @@ internal fun getHighlightPaletteItems(context: Context): List<PaletteItem> {
     return listOf(
         // Row#1 Colors
         Color(
-            0x99000000.toInt(),
+            0x66000000,
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
         ),
         Color(
-            0x99FFFFFF.toInt(),
+            0x66FFFFFF,
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
         ),
         Color(
-            0x99FF0000.toInt(),
+            0x66FF0000,
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
         ),
         Color(
-            0x9900FF00.toInt(),
+            0x6600FF00,
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
         ),
         Color(
-            0x990000FF.toInt(),
+            0x660000FF,
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
         ),
         Color(
-            0x99FFA500.toInt(),
+            0x66FFA500,
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
         ),
         Color(
-            0x99FFFF00.toInt(),
+            0x66FFFF00,
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
         ),
         // Row#2 Colors
-        Color(0x99FFC0CB.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99ADD8E6.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x9990EE90.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99FFED45.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99FF8279.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99A52A2A.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99808000.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66FFC0CB, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66ADD8E6, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x6690EE90, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66FFED45, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66FF8279, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66A52A2A, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66808000, outlineColor = outlineColor, tickColor = getTickColor(context)),
         // Row#3 Colors
-        Color(0x99800080.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99008000.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99DC143C.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x994682B4.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x996A5ACD.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99556B2F.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
-        Color(0x99DEB887.toInt(), outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66800080, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66008000, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66DC143C, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x664682B4, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x666A5ACD, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66556B2F, outlineColor = outlineColor, tickColor = getTickColor(context)),
+        Color(0x66DEB887, outlineColor = outlineColor, tickColor = getTickColor(context)),
     )
 }
 

@@ -84,9 +84,10 @@ class HeadLockedUiActivity : AppCompatActivity() {
         session!!.configure(
             Config(
                 planeTracking = Config.PlaneTrackingMode.HORIZONTAL_AND_VERTICAL,
-                headTracking = Config.HeadTrackingMode.LAST_KNOWN,
+                deviceTracking = Config.DeviceTrackingMode.LAST_KNOWN,
             )
         )
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
         device = ArDevice.getInstance(session!!)
         cameraLeft = RenderViewpoint.left(session!!)
         cameraRight = RenderViewpoint.right(session!!)
@@ -110,7 +111,7 @@ class HeadLockedUiActivity : AppCompatActivity() {
         }
 
         // Hide debug panel
-        findViewById<MaterialButton>(R.id.toggle_debug_panel).setOnClickListener() {
+        findViewById<MaterialButton>(R.id.toggle_debug_panel).setOnClickListener {
             mDebugPanel.panelEntity.let { it.setEnabled(!it.isEnabled()) }
         }
 
@@ -236,6 +237,7 @@ class HeadLockedUiActivity : AppCompatActivity() {
                     .scene
                     .perceptionSpace
                     .getScenePoseFromPerceptionPose(device.state.value.devicePose)
+
             ProjectionSource.CameraLeft ->
                 cameraLeft?.let {
                     session!!
@@ -243,6 +245,7 @@ class HeadLockedUiActivity : AppCompatActivity() {
                         .perceptionSpace
                         .getScenePoseFromPerceptionPose(it.state.value.pose)
                 }
+
             ProjectionSource.CameraRight ->
                 cameraRight?.let {
                     session!!

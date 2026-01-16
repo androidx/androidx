@@ -230,16 +230,17 @@ fun createHistogramPlot(
     data1: DoubleArray,
     data2: DoubleArray,
     outputPath: Path,
-    metricName: String? = null,
+    metricName: String,
 ) {
-    val combinedTimings = data1.toList() + data2.toList()
+    val combinedMetricData = data1.toList() + data2.toList()
+    val metricLabel = metricName ?: "timing"
     val combinedData =
-        kotlin.collections.mapOf<String, Any>(
-            "timings" to combinedTimings,
+        mapOf<String, Any>(
+            metricName to combinedMetricData,
             "branch" to List(data1.size) { "Branch A" } + List(data2.size) { "Branch B" },
         )
 
-    val stats = DescriptiveStatistics(combinedTimings.toDoubleArray())
+    val stats = DescriptiveStatistics(combinedMetricData.toDoubleArray())
     val n = stats.n.toDouble()
     val q1 = stats.getPercentile(25.0)
     val q3 = stats.getPercentile(75.0)
@@ -260,40 +261,21 @@ fun createHistogramPlot(
 
     val optimalBins = maxOf(1, minOf(calculatedBins, n.toInt())).coerceAtLeast(minBins)
 
-    val plotTitle =
-        if (metricName != null) {
-            "Benchmark Comparison: $benchmarkName - $metricName"
-        } else {
-            "Benchmark Comparison: $benchmarkName"
-        }
+    val plotTitle = "Benchmark Comparison: $benchmarkName - $metricName"
 
     val plot =
         letsPlot(combinedData) {
-            x = "timings"
+            x = metricName
             fill = "branch"
         } +
             geomHistogram(alpha = 0.3, position = positionIdentity, bins = optimalBins) +
             ggsize(1000, 600) +
             ggtitle(plotTitle)
 
-    val plotFileName =
-        if (metricName != null) {
-            "${benchmarkName}_${metricName}_histogram.png"
-        } else {
-            "${benchmarkName}_histogram.png"
-        }
+    val plotFileName = "${benchmarkName}_${metricName}_histogram.png"
 
     val plotFile = ggsave(plot, plotFileName, path = outputPath.toString())
 
-    val savedMessage =
-        if (metricName != null) {
-            "Saved histogram for $benchmarkName - $metricName to: $plotFile"
-        } else {
-            "Saved histogram to: $plotFile"
-        }
-
-    if (metricName == null) {
-        println("\n--- Graphical Plot ---")
-    }
+    val savedMessage = "Saved histogram for $benchmarkName - $metricName to: $plotFile"
     println(savedMessage)
 }

@@ -12,10 +12,8 @@ ANDROIDX_DIR="$(pwd)"
 
 # Resolve JDK folders for host OS
 STUDIO_JDK="linux"
-PREBUILT_JDK="linux-x86"
 if [[ $OSTYPE == darwin* ]]; then
   STUDIO_JDK="mac/Contents/Home"
-  PREBUILT_JDK="darwin-x86"
 fi
 
 # resolve dirs

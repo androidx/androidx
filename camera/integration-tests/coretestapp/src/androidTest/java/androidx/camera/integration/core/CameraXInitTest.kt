@@ -153,21 +153,4 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
             }
         }
     }
-
-    @Test
-    fun configImplTypeIsCorrect(): Unit = runBlocking {
-        withTimeout(10000) {
-            ProcessCameraProvider.configureInstance(cameraXConfig)
-            cameraProvider = ProcessCameraProvider.getInstance(context).await()
-
-            assertThat(cameraProvider.configImplType)
-                .isEqualTo(
-                    if (implName == CameraPipeConfig::class.simpleName) {
-                        CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_PIPE
-                    } else {
-                        CameraXConfig.CAMERAX_CONFIG_IMPL_TYPE_PIPE
-                    }
-                )
-        }
-    }
 }

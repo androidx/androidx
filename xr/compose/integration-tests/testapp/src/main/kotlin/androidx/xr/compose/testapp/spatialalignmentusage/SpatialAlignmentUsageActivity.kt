@@ -47,9 +47,9 @@ import androidx.xr.compose.spatial.Subspace
 import androidx.xr.compose.subspace.SpatialBox
 import androidx.xr.compose.subspace.SpatialColumn
 import androidx.xr.compose.subspace.SpatialCurvedRow
-import androidx.xr.compose.subspace.SpatialLayoutSpacer
 import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.SpatialRow
+import androidx.xr.compose.subspace.SpatialSpacer
 import androidx.xr.compose.subspace.SubspaceComposable
 import androidx.xr.compose.subspace.layout.SpatialAbsoluteAlignment
 import androidx.xr.compose.subspace.layout.SpatialAlignment
@@ -112,13 +112,13 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
                 }
             }
 
-            SpatialLayoutSpacer(modifier = SubspaceModifier.height(20.dp))
+            SpatialSpacer(modifier = SubspaceModifier.height(20.dp))
             SpatialCurvedRow(curveRadius = 2000.dp) {
                 SpatialBiasAlignmentApis(LayoutDirection.Ltr)
                 SpatialBiasAlignmentApis(LayoutDirection.Rtl)
             }
 
-            SpatialLayoutSpacer(modifier = SubspaceModifier.height(20.dp))
+            SpatialSpacer(modifier = SubspaceModifier.height(20.dp))
             SpatialCurvedRow(curveRadius = 2000.dp) {
                 SpatialBiasAbsoluteAlignmentApis(LayoutDirection.Ltr)
                 SpatialBiasAbsoluteAlignmentApis(LayoutDirection.Rtl)
@@ -143,7 +143,7 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
                     )
                 }
             }
-            SpatialLayoutSpacer(modifier = SubspaceModifier.height(10.dp))
+            SpatialSpacer(modifier = SubspaceModifier.height(10.dp))
             SpatialRow {
                 // TopStart
                 AlignedBox(SpatialAlignment.TopStart, "TopStart", layoutDirection)
@@ -191,7 +191,7 @@ class SpatialAlignmentUsageActivity : ComponentActivity() {
                     )
                 }
             }
-            SpatialLayoutSpacer(modifier = SubspaceModifier.height(10.dp))
+            SpatialSpacer(modifier = SubspaceModifier.height(10.dp))
             SpatialRow {
                 // TopLeft
                 AlignedBox(SpatialAbsoluteAlignment.TopLeft, "TopLeft", layoutDirection)

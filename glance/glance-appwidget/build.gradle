@@ -28,7 +28,6 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.google.protobuf")
 }
 
 dependencies {
@@ -39,7 +38,12 @@ dependencies {
     api("androidx.compose.ui:ui-unit:1.6.0")
     api("androidx.collection:collection-ktx:1.4.3")
 
-    implementation("androidx.core:core-ktx:1.7.0")
+    implementation(project(":compose:remote:remote-core"))
+    implementation(project(":compose:remote:remote-creation"))
+    testImplementation(project(":compose:remote:remote-core"))
+    testImplementation(project(":compose:remote:remote-creation"))
+
+    implementation('androidx.core:core-ktx:1.7.0')
     implementation("androidx.datastore:datastore:1.0.0")
     implementation("androidx.datastore:datastore-core:1.0.0")
     implementation("androidx.datastore:datastore-preferences-core:1.0.0")
@@ -92,7 +96,7 @@ android {
     }
     namespace = "androidx.glance.appwidget"
     defaultConfig.consumerProguardFiles("proguard-rules.pro")
-    compileSdk = 35
+    compileSdk { version = release(35) }
 }
 
 androidx {

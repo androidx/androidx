@@ -400,9 +400,9 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                         // RESULT_WILL_NOT_PROVIDE_SURFACE will be notified.
                         request.provideSurface(surface, CameraXExecutors.directExecutor()) { result
                             ->
+                            surface.release()
                             resultDeferred.completeOnceOnly(result.resultCode)
                         }
-
                         withTimeoutOrNull(RESULT_TIMEOUT) { resultDeferred.await() }
                             ?: fail("Timed out while waiting for surface result.")
                     } ?: fail("Timed out while waiting for surface request.")
@@ -440,10 +440,10 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
 
                     // Invoking provideSurface twice is a no-op and the result will be
                     // RESULT_SURFACE_ALREADY_PROVIDED
-                    surfaceRequest.provideSurface(
-                        Surface(SurfaceTexture(1)),
-                        CameraXExecutors.directExecutor(),
-                    ) { result ->
+                    val surface2 = Surface(SurfaceTexture(1))
+                    surfaceRequest.provideSurface(surface2, CameraXExecutors.directExecutor()) {
+                        result ->
+                        surface2.release()
                         resultDeferred2.completeOnceOnly(result.resultCode)
                     }
                 }
@@ -483,10 +483,9 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
 
         val surfaceRequest = surfaceRequestDeferred.await()
         instrumentation.runOnMainSync {
-            surfaceRequest.provideSurface(
-                Surface(SurfaceTexture(0)),
-                CameraXExecutors.directExecutor(),
-            ) { result ->
+            val surface = Surface(SurfaceTexture(0))
+            surfaceRequest.provideSurface(surface, CameraXExecutors.directExecutor()) { result ->
+                surface.release()
                 resultDeferred.completeOnceOnly(result.resultCode)
             }
         }
@@ -508,6 +507,7 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                     val surface = Surface(SurfaceTexture(0))
                     surfaceRequest.provideSurface(surface, CameraXExecutors.directExecutor()) {
                         result ->
+                        surface.release()
                         resultDeferred1.completeOnceOnly(result.resultCode)
                     }
 
@@ -927,10 +927,10 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
                     request.setTransformationInfoListener(CameraXExecutors.directExecutor()) {
                         transformationInfoDeferred.complete(it)
                     }
-                    request.provideSurface(
-                        Surface(SurfaceTexture(0)),
-                        CameraXExecutors.directExecutor(),
-                    ) {}
+                    val surface = Surface(SurfaceTexture(0))
+                    request.provideSurface(surface, CameraXExecutors.directExecutor()) {
+                        surface.release()
+                    }
                     surfaceProvidedDeferred.complete(request)
                 }
 

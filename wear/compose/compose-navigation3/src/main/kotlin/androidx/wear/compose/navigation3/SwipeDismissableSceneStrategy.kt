@@ -46,6 +46,10 @@ public fun rememberSwipeDismissableSceneStrategyState(
 /**
  * Creates and remembers a [SwipeDismissableSceneStrategy].
  *
+ * Example of a [androidx.navigation3.ui.NavDisplay] with [SwipeDismissableSceneStrategy]
+ * alternating between list and detail entries:
+ *
+ * @sample androidx.wear.compose.navigation3.samples.ListDetailNavDisplaySample
  * @param [T] the KType of the backstack key
  * @param swipeDismissableSceneStrategyState State containing information about ongoing swipe and
  *   animation. This parameter is unused API level 36 onwards, because the platform supports
@@ -87,8 +91,13 @@ public class SwipeDismissableSceneStrategyState(
  * within a [BasicSwipeToDismissBox] to detect swipe back gestures.
  *
  * API level 36 onwards, [SwipeDismissableSceneStrategy] listens to platform predictive back events
- * for navigation, and [BasicSwipeToDismissBox] is not used for swipe gesture detection.
+ * for navigation, and [BasicSwipeToDismissBox] is not used for swipe gesture detection. Also,
+ * transition specifications can be overridden at [NavEntry] level.
  *
+ * Example of a [androidx.navigation3.ui.NavDisplay] with [SwipeDismissableSceneStrategy]
+ * alternating between list and detail entries:
+ *
+ * @sample androidx.wear.compose.navigation3.samples.ListDetailNavDisplaySample
  * @param [T] the KType of the backstack key
  * @param state State containing information about ongoing swipe and animation. This parameter is
  *   unused API level 36 onwards, because the platform supports predictive back and
@@ -108,7 +117,6 @@ public class SwipeDismissableSceneStrategy<T : Any>(
         val currentEntry = entries.last()
         val previousEntries = entries.dropLast(1)
         val background = previousEntries.lastOrNull()
-        val backEnabled = isUserSwipeEnabled && background != null
 
         return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             // api 36+, support predictive back
@@ -116,7 +124,7 @@ public class SwipeDismissableSceneStrategy<T : Any>(
                 modifier = modifier,
                 currentEntry = currentEntry,
                 previousEntries = previousEntries,
-                backEnabled = backEnabled,
+                backEnabled = isUserSwipeEnabled,
             )
         } else {
             val swipeToDismissBoxState = state.swipeToDismissBoxState
@@ -131,7 +139,7 @@ public class SwipeDismissableSceneStrategy<T : Any>(
                 currentBackStack = entries,
                 previousEntries = previousEntries,
                 swipeToDismissBoxState = swipeToDismissBoxState,
-                backEnabled = backEnabled,
+                backEnabled = isUserSwipeEnabled && background != null,
             )
         }
     }

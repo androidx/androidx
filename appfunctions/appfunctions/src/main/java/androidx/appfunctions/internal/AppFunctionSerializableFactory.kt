@@ -16,7 +16,6 @@
 
 package androidx.appfunctions.internal
 
-import android.app.PendingIntent
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -137,8 +136,6 @@ public interface AppFunctionSerializableFactory<T : Any> {
                     Double::class.java -> appFunctionDataBuilder.setDouble(key, value as Double)
                     Boolean::class.java -> appFunctionDataBuilder.setBoolean(key, value as Boolean)
                     String::class.java -> appFunctionDataBuilder.setString(key, value as String)
-                    PendingIntent::class.java ->
-                        appFunctionDataBuilder.setPendingIntent(key, value as PendingIntent)
                     IntArray::class.java ->
                         appFunctionDataBuilder.setIntArray(key, value as IntArray)
                     LongArray::class.java ->
@@ -165,7 +162,6 @@ public interface AppFunctionSerializableFactory<T : Any> {
                     Double::class.java -> appFunctionData.getDouble(key)
                     Boolean::class.java -> appFunctionData.getBoolean(key)
                     String::class.java -> appFunctionData.getString(key)
-                    PendingIntent::class.java -> appFunctionData.getPendingIntent(key)
 
                     IntArray::class.java -> appFunctionData.getIntArray(key)
                     LongArray::class.java -> appFunctionData.getLongArray(key)
@@ -198,11 +194,6 @@ public interface AppFunctionSerializableFactory<T : Any> {
                 when (itemClazz) {
                     String::class.java ->
                         appFunctionDataBuilder.setStringList(key, value as List<String>)
-                    PendingIntent::class.java ->
-                        appFunctionDataBuilder.setPendingIntentList(
-                            key,
-                            value as List<PendingIntent>,
-                        )
                     else ->
                         throw IllegalStateException(
                             "Unsupported item type for primitive list: $itemClazz."
@@ -215,7 +206,6 @@ public interface AppFunctionSerializableFactory<T : Any> {
             override fun getFromAppFunctionData(appFunctionData: AppFunctionData, key: String): T =
                 when (itemClazz) {
                     String::class.java -> appFunctionData.getStringList(key)
-                    PendingIntent::class.java -> appFunctionData.getPendingIntentList(key)
                     else ->
                         throw IllegalStateException(
                             "Unsupported item type for primitive list: $itemClazz."

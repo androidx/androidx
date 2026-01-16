@@ -47,6 +47,107 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
         )
 
     @Test
+    fun customInheritedDaoReturnType() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+            import androidx.room3.*
+
+            @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              suspend fun getFoo(): Foo<MyEntity>
+              @Query("SELECT * FROM MyEntity")
+              suspend fun getBar(): Bar<MyEntity>
+            }
+
+            @Entity
+            data class MyEntity(@PrimaryKey val pk: Int)
+
+            open class Bar<T>(val data: T)
+            class Foo<T>(data: T): Bar<T>(data)
+
+            class FooReturnTypeConverter {
+                @DaoReturnTypeConverter
+                suspend fun <T> convert(
+                    database: RoomDatabase,
+                    tableNames: Array<String>,
+                    executeAndConvert: suspend () -> T,
+                ): Foo<T> {
+                    return Foo(executeAndConvert.invoke())
+                }
+            }
+            """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
+    fun customReadDaoReturnType() {
+        val src =
+            Source.kotlin(
+                "MyDao.kt",
+                """
+            import androidx.room3.*
+            import kotlinx.coroutines.runBlocking
+
+            @DaoReturnTypeConverters(FooReturnTypeConverter::class)
+            @Dao
+            interface MyDao {
+              @Query("SELECT * FROM MyEntity")
+              suspend fun getFooSingleColumn(): Foo<MyEntity>
+              @Query("SELECT * FROM MyEntity")
+              suspend fun getFooList(): Foo<List<MyEntity>>
+              @Query("SELECT * FROM MyEntity")
+              fun getBlockingFooList(): Foo<List<MyEntity>>
+            }
+
+            @Entity
+            data class MyEntity(@PrimaryKey val pk: Int)
+
+            open class Bar<T>(val data: T)
+            class Foo<T>(data: T): Bar<T>(data)
+
+            class FooReturnTypeConverter {
+                @DaoReturnTypeConverter
+                suspend fun <T> convert(
+                    database: RoomDatabase,
+                    tableNames: Array<String>,
+                    executeAndConvert: suspend () -> T,
+                ): Foo<T> {
+                    return Foo(executeAndConvert.invoke())
+                }
+
+                @DaoReturnTypeConverter
+                fun <T> convertBlocking(
+                    database: RoomDatabase,
+                    tableNames: Array<String>,
+                    executeAndConvert: suspend () -> T,
+                ): Foo<T> {
+                    return runBlocking {
+                        Foo(executeAndConvert.invoke())
+                    }
+                }
+
+            }
+            """
+                    .trimIndent(),
+            )
+        runTest(
+            sources = listOf(src, databaseSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName),
+            compiledFiles = compileFiles(listOf()),
+        )
+    }
+
+    @Test
     fun dataClassRowAdapter_variableProperty() {
         val src =
             Source.kotlin(

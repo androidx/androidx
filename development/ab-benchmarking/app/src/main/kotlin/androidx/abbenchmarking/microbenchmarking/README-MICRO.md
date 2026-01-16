@@ -282,11 +282,11 @@ A JSON file named `metadata.json` is created in the output directory. It contain
 
 ### Histogram Plot
 
-A PNG image file named `<benchmark_name>_histogram.png` is created in the output directory, where benchmark_name is the name of the benchmark test method.
+A PNG image file named `<benchmark_name>_timing_histogram.png` is created in the output directory, where benchmark_name is the name of the benchmark test method.
 This plot visualizes the distribution of the benchmark timings for both revisions, making it easier to spot differences in performance.
 **Note**: The `<path_to_output_dir>` is the value passed to the `--output_path` parameter.
 If this parameter is not specified, it defaults to `~/androidx-main/frameworks/support/development/ab-benchmarking/app/build/benchmark-results/`.
 ```
 --- Graphical Plot ---
-Saved histogram to: file://<path_to_output_dir>/<benchmark_name>_histogram.png
+Saved histogram fetchAccessibilityNodeInfo - timing to: file://<path_to_output_dir>/<benchmark_name>_timing_histogram.png
 ```

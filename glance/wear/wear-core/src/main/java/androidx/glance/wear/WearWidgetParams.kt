@@ -58,22 +58,18 @@ public constructor(
     public val cornerRadiusDp: Float,
 ) {
 
-    // TODO(pierf): Remove once it's no longer used.
     @RestrictTo(LIBRARY_GROUP)
-    public constructor(
-        instanceId: WidgetInstanceId,
-        @ContainerInfo.ContainerType containerType: Int,
-        @Dimension(unit = Dimension.DP) widthDp: Float,
-        @Dimension(unit = Dimension.DP) heightDp: Float,
-    ) : this(
-        instanceId,
-        containerType,
-        widthDp,
-        heightDp,
-        horizontalPaddingDp = 0f,
-        verticalPaddingDp = 0f,
-        cornerRadiusDp = 0f,
-    )
+    public fun withContainerType(containerType: Int = this.containerType): WearWidgetParams {
+        return WearWidgetParams(
+            instanceId = instanceId,
+            containerType = containerType,
+            widthDp = widthDp,
+            heightDp = heightDp,
+            horizontalPaddingDp = horizontalPaddingDp,
+            verticalPaddingDp = verticalPaddingDp,
+            cornerRadiusDp = cornerRadiusDp,
+        )
+    }
 
     /** Converts this object to [WearWidgetRequestParcel]. */
     @RestrictTo(LIBRARY_GROUP)

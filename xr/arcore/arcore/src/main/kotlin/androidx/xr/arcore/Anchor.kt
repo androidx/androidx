@@ -66,7 +66,8 @@ internal constructor(
             } catch (e: AnchorNotTrackingException) {
                 return AnchorCreateTrackingUnavailable()
             }
-            return generateCreateResult(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
+            val anchor = generateAnchor(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
+            return AnchorCreateSuccess(anchor)
         }
 
         /**
@@ -107,7 +108,8 @@ internal constructor(
             } catch (e: AnchorResourcesExhaustedException) {
                 return AnchorCreateResourcesExhausted()
             }
-            return generateCreateResult(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
+            val anchor = generateAnchor(runtimeAnchor, perceptionStateExtender.xrResourcesManager)
+            return AnchorCreateSuccess(anchor)
         }
 
         /**
@@ -131,13 +133,13 @@ internal constructor(
             return perceptionStateExtender
         }
 
-        private fun generateCreateResult(
+        private fun generateAnchor(
             runtimeAnchor: RuntimeAnchor,
             xrResourceManager: XrResourcesManager,
-        ): AnchorCreateResult {
+        ): Anchor {
             val anchor = Anchor(runtimeAnchor, xrResourceManager)
             xrResourceManager.addUpdatable(anchor)
-            return AnchorCreateSuccess(anchor)
+            return anchor
         }
     }
 

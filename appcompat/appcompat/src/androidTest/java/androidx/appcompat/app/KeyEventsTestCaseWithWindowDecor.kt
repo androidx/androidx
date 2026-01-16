@@ -16,7 +16,6 @@
 package androidx.appcompat.app
 
 import android.content.Context
-import android.os.Build
 import android.view.KeyEvent
 import android.view.View
 import android.view.ViewGroup
@@ -27,23 +26,20 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.pressKey
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.PollingCheck
 import androidx.testutils.withActivity
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 
 class KeyEventsTestCaseWithWindowDecor :
     BaseKeyEventsTestCase<WindowDecorAppCompatActivity>(WindowDecorAppCompatActivity::class.java) {
+    @SdkSuppress(maxSdkVersion = 35) // b/460511639
     @Test
     @LargeTest
     @Throws(Throwable::class)
     fun testUnhandledKeys() {
-        assumeFalse(
-            "Test fails on cuttlefish b/460511639",
-            Build.MODEL.contains("Cuttlefish", ignoreCase = true),
-        )
         with(ActivityScenario.launch(WindowDecorAppCompatActivity::class.java)) {
             val listener = MockUnhandledKeyListener()
             val mockView1: View = withActivity { HandlerView(this) }

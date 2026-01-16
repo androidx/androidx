@@ -27,8 +27,8 @@ import androidx.compose.foundation.content.consume
 import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.createClipData
 import androidx.compose.foundation.content.testDragAndDrop
+import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -36,10 +36,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
+import androidx.compose.foundation.text.input.internal.DragAndDropHoverInteraction
+import androidx.compose.foundation.text.input.internal.collectIsDragAndDropHoveredAsState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -50,7 +53,7 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.firstUriOrNull
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -62,6 +65,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -154,7 +159,7 @@ class TextFieldDragAndDropTest {
         ) {
             drag(Offset(1f, 1f), "hello")
             rule.waitForIdle()
-            assertThat(isHovered).isTrue()
+            assertThat(observedInteractionEvents.last()).isEqualTo("dnd-enter")
         }
     }
 
@@ -168,11 +173,15 @@ class TextFieldDragAndDropTest {
         ) {
             drag(Offset(1f, 1f), "hello")
             rule.waitForIdle()
-            assertThat(isHovered).isTrue()
+            assertThat(observedInteractionEvents).doesNotContain("hover-enter")
+            assertThat(observedInteractionEvents).doesNotContain("hover-exit")
+            assertThat(observedInteractionEvents.last()).isEqualTo("dnd-enter")
 
             drag(Offset(1000f, 1f), "hello")
             rule.waitForIdle()
-            assertThat(isHovered).isFalse()
+            assertThat(observedInteractionEvents).doesNotContain("hover-enter")
+            assertThat(observedInteractionEvents).doesNotContain("hover-exit")
+            assertThat(observedInteractionEvents.last()).isEqualTo("dnd-exit")
         }
     }
 
@@ -186,16 +195,20 @@ class TextFieldDragAndDropTest {
         ) {
             drag(Offset(1f, 1f), "hello")
             rule.waitForIdle()
-            assertThat(isHovered).isTrue()
+            assertThat(observedInteractionEvents).doesNotContain("hover-enter")
+            assertThat(observedInteractionEvents).doesNotContain("hover-exit")
+            assertThat(observedInteractionEvents.last()).isEqualTo("dnd-enter")
 
             cancelDrag()
             rule.waitForIdle()
-            assertThat(isHovered).isFalse()
+            assertThat(observedInteractionEvents).doesNotContain("hover-enter")
+            assertThat(observedInteractionEvents).doesNotContain("hover-exit")
+            assertThat(observedInteractionEvents.last()).isEqualTo("dnd-exit")
         }
     }
 
     @Test
-    fun interactionSource_receivesHoverExit_whenDraggingTextDrops() {
+    fun interactionSource_receivesCustomHoverExit_whenDraggingTextDrops() {
         val interactionSource = MutableInteractionSource()
         rule.setContentAndTestDragAndDrop(
             style = TextStyle(textAlign = TextAlign.Center),
@@ -204,11 +217,15 @@ class TextFieldDragAndDropTest {
         ) {
             drag(Offset(1f, 1f), "hello")
             rule.waitForIdle()
-            assertThat(isHovered).isTrue()
+            assertThat(observedInteractionEvents).doesNotContain("hover-enter")
+            assertThat(observedInteractionEvents).doesNotContain("hover-exit")
+            assertThat(observedInteractionEvents.last()).isEqualTo("dnd-enter")
 
             drop()
             rule.waitForIdle()
-            assertThat(isHovered).isFalse()
+            assertThat(observedInteractionEvents).doesNotContain("hover-enter")
+            assertThat(observedInteractionEvents).doesNotContain("hover-exit")
+            assertThat(observedInteractionEvents.last()).isEqualTo("dnd-exit")
         }
     }
 
@@ -502,6 +519,99 @@ class TextFieldDragAndDropTest {
         }
     }
 
+    @Test
+    fun collectIsDragAndDropHoveredAsState_updates_withInteractions() {
+        val interactionSource = MutableInteractionSource()
+        lateinit var isHovered: State<Boolean>
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            isHovered = interactionSource.collectIsDragAndDropHoveredAsState()
+        }
+
+        rule.runOnIdle { assertThat(isHovered.value).isFalse() }
+
+        val enter = DragAndDropHoverInteraction.Enter()
+
+        rule.runOnIdle { scope.launch { interactionSource.emit(enter) } }
+
+        rule.runOnIdle { assertThat(isHovered.value).isTrue() }
+
+        rule.runOnIdle {
+            scope.launch { interactionSource.emit(DragAndDropHoverInteraction.Exit(enter)) }
+        }
+
+        rule.runOnIdle { assertThat(isHovered.value).isFalse() }
+    }
+
+    @Test
+    fun collectIsDragAndDropHoveredAsState_remainsTrue_whenNestedEnter() {
+        val interactionSource = MutableInteractionSource()
+        lateinit var isHovered: State<Boolean>
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            isHovered = interactionSource.collectIsDragAndDropHoveredAsState()
+        }
+
+        val enter1 = DragAndDropHoverInteraction.Enter()
+        val enter2 = DragAndDropHoverInteraction.Enter()
+
+        rule.runOnIdle {
+            scope.launch {
+                interactionSource.emit(enter1)
+                interactionSource.emit(enter2)
+            }
+        }
+
+        rule.runOnIdle { assertThat(isHovered.value).isTrue() }
+
+        rule.runOnIdle {
+            scope.launch { interactionSource.emit(DragAndDropHoverInteraction.Exit(enter1)) }
+        }
+
+        rule.runOnIdle { assertThat(isHovered.value).isTrue() }
+
+        rule.runOnIdle {
+            scope.launch { interactionSource.emit(DragAndDropHoverInteraction.Exit(enter2)) }
+        }
+
+        rule.runOnIdle { assertThat(isHovered.value).isFalse() }
+    }
+
+    @Test
+    fun collectIsDragAndDropHoveredAsState_remainsTrue_whenExitWithWrongInstance() {
+        val interactionSource = MutableInteractionSource()
+        lateinit var isHovered: State<Boolean>
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            isHovered = interactionSource.collectIsDragAndDropHoveredAsState()
+        }
+
+        val enter1 = DragAndDropHoverInteraction.Enter()
+        val enter2 = DragAndDropHoverInteraction.Enter()
+
+        rule.runOnIdle { scope.launch { interactionSource.emit(enter1) } }
+
+        rule.runOnIdle { assertThat(isHovered.value).isTrue() }
+
+        rule.runOnIdle {
+            scope.launch { interactionSource.emit(DragAndDropHoverInteraction.Exit(enter2)) }
+        }
+
+        rule.runOnIdle { assertThat(isHovered.value).isTrue() }
+
+        rule.runOnIdle {
+            scope.launch { interactionSource.emit(DragAndDropHoverInteraction.Exit(enter1)) }
+        }
+
+        rule.runOnIdle { assertThat(isHovered.value).isFalse() }
+    }
+
     private fun ComposeContentTestRule.setContentAndTestDragAndDrop(
         textContent: String = "aaaa",
         isWindowFocused: Boolean = false,
@@ -515,7 +625,7 @@ class TextFieldDragAndDropTest {
         var view: View? = null
         val density = Density(1f, 1f)
         val mergedStyle = TextStyle(fontFamily = TEST_FONT_FAMILY, fontSize = 20.sp).merge(style)
-        var isHovered: State<Boolean>? = null
+        val observedInteractionEvents = mutableListOf<String>()
         setContent { // Do not use setTextFieldTestContent for DnD tests.
             view = LocalView.current
             CompositionLocalProvider(
@@ -525,7 +635,20 @@ class TextFieldDragAndDropTest {
                         override val isWindowFocused = isWindowFocused
                     },
             ) {
-                isHovered = interactionSource?.collectIsHoveredAsState()
+                LaunchedEffect(this) {
+                    interactionSource?.interactions?.collect { interaction ->
+                        when (interaction) {
+                            is HoverInteraction.Enter ->
+                                observedInteractionEvents.add("hover-enter")
+                            is HoverInteraction.Exit -> observedInteractionEvents.add("hover-exit")
+                            is DragAndDropHoverInteraction.Enter ->
+                                observedInteractionEvents.add("dnd-enter")
+                            is DragAndDropHoverInteraction.Exit ->
+                                observedInteractionEvents.add("dnd-exit")
+                        }
+                    }
+                }
+
                 BasicTextField(
                     state = state,
                     textStyle = mergedStyle,
@@ -538,18 +661,17 @@ class TextFieldDragAndDropTest {
         }
 
         testDragAndDrop(view!!, density) {
-            DragAndDropTestScope(state, mergedStyle.fontSize, isHovered, this).block()
+            DragAndDropTestScope(state, mergedStyle.fontSize, observedInteractionEvents, this)
+                .block()
         }
     }
 
     private class DragAndDropTestScope(
         val state: TextFieldState,
         val fontSize: TextUnit,
-        isHovered: State<Boolean>?,
+        val observedInteractionEvents: List<String>,
         dragAndDropScopeImpl: DragAndDropScope,
-    ) : DragAndDropScope by dragAndDropScopeImpl {
-        val isHovered: Boolean by (isHovered ?: mutableStateOf(false))
-    }
+    ) : DragAndDropScope by dragAndDropScopeImpl
 }
 
 private val defaultUri = Uri.parse("content://com.example/content.jpg")

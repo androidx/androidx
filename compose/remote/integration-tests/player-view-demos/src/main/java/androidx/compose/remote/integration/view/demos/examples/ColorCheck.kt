@@ -33,10 +33,78 @@ import androidx.compose.remote.creation.actions.ValueFloatExpressionChange
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.ScrollModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
-import androidx.compose.remote.integration.view.demos.examples.DemoPaths.CustomScroller
 
 @Suppress("RestrictedApiAndroidX")
 fun colorList(): RemoteComposeWriter {
+    val rc =
+        RemoteComposeContextAndroid(
+            width = 500,
+            height = 500,
+            contentDescription = "Simple Timer",
+            apiLevel = 7,
+            profiles = RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+            platform = AndroidxRcPlatformServices(),
+        ) {
+            var len = system_accent1.size / 2
+            len += system_accent2.size / 2
+            len += system_accent3.size / 2
+            len += system_error.size / 2
+            len += system_neutral1.size / 2
+            len += system_neutral2.size / 2
+            len += nameList.size / 2
+
+            val touchPosition: Float = addFloatConstant(0f)
+            val computedHeight: Float = addFloatConstant(103f)
+            val scrollSize: Float =
+                floatExpression(computedHeight, len.toFloat(), AnimatedFloatExpression.MUL)
+            val visFloat: Float = addFloatConstant(1f)
+            val vis = Utils.idFromNan(visFloat)
+            val notVisFloat: Float = addFloatConstant(0f)
+            val notVis = Utils.idFromNan(notVisFloat)
+            val scrollPosition: Float =
+                floatExpression(
+                    touchPosition,
+                    computedHeight,
+                    20f,
+                    AnimatedFloatExpression.ADD,
+                    AnimatedFloatExpression.MUL,
+                )
+            root {
+                box(
+                    RecordingModifier().background(0xFFAAAAAA.toInt()).fillMaxSize(),
+                    BoxLayout.START,
+                    BoxLayout.START,
+                ) {
+                    column(
+                        RecordingModifier()
+                            .fillMaxSize()
+                            .then(
+                                CustomScroller(
+                                    0,
+                                    ScrollModifier.VERTICAL,
+                                    touchPosition,
+                                    scrollPosition,
+                                    len - 5,
+                                    scrollSize,
+                                )
+                            )
+                    ) {
+                        makeColorTab(system_accent1)
+                        makeColorTab(system_accent2)
+                        makeColorTab(system_accent3)
+                        makeColorTab(system_error)
+                        makeColorTab(system_neutral1)
+                        makeColorTab(system_neutral2)
+                        makeColorTab(nameList)
+                    }
+                }
+            }
+        }
+    return rc.writer
+}
+
+@Suppress("RestrictedApiAndroidX")
+fun colorTable(): RemoteComposeWriter {
     val rc =
         RemoteComposeContextAndroid(
             width = 500,
@@ -105,7 +173,7 @@ fun colorList(): RemoteComposeWriter {
 }
 
 @Suppress("RestrictedApiAndroidX")
-private fun RemoteComposeContextAndroid.makeColorRows(list: Array<String>) {
+private fun RemoteComposeContextAndroid.makeColorTab(list: Array<String>) {
     val cSet = makeColorSet(list)
     box(RecordingModifier().background(0xFF000000.toInt()).fillMaxWidth().height(4)) {}
     var pad = 0
@@ -141,6 +209,47 @@ private fun RemoteComposeContextAndroid.makeColorRows(list: Array<String>) {
         }
         pad = 4
     }
+}
+
+@Suppress("RestrictedApiAndroidX")
+private fun RemoteComposeContextAndroid.makeColorRows(list: Array<String>) {
+    val cids = makeColorList(list)
+    box(RecordingModifier().background(0xFF000000.toInt()).fillMaxWidth().height(4)) {}
+    var pad = 0
+    for (i in 0 until cids.size) {
+        val c = cids[i]
+        val name = list[i]
+        row(
+            RecordingModifier().padding(pad, 0, 4, 0).background(0xFF999999.toInt()).fillMaxWidth()
+        ) {
+            val dim = 48f
+
+            box(RecordingModifier().padding(8, 0, 8, 0).backgroundId(c).width(dim).height(dim)) {}
+            text(name, RecordingModifier(), fontSize = dim)
+            beginGlobal()
+
+            val blue = getColorAttribute(c, Rc.ColorAttribute.RED)
+            val blueTxt = createTextFromFloat(blue, 1, 3, 0)
+            endGlobal()
+
+            text(blueTxt, RecordingModifier().backgroundId(c), fontSize = dim)
+        }
+
+        pad = 4
+    }
+}
+
+@Suppress("RestrictedApiAndroidX")
+private fun RemoteComposeContextAndroid.makeColorList(list: Array<String>): IntArray {
+    val retList = IntArray(list.size)
+    beginGlobal()
+    for (i in 0 until list.size) {
+        val colorName = list[i]
+        retList[i] = addColor(0xFF00FF00.toInt()).toInt()
+        setColorName(retList[i], "color.$colorName")
+    }
+    endGlobal()
+    return retList
 }
 
 @Suppress("RestrictedApiAndroidX")

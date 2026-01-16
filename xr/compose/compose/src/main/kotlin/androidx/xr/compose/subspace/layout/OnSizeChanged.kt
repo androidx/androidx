@@ -16,7 +16,7 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.xr.compose.subspace.node.LayoutCoordinatesAwareModifierNode
+import androidx.xr.compose.subspace.node.SubspaceLayoutAwareModifierNode
 import androidx.xr.compose.subspace.node.SubspaceModifierNodeElement
 import androidx.xr.compose.unit.IntVolumeSize
 
@@ -59,11 +59,11 @@ private class OnSizeChangedVolumeElement(val onSizeChanged: (IntVolumeSize) -> U
 }
 
 private class OnSizeChangedNode(public var callback: (IntVolumeSize) -> Unit) :
-    SubspaceModifier.Node(), LayoutCoordinatesAwareModifierNode {
+    SubspaceModifier.Node(), SubspaceLayoutAwareModifierNode {
 
     private var lastSize: IntVolumeSize? = null
 
-    override fun onLayoutCoordinates(coordinates: SubspaceLayoutCoordinates) {
+    override fun onPlaced(coordinates: SubspaceLayoutCoordinates) {
         val newSize = coordinates.size
 
         if (newSize != lastSize) {

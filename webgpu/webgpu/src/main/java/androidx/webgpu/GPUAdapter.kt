@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025 The Android Open Source Project
+ * Copyright 2025 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,11 @@ package androidx.webgpu
 
 import dalvik.annotation.optimization.FastNative
 import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Represents an abstract graphics card on the system. */
 public class GPUAdapter private constructor(public val handle: Long) : AutoCloseable {
     /** Gets the set of features supported by the adapter. */
-    @FastNative @JvmName("getFeatures") public external fun getFeatures(): SupportedFeatures
+    @FastNative @JvmName("getFeatures") public external fun getFeatures(): GPUSupportedFeatures
 
     /**
      * Gets detailed information about the adapter.
@@ -35,7 +32,7 @@ public class GPUAdapter private constructor(public val handle: Long) : AutoClose
     @FastNative
     @JvmName("getInfo")
     @Throws(WebGpuException::class)
-    public external fun getInfo(): AdapterInfo
+    public external fun getInfo(): GPUAdapterInfo
 
     /**
      * Gets the limits supported by the adapter.
@@ -45,7 +42,7 @@ public class GPUAdapter private constructor(public val handle: Long) : AutoClose
     @FastNative
     @JvmName("getLimits")
     @Throws(WebGpuException::class)
-    public external fun getLimits(): Limits
+    public external fun getLimits(): GPULimits
 
     /**
      * Checks if a specific feature is supported by the adapter.
@@ -63,8 +60,8 @@ public class GPUAdapter private constructor(public val handle: Long) : AutoClose
     @JvmOverloads
     public external fun requestDevice(
         callbackExecutor: java.util.concurrent.Executor,
-        descriptor: DeviceDescriptor? = null,
-        callback: RequestDeviceCallback,
+        descriptor: GPUDeviceDescriptor? = null,
+        callback: GPURequestCallback<GPUDevice>,
     ): Unit
 
     /**
@@ -73,25 +70,9 @@ public class GPUAdapter private constructor(public val handle: Long) : AutoClose
      * @param descriptor A descriptor specifying creation options for the device.
      */
     @Throws(WebGpuException::class)
-    public suspend fun requestDevice(descriptor: DeviceDescriptor? = null): GPUDevice =
-        suspendCancellableCoroutine {
-            requestDevice(
-                Executor(Runnable::run),
-                descriptor,
-                { status, message, device ->
-                    if (!it.isActive) {
-                        // Coroutine was aborted.
-                    } else if (status != Status.Success) {
-                        it.resumeWithException(WebGpuException(status = status, reason = message))
-                    } else if (device == null) {
-                        it.resumeWithException(
-                            WebGpuException(status = status, reason = "Null value returned")
-                        )
-                    } else {
-                        it.resume(device)
-                    }
-                },
-            )
+    public suspend fun requestDevice(descriptor: GPUDeviceDescriptor? = null): GPUDevice =
+        awaitGPURequest { callback ->
+            requestDevice(Executor(Runnable::run), descriptor, callback)
         }
 
     external override fun close()

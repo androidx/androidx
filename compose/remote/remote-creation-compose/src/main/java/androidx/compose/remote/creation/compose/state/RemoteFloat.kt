@@ -23,12 +23,12 @@ import androidx.compose.remote.core.RemoteContext
 import androidx.compose.remote.core.operations.TextFromFloat
 import androidx.compose.remote.core.operations.TimeAttribute
 import androidx.compose.remote.core.operations.Utils
+import androidx.compose.remote.core.operations.Utils.asNan
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.ABS
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.IFELSE
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression.SUB
 import androidx.compose.remote.core.operations.utilities.StringUtils
-import androidx.compose.remote.core.operations.utilities.StringUtils.PAD_NONE
 import androidx.compose.remote.core.operations.utilities.easing.FloatAnimation
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
@@ -88,28 +88,15 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         return array
     }
 
-    /**
-     * Deprecated property to get the ID of the remote float. It\'s recommended to use
-     * [getFloatIdForCreationState] directly for clarity and to pass the correct
-     * [RemoteComposeCreationState].
-     */
-    // TODO: re-enable asap
-    // @Deprecated("Use getIdForCreationState directly")
-    public open val id: Float
-        get() {
-            // FallbackCreationState.state.platform.log(
-            //     Platform.LogCategory.TODO,
-            //     "Use RemoteFloat.getIdForCreationState directly"
-            // )
-            return getFloatIdForCreationState(FallbackCreationState.state)
+    override fun getFloatIdForCreationState(creationState: RemoteComposeCreationState): Float {
+        constantValue?.let {
+            return it
         }
-
-    public fun internalAsFloat(): Float {
-        return id
-    }
-
-    public fun toFloat(): Float {
-        return id
+        val array = arrayForCreationState(creationState)
+        if (array.size == 1) {
+            return array[0]
+        }
+        return super.getFloatIdForCreationState(creationState)
     }
 
     /**
@@ -125,7 +112,6 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
     }
 
     public fun toRemoteString(format: DecimalFormat): RemoteString {
-
         val decimalSeparator = format.decimalFormatSymbols.decimalSeparator
         val groupingSeparator = format.decimalFormatSymbols.groupingSeparator
 
@@ -168,24 +154,18 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
             options = options or TextFromFloat.OPTIONS_ROUNDING
         }
 
-        constantValue?.let {
-            return RemoteString(
-                StringUtils.floatToString(
-                    it,
-                    format.maximumIntegerDigits.coerceAtMost(255),
-                    format.maximumFractionDigits.coerceAtMost(255),
-                    PAD_NONE,
-                    PAD_NONE,
-                    separator.toByte(),
-                    grouping.toByte(),
-                    options shr 8,
-                )
-            )
+        var flags = separator or grouping or options
+        if (format.minimumFractionDigits > 1) {
+            flags = flags or TextFromFloat.PAD_AFTER_ZERO
+        } else {
+            flags = flags or TextFromFloat.PAD_AFTER_NONE
         }
 
-        var flags: Int = TextFromFloat.PAD_PRE_NONE or TextFromFloat.PAD_AFTER_NONE
-
-        flags = flags or separator or grouping or options
+        if (format.minimumIntegerDigits > 1) {
+            flags = flags or TextFromFloat.PAD_PRE_ZERO
+        } else {
+            flags = flags or TextFromFloat.PAD_PRE_NONE
+        }
 
         return toRemoteString(
             before = format.maximumIntegerDigits.coerceAtMost(255),
@@ -277,7 +257,7 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
         }
 
         return RemoteFloatExpression(constantValue = null) { creationState ->
-            floatArrayOf(*arrayForCreationState(creationState), -1f, AnimatedFloatExpression.MUL)
+            combineToFloatArray(creationState, arrayOf(this), -1f, AnimatedFloatExpression.MUL)
         }
     }
 
@@ -439,12 +419,15 @@ public abstract class RemoteFloat : BaseRemoteState<Float>() {
      * Returns a [RemoteFloat] that is a reference of this RemoteFloat.
      *
      * This is temporarily useful because the floatArray has a maximum size.
+     *
+     * @param forceRemote If true, forces the creation of a remote reference even if the value is
+     *   constant.
      */
-    // TODO: Remove the need for this.
-    public fun createReference(): RemoteFloat {
+    @JvmOverloads
+    public fun createReference(forceRemote: Boolean = false): RemoteFloat {
         return RemoteFloatExpression(
-            constantValue,
-            { creationState -> floatArrayOf(getFloatIdForCreationState(creationState)) },
+            if (forceRemote) null else constantValue,
+            { creationState -> floatArrayOf(asNan(getIdForCreationState(creationState))) },
         )
     }
 
@@ -552,6 +535,20 @@ internal fun floatToString(v: Float, before: Int, after: Int, flags: Int) =
             TextFromFloat.PAD_AFTER_ZERO -> '0'
             else -> ' '
         },
+        when (flags and (3 shl 6)) {
+            TextFromFloat.SEPARATOR_PERIOD_COMMA -> StringUtils.SEPARATOR_PERIOD_COMMA
+            TextFromFloat.SEPARATOR_COMMA_PERIOD -> StringUtils.SEPARATOR_COMMA_PERIOD
+            TextFromFloat.SEPARATOR_SPACE_COMMA -> StringUtils.SEPARATOR_SPACE_COMMA
+            TextFromFloat.SEPARATOR_UNDER_PERIOD -> StringUtils.SEPARATOR_UNDER_PERIOD
+            else -> StringUtils.SEPARATOR_PERIOD_COMMA
+        }.toByte(),
+        when (flags and (3 shl 4)) {
+            TextFromFloat.GROUPING_BY3 -> StringUtils.GROUPING_BY3
+            TextFromFloat.GROUPING_BY4 -> StringUtils.GROUPING_BY4
+            TextFromFloat.GROUPING_BY32 -> StringUtils.GROUPING_BY32
+            else -> StringUtils.GROUPING_NONE
+        }.toByte(),
+        flags shr 8,
     )
 
 /**
@@ -1059,16 +1056,6 @@ internal constructor(
             return Utils.idFromNan(creationState.document.floatExpression(*array))
         }
     }
-
-    public override val id: Float
-        get(): Float {
-            // Some of the callers expect RemoteFloat(123) to return 123 from this method.
-            val array = arrayForCreationState(FallbackCreationState.state)
-            if (array.size == 1) {
-                return array[0]
-            }
-            return getFloatIdForCreationState(FallbackCreationState.state)
-        }
 }
 
 /**
@@ -1082,7 +1069,7 @@ internal constructor(
 public class AnimatedRemoteFloat(public val input: RemoteFloat, public val anim: FloatArray) :
     RemoteFloat() {
     public override val arrayProvider: (creationState: RemoteComposeCreationState) -> FloatArray
-        get() = { creationState -> floatArrayOf(getFloatIdForCreationState(creationState)) }
+        get() = { creationState -> floatArrayOf(asNan(getIdForCreationState(creationState))) }
 
     public override val constantValue: Float?
         get() = null
@@ -1315,7 +1302,7 @@ public fun rememberRemoteFloat(
  * @return The created [RemoteFloat].
  */
 public fun remoteFloat(
-    state: RemoteComposeCreationState,
+    state: RemoteStateScope,
     content: RemoteFloatContext.() -> RemoteFloat,
 ): RemoteFloat {
     val context = RemoteFloatContext(state)

@@ -34,6 +34,22 @@ internal class Utils {
     companion object {
         private val TAG = Utils.Companion::class.java.simpleName
 
+        /**
+         * Local constant to mirror the platform's
+         * PhoneAccount.CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK.
+         *
+         * This is a temporary measure because the platform API will not be public until the 26Q2
+         * release. Using a local constant allows us to implement the opt-out feature in this
+         * mainline module without creating a dependency on the yet-to-be-released public API.
+         *
+         * Once the platform API is public, this local constant should be removed and replaced with
+         * the official PhoneAccount.CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK.
+         *
+         * For more details, see b/447631226.
+         */
+        // TODO - b/468165661: Replace local constant with API on availability
+        internal const val PLATFORM_CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK = 0x200000
+
         private val defaultBuildAdapter =
             object : BuildVersionAdapter {
                 override fun hasInvalidBuildVersion(): Boolean {
@@ -138,6 +154,11 @@ internal class Utils {
                     PhoneAccount.CAPABILITY_SUPPORTS_CALL_STREAMING or platformCapabilities
             }
 
+            if (hasJetpackOptOutCapability(clientBitmapSelection)) {
+                platformCapabilities =
+                    PLATFORM_CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK or platformCapabilities
+            }
+
             return platformCapabilities
         }
 
@@ -153,6 +174,11 @@ internal class Utils {
         @RequiresApi(VERSION_CODES.O)
         private fun hasJetpackSteamingCapability(bitMap: Int): Boolean {
             return hasCapability(CallsManager.CAPABILITY_SUPPORTS_CALL_STREAMING, bitMap)
+        }
+
+        @RequiresApi(VERSION_CODES.O)
+        private fun hasJetpackOptOutCapability(bitMap: Int): Boolean {
+            return hasCapability(CallsManager.CAPABILITY_OPT_OUT_OF_PREMIUM_NETWORK, bitMap)
         }
 
         fun getBundleWithPhoneAccountHandle(

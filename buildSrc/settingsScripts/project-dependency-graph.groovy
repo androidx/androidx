@@ -300,37 +300,35 @@ class ProjectDependencyGraph {
         Matcher matcherCompileSdk = compileSdk.matcher(line)
         if (matcherCompileSdk) {
             String middlePart = matcherCompileSdk.group(1)
-            if (middlePart !in [" = ", "Extension = ", "Minor = "]) {
-                String compileSdkValue = matcherCompileSdk.group(2)
-                if (middlePart.contains("Extension")) {
-                    throw new Exception("Invalid way to set compileSdkExtension " +
-                            "in $buildFile.absolutePath.\n" +
-                            "It is compileSdk$middlePart$compileSdkValue, " +
-                            "but should be compileSdkExtension = $compileSdkValue"
-                    )
-                } else if (middlePart.contains("Minor")) {
-                    throw new Exception("Invalid way to set compileSdkMinor " +
-                            "in $buildFile.absolutePath.\n" +
-                            "It is compileSdk$middlePart$compileSdkValue, " +
-                            "but should be compileSdkMinor = $compileSdkValue"
-                    )
-                } else {
-                    throw new Exception("Invalid way to set compileSdk " +
-                            "in $buildFile.absolutePath.\n" +
-                            "It is compileSdk$middlePart$compileSdkValue, " +
-                            "but should be compileSdk = $compileSdkValue"
-                    )
-                }
+            String compileSdkValue = matcherCompileSdk.group(2)
+            if (middlePart.contains("Extension")) {
+                throw new Exception("Invalid way to set compileSdkExtension " +
+                        "in $buildFile.absolutePath.\n" +
+                        "It is compileSdk$middlePart$compileSdkValue, " +
+                        "but should be compileSdk ( version = release(XX) { sdkExtension = $compileSdkValue }"
+                )
+            } else if (middlePart.contains("Minor")) {
+                throw new Exception("Invalid way to set compileSdkMinor " +
+                        "in $buildFile.absolutePath.\n" +
+                        "It is compileSdk$middlePart$compileSdkValue, " +
+                        "but should be compileSdk { version = release(XX) { minorApiLevel = $compileSdkValue }"
+                )
+            } else {
+                throw new Exception("Invalid way to set compileSdk " +
+                        "in $buildFile.absolutePath.\n" +
+                        "It is compileSdk$middlePart$compileSdkValue, " +
+                        "but should be compileSdk { version = release($compileSdkValue) }"
+                )
             }
         }
         Matcher matcherMinSdk = minSdk.matcher(line)
         if (matcherMinSdk) {
             String middlePart = matcherMinSdk.group(1)
-            if (middlePart !in [" = ", "ForFtlOverride = "]) {
+            if (middlePart != "ForFtlOverride = ") {
                 throw new Exception("Invalid way to set minSdk " +
                         "in $buildFile.absolutePath.\n" +
                         "It is minSdk$middlePart${matcherMinSdk.group(2)}, " +
-                        "but should be minSdk = ${matcherMinSdk.group(2)}"
+                        "but should be minSdk { version = release(${matcherMinSdk.group(2)}) }"
                 )
             }
         }

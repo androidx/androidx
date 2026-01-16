@@ -170,7 +170,7 @@ package androidx.navigation {
     method @BytecodeOnly public static androidx.navigation.NavDeepLink.Builder! setUriPattern$default(androidx.navigation.NavDeepLink.Builder!, kotlin.reflect.KClass!, String!, java.util.Map!, int, Object!);
   }
 
-  @kotlin.DslMarker public @interface NavDeepLinkDsl {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface NavDeepLinkDsl {
   }
 
   @androidx.navigation.NavDeepLinkDsl public final class NavDeepLinkDslBuilder {
@@ -296,7 +296,7 @@ package androidx.navigation {
     property public final String? route;
   }
 
-  @kotlin.DslMarker public @interface NavDestinationDsl {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface NavDestinationDsl {
   }
 
   public interface NavDirections {
@@ -474,7 +474,7 @@ package androidx.navigation {
     method public static androidx.navigation.NavOptions navOptions(kotlin.jvm.functions.Function1<? super androidx.navigation.NavOptionsBuilder,kotlin.Unit> optionsBuilder);
   }
 
-  @kotlin.DslMarker public @interface NavOptionsDsl {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface NavOptionsDsl {
   }
 
   public abstract class NavType<T> {

@@ -33,6 +33,26 @@ class FakeSpatialPointerComponentTest {
     }
 
     @Test
+    fun onAttach_PanelEntity_attachesSuccessfully() {
+        val panelEntity = FakePanelEntity()
+
+        assertThat(panelEntity.addComponent(underTest)).isTrue()
+    }
+
+    @Test
+    fun onAttach_NonPanelEntity_failedToAttach() {
+        val anchorEntity = FakeAnchorEntity()
+        val gltfEntity = FakeGltfEntity()
+        val surfaceEntity = FakeSurfaceEntity()
+        val subspaceNodeEntity = FakeSubspaceNodeEntity()
+
+        assertThat(anchorEntity.addComponent(underTest)).isFalse()
+        assertThat(gltfEntity.addComponent(underTest)).isFalse()
+        assertThat(surfaceEntity.addComponent(underTest)).isFalse()
+        assertThat(subspaceNodeEntity.addComponent(underTest)).isFalse()
+    }
+
+    @Test
     fun setSpatialPointerIcon_getSpatialPointerIconReturnsSetIcon() {
         // Default value.
         check(underTest.getSpatialPointerIcon() == SpatialPointerIcon.TYPE_NONE)

@@ -40,11 +40,7 @@ dependencies {
 
 android {
     namespace = "androidx.text.vertical"
-
-    defaultConfig {
-        minSdk = 23
-    }
-    compileSdk = 36
+    compileSdk { version = release(36) }
 }
 
 androidx {

@@ -23,6 +23,7 @@ deleteOldOutDir
 
 function deleteStaleCache() {
    rm -rf "$OUT_DIR/androidx/room3/integration-tests/room-testapp-kotlin/build/generated/ksp/"
+   rm -rf "$OUT_DIR/androidx/appfunctions/"
 }
 
 deleteStaleCache
@@ -60,6 +61,8 @@ EXIT_VALUE=0
 # Validate translation exports, if present
 if ! impl/check_translations.sh; then
   echo check_translations failed
+  EXIT_VALUE=1
+elif ! impl/verify-gradle-signature.sh; then
   EXIT_VALUE=1
 else
     # Run Gradle

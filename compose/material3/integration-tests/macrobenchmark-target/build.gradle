@@ -13,7 +13,7 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    compileSdk = 35
+    compileSdk { version = release(35) }
 }
 
 dependencies {

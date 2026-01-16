@@ -36,7 +36,7 @@ public class WearWidgetRawContent(public val rcDocument: ByteArray, public val e
         val contentProto = WearWidgetRawContentProto(rc_document = rcDocument.toByteString())
         return WearWidgetRawContentParcel().apply {
             payload = contentProto.encode()
-            extras = extras
+            extras = this@WearWidgetRawContent.extras
         }
     }
 

@@ -58,94 +58,45 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.RequiresOptIn")
         }
 
-        commonMain {
-            dependencies {
-                api(libs.atomicFu)
-                api(libs.okio)
-                api(project(":datastore:datastore-core"))
-                api(project(":datastore:datastore-core-okio"))
-            }
+        commonMain.dependencies {
+            api(libs.atomicFu)
+            api(libs.okio)
+            api(project(":datastore:datastore-core"))
+            api(project(":datastore:datastore-core-okio"))
         }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":datastore:datastore-core"))
-                implementation(project(":kruth:kruth"))
-                implementation(project(":internal-testutils-datastore"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":datastore:datastore-core"))
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-datastore"))
         }
-        jvmAndroidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(project(":datastore:datastore-preferences-proto"))
-            }
-        }
-        jvmMain {
-            dependsOn(jvmAndroidMain)
-        }
-        androidMain {
-            dependsOn(jvmAndroidMain)
+        jvmAndAndroidMain.dependencies {
+            implementation(project(":datastore:datastore-preferences-proto"))
         }
 
-        nonWebCommonTest {
-            dependsOn(commonTest)
-        }
+        nonWebCommonTest.dependsOn(commonTest)
 
-        jvmAndroidTest {
+        jvmAndAndroidTest {
             dependsOn(nonWebCommonTest)
             dependencies {
                 implementation(libs.junit)
             }
         }
-        nativeMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.kotlinSerializationCore)
-                implementation(libs.kotlinSerializationProtobuf)
-            }
+        nativeMain.dependencies {
+            implementation(libs.kotlinSerializationCore)
+            implementation(libs.kotlinSerializationProtobuf)
         }
 
-        webCommonMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.kotlinSerializationJson)
-                implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
-            }
+        webMain.dependencies {
+            implementation(libs.kotlinSerializationJson)
+            implementation("org.jetbrains.kotlinx:kotlinx-browser:0.5.0")
         }
 
-        wasmJsMain {
-            dependsOn(webCommonMain)
-        }
+        nativeTest.dependsOn(nonWebCommonTest)
 
-        jsMain {
-            dependsOn(webCommonMain)
-        }
-
-        wasmJsTest {
-            dependsOn(commonTest)
-        }
-
-        jvmTest {
-            dependsOn(jvmAndroidTest)
-        }
-        nativeTest {
-            dependsOn(nonWebCommonTest)
-        }
-        androidDeviceTest {
-            dependencies {
-                implementation(libs.testRunner)
-            }
-        }
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
-                }
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
         }
     }
 }

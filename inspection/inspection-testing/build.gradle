@@ -50,7 +50,7 @@ androidx {
 android {
     defaultConfig {
         // studio pipeline works only starting with Android O
-        minSdk = 26
+        minSdk { version = release(26) }
     }
     namespace = "androidx.inspection.testing"
 }

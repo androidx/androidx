@@ -163,6 +163,9 @@ public fun MaterialScope.avatarImage(
  * @param contentScaleMode The content scale mode for the image to define how image will adapt to
  *   the given size
  */
+@Deprecated(
+    "Use backgroundImage(ImageResource, String, LayoutModifier, ImageDimension, ImageDimension, LayoutColor?, Int) instead, in combination with [androidx.wear.tiles.Material3TileService] that creates scopes for you."
+)
 @Suppress("deprecation")
 public fun MaterialScope.backgroundImage(
     protoLayoutResourceId: String,
@@ -204,6 +207,9 @@ public fun MaterialScope.backgroundImage(
  * @param contentScaleMode The content scale mode for the image to define how image will adapt to
  *   the given size
  */
+@Deprecated(
+    "Use avatarImage(ImageResource, String, ImageDimension, ImageDimension, LayoutModifier, Int) instead, in combination with [androidx.wear.tiles.Material3TileService] that creates scopes for you."
+)
 @Suppress("deprecation")
 public fun MaterialScope.avatarImage(
     protoLayoutResourceId: String,

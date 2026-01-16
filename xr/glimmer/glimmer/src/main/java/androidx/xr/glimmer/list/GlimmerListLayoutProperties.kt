@@ -155,7 +155,7 @@ internal fun Density.resolveLayoutProperties(
                 .spacing
         } else {
             requirePreconditionNotNull(horizontalArrangement) {
-                    "null horizontalAlignment when isVertical == false"
+                    "null horizontalArrangement when isVertical == false"
                 }
                 .spacing
         }

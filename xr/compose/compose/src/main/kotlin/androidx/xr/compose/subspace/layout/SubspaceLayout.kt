@@ -38,8 +38,8 @@ import androidx.xr.scenecore.GroupEntity
 /**
  * [SubspaceLayout] is the main component for laying out leaf nodes with zero children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
  * Example:
  * ```kotlin
@@ -80,8 +80,8 @@ public inline fun SubspaceLayout(
  * [SubspaceLayout] is the main core component for layout. It can be used to measure and position
  * zero or more layout children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
  * Example:
  * ```kotlin
@@ -127,7 +127,70 @@ public inline fun SubspaceLayout(
                 set(coreEntity, SetCoreEntity)
                 set(modifier, SetModifier)
             },
-            content = { content() },
+            content = content,
+        )
+    }
+}
+
+/**
+ * [SubspaceLayout] is the main core component for layout. It can be used to measure and position
+ * zero or more layout children.
+ *
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ *
+ * Example:
+ * ```kotlin
+ * fun MyLayout(
+ *     modifier: SubspaceModifier = SubspaceModifier,
+ *     content: @SubspaceComposable @Composable () -> Unit) {
+ *   SubspaceLayout(content = content, modifier = modifier) {
+ *     measurables, constraints ->
+ *     val placeables = measurables.map { it.measure(constraints) }
+ *     layout(constraints.maxWidth, constraints.maxHeight, constraints.maxDepth) {
+ *       placeables.forEach { it.place(Pose.Identity) }
+ *     }
+ *   }
+ * }
+ * ```
+ *
+ * @param modifier SubspaceModifier to apply during layout
+ * @param content the child composables to be laid out.
+ * @param coreEntityName A name for the underlying [androidx.xr.scenecore.GroupEntity] that is
+ *   created to host the content of this layout. This name is used for debugging and identification
+ *   purposes; it will appear in scene graph inspectors, making it easier to correlate this
+ *   composable with its corresponding node in the 3D scene.
+ * @param measurePolicy a policy defining the measurement and positioning of the layout.
+ */
+@Suppress("ComposableLambdaParameterPosition", "NOTHING_TO_INLINE")
+@SubspaceComposable
+@Composable
+public inline fun SubspaceLayout(
+    crossinline content: @Composable @SubspaceComposable () -> Unit,
+    coreEntityName: String,
+    modifier: SubspaceModifier = SubspaceModifier,
+    measurePolicy: SubspaceMeasurePolicy,
+) {
+    check(currentComposer.applier.current is ComposeSubspaceNode) {
+        "SubspaceComposable functions are expected to be used within the context of a " +
+            "Subspace composition. Please ensure that this component is in a Subspace or " +
+            " is a child of another SubspaceComposable."
+    }
+
+    val coreEntity = rememberOpaqueEntity {
+        GroupEntity.create(session = this, name = coreEntityName)
+    }
+    val compositionLocalMap = currentComposer.currentCompositionLocalMap
+    CompositionLocalProvider(LocalOpaqueEntity provides coreEntity) {
+        ComposeNode<ComposeSubspaceNode, Applier<Any>>(
+            factory = ComposeSubspaceNode.Constructor,
+            update = {
+                set(compositionLocalMap, SetCompositionLocalMap)
+                set(measurePolicy, SetMeasurePolicy)
+                set(coreEntity, SetCoreEntity)
+                set(modifier, SetModifier)
+            },
+            content = content,
         )
     }
 }
@@ -146,8 +209,8 @@ internal fun rememberOpaqueEntity(
  * [SubspaceLayout] is the main core component for layout for "leaf" nodes. It can be used to
  * measure and position zero children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
  * @param modifier SubspaceModifier to apply during layout.
  * @param coreEntity SceneCore Entity being placed in this layout. This parameter is generally not
@@ -187,8 +250,8 @@ internal inline fun SubspaceLayout(
  * [SubspaceLayout] is the main core component for layout. It can be used to measure and position
  * zero or more layout children.
  *
- * The measurement, layout and intrinsic measurement behaviours of this layout will be defined by
- * the [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
+ * The measurement, layout and intrinsic measurement behaviors of this layout will be defined by the
+ * [SubspaceMeasurePolicy] instance. See [SubspaceMeasurePolicy] for more details.
  *
  * @param modifier SubspaceModifier to apply during layout
  * @param coreEntity SceneCore Entity being placed in this layout. This parameter is generally not
@@ -208,9 +271,8 @@ internal inline fun SubspaceLayout(
     measurePolicy: SubspaceMeasurePolicy,
 ) {
 
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
     val coreGroupEntity =
-        coreEntity ?: remember { CoreGroupEntity(GroupEntity.create(session, name = "Entity")) }
+        coreEntity ?: rememberOpaqueEntity { GroupEntity.create(this, name = "Entity") }
 
     check(currentComposer.applier.current is ComposeSubspaceNode) {
         "SubspaceComposable functions are expected to be used within the context of a " +
@@ -227,7 +289,7 @@ internal inline fun SubspaceLayout(
                 set(coreGroupEntity, SetCoreEntity)
                 set(modifier, SetModifier)
             },
-            content = { content() },
+            content = content,
         )
     }
 }

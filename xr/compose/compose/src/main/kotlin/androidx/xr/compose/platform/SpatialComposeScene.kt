@@ -46,13 +46,16 @@ internal class SpatialComposeScene(
     parentCompositionContext: CompositionContext,
     rootEntity: CoreEntity? = null,
 ) : DefaultLifecycleObserver, LifecycleOwner {
-    init {
-        SceneManager.onSceneCreated(this)
-    }
+    override val lifecycle: Lifecycle
+        get() = lifecycleOwner.lifecycle
 
     /** Root of the spatial scene graph of this [SpatialComposeScene]. */
     internal val rootElement: SpatialComposeElement =
         SpatialComposeElement(this, parentCompositionContext, rootEntity)
+
+    init {
+        SceneManager.onSceneCreated(this)
+    }
 
     fun setContent(content: @Composable @SubspaceComposable () -> Unit) {
         rootElement.setContent(content)
@@ -62,7 +65,4 @@ internal class SpatialComposeScene(
         rootElement.disposeComposition()
         SceneManager.onSceneDisposed(this)
     }
-
-    override val lifecycle: Lifecycle
-        get() = lifecycleOwner.lifecycle
 }

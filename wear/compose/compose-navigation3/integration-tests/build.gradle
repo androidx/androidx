@@ -24,9 +24,9 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
-        minSdk = 25
+        minSdk { version = release(25) }
     }
     namespace = "androidx.wear.compose.navigation3.demos"
 }
@@ -34,6 +34,8 @@ android {
 dependencies {
     implementation("androidx.activity:activity-compose:1.5.1")
     implementation("androidx.compose.material:material-icons-core:1.6.7")
+    implementation("androidx.navigation3:navigation3-ui:1.0.0")
+    implementation("androidx.navigation3:navigation3-runtime:1.0.0")
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))

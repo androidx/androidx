@@ -28,7 +28,7 @@ import kotlin.math.sqrt
  *  [3, 7, 11, 15]
  * ```
  *
- * @param dataToCopy the array with 16 elements that will be copied over.
+ * @param dataToCopy the array with 16 elements that will be copied over
  */
 public class Matrix4(dataToCopy: FloatArray) {
     init {
@@ -208,7 +208,7 @@ public class Matrix4(dataToCopy: FloatArray) {
                     data[5] * (data[2] * data[11] - data[10] * data[3]) +
                     data[9] * (data[2] * data[7] - data[6] * data[3]))
 
-    /** Returns true if this pose is equal to [other]. */
+    /** Returns true if this matrix is equal to [other]. */
     public override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Matrix4) return false
@@ -255,7 +255,11 @@ public class Matrix4(dataToCopy: FloatArray) {
             data[15] +
             " ]"
 
-    /** Returns a copy of the matrix. */
+    /**
+     * Returns a copy of the matrix.
+     *
+     * @param data the new data for the copied matrix
+     */
     public fun copy(data: FloatArray = this.data): Matrix4 = Matrix4(data)
 
     public companion object {
@@ -272,6 +276,10 @@ public class Matrix4(dataToCopy: FloatArray) {
         /**
          * Returns a new transformation matrix. The returned matrix is such that it first scales
          * objects, then rotates them, and finally translates them.
+         *
+         * @param translation the translation component
+         * @param rotation the rotation component
+         * @param scale the scale component
          */
         @JvmStatic
         public fun fromTrs(translation: Vector3, rotation: Quaternion, scale: Vector3): Matrix4 {
@@ -314,7 +322,11 @@ public class Matrix4(dataToCopy: FloatArray) {
             )
         }
 
-        /** Returns a new translation matrix. */
+        /**
+         * Returns a new translation matrix.
+         *
+         * @param translation the translation vector
+         */
         @JvmStatic
         public fun fromTranslation(translation: Vector3): Matrix4 =
             Matrix4(
@@ -338,7 +350,11 @@ public class Matrix4(dataToCopy: FloatArray) {
                 )
             )
 
-        /** Returns a new uniform scale matrix. */
+        /**
+         * Returns a new scale matrix.
+         *
+         * @param scale the scale vector
+         */
         @JvmStatic
         public fun fromScale(scale: Vector3): Matrix4 =
             Matrix4(
@@ -362,7 +378,11 @@ public class Matrix4(dataToCopy: FloatArray) {
                 )
             )
 
-        /** Returns a new scale matrix. */
+        /**
+         * Returns a new uniform scale matrix.
+         *
+         * @param scale the uniform scale factor
+         */
         @JvmStatic
         public fun fromScale(scale: Float): Matrix4 =
             Matrix4(
@@ -386,7 +406,11 @@ public class Matrix4(dataToCopy: FloatArray) {
                 )
             )
 
-        /** Returns a new rotation matrix. */
+        /**
+         * Returns a new rotation matrix.
+         *
+         * @param quaternion the rotation quaternion
+         */
         @JvmStatic
         public fun fromQuaternion(quaternion: Quaternion): Matrix4 =
             fromTrs(Vector3.Zero, quaternion, Vector3.One)
@@ -394,6 +418,8 @@ public class Matrix4(dataToCopy: FloatArray) {
         /**
          * Returns a new rigid transformation matrix. The returned matrix is such that it first
          * rotates objects, and then translates them.
+         *
+         * @param pose the pose to convert
          */
         @JvmStatic
         public fun fromPose(pose: Pose): Matrix4 {

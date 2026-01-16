@@ -27,21 +27,26 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Session
+import androidx.xr.runtime.math.BoundingBox
 import androidx.xr.runtime.math.FloatSize2d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.AnchorEntity
+import androidx.xr.scenecore.BoundsComponent
+import androidx.xr.scenecore.Entity
 import androidx.xr.scenecore.GltfModel
 import androidx.xr.scenecore.GltfModelEntity
 import androidx.xr.scenecore.PlaneOrientation
 import androidx.xr.scenecore.PlaneSemanticType
 import androidx.xr.scenecore.scene
 import androidx.xr.scenecore.testapp.R
+import androidx.xr.scenecore.testapp.common.DebugTextLinearView
 import androidx.xr.scenecore.testapp.common.DebugTextPanel
 import androidx.xr.scenecore.testapp.common.managers.SessionManager
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.function.BiConsumer
 import kotlinx.coroutines.launch
 
 class AnchorEntityActivity : AppCompatActivity() {
@@ -54,6 +59,7 @@ class AnchorEntityActivity : AppCompatActivity() {
 
         session = SessionManager(this).createSession()
         if (session == null) this.finish()
+        session?.scene?.keyEntity = session?.scene?.mainPanelEntity
 
         // View
         setContentView(R.layout.common_test_panel)
@@ -86,6 +92,26 @@ class AnchorEntityActivity : AppCompatActivity() {
         super.onResume()
     }
 
+    private var gltfEntityDebugPanelView: DebugTextLinearView? = null
+    private val onBoundsUpdateListener =
+        BiConsumer<Entity, BoundingBox> { _, boundingBox ->
+            gltfEntityDebugPanelView?.let {
+                val centerText =
+                    "[x: %.3f, y: %.3f, z: %.3f]"
+                        .format(boundingBox.center.x, boundingBox.center.y, boundingBox.center.z)
+                gltfEntityDebugPanelView?.setLine("center", centerText)
+
+                val halfExtentsText =
+                    "[width: %.3f, height: %.3f, depth: %.3f]"
+                        .format(
+                            boundingBox.halfExtents.width,
+                            boundingBox.halfExtents.height,
+                            boundingBox.halfExtents.depth,
+                        )
+                gltfEntityDebugPanelView?.setLine("halfExtents", halfExtentsText)
+            }
+        }
+
     private fun createAnchorEntity(context: Context) {
         lifecycleScope.launch {
             session!!.configure(
@@ -115,35 +141,22 @@ class AnchorEntityActivity : AppCompatActivity() {
                         it.setEnabled(true)
                     }
 
-            val gltfEntityDebugPanel =
-                DebugTextPanel(
-                    context,
-                    session!!,
-                    session!!.scene.activitySpace,
-                    name = "GLTF Entity Info",
-                    pose = Pose(Vector3(0f, -0.4f, 0.1f)),
-                )
-
-            val view = gltfEntityDebugPanel.view
-
-            val xyzModelEntityBoundingBox = xyzModelEntity.getGltfModelBoundingBox()
-            val centerText =
-                "[x: %.3f, y: %.3f, z: %.3f]"
-                    .format(
-                        xyzModelEntityBoundingBox.center.x,
-                        xyzModelEntityBoundingBox.center.y,
-                        xyzModelEntityBoundingBox.center.z,
+            if (gltfEntityDebugPanelView == null) {
+                val gltfEntityDebugPanel =
+                    DebugTextPanel(
+                        context,
+                        session!!,
+                        session!!.scene.activitySpace,
+                        name = "GLTF Entity Info",
+                        pose = Pose(Vector3(0f, -0.4f, 0.1f)),
                     )
-            view.setLine("center", centerText)
 
-            val halfExtentsText =
-                "[width: %.3f, height: %.3f, depth: %.3f]"
-                    .format(
-                        xyzModelEntityBoundingBox.halfExtents.width,
-                        xyzModelEntityBoundingBox.halfExtents.height,
-                        xyzModelEntityBoundingBox.halfExtents.depth,
-                    )
-            view.setLine("halfExtents", halfExtentsText)
+                gltfEntityDebugPanelView = gltfEntityDebugPanel.view
+            }
+
+            val boundsComponent = BoundsComponent.create(session!!)
+            boundsComponent.addOnBoundsUpdateListener(onBoundsUpdateListener)
+            xyzModelEntity.addComponent(boundsComponent)
         }
     }
 

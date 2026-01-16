@@ -22,6 +22,7 @@ import androidx.build.clang.KonanBuildService
 import androidx.build.clang.MultiTargetNativeCompilation
 import androidx.build.clang.NativeLibraryBundler
 import androidx.build.clang.configureCinterop
+import com.android.build.api.dsl.KotlinMultiplatformAndroidCompilation
 import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import groovy.lang.Closure
@@ -38,6 +39,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.testing.Test
 import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
@@ -109,7 +111,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     private val kotlinExtensionDelegate = lazy {
         project.validateMultiplatformPluginHasNotBeenApplied()
         project.plugins.apply(KotlinMultiplatformPluginWrapper::class.java)
-        project.multiplatformExtension!!
+        project.multiplatformExtension!!.also { it.applyAndroidXDefaultHierarchyTemplate() }
     }
     private val kotlinExtension: KotlinMultiplatformExtension by kotlinExtensionDelegate
     private val agpKmpExtensionDelegate = lazy {
@@ -505,17 +507,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     /** Configures all mac targets supported by AndroidX. */
     @JvmOverloads
     fun mac(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
-        return listOfNotNull(macosX64(block), macosArm64(block))
-    }
-
-    @JvmOverloads
-    fun macosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTargetWithHostTests? {
-        supportedPlatforms.add(PlatformIdentifier.MAC_OSX_64)
-        return if (project.enableMac()) {
-            kotlinExtension.macosX64 { block?.execute(this) }
-        } else {
-            null
-        }
+        return listOfNotNull(macosArm64(block))
     }
 
     @JvmOverloads
@@ -531,7 +523,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     /** Configures all ios targets supported by AndroidX. */
     @JvmOverloads
     fun ios(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
-        return listOfNotNull(iosX64(block), iosArm64(block), iosSimulatorArm64(block))
+        return listOfNotNull(iosArm64(block), iosSimulatorArm64(block))
     }
 
     @JvmOverloads
@@ -539,16 +531,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
         supportedPlatforms.add(PlatformIdentifier.IOS_ARM_64)
         return if (project.enableMac()) {
             kotlinExtension.iosArm64 { block?.execute(this) }
-        } else {
-            null
-        }
-    }
-
-    @JvmOverloads
-    fun iosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.IOS_X_64)
-        return if (project.enableMac()) {
-            kotlinExtension.iosX64 { block?.execute(this) }
         } else {
             null
         }
@@ -568,7 +550,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     @JvmOverloads
     fun watchos(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
         return listOfNotNull(
-            watchosX64(block),
             watchosArm32(block),
             watchosArm64(block),
             watchosDeviceArm64(block),
@@ -607,16 +588,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     @JvmOverloads
-    fun watchosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.WATCHOS_X_64)
-        return if (project.enableMac()) {
-            kotlinExtension.watchosX64 { block?.execute(this) }
-        } else {
-            null
-        }
-    }
-
-    @JvmOverloads
     fun watchosSimulatorArm64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
         supportedPlatforms.add(PlatformIdentifier.WATCHOS_SIMULATOR_ARM_64)
         return if (project.enableMac()) {
@@ -629,7 +600,7 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
     /** Configures all tvos targets supported by AndroidX. */
     @JvmOverloads
     fun tvos(block: Action<KotlinNativeTarget>? = null): List<KotlinNativeTarget> {
-        return listOfNotNull(tvosX64(block), tvosArm64(block), tvosSimulatorArm64(block))
+        return listOfNotNull(tvosArm64(block), tvosSimulatorArm64(block))
     }
 
     @JvmOverloads
@@ -637,16 +608,6 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
         supportedPlatforms.add(PlatformIdentifier.TVOS_ARM_64)
         return if (project.enableMac()) {
             kotlinExtension.tvosArm64 { block?.execute(this) }
-        } else {
-            null
-        }
-    }
-
-    @JvmOverloads
-    fun tvosX64(block: Action<KotlinNativeTarget>? = null): KotlinNativeTarget? {
-        supportedPlatforms.add(PlatformIdentifier.TVOS_X_64)
-        return if (project.enableMac()) {
-            kotlinExtension.tvosX64 { block?.execute(this) }
         } else {
             null
         }
@@ -721,6 +682,25 @@ abstract class AndroidXMultiplatformExtension(val project: Project) {
             createTarget = { configure -> kotlinExtension.wasmJs(configure) },
             block = block,
         )
+
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    private fun KotlinMultiplatformExtension.applyAndroidXDefaultHierarchyTemplate() =
+        applyDefaultHierarchyTemplate {
+            common {
+                group("jvmAndAndroid") {
+                    // TODO(b/442950553): Switch to withAndroidTarget when bug is fixed
+                    withCompilations { it is KotlinMultiplatformAndroidCompilation }
+                    withJvm()
+                }
+                group("nonJvm") {
+                    withNative()
+                    group("web") {
+                        withWasmJs()
+                        withJs()
+                    }
+                }
+            }
+        }
 
     private fun <T> Project.configureWebTarget(
         platform: PlatformIdentifier,

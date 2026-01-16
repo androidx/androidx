@@ -51,7 +51,7 @@ internal constructor(
         @JvmStatic
         public fun getUserFace(session: Session): Face? {
             val config = session.config
-            check(config.faceTracking == FaceTrackingMode.USER) {
+            check(config.faceTracking == FaceTrackingMode.BLEND_SHAPES) {
                 "Config.FaceTrackingMode must be set to USER to read the user's face."
             }
 

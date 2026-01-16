@@ -53,6 +53,7 @@ import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteComposeState;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.operations.BitmapFontData;
+import androidx.compose.remote.core.operations.ComponentValue;
 import androidx.compose.remote.core.operations.DataMapIds;
 import androidx.compose.remote.core.operations.DrawTextOnCircle;
 import androidx.compose.remote.core.operations.FloatConstant;
@@ -107,8 +108,10 @@ public class RemoteComposeWriter {
     private @Nullable Object mWriterCallback = null;
     private int mInsertPoint = -1;
     private int mStartGlobalSection = -1;
+
     /**
      * Returns the paint object
+     *
      * @return the paint object
      */
     public @NonNull RcPaint getRcPaint() {
@@ -200,10 +203,10 @@ public class RemoteComposeWriter {
     /**
      * Factory to obtain a RemoteComposeWriter
      *
-     * @param width original size of the document
-     * @param height original height of the document
+     * @param width              original size of the document
+     * @param height             original height of the document
      * @param contentDescription content description
-     * @param profile the profile used for writing the document
+     * @param profile            the profile used for writing the document
      * @return a RemoteComposeWriter instance
      */
     public static @NonNull RemoteComposeWriter obtain(
@@ -214,8 +217,8 @@ public class RemoteComposeWriter {
     /**
      * Factory to obtain a RemoteComposeWriter
      *
-     * @param width original size of the document
-     * @param height original height of the document
+     * @param width   original size of the document
+     * @param height  original height of the document
      * @param profile the profile used for writing the document
      * @return a RemoteComposeWriter instance
      */
@@ -227,10 +230,10 @@ public class RemoteComposeWriter {
     /**
      * Create a RemoteComposeWriter
      *
-     * @param width original document width
-     * @param height original document height
+     * @param width              original document width
+     * @param height             original document height
      * @param contentDescription content description
-     * @param platform the platform to use
+     * @param platform           the platform to use
      */
     public RemoteComposeWriter(
             int width, int height, @Nullable String contentDescription,
@@ -246,12 +249,12 @@ public class RemoteComposeWriter {
     /**
      * Create a RemoteComposeWriter
      *
-     * @param width original document width
-     * @param height original document height
+     * @param width              original document width
+     * @param height             original document height
      * @param contentDescription content description
-     * @param apiLevel document api level
-     * @param profiles bitmap for the profiles
-     * @param platform the platform to use
+     * @param apiLevel           document api level
+     * @param profiles           bitmap for the profiles
+     * @param platform           the platform to use
      */
     public RemoteComposeWriter(
             int width,
@@ -274,7 +277,7 @@ public class RemoteComposeWriter {
      *
      * @param platform the platform to use
      * @param apiLevel document api level
-     * @param tags properties of the document
+     * @param tags     properties of the document
      */
     public RemoteComposeWriter(@NonNull RcPlatformServices platform, int apiLevel,
             HTag @NonNull ... tags) {
@@ -313,7 +316,7 @@ public class RemoteComposeWriter {
      * create a new RemoteComposeWriter
      *
      * @param platform the platform to use
-     * @param tags properties of the document
+     * @param tags     properties of the document
      */
     public RemoteComposeWriter(@NonNull RcPlatformServices platform, HTag @NonNull ... tags) {
         this(platform, CoreDocument.DOCUMENT_API_LEVEL, tags);
@@ -323,8 +326,8 @@ public class RemoteComposeWriter {
      * create a new RemoteComposeWriter
      *
      * @param profile the profile to use
-     * @param buffer the buffer to use
-     * @param tags properties of the document
+     * @param buffer  the buffer to use
+     * @param tags    properties of the document
      */
     public RemoteComposeWriter(
             @NonNull Profile profile, @NonNull RemoteComposeBuffer buffer, HTag @NonNull ... tags) {
@@ -374,8 +377,7 @@ public class RemoteComposeWriter {
 
     /** Reset the writer */
     public void reset() {
-        mCacheComponentWidthValues.clear();
-        mCacheComponentHeightValues.clear();
+        mComponentValuesCache.clear();
         mBuffer.reset(1000000);
         mState.reset();
         header(mOriginalWidth, mOriginalHeight, mContentDescription, 1f, 0);
@@ -1170,16 +1172,29 @@ public class RemoteComposeWriter {
     }
 
     /**
+     * Draw the text, with origin at (x,y) along the specified path.
+     *
+     * @param textId  The text to be drawn
+     * @param pathId  The path the text should follow for its baseline
+     * @param hOffset The distance along the path to add to the text's starting position
+     * @param vOffset The distance above(-) or below(+) the path to position the text
+     */
+    public void drawTextOnPath(int textId, int pathId, float hOffset, float vOffset) {
+        mBuffer.addDrawTextOnPath(textId, pathId, hOffset, vOffset);
+    }
+
+
+    /**
      * Draw the curved text, along the specified circle with origin at (x,y).
      *
-     * @param textId the id of the text variable
-     * @param centerX the center X of the circle
-     * @param centerY the center Y of the circle
-     * @param radius the radius of the circle
-     * @param startAngle the start angle to draw from
+     * @param textId           the id of the text variable
+     * @param centerX          the center X of the circle
+     * @param centerY          the center Y of the circle
+     * @param radius           the radius of the circle
+     * @param startAngle       the start angle to draw from
      * @param warpRadiusOffset the offset of the warp radius
-     * @param alignment the alignment of the text relative to start
-     * @param placement the placement inside or outside the circle
+     * @param alignment        the alignment of the text relative to start
+     * @param placement        the placement inside or outside the circle
      */
     public void drawTextOnCircle(int textId, float centerX, float centerY, float radius,
             float startAngle, float warpRadiusOffset, DrawTextOnCircle.@NonNull Alignment alignment,
@@ -1418,9 +1433,9 @@ public class RemoteComposeWriter {
      * @param path2Id The path2 to be drawn between
      * @param tween   The ratio of path1 and path2 to 0 = all path 1, 1 = all path2
      * @param start   The start of the subrange of paths to draw 0 = start form start 0.5 is half
-     *               way
+     *                way
      * @param stop    The end of the subrange of paths to draw 1 = end at the end 0.5 is end half
-     *               way
+     *                way
      */
     public void drawTweenPath(int path1Id, int path2Id, float tween, float start, float stop) {
         mBuffer.addDrawTweenPath(path1Id, path2Id, tween, start, stop);
@@ -1683,12 +1698,7 @@ public class RemoteComposeWriter {
         return Utils.asNan(id);
     }
 
-    @NonNull
-    HashMap<@NonNull Integer, @NonNull Float> mCacheComponentWidthValues =
-            new HashMap<Integer, Float>();
-    @NonNull
-    HashMap<@NonNull Integer, @NonNull Float> mCacheComponentHeightValues =
-            new HashMap<Integer, Float>();
+    @NonNull ComponentValuesCache mComponentValuesCache = new ComponentValuesCache(this);
 
     /**
      * Add a float constant representing the current component width
@@ -1696,13 +1706,9 @@ public class RemoteComposeWriter {
      * @return float NaN containing the id
      */
     public @NonNull Float addComponentWidthValue() {
-        if (mCacheComponentWidthValues.containsKey(mBuffer.getLastComponentId())) {
-            return mCacheComponentWidthValues.get(mBuffer.getLastComponentId());
-        }
-        float id = reserveFloatVariable();
-        mBuffer.addComponentWidthValue(Utils.idFromNan(id));
-        mCacheComponentWidthValues.put(mBuffer.getLastComponentId(), id);
-        return id;
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.WIDTH);
     }
 
     /**
@@ -1711,13 +1717,75 @@ public class RemoteComposeWriter {
      * @return float NaN containing the id
      */
     public @NonNull Float addComponentHeightValue() {
-        if (mCacheComponentHeightValues.containsKey(mBuffer.getLastComponentId())) {
-            return mCacheComponentHeightValues.get(mBuffer.getLastComponentId());
-        }
-        float id = reserveFloatVariable();
-        mBuffer.addComponentHeightValue(Utils.idFromNan(id));
-        mCacheComponentHeightValues.put(mBuffer.getLastComponentId(), id);
-        return id;
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.HEIGHT);
+    }
+
+    /**
+     * Add a float constant representing the current component's content width
+     *
+     * @return float NaN containing the id
+     */
+    public @NonNull Float addComponentContentWidthValue() {
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.CONTENT_WIDTH);
+    }
+
+    /**
+     * Add a float constant representing the current component's content height
+     *
+     * @return float NaN containing the id
+     */
+    public @NonNull Float addComponentContentHeightValue() {
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.CONTENT_HEIGHT);
+    }
+
+    /**
+     * Add a float constant representing the current component's content width
+     *
+     * @return float NaN containing the id
+     */
+    public @NonNull Float addComponentXValue() {
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.POS_X);
+    }
+
+    /**
+     * Add a float constant representing the current component's content height
+     *
+     * @return float NaN containing the id
+     */
+    public @NonNull Float addComponentYValue() {
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.POS_Y);
+    }
+
+    /**
+     * Add a float constant representing the current component's content width
+     *
+     * @return float NaN containing the id
+     */
+    public @NonNull Float addComponentRootXValue() {
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.POS_ROOT_X);
+    }
+
+    /**
+     * Add a float constant representing the current component's content height
+     *
+     * @return float NaN containing the id
+     */
+    public @NonNull Float addComponentRootYValue() {
+        return mComponentValuesCache.addComponentValue(
+                mBuffer.getLastComponentId(),
+                ComponentValue.POS_ROOT_Y);
     }
 
     /**
@@ -1990,6 +2058,29 @@ public class RemoteComposeWriter {
         mBuffer.addColorExpression(retId, (short) darkId, (short) lightId, 1);
         endLoop();
         setTheme(Rc.Theme.UNSPECIFIED);
+        return (short) retId;
+    }
+
+    /**
+     * This returns a color that is lightId if light theme and dark id if dark theme
+     *
+     * @param lightId the id of the light color
+     * @param darkId  the id of the dark color
+     * @return the id of the color that auto switches
+     */
+    public short addThemedColor(@NonNull String group,
+            short lightId,
+            short darkId,
+            int lightFallback,
+            int darkFallback) {
+        int retId = mState.createNextAvailableId();
+        int groupId = mState.dataGetId(group);
+        if (groupId == -1) {
+            groupId = mState.cacheData(group);
+            mBuffer.addText(groupId, group);
+        }
+        mBuffer.addThemedColor(retId, groupId, lightId, darkId, lightFallback, darkFallback);
+
         return (short) retId;
     }
 
@@ -3161,6 +3252,8 @@ public class RemoteComposeWriter {
             int color,
             int colorId,
             float fontSize,
+            float minFontSize,
+            float maxFontSize,
             int fontStyle,
             float fontWeight,
             @Nullable String fontFamily,
@@ -3186,6 +3279,8 @@ public class RemoteComposeWriter {
                 color,
                 colorId,
                 fontSize,
+                minFontSize,
+                maxFontSize,
                 fontStyle,
                 fontWeight,
                 fontFamily,
@@ -3211,16 +3306,13 @@ public class RemoteComposeWriter {
     /**
      * Start a text component
      *
-     * @param modifier
-     * @param textId id of the text
-     * @param color color of the text
-     * @param fontSize font size
-     * @param fontStyle font style (0 : Normal, 1 : Italic)
+     * @param textId     id of the text
+     * @param color      color of the text
+     * @param fontSize   font size
+     * @param fontStyle  font style (0 : Normal, 1 : Italic)
      * @param fontWeight font weight (1 to 1000, normal is 400)
      * @param fontFamily font family or null
-     * @param textAlign text alignment (0 : Center, 1 : Left, 2 : Right)
-     * @param overflow
-     * @param maxLines
+     * @param textAlign  text alignment (0 : Center, 1 : Left, 2 : Right)
      */
     public void startTextComponent(
             @NonNull RecordingModifier modifier,
@@ -3304,6 +3396,8 @@ public class RemoteComposeWriter {
             int color,
             int colorId,
             float fontSize,
+            float minFontSize,
+            float maxFontSize,
             int fontStyle,
             float fontWeight,
             @Nullable String fontFamily,
@@ -3343,6 +3437,8 @@ public class RemoteComposeWriter {
                 color,
                 colorId,
                 fontSize,
+                minFontSize,
+                maxFontSize,
                 fontStyle,
                 fontWeight,
                 fontFamilyId,
@@ -3475,9 +3571,6 @@ public class RemoteComposeWriter {
 
     /**
      * Add a dynamic array
-     *
-     * @param size
-     * @return
      */
     public float addDynamicFloatArray(float size) {
         int id = createID(NanMap.TYPE_ARRAY);
@@ -4029,7 +4122,7 @@ public class RemoteComposeWriter {
      * Add a modifier background
      *
      * @param colorId the color to set
-     * @param shape the shape to set
+     * @param shape   the shape to set
      */
     public void addDynamicModifierBackground(int colorId, int shape) {
         mBuffer.addDynamicModifierBackground(colorId, shape);
@@ -4039,10 +4132,10 @@ public class RemoteComposeWriter {
     /**
      * Add a modifier background
      *
-     * @param r the red value, possibly a remote float
-     * @param g the green value, possibly a remote float
-     * @param b the blue value, possibly a remote float
-     * @param a the alpha value, possibly a remote float
+     * @param r     the red value, possibly a remote float
+     * @param g     the green value, possibly a remote float
+     * @param b     the blue value, possibly a remote float
+     * @param a     the alpha value, possibly a remote float
      * @param shape the shape to set
      */
     public void addModifierBackground(float r, float g, float b, float a, int shape) {
@@ -4111,7 +4204,7 @@ public class RemoteComposeWriter {
      * Add a component modifier able to change position and dimension of the component
      * via expressions.
      *
-     * @param type TYPE_MEASURE or TYPE_POSITION
+     * @param type     TYPE_MEASURE or TYPE_POSITION
      * @param commands functional interface to capture changes to the component x,y,width,height
      */
     public void addLayoutCompute(int type, @NonNull ComponentLayoutChangesWriter commands) {
@@ -4213,7 +4306,7 @@ public class RemoteComposeWriter {
      *
      * @param width         the width
      * @param roundedCorner the rounded corner
-     * @param colorId         the color
+     * @param colorId       the color
      * @param shapeType     the shape type
      */
     public void addModifierDynamicBorder(

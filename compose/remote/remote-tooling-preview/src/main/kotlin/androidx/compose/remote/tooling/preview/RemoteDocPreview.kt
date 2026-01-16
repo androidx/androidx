@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.LocalWindowInfo
 /** Display a [RemoteDocument] in the Android Studio Preview. */
 @OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
-@Suppress("RestrictedApiAndroidX")
 public fun RemoteDocPreview(remoteDocument: RemoteDocument) {
     RemoteComposePlayerFlags.isViewPlayerEnabled = false
     Box(modifier = Modifier.fillMaxSize()) {

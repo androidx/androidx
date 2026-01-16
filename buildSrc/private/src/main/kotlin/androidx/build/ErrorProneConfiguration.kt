@@ -132,6 +132,7 @@ private fun JavaCompile.configureWithErrorProne() {
     val compilerArgs = this.options.compilerArgs
     compilerArgs +=
         listOf(
+            "--should-stop=ifError=FLOW",
             // Tell error-prone that we are running it on android compatible libraries
             "-XDandroidCompatible=true",
             "-XDcompilePolicy=simple", // Workaround for b/36098770
@@ -180,6 +181,15 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:EnumOrdinal:OFF",
                     "-Xep:ClassInitializationDeadlock:OFF",
                     "-Xep:VoidUsed:OFF",
+                    "-Xep:EffectivelyPrivate:OFF",
+                    "-Xep:StatementSwitchToExpressionSwitch:OFF",
+                    "-Xep:AssignmentExpression:OFF",
+                    "-Xep:DuplicateBranches:OFF",
+                    "-Xep:FormatStringShouldUsePlaceholders:OFF",
+                    "-Xep:RedundantControlFlow:OFF",
+                    "-Xep:CollectionUndefinedEquality:OFF",
+                    "-Xep:JavaDurationGetSecondsToToSeconds:OFF",
+                    "-Xep:BooleanLiteral:OFF",
 
                     // We allow inter library RestrictTo usage.
                     "-Xep:RestrictTo:OFF",

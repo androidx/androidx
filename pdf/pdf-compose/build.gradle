@@ -33,7 +33,7 @@ dependencies {
     def compose_version = "1.7.8"
 
     api("androidx.compose.ui:ui:$compose_version")
-    api("androidx.compose.runtime:runtime-annotation:1.9.0-rc01")
+    api("androidx.compose.runtime:runtime-annotation:1.9.0")
     api(project(":pdf:pdf-viewer"))
 
     implementation("androidx.compose.foundation:foundation:$compose_version")
@@ -52,13 +52,11 @@ dependencies {
 
 android {
     namespace = "androidx.pdf.compose"
-
+    compileSdk { version = release(36) { sdkExtension = 19 }}
     defaultConfig {
         // TODO(b/403022712) Remove minSdk once pdf-viewer and pdf-document-service drop their
         //   minSdk requirements
-        minSdk = 31
-        compileSdk = 36
-        compileSdkExtension = 19
+        minSdk { version = release(31) }
     }
 }
 

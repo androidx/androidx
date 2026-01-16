@@ -36,10 +36,10 @@ import androidx.xr.scenecore.runtime.SceneRuntime
  */
 public class ActivityPanelEntity
 private constructor(
-    private val lifecycleManager: LifecycleManager,
+    perceptionSpace: PerceptionSpace,
     private val rtActivityPanelEntity: RtActivityPanelEntity,
     entityManager: EntityManager,
-) : PanelEntity(lifecycleManager, rtActivityPanelEntity, entityManager) {
+) : PanelEntity(perceptionSpace, rtActivityPanelEntity, entityManager) {
 
     /**
      * Starts an [Activity] in the given panel. Subsequent calls to this method will replace the
@@ -68,6 +68,7 @@ private constructor(
         internal fun create(
             lifecycleManager: LifecycleManager,
             sceneRuntime: SceneRuntime,
+            perceptionSpace: PerceptionSpace,
             entityManager: EntityManager,
             pixelDimensions: IntSize2d,
             name: String,
@@ -76,7 +77,7 @@ private constructor(
             parent: Entity? = entityManager.getEntityForRtEntity(sceneRuntime.activitySpace),
         ): ActivityPanelEntity =
             ActivityPanelEntity(
-                lifecycleManager,
+                perceptionSpace,
                 sceneRuntime.createActivityPanelEntity(
                     pose,
                     pixelDimensions.toRtPixelDimensions(),
@@ -122,6 +123,7 @@ private constructor(
             ActivityPanelEntity.create(
                 session.perceptionRuntime.lifecycleManager,
                 session.sceneRuntime,
+                session.scene.perceptionSpace,
                 session.scene.entityManager,
                 pixelDimensions,
                 name,
@@ -151,6 +153,7 @@ private constructor(
             ActivityPanelEntity.create(
                 session.perceptionRuntime.lifecycleManager,
                 session.sceneRuntime,
+                session.scene.perceptionSpace,
                 session.scene.entityManager,
                 pixelDimensions,
                 name,

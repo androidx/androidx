@@ -16,7 +16,7 @@
 
 package androidx.datastore.core
 
-import androidx.datastore.core.handlers.NoOpCorruptionHandler
+import androidx.datastore.core.handlers.ReThrowCorruptionHandler
 import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -60,7 +60,7 @@ public object MultiProcessDataStoreFactory {
         DataStoreImpl<T>(
             storage = storage,
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
+            corruptionHandler = corruptionHandler ?: ReThrowCorruptionHandler(),
             scope = scope,
         )
 
@@ -109,7 +109,7 @@ public object MultiProcessDataStoreFactory {
                     produceFile,
                 ),
             initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
-            corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
+            corruptionHandler = corruptionHandler ?: ReThrowCorruptionHandler(),
             scope = scope,
         )
 }

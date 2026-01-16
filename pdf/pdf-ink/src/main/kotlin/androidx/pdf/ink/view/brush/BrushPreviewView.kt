@@ -24,7 +24,6 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.content.ContextCompat
 import androidx.pdf.ink.R
-import com.google.android.material.R as MaterialR
 import com.google.android.material.color.MaterialColors
 import kotlin.math.min
 
@@ -42,7 +41,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
             color =
                 MaterialColors.getColor(
                     this@BrushPreviewView,
-                    MaterialR.attr.colorPrimary,
+                    androidx.appcompat.R.attr.colorPrimary,
                     ContextCompat.getColor(context, R.color.default_brush_preview_color),
                 )
             style = Paint.Style.FILL

@@ -120,43 +120,19 @@ public interface SpatialAlignment {
 
     public companion object {
         // 2D alignments
-        @Deprecated("Use TopStart instead", ReplaceWith("TopStart"))
-        @JvmStatic
-        public val TopLeft: SpatialAlignment = SpatialBiasAbsoluteAlignment(-1f, 1f, 0f)
         @JvmStatic public val TopStart: SpatialAlignment = SpatialBiasAlignment(-1f, 1f, 0f)
         @JvmStatic public val TopCenter: SpatialAlignment = SpatialBiasAlignment(0f, 1f, 0f)
-        @Deprecated("Use TopEnd instead", ReplaceWith("TopEnd"))
-        @JvmStatic
-        public val TopRight: SpatialAlignment = SpatialBiasAbsoluteAlignment(1f, 1f, 0f)
         @JvmStatic public val TopEnd: SpatialAlignment = SpatialBiasAlignment(1f, 1f, 0f)
-        @Deprecated("Use CenterStart instead", ReplaceWith("CenterStart"))
-        @JvmStatic
-        public val CenterLeft: SpatialAlignment = SpatialBiasAbsoluteAlignment(-1f, 0f, 0f)
         @JvmStatic public val CenterStart: SpatialAlignment = SpatialBiasAlignment(-1f, 0f, 0f)
         @JvmStatic public val Center: SpatialAlignment = SpatialBiasAlignment(0f, 0f, 0f)
-        @Deprecated("Use CenterEnd instead", ReplaceWith("CenterEnd"))
-        @JvmStatic
-        public val CenterRight: SpatialAlignment = SpatialBiasAbsoluteAlignment(1f, 0f, 0f)
         @JvmStatic public val CenterEnd: SpatialAlignment = SpatialBiasAlignment(1f, 0f, 0f)
-        @Deprecated("Use BottomStart instead", ReplaceWith("BottomStart"))
-        @JvmStatic
-        public val BottomLeft: SpatialAlignment = SpatialBiasAbsoluteAlignment(-1f, -1f, 0f)
         @JvmStatic public val BottomStart: SpatialAlignment = SpatialBiasAlignment(-1f, -1f, 0f)
         @JvmStatic public val BottomCenter: SpatialAlignment = SpatialBiasAlignment(0f, -1f, 0f)
-        @Deprecated("Use BottomEnd instead", ReplaceWith("BottomEnd"))
-        @JvmStatic
-        public val BottomRight: SpatialAlignment = SpatialBiasAbsoluteAlignment(1f, -1f, 0f)
         @JvmStatic public val BottomEnd: SpatialAlignment = SpatialBiasAlignment(1f, -1f, 0f)
 
         // Horizontal alignments
-        @Deprecated("Use Start instead", ReplaceWith("Start"))
-        @JvmStatic
-        public val Left: Horizontal = SpatialBiasAbsoluteAlignment.Horizontal(-1f)
         @JvmStatic public val Start: Horizontal = SpatialBiasAlignment.Horizontal(-1f)
         @JvmStatic public val CenterHorizontally: Horizontal = SpatialBiasAlignment.Horizontal(0f)
-        @Deprecated("Use End instead", ReplaceWith("End"))
-        @JvmStatic
-        public val Right: Horizontal = SpatialBiasAbsoluteAlignment.Horizontal(1f)
         @JvmStatic public val End: Horizontal = SpatialBiasAlignment.Horizontal(1f)
 
         // Vertical alignments

@@ -26,6 +26,7 @@ import androidx.annotation.RequiresPermission;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraEffect;
+import androidx.camera.core.SessionConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.impl.utils.Threads;
@@ -129,12 +130,20 @@ public final class LifecycleCameraController extends CameraController {
             return null;
         }
 
-        UseCaseGroup useCaseGroup = createUseCaseGroup();
-        if (useCaseGroup == null) {
-            // Use cases can't be created.
-            return null;
-        }
         try {
+            SessionConfig sessionConfig = getBoundSessionConfig();
+
+            if (sessionConfig != null) {
+                return mCameraProvider.bindToLifecycle(mLifecycleOwner, mCameraSelector,
+                        sessionConfig);
+            }
+
+            UseCaseGroup useCaseGroup = createUseCaseGroup(/* checkPreviewViewAttached= */ true);
+            if (useCaseGroup == null) {
+                // Use cases can't be created.
+                return null;
+            }
+
             return mCameraProvider.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCaseGroup);
         } catch (IllegalArgumentException e) {
             // Catches the invalid use case combination exception and throw a more readable one.

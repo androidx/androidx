@@ -17,7 +17,6 @@
 package androidx.xr.compose.platform
 
 import android.app.Activity
-import android.view.View
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.compositionLocalWithComputedDefaultOf
@@ -38,8 +37,7 @@ import androidx.xr.scenecore.scene
  */
 internal val LocalComposeXrOwners: CompositionLocal<ComposeXrOwnerLocals?> =
     compositionLocalWithComputedDefaultOf {
-        val activity = LocalContext.currentValue.getActivity()
-        activity?.window?.decorView?.getOrCreateXrOwnerLocals(activity)
+        LocalContext.currentValue.getActivity()?.getOrCreateXrOwnerLocals()
     }
 
 /**
@@ -81,25 +79,25 @@ internal class ComposeXrOwnerLocals(
 }
 
 @VisibleForTesting
-internal fun View.getOrCreateXrOwnerLocals(activity: Activity): ComposeXrOwnerLocals? =
-    getXrOwnerLocals() ?: createXrOwnerLocals(activity)
+internal fun Activity.getOrCreateXrOwnerLocals(): ComposeXrOwnerLocals? =
+    getXrOwnerLocals() ?: createXrOwnerLocals()
 
-private fun View.getXrOwnerLocals(): ComposeXrOwnerLocals? =
-    getTag(R.id.compose_xr_owner_locals) as? ComposeXrOwnerLocals
+private fun Activity.getXrOwnerLocals(): ComposeXrOwnerLocals? =
+    contentView.getTag(R.id.compose_xr_owner_locals) as? ComposeXrOwnerLocals
 
-private fun View.createXrOwnerLocals(activity: Activity): ComposeXrOwnerLocals? {
+private fun Activity.createXrOwnerLocals(): ComposeXrOwnerLocals? {
     // Don't try to create a session for non-XR configurations.
-    if (!SpatialConfiguration.hasXrSpatialFeature(activity)) return null
+    if (!SpatialConfiguration.hasXrSpatialFeature(this)) return null
 
-    val session = getOrCreateSession(activity) ?: return null
+    val session = getOrCreateSession() ?: return null
 
     // When the owning lifecycle is destroyed, clear the cached  `ComposeXrOwnerLocals` from the
     // View's tag.
-    if (activity is LifecycleOwner) {
-        activity.lifecycle.addObserver(
+    if (this is LifecycleOwner) {
+        lifecycle.addObserver(
             object : DefaultLifecycleObserver {
                 override fun onDestroy(owner: LifecycleOwner) {
-                    setTag(R.id.compose_xr_owner_locals, null)
+                    contentView.setTag(R.id.compose_xr_owner_locals, null)
                     owner.lifecycle.removeObserver(this)
                 }
             }
@@ -117,31 +115,31 @@ private fun View.createXrOwnerLocals(activity: Activity): ComposeXrOwnerLocals? 
                 },
             dialogManager = DefaultDialogManager(),
         )
-        .also { setTag(R.id.compose_xr_owner_locals, it) }
+        .also { contentView.setTag(R.id.compose_xr_owner_locals, it) }
 }
 
-private fun View.getOrCreateSession(activity: Activity): Session? {
-    return getSession() ?: createSession(activity)
+internal fun Activity.getOrCreateSession(): Session? {
+    return getSession() ?: createSession()
 }
 
-private fun View.getSession(): Session? {
-    return getTag(R.id.compose_xr_session) as? Session
+private fun Activity.getSession(): Session? {
+    return contentView.getTag(R.id.compose_xr_session) as? Session
 }
 
-private fun View.createSession(activity: Activity): Session? {
+private fun Activity.createSession(): Session? {
     return try {
-        val session = getSessionFactory(activity).invoke() ?: return null
-        setTag(R.id.compose_xr_session, session)
+        val session = getSessionFactory(this).invoke() ?: return null
+        contentView.setTag(R.id.compose_xr_session, session)
 
         // When the owning lifecycle is destroyed, clear the cached `Session` from the View's tag.
         // This is critical to prevent crashes from using a stale `Session` after Activity
         // recreation as `Session` lifecycle is currently tied to the lifecycle of an activity so
         // that it forces a fresh `Session` instance to be created on next access.
-        if (activity is LifecycleOwner) {
-            activity.lifecycle.addObserver(
+        if (this is LifecycleOwner) {
+            lifecycle.addObserver(
                 object : DefaultLifecycleObserver {
                     override fun onDestroy(owner: LifecycleOwner) {
-                        setTag(R.id.compose_xr_session, null)
+                        contentView.setTag(R.id.compose_xr_session, null)
                         owner.lifecycle.removeObserver(this)
                     }
                 }
@@ -156,9 +154,9 @@ private fun View.createSession(activity: Activity): Session? {
     }
 }
 
-private fun View.getSessionFactory(activity: Activity): () -> Session? {
+private fun Activity.getSessionFactory(activity: Activity): () -> Session? {
     @Suppress("UNCHECKED_CAST")
-    return getTag(R.id.compose_xr_session_factory) as? () -> Session?
+    return contentView.getTag(R.id.compose_xr_session_factory) as? () -> Session?
         ?: {
             (Session.create(activity) as? SessionCreateSuccess)?.session
         }

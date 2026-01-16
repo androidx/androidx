@@ -20,7 +20,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     buildTypes {
         getByName("release") {
             minifyEnabled = true

@@ -34,6 +34,10 @@ import com.google.androidxr.splitengine.SplitEngineSubspaceManager
 import com.google.androidxr.splitengine.SubspaceNode
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Consumer
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 internal class SpatialEnvironmentFeatureImpl(
     private val activity: Activity,
@@ -56,12 +60,13 @@ internal class SpatialEnvironmentFeatureImpl(
 
     private var geometrySubspaceSplitEngine: SubspaceNode? = null
     private var geometrySubspaceImpressNode: ImpressNode? = null
-    private var rootEnvironmentNode: Node? = null
+    private lateinit var rootEnvironmentNode: Node
     private lateinit var geometryImpressNode: ImpressNode
     private lateinit var materialOverride: Material
     private lateinit var overriddenNodeName: String
     private var onBeforeNodeAttachedListener: Consumer<Node>? = null
     private var isDisposed = false
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     init {
         // Use node from parent BaseRenderingFeature
@@ -79,7 +84,7 @@ internal class SpatialEnvironmentFeatureImpl(
         }
     }
 
-    private fun applyGeometry(
+    private suspend fun applyGeometry(
         geometry: GltfModelResource?,
         material: MaterialResource?,
         nodeName: String?,
@@ -125,8 +130,13 @@ internal class SpatialEnvironmentFeatureImpl(
                 )
             }
             if (animationName != null) {
-                @Suppress("UNUSED_VARIABLE")
-                val unused = impressApi.animateGltfModel(geometryImpressNode, animationName, true)
+                // animateGltfModel is itself an asynchronous call, and it blocks execution
+                // until the animation finishes. We need to wrap this call in a coroutine so
+                // that we can proceed with the parenting of the environment instead of
+                // waiting for the animation to complete.
+                coroutineScope.launch {
+                    impressApi.animateGltfModel(geometryImpressNode, animationName, true)
+                }
             }
             impressApi.setImpressNodeParent(geometryImpressNode, subspaceNode)
         }
@@ -155,10 +165,6 @@ internal class SpatialEnvironmentFeatureImpl(
             val newNodeName = newPreference?.geometryNodeName
             val newAnimationName = newPreference?.geometryAnimationName
 
-            if (newGeometry != prevGeometry) {
-                applyGeometry(newGeometry, newMaterial, newNodeName, newAnimationName)
-            }
-
             // TODO: b/392948759 - Fix StrictMode violations triggered whenever skybox is
             // set.
             if (newSkybox != prevSkybox || prevPreference == null) {
@@ -181,21 +187,24 @@ internal class SpatialEnvironmentFeatureImpl(
                     // Environment geometry has changed, create a new environment node and
                     // attach the geometry subspace to it.
                     currentRootEnvironmentNode = extensions.createNode()
-                    geometrySubspaceSplitEngine?.let { geometrySubspace ->
-                        extensions.createNodeTransaction().use { transaction ->
-                            @Suppress("UNUSED_VARIABLE")
-                            val unused =
-                                transaction.setParent(
-                                    geometrySubspace.subspaceNode,
-                                    currentRootEnvironmentNode,
-                                )
-                            transaction.apply()
+                    coroutineScope.launch {
+                        applyGeometry(newGeometry, newMaterial, newNodeName, newAnimationName)
+                        geometrySubspaceSplitEngine?.let { geometrySubspace ->
+                            extensions.createNodeTransaction().use { transaction ->
+                                @Suppress("UNUSED_VARIABLE")
+                                val unused =
+                                    transaction.setParent(
+                                        geometrySubspace.subspaceNode,
+                                        currentRootEnvironmentNode,
+                                    )
+                                transaction.apply()
+                            }
                         }
                     }
                 } else {
                     // Environment geometry has not changed, use the existing environment
                     // node.
-                    currentRootEnvironmentNode = rootEnvironmentNode!!
+                    currentRootEnvironmentNode = rootEnvironmentNode
                 }
                 onBeforeNodeAttachedListener?.accept(currentRootEnvironmentNode)
                 extensions.attachSpatialEnvironment(
@@ -236,7 +245,6 @@ internal class SpatialEnvironmentFeatureImpl(
 
         geometrySubspaceSplitEngine = null
         geometrySubspaceImpressNode = null
-        rootEnvironmentNode = null
         _spatialEnvironmentPreference.set(null)
         // TODO: b/376934871 - Check async results.
         extensions.detachSpatialEnvironment(activity, Runnable::run) {}

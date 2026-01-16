@@ -18,12 +18,12 @@ package androidx.glance.wear.parcel
 
 import android.content.ComponentName
 import android.content.Context
-import androidx.compose.remote.creation.compose.capture.painter.painterRemoteColor
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.wear.ActiveWearWidgetHandle
+import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_FULLSCREEN
 import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_LARGE
 import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_SMALL
 import androidx.glance.wear.GlanceWearWidget
@@ -76,6 +76,9 @@ class WearWidgetProviderImplTest {
                 containerType = CONTAINER_TYPE_LARGE,
                 widthDp = 200f,
                 heightDp = 200f,
+                horizontalPaddingDp = 8f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
             )
         val channelWidgetCallback = ChannelWidgetCallback(this, contentChannel)
         val provider = WearWidgetProviderImpl(context, testName, mainScope, testWidget)
@@ -84,6 +87,29 @@ class WearWidgetProviderImplTest {
         contentChannel.receive()
 
         assertThat(testWidget.lastRequestedInstanceId).isEqualTo(widgetParams.instanceId)
+        assertThat(testWidget.lastRequestedContainerType).isEqualTo(CONTAINER_TYPE_LARGE)
+    }
+
+    @Test
+    fun onWidgetRequest_remapsFullscreenToLarge() = runTest {
+        val widgetParams =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("namespace", 17),
+                containerType = CONTAINER_TYPE_FULLSCREEN,
+                widthDp = 200f,
+                heightDp = 200f,
+                horizontalPaddingDp = 8f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+            )
+        val channelWidgetCallback = ChannelWidgetCallback(this, contentChannel)
+        val provider = WearWidgetProviderImpl(context, testName, mainScope, testWidget)
+
+        provider.onWidgetRequest(widgetParams.toParcel(), channelWidgetCallback)
+        contentChannel.receive()
+
+        assertThat(testWidget.lastRequestedInstanceId).isEqualTo(widgetParams.instanceId)
+        assertThat(testWidget.lastRequestedContainerType).isEqualTo(CONTAINER_TYPE_LARGE)
     }
 
     @Test
@@ -94,6 +120,9 @@ class WearWidgetProviderImplTest {
                 containerType = CONTAINER_TYPE_LARGE,
                 widthDp = 200f,
                 heightDp = 200f,
+                horizontalPaddingDp = 0f,
+                verticalPaddingDp = 0f,
+                cornerRadiusDp = 0f,
             )
         testWidget.content = { RemoteText("Testing ...") }
         val expectedRcDocumentHierarchy =
@@ -103,15 +132,11 @@ class WearWidgetProviderImplTest {
               BOX [-3:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
                 MODIFIERS
                   ROUNDED_CLIP_RECT = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
-                CANVAS [-5:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
-                  MODIFIERS
-                  CANVAS_CONTENT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
-                    ComponentValue value 43 set to WIDTH of Component -7
-                    ComponentValue value 44 set to HEIGHT of Component -7
-                BOX [-8:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
+                  BACKGROUND = [0.0, 0.0, 0.0, 0.0] color [0.0, 0.0, 0.0, 0.0] shape [0]
+                BOX [-5:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
                   MODIFIERS
                     PADDING = [0.0, 0.0, 0.0, 0.0]
-                  TEXT_LAYOUT [-10:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (42:"null")
+                  TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (42:"null")
                     MODIFIERS
             """
                 .trimIndent()
@@ -211,6 +236,7 @@ class WearWidgetProviderImplTest {
 
     private class TestGlanceWearWidget : GlanceWearWidget() {
         var lastRequestedInstanceId: WidgetInstanceId? = null
+        var lastRequestedContainerType: Int? = null
         var addedHandle: ActiveWearWidgetHandle? = null
         var removedHandle: ActiveWearWidgetHandle? = null
         var enableFailureMode = false
@@ -221,12 +247,11 @@ class WearWidgetProviderImplTest {
             params: WearWidgetParams,
         ): WearWidgetData {
             lastRequestedInstanceId = params.instanceId
+            lastRequestedContainerType = params.containerType
             if (enableFailureMode) {
                 throw Exception("Test exception")
             }
-            return WearWidgetDocument(backgroundPainter = painterRemoteColor(Color.Transparent)) {
-                content()
-            }
+            return WearWidgetDocument(backgroundColor = Color.Transparent) { content() }
         }
 
         override suspend fun onAdded(context: Context, widgetHandle: ActiveWearWidgetHandle) {

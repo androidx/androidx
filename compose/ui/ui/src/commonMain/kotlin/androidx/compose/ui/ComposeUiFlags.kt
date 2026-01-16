@@ -166,18 +166,20 @@ object ComposeUiFlags {
     var isRectManagerOffsetUsageFromLayoutCoordinatesEnabled: Boolean = true
 
     /**
-     * Enables automatic pinning of interop AndroidViews when they are focused inside lazy
-     * containers.
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isPinningFocusedAndroidViewsEnabled: Boolean = true
-
-    /**
      * Enables a fix where [TraversableNode] traversal method [findNearestAncestor] will take into
      * consideration any delegates that might also be traversable.
      */
     @field:Suppress("MutableBareField")
     @JvmField
     var isTraversableDelegatesFixEnabled: Boolean = true
+
+    /**
+     * This flag enables support for walking up nested scrolling in response to
+     * android.R.id.accessibilityActionShowOnScreen from Accessibility.
+     *
+     * Enabled is correct nested scrolling behavior and it should be enabled in all apps.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAccessibilityShowOnScreenNestedScrollingEnabled: Boolean = true
 }

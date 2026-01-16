@@ -16,6 +16,7 @@
 
 package androidx.aab
 
+import androidx.aab.DexInfo.Companion.toDexInfo
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -53,18 +54,25 @@ data class ApkInfo(
         }
 
         fun from(path: String, inputStream: InputStream): ApkInfo {
-            val dexInfo = mutableListOf<DexInfo>()
             val soInfo = mutableListOf<SoInfo>()
+            val xmlStrings = mutableSetOf<String>()
             val dotVersionFiles = mutableMapOf<String, String>()
             var profileInfo: ProfInfo? = null
             var appMetadataPropsInfoMetaInf: AppMetadataPropsInfo? = null
+            val deferredDexFiles = mutableListOf<DexInfo.DeferredDexFile>()
             ZipInputStream(inputStream).use { zis ->
                 var entry: ZipEntry? = zis.nextEntry
 
                 while (entry != null) {
                     when {
                         entry.name.endsWith(".dex") -> {
-                            dexInfo.add(DexInfo.from(entry.name, entry.compressedSize, zis))
+                            deferredDexFiles.add(
+                                DexInfo.DeferredDexFile(
+                                    entryName = entry.name,
+                                    compressedSize = entry.compressedSize,
+                                    bytes = zis.readAllBytes(),
+                                )
+                            )
                         }
 
                         entry.name == ProfInfo.APK_LOCATION -> {
@@ -82,6 +90,12 @@ data class ApkInfo(
                         entry.name.endsWith(".so") -> {
                             soInfo.add(SoInfo(bundlePath = entry.name, size = zis.countBytes()))
                         }
+                        entry.name.endsWith(".xml") -> {
+                            XmlInfo.collectStringsFromApkResourceFile(
+                                zis.readAllBytes(),
+                                xmlStrings,
+                            )
+                        }
                     }
                     entry = zis.nextEntry
                 }
@@ -90,7 +104,7 @@ data class ApkInfo(
             return ApkInfo(
                 path = path,
                 profileInfo = profileInfo,
-                dexInfo = dexInfo,
+                dexInfo = deferredDexFiles.toDexInfo(xmlStrings),
                 soInfo = soInfo,
                 dotVersionFiles = dotVersionFiles,
                 appMetadataPropsInfoMetaInf = appMetadataPropsInfoMetaInf,

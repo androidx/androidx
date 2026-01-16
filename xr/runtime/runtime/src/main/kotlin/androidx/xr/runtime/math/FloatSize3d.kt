@@ -18,6 +18,10 @@ package androidx.xr.runtime.math
 
 /**
  * Size of a 3d object represented as a Float, such as the dimensions of a spatial volume in meters.
+ *
+ * @property width the width of the object
+ * @property height the height of the object
+ * @property depth the depth of the object
  */
 public class FloatSize3d(
     public val width: Float = 0f,
@@ -25,7 +29,7 @@ public class FloatSize3d(
     public val depth: Float = 0f,
 ) {
 
-    /** Returns a new [FloatSize2d] with the same `width` and `height` as this FloatSize3d. */
+    /** Returns a new [FloatSize2d] with the same [width] and [height] as this FloatSize3d. */
     public fun to2d(): FloatSize2d = FloatSize2d(width, height)
 
     override fun toString(): String {
@@ -52,22 +56,42 @@ public class FloatSize3d(
         return result
     }
 
-    /** Returns a new [FloatSize3d] that's uniformly divided by the `divisor`. */
+    /**
+     * Returns a new [FloatSize3d] that's uniformly divided by the [divisor].
+     *
+     * @param divisor the value to divide the width, height, and depth by
+     * @return a new [FloatSize3d] with the divided dimensions
+     */
     public operator fun div(divisor: Float): FloatSize3d {
         return FloatSize3d(this.width / divisor, this.height / divisor, this.depth / divisor)
     }
 
-    /** Returns a new [FloatSize3d] that's uniformly divided by the `divisor`. */
+    /**
+     * Returns a new [FloatSize3d] that's uniformly divided by the [divisor].
+     *
+     * @param divisor the value to divide the width, height, and depth by
+     * @return a new [FloatSize3d] with the divided dimensions
+     */
     public operator fun div(divisor: Int): FloatSize3d {
         return this / divisor.toFloat()
     }
 
-    /** Returns a new [FloatSize3d] that's uniformly multiplied by the `scalar`. */
+    /**
+     * Returns a new [FloatSize3d] that's uniformly multiplied by the [scalar].
+     *
+     * @param scalar the value to multiply the width, height, and depth by
+     * @return a new [FloatSize3d] with the multiplied dimensions
+     */
     public operator fun times(scalar: Float): FloatSize3d {
         return FloatSize3d(this.width * scalar, this.height * scalar, this.depth * scalar)
     }
 
-    /** Returns a new [FloatSize3d] that's uniformly multiplied by the `scalar`. */
+    /**
+     * Returns a new [FloatSize3d] that's uniformly multiplied by the [scalar].
+     *
+     * @param scalar the value to multiply the width, height, and depth by
+     * @return a new [FloatSize3d] with the multiplied dimensions
+     */
     public operator fun times(scalar: Int): FloatSize3d {
         return this * scalar.toFloat()
     }
@@ -77,8 +101,8 @@ public class FloatSize3d(
          * Creates a [FloatSize3d] from a [Vector3], using the Vector3's x, y, and z components as
          * the width, height, and depth respectively.
          *
-         * @param vector The source [Vector3].
-         * @return A new [FloatSize3d] instance.
+         * @param vector the source [Vector3]
+         * @return a new [FloatSize3d] instance
          */
         @JvmStatic
         public fun fromVector3(vector: Vector3): FloatSize3d {

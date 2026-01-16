@@ -67,7 +67,7 @@ import java.util.UUID;
 
 @RequiresApi(api = Build.VERSION_CODES.R)
 class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
-    private static final String TAG = "MR2ProviderService";
+    private static final String TAG = "AxMR2ProvdrSrvcAdapter";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final Object mLock = new Object();

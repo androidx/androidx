@@ -44,6 +44,7 @@ class FakeMovableComponentTest {
     fun setUp() {
         underTest = FakeMovableComponent()
         fakeExecutor = Executor { command -> tasks.add(command) }
+        underTest.defaultExecutor = Executor { command -> tasks.add(command) }
     }
 
     @Test
@@ -55,6 +56,85 @@ class FakeMovableComponentTest {
     @Test
     fun move_notifiesListener() {
         val listenerCalled = AtomicBoolean(false)
+        val moveListener = MoveEventListener { listenerCalled.set(true) }
+
+        underTest.addMoveEventListener(fakeExecutor, moveListener)
+
+        // For simplicity in the fake, we'll use some default values for fields
+        // not directly provided by this simplified move signature.
+        val dummyState = MoveEvent.MoveState.MOVE_STATE_START
+        val initialRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
+        val currentRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
+        val previousPose = Pose(Vector3(0f, 0f, 0f), Quaternion(1f, 0f, 0f, 0f))
+        val currentPose = Pose(Vector3(0f, 0f, 0f), Quaternion(1f, 0f, 0f, 0f))
+        val previousScale = Vector3(1f, 1f, 1f)
+        val currentScale = Vector3(1f, 1f, 1f)
+        val initialParent = FakeEntity()
+        val updatedParent = FakeEntity()
+        val disposedEntity = null
+
+        underTest.onMoveEvent(
+            MoveEvent(
+                dummyState,
+                initialRay,
+                currentRay,
+                previousPose,
+                currentPose,
+                previousScale,
+                currentScale,
+                initialParent,
+                updatedParent,
+                disposedEntity,
+            )
+        )
+
+        tasks.forEach { it.run() }
+        assertThat(listenerCalled.get()).isTrue()
+    }
+
+    @Test
+    fun move_doesNotNotifyWhenListenerRemoved() {
+        val listenerCalled = AtomicBoolean(false)
+        val moveListener = MoveEventListener { listenerCalled.set(true) }
+
+        underTest.addMoveEventListener(fakeExecutor, moveListener)
+        underTest.removeMoveEventListener(moveListener)
+
+        // For simplicity in the fake, we'll use some default values for fields
+        // not directly provided by this simplified move signature.
+        val dummyState = MoveEvent.MoveState.MOVE_STATE_START
+        val initialRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
+        val currentRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
+        val previousPose = Pose(Vector3(0f, 0f, 0f), Quaternion(1f, 0f, 0f, 0f))
+        val currentPose = Pose(Vector3(0f, 0f, 0f), Quaternion(1f, 0f, 0f, 0f))
+        val previousScale = Vector3(1f, 1f, 1f)
+        val currentScale = Vector3(1f, 1f, 1f)
+        val initialParent = FakeEntity()
+        val updatedParent = FakeEntity()
+        val disposedEntity = null
+
+        underTest.onMoveEvent(
+            MoveEvent(
+                dummyState,
+                initialRay,
+                currentRay,
+                previousPose,
+                currentPose,
+                previousScale,
+                currentScale,
+                initialParent,
+                updatedParent,
+                disposedEntity,
+            )
+        )
+
+        tasks.forEach { it.run() }
+        assertThat(listenerCalled.get()).isFalse()
+    }
+
+    @Test
+    fun move_withDefaultExecutor_notifiesListener() {
+        val listenerCalled = AtomicBoolean(false)
         val mockListener =
             object : MoveEventListener {
                 override fun onMoveEvent(event: MoveEvent) {
@@ -62,7 +142,7 @@ class FakeMovableComponentTest {
                 }
             }
 
-        underTest.addMoveEventListener(fakeExecutor, mockListener)
+        underTest.addMoveEventListener(mockListener)
 
         // For simplicity in the fake, we'll use some default values for fields
         // not directly provided by this simplified move signature.
@@ -96,52 +176,5 @@ class FakeMovableComponentTest {
 
         tasks.forEach { it.run() }
         assertThat(listenerCalled.get()).isTrue()
-    }
-
-    @Test
-    fun move_doesNotNotifyWhenListenerRemoved() {
-        val listenerCalled = AtomicBoolean(false)
-        val mockListener =
-            object : MoveEventListener {
-                override fun onMoveEvent(event: MoveEvent) {
-                    listenerCalled.set(true)
-                }
-            }
-
-        underTest.addMoveEventListener(fakeExecutor, mockListener)
-        underTest.removeMoveEventListener(mockListener)
-
-        // For simplicity in the fake, we'll use some default values for fields
-        // not directly provided by this simplified move signature.
-        val dummyState = MoveEvent.MoveState.MOVE_STATE_START
-        val initialRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
-        val currentRay = Ray(Vector3(0f, 0f, 0f), Vector3(1f, 1f, 1f))
-        val previousPose = Pose(Vector3(0f, 0f, 0f), Quaternion(1f, 0f, 0f, 0f))
-        val currentPose = Pose(Vector3(0f, 0f, 0f), Quaternion(1f, 0f, 0f, 0f))
-        val previousScale = Vector3(1f, 1f, 1f)
-        val currentScale = Vector3(1f, 1f, 1f)
-        val initialParent = FakeEntity()
-        val updatedParent = FakeEntity()
-        val disposedEntity = null
-
-        underTest.moveEventListenersMap.forEach { entry ->
-            entry.key.onMoveEvent(
-                MoveEvent(
-                    dummyState,
-                    initialRay,
-                    currentRay,
-                    previousPose,
-                    currentPose,
-                    previousScale,
-                    currentScale,
-                    initialParent,
-                    updatedParent,
-                    disposedEntity,
-                )
-            )
-        }
-
-        tasks.forEach { it.run() }
-        assertThat(listenerCalled.get()).isFalse()
     }
 }

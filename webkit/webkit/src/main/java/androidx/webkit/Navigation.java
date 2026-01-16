@@ -23,11 +23,21 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 /**
- * The Navigation instance passed by the navigation callbacks.
+ * The Navigation instance passed by {@link NavigationListener}.
  * <p>
  * The same object will be used by the relevant callbacks for the same navigation,
  * allowing the instance itself to be used as a key/ID to connect the callbacks for
  * the same navigation through {@link Object#equals(Object)} and {@link Object#hashCode()}.
+ * <p>
+ * The return values of {@link #wasInitiatedByPage()}, {@link #isReload()}, {@link #isHistory()},
+ * {@link #isBack()}, {@link #isForward()} and {@link #isRestore()} are constant for a given
+ * Navigation. For the other methods:
+ * <ul>
+ *     <li>{@link #getPage()}, {@link #didCommit()} and {@link #didCommitErrorPage()} will only
+ *     change when {@link NavigationListener#onNavigationCompleted(Navigation)} is called.</li>
+ *     <li>{@link #getUrl()} will only change when
+ *     {@link NavigationListener#onNavigationRedirected(Navigation)} is called.</li>
+ * </ul>
  */
 @WebNavigationClient.ExperimentalNavigationCallback
 public interface Navigation {

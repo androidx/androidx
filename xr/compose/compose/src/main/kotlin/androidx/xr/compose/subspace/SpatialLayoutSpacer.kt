@@ -35,6 +35,7 @@ import androidx.xr.compose.unit.VolumeConstraints
  */
 @Composable
 @SubspaceComposable
+@Deprecated("Use SpatialSpacer() instead", replaceWith = ReplaceWith("SpatialSpacer(modifier)"))
 public fun SpatialLayoutSpacer(modifier: SubspaceModifier = SubspaceModifier) {
     SubspaceLayout(modifier = modifier, measurePolicy = SpacerMeasurePolicy)
 }
