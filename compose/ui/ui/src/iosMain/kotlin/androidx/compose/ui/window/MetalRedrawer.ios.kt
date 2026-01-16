@@ -250,7 +250,7 @@ internal class MetalRedrawer(
 
     var isActive: Boolean = true
         set(newValue) {
-            if (field == newValue) {
+            if (field != newValue) {
                 field = newValue
                 setNeedsRedraw()
 
