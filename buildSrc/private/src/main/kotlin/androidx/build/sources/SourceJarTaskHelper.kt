@@ -17,6 +17,7 @@
 package androidx.build.sources
 
 import androidx.build.LazyInputsCopyTask
+import androidx.build.ProjectLayoutType
 import androidx.build.ProjectLayoutType.Companion.isJetBrainsFork
 import androidx.build.capitalize
 import androidx.build.dackka.DokkaAnalysisPlatform
@@ -45,6 +46,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.named
+import org.jetbrains.androidx.build.JetBrainsPublication
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
@@ -135,7 +137,7 @@ fun Project.configureSourceJarForJava(samplesProjects: MutableCollection<Project
 }
 
 fun Project.configureSourceJarForMultiplatform() {
-    if (isJetBrainsFork(project)) return
+    if (isJetBrainsFork(project) && JetBrainsPublication.shouldPublish(this)) return
     val kmpExtension =
         multiplatformExtension
             ?: throw GradleException(

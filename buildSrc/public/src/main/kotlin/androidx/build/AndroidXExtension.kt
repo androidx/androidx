@@ -32,6 +32,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
 import org.gradle.kotlin.dsl.named
+import org.jetbrains.androidx.build.JetBrainsPublication
 import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Extension for [AndroidXImplPlugin] that's responsible for holding configuration options. */
@@ -204,7 +205,7 @@ abstract class AndroidXExtension(
     }
 
     private fun chooseProjectVersion() {
-        if (isJetBrainsFork(project)) return
+        if (JetBrainsPublication.shouldPublish(project)) return
         val version: Version
         val group: String? = mavenGroup?.group
         val groupVersion: Version? = mavenGroup?.atomicGroupVersion

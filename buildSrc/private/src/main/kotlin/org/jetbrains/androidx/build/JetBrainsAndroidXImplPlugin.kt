@@ -173,6 +173,7 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
 
 @OptIn(ExternalKotlinTargetApi::class)
 private fun enableArtifactRedirectionPublishing(project: Project) {
+    if (!JetBrainsPublication.shouldPublish(project)) return
     val redirection = project.artifactRedirection() ?: return
 
     val ext = project.multiplatformExtension ?: error("expected a multiplatform project")

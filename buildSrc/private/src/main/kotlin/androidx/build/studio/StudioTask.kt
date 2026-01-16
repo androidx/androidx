@@ -445,7 +445,7 @@ abstract class StudioTask : DefaultTask() {
                 when (ProjectLayoutType.from(this)) {
                     ProjectLayoutType.ANDROIDX -> RootStudioTask::class.java
                     ProjectLayoutType.PLAYGROUND -> PlaygroundStudioTask::class.java
-                    ProjectLayoutType.JETBRAINS_FORK -> error("studio task isn't supported with the JetBrains fork layout")
+                    ProjectLayoutType.JETBRAINS_FORK -> return
                 }
             tasks.register(STUDIO_TASK, studioTask)
         }

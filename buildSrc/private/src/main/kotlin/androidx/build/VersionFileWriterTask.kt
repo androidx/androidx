@@ -16,6 +16,7 @@
 
 package androidx.build
 
+import androidx.build.ProjectLayoutType.Companion.isJetBrainsFork
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import java.io.File
 import java.io.PrintWriter
@@ -28,6 +29,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.work.DisableCachingByDefault
+import org.jetbrains.androidx.build.JetBrainsPublication
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 
 /** Task that allows to write a version to a given output file. */
@@ -57,6 +59,7 @@ fun Project.configureVersionFileWriter(
     libraryAndroidComponentsExtension: LibraryAndroidComponentsExtension,
     androidXExtension: AndroidXExtension,
 ) {
+    if (isJetBrainsFork(project) && JetBrainsPublication.shouldPublish(this)) return
     val writeVersionFile = registerVersionFileTask(androidXExtension)
     libraryAndroidComponentsExtension.onVariants {
         it.sources.resources!!.addGeneratedSourceDirectory(
@@ -70,6 +73,7 @@ fun Project.configureVersionFileWriter(
     kmpExtension: KotlinMultiplatformExtension,
     androidXExtension: AndroidXExtension,
 ) {
+    if (isJetBrainsFork(project) && JetBrainsPublication.shouldPublish(this)) return
     val writeVersionFile = registerVersionFileTask(androidXExtension)
     writeVersionFile.configure {
         it.outputDir.set(layout.buildDirectory.dir("generatedVersionFile"))

@@ -20,6 +20,7 @@ import androidx.build.ProjectLayoutType.Companion.isJetBrainsFork
 import androidx.build.SoftwareType
 import androidx.build.aospGetDefaultTargetJavaVersion
 import org.gradle.api.JavaVersion
+import org.gradle.api.JavaVersion.VERSION_1_8
 import org.gradle.api.Project
 
 fun jetBrainsGetDefaultTargetJavaVersion(
@@ -27,10 +28,15 @@ fun jetBrainsGetDefaultTargetJavaVersion(
     project: Project? = null,
     targetName: String? = null,
 ): JavaVersion =
-    if (
-        project != null && isJetBrainsFork(project) && JetBrainsPublication.shouldPublish(project)
-    ) {
+    if (project != null && isJetBrainsFork(project)) {
         JETBRAINS_MINIMAL_JAVA_VERSION
     } else {
         aospGetDefaultTargetJavaVersion(softwareType, project?.name, targetName)
+    }
+
+fun jetBrainsGetDefaultAndroidBaseJavaVersion(project: Project): JavaVersion =
+    if (isJetBrainsFork(project)) {
+        JETBRAINS_MINIMAL_JAVA_VERSION
+    } else {
+        VERSION_1_8
     }

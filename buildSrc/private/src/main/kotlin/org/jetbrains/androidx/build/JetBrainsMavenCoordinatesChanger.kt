@@ -26,17 +26,17 @@ fun Project.changeMavenCoordinatesToJetBrains() {
     val versions = JetBrainsVersionsService.versions(project)
     val androidxExtension = project.extensions.getByType(AndroidXExtension::class.java)
 
-    val group = JetBrainsPublication.mavenGroupFor(path, androidxExtension.mavenGroup?.group) ?: group
+    val group = JetBrainsPublication.mavenGroupFor(path, androidxExtension.mavenGroup?.group)
     val version = Version(versions.versionOf(component.library()))
     this.group = group
     this.version = version
 
     afterEvaluate {
         check(this.group == group) {
-            "The $path group is changed after evaluation from ${this.group} to $group. Check if it is overridden inside build.gradle and remove it"
+            "The $path group is changed after evaluation from $group to ${this.group}. Check if it is overridden inside build.gradle and remove it"
         }
         check(this.version == version) {
-            "The $path version is changed after evaluation from ${this.version} to $version. Check if it is overridden inside build.gradle and remove it"
+            "The $path version is changed after evaluation from $version to ${this.version}. Check if it is overridden inside build.gradle and remove it"
         }
     }
 }

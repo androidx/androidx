@@ -44,11 +44,6 @@ class JetBrainsAndroidXRootImplPlugin @Inject constructor(
             subproject.tasks.withType<AbstractTestTask>().configureEach {
                 it.outputs.upToDateWhen { false }
             }
-
-            if (isJetBrainsFork(project)) {
-                subproject.disableAndroidxPublication()
-                subproject.createMultiplatformSourceJarStub()
-            }
         }
 
         project.rootProject.plugins.withId("org.jetbrains.kotlin.multiplatform") {
@@ -67,33 +62,4 @@ class JetBrainsAndroidXRootImplPlugin @Inject constructor(
             }
         }
     }
-}
-
-private fun Project.disableAndroidxPublication() {
-    // Disable Androidx publication, as the fork publication is configured
-    // by JetBrainsPublication.
-    //
-    // It disables Androidx checks for publishing libraries that are not needed or
-    // conflict with the fork publication
-    afterEvaluate {
-        val androidxExtension = extensions.findByType(AndroidXExtension::class.java)
-        androidxExtension?.type?.set(
-            androidxExtension.type.map { oldType ->
-                ConfigurableSoftwareType(
-                    name = "JetBrains Library",
-                    publish = Publish.NONE,
-                    compilationTarget = oldType.compilationTarget,
-                    checkApi = RunApiTasks.No("JetBrains Library"),
-                )
-            }
-        )
-    }
-}
-
-private fun Project.createMultiplatformSourceJarStub() {
-    // configureSourceJarForAndroid() that adds this function is commented in the fork
-    // We register stub task to:
-    // - be sure that it is not registered before by AndroidXPlugin
-    // - to not crash code "tasks.named("multiplatformSourceJar").configure"
-    tasks.register("multiplatformSourceJar")
 }

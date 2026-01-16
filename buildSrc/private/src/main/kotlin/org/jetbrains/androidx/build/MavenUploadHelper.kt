@@ -70,6 +70,7 @@ import org.w3c.dom.Node
 fun Project.configureMavenArtifactUpload(
     componentFactory: SoftwareComponentFactory
 ) {
+    if (!JetBrainsPublication.shouldPublish(project)) return
     apply(mapOf("plugin" to "maven-publish"))
     var registered = false
     fun registerOnFirstPublishableArtifact(component: SoftwareComponent) {
@@ -79,9 +80,6 @@ fun Project.configureMavenArtifactUpload(
         }
     }
     afterEvaluate {
-        if (!JetBrainsPublication.shouldPublish(project)) {
-            return@afterEvaluate
-        }
         components.all { component ->
             if (isValidReleaseComponent(component)) {
                 registerOnFirstPublishableArtifact(component)
