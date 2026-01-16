@@ -439,9 +439,6 @@ internal class MetalRedrawer(
                     picture.close()
                     surface.flushAndSubmit()
 
-                    surface.close()
-                    renderTarget.close()
-
                     if (useSeparateRenderThreadWhenPossible) {
                         dispatch_semaphore_signal(drawCanvasSemaphore)
                     }
@@ -480,6 +477,9 @@ internal class MetalRedrawer(
                             isInteropActive = false
                         }
                     }
+
+                    surface.close()
+                    renderTarget.close()
 
                     // Track current inflight command buffers to synchronously wait for their schedule in case app goes background
                     inflightCommandBuffers.add(commandBuffer)
