@@ -53,16 +53,16 @@ public class RemotePaddingValues(
     )
 
     init {
-        leftPadding.value.constantValue?.let {
+        leftPadding.value.constantValueOrNull?.let {
             require(it >= 0f) { "Left padding must be non negative" }
         }
-        topPadding.value.constantValue?.let {
+        topPadding.value.constantValueOrNull?.let {
             require(it >= 0f) { "Top padding must be non negative" }
         }
-        rightPadding.value.constantValue?.let {
+        rightPadding.value.constantValueOrNull?.let {
             require(it >= 0f) { "Right padding must be non negative" }
         }
-        bottomPadding.value.constantValue?.let {
+        bottomPadding.value.constantValueOrNull?.let {
             require(it >= 0f) { "Bottom padding must be non negative" }
         }
     }
@@ -83,10 +83,12 @@ public class RemotePaddingValues(
         ) {
             return false
         }
-        return leftPadding.value.constantValue == other.leftPadding.value.constantValue &&
-            topPadding.value.constantValue == other.topPadding.value.constantValue &&
-            rightPadding.value.constantValue == other.rightPadding.value.constantValue &&
-            bottomPadding.value.constantValue == other.bottomPadding.value.constantValue
+        return leftPadding.value.constantValueOrNull ==
+            other.leftPadding.value.constantValueOrNull &&
+            topPadding.value.constantValueOrNull == other.topPadding.value.constantValueOrNull &&
+            rightPadding.value.constantValueOrNull ==
+                other.rightPadding.value.constantValueOrNull &&
+            bottomPadding.value.constantValueOrNull == other.bottomPadding.value.constantValueOrNull
     }
 
     override fun hashCode(): Int =

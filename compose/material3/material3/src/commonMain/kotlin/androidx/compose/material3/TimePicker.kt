@@ -83,6 +83,7 @@ import androidx.compose.material3.tokens.TimePickerTokens.ContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorContainerShape
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizontalContainerHeight
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorHorizontalContainerWidth
+import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorLabelTextFont
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorOutlineColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedContainerColor
 import androidx.compose.material3.tokens.TimePickerTokens.PeriodSelectorSelectedLabelTextColor
@@ -164,10 +165,12 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
@@ -1119,10 +1122,7 @@ private fun TimeInputImpl(modifier: Modifier, colors: TimePickerColors, state: T
         userOverride.value = true
     }
 
-    Row(
-        modifier = modifier.padding(bottom = TimeInputBottomPadding),
-        verticalAlignment = Alignment.Top,
-    ) {
+    Row(modifier = modifier, verticalAlignment = Alignment.Top) {
         val textStyle =
             TimeInputTokens.TimeFieldLabelTextFont.value.copy(
                 textAlign = TextAlign.Center,
@@ -1130,6 +1130,7 @@ private fun TimeInputImpl(modifier: Modifier, colors: TimePickerColors, state: T
             )
 
         val a11yServicesEnabled by rememberAccessibilityServiceState()
+        val errorHandler = rememberTimeInputErrorHandler(a11yServicesEnabled)
 
         CompositionLocalProvider(
             LocalTextStyle provides textStyle,
@@ -1161,6 +1162,7 @@ private fun TimeInputImpl(modifier: Modifier, colors: TimePickerColors, state: T
                             prevValue = hourValue,
                             a11yServicesEnabled = a11yServicesEnabled,
                             userOverride = userOverride,
+                            errorHandler = errorHandler,
                         ) {
                             hourValue = it
                         }
@@ -1192,9 +1194,9 @@ private fun TimeInputImpl(modifier: Modifier, colors: TimePickerColors, state: T
                             prevValue = minuteValue,
                             userOverride = userOverride,
                             a11yServicesEnabled = a11yServicesEnabled,
-                        ) {
-                            minuteValue = it
-                        }
+                            errorHandler = errorHandler,
+                            { minuteValue = it },
+                        )
                     },
                     state = state,
                     selection = TimePickerSelectionMode.Minute,
@@ -1399,8 +1401,8 @@ private fun PeriodToggleImpl(
 ) {
     val borderStroke =
         BorderStroke(TimePickerTokens.PeriodSelectorOutlineWidth, colors.periodSelectorBorderColor)
-
     val shape = PeriodSelectorContainerShape.value as CornerBasedShape
+    val style = PeriodSelectorLabelTextFont.value
     val contentDescription = getString(Strings.TimePickerPeriodToggle)
     Layout(
         modifier =
@@ -1423,7 +1425,7 @@ private fun PeriodToggleImpl(
                 },
                 colors = colors,
             ) {
-                Text(text = getString(string = Strings.TimePickerAM))
+                Text(style = style, text = getString(string = Strings.TimePickerAM))
             }
             Spacer(
                 Modifier.layoutId("Spacer")
@@ -1441,7 +1443,7 @@ private fun PeriodToggleImpl(
                 },
                 colors = colors,
             ) {
-                Text(getString(string = Strings.TimePickerPM))
+                Text(style = style, text = getString(string = Strings.TimePickerPM))
             }
         },
     )
@@ -1500,6 +1502,8 @@ private fun TimeSelector(
     colors: TimePickerColors,
     isValid: Boolean,
 ) {
+    LaunchedEffect(isValid) { if (!isValid) {} }
+
     val selected = state.selection == selection
     val selectorContentDescription =
         getString(
@@ -1941,6 +1945,7 @@ private fun timeInputOnChange(
     prevValue: TextFieldValue,
     userOverride: Ref<Boolean>,
     a11yServicesEnabled: Boolean,
+    errorHandler: TimeInputErrorHandler,
     onNewValue: (value: TextFieldValue) -> Unit,
 ) {
     userOverride.value = false
@@ -1992,9 +1997,11 @@ private fun timeInputOnChange(
                     value.copy(text = value.text[0].toString())
                 }
             )
+        } else {
+            errorHandler.onError()
         }
     } catch (_: NumberFormatException) {} catch (_: IllegalArgumentException) {
-        // do nothing no state update
+        errorHandler.onError()
     }
 }
 
@@ -2023,7 +2030,7 @@ private fun SupportingText(
         else TimeInputTokens.TimeFieldSupportingTextColor.value
 
     Text(
-        modifier = modifier.offset(y = SupportLabelTop).clearAndSetSemantics {},
+        modifier = modifier.padding(top = SupportLabelTop).clearAndSetSemantics {},
         text = text,
         color = color,
         minLines = 2,
@@ -2081,7 +2088,7 @@ private fun TimePickerTextField(
                 state = state,
                 selection = selection,
                 colors = colors,
-                isValid,
+                isValid = isValid,
             )
         }
 
@@ -2146,7 +2153,7 @@ private fun TimePickerTextField(
         }
 
         SupportingText(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().semantics { liveRegion = LiveRegionMode.Polite },
             selection = selection,
             state = state,
             isValid = isValid,
@@ -2275,7 +2282,6 @@ private val ClockFaceBottomMargin = 24.dp
 private val DisplaySeparatorWidth = 24.dp
 
 private val SupportLabelTop = 7.dp
-private val TimeInputBottomPadding = 8.dp
 private val MaxDistance = 74.dp
 private val MinimumInteractiveSize = 48.dp
 private val Minutes = intListOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)
@@ -2346,3 +2352,12 @@ internal class ClockFaceSizeModifier : LayoutModifier {
         return layout(placeable.width, placeable.height) { placeable.place(0, 0) }
     }
 }
+
+internal interface TimeInputErrorHandler {
+    fun onError()
+}
+
+@Composable
+internal expect fun rememberTimeInputErrorHandler(
+    isTouchExplorationEnabled: Boolean
+): TimeInputErrorHandler

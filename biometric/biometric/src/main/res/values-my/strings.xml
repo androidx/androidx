@@ -35,7 +35,7 @@
     <string name="use_fingerprint_label" msgid="6961788485681412417">"လက်ဗွေ သုံးရန်"</string>
     <string name="use_face_label" msgid="6533512708069459542">"မျက်နှာမှတ်သော့ဖွင့်ခြင်းကို သုံးရန်"</string>
     <string name="use_biometric_label" msgid="6524145989441579428">"ဇီဝမက်ထရစ် အချက်အလက်များ သုံးရန်"</string>
-    <string name="use_screen_lock_label" msgid="5459869335976243512">"ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>
+    <string name="use_screen_lock_label" msgid="5459869335976243512">"စခရင်လော့ခ် သုံးရန်"</string>
     <string name="use_fingerprint_or_screen_lock_label" msgid="7577690399303139443">"လက်ဗွေ (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>
     <string name="use_face_or_screen_lock_label" msgid="2116180187159450292">"မျက်နှာမှတ်သော့ဖွင့်ခြင်း (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>
     <string name="use_biometric_or_screen_lock_label" msgid="5385448280139639016">"ဇီဝမက်ထရစ် အချက်အလက်များ (သို့) ဖန်သားပြင်လော့ခ်ကို သုံးရန်"</string>

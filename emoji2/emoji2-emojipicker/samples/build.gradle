@@ -33,7 +33,7 @@ dependencies {
     implementation(project(":compose:foundation:foundation"))
 }
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.emoji2.emojipicker.samples"
 }
 

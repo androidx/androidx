@@ -46,6 +46,17 @@ public interface OutputImage : ImageWrapper {
                     ImageWrapper::class -> this as T?
                     else -> image.unwrapAs(type)
                 }
+
+            override fun toString(): String = this.toLogString()
+        }
+
+        @Suppress("NOTHING_TO_INLINE")
+        internal inline fun OutputImage.toLogString(): String {
+            // Output Image will be written as "OutputImage-s42_o45-t1234567890" where
+            // s42 is StreamId-42
+            // o45 is OutputId-45
+            // t1234567890 is the nanosecond timestamp of the image.
+            return "OutputImage-s${streamId.value}_o${outputId.value}-t$timestamp"
         }
     }
 }

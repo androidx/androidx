@@ -555,9 +555,22 @@ class LimitOffsetPagingSourceTest {
     }
 
     @Test
+    fun delete_invalidatesPagerAfterRefresh() = runPagingSourceTest { pager, pagingSource ->
+        pager.refresh(initialKey = 10)
+        assertThat(pagingSource.invalid).isFalse()
+
+        dao.deleteTestItems(5, 15)
+        // Wait for the delete to finish.
+        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
+        assertThat(pagingSource.invalid).isTrue()
+    }
+
+    @Test
     fun load_refreshKeyGreaterThanItemCount_lastPage() = runPagingSourceTest { pager, _ ->
         pager.refresh(initialKey = 70)
         dao.deleteTestItems(40, 100)
+        // Wait for the delete to finish.
+        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
 
         // assume user was viewing last item of the refresh load with anchorPosition = 85,
         // initialLoadSize = 15. This mimics how getRefreshKey() calculates refresh key.
@@ -587,6 +600,8 @@ class LimitOffsetPagingSourceTest {
     fun load_refreshKeyOnLastPage() = runPagingSourceTest { pager, _ ->
         pager.refresh(initialKey = 70)
         dao.deleteTestItems(80, 100)
+        // Wait for the delete to finish.
+        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
 
         // assume user was viewing last item of the refresh load with anchorPosition = 85,
         // initialLoadSize = 15. This mimics how getRefreshKey() calculates refresh key.
@@ -630,6 +645,8 @@ class LimitOffsetPagingSourceTest {
             assertThat(pagingSource.itemCount).isEqualTo(100)
             // items id 0 - 29 deleted (30 items removed)
             dao.deleteTestItems(0, 29)
+            // Wait for the delete to finish.
+            countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
 
             val pagingSource2 = LimitOffsetPagingSourceImpl(database)
             val pager2 = TestPager(CONFIG, pagingSource2)
@@ -658,6 +675,8 @@ class LimitOffsetPagingSourceTest {
             assertThat(pagingSource.itemCount).isEqualTo(100)
             // items id 0 - 94 deleted (95 items removed)
             dao.deleteTestItems(0, 94)
+            // Wait for the delete to finish.
+            countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
 
             val pagingSource2 = LimitOffsetPagingSourceImpl(database)
             val pager2 = TestPager(CONFIG, pagingSource2)

@@ -50,7 +50,7 @@ public constructor(private val audioSpec: AudioSpec, private val captureToEncode
         // Resolve channel count
         val audioSpecChannelCount = audioSpec.channelCount
         val resolvedChannelCount: Int
-        if (audioSpecChannelCount == AudioSpec.CHANNEL_COUNT_AUTO) {
+        if (audioSpecChannelCount == AudioSpec.CHANNEL_COUNT_UNSPECIFIED) {
             resolvedChannelCount = AudioConfigUtil.AUDIO_CHANNEL_COUNT_DEFAULT
             Logger.d(TAG, "Using fallback AUDIO channel count: $resolvedChannelCount")
         } else {
@@ -61,7 +61,7 @@ public constructor(private val audioSpec: AudioSpec, private val captureToEncode
         // Resolve sample rate
         val audioSpecSampleRate = audioSpec.sampleRate
         val targetSampleRate: Int =
-            if (audioSpecSampleRate != AudioSpec.SAMPLE_RATE_AUTO) {
+            if (audioSpecSampleRate != AudioSpec.SAMPLE_RATE_UNSPECIFIED) {
                 audioSpecSampleRate
             } else {
                 AudioConfigUtil.AUDIO_SAMPLE_RATE_DEFAULT

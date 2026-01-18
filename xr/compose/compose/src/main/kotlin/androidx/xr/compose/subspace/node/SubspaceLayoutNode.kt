@@ -507,6 +507,7 @@ internal class SubspaceLayoutNode : ComposeSubspaceNode {
 
             subspaceMeasureResult?.placeChildren(
                 object : SubspacePlacementScope() {
+                    override val parentLayoutDirection = this@SubspaceLayoutNode.layoutDirection
                     override val coordinates = this@SubspaceMeasurableLayout
                 }
             )

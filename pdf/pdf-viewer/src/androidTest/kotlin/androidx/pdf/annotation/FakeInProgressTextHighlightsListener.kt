@@ -20,11 +20,11 @@ import android.graphics.PointF
 import androidx.pdf.annotation.highlights.InProgressTextHighlightsListener
 import androidx.pdf.annotation.highlights.models.InProgressHighlightId
 import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.exceptions.RequestFailedException
 import androidx.test.espresso.idling.CountingIdlingResource
 
 internal class FakeInProgressTextHighlightsListener(
-    private val startIdlingResource: CountingIdlingResource,
-    private val finishIdlingResource: CountingIdlingResource? = null,
+    private val highlightIdlingResource: CountingIdlingResource
 ) : InProgressTextHighlightsListener {
     var isStarted: Boolean = false
         private set
@@ -37,24 +37,33 @@ internal class FakeInProgressTextHighlightsListener(
 
     val finishedAnnotations = mutableMapOf<InProgressHighlightId, PdfAnnotation>()
 
+    var exceptionThrown: RequestFailedException? = null
+
     override fun onTextHighlightStarted(
         viewPoint: PointF,
         inProgressHighlightId: InProgressHighlightId,
     ) {
         startedId = inProgressHighlightId
         isStarted = true
-        if (!startIdlingResource.isIdleNow) startIdlingResource.decrement()
+        if (!highlightIdlingResource.isIdleNow) highlightIdlingResource.decrement()
     }
 
-    override fun onTextHighlightFailed(viewPoint: PointF) {
+    override fun onTextHighlightRejected(viewPoint: PointF) {
         isFailed = true
-        if (!startIdlingResource.isIdleNow) startIdlingResource.decrement()
+        if (!highlightIdlingResource.isIdleNow) highlightIdlingResource.decrement()
     }
 
     override fun onTextHighlightFinished(annotations: Map<InProgressHighlightId, PdfAnnotation>) {
         finishedAnnotations.putAll(annotations)
-        if (finishIdlingResource != null && !finishIdlingResource.isIdleNow) {
-            finishIdlingResource.decrement()
+        if (!highlightIdlingResource.isIdleNow) {
+            highlightIdlingResource.decrement()
+        }
+    }
+
+    override fun onTextHighlightError(exception: RequestFailedException) {
+        exceptionThrown = exception
+        if (!highlightIdlingResource.isIdleNow) {
+            highlightIdlingResource.decrement()
         }
     }
 }

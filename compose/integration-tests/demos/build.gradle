@@ -47,7 +47,7 @@ dependencies {
 ApkCopyHelperKt.setupAppApkCopy(project, "release")
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.compose.integration.demos"
     buildTypes {
         release {

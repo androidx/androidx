@@ -196,8 +196,8 @@ class WearWidgetCaptureTest {
     fun pendingIntentCollection_addToBundle() {
         val result =
             """
-DATA_TEXT<42> = "text-0"
-DATA_TEXT<44> = "text-1"
+DATA_TEXT<43> = "text-0"
+DATA_TEXT<45> = "text-1"
 ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
   COLUMN [-3:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
     MODIFIERS
@@ -205,15 +205,15 @@ ROOT [-2:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE
       MODIFIERS
         WIDTH = 100.0 dp
         HEIGHT = 100.0 dp
-    TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (42:"null")
+    TEXT_LAYOUT [-7:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (43:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 46 : 43
+          HOST_NAMED_ACTION = 46 : 42
         SEMANTICS = SEMANTICS BUTTON
-    TEXT_LAYOUT [-9:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (44:"null")
+    TEXT_LAYOUT [-9:-1] = [0.0, 0.0, 0.0, 0.0] VISIBLE (45:"null")
       MODIFIERS
         CLICK_MODIFIER
-          HOST_NAMED_ACTION = 46 : 45
+          HOST_NAMED_ACTION = 46 : 44
         SEMANTICS = SEMANTICS BUTTON
 """
 

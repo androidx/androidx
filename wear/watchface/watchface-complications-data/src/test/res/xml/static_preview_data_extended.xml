@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preview-data>
+    <complication
+        type="RANGED_VALUE"
+        value="20"
+        min="10"
+        max="30"
+        monochromaticImage="@drawable/ic_test">
+        <text>
+            <formatted format="@string/formatted_text_of_1">
+            <param>
+                <plain value="20" valueType="integer" />
+            </param>
+            </formatted>
+        </text>
+        <extended-data key="extended_data_key" dictionaryKey="dictionary_key" rawValue="GgwKBAoCNTASBAoCNzA=" skeletonValue="GiAKDgoCNTAiCG1pblZhbHVlEg4KAjcwIghtYXhWYWx1ZQ==">
+            <string-replacement key="minValue">
+                <formatted format="@string/formatted_text_of_1">
+                <param>
+                    <plain value="10" valueType="integer" />
+                </param>
+                </formatted>
+            </string-replacement>
+            <string-replacement key="maxValue">
+                <formatted format="@string/formatted_text_of_1">
+                <param>
+                    <plain value="30" valueType="integer" />
+                </param>
+                </formatted>
+            </string-replacement>
+        </extended-data>
+    </complication>
+</preview-data>

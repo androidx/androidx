@@ -31,6 +31,7 @@ import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.player.core.platform.BitmapLoader
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -112,6 +113,23 @@ class RemoteImageTest {
                 dummyImage,
                 contentDescription = rememberRemoteString { "background" },
                 RemoteModifier.size(size.rdp),
+            )
+        }
+    }
+
+    @Test
+    fun remoteImageWithImageBitmap() {
+        val size = 48
+        remoteComposeTestRule.runScreenshotTest(
+            creationDisplayInfo =
+                CreationDisplayInfo(size, size, context.resources.displayMetrics.densityDpi)
+        ) {
+            val backgroundImage = createImage(size, size)
+            RemoteImage(
+                bitmap = backgroundImage.asImageBitmap(),
+                alpha = 0.6f.rf,
+                contentDescription = rememberRemoteString { "background" },
+                modifier = RemoteModifier.size(size.rdp),
             )
         }
     }

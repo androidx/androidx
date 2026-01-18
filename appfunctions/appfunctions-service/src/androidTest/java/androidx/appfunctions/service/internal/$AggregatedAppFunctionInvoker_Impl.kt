@@ -21,7 +21,7 @@ import androidx.annotation.RequiresApi
 import androidx.appfunctions.AppFunctionContext
 import androidx.appfunctions.core.AppFunctionMetadataTestHelper
 
-/** Test implementation for [androidx.appfunctions.AppFunctionManagerCompatTest] */
+/** Test implementation for [androidx.appfunctions.AppFunctionManagerTest] */
 @RequiresApi(Build.VERSION_CODES.S)
 class `$AggregatedAppFunctionInvoker_Impl` : AggregatedAppFunctionInvoker() {
     override val invokers: List<AppFunctionInvoker>

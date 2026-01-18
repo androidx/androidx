@@ -95,6 +95,6 @@ public class AnnotationRecordsHistoryManager() {
     }
 
     public companion object {
-        private const val MAX_STACK_SIZE = 20
+        public const val MAX_STACK_SIZE: Int = 50
     }
 }

@@ -91,7 +91,6 @@ private class ParameterizedComposeTestRuleImpl<T>(private val rule: ComposeConte
 }
 
 /** Creates a [ParameterizedComposeTestRule] to simulate input parameterization in tests. */
-@Suppress("ComposeTestRuleDispatcher")
 fun <T> createParameterizedComposeTestRule(
     effectContext: CoroutineContext = StandardTestDispatcher()
 ): ParameterizedComposeTestRule<T> {

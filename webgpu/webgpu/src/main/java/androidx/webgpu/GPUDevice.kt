@@ -18,9 +18,6 @@ package androidx.webgpu
 
 import dalvik.annotation.optimization.FastNative
 import java.util.concurrent.Executor
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** The primary interface for interacting with the GPU, used to create most resources. */
 public class GPUDevice private constructor(public val handle: Long) : AutoCloseable {
@@ -88,7 +85,7 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
     public external fun createComputePipelineAsync(
         descriptor: GPUComputePipelineDescriptor,
         callbackExecutor: java.util.concurrent.Executor,
-        callback: CreateComputePipelineAsyncCallback,
+        callback: GPURequestCallback<GPUComputePipeline>,
     ): Unit
 
     /**
@@ -99,24 +96,8 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
     @Throws(WebGpuException::class)
     public suspend fun createComputePipelineAndAwait(
         descriptor: GPUComputePipelineDescriptor
-    ): GPUComputePipeline = suspendCancellableCoroutine {
-        createComputePipelineAsync(
-            descriptor,
-            Executor(Runnable::run),
-            { status, message, pipeline ->
-                if (!it.isActive) {
-                    // Coroutine was aborted.
-                } else if (status != Status.Success) {
-                    it.resumeWithException(WebGpuException(status = status, reason = message))
-                } else if (pipeline == null) {
-                    it.resumeWithException(
-                        WebGpuException(status = status, reason = "Null value returned")
-                    )
-                } else {
-                    it.resume(pipeline)
-                }
-            },
-        )
+    ): GPUComputePipeline = awaitGPURequest { callback ->
+        createComputePipelineAsync(descriptor, Executor(Runnable::run), callback)
     }
 
     /**
@@ -171,7 +152,7 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
     public external fun createRenderPipelineAsync(
         descriptor: GPURenderPipelineDescriptor,
         callbackExecutor: java.util.concurrent.Executor,
-        callback: CreateRenderPipelineAsyncCallback,
+        callback: GPURequestCallback<GPURenderPipeline>,
     ): Unit
 
     /**
@@ -182,24 +163,8 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
     @Throws(WebGpuException::class)
     public suspend fun createRenderPipelineAndAwait(
         descriptor: GPURenderPipelineDescriptor
-    ): GPURenderPipeline = suspendCancellableCoroutine {
-        createRenderPipelineAsync(
-            descriptor,
-            Executor(Runnable::run),
-            { status, message, pipeline ->
-                if (!it.isActive) {
-                    // Coroutine was aborted.
-                } else if (status != Status.Success) {
-                    it.resumeWithException(WebGpuException(status = status, reason = message))
-                } else if (pipeline == null) {
-                    it.resumeWithException(
-                        WebGpuException(status = status, reason = "Null value returned")
-                    )
-                } else {
-                    it.resume(pipeline)
-                }
-            },
-        )
+    ): GPURenderPipeline = awaitGPURequest { callback ->
+        createRenderPipelineAsync(descriptor, Executor(Runnable::run), callback)
     }
 
     /**
@@ -288,26 +253,13 @@ public class GPUDevice private constructor(public val handle: Long) : AutoClosea
     @JvmName("popErrorScope")
     public external fun popErrorScope(
         callbackExecutor: java.util.concurrent.Executor,
-        callback: PopErrorScopeCallback,
+        callback: GPURequestCallback<@ErrorType Int>,
     ): Unit
 
     /** Pops the current error scope from the stack asynchronously and returns a possible error. */
     @Throws(WebGpuException::class, WebGpuRuntimeException::class)
-    public suspend fun popErrorScope(): @ErrorType Int = suspendCancellableCoroutine {
-        popErrorScope(
-            Executor(Runnable::run),
-            { status, type, message ->
-                if (!it.isActive) {
-                    // Coroutine was aborted.
-                } else if (status != Status.Success) {
-                    it.resumeWithException(WebGpuException(status = status, reason = message))
-                } else if (type != ErrorType.NoError) {
-                    it.resumeWithException(WebGpuRuntimeException.create(type, message))
-                } else {
-                    it.resume(type)
-                }
-            },
-        )
+    public suspend fun popErrorScope(): @ErrorType Int = awaitGPURequest { callback ->
+        popErrorScope(Executor(Runnable::run), callback)
     }
 
     /**

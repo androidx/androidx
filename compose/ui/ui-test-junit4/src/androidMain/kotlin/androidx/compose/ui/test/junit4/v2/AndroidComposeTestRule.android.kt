@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.junit4.v2
 
-import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.MainTestClock
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
@@ -37,7 +36,6 @@ import org.junit.rules.TestRule
  *   Otherwise, a [kotlinx.coroutines.test.StandardTestDispatcher] is created and used. This new
  *   dispatcher will share the [TestCoroutineScheduler] from [effectContext] if one is present.
  */
-@SuppressLint("ComposeTestRuleDispatcher")
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>(effectContext)
 
@@ -70,7 +68,6 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
  *   Otherwise, a [kotlinx.coroutines.test.StandardTestDispatcher] is created and used. This new
  *   dispatcher will share the [TestCoroutineScheduler] from [effectContext] if one is present.
  */
-@SuppressLint("ComposeTestRuleDispatcher")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {

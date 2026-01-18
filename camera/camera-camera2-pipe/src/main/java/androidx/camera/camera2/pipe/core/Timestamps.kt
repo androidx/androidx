@@ -25,18 +25,22 @@ import javax.inject.Singleton
 /** A nanosecond timestamp */
 @JvmInline
 public value class TimestampNs constructor(public val value: Long) {
-    public operator fun minus(other: TimestampNs): DurationNs = DurationNs(value - other.value)
+    public inline operator fun minus(other: TimestampNs): DurationNs =
+        DurationNs(value - other.value)
 
-    public operator fun plus(other: DurationNs): TimestampNs = TimestampNs(value + other.value)
+    public inline operator fun plus(other: DurationNs): TimestampNs =
+        TimestampNs(value + other.value)
 }
 
 @JvmInline
 public value class DurationNs(public val value: Long) {
-    public operator fun minus(other: DurationNs): DurationNs = DurationNs(value - other.value)
+    public inline operator fun minus(other: DurationNs): DurationNs =
+        DurationNs(value - other.value)
 
-    public operator fun plus(other: DurationNs): DurationNs = DurationNs(value + other.value)
+    public inline operator fun plus(other: DurationNs): DurationNs = DurationNs(value + other.value)
 
-    public operator fun plus(other: TimestampNs): TimestampNs = TimestampNs(value + other.value)
+    public inline operator fun plus(other: TimestampNs): TimestampNs =
+        TimestampNs(value + other.value)
 
     public operator fun compareTo(other: DurationNs): Int {
         return if (value == other.value) {
@@ -49,7 +53,7 @@ public value class DurationNs(public val value: Long) {
     }
 
     public companion object {
-        public fun fromMs(durationMs: Long): DurationNs = DurationNs(durationMs * 1_000_000L)
+        public inline fun fromMs(durationMs: Long): DurationNs = DurationNs(durationMs * 1_000_000L)
     }
 }
 
@@ -63,17 +67,18 @@ public class SystemTimeSource @Inject constructor() : TimeSource {
 }
 
 public object Timestamps {
-    public fun now(timeSource: TimeSource): TimestampNs = timeSource.now()
+    public inline fun now(timeSource: TimeSource): TimestampNs = timeSource.now()
 
-    public fun DurationNs.formatNs(): String = "$this ns"
+    public inline fun DurationNs.formatNs(): String = "$this ns"
 
-    public fun DurationNs.formatMs(decimals: Int = 3): String =
+    public inline fun DurationNs.formatMs(decimals: Int = 3): String =
         "%.${decimals}f ms".format(null, this.value / 1_000_000.0)
 
-    public fun TimestampNs.formatNs(): String = "$this ns"
+    public inline fun TimestampNs.formatNs(): String = "$this ns"
 
-    public fun TimestampNs.formatMs(): String = "${this.value / 1_000_000} ms"
+    public inline fun TimestampNs.formatMs(): String = "${this.value / 1_000_000} ms"
 
-    public fun TimestampNs.measureNow(timeSource: TimeSource = SystemTimeSource()): DurationNs =
-        now(timeSource).minus(this)
+    public inline fun TimestampNs.measureNow(
+        timeSource: TimeSource = SystemTimeSource()
+    ): DurationNs = now(timeSource) - this
 }

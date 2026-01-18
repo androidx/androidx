@@ -24,7 +24,7 @@ import androidx.compose.ui.util.fastForEachIndexed
 
 /**
  * A callback interface used during the capture process to write out the captured composable
- * information. This allows the capture system to be pass on types that can't be serialized into the
+ * information. This allows the capture system to pass on types that can't be serialized into the
  * document such as PendingIntent.
  *
  * Implementations of this interface will handle the serialization or transformation of the captured

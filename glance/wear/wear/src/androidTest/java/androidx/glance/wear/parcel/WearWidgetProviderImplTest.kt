@@ -23,6 +23,7 @@ import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.wear.ActiveWearWidgetHandle
+import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_FULLSCREEN
 import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_LARGE
 import androidx.glance.wear.ContainerInfo.Companion.CONTAINER_TYPE_SMALL
 import androidx.glance.wear.GlanceWearWidget
@@ -86,6 +87,29 @@ class WearWidgetProviderImplTest {
         contentChannel.receive()
 
         assertThat(testWidget.lastRequestedInstanceId).isEqualTo(widgetParams.instanceId)
+        assertThat(testWidget.lastRequestedContainerType).isEqualTo(CONTAINER_TYPE_LARGE)
+    }
+
+    @Test
+    fun onWidgetRequest_remapsFullscreenToLarge() = runTest {
+        val widgetParams =
+            WearWidgetParams(
+                instanceId = WidgetInstanceId("namespace", 17),
+                containerType = CONTAINER_TYPE_FULLSCREEN,
+                widthDp = 200f,
+                heightDp = 200f,
+                horizontalPaddingDp = 8f,
+                verticalPaddingDp = 8f,
+                cornerRadiusDp = 16f,
+            )
+        val channelWidgetCallback = ChannelWidgetCallback(this, contentChannel)
+        val provider = WearWidgetProviderImpl(context, testName, mainScope, testWidget)
+
+        provider.onWidgetRequest(widgetParams.toParcel(), channelWidgetCallback)
+        contentChannel.receive()
+
+        assertThat(testWidget.lastRequestedInstanceId).isEqualTo(widgetParams.instanceId)
+        assertThat(testWidget.lastRequestedContainerType).isEqualTo(CONTAINER_TYPE_LARGE)
     }
 
     @Test
@@ -212,6 +236,7 @@ class WearWidgetProviderImplTest {
 
     private class TestGlanceWearWidget : GlanceWearWidget() {
         var lastRequestedInstanceId: WidgetInstanceId? = null
+        var lastRequestedContainerType: Int? = null
         var addedHandle: ActiveWearWidgetHandle? = null
         var removedHandle: ActiveWearWidgetHandle? = null
         var enableFailureMode = false
@@ -222,6 +247,7 @@ class WearWidgetProviderImplTest {
             params: WearWidgetParams,
         ): WearWidgetData {
             lastRequestedInstanceId = params.instanceId
+            lastRequestedContainerType = params.containerType
             if (enableFailureMode) {
                 throw Exception("Test exception")
             }

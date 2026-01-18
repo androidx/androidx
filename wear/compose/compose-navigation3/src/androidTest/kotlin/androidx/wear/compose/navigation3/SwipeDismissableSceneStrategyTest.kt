@@ -84,6 +84,7 @@ import androidx.wear.compose.material3.Text
 import com.google.common.truth.Truth.assertThat
 import kotlin.String
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -225,6 +226,27 @@ class SwipeDismissableSceneStrategyTest {
         // Should now display "start".
         rule.onNodeWithText(FIRST_SCREEN).assertIsDisplayed()
         assertThat(lifecycleState.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 36)
+    fun does_not_intercept_back_pressed_with_single_item_backstack() {
+        rule.setContentWithBackPressedDispatcher { TestNavDisplay() }
+        // If NavDisplay is handling back, 'hasEnabledCallbacks' would be true.
+        // For a single item, it should be false so the system (Activity) can handle it.
+        assertFalse(backPressedDispatcher.hasEnabledCallbacks())
+    }
+
+    @Test
+    fun does_not_crash_when_swiping_back_with_single_item_backstack() {
+        rule.setContentWithBackPressedDispatcher { TestNavDisplay() }
+
+        val result = runCatching {
+            rule.swipeRight()
+            rule.waitForIdle()
+        }
+
+        assertTrue("Caught exception while swiping back.", result.isSuccess)
     }
 
     @Test
@@ -511,9 +533,8 @@ class SwipeDismissableSceneStrategyTest {
     @Test
     @SdkSuppress(minSdkVersion = 36)
     fun press_back_during_animation_does_not_reset_animation() {
-        rule.setContentWithBackPressedDispatcher { TestNavDisplay() }
-        // Click to move to next destination then swipe back.
-        rule.onNodeWithText(FIRST_SCREEN).performClick()
+        val backStack = mutableStateListOf<Any>(FIRST_KEY, SECOND_KEY, THIRD_KEY)
+        rule.setContentWithBackPressedDispatcher { TestNavDisplay(backStack = backStack) }
 
         rule.waitForIdle()
 
@@ -527,7 +548,7 @@ class SwipeDismissableSceneStrategyTest {
         // fast-forward few frames.
         repeat(3) { rule.mainClock.advanceTimeByFrame() }
         var previousLeft =
-            rule.onNodeWithTag(TEST_TAG_SECOND_CONTAINER).fetchSemanticsNode().boundsInWindow.left
+            rule.onNodeWithTag(TEST_TAG_THIRD_CONTAINER).fetchSemanticsNode().boundsInWindow.left
 
         // Press back while animation is running
         rule.runOnIdle { backPressedDispatcher.onBackPressed() }
@@ -538,7 +559,7 @@ class SwipeDismissableSceneStrategyTest {
 
             val currentLeft =
                 rule
-                    .onNodeWithTag(TEST_TAG_SECOND_CONTAINER)
+                    .onNodeWithTag(TEST_TAG_THIRD_CONTAINER)
                     .fetchSemanticsNode()
                     .boundsInWindow
                     .left
@@ -718,12 +739,25 @@ class SwipeDismissableSceneStrategyTest {
                 }
             }
         }
+        entry(THIRD_KEY) {
+            Box(
+                modifier = Modifier.fillMaxSize().testTag(TEST_TAG_THIRD_CONTAINER),
+                contentAlignment = Alignment.Center,
+            ) {
+                ScalingLazyColumn(modifier = Modifier.testTag(THIRD_SCREEN)) {
+                    item { Text(THIRD_SCREEN) }
+                }
+            }
+        }
     }
 
     val FIRST_KEY = "First"
     val FIRST_SCREEN = "FirstTag"
     val SECOND_KEY = "Second"
     val SECOND_SCREEN = "SecondTag"
+    val THIRD_KEY = "Third"
+    val THIRD_SCREEN = "ThirdTag"
     val SCENE_TAG = "SceneModifierTag"
     val TEST_TAG_SECOND_CONTAINER = "SecondContainerTag"
+    val TEST_TAG_THIRD_CONTAINER = "ThirdContainerTag"
 }

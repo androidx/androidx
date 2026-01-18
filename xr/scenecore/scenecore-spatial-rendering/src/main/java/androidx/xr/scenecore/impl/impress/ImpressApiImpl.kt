@@ -28,6 +28,7 @@ import androidx.xr.scenecore.impl.impress.ImpressApi.ColorRange
 import androidx.xr.scenecore.impl.impress.ImpressApi.ColorSpace
 import androidx.xr.scenecore.impl.impress.ImpressApi.ColorTransfer
 import androidx.xr.scenecore.impl.impress.ImpressApi.ContentSecurityLevel
+import androidx.xr.scenecore.impl.impress.ImpressApi.MediaBlendingMode
 import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
@@ -58,6 +59,16 @@ public class ImpressApiImpl : ImpressApi {
             else ->
                 throw IllegalArgumentException(
                     "Unsupported value for ImpressApi.StereoMode: $stereoMode"
+                )
+        }
+
+    private fun validateMediaBlendingMode(@MediaBlendingMode mediaBlendingMode: Int): Int =
+        when (mediaBlendingMode) {
+            MediaBlendingMode.TRANSPARENT,
+            MediaBlendingMode.OPAQUE -> mediaBlendingMode
+            else ->
+                throw IllegalArgumentException(
+                    "Unsupported value for ImpressApi.MediaBlendingMode: $mediaBlendingMode"
                 )
         }
 
@@ -465,30 +476,29 @@ public class ImpressApiImpl : ImpressApi {
         )
 
     override fun createStereoSurface(@StereoMode stereoMode: Int): ImpressNode =
-        ImpressNode(
-            nCreateStereoSurfaceEntity(
-                getViewNativeHandle(view),
-                validateStereoMode(stereoMode),
-                ContentSecurityLevel.NONE,
-                /* useSuperSampling= */ false,
-            )
-        )
+        createStereoSurface(stereoMode, ContentSecurityLevel.NONE)
 
     override fun createStereoSurface(
         @StereoMode stereoMode: Int,
         @ContentSecurityLevel contentSecurityLevel: Int,
     ): ImpressNode =
-        ImpressNode(
-            nCreateStereoSurfaceEntity(
-                getViewNativeHandle(view),
-                validateStereoMode(stereoMode),
-                validateContentSecurityLevel(contentSecurityLevel),
-                /* useSuperSampling= */ false,
-            )
+        createStereoSurface(stereoMode, contentSecurityLevel, /* useSuperSampling= */ false)
+
+    override fun createStereoSurface(
+        @StereoMode stereoMode: Int,
+        @ContentSecurityLevel contentSecurityLevel: Int,
+        useSuperSampling: Boolean,
+    ): ImpressNode =
+        createStereoSurface(
+            stereoMode,
+            MediaBlendingMode.TRANSPARENT,
+            contentSecurityLevel,
+            useSuperSampling,
         )
 
     override fun createStereoSurface(
         @StereoMode stereoMode: Int,
+        @MediaBlendingMode mediaBlendingMode: Int,
         @ContentSecurityLevel contentSecurityLevel: Int,
         useSuperSampling: Boolean,
     ): ImpressNode =
@@ -496,6 +506,7 @@ public class ImpressApiImpl : ImpressApi {
             nCreateStereoSurfaceEntity(
                 getViewNativeHandle(view),
                 validateStereoMode(stereoMode),
+                validateMediaBlendingMode(mediaBlendingMode),
                 validateContentSecurityLevel(contentSecurityLevel),
                 useSuperSampling,
             )
@@ -505,12 +516,14 @@ public class ImpressApiImpl : ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     ): Unit =
         nSetStereoSurfaceEntityCanvasShapeQuad(
             getViewNativeHandle(view),
             impressNode.handle,
             width,
             height,
+            cornerRadius,
         )
 
     override fun setStereoSurfaceEntityCanvasShapeSphere(
@@ -1511,6 +1524,7 @@ public class ImpressApiImpl : ImpressApi {
     private external fun nCreateStereoSurfaceEntity(
         view: Long,
         stereoMode: Int,
+        blendingMode: Int,
         contentSecurityLevel: Int,
         useSuperSampling: Boolean,
     ): Int
@@ -1527,6 +1541,7 @@ public class ImpressApiImpl : ImpressApi {
         impressNode: Int,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     )
 
     private external fun nSetStereoSurfaceEntityCanvasShapeSphere(

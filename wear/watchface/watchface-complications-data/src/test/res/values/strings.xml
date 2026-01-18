@@ -20,6 +20,8 @@
     <string name="title_text">Title</string>
     <string name="long_text">Long Text</string>
     <string name="long_title_text">Long Title</string>
-    <string name="formatted_text">Steps: %1$s, Time: %2$s</string>
-    <string name="formatted_text_long"><xliff:g id="percentage">Steps: %1$s, Time: %2$s, Progress: %3$d</xliff:g>%%</string>
+    <string name="formatted_text_of_1"><xliff:g id="singleInt">Progress: %1$d</xliff:g>%%</string>
+    <string name="formatted_text_of_2">Steps: %1$s, Time: %2$s</string>
+    <string name="formatted_text_of_3"><xliff:g id="percentage">Steps: %1$s, Time: %2$s, Progress: %3$d</xliff:g>%%</string>
+
 </resources>

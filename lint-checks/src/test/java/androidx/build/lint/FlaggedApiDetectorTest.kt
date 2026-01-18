@@ -39,10 +39,10 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     """
           package test.pkg;
           
-          import androidx.annotation.ChecksAconfigFlag;
+          import androidx.annotation.ChecksFlag;
 
           public final class Flags {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               public static boolean myFlag() { return true; }
           }
           """
@@ -70,7 +70,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expectClean()
@@ -84,10 +84,10 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     """
           package test.pkg;
           
-          import androidx.annotation.ChecksAconfigFlag;
+          import androidx.annotation.ChecksFlag;
 
           public final class Flags {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               public static boolean myFlag() { return true; }
           }
           """
@@ -130,7 +130,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expectClean()
@@ -142,7 +142,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                 javaSample("android.flagging.FlaggedApiContainer"),
                 ktSample("flaggedapi.FlaggedUsageInOutline"),
                 Stubs.FlaggedApi,
-                Stubs.RequiresAconfigFlag,
+                Stubs.RequiresFlag,
                 Stubs.Flags,
             )
             .run()
@@ -181,7 +181,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
 
             import android.os.Build;
             import androidx.core.flagging.Flags;
-            import androidx.annotation.RequiresAconfigFlag;
+            import androidx.annotation.RequiresFlag;
 
             public class JavaTest {
                 void test() {
@@ -190,7 +190,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     }
                 }
 
-                @RequiresAconfigFlag("android.os.flaggedApi")
+                @RequiresFlag("android.os.flaggedApi")
                 static class FlagFlaggedApiImpl {
                     static boolean flaggedApi() {
                         return Build.flaggedApi();
@@ -201,7 +201,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.RequiresAconfigFlag,
+                Stubs.RequiresFlag,
                 Stubs.Flags,
             )
             .run()
@@ -229,7 +229,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
 
             import android.os.Foo;
             import androidx.core.flagging.Flags;
-            import androidx.annotation.RequiresAconfigFlag;
+            import androidx.annotation.RequiresFlag;
 
             public class JavaTest {
                 void test() {
@@ -248,7 +248,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.RequiresAconfigFlag,
+                Stubs.RequiresFlag,
                 Stubs.Flags,
             )
             .run()
@@ -293,7 +293,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
 
             import android.os.Foo;
             import androidx.core.flagging.Flags;
-            import androidx.annotation.RequiresAconfigFlag;
+            import androidx.annotation.RequiresFlag;
 
             public class JavaTest {
                 void test() {
@@ -302,7 +302,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     }
                 }
 
-                @RequiresAconfigFlag("android.os.otherFlaggedApi")
+                @RequiresFlag("android.os.otherFlaggedApi")
                 static class FlagFlaggedApiImpl {
                     static boolean flaggedApi() {
                         return Foo.flaggedApi();
@@ -313,7 +313,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.RequiresAconfigFlag,
+                Stubs.RequiresFlag,
                 Stubs.Flags,
             )
             .run()
@@ -344,17 +344,17 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
             )
     }
 
-    fun testChecksAconfigFlagGating_javaIfCheck_isClean() {
+    fun testChecksFlagGating_javaIfCheck_isClean() {
         lint()
             .files(
                 kotlin(
                     """
           package test.pkg
 
-          import androidx.annotation.ChecksAconfigFlag
+          import androidx.annotation.ChecksFlag
 
           object FlagsCompat {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               fun myFlag() { return true; }
           }
           """
@@ -382,23 +382,23 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expectClean()
     }
 
-    fun testChecksAconfigFlagGating_kotlinIfCheck_isClean() {
+    fun testChecksFlagGating_kotlinIfCheck_isClean() {
         lint()
             .files(
                 kotlin(
                     """
           package test.pkg
 
-          import androidx.annotation.ChecksAconfigFlag
+          import androidx.annotation.ChecksFlag
 
           object FlagsCompat {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               fun myFlag() { return true; }
           }
           """
@@ -425,23 +425,23 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expectClean()
     }
 
-    fun testChecksAconfigFlagGating_kotlinIncorrectWhenCheck_raisesError() {
+    fun testChecksFlagGating_kotlinIncorrectWhenCheck_raisesError() {
         lint()
             .files(
                 kotlin(
                     """
           package test.pkg
 
-          import androidx.annotation.ChecksAconfigFlag
+          import androidx.annotation.ChecksFlag
 
           object FlagsCompat {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               fun myFlag() { return true; }
           }
           """
@@ -471,7 +471,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expect(
@@ -493,17 +493,17 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
             )
     }
 
-    fun testChecksAconfigFlagGating_javaCheckForWrongFlag_raisesError() {
+    fun testChecksFlagGating_javaCheckForWrongFlag_raisesError() {
         lint()
             .files(
                 kotlin(
                     """
           package test.pkg
 
-          import androidx.annotation.ChecksAconfigFlag
+          import androidx.annotation.ChecksFlag
 
           object FlagsCompat {
-              @ChecksAconfigFlag("test.pkg.myOtherFlag")
+              @ChecksFlag("test.pkg.myOtherFlag")
               fun myFlag() { return true; }
           }
           """
@@ -531,7 +531,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expect(
@@ -553,17 +553,17 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
             )
     }
 
-    fun testChecksAconfigFlagGating_kotlinCheckForWrongFlag_raisesError() {
+    fun testChecksFlagGating_kotlinCheckForWrongFlag_raisesError() {
         lint()
             .files(
                 kotlin(
                     """
           package test.pkg
 
-          import androidx.annotation.ChecksAconfigFlag
+          import androidx.annotation.ChecksFlag
 
           object FlagsCompat {
-              @ChecksAconfigFlag("test.pkg.myOtherFlag")
+              @ChecksFlag("test.pkg.myOtherFlag")
               fun myFlag() { return true; }
           }
           """
@@ -590,7 +590,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expect(
@@ -612,7 +612,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
             )
     }
 
-    fun testChecksAconfigFlagGating_javaWithFlaggedDeprecation_isClean() {
+    fun testChecksFlagGating_javaWithFlaggedDeprecation_isClean() {
         lint()
             .files(
                 java(
@@ -642,7 +642,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
             .expectClean()
     }
 
-    fun testChecksAconfigFlagGating_kotlinWithFlaggedDeprecation_isClean() {
+    fun testChecksFlagGating_kotlinWithFlaggedDeprecation_isClean() {
         lint()
             .files(
                 kotlin(
@@ -679,10 +679,10 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     """
           package test.pkg;
 
-          import androidx.annotation.ChecksAconfigFlag;
+          import androidx.annotation.ChecksFlag;
 
           public final class Flags {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               public static boolean myFlag() { return true; }
           }
           """
@@ -717,7 +717,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expectClean()
@@ -730,10 +730,10 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     """
           package test.pkg;
 
-          import androidx.annotation.ChecksAconfigFlag;
+          import androidx.annotation.ChecksFlag;
 
           public final class Flags {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               public static boolean myFlag() { return true; }
           }
           """
@@ -763,7 +763,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expectClean()
@@ -776,10 +776,10 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     """
           package test.pkg;
 
-          import androidx.annotation.ChecksAconfigFlag;
+          import androidx.annotation.ChecksFlag;
 
           public final class Flags {
-              @ChecksAconfigFlag("test.pkg.myFlag")
+              @ChecksFlag("test.pkg.myFlag")
               public static boolean myFlag() { return true; }
           }
           """
@@ -827,13 +827,13 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 Stubs.FlaggedApi,
-                Stubs.ChecksAconfigFlag,
+                Stubs.ChecksFlag,
             )
             .run()
             .expectClean()
     }
 
-    fun testChecksAconfigFlagGating_notInAllowlist_raisesError() {
+    fun testChecksFlagGating_notInAllowlist_raisesError() {
         val project =
             project()
                 .name("notallowedArtifactId")
@@ -852,10 +852,10 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                         """
                   package test.pkg
 
-                  import androidx.annotation.ChecksAconfigFlag
+                  import androidx.annotation.ChecksFlag
 
                   object FlagsCompat {
-                      @ChecksAconfigFlag("test.pkg.myFlag")
+                      @ChecksFlag("test.pkg.myFlag")
                       fun myFlag() { return true; }
                   }
                   """
@@ -882,7 +882,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                         )
                         .indented(),
                     Stubs.FlaggedApi,
-                    Stubs.ChecksAconfigFlag,
+                    Stubs.ChecksFlag,
                 )
 
         lint()
@@ -898,7 +898,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
             )
     }
 
-    fun testChecksAconfigFlagGating_withBetaVersion_raisesError() {
+    fun testChecksFlagGating_withBetaVersion_raisesError() {
         val project =
             project()
                 .name("allowedArtifactId")
@@ -917,10 +917,10 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                         """
                   package test.pkg
 
-                  import androidx.annotation.ChecksAconfigFlag
+                  import androidx.annotation.ChecksFlag
 
                   object FlagsCompat {
-                      @ChecksAconfigFlag("test.pkg.myFlag")
+                      @ChecksFlag("test.pkg.myFlag")
                       fun myFlag() { return true; }
                   }
                   """
@@ -947,7 +947,7 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                         )
                         .indented(),
                     Stubs.FlaggedApi,
-                    Stubs.ChecksAconfigFlag,
+                    Stubs.ChecksFlag,
                 )
 
         lint()
@@ -971,14 +971,14 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                         """
           package test.pkg;
 
-          import androidx.annotation.ChecksAconfigFlag;
-          import androidx.annotation.RequiresAconfigFlag;
+          import androidx.annotation.ChecksFlag;
+          import androidx.annotation.RequiresFlag;
 
           public class FlagsCompat {
-              @ChecksAconfigFlag(MY_FLAG)
+              @ChecksFlag(MY_FLAG)
               public boolean myFlag() { return true; }
 
-              @RequiresAconfigFlag(MY_FLAG)
+              @RequiresFlag(MY_FLAG)
               public void requiresMyFlag() { }
 
               private static String MY_FLAG = "test.pkg.myFlag";
@@ -986,18 +986,18 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
           """
                     )
                     .indented(),
-                Stubs.ChecksAconfigFlag,
-                Stubs.RequiresAconfigFlag,
+                Stubs.ChecksFlag,
+                Stubs.RequiresFlag,
             )
             .run()
             .expect(
                 """
         src/test/pkg/FlagsCompat.java:7: Error: Failed to obtain string value for aconfig flag. The value argument must be an inline string. [AndroidXFlaggedApi]
-            @ChecksAconfigFlag(MY_FLAG)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            @ChecksFlag(MY_FLAG)
+            ~~~~~~~~~~~~~~~~~~~~
         src/test/pkg/FlagsCompat.java:10: Error: Failed to obtain string value for aconfig flag. The value argument must be an inline string. [AndroidXFlaggedApi]
-            @RequiresAconfigFlag(MY_FLAG)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            @RequiresFlag(MY_FLAG)
+            ~~~~~~~~~~~~~~~~~~~~~~
         2 errors
         """
             )
@@ -1010,14 +1010,14 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
                         """
           package test.pkg
 
-          import androidx.annotation.ChecksAconfigFlag
-          import androidx.annotation.RequiresAconfigFlag
+          import androidx.annotation.ChecksFlag
+          import androidx.annotation.RequiresFlag
 
           object FlagsCompat {
-              @ChecksAconfigFlag(myFlag)
+              @ChecksFlag(myFlag)
               fun myFlag() { return true; }
 
-              @RequiresAconfigFlag(myFlag)
+              @RequiresFlag(myFlag)
               fun requiresMyFlag() { }
           }
 
@@ -1025,18 +1025,18 @@ class FlaggedApiDetectorTest : LintDetectorTest() {
           """
                     )
                     .indented(),
-                Stubs.ChecksAconfigFlag,
-                Stubs.RequiresAconfigFlag,
+                Stubs.ChecksFlag,
+                Stubs.RequiresFlag,
             )
             .run()
             .expect(
                 """
         src/test/pkg/FlagsCompat.kt:7: Error: Failed to obtain string value for aconfig flag. The value argument must be an inline string. [AndroidXFlaggedApi]
-            @ChecksAconfigFlag(myFlag)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~
+            @ChecksFlag(myFlag)
+            ~~~~~~~~~~~~~~~~~~~
         src/test/pkg/FlagsCompat.kt:10: Error: Failed to obtain string value for aconfig flag. The value argument must be an inline string. [AndroidXFlaggedApi]
-            @RequiresAconfigFlag(myFlag)
-            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+            @RequiresFlag(myFlag)
+            ~~~~~~~~~~~~~~~~~~~~~
         2 errors
         """
             )

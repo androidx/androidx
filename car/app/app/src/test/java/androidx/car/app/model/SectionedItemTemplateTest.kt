@@ -169,6 +169,40 @@ class SectionedItemTemplateTest {
     }
 
     @Test
+    fun build_throwsException_whenFilterChipSectionIsNotFirst() {
+        try {
+            SectionedItemTemplate.Builder()
+                .addSection(RowSection.Builder().build())
+                .addSection(buildFilterChipSection())
+                .build()
+            assertWithMessage("Expected builder to throw exception, but it didn't").fail()
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message).contains("must be the first section")
+        }
+    }
+
+    @Test
+    fun build_throwsException_whenMultipleFilterChipSections() {
+        try {
+            SectionedItemTemplate.Builder()
+                .addSection(buildFilterChipSection())
+                .addSection(buildFilterChipSection())
+                .build()
+            assertWithMessage("Expected builder to throw exception, but it didn't").fail()
+        } catch (e: IllegalArgumentException) {
+            assertThat(e.message).contains("Only one FilterChipSection is allowed")
+        }
+    }
+
+    @Test
+    fun build_allowsFilterChipSectionAsFirstSection() {
+        val section = buildFilterChipSection()
+        val template = SectionedItemTemplate.Builder().addSection(section).build()
+
+        assertThat(template.sections).containsExactly(section)
+    }
+
+    @Test
     fun addAction_throwsException_whenNotFabConstrained() {
         try {
             // Back action is not allowed as a FAB
@@ -266,4 +300,10 @@ class SectionedItemTemplateTest {
 
     private fun createRowWithMediaAction(): Row =
         Row.Builder().setTitle("Bananas").addAction(Action.MEDIA_PLAYBACK).build()
+
+    private fun buildFilterChipSection(): FilterChipSection {
+        return FilterChipSection.Builder()
+            .addItem(FilterChip.Builder().setTitle("Chip").setOnClickListener {}.build())
+            .build()
+    }
 }

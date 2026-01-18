@@ -37,6 +37,7 @@ import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 
 /**
@@ -191,7 +192,7 @@ internal constructor(
                         serializer = serializer,
                         corruptionHandler = corruptionHandler,
                         migrations = dataMigrations,
-                        scope = CoroutineScope(coroutineDispatcher),
+                        scope = CoroutineScope(coroutineDispatcher + SupervisorJob()),
                     )
                 } else {
                     DataStoreFactory.create(
@@ -199,7 +200,7 @@ internal constructor(
                         serializer = serializer,
                         corruptionHandler = corruptionHandler,
                         migrations = dataMigrations,
-                        scope = CoroutineScope(coroutineDispatcher),
+                        scope = CoroutineScope(coroutineDispatcher + SupervisorJob()),
                     )
                 }
                     as? CurrentDataProviderStore

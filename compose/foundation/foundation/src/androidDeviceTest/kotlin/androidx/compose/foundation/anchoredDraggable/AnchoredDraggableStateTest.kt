@@ -34,6 +34,7 @@ import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.C
+import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.D
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableMinFlingVelocity
@@ -235,6 +236,28 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
 
         assertWithMessage("Current state").that(state.currentValue).isEqualTo(B)
         assertWithMessage("Target state").that(state.targetValue).isEqualTo(B)
+    }
+
+    @Test
+    fun anchoredDraggable_targetValue_shouldBeEqualToCurrentValue_multipleAnchorsAtSameOffset() {
+        val (state, _) =
+            createStateAndModifier(
+                initialValue = B,
+                orientation = Orientation.Vertical,
+                anchors =
+                    DraggableAnchors {
+                        A at 1000f
+                        B at 0f
+                        C at 0f
+                        D at 0f
+                    },
+            )
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        runBlocking { state.snapTo(C) }
+        assertThat(state.currentValue).isEqualTo(C)
+        assertThat(state.targetValue).isEqualTo(C)
     }
 
     @Test
@@ -487,6 +510,7 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
                 remember {
                     createStateAndModifier(initialValue = B, orientation = Orientation.Horizontal)
                 }
+            @Suppress("FrequentlyChangingValue")
             progress = state.progress(from = A, to = B)
             Box(Modifier.fillMaxSize()) {
                 Box(

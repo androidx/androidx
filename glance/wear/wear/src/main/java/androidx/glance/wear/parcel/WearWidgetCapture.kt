@@ -25,7 +25,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import androidx.glance.wear.WearWidgetRawContent
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 internal object WearWidgetCapture {
     const val PENDING_INTENT_KEY = "pending_intents"
@@ -33,7 +32,6 @@ internal object WearWidgetCapture {
     /**
      * Directly capture a RemoteCompose document and gather the pending intents used in the layout.
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     internal suspend fun capture(
         context: Context,
         creationDisplayInfo: CreationDisplayInfo,

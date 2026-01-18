@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
@@ -43,7 +44,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -100,7 +100,6 @@ class RadioButtonScreenshotTest {
     }
 
     @Test
-    @Ignore("b/355413615")
     fun radioButton_lightTheme_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
@@ -117,11 +116,14 @@ class RadioButtonScreenshotTest {
         // synchronization. Instead just wait until after the ripples are finished animating.
         Thread.sleep(300)
 
-        assertSelectableAgainstGolden("radioButton_lightTheme_pressed")
+        if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            assertSelectableAgainstGolden("radioButton_lightTheme_pressed_post_api_34")
+        } else {
+            assertSelectableAgainstGolden("radioButton_lightTheme_pressed")
+        }
     }
 
     @Test
-    @Ignore("b/355413615")
     fun radioButton_darkTheme_pressed() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
@@ -138,7 +140,11 @@ class RadioButtonScreenshotTest {
         // synchronization. Instead just wait until after the ripples are finished animating.
         Thread.sleep(300)
 
-        assertSelectableAgainstGolden("radioButton_darkTheme_pressed")
+        if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            assertSelectableAgainstGolden("radioButton_darkTheme_pressed_post_api_34")
+        } else {
+            assertSelectableAgainstGolden("radioButton_darkTheme_pressed")
+        }
     }
 
     @Test

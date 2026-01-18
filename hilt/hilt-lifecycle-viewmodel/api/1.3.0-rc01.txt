@@ -1,0 +1,10 @@
+// Signature format: 4.0
+package androidx.hilt.lifecycle.viewmodel {
+
+  public final class HiltViewModelFactory {
+    method @KotlinOnly public static androidx.lifecycle.ViewModelProvider.Factory HiltViewModelFactory(android.content.Context context, androidx.lifecycle.ViewModelProvider.Factory delegateFactory);
+    method @InaccessibleFromKotlin public static androidx.lifecycle.ViewModelProvider.Factory create(android.content.Context context, androidx.lifecycle.ViewModelProvider.Factory delegateFactory);
+  }
+
+}
+

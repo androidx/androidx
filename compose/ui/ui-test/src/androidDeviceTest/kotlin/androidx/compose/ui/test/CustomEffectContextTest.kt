@@ -42,7 +42,6 @@ import org.junit.runner.RunWith
  * Tests for passing a custom CoroutineContext when [running a ComposeUiTest][runComposeUiTest].
  * Similar tests are available for ComposeTestRule in compose:ui:ui-test-junit4
  */
-@Suppress("ComposeTestRuleDispatcher")
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalTestApi::class)

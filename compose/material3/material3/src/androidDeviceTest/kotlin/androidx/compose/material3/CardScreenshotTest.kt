@@ -16,6 +16,7 @@
 
 package androidx.compose.material3
 
+import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,7 +44,6 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -260,7 +260,6 @@ class CardScreenshotTest {
     }
 
     @Test
-    @Ignore("b/355413615")
     fun filledCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
@@ -272,11 +271,14 @@ class CardScreenshotTest {
             }
         }
 
-        assertPressed("filledCard_pressed")
+        if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            assertPressed("filledCard_pressed_post_api_34")
+        } else {
+            assertPressed("filledCard_pressed")
+        }
     }
 
     @Test
-    @Ignore("b/355413615")
     fun elevatedCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
@@ -288,11 +290,14 @@ class CardScreenshotTest {
             }
         }
 
-        assertPressed("elevatedCard_pressed")
+        if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            assertPressed("elevatedCard_pressed_post_api_34")
+        } else {
+            assertPressed("elevatedCard_pressed")
+        }
     }
 
     @Test
-    @Ignore("b/355413615")
     fun outlinedCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
@@ -304,7 +309,11 @@ class CardScreenshotTest {
             }
         }
 
-        assertPressed("outlinedCard_pressed")
+        if (SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            assertPressed("outlinedCard_pressed_post_api_34")
+        } else {
+            assertPressed("outlinedCard_pressed")
+        }
     }
 
     @Test

@@ -260,7 +260,7 @@ internal class Page(
 
         if (pdfFormFillingConfig.isFormFillingEnabled()) {
             formWidgetInfos
-                ?.filter { !it.readOnly }
+                ?.filter { !it.isReadOnly }
                 ?.forEach {
                     formWidgetHighlightRect.set(it.widgetRect)
                     formWidgetHighlightRect.offset(locationInView.left, locationInView.top)

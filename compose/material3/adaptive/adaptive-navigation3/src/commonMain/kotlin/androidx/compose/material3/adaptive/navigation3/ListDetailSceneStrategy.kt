@@ -36,10 +36,15 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
+import kotlin.jvm.JvmName
 
 /**
  * Creates and remembers a [ListDetailSceneStrategy].
  *
+ * @param shouldHandleSinglePaneLayout whether [ListDetailSceneStrategy] should apply when only a
+ *   single pane is displayed. By default, this is false and instead yields to the next
+ *   [SceneStrategy] in the chain. If true, single pane layouts will instead be handled internally
+ *   by the Material adaptive scaffold instead of the Navigation 3 system.
  * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the list-detail scaffold should arrange its
@@ -53,14 +58,21 @@ import androidx.navigation3.scene.SceneStrategyScope
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 public fun <T : Any> rememberListDetailSceneStrategy(
+    shouldHandleSinglePaneLayout: Boolean = false,
     backNavigationBehavior: BackNavigationBehavior =
         BackNavigationBehavior.PopUntilScaffoldValueChange,
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
 ): ListDetailSceneStrategy<T> {
-    return remember(backNavigationBehavior, directive, adaptStrategies) {
+    return remember(
+        shouldHandleSinglePaneLayout,
+        backNavigationBehavior,
+        directive,
+        adaptStrategies,
+    ) {
         ListDetailSceneStrategy(
+            shouldHandleSinglePaneLayout = shouldHandleSinglePaneLayout,
             backNavigationBehavior = backNavigationBehavior,
             directive = directive,
             adaptStrategies = adaptStrategies,
@@ -75,6 +87,10 @@ public fun <T : Any> rememberListDetailSceneStrategy(
  * panes will be displayed together if the window size is sufficiently large, and will automatically
  * adapt if the window size changes, for example, on a foldable device.
  *
+ * @param shouldHandleSinglePaneLayout whether [ListDetailSceneStrategy] should apply when only a
+ *   single pane is displayed. By default, this is false and instead yields to the next
+ *   [SceneStrategy] in the chain. If true, single pane layouts will instead be handled internally
+ *   by the Material adaptive scaffold instead of the Navigation 3 system.
  * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the list-detail scaffold should arrange its
@@ -87,6 +103,7 @@ public fun <T : Any> rememberListDetailSceneStrategy(
  */
 @ExperimentalMaterial3AdaptiveApi
 public class ListDetailSceneStrategy<T : Any>(
+    @get:JvmName("shouldHandleSinglePaneLayout") public val shouldHandleSinglePaneLayout: Boolean,
     public val backNavigationBehavior: BackNavigationBehavior,
     public val directive: PaneScaffoldDirective,
     public val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
@@ -141,12 +158,11 @@ public class ListDetailSceneStrategy<T : Any>(
                 scaffoldType = ThreePaneScaffoldType.ListDetail(detailPlaceholder ?: {}),
             )
 
-        // TODO(b/417475283): decide if/how we should handle scenes with only a single pane
-        if (scene.currentScaffoldValue.paneCount <= 1) {
-            return null
+        return when {
+            scene.currentScaffoldValue.paneCount == 1 && shouldHandleSinglePaneLayout -> scene
+            scene.currentScaffoldValue.paneCount <= 1 -> null
+            else -> scene
         }
-
-        return scene
     }
 
     internal sealed interface PaneMetadata {

@@ -22,7 +22,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
 
     defaultConfig {
         applicationId = "androidx.camera.integration.core"
@@ -114,7 +114,7 @@ dependencies {
     androidTestImplementation("androidx.palette:palette:1.0.0")
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation("org.jetbrains.kotlinx:atomicfu:0.13.1")
-    androidTestImplementation(project(":exifinterface:exifinterface"))
+    androidTestImplementation("androidx.exifinterface:exifinterface:1.4.2")
 
     testImplementation(libs.kotlinCoroutinesAndroid)
     testImplementation(libs.kotlinCoroutinesTest)

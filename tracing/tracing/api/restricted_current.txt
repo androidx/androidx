@@ -130,7 +130,7 @@ package androidx.tracing {
 
   @kotlin.PublishedApi internal final class ProtoPool {
     ctor public ProtoPool(boolean isDebug);
-    method public androidx.tracing.PooledTracePacketArray? obtainTracePacketArray();
+    method public androidx.tracing.PooledTracePacketArray obtainTracePacketArray();
     method public long poolableCount();
   }
 

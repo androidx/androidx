@@ -16,13 +16,15 @@
 
 package androidx.glance.wear.cache
 
-import android.content.Context
+import androidx.datastore.core.DataStoreFactory
 import androidx.glance.wear.ContainerInfo
 import androidx.glance.wear.WidgetInstanceId
-import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.test.runTest
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
@@ -30,8 +32,19 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [Config.TARGET_SDK])
 class WearWidgetCacheTest {
-    private val context: Context = ApplicationProvider.getApplicationContext()
-    private val cacheUnderTest = WearWidgetCache(context, DATASTORE_FILE_NAME)
+
+    @get:Rule val tmpFolder: TemporaryFolder = TemporaryFolder.builder().assureDeletion().build()
+    private lateinit var cacheUnderTest: WearWidgetCache
+
+    @Before
+    fun setUp() {
+        val dataStore =
+            DataStoreFactory.create(
+                serializer = WearWidgetCacheSerializer,
+                produceFile = { tmpFolder.newFile(DATASTORE_FILE_NAME) },
+            )
+        cacheUnderTest = WearWidgetCache(dataStore)
+    }
 
     @Test
     fun setAndGetContainerSpec_restoresValue() = runTest {
@@ -45,7 +58,6 @@ class WearWidgetCacheTest {
 
     @Test
     fun setAndGetContainerSpec_withMultipleTypes_restoresValues() = runTest {
-        val cache = WearWidgetCache(context, DATASTORE_FILE_NAME)
         val spec1 = WidgetContainerSpec(300f, 400f)
         val spec2 = WidgetContainerSpec(100f, 200f)
 

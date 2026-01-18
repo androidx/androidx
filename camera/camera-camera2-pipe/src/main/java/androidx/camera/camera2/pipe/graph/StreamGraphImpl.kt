@@ -101,6 +101,9 @@ constructor(
         return imageSourceMap[streamId]
     }
 
+    fun getCameraStreamConfig(streamId: StreamId) =
+        _streamMap.entries.firstOrNull { it.value.id == streamId }?.key
+
     init {
         val outputConfigListBuilder = mutableListOf<OutputConfig>()
         val internalOutputConfigMap = mutableMapOf<OutputStream.Config, OutputConfig>()

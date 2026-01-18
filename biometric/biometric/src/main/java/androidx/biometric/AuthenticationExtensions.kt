@@ -17,6 +17,7 @@
 
 package androidx.biometric
 
+import androidx.activity.ComponentActivity
 import androidx.biometric.internal.ui.getConfirmCredentialActivityLauncher
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -42,7 +43,7 @@ import java.util.concurrent.Executor
  * @sample androidx.biometric.samples.activitySample
  */
 @Suppress("ExecutorRegistration")
-public fun FragmentActivity.registerForAuthenticationResult(
+public fun ComponentActivity.registerForAuthenticationResult(
     callbackExecutor: Executor,
     resultCallback: AuthenticationResultCallback,
 ): AuthenticationResultLauncher {
@@ -77,7 +78,7 @@ public fun FragmentActivity.registerForAuthenticationResult(
  * @see FragmentActivity.registerForAuthenticationResult(Executor, AuthenticationResultCallback)
  */
 @Suppress("ExecutorRegistration")
-public fun FragmentActivity.registerForAuthenticationResult(
+public fun ComponentActivity.registerForAuthenticationResult(
     resultCallback: AuthenticationResultCallback
 ): AuthenticationResultLauncher {
     return AuthenticationResultRegistry()

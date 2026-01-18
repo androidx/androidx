@@ -26,9 +26,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.pdf.FragmentUtils.scenarioLoadDocument
 import androidx.pdf.actions.TwoFingerSwipeDownAction
 import androidx.pdf.actions.TwoFingerSwipeUpAction
-import androidx.pdf.ink.R as InkR
 import androidx.pdf.ink.R as PdfInkR
-import androidx.pdf.ink.model.ApplyInProgressException
 import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.util.Preconditions
 import androidx.pdf.view.PdfView
@@ -38,17 +36,13 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.action.ViewActions.doubleClick
-import androidx.test.espresso.action.ViewActions.pressBack
 import androidx.test.espresso.action.ViewActions.swipeDown
 import androidx.test.espresso.action.ViewActions.swipeLeft
 import androidx.test.espresso.action.ViewActions.swipeUp
-import androidx.test.espresso.assertion.ViewAssertions.doesNotExist
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers.isDialog
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
@@ -56,10 +50,8 @@ import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
+import kotlinx.coroutines.test.runTest
 import org.hamcrest.CoreMatchers.not
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.greaterThan
-import org.hamcrest.Matchers.lessThan
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Before
@@ -113,7 +105,7 @@ class EditablePdfViewerFragmentTestSuite {
         scenarioLoadDocument(
             scenario = scenario,
             filename = TEST_DOCUMENT_FILE,
-            nextState = Lifecycle.State.STARTED,
+            nextState = Lifecycle.State.RESUMED,
             orientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT,
         ) {
             onView(withId(PdfR.id.pdfLoadingProgressBar)).check(matches(isDisplayed()))
@@ -131,6 +123,39 @@ class EditablePdfViewerFragmentTestSuite {
     }
 
     @Test
+    fun testEditablePdfViewerFragment_endToEndAnnotationFlow() = runTest {
+        if (!isRequiredSdkExtensionAvailable()) return@runTest
+
+        lateinit var fragment: TestEditablePdfViewerFragment
+        scenario.onFragment { fragment = it }
+        loadDocumentAndSetupFragment()
+        enterEditMode()
+
+        // 1. Create an annotation and apply the edits.
+        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
+        fragment.pdfApplyEditsIdlingResource.increment()
+        fragment.applyDraftEdits()
+        onIdle()
+
+        // 2. Store the annotations from the current document.
+        val originalAnnotations = fragment.fetchAnnotations(pageNum = 0)
+        assertThat(originalAnnotations).isNotEmpty()
+
+        // 3. Save the document with annotations to a new file.
+        val destinationUri = TestUtils.createFile(DESTINATION_FILE_NAME)
+        fragment.writeTo(destinationUri.toPfd())
+
+        // 4. Load the newly saved document.
+        fragment.pdfLoadingIdlingResource.increment()
+        fragment.documentUri = destinationUri
+        onIdle()
+
+        // 5. Verify the annotations of the new document.
+        val savedAnnotations = fragment.fetchAnnotations(0)
+        assertThat(savedAnnotations).isEqualTo(originalAnnotations)
+    }
+
+    @Test
     fun testEditablePdfViewerFragment_viewerMode_singleFingerNavigation() {
         if (!isRequiredSdkExtensionAvailable()) return
 
@@ -143,7 +168,7 @@ class EditablePdfViewerFragmentTestSuite {
         onIdle()
 
         val pageAfterSwipeUp = getCurrentPageNumber()
-        assertThat(pageAfterSwipeUp, greaterThan(initialPage))
+        assertThat(pageAfterSwipeUp).isGreaterThan(initialPage)
 
         // Scroll Down (to previous page)
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeDown())
@@ -151,7 +176,7 @@ class EditablePdfViewerFragmentTestSuite {
         onIdle()
 
         val pageAfterSwipeDown = getCurrentPageNumber()
-        assertThat(pageAfterSwipeDown, lessThan(pageAfterSwipeUp))
+        assertThat(pageAfterSwipeDown).isLessThan(pageAfterSwipeUp)
     }
 
     @Test
@@ -164,14 +189,9 @@ class EditablePdfViewerFragmentTestSuite {
         // Perform a swipe (single touch) on the pdfContentLayout to create an annotation.
         onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
 
-        // Press back and verify discard dialog appears due to unsaved changes to check if
-        // annotation is created.
-        onView(withId(PdfR.id.pdfContentLayout)).perform(pressBack())
-        onIdle()
-
-        onView(withText(InkR.string.discard_changes_dialog_title))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
+        var hasUnsavedChanges = false
+        scenario.onFragment { fragment -> hasUnsavedChanges = fragment.hasUnsavedChanges }
+        assertThat(hasUnsavedChanges).isTrue()
     }
 
     @Test
@@ -189,7 +209,7 @@ class EditablePdfViewerFragmentTestSuite {
         onIdle()
 
         val pageAfterTwoFingerSwipeUp = getCurrentPageNumber()
-        assertThat(pageAfterTwoFingerSwipeUp, greaterThan(initialPageInEditMode))
+        assertThat(pageAfterTwoFingerSwipeUp).isGreaterThan(initialPageInEditMode)
 
         // Perform a two-finger swipe down.
         onView(withId(PdfR.id.pdfContentLayout)).perform(TwoFingerSwipeDownAction())
@@ -197,59 +217,7 @@ class EditablePdfViewerFragmentTestSuite {
         onIdle()
 
         val pageAfterTwoFingerSwipeDown = getCurrentPageNumber()
-        assertThat(pageAfterTwoFingerSwipeDown, lessThan(pageAfterTwoFingerSwipeUp))
-    }
-
-    @Test
-    fun testEditablePdfViewerFragment_exitEditModeWithNoUnsavedChanges_exitsWithoutShowingDialog() {
-        if (!isRequiredSdkExtensionAvailable()) return
-
-        loadDocumentAndSetupFragment()
-        enterEditMode()
-
-        // No annotations made, so no unsaved changes.
-        onView(withId(PdfR.id.pdfContentLayout)).perform(pressBack())
-        onIdle()
-
-        onView(withText(InkR.string.discard_changes_dialog_title)).check(doesNotExist())
-        onView(withId(R.id.edit_fab)).check(matches(isDisplayed())) // Back in viewer mode
-    }
-
-    @Test
-    fun testEditablePdfViewerFragment_exitEditModeWithUnsavedChanges_showsDiscardDialog() {
-        if (!isRequiredSdkExtensionAvailable()) return
-
-        loadDocumentAndSetupFragment()
-        enterEditMode()
-
-        // Create an annotation
-        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
-
-        // 1. Press back, dialog should appear
-        onView(withId(PdfR.id.pdfContentLayout)).perform(pressBack())
-        onIdle()
-        onView(withText(InkR.string.discard_changes_dialog_title))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
-
-        // 2. Click "Keep editing", dialog disappears, still in edit mode
-        onView(withText(InkR.string.keep_editing_button)).perform(click())
-        onIdle()
-        onView(withText(InkR.string.discard_changes_dialog_title)).check(doesNotExist())
-        onView(withId(R.id.edit_fab)).check(matches(not(isDisplayed()))) // Still in edit mode
-
-        // 3. Press back again, dialog reappears
-        onView(withId(PdfR.id.pdfContentLayout)).perform(pressBack())
-        onIdle()
-        onView(withText(InkR.string.discard_changes_dialog_title))
-            .inRoot(isDialog())
-            .check(matches(isDisplayed()))
-
-        // 4. Click "Discard", dialog disappears, back in viewer mode
-        onView(withText(InkR.string.discard_button)).perform(click())
-        onIdle()
-        onView(withText(InkR.string.discard_changes_dialog_title)).check(doesNotExist())
-        onView(withId(R.id.edit_fab)).check(matches(isDisplayed())) // Back to viewer mode
+        assertThat(pageAfterTwoFingerSwipeDown).isLessThan(pageAfterTwoFingerSwipeUp)
     }
 
     @Test
@@ -275,6 +243,7 @@ class EditablePdfViewerFragmentTestSuite {
 
         scenario.onFragment { fragment ->
             assertThat(fragment.isEditModeEnabled).isFalse()
+
             assertThat(fragment.onExitEditModeCalled).isTrue()
         }
     }
@@ -292,42 +261,19 @@ class EditablePdfViewerFragmentTestSuite {
 
         // Apply draft edits
         scenario.onFragment { fragment ->
+            assertThat(fragment.hasUnsavedChanges).isTrue()
             assertThat(fragment.isApplyEditsInProgress).isFalse()
             fragment.pdfApplyEditsIdlingResource.increment()
             fragment.applyDraftEdits()
-            assertThat(fragment.isApplyEditsInProgress).isTrue()
         }
 
         onIdle()
 
         // Verify success callback was called and progress is finished
         scenario.onFragment { fragment ->
+            assertThat(fragment.hasUnsavedChanges).isFalse()
             assertThat(fragment.onApplyEditsSuccessCalled).isTrue()
             assertThat(fragment.isApplyEditsInProgress).isFalse()
-        }
-    }
-
-    @Test
-    fun testEditablePdfViewerFragment_applyDraftEdits_throwsIfInProgress() {
-        if (!isRequiredSdkExtensionAvailable()) return
-
-        loadDocumentAndSetupFragment()
-        enterEditMode()
-        onView(withId(PdfR.id.pdfContentLayout)).perform(swipeLeft())
-        onIdle()
-
-        scenario.onFragment { fragment ->
-            // 1. Start the first apply operation
-            fragment.pdfApplyEditsIdlingResource.increment()
-            fragment.applyDraftEdits()
-            assertThat(fragment.isApplyEditsInProgress).isTrue()
-
-            // 2. Attempt a second apply operation immediately and verify it throws
-            try {
-                fragment.applyDraftEdits()
-            } catch (e: Exception) {
-                assertThat(e).isInstanceOf(ApplyInProgressException::class.java)
-            }
         }
     }
 
@@ -456,24 +402,6 @@ class EditablePdfViewerFragmentTestSuite {
     }
 
     @Test
-    fun testEditablePdfViewerFragment_toolbarPopupDismissed_OnBackPress() {
-        if (!isRequiredSdkExtensionAvailable()) return
-
-        loadDocumentAndSetupFragment()
-
-        enterEditMode()
-
-        // Click again to show brush slider
-        onView(withId(PdfInkR.id.pen_button)).perform(click())
-
-        onView(withId(PdfInkR.id.brush_size_selector)).check(matches(isDisplayed()))
-        // Press back to show discard dialog
-        onView(withId(PdfR.id.pdfContentLayout)).perform(pressBack())
-        // Assert brush size selector is not displayed
-        onView(withId(PdfInkR.id.brush_size_selector)).check(matches(not(isDisplayed())))
-    }
-
-    @Test
     fun testEditablePdfViewerFragment_annotationToolbar_isConfigPopupVisible() {
         if (!isRequiredSdkExtensionAvailable()) return
 
@@ -529,6 +457,7 @@ class EditablePdfViewerFragmentTestSuite {
 
     companion object {
         private const val TEST_DOCUMENT_FILE = "sample.pdf"
+        private const val DESTINATION_FILE_NAME = "destination.pdf"
         private const val REQUIRED_EXTENSION_VERSION = 18
 
         fun isRequiredSdkExtensionAvailable(): Boolean {

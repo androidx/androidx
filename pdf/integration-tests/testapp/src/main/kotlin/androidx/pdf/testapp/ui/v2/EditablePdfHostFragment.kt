@@ -23,16 +23,25 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.ParcelFileDescriptor
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import android.widget.ProgressBar
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.RequiresExtension
 import androidx.appcompat.app.AlertDialog
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.PARENT_ID
+import androidx.constraintlayout.widget.ConstraintLayout.LayoutParams.WRAP_CONTENT
+import androidx.core.view.isVisible
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.pdf.PdfWriteHandle
 import androidx.pdf.ink.EditablePdfViewerFragment
 import androidx.pdf.ink.R
+import androidx.pdf.testapp.R as testR
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.snackbar.Snackbar
 import java.io.IOException
 import kotlinx.coroutines.launch
 
@@ -49,9 +58,23 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
 
     private val discardDialog: AlertDialog by lazy { createDiscardDialog(requireContext()) }
 
+    private lateinit var loadingProgressBar: ProgressBar
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         if (context is FragmentListener) fragmentListener = context
+    }
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?,
+    ): View? {
+        val rootView =
+            super.onCreateView(inflater, container, savedInstanceState) as? ConstraintLayout
+        loadingProgressBar = createProgressBar()
+        rootView?.addView(loadingProgressBar)
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -64,10 +87,20 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
                     is SaveState.Success -> {
                         isEditModeEnabled = false
                         viewModel.resetSaveState()
+                        loadingProgressBar.isVisible = false
                     }
 
                     is SaveState.Error -> {
                         viewModel.resetSaveState()
+                        loadingProgressBar.isVisible = false
+                        Snackbar.make(
+                            requireView(),
+                            getString(
+                                testR.string.write_error_message,
+                                state.error.message.toString(),
+                            ),
+                            Snackbar.LENGTH_SHORT,
+                        )
                         // Show error dialog or log error
                     }
 
@@ -76,7 +109,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
                         fragmentListener?.onSaveComplete()
                     }
                     SaveState.Saving -> {
-                        // No-op or show loading indicator
+                        loadingProgressBar.isVisible = true
                     }
                 }
             }
@@ -95,6 +128,11 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
 
     override fun onApplyEditsFailed(error: Throwable) {
         super.onApplyEditsFailed(error)
+        Snackbar.make(
+            requireView(),
+            getString(testR.string.apply_error_message, error.message.toString()),
+            Snackbar.LENGTH_SHORT,
+        )
         fragmentListener?.onSaveComplete()
     }
 
@@ -157,6 +195,19 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
             null
         }
     }
+
+    private fun createProgressBar(): ProgressBar =
+        ProgressBar(requireContext()).apply {
+            id = View.generateViewId()
+            layoutParams =
+                ConstraintLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).apply {
+                    startToStart = PARENT_ID
+                    endToEnd = PARENT_ID
+                    topToTop = PARENT_ID
+                    bottomToBottom = PARENT_ID
+                }
+            visibility = View.GONE
+        }
 
     /**
      * Interface for the host Activity to listen to state changes and events from the

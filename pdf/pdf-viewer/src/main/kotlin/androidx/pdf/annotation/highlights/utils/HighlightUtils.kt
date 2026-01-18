@@ -19,9 +19,13 @@ package androidx.pdf.annotation.highlights.utils
 import android.graphics.Matrix
 import android.graphics.PointF
 import android.graphics.RectF
+import android.os.DeadObjectException
 import androidx.pdf.PdfDocument
 import androidx.pdf.annotation.models.PathPdfObject
 import androidx.pdf.content.PdfPageTextContent
+import androidx.pdf.exceptions.RequestFailedException
+import androidx.pdf.exceptions.RequestMetadata
+import androidx.pdf.util.CONTENT_SELECTION_REQUEST_NAME
 
 /** Applies a [Matrix] transformation to this point, returning a new [PointF]. */
 internal fun PointF.applyTransform(transform: Matrix): PointF {
@@ -72,9 +76,29 @@ internal suspend fun PdfDocument.calculateHighlightRects(
     startPdfPoint: PointF,
     currentPdfPoint: PointF,
 ): List<RectF> {
-    //  TODO(b/470235782): Handle exceptions from the remote PDF document service
-    val selection =
-        getSelectionBounds(pageNum, startPdfPoint, currentPdfPoint) ?: return emptyList()
+    try {
+        val selection =
+            getSelectionBounds(pageNum, startPdfPoint, currentPdfPoint) ?: return emptyList()
+        return selection.selectedContents.filterIsInstance<PdfPageTextContent>().flatMap {
+            it.bounds
+        }
+    } catch (e: DeadObjectException) {
+        throw createSelectionFailedException(pageNum, e)
+    }
+}
 
-    return selection.selectedContents.filterIsInstance<PdfPageTextContent>().flatMap { it.bounds }
+internal fun createSelectionFailedException(
+    pageNum: Int,
+    throwable: Throwable,
+): RequestFailedException {
+    return RequestFailedException(
+        requestMetadata =
+            RequestMetadata(
+                requestName = CONTENT_SELECTION_REQUEST_NAME,
+                pageRange = IntRange(pageNum, pageNum),
+            ),
+        throwable = throwable,
+        // Non-critical failure, user can retry the operation.
+        showError = false,
+    )
 }

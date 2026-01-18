@@ -87,6 +87,7 @@ import java.nio.file.Paths
 import kotlinx.coroutines.launch
 
 private const val TAG = "JXR-SurfaceEntity-SurfaceEntityImageActivity"
+private const val MAX_CORNER_RADIUS = 0.5f
 
 object VideoButtonColors {
     val StandardPlayback = Color(0xFF42A5F5) // Blue 400
@@ -363,6 +364,10 @@ class SurfaceEntityImageActivity : ComponentActivity() {
     fun VideoPlayerControls(session: Session, arDevice: ArDevice) {
         var featherRadiusX by remember { mutableFloatStateOf(0.0f) }
         var featherRadiusY by remember { mutableFloatStateOf(0.0f) }
+        var isQuadShape by remember {
+            mutableStateOf(surfaceEntity?.shape is SurfaceEntity.Shape.Quad)
+        }
+        var cornerRadius by remember { mutableFloatStateOf(0.0f) }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
@@ -373,7 +378,7 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Feather Radius", fontSize = 10.sp)
+                Text(text = "Feather Radius", fontSize = 10.sp, color = Color.White)
                 Column {
                     Slider(
                         value = featherRadiusX,
@@ -402,9 +407,27 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                 }
             }
             Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "Corner Radius", fontSize = 10.sp, color = Color.White)
+                Slider(
+                    value = cornerRadius,
+                    onValueChange = {
+                        cornerRadius = it
+                        val currentShape = surfaceEntity!!.shape
+                        if (currentShape is SurfaceEntity.Shape.Quad) {
+                            surfaceEntity!!.shape =
+                                SurfaceEntity.Shape.Quad(currentShape.extents, cornerRadius)
+                        }
+                    },
+                    valueRange = 0.0f..MAX_CORNER_RADIUS,
+                    enabled = isQuadShape,
+                )
+            }
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Button(
                     onClick = {
-                        surfaceEntity!!.shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f))
+                        surfaceEntity!!.shape =
+                            SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f), cornerRadius)
+                        isQuadShape = true
                         // Move the Quad-shaped canvas to a spot in front of the User.
                         surfaceEntity!!.setPose(
                             session.scene.perceptionSpace
@@ -421,10 +444,20 @@ class SurfaceEntityImageActivity : ComponentActivity() {
                 ) {
                     Text(text = "Set Quad", fontSize = 10.sp)
                 }
-                Button(onClick = { surfaceEntity!!.shape = SurfaceEntity.Shape.Sphere(1.0f) }) {
+                Button(
+                    onClick = {
+                        surfaceEntity!!.shape = SurfaceEntity.Shape.Sphere(1.0f)
+                        isQuadShape = false
+                    }
+                ) {
                     Text(text = "Set Vr360", fontSize = 10.sp)
                 }
-                Button(onClick = { surfaceEntity!!.shape = SurfaceEntity.Shape.Hemisphere(1.0f) }) {
+                Button(
+                    onClick = {
+                        surfaceEntity!!.shape = SurfaceEntity.Shape.Hemisphere(1.0f)
+                        isQuadShape = false
+                    }
+                ) {
                     Text(text = "Set Vr180", fontSize = 10.sp)
                 }
             } // end row

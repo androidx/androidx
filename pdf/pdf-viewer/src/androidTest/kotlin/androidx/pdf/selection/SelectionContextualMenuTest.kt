@@ -40,6 +40,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
+import kotlin.test.Ignore
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -138,6 +139,9 @@ class SelectionContextualMenuTest {
         }
     }
 
+    @Ignore(
+        "TODO: b/473956136 - Fails on devices without email clients (failing 100% Cuttlefish in post-submit). Update test, then re-enable."
+    )
     @Test
     fun testEmailSelection_showsEmailAddOptions() {
         with(ActivityScenario.launch(PdfViewTestActivity::class.java)) {

@@ -47,7 +47,7 @@ class SysUiSceneTransitionLayoutStartupHeroBenchmark(
             // elements for the quick settings but also nested SceneTransitionLayouts for each
             // notification.
             sysuiHeroBenchmarkScope()
-                .startDemoActivity(StlDemoConstants.SHADE_SCENE, notificationsInShade = 300)
+                .startDemoActivity(StlDemoConstants.SHADE_SCENE, notificationsInShade = 10)
         }
     }
 

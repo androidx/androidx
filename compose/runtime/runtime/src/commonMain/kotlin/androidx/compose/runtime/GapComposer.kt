@@ -25,16 +25,21 @@ import androidx.collection.MutableScatterMap
 import androidx.collection.MutableScatterSet
 import androidx.collection.ScatterSet
 import androidx.collection.mutableScatterSetOf
-import androidx.compose.runtime.changelist.ChangeList
-import androidx.compose.runtime.changelist.ComposerChangeListWriter
-import androidx.compose.runtime.changelist.FixupList
 import androidx.compose.runtime.collection.MultiValueMap
 import androidx.compose.runtime.collection.ScopeMap
-import androidx.compose.runtime.composer.gapbuffer.Anchor
+import androidx.compose.runtime.composer.GroupInfo
+import androidx.compose.runtime.composer.GroupKind
+import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.KeyInfo
 import androidx.compose.runtime.composer.gapbuffer.SlotReader
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
+import androidx.compose.runtime.composer.gapbuffer.asGapAnchor
+import androidx.compose.runtime.composer.gapbuffer.asGapBufferSlotTable
+import androidx.compose.runtime.composer.gapbuffer.changelist.ChangeList
+import androidx.compose.runtime.composer.gapbuffer.changelist.ComposerChangeListWriter
+import androidx.compose.runtime.composer.gapbuffer.changelist.FixupList
+import androidx.compose.runtime.composer.gapbuffer.compositionGroupOf
 import androidx.compose.runtime.internal.IntRef
 import androidx.compose.runtime.internal.invokeComposable
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
@@ -47,6 +52,8 @@ import androidx.compose.runtime.tooling.ComposeStackTraceFrame
 import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionErrorContextImpl
+import androidx.compose.runtime.tooling.CompositionGroup
+import androidx.compose.runtime.tooling.CompositionInstance
 import androidx.compose.runtime.tooling.LocalCompositionErrorContext
 import androidx.compose.runtime.tooling.LocalInspectionTables
 import androidx.compose.runtime.tooling.attachComposeStackTrace
@@ -54,33 +61,15 @@ import androidx.compose.runtime.tooling.buildTrace
 import androidx.compose.runtime.tooling.findLocation
 import androidx.compose.runtime.tooling.findSubcompositionContextGroup
 import androidx.compose.runtime.tooling.traceForGroup
-import kotlin.collections.plus
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
-import kotlin.jvm.JvmInline
-
-private class GroupInfo(
-    /**
-     * The current location of the slot relative to the start location of the pending slot changes
-     */
-    var slotIndex: Int,
-
-    /**
-     * The current location of the first node relative the start location of the pending node
-     * changes
-     */
-    var nodeIndex: Int,
-
-    /** The current number of nodes the group contains after changes have been applied */
-    var nodeCount: Int,
-)
 
 /**
  * Pending starts when the key is different than expected indicating that the structure of the tree
  * changed. It is used to determine how to update the nodes and the slot table when changes to the
  * structure of the tree is detected.
  */
-private class Pending(val keyInfos: MutableList<KeyInfo>, val startIndex: Int) {
+private class GapPending(val keyInfos: MutableList<KeyInfo>, val startIndex: Int) {
     var groupIndex: Int = 0
 
     init {
@@ -231,9 +220,9 @@ internal class GapComposer(
 
     /** The composition that owns this composer */
     override val composition: CompositionImpl,
-) : Composer {
-    private val pendingStack = Stack<Pending?>()
-    private var pending: Pending? = null
+) : InternalComposer() {
+    private val pendingStack = Stack<GapPending?>()
+    private var pending: GapPending? = null
     private var nodeIndex: Int = 0
     private var groupNodeCount: Int = 0
     private var rGroupIndex: Int = 0
@@ -254,7 +243,7 @@ internal class GapComposer(
     private var childrenComposing: Int = 0
     private var compositionToken: Int = 0
 
-    private var sourceMarkersEnabled =
+    override var sourceMarkersEnabled =
         parentContext.collectingSourceInformation || parentContext.collectingCallByInformation
 
     private val derivedStateObserver =
@@ -270,16 +259,16 @@ internal class GapComposer(
 
     private val invalidateStack = Stack<RecomposeScopeImpl>()
 
-    internal var isComposing = false
+    override var isComposing = false
         private set
 
     internal var isDisposed = false
         private set
 
-    internal val areChildrenComposing
+    override val areChildrenComposing
         get() = childrenComposing > 0
 
-    internal val hasPendingChanges: Boolean
+    override val hasPendingChanges: Boolean
         get() = changes.isNotEmpty()
 
     internal var reader: SlotReader = slotTable.openReader().also { it.close() }
@@ -293,16 +282,16 @@ internal class GapComposer(
     private var writer: SlotWriter = insertTable.openWriter().also { it.close(true) }
     private var writerHasAProvider = false
     private var providerCache: PersistentCompositionLocalMap? = null
-    internal var deferredChanges: ChangeList? = null
+    override var deferredChanges: ChangeList? = null
 
     private val changeListWriter = ComposerChangeListWriter(this, changes)
-    private var insertAnchor: Anchor = insertTable.read { it.anchor(0) }
+    private var insertAnchor: GapAnchor = insertTable.read { it.anchor(0) }
     private var insertFixups = FixupList()
 
     private var pausable: Boolean = false
     private var shouldPauseCallback: ShouldPauseCallback? = null
 
-    internal val errorContext: CompositionErrorContextImpl? = CompositionErrorContextImpl(this)
+    override val errorContext: CompositionErrorContextImpl? = CompositionErrorContextImpl(this)
         get() = if (parentContext.stackTraceEnabled) field else null
 
     override val applyCoroutineContext: CoroutineContext =
@@ -573,7 +562,7 @@ internal class GapComposer(
         }
     }
 
-    internal fun changesApplied() {
+    override fun changesApplied() {
         providerUpdates = null
     }
 
@@ -623,7 +612,7 @@ internal class GapComposer(
     }
 
     @OptIn(InternalComposeApi::class)
-    internal fun dispose() {
+    override fun dispose() {
         trace("Compose:Composer.dispose") {
             parentContext.unregisterComposer(this)
             deactivate()
@@ -632,14 +621,14 @@ internal class GapComposer(
         }
     }
 
-    internal fun deactivate() {
+    override fun deactivate() {
         invalidateStack.clear()
         invalidations.clear()
         changes.clear()
         providerUpdates = null
     }
 
-    internal fun forceRecomposeScopes(): Boolean {
+    override fun forceRecomposeScopes(): Boolean {
         return if (!forceRecomposeScopes) {
             forceRecomposeScopes = true
             forciblyRecompose = true
@@ -745,12 +734,12 @@ internal class GapComposer(
         reusing = reusingGroup >= 0
     }
 
-    fun startReuseFromRoot() {
+    override fun startReuseFromRoot() {
         reusingGroup = rootKey
         reusing = true
     }
 
-    fun endReuseFromRoot() {
+    override fun endReuseFromRoot() {
         requirePrecondition(!isComposing && reusingGroup == rootKey) {
             "Cannot disable reuse from root if it was caused by other groups"
         }
@@ -1048,7 +1037,7 @@ internal class GapComposer(
         get() {
             val data = _compositionData
             if (data == null) {
-                val newData = CompositionDataImpl(composition)
+                val newData = GapCompositionDataImpl(composition)
                 _compositionData = newData
                 return newData
             }
@@ -1281,7 +1270,7 @@ internal class GapComposer(
     internal val changeCount
         get() = changes.size
 
-    internal val currentRecomposeScope: RecomposeScopeImpl?
+    override val currentRecomposeScope: RecomposeScopeImpl?
         get() =
             invalidateStack.let {
                 if (childrenComposing == 0 && it.isNotEmpty()) it.peek() else null
@@ -1364,12 +1353,12 @@ internal class GapComposer(
                 // The group is the same as what was generated last time.
                 startReaderGroup(isNode, data)
             } else {
-                pending = Pending(reader.extractKeys(), nodeIndex)
+                pending = GapPending(reader.extractKeys(), nodeIndex)
             }
         }
 
         val pending = pending
-        var newPending: Pending? = null
+        var newPending: GapPending? = null
         if (pending != null) {
             // Check to see if the key was generated last time from the keys collected above.
             val keyInfo = pending.getNext(key, objectKey)
@@ -1423,14 +1412,14 @@ internal class GapComposer(
                     )
                 pending.registerInsert(insertKeyInfo, nodeIndex - pending.startIndex)
                 pending.recordUsed(insertKeyInfo)
-                newPending = Pending(mutableListOf(), if (isNode) 0 else nodeIndex)
+                newPending = GapPending(mutableListOf(), if (isNode) 0 else nodeIndex)
             }
         }
 
         enterGroup(isNode, newPending)
     }
 
-    private fun enterGroup(isNode: Boolean, newPending: Pending?) {
+    private fun enterGroup(isNode: Boolean, newPending: GapPending?) {
         // When entering a group all the information about the parent should be saved, to be
         // restored when end() is called, and all the tracking counters set to initial state for the
         // group.
@@ -1990,10 +1979,10 @@ internal class GapComposer(
                 else it
             }
 
-    internal fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean {
+    override fun tryImminentInvalidation(scope: RecomposeScopeImpl, instance: Any?): Boolean {
         val anchor = scope.anchor ?: return false
         val slotTable = reader.table
-        val location = anchor.toIndexFor(slotTable)
+        val location = anchor.asGapAnchor().toIndexFor(slotTable)
         if (isComposing && location >= reader.currentGroup) {
             // if we are invalidating a scope that is going to be traversed during this
             // composition.
@@ -2294,16 +2283,18 @@ internal class GapComposer(
     override fun insertMovableContentReferences(
         references: List<Pair<MovableContentStateReference, MovableContentStateReference?>>
     ) {
-        var completed = false
-        try {
-            insertMovableContentGuarded(references)
-            completed = true
-        } finally {
-            if (completed) {
-                cleanUpCompose()
-            } else {
-                // if we finished with error, cleanup more aggressively
-                abortRoot()
+        trace("Compose:insertMovableContent") {
+            var completed = false
+            try {
+                insertMovableContentGuarded(references)
+                completed = true
+            } finally {
+                if (completed) {
+                    cleanUpCompose()
+                } else {
+                    // if we finished with error, cleanup more aggressively
+                    abortRoot()
+                }
             }
         }
     }
@@ -2314,13 +2305,13 @@ internal class GapComposer(
         changeListWriter.withChangeList(lateChanges) {
             changeListWriter.resetSlots()
             references.fastForEach { (to, from) ->
-                val anchor = to.anchor
-                val location = to.slotTable.anchorIndex(anchor)
+                val anchor = to.anchor.asGapAnchor()
+                val toSlotTable = to.slotStorage.asGapBufferSlotTable()
+                val location = toSlotTable.anchorIndex(anchor)
                 val effectiveNodeIndex = IntRef()
                 // Insert content at the anchor point
                 changeListWriter.determineMovableContentNodeIndex(effectiveNodeIndex, anchor)
                 if (from == null) {
-                    val toSlotTable = to.slotTable
                     if (toSlotTable == insertTable) {
                         // We are going to compose reading the insert table which will also
                         // perform an insert. This would then cause both a reader and a writer to
@@ -2334,7 +2325,7 @@ internal class GapComposer(
 
                         createFreshInsertTable()
                     }
-                    to.slotTable.read { reader ->
+                    toSlotTable.read { reader ->
                         reader.reposition(location)
                         changeListWriter.moveReaderToAbsolute(location)
                         val offsetChanges = ChangeList()
@@ -2362,8 +2353,9 @@ internal class GapComposer(
                     // state recorded in the recomposer, retrieve that now if we can. If not the
                     // state is still in its original location, recompose over it there.
                     val resolvedState = parentContext.movableContentStateResolve(from)
-                    val fromTable = resolvedState?.slotTable ?: from.slotTable
-                    val fromAnchor = resolvedState?.slotTable?.anchor(0) ?: from.anchor
+                    val resolvedSlotTable = resolvedState?.slotStorage?.asGapBufferSlotTable()
+                    val fromTable = resolvedSlotTable ?: from.slotStorage.asGapBufferSlotTable()
+                    val fromAnchor = (resolvedSlotTable?.anchor(0) ?: from.anchor).asGapAnchor()
                     val nodesToInsert = fromTable.collectNodesFrom(fromAnchor)
 
                     // Insert nodes if necessary
@@ -2372,7 +2364,7 @@ internal class GapComposer(
                             nodesToInsert,
                             effectiveNodeIndex,
                         )
-                        if (to.slotTable == slotTable) {
+                        if (toSlotTable == slotTable) {
                             // Inserting the content into the current slot table then we need to
                             // update the virtual node counts. Otherwise, we are inserting into
                             // a new slot table which is being created, not updated, so the virtual
@@ -2392,7 +2384,7 @@ internal class GapComposer(
 
                     fromTable.read { reader ->
                         withReader(reader) {
-                            val newLocation = fromTable.anchorIndex(fromAnchor)
+                            val newLocation = fromTable.anchorIndex(fromAnchor.asGapAnchor())
                             reader.reposition(newLocation)
                             changeListWriter.moveReaderToAbsolute(newLocation)
                             val offsetChanges = ChangeList()
@@ -2495,7 +2487,7 @@ internal class GapComposer(
     }
 
     @OptIn(ComposeToolingApi::class)
-    internal fun stackTraceForValue(value: Any?): ComposeStackTrace {
+    override fun stackTraceForValue(value: Any?): ComposeStackTrace {
         val stackTrace =
             slotTable
                 .findLocation { it === value || (it as? RememberObserverHolder)?.wrapped === value }
@@ -2503,7 +2495,7 @@ internal class GapComposer(
                     stackTraceForGroup(groupIndex, dataIndex) + parentStackTrace()
                 } ?: emptyList()
 
-        return ComposeStackTrace(stackTrace)
+        return ComposeStackTrace(stackTrace, sourceMarkersEnabled)
     }
 
     @OptIn(ComposeToolingApi::class)
@@ -2514,7 +2506,8 @@ internal class GapComposer(
                     addAll(writer.buildTrace())
                     addAll(reader.buildTrace())
                     addAll(parentStackTrace())
-                }
+                },
+                sourceMarkersEnabled,
             )
         } else {
             null
@@ -2523,13 +2516,16 @@ internal class GapComposer(
     private fun stackTraceForGroup(group: Int, dataOffset: Int?): List<ComposeStackTraceFrame> =
         slotTable.read { it.traceForGroup(group, dataOffset) }
 
-    fun parentStackTrace(): List<ComposeStackTraceFrame> {
+    override fun parentStackTrace(): List<ComposeStackTraceFrame> {
         val parentComposition = parentContext.composition as? CompositionImpl ?: return emptyList()
-        val position = parentComposition.slotTable.findSubcompositionContextGroup(parentContext)
-
+        val position =
+            parentComposition.slotStorage
+                .asGapBufferSlotTable()
+                .findSubcompositionContextGroup(parentContext)
         return if (position != null) {
-            parentComposition.slotTable.read { reader -> reader.traceForGroup(position, 0) } +
-                parentComposition.composer.parentStackTrace()
+            parentComposition.slotStorage.asGapBufferSlotTable().read { reader ->
+                reader.traceForGroup(position, 0)
+            } + parentComposition.composer.parentStackTrace()
         } else {
             emptyList()
         }
@@ -2540,7 +2536,7 @@ internal class GapComposer(
      * which must be applied by [ControlledComposition.applyChanges] to build the tree implied by
      * [content].
      */
-    internal fun composeContent(
+    override fun composeContent(
         invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
         content: @Composable () -> Unit,
         shouldPause: ShouldPauseCallback?,
@@ -2554,7 +2550,7 @@ internal class GapComposer(
         }
     }
 
-    internal fun prepareCompose(block: () -> Unit) {
+    override fun prepareCompose(block: () -> Unit) {
         runtimeCheck(!isComposing) { "Preparing a composition while composing is not supported" }
         isComposing = true
         try {
@@ -2568,7 +2564,7 @@ internal class GapComposer(
      * Synchronously recompose all invalidated groups. This collects the changes which must be
      * applied by [ControlledComposition.applyChanges] to have an effect.
      */
-    internal fun recompose(
+    override fun recompose(
         invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
         shouldPause: ShouldPauseCallback?,
     ): Boolean {
@@ -2589,12 +2585,14 @@ internal class GapComposer(
         return false
     }
 
-    fun updateComposerInvalidations(invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>) {
+    override fun updateComposerInvalidations(
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>
+    ) {
         // Update any invalidations that have may have moved since they were added, removing any
         // that are no longer in the slot table.
         for (i in invalidations.lastIndex downTo 0) {
             val invalidation = invalidations[i]
-            val anchor = invalidation.scope.anchor
+            val anchor = invalidation.scope.anchor?.asGapAnchor()
             if (anchor != null && anchor.valid) {
                 if (invalidation.location != anchor.location)
                     invalidation.location = anchor.location
@@ -2606,7 +2604,7 @@ internal class GapComposer(
         // Add the requested invalidations
         invalidationsRequested.map.forEach { scope, instances ->
             scope as RecomposeScopeImpl
-            val location = scope.anchor?.location ?: return@forEach
+            val location = scope.anchor?.asGapAnchor()?.location ?: return@forEach
             invalidations.add(
                 Invalidation(scope, location, instances.takeUnless { it === ScopeInvalidated })
             )
@@ -2692,7 +2690,7 @@ internal class GapComposer(
         runtimeCheck(!nodeExpected) { "A call to createNode(), emitNode() or useNode() expected" }
     }
 
-    private fun recordInsert(anchor: Anchor) {
+    private fun recordInsert(anchor: GapAnchor) {
         if (insertFixups.isEmpty()) {
             changeListWriter.insertSlots(anchor, insertTable)
         } else {
@@ -2909,7 +2907,7 @@ internal class GapComposer(
         clearUpdatedNodeCounts()
     }
 
-    internal fun verifyConsistent() {
+    override fun verifyConsistent() {
         insertTable.verifyWellFormed()
     }
 
@@ -3125,7 +3123,7 @@ internal class GapComposer(
     }
 
     // This is only used in tests to ensure the stacks do not silently leak.
-    internal fun stacksSize(): Int {
+    override fun stacksSize(): Int {
         return entersStack.size +
             invalidateStack.size +
             providersInvalidStack.size +
@@ -3146,6 +3144,48 @@ internal class GapComposer(
     override fun recordUsed(scope: RecomposeScope) {
         (scope as? RecomposeScopeImpl)?.used = true
     }
+}
+
+internal class GapCompositionDataImpl(val composition: Composition) :
+    CompositionData, CompositionInstance {
+    private val slotTable
+        get() = (composition as CompositionImpl).slotStorage.asGapBufferSlotTable()
+
+    override val compositionGroups: Iterable<CompositionGroup>
+        get() = slotTable.compositionGroups
+
+    override val isEmpty: Boolean
+        get() = slotTable.isEmpty
+
+    override fun find(identityToFind: Any): CompositionGroup? = slotTable.find(identityToFind)
+
+    override fun hashCode(): Int = composition.hashCode() * 31
+
+    override fun equals(other: Any?): Boolean =
+        other is GapCompositionDataImpl && composition == other.composition
+
+    override val parent: CompositionInstance?
+        get() = composition.parent?.let { GapCompositionDataImpl(it) }
+
+    override val data: CompositionData
+        get() = this
+
+    override fun findContextGroup(): CompositionGroup? {
+        val parentSlotTable = composition.parent?.slotTable?.asGapBufferSlotTable() ?: return null
+        val context = composition.context ?: return null
+        return parentSlotTable.findSubcompositionContextGroup(context)?.let {
+            parentSlotTable.compositionGroupOf(it)
+        }
+    }
+
+    private val Composition.slotTable
+        get() = (this as? CompositionImpl)?.slotStorage
+
+    private val Composition.context
+        get() = (this as? CompositionImpl)?.parent
+
+    private val Composition.parent
+        get() = context?.composition
 }
 
 internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager) {
@@ -3291,7 +3331,7 @@ private fun Boolean.asInt() = if (this) 1 else 0
 
 private fun Int.asBool() = this != 0
 
-private fun SlotTable.collectNodesFrom(anchor: Anchor): List<Any?> {
+private fun SlotTable.collectNodesFrom(anchor: GapAnchor): List<Any?> {
     val result = mutableListOf<Any?>()
     read { reader ->
         val index = anchorIndex(anchor)
@@ -3352,24 +3392,6 @@ private fun SlotReader.nearestCommonRootOf(a: Int, b: Int, common: Int): Int {
 
 private val KeyInfo.joinedKey: Any
     get() = if (objectKey != null) JoinedKey(key, objectKey) else key
-
-/*
- * Group types used with [Composer.start] to differentiate between different types of groups
- */
-@JvmInline
-private value class GroupKind private constructor(val value: Int) {
-    inline val isNode
-        get() = value != Group.value
-
-    inline val isReusable
-        get() = value != Node.value
-
-    companion object {
-        val Group = GroupKind(0)
-        val Node = GroupKind(1)
-        val ReusableNode = GroupKind(2)
-    }
-}
 
 private val InvalidationLocationAscending =
     Comparator<Invalidation> { i1, i2 -> i1.location.compareTo(i2.location) }

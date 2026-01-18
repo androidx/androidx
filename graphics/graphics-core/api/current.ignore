@@ -53,6 +53,168 @@ AddedMethod: androidx.graphics.surface.SurfaceControlCompat.Transaction#setBuffe
     Added method androidx.graphics.surface.SurfaceControlCompat.Transaction.setBuffer$default(androidx.graphics.surface.SurfaceControlCompat.Transaction,androidx.graphics.surface.SurfaceControlCompat,android.hardware.HardwareBuffer,androidx.hardware.SyncFenceCompat,kotlin.jvm.functions.Function1,int,Object)
 
 
+AddedProperty: androidx.graphics.CanvasBufferedRenderer.RenderResult.Companion#ERROR_UNKNOWN:
+    Added property androidx.graphics.CanvasBufferedRenderer.RenderResult.Companion#ERROR_UNKNOWN
+AddedProperty: androidx.graphics.CanvasBufferedRenderer.RenderResult.Companion#SUCCESS:
+    Added property androidx.graphics.CanvasBufferedRenderer.RenderResult.Companion#SUCCESS
+AddedProperty: androidx.graphics.opengl.SyncStrategy.Companion#ALWAYS:
+    Added property androidx.graphics.opengl.SyncStrategy.Companion#ALWAYS
+AddedProperty: androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#EGL_COLOR_COMPONENT_TYPE_EXT:
+    Added property androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#EGL_COLOR_COMPONENT_TYPE_EXT
+AddedProperty: androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#EGL_COLOR_COMPONENT_TYPE_FIXED_EXT:
+    Added property androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#EGL_COLOR_COMPONENT_TYPE_FIXED_EXT
+AddedProperty: androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT:
+    Added property androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#EGL_COLOR_COMPONENT_TYPE_FLOAT_EXT
+AddedProperty: androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#RGBA_1010102:
+    Added property androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#RGBA_1010102
+AddedProperty: androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#RGBA_8888:
+    Added property androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#RGBA_8888
+AddedProperty: androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#RGBA_F16:
+    Added property androidx.graphics.opengl.egl.EGLConfigAttributes.Companion#RGBA_F16
+AddedProperty: androidx.graphics.opengl.egl.EGLSpec.Companion#V14:
+    Added property androidx.graphics.opengl.egl.EGLSpec.Companion#V14
+AddedProperty: androidx.graphics.opengl.egl.EGLVersion.Companion#Unknown:
+    Added property androidx.graphics.opengl.egl.EGLVersion.Companion#Unknown
+AddedProperty: androidx.graphics.opengl.egl.EGLVersion.Companion#V14:
+    Added property androidx.graphics.opengl.egl.EGLVersion.Companion#V14
+AddedProperty: androidx.graphics.opengl.egl.EGLVersion.Companion#V15:
+    Added property androidx.graphics.opengl.egl.EGLVersion.Companion#V15
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_IDENTITY:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_IDENTITY
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_MIRROR_HORIZONTAL:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_MIRROR_HORIZONTAL
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_MIRROR_VERTICAL:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_MIRROR_VERTICAL
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_ROTATE_180:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_ROTATE_180
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_ROTATE_270:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_ROTATE_270
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_ROTATE_90:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#BUFFER_TRANSFORM_ROTATE_90
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#CHANGE_FRAME_RATE_ALWAYS:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#CHANGE_FRAME_RATE_ALWAYS
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#FRAME_RATE_COMPATIBILITY_DEFAULT:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#FRAME_RATE_COMPATIBILITY_DEFAULT
+AddedProperty: androidx.graphics.surface.SurfaceControlCompat.Companion#FRAME_RATE_COMPATIBILITY_FIXED_SOURCE:
+    Added property androidx.graphics.surface.SurfaceControlCompat.Companion#FRAME_RATE_COMPATIBILITY_FIXED_SOURCE
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_ADOBE_RGB:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_ADOBE_RGB
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_BT2020:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_BT2020
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_BT2020_HLG:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_BT2020_HLG
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_BT2020_PQ:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_BT2020_PQ
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_BT601_525:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_BT601_525
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_BT601_625:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_BT601_625
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_BT709:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_BT709
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_DCI_P3:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_DCI_P3
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_DEPTH:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_DEPTH
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_DISPLAY_P3:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_DISPLAY_P3
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_DYNAMIC_DEPTH:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_DYNAMIC_DEPTH
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_HEIF:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_HEIF
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_JFIF:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_JFIF
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_JPEG_R:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_JPEG_R
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_SCRGB:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_SCRGB
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_SCRGB_LINEAR:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_SCRGB_LINEAR
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_SRGB:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_SRGB
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_SRGB_LINEAR:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_SRGB_LINEAR
+AddedProperty: androidx.hardware.DataSpace.Companion#DATASPACE_UNKNOWN:
+    Added property androidx.hardware.DataSpace.Companion#DATASPACE_UNKNOWN
+AddedProperty: androidx.hardware.DataSpace.Companion#RANGE_EXTENDED:
+    Added property androidx.hardware.DataSpace.Companion#RANGE_EXTENDED
+AddedProperty: androidx.hardware.DataSpace.Companion#RANGE_FULL:
+    Added property androidx.hardware.DataSpace.Companion#RANGE_FULL
+AddedProperty: androidx.hardware.DataSpace.Companion#RANGE_LIMITED:
+    Added property androidx.hardware.DataSpace.Companion#RANGE_LIMITED
+AddedProperty: androidx.hardware.DataSpace.Companion#RANGE_UNSPECIFIED:
+    Added property androidx.hardware.DataSpace.Companion#RANGE_UNSPECIFIED
+AddedProperty: androidx.hardware.SyncFenceCompat.Companion#SIGNAL_TIME_INVALID:
+    Added property androidx.hardware.SyncFenceCompat.Companion#SIGNAL_TIME_INVALID
+AddedProperty: androidx.hardware.SyncFenceCompat.Companion#SIGNAL_TIME_PENDING:
+    Added property androidx.hardware.SyncFenceCompat.Companion#SIGNAL_TIME_PENDING
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_ANDROID_CLIENT_BUFFER:
+    Added property androidx.opengl.EGLExt.Companion#EGL_ANDROID_CLIENT_BUFFER
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_ANDROID_IMAGE_NATIVE_BUFFER:
+    Added property androidx.opengl.EGLExt.Companion#EGL_ANDROID_IMAGE_NATIVE_BUFFER
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_ANDROID_NATIVE_FENCE_SYNC:
+    Added property androidx.opengl.EGLExt.Companion#EGL_ANDROID_NATIVE_FENCE_SYNC
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_CONDITION_SATISFIED_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_CONDITION_SATISFIED_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_EXT_BUFFER_AGE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_EXT_BUFFER_AGE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_EXT_GL_COLORSPACE_BT2020_PQ:
+    Added property androidx.opengl.EGLExt.Companion#EGL_EXT_GL_COLORSPACE_BT2020_PQ
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH:
+    Added property androidx.opengl.EGLExt.Companion#EGL_EXT_GL_COLORSPACE_DISPLAY_P3_PASSTHROUGH
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_EXT_GL_COLORSPACE_SCRGB:
+    Added property androidx.opengl.EGLExt.Companion#EGL_EXT_GL_COLORSPACE_SCRGB
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_EXT_PIXEL_FORMAT_FLOAT:
+    Added property androidx.opengl.EGLExt.Companion#EGL_EXT_PIXEL_FORMAT_FLOAT
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_FALSE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_FALSE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_FOREVER_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_FOREVER_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_IMG_CONTEXT_PRIORITY:
+    Added property androidx.opengl.EGLExt.Companion#EGL_IMG_CONTEXT_PRIORITY
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_FENCE_SYNC:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_FENCE_SYNC
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_GL_COLORSPACE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_GL_COLORSPACE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_IMAGE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_IMAGE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_IMAGE_BASE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_IMAGE_BASE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_NO_CONFIG_CONTEXT:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_NO_CONFIG_CONTEXT
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_PARTIAL_UPDATE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_PARTIAL_UPDATE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_SURFACELESS_CONTEXT:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_SURFACELESS_CONTEXT
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_SWAP_BUFFERS_WITH_DAMAGE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_KHR_WAIT_SYNC:
+    Added property androidx.opengl.EGLExt.Companion#EGL_KHR_WAIT_SYNC
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SIGNALED_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SIGNALED_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SYNC_CONDITION_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SYNC_CONDITION_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SYNC_FENCE_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SYNC_FENCE_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SYNC_FLUSH_COMMANDS_BIT_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SYNC_FLUSH_COMMANDS_BIT_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SYNC_NATIVE_FENCE_ANDROID:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SYNC_NATIVE_FENCE_ANDROID
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SYNC_PRIOR_COMMANDS_COMPLETE_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SYNC_STATUS_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SYNC_STATUS_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_SYNC_TYPE_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_SYNC_TYPE_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_TIMEOUT_EXPIRED_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_TIMEOUT_EXPIRED_KHR
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_TRUE:
+    Added property androidx.opengl.EGLExt.Companion#EGL_TRUE
+AddedProperty: androidx.opengl.EGLExt.Companion#EGL_UNSIGNALED_KHR:
+    Added property androidx.opengl.EGLExt.Companion#EGL_UNSIGNALED_KHR
+
+
 RemovedFromJava: androidx.graphics.opengl.egl.EGLConfigAttributes.Builder#to(int, int):
     Source breaking change: method androidx.graphics.opengl.egl.EGLConfigAttributes.Builder.to(int,int) can no longer be resolved from Java source
 RemovedFromJava: androidx.graphics.opengl.egl.EGLConfigAttributesKt#EGLConfigAttributes(kotlin.jvm.functions.Function1<? super androidx.graphics.opengl.egl.EGLConfigAttributes.Builder,kotlin.Unit>):

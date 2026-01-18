@@ -17,21 +17,27 @@
 package androidx.pdf.ink.view
 
 import android.content.Context
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.LinearLayout
 import android.widget.LinearLayout.HORIZONTAL
+import android.widget.LinearLayout.VERTICAL
 import androidx.annotation.RestrictTo
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.core.os.HandlerCompat
+import androidx.core.view.isVisible
 import androidx.pdf.ink.R
 import androidx.pdf.ink.view.brush.BrushSizeSelectorView
 import androidx.pdf.ink.view.brush.model.BrushSizes.highlightBrushSizes
@@ -42,6 +48,13 @@ import androidx.pdf.ink.view.colorpalette.model.Emoji
 import androidx.pdf.ink.view.colorpalette.model.PaletteItem
 import androidx.pdf.ink.view.colorpalette.model.getHighlightPaletteItems
 import androidx.pdf.ink.view.colorpalette.model.getPenPaletteItems
+import androidx.pdf.ink.view.draganddrop.AnnotationToolbarTouchHandler
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
+import androidx.pdf.ink.view.draganddrop.ToolbarDragListener
+import androidx.pdf.ink.view.layout.AnnotationToolbarConstraintSet
 import androidx.pdf.ink.view.state.AnnotationToolbarState
 import androidx.pdf.ink.view.state.ToolbarEffect
 import androidx.pdf.ink.view.state.ToolbarInitializer
@@ -60,6 +73,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import org.jetbrains.annotations.VisibleForTesting
 
@@ -67,20 +82,23 @@ import org.jetbrains.annotations.VisibleForTesting
  * A toolbar that hosts a set of annotation tools for interacting with a PDF document.
  *
  * This custom [android.view.ViewGroup] contains a predefined set of [AnnotationToolView] buttons
- * such as pen, highlighter, eraser, etc. aligned based on the [LinearLayout.orientation] set.
+ * such as pen, highlighter, eraser, etc. aligned based on the [dockState] set.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class AnnotationToolbar
 @JvmOverloads
 constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
-    ConstraintLayout(context, attrs, defStyle) {
+    ConstraintLayout(context, attrs, defStyle), ToolbarDockState {
+
+    private val viewModel =
+        AnnotationToolbarViewModel(ToolbarInitializer.createInitialState(context))
 
     /**
      * A [android.view.ViewGroup] containing all the annotation tools button.
      *
-     * Custom tools can be dynamically added to this container using [LinearLayout.addView].
+     * Custom tools can be dynamically added to this container using [ViewGroup.addView].
      */
-    public val toolTray: LinearLayout
+    public val toolTray: ViewGroup
 
     /**
      * Controls the enabled state of the undo button.
@@ -91,7 +109,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     public var canUndo: Boolean = false
         set(value) {
             field = value
-            viewmodel.onAction(ToolbarIntent.UndoAvailabilityChanged(value))
+            viewModel.onAction(ToolbarIntent.UndoAvailabilityChanged(value))
         }
 
     /**
@@ -103,7 +121,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     public var canRedo: Boolean = false
         set(value) {
             field = value
-            viewmodel.onAction(ToolbarIntent.RedoAvailabilityChanged(value))
+            viewModel.onAction(ToolbarIntent.RedoAvailabilityChanged(value))
         }
 
     /**
@@ -111,11 +129,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
      * currently visible.
      */
     public val isConfigPopupVisible: Boolean
-        get() = with(viewmodel.state.value) { isColorPaletteVisible || isBrushSizeSliderVisible }
+        get() = with(viewModel.state.value) { isColorPaletteVisible || isBrushSizeSliderVisible }
 
     /** Dismisses any currently visible popups (such as the color palette or brush size slider). */
     public fun dismissPopups() {
-        viewmodel.onAction(ToolbarIntent.DismissPopups)
+        viewModel.onAction(ToolbarIntent.DismissPopups)
     }
 
     private var annotationToolbarListener: AnnotationToolbarListener? = null
@@ -127,16 +145,32 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     /** Clears any selection of tools on [AnnotationToolbar]. No-op if no tool is selected. */
     public fun clearToolSelection() {
-        viewmodel.onAction(ClearToolSelection)
+        viewModel.onAction(ClearToolSelection)
     }
 
     /** Reset the [AnnotationToolbar] to its initial state. */
     public fun reset() {
-        viewmodel.updateState(ToolbarInitializer.createInitialState(context = context))
+        viewModel.updateState(ToolbarInitializer.createInitialState(context = context))
     }
 
-    private val viewmodel =
-        AnnotationToolbarViewModel(ToolbarInitializer.createInitialState(context))
+    override var dockState: Int
+        get() = viewModel.state.value.dockedState
+        set(value) {
+            if (viewModel.state.value.dockedState == value) return
+
+            viewModel.onAction(ToolbarIntent.DockStateChanged(value))
+        }
+
+    /**
+     * Sets a listener to receive drag events when the toolbar is being moved and docked.
+     *
+     * @param dragListener The [ToolbarDragListener] to be notified of drag lifecycle events.
+     */
+    public fun setOnToolbarDragListener(dragListener: ToolbarDragListener) {
+        toolbarTouchHandler.setOnDragListener(dragListener)
+    }
+
+    private val constraintSet = AnnotationToolbarConstraintSet(this.context)
 
     private val pen: AnnotationToolView
     private val highlighter: AnnotationToolView
@@ -145,6 +179,8 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     private val undo: AnnotationToolView
     private val redo: AnnotationToolView
     private val toggleAnnotation: AnnotationToolView
+    private val collapsedIcon: AnnotationToolView
+    private val undoRedoContainer: LinearLayout
 
     private val brushSizeSelectorView: BrushSizeSelectorView
 
@@ -162,6 +198,14 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         ContextCompat.getDrawable(context, R.drawable.color_palette_icon_stroke)?.mutate()
     }
 
+    private val toolbarTouchHandler: AnnotationToolbarTouchHandler by lazy {
+        AnnotationToolbarTouchHandler(this) { event ->
+            // Intercepting a long press during a slide on the brush size selector is unintended.
+            // Ignore long press detection when the touch target is the brush size selector.
+            (brushSizeSelectorView.isVisible && brushSizeSelectorView.isTouchInView(event))
+        }
+    }
+
     // Required to disable any animation while performing screenshot tests
     @VisibleForTesting internal var areAnimationsEnabled: Boolean = true
 
@@ -169,7 +213,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         LayoutInflater.from(context).inflate(R.layout.annotation_toolbar, this, true)
         background = context.getDrawable(R.drawable.annotation_toolbar_background)
 
-        toolTray = findViewById(R.id.toolbar)
+        toolTray = findViewById(R.id.tool_tray)
         brushSizeSelectorView = findViewById(R.id.brush_size_selector)
         colorPaletteView = findViewById(R.id.color_palette)
         pen = findViewById(R.id.pen_button)
@@ -179,8 +223,28 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         undo = findViewById(R.id.undo_button)
         redo = findViewById(R.id.redo_button)
         toggleAnnotation = findViewById(R.id.toggle_annotation_button)
+        collapsedIcon = findViewById(R.id.collapsed_tool)
+        undoRedoContainer = findViewById(R.id.undo_redo_container)
 
         setupChildViews()
+    }
+
+    /**
+     * Expands the toolbar to show the full set of tools.
+     *
+     * The visual change is animated if animations are enabled.
+     */
+    public fun expandToolbar() {
+        viewModel.onAction(ToolbarIntent.ExpandToolbar)
+    }
+
+    /**
+     * Collapses the toolbar to a single icon.
+     *
+     * The visual change is animated if animations are enabled.
+     */
+    public fun collapseToolbar() {
+        viewModel.onAction(ToolbarIntent.CollapseToolbar)
     }
 
     private fun setupChildViews() {
@@ -190,20 +254,17 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     private fun setupToolTray() {
-        // default orientation
-        toolTray.orientation = HORIZONTAL
-
         // Set click listeners for all tool views
-        pen.setOnClickListener { viewmodel.onAction(ToolbarIntent.PenToolClicked) }
-        highlighter.setOnClickListener { viewmodel.onAction(ToolbarIntent.HighlighterToolClicked) }
-        eraser.setOnClickListener { viewmodel.onAction(ToolbarIntent.EraserToolClicked) }
+        pen.setOnClickListener { viewModel.onAction(ToolbarIntent.PenToolClicked) }
+        highlighter.setOnClickListener { viewModel.onAction(ToolbarIntent.HighlighterToolClicked) }
+        eraser.setOnClickListener { viewModel.onAction(ToolbarIntent.EraserToolClicked) }
         colorPaletteButton.setOnClickListener {
-            viewmodel.onAction(ToolbarIntent.ToggleColorPalette)
+            viewModel.onAction(ToolbarIntent.ToggleColorPalette)
         }
-        undo.setOnClickListener { viewmodel.onAction(ToolbarIntent.UndoClicked) }
-        redo.setOnClickListener { viewmodel.onAction(ToolbarIntent.RedoClicked) }
+        undo.setOnClickListener { viewModel.onAction(ToolbarIntent.UndoClicked) }
+        redo.setOnClickListener { viewModel.onAction(ToolbarIntent.RedoClicked) }
         toggleAnnotation.setOnClickListener {
-            viewmodel.onAction(ToolbarIntent.ToggleAnnotationVisibility)
+            viewModel.onAction(ToolbarIntent.ToggleAnnotationVisibility)
         }
     }
 
@@ -234,8 +295,21 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     }
 
     private suspend fun collectUiStates() = coroutineScope {
+        /**
+         * Collects any expensive UI updates (such as the toolbar's `dockedState`) only when they
+         * are distinct from the previous state.
+         */
         launch {
-            viewmodel.state.collect { state ->
+            viewModel.state
+                .map { it.dockedState }
+                .distinctUntilChanged()
+                .collect { dockedState -> updateDockState(dockedState) }
+        }
+
+        launch {
+            viewModel.state.collect { state ->
+                updateExpandedState(state)
+
                 pen.isSelected = state.selectedTool == PEN
                 highlighter.isSelected = state.selectedTool == HIGHLIGHTER
                 eraser.isSelected = state.selectedTool == ERASER
@@ -257,7 +331,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         }
 
         launch {
-            viewmodel.effects.collect {
+            viewModel.effects.collect {
                 when (it) {
                     is ToolbarEffect.ToolUpdated -> {
                         annotationToolbarListener?.onToolChanged(it.toolInfo)
@@ -279,7 +353,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private fun setupBrushSizeSlider() {
         brushSizeSelectorView.brushSizeSlider.addOnChangeListener { _, value, _ ->
-            viewmodel.onAction(ToolbarIntent.BrushSizeChanged(value.roundToInt()))
+            viewModel.onAction(ToolbarIntent.BrushSizeChanged(value.roundToInt()))
         }
     }
 
@@ -287,7 +361,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
         colorPaletteView.setPaletteItemSelectedListener(
             object : ColorPaletteView.PaletteItemSelectedListener {
                 override fun onItemSelected(index: Int, paletteItem: PaletteItem) {
-                    viewmodel.onAction(ToolbarIntent.ColorSelected(index, paletteItem))
+                    viewModel.onAction(ToolbarIntent.ColorSelected(index, paletteItem))
                 }
             }
         )
@@ -307,13 +381,13 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             var brushPreviewSize = 0f
             when (state.selectedTool) {
                 PEN -> {
-                    selectedBrushSizeIndex = viewmodel.state.value.penState.selectedBrushSizeIndex
+                    selectedBrushSizeIndex = viewModel.state.value.penState.selectedBrushSizeIndex
                     brushPreviewSize = penBrushSizes[selectedBrushSizeIndex].toPx(context)
                 }
 
                 HIGHLIGHTER -> {
                     selectedBrushSizeIndex =
-                        viewmodel.state.value.highlighterState.selectedBrushSizeIndex
+                        viewModel.state.value.highlighterState.selectedBrushSizeIndex
                     brushPreviewSize = highlightBrushSizes[selectedBrushSizeIndex].toPx(context)
                 }
             }
@@ -419,16 +493,61 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val savedState = ToolbarSavedState(superState)
-        savedState.toolbarState = viewmodel.state.value
+        savedState.toolbarState = viewModel.state.value
         return savedState
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is ToolbarSavedState) {
             super.onRestoreInstanceState(state.superState)
-            viewmodel.updateState(state.toolbarState)
+            viewModel.updateState(state.toolbarState)
         } else {
             super.onRestoreInstanceState(state)
+        }
+    }
+
+    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        return toolbarTouchHandler.onInterceptTouchEvent(event)
+    }
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event == null) return super.onTouchEvent(event)
+
+        return toolbarTouchHandler.onTouchEvent(event) || super.onTouchEvent(event)
+    }
+
+    private fun updateExpandedState(state: AnnotationToolbarState) {
+        if (areAnimationsEnabled) {
+            val transition = AutoTransition().apply { duration = AUTO_TRANSITION_DURATION }
+            TransitionManager.beginDelayedTransition(this, transition)
+        }
+
+        toolTray.isVisible = state.isExpanded
+        collapsedIcon.isVisible = !state.isExpanded
+    }
+
+    private fun updateDockState(dockedState: Int) {
+        when (dockedState) {
+            DOCK_STATE_START -> {
+                if (toolTray is LinearLayout) toolTray.orientation = VERTICAL
+                undoRedoContainer.orientation = VERTICAL
+                brushSizeSelectorView.orientation = VERTICAL
+                constraintSet.dockStateStart.applyTo(this)
+            }
+
+            DOCK_STATE_BOTTOM -> {
+                if (toolTray is LinearLayout) toolTray.orientation = HORIZONTAL
+                undoRedoContainer.orientation = HORIZONTAL
+                brushSizeSelectorView.orientation = HORIZONTAL
+                constraintSet.dockStateBottom.applyTo(this)
+            }
+
+            DOCK_STATE_END -> {
+                if (toolTray is LinearLayout) toolTray.orientation = VERTICAL
+                undoRedoContainer.orientation = VERTICAL
+                brushSizeSelectorView.orientation = VERTICAL
+                constraintSet.dockStateEnd.applyTo(this)
+            }
         }
     }
 
@@ -446,10 +565,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
          */
         public fun onToolChanged(toolInfo: AnnotationToolInfo)
 
-        /** Called when a undo button is clicked if [canUndo] is set to enabled. */
+        /** Called when an undo button is clicked if [canUndo] is set to enable. */
         public fun onUndo()
 
-        /** Called when a redo button is clicked if [canRedo] is set to enabled. */
+        /** Called when a redo button is clicked if [canRedo] is set to enable. */
         public fun onRedo()
 
         /**
@@ -467,4 +586,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
     internal companion object {
         private const val AUTO_TRANSITION_DURATION = 250L
     }
+}
+
+/** Helper function to check if a touch event is within the bounds of a given view. */
+internal fun View.isTouchInView(event: MotionEvent): Boolean {
+    val viewRect = Rect()
+    getHitRect(viewRect)
+    return viewRect.contains(event.x.toInt(), event.y.toInt())
 }

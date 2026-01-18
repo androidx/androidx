@@ -28,13 +28,59 @@ data class PackagePrefixKey(val packagePrefix: String, val identifierCount: Int)
 data class PackageStats(
     val packagePrefix: String,
     val identifierCount: Int,
-    var lowObfAppCount: Int,
+    var lowObfAppCount: Int = 0,
     var appCount: Int,
-    var classesSeen: Long,
-    var obfClassesSeen: Long,
-    var obfBytesSeen: Long,
-    var bytesSeen: Long,
-)
+    var classesSeen: Long = 0,
+    var obfClassesSeen: Long = 0,
+    var xmlClassesSeen: Long = 0,
+    var obfBytesSeen: Long = 0,
+    var bytesSeen: Long = 0,
+    var xmlBytesSeen: Long = 0,
+    private val ratiosSeen: MutableList<Double> = mutableListOf(),
+) {
+    fun obfuscationRatio(): Double {
+        return obfBytesSeen.toDouble() / (bytesSeen - xmlBytesSeen)
+    }
+
+    fun accumulate(other: PackageStats) {
+        appCount += other.appCount
+        lowObfAppCount += other.lowObfAppCount
+        classesSeen += other.classesSeen
+        obfClassesSeen += other.obfClassesSeen
+        xmlClassesSeen += other.xmlClassesSeen
+        bytesSeen += other.bytesSeen
+        obfBytesSeen += other.obfBytesSeen
+        xmlBytesSeen += other.xmlBytesSeen
+
+        if (other.ratiosSeen.isEmpty()) {
+            // only support calculating median when accumulating leaf PackageStats (from an app)
+            ratiosSeen.add(other.obfuscationRatio())
+        }
+    }
+
+    fun obfuscationRatioMedian(): Double? {
+        return computeMedian(ratiosSeen)
+    }
+
+    private fun computeMedian(list: List<Double>): Double? {
+        if (list.isEmpty()) return null
+
+        // Sort the list in ascending order
+        val sortedList = list.sorted()
+        val size = sortedList.size
+
+        return if (size % 2 == 0) {
+            // If the size is even, average the two middle elements
+            val midIndex = size / 2
+            val median = (sortedList[midIndex - 1] + sortedList[midIndex]) / 2.0
+            median
+        } else {
+            // If the size is odd, the median is the middle element
+            val midIndex = size / 2
+            sortedList[midIndex]
+        }
+    }
+}
 
 /**
  * Tracks stats respecting minification/obfuscation heuristics.
@@ -91,11 +137,6 @@ data class MinificationStats(
                                 PackageStats(
                                     packagePrefix = key.packagePrefix,
                                     identifierCount = key.identifierCount,
-                                    classesSeen = 0,
-                                    obfClassesSeen = 0,
-                                    bytesSeen = 0,
-                                    obfBytesSeen = 0,
-                                    lowObfAppCount = 0,
                                     appCount = 1,
                                 )
                             }
@@ -105,10 +146,16 @@ data class MinificationStats(
                                 if (isObfuscatedAccordingToMappingFile) {
                                     obfClassesSeen++
                                     obfBytesSeen += clazz.size
+                                } else if (clazz.usedByXml) {
+                                    // not obfuscated, but referenced by xml
+                                    xmlClassesSeen++
+                                    xmlBytesSeen += clazz.size
                                 }
 
                                 lowObfAppCount =
-                                    if (obfClassesSeen * 1.0 / classesSeen < 0.25) {
+                                    if (
+                                        obfClassesSeen.toDouble() / (classesSeen - xmlClassesSeen) < 0.25
+                                    ) {
                                         1
                                     } else {
                                         0
@@ -147,10 +194,10 @@ data class MinificationStats(
             }
 
             return MinificationStats(
-                minifiedClassesLowerAccuracy = isObfuscatedLowerCaseHits * 1.0 / classInfo.size,
+                minifiedClassesLowerAccuracy = isObfuscatedLowerCaseHits.toDouble() / classInfo.size,
                 minifiedClassesLengthAccuracy =
-                    isObfuscatedAppearsMinifiedHits * 1.0 / classInfo.size,
-                minifiedRate = isObfuscatedCount * 1.0 / classInfo.size,
+                    isObfuscatedAppearsMinifiedHits.toDouble() / classInfo.size,
+                minifiedRate = isObfuscatedCount.toDouble() / classInfo.size,
             )
         }
     }
@@ -194,7 +241,7 @@ data class R8Analysis(
                 (dexSha256ChecksumsR8JsonOnly.isNotEmpty() ||
                     dexSha256ChecksumsMatching.isNotEmpty())
         ) {
-            dexSha256ChecksumsMatching.size * 1.0 /
+            dexSha256ChecksumsMatching.size.toDouble() /
                 (dexSha256ChecksumsR8JsonOnly.size + dexSha256ChecksumsMatching.size)
         } else {
             null

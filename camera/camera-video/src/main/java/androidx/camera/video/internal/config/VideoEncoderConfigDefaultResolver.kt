@@ -81,7 +81,7 @@ public constructor(
 
         val videoSpecBitrate = videoSpec.bitrate
         val resolvedBitrate: Int =
-            if (videoSpecBitrate != VideoSpec.BITRATE_AUTO) {
+            if (videoSpecBitrate != VideoSpec.BITRATE_UNSPECIFIED) {
                 videoSpecBitrate
             } else {
                 Logger.d(TAG, "Using fallback VIDEO bitrate")

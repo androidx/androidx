@@ -957,18 +957,22 @@ package androidx.wear.compose.foundation.rotary {
   public final class RotaryScrollableDefaults {
     method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, optional androidx.compose.foundation.gestures.FlingBehavior? flingBehavior, optional boolean hapticFeedbackEnabled);
     method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior behavior(androidx.compose.foundation.gestures.ScrollableState, androidx.compose.foundation.gestures.FlingBehavior?, boolean, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider layoutInfoProvider, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional androidx.wear.compose.foundation.rotary.RotarySnapSensitivity snapSensitivity);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollableState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional androidx.wear.compose.foundation.rotary.RotarySnapSensitivity snapSensitivity);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollableState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional androidx.wear.compose.foundation.rotary.RotarySnapSensitivity snapSensitivity);
-    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional androidx.wear.compose.foundation.rotary.RotarySnapSensitivity snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.compose.foundation.gestures.ScrollableState scrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider layoutInfoProvider, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.ScalingLazyListState scrollableState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState scrollableState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
+    method @KotlinOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior(androidx.wear.compose.foundation.pager.PagerState pagerState, optional androidx.compose.ui.unit.Dp snapOffset, optional boolean hapticFeedbackEnabled, optional @FloatRange(from=0.0, to=1.0) float snapSensitivity);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior! snapBehavior-942rkJo(androidx.compose.foundation.gestures.ScrollableState!, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider!, float, boolean, androidx.compose.runtime.Composer!, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-Sb7vFlk(androidx.compose.foundation.gestures.ScrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider, float, boolean, int, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-YuiaVEA(androidx.wear.compose.foundation.lazy.ScalingLazyListState, float, boolean, int, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-YuiaVEA(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, float, boolean, int, androidx.compose.runtime.Composer?, int, int);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-YuiaVEA(androidx.wear.compose.foundation.pager.PagerState, float, boolean, int, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-DzVHIIc(androidx.wear.compose.foundation.lazy.ScalingLazyListState, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-DzVHIIc(androidx.wear.compose.foundation.lazy.TransformingLazyColumnState, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-DzVHIIc(androidx.wear.compose.foundation.pager.PagerState, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior snapBehavior-TN_CM5M(androidx.compose.foundation.gestures.ScrollableState, androidx.wear.compose.foundation.rotary.RotarySnapLayoutInfoProvider, float, boolean, @FloatRange(from=0.0, to=1.0) float, androidx.compose.runtime.Composer?, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior! snapBehavior-uFdPcIQ(androidx.wear.compose.foundation.lazy.ScalingLazyListState!, float, boolean, androidx.compose.runtime.Composer!, int, int);
     method @BytecodeOnly @Deprecated @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior! snapBehavior-uFdPcIQ(androidx.wear.compose.foundation.pager.PagerState!, float, boolean, androidx.compose.runtime.Composer!, int, int);
+    property public static float HighSnapSensitivity;
+    property public static float LowSnapSensitivity;
+    field public static final float HighSnapSensitivity = 0.8f;
     field public static final androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults INSTANCE;
+    field public static final float LowSnapSensitivity = 0.4f;
   }
 
   public final class RotaryScrollableKt {
@@ -987,19 +991,6 @@ package androidx.wear.compose.foundation.rotary {
     property public abstract int currentItemIndex;
     property public abstract float currentItemOffset;
     property public abstract int totalItemCount;
-  }
-
-  @kotlin.jvm.JvmInline public final value class RotarySnapSensitivity {
-    method @BytecodeOnly public static androidx.wear.compose.foundation.rotary.RotarySnapSensitivity! box-impl(int);
-    method @BytecodeOnly public int unbox-impl();
-    field public static final androidx.wear.compose.foundation.rotary.RotarySnapSensitivity.Companion Companion;
-  }
-
-  public static final class RotarySnapSensitivity.Companion {
-    method @BytecodeOnly public int getDefault-AoiQc-I();
-    method @BytecodeOnly public int getHigh-AoiQc-I();
-    property public androidx.wear.compose.foundation.rotary.RotarySnapSensitivity Default;
-    property public androidx.wear.compose.foundation.rotary.RotarySnapSensitivity High;
   }
 
 }

@@ -27,6 +27,7 @@ import static androidx.wear.protolayout.proto.LayoutElementProto.ArcDirection.AR
 import static androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption.SLIDE_PARENT_SNAP_TO_INSIDE;
 import static androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption.SLIDE_PARENT_SNAP_TO_OUTSIDE;
 import static androidx.wear.protolayout.renderer.R.id.clickable_id_tag;
+import static androidx.wear.protolayout.renderer.R.id.element_metadata_tag;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arc;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.arcText;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.box;
@@ -714,6 +715,84 @@ public class ProtoLayoutInflaterTest {
         expect.that(info.getClassName().toString()).contains("android.widget.Switch");
         expect.that(info.isImportantForAccessibility()).isTrue();
         assertThat(switchView.isImportantForAccessibility()).isTrue();
+    }
+
+    @Test
+    public void inflate_box_withMetadataModifier() {
+        byte[] tagData = new byte[]{1, 2, 3};
+        Modifiers modifiers =
+                Modifiers.newBuilder()
+                        .setMetadata(
+                                ModifiersProto.ElementMetadata.newBuilder()
+                                        .setTagData(ByteString.copyFrom(tagData)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setModifiers(modifiers)
+                                        .setWidth(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10)))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        assertThat((byte[]) box.getTag(element_metadata_tag)).isEqualTo(tagData);
+    }
+
+    @Test
+    public void inflate_box_withMetadataModifier_emptyTagData() {
+        Modifiers modifiers =
+                Modifiers.newBuilder()
+                        .setMetadata(ModifiersProto.ElementMetadata.newBuilder().setTagData(
+                                ByteString.EMPTY))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setModifiers(modifiers)
+                                        .setWidth(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10)))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        assertThat(box.getTag(element_metadata_tag)).isNull();
+    }
+
+    @Test
+    public void inflate_box_withoutMetadataModifier() {
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setModifiers(Modifiers.getDefaultInstance())
+                                        .setWidth(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10)))
+                                        .setHeight(
+                                                ContainerDimension.newBuilder().setLinearDimension(
+                                                        dp(10))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View box = rootLayout.getChildAt(0);
+        assertThat(box.getTag(element_metadata_tag)).isNull();
     }
 
     @Test

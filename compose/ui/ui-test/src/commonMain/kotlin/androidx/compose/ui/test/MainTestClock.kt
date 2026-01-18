@@ -20,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
+import kotlinx.coroutines.test.TestCoroutineScheduler
 
 /**
  * The clock that drives [frames][MonotonicFrameClock.withFrameNanos], [recompositions][Recomposer]
@@ -80,6 +81,22 @@ import androidx.compose.ui.test.internal.JvmDefaultWithCompatibility
 interface MainTestClock {
     /** The current time of this clock in milliseconds. */
     val currentTime: Long
+
+    /**
+     * The [TestCoroutineScheduler] on which this clock is built. It drives the execution of
+     * coroutines within the composition and is used to dispatch coroutines inside the [Recomposer]
+     * and for [LaunchedEffect]s.
+     *
+     * If the test was started with a custom `effectContext` containing a
+     * [kotlinx.coroutines.test.TestDispatcher], this returns the scheduler from that dispatcher.
+     * Otherwise, an internally managed [TestCoroutineScheduler] is created.
+     */
+    val scheduler: TestCoroutineScheduler
+        get() =
+            throw NotImplementedError(
+                "Implement by returning the TestCoroutineScheduler on which the Recomposer is " +
+                    "scheduled"
+            )
 
     /**
      * Whether the clock should be advanced by the testing framework while awaiting idleness in

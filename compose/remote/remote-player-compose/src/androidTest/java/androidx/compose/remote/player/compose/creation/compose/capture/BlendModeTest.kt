@@ -18,7 +18,6 @@ package androidx.compose.remote.player.compose.creation.compose.capture
 
 import android.content.Context
 import android.graphics.BlendMode
-import android.graphics.Color
 import android.graphics.Paint
 import android.util.Log
 import androidx.compose.remote.core.WireBuffer
@@ -29,21 +28,24 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteRow
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.layout.RemoteText
-import androidx.compose.remote.creation.compose.layout.remoteComponentHeight
-import androidx.compose.remote.creation.compose.layout.remoteComponentWidth
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.border
 import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.core.app.ApplicationProvider
@@ -122,34 +124,35 @@ class BlendModeTest {
     @Composable
     private fun RemoteBlendModeVisual(blendMode: BlendMode, name: String) {
         RemoteBox(
-            RemoteModifier.size(100.rdp)
-                .border(1.rdp, androidx.compose.ui.graphics.Color.Black)
-                .padding(8.dp),
+            RemoteModifier.size(100.rdp).border(1.rdp, Color.Black.rc).padding(8.dp),
             horizontalAlignment = RemoteAlignment.Start,
             verticalArrangement = RemoteArrangement.Top,
         ) {
             RemoteCanvas(RemoteModifier.size(100.rdp)) {
-                val w = remoteComponentWidth(remoteComposeCreationState)
-                val h = remoteComponentHeight(remoteComposeCreationState)
+                val w = remoteWidth
+                val h = remoteHeight
 
                 val paint =
                     RemotePaint().apply {
                         style = Paint.Style.FILL
-                        this.color = Color.MAGENTA
+                        this.color = Color.Magenta.toArgb()
                     }
 
                 // Draw dst
-                canvas.drawCircle(
-                    (w * 2f / 3f).toFloat(),
-                    (h * 1f / 3f).toFloat(),
-                    (w / 3f).toFloat(),
-                    paint,
+                drawCircle(
+                    paint = paint,
+                    center = RemoteOffset(w * 2f / 3f, h * 1f / 3f),
+                    radius = w / 3f,
                 )
 
                 // Draw src
-                paint.color = Color.BLUE
+                paint.color = Color.Blue.toArgb()
                 paint.blendMode = blendMode
-                canvas.drawRect(0f.rf, (h * 1f / 3f), (w * 2f / 3f), h, paint)
+                drawRect(
+                    paint = paint,
+                    topLeft = RemoteOffset(0f.rf, h * 1f / 3f),
+                    size = RemoteSize(w * 2f / 3f, h * 2f / 3f),
+                )
             }
             RemoteText(name, fontSize = 12f.sp)
         }

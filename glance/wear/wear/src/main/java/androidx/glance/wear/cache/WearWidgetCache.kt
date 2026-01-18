@@ -18,6 +18,7 @@ package androidx.glance.wear.cache
 
 import android.content.Context
 import android.util.Log
+import androidx.annotation.VisibleForTesting
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.IOException
 import androidx.datastore.core.Serializer
@@ -30,16 +31,22 @@ import java.io.InputStream
 import java.io.OutputStream
 import kotlinx.coroutines.flow.first
 
+private const val DEFAULT_FILE_NAME = "androidx_glance_wear_widget_cache.pb"
+private val Context.dataStore: DataStore<WearWidgetCacheProto> by
+    dataStore(fileName = DEFAULT_FILE_NAME, serializer = WearWidgetCacheSerializer)
+
 /**
  * Caches widget information, including container specs and instance-to-type mappings. The cache is
  * backed by a [DataStore] file.
  *
- * @param context The application context
- * @param fileName The name of the file to use for the cache.
+ * @param dataStore The [DataStore] to use for the cache.
  */
-internal class WearWidgetCache(private val context: Context, fileName: String = DEFAULT_FILE_NAME) {
-    private val Context.dataStore: DataStore<WearWidgetCacheProto> by
-        dataStore(fileName = fileName, serializer = WearWidgetCacheSerializer)
+internal class WearWidgetCache
+@VisibleForTesting
+internal constructor(private val dataStore: DataStore<WearWidgetCacheProto>) {
+
+    /** Creates a new [WearWidgetCache] instance. */
+    constructor(context: Context) : this(context.dataStore)
 
     /**
      * Updates the cache atomically.
@@ -49,7 +56,7 @@ internal class WearWidgetCache(private val context: Context, fileName: String = 
      */
     suspend fun update(block: WidgetCacheUpdateScope.() -> Unit): Boolean {
         return try {
-            context.dataStore.updateData { cacheProto ->
+            dataStore.updateData { cacheProto ->
                 val scope = WidgetCacheUpdateScope(cacheProto)
                 scope.block()
                 scope.toProto()
@@ -70,7 +77,7 @@ internal class WearWidgetCache(private val context: Context, fileName: String = 
     suspend fun getContainerSpec(
         @ContainerInfo.ContainerType containerType: Int
     ): WidgetContainerSpec? {
-        val cacheProto = context.dataStore.data.first()
+        val cacheProto = dataStore.data.first()
         return cacheProto.container_type_to_spec[containerType]?.let {
             WidgetContainerSpec.fromProto(it)
         }
@@ -83,7 +90,7 @@ internal class WearWidgetCache(private val context: Context, fileName: String = 
      * @return The container type, or `null` if it doesn't exist in the cache.
      */
     suspend fun getInstanceType(instanceId: WidgetInstanceId): Int? {
-        val cacheProto = context.dataStore.data.first()
+        val cacheProto = dataStore.data.first()
         return cacheProto.instance_id_to_type[instanceId.flattenToString()]
     }
 
@@ -130,7 +137,6 @@ internal class WearWidgetCache(private val context: Context, fileName: String = 
     }
 
     internal companion object {
-        internal const val DEFAULT_FILE_NAME = "androidx_glance_wear_widget_cache.pb"
         private const val TAG = "WearWidgetCache"
     }
 }

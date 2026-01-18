@@ -389,6 +389,7 @@ private val nonPublicMarkers =
         "androidx.wear.compose.foundation.ExperimentalWearFoundationApi",
         "androidx.wear.compose.material.ExperimentalWearMaterialApi",
         "androidx.window.core.ExperimentalWindowApi",
+        "androidx.compose.material3.ExperimentalMaterial3Api",
     )
 
 const val NEW_ISSUE_URL = "https://b.corp.google.com/issues/new?component=1102332"

@@ -127,6 +127,8 @@ public interface SharedOutputImage : OutputImage {
                     sharedReference.decrement()
                 }
             }
+
+            override fun toString(): String = outputImage.toString()
         }
     }
 }

@@ -101,10 +101,13 @@ public class Camera2ExtensionsSessionProcessor(
                     ) {
                         cameraCaptureResult.captureResult
                             ?.get(CaptureResult.EXTENSION_CURRENT_TYPE)
-                            ?.let {
-                                val cameraXMode = convertCamera2ModeToCameraXMode(it)
-                                if (currentExtensionType.getAndSet(cameraXMode) != cameraXMode) {
-                                    extensionStrengthLiveData?.postValue(it)
+                            ?.let { camera2Mode ->
+                                convertCamera2ModeToCameraXMode(camera2Mode)?.let { cameraXMode ->
+                                    if (
+                                        currentExtensionType.getAndSet(cameraXMode) != cameraXMode
+                                    ) {
+                                        currentExtensionTypeLiveData?.postValue(cameraXMode)
+                                    }
                                 }
                             }
                     }

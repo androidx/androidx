@@ -17,6 +17,11 @@
 package androidx.pdf.ink.view
 
 import ANNOTATION_TOOLBAR
+import ANNOTATION_TOOLBAR_COLLAPSED
+import ANNOTATION_TOOLBAR_DOCKED_END_WITH_BRUSH_SIZE
+import ANNOTATION_TOOLBAR_DOCKED_END_WITH_COLOR_PALETTE
+import ANNOTATION_TOOLBAR_DOCKED_START_WITH_BRUSH_SIZE
+import ANNOTATION_TOOLBAR_DOCKED_START_WITH_COLOR_PALETTE
 import ANNOTATION_TOOLBAR_IN_DARK_MODE
 import ANNOTATION_TOOLBAR_IN_LIGHT_MODE
 import ANNOTATION_TOOLBAR_WITH_COLOR_PALETTE_VISIBLE
@@ -33,6 +38,8 @@ import androidx.pdf.ink.R
 import androidx.pdf.ink.util.clickItemAt
 import androidx.pdf.ink.util.setSliderValue
 import androidx.pdf.ink.view.colorpalette.ColorPaletteAdapter
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_START
 import androidx.pdf.ink.view.tool.AnnotationToolView
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.espresso.Espresso.onView
@@ -141,6 +148,72 @@ class AnnotationToolbarUiTest {
             ANNOTATION_TOOLBAR_VIEW_ID,
             screenshotRule,
             ANNOTATION_TOOLBAR_IN_DARK_MODE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_expanded_after_collapsed() {
+        var annotationToolbar: AnnotationToolbar? = null
+        setupAnnotationToolbar { annotationToolbar = it }
+
+        if (annotationToolbar == null) return
+
+        onView(withId(R.id.color_palette_button)).perform(click())
+
+        annotationToolbar.collapseToolbar()
+
+        assertScreenshot(ANNOTATION_TOOLBAR_VIEW_ID, screenshotRule, ANNOTATION_TOOLBAR_COLLAPSED)
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedStart_withBrushSlider() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_START }
+        // Open brush slider
+        onView(withId(R.id.pen_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_START_WITH_BRUSH_SIZE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedStart_withColorPalette() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_START }
+        // Open color palette
+        onView(withId(R.id.color_palette_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_START_WITH_COLOR_PALETTE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedEnd_withBrushSlider() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_END }
+        // Open brush slider
+        onView(withId(R.id.pen_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_END_WITH_BRUSH_SIZE,
+        )
+    }
+
+    @Test
+    fun test_annotationToolbar_dockedEnd_withColorPalette() {
+        setupAnnotationToolbar { it.dockState = DOCK_STATE_END }
+        // Open color palette
+        onView(withId(R.id.color_palette_button)).perform(click())
+
+        assertScreenshot(
+            ANNOTATION_TOOLBAR_VIEW_ID,
+            screenshotRule,
+            ANNOTATION_TOOLBAR_DOCKED_END_WITH_COLOR_PALETTE,
         )
     }
 

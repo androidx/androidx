@@ -16,11 +16,14 @@
 
 package androidx.pdf.ink.view
 
+import BRUSH_SIZE_IN_VERTICAL_ORIENTATION
 import BRUSH_SIZE_SELECTED_ON_STEP_0
 import BRUSH_SIZE_SELECTED_ON_STEP_4
 import SCREENSHOT_GOLDEN_DIRECTORY
 import android.view.View
 import android.view.ViewGroup.LayoutParams
+import android.widget.LinearLayout.HORIZONTAL
+import android.widget.LinearLayout.VERTICAL
 import androidx.pdf.PdfTestActivity
 import androidx.pdf.ink.view.brush.BrushSizeSelectorView
 import androidx.test.ext.junit.rules.ActivityScenarioRule
@@ -59,14 +62,31 @@ class BrushSelectorViewUiTest {
         assertScreenshot(BRUSH_SELECTOR_VIEW_ID, screenshotRule, BRUSH_SIZE_SELECTED_ON_STEP_4)
     }
 
-    private fun setupBrushSizeSelectorView(callback: (BrushSizeSelectorView) -> Unit) {
+    @Test
+    fun test_brushSizeSelector_vertical() {
+        setupBrushSizeSelectorView(VERTICAL) { view ->
+            view.brushSizeSlider.value = 4f
+            view.brushPreviewView.brushSize = 100f
+        }
+
+        assertScreenshot(BRUSH_SELECTOR_VIEW_ID, screenshotRule, BRUSH_SIZE_IN_VERTICAL_ORIENTATION)
+    }
+
+    private fun setupBrushSizeSelectorView(
+        orientation: Int = HORIZONTAL,
+        callback: (BrushSizeSelectorView) -> Unit,
+    ) {
         activityRule.scenario.onActivity { activity ->
             val brushSizeSelectorView =
                 BrushSizeSelectorView(activity).apply { id = BRUSH_SELECTOR_VIEW_ID }
-            activity.container.addView(
-                brushSizeSelectorView,
-                LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT),
-            )
+            brushSizeSelectorView.orientation = orientation
+            val layoutParams =
+                if (orientation == VERTICAL) {
+                    LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT)
+                } else {
+                    LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+                }
+            activity.container.addView(brushSizeSelectorView, layoutParams)
             // allow caller to do additional setup
             callback(brushSizeSelectorView)
         }

@@ -39,7 +39,6 @@ import com.android.extensions.xr.node.Node;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
@@ -53,7 +52,7 @@ public class AudioTrackExtensionsWrapperImplTest {
 
     private EntityManager mEntityManager;
 
-    @Mock private AudioTrack.Builder mBuilder;
+    private AudioTrack.Builder mBuilder;
 
     @Before
     public void setUp() {
@@ -68,6 +67,7 @@ public class AudioTrackExtensionsWrapperImplTest {
         ShadowAudioTrackExtensions.extract(mAudioTrackExtensions).setSoundFieldAttributes(null);
 
         mEntityManager = new EntityManager();
+        mBuilder = mock(AudioTrack.Builder.class);
     }
 
     @Test

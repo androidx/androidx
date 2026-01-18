@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
@@ -43,10 +44,12 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.hasScrollAction
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onChild
@@ -61,6 +64,7 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.compose.foundation.TEST_TAG
+import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import com.google.common.truth.Truth.assertThat
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
@@ -447,8 +451,6 @@ public class ScalingLazyColumnTest {
                 }
             }
         }
-        // TODO(b/210654937): Remove the waitUntil once we no longer need 2 stage initialization
-        rule.waitUntil { state.initialized.value }
         rule.waitForIdle()
         state.layoutInfo.assertVisibleItems(count = 3, startIndex = 0)
 
@@ -465,6 +467,50 @@ public class ScalingLazyColumnTest {
         rule.waitForIdle()
         state.layoutInfo.assertVisibleItems(count = 4, startIndex = 0)
         assertThat(state.centerItemIndex).isEqualTo(1)
+        assertThat(state.centerItemScrollOffset).isEqualTo(snapOffsetPx)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rotarySnapBehavior_respectsSnapOffset() {
+        lateinit var state: ScalingLazyListState
+        val containerHeight = 200.dp
+        val itemHeight = 50.dp
+        val itemHeightPx = with(rule.density) { itemHeight.toPx() }
+        val snapOffset = 20.dp
+        val snapOffsetPx = with(rule.density) { snapOffset.roundToPx() }
+        val initialIndex = 10
+
+        rule.setContent {
+            state = rememberScalingLazyListState(initialCenterItemIndex = initialIndex)
+            ScalingLazyColumn(
+                state = state,
+                modifier = Modifier.size(containerHeight).testTag(TEST_TAG),
+                rotaryScrollableBehavior =
+                    RotaryScrollableDefaults.snapBehavior(
+                        scrollableState = state,
+                        snapOffset = snapOffset,
+                    ),
+                // We set the fling behavior to match, ensuring consistent physics
+                flingBehavior =
+                    ScalingLazyColumnDefaults.snapFlingBehavior(
+                        state = state,
+                        snapOffset = snapOffset,
+                    ),
+            ) {
+                items(100) { Box(Modifier.fillMaxWidth().height(itemHeight)) }
+            }
+        }
+
+        // Rotate enough to trigger a snap to the next item
+        rule.onNode(hasScrollAction()).performRotaryScrollInput {
+            rotateToScrollVertically(itemHeightPx * 1.5f)
+        }
+        rule.waitForIdle()
+
+        // Verify we snapped to the next item
+        assertThat(state.centerItemIndex).isEqualTo(initialIndex + 1)
+        // Verify the final offset matches the requested snapOffset
         assertThat(state.centerItemScrollOffset).isEqualTo(snapOffsetPx)
     }
 

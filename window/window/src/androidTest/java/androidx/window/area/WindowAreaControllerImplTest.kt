@@ -19,21 +19,23 @@ package androidx.window.area
 import android.app.Activity
 import android.content.Context
 import android.content.pm.ActivityInfo
-import android.os.Binder
 import android.os.Build
 import android.util.DisplayMetrics
 import android.view.View
 import android.view.Window
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.util.Consumer as AndroidXConsumer
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.SdkSuppress
 import androidx.window.TestActivity
 import androidx.window.WindowTestUtils.Companion.assumeAtLeastWindowExtensionVersion
 import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_PRESENT_ON_AREA
-import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_ACTIVITY_TO_AREA
+import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_TO_AREA
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
+import androidx.window.area.WindowAreaControllerImpl.Companion.REAR_DISPLAY_WINDOW_AREA_TOKEN
 import androidx.window.area.adapter.WindowAreaAdapter
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.extensions.area.ExtensionWindowAreaPresentation
@@ -47,15 +49,12 @@ import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.layout.WindowMetricsCalculator
+import java.lang.IllegalArgumentException
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.async
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -74,13 +73,13 @@ class WindowAreaControllerImplTest {
     private val minVendorApiLevel = 3
 
     /**
-     * Tests that we can get a list of [WindowAreaInfo] objects with a type of
-     * [WindowAreaInfo.Type.TYPE_REAR_FACING]. Verifies that updating the status of features on
-     * device returns an updated [WindowAreaInfo] list.
+     * Tests that we can get a list of [WindowArea] objects with a type of
+     * [WindowArea.Type.TYPE_REAR_FACING]. Verifies that updating the status of features on device
+     * returns an updated [WindowArea] list.
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testRearFacingWindowAreaInfoList(): Unit =
+    fun testRearFacingWindowAreaList(): Unit =
         testScope.runTest {
             assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
             assumeAtLeastWindowExtensionVersion(minVendorApiLevel)
@@ -89,42 +88,46 @@ class WindowAreaControllerImplTest {
                 val controller = WindowAreaControllerImpl(windowAreaComponent = extensionComponent)
                 extensionComponent.currentRearDisplayStatus = STATUS_UNAVAILABLE
                 extensionComponent.currentRearDisplayPresentationStatus = STATUS_UNAVAILABLE
-                val collector = TestWindowAreaInfoListConsumer()
-                testScope.launch(Job()) { controller.windowAreaInfos.collect(collector::accept) }
+                val collector = TestWindowAreaListConsumer()
+                controller.addWindowAreasListener(Runnable::run, collector)
 
-                val expectedAreaInfo =
-                    WindowAreaInfo(
-                        metrics =
+                val capabilityMap = HashMap<WindowAreaCapability.Operation, WindowAreaCapability>()
+                val rearDisplayCapability =
+                    WindowAreaCapability(OPERATION_TRANSFER_TO_AREA, WINDOW_AREA_STATUS_UNAVAILABLE)
+                val rearDisplayPresentationCapability =
+                    WindowAreaCapability(OPERATION_PRESENT_ON_AREA, WINDOW_AREA_STATUS_UNAVAILABLE)
+                capabilityMap[OPERATION_TRANSFER_TO_AREA] = rearDisplayCapability
+                capabilityMap[OPERATION_PRESENT_ON_AREA] = rearDisplayPresentationCapability
+
+                var expectedAreaInfo =
+                    WindowArea(
+                        windowMetrics =
                             WindowMetricsCalculator.fromDisplayMetrics(
                                 extensionComponent.rearDisplayMetrics
                             ),
-                        type = WindowAreaInfo.Type.TYPE_REAR_FACING,
-                        token = Binder(REAR_FACING_BINDER_DESCRIPTION),
-                        windowAreaComponent = extensionComponent,
+                        type = WindowArea.Type.TYPE_REAR_FACING,
+                        token = REAR_DISPLAY_WINDOW_AREA_TOKEN,
+                        capabilityMap = capabilityMap,
                     )
-                val rearDisplayCapability =
-                    WindowAreaCapability(
-                        OPERATION_TRANSFER_ACTIVITY_TO_AREA,
-                        WINDOW_AREA_STATUS_UNAVAILABLE,
-                    )
-                val rearDisplayPresentationCapability =
-                    WindowAreaCapability(OPERATION_PRESENT_ON_AREA, WINDOW_AREA_STATUS_UNAVAILABLE)
-                expectedAreaInfo.capabilityMap[OPERATION_TRANSFER_ACTIVITY_TO_AREA] =
-                    rearDisplayCapability
-                expectedAreaInfo.capabilityMap[OPERATION_PRESENT_ON_AREA] =
-                    rearDisplayPresentationCapability
 
                 assertEquals(listOf(expectedAreaInfo), collector.values[collector.values.size - 1])
 
                 extensionComponent.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
 
                 val updatedRearDisplayCapability =
-                    WindowAreaCapability(
-                        OPERATION_TRANSFER_ACTIVITY_TO_AREA,
-                        WINDOW_AREA_STATUS_AVAILABLE,
+                    WindowAreaCapability(OPERATION_TRANSFER_TO_AREA, WINDOW_AREA_STATUS_AVAILABLE)
+                capabilityMap[OPERATION_TRANSFER_TO_AREA] = updatedRearDisplayCapability
+
+                expectedAreaInfo =
+                    WindowArea(
+                        windowMetrics =
+                            WindowMetricsCalculator.fromDisplayMetrics(
+                                extensionComponent.rearDisplayMetrics
+                            ),
+                        type = WindowArea.Type.TYPE_REAR_FACING,
+                        token = REAR_DISPLAY_WINDOW_AREA_TOKEN,
+                        capabilityMap = capabilityMap,
                     )
-                expectedAreaInfo.capabilityMap[OPERATION_TRANSFER_ACTIVITY_TO_AREA] =
-                    updatedRearDisplayCapability
 
                 assertEquals(listOf(expectedAreaInfo), collector.values[collector.values.size - 1])
 
@@ -134,31 +137,41 @@ class WindowAreaControllerImplTest {
 
                 val updatedRearDisplayPresentationCapability =
                     WindowAreaCapability(OPERATION_PRESENT_ON_AREA, WINDOW_AREA_STATUS_AVAILABLE)
-                expectedAreaInfo.capabilityMap[OPERATION_PRESENT_ON_AREA] =
-                    updatedRearDisplayPresentationCapability
+                capabilityMap[OPERATION_PRESENT_ON_AREA] = updatedRearDisplayPresentationCapability
+
+                expectedAreaInfo =
+                    WindowArea(
+                        windowMetrics =
+                            WindowMetricsCalculator.fromDisplayMetrics(
+                                extensionComponent.rearDisplayMetrics
+                            ),
+                        type = WindowArea.Type.TYPE_REAR_FACING,
+                        token = REAR_DISPLAY_WINDOW_AREA_TOKEN,
+                        capabilityMap = capabilityMap,
+                    )
 
                 assertEquals(listOf(expectedAreaInfo), collector.values[collector.values.size - 1])
             }
         }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
     @Test
-    fun testWindowAreaInfoListNullComponent(): Unit =
+    fun testWindowAreaListNullComponent(): Unit =
         testScope.runTest {
             activityScenario.scenario.onActivity {
                 val controller = EmptyWindowAreaControllerImpl()
-                val collector = TestWindowAreaInfoListConsumer()
-                testScope.launch(Job()) { controller.windowAreaInfos.collect(collector::accept) }
-                assertTrue(collector.values.size == 1)
+                val collector = TestWindowAreaListConsumer()
+                controller.addWindowAreasListener(Runnable::run, collector)
+                assertEquals(collector.values.size, 1)
                 assertEquals(listOf(), collector.values[0])
             }
         }
 
     /**
-     * Tests the transfer to rear facing window area flow. Tests the flow through
+     * Tests the [WindowAreaController.transferToWindowArea] flow. Tests the flow through
      * WindowAreaControllerImpl with a fake extension. This fake extension changes the orientation
-     * of the activity to landscape to simulate a configuration change that would occur when
-     * transferring to the rear facing window area and then returns it back to portrait when it's
-     * disabled.
+     * of the activity to landscape to simulate a configuration change that would occur when moving
+     * to the rear facing window area and then returns it back to portrait when it's disabled.
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
@@ -168,19 +181,14 @@ class WindowAreaControllerImplTest {
             val extensions = FakeWindowAreaComponent()
             val controller = WindowAreaControllerImpl(windowAreaComponent = extensions)
             extensions.currentRearDisplayStatus = STATUS_AVAILABLE
-            val callback = TestWindowAreaSessionCallback()
-            val windowAreaInfo: WindowAreaInfo? =
-                async {
-                        return@async controller.windowAreaInfos.first().firstOrNull {
-                            it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
-                        }
-                    }
-                    .await()
+            val collector = TestWindowAreaListConsumer()
+            controller.addWindowAreasListener(Runnable::run, collector)
+            val windowArea: WindowArea? = collector.values.last().firstOrNull()
 
-            assertNotNull(windowAreaInfo)
+            assertNotNull(windowArea)
             assertEquals(
-                windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA).status,
                 WINDOW_AREA_STATUS_AVAILABLE,
+                windowArea.getCapability(OPERATION_TRANSFER_TO_AREA).status,
             )
 
             activityScenario.scenario.onActivity { testActivity ->
@@ -194,27 +202,28 @@ class WindowAreaControllerImplTest {
                     testActivity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 )
                 testActivity.resetLayoutCounter()
-                controller.transferActivityToWindowArea(
-                    windowAreaInfo.token,
-                    testActivity,
-                    Runnable::run,
-                    callback,
-                )
-            }
 
-            activityScenario.scenario.onActivity { testActivity ->
+                controller.transferToWindowArea(windowArea.token, testActivity)
+                testActivity.waitForLayout()
                 assert(
                     testActivity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 )
-                assert(callback.currentSession != null)
-                testActivity.resetLayoutCounter()
-                callback.endSession()
             }
+            val activeWindowArea: WindowArea? = collector.values.last().firstOrNull()
+
+            assertNotNull(activeWindowArea)
+            assertEquals(
+                WINDOW_AREA_STATUS_ACTIVE,
+                activeWindowArea.getCapability(OPERATION_TRANSFER_TO_AREA).status,
+            )
+
             activityScenario.scenario.onActivity { testActivity ->
+                testActivity.resetLayoutCounter()
+                controller.transferToWindowArea(null, testActivity)
+                testActivity.waitForLayout()
                 assert(
                     testActivity.requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                 )
-                assert(callback.currentSession == null)
             }
         }
 
@@ -230,6 +239,11 @@ class WindowAreaControllerImplTest {
         testTransferRearDisplayReturnsError(STATUS_ACTIVE)
     }
 
+    /**
+     * Base test method to provide a specific [WindowAreaComponent.WindowAreaStatus] that should
+     * return an IllegalStateException when trying to move to a rear display with a status that is
+     * not [WindowAreaComponent.STATUS_ACTIVE].
+     */
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun testTransferRearDisplayReturnsError(
         initialState: @WindowAreaComponent.WindowAreaStatus Int
@@ -239,30 +253,20 @@ class WindowAreaControllerImplTest {
             val extensions = FakeWindowAreaComponent()
             val controller = WindowAreaControllerImpl(windowAreaComponent = extensions)
             extensions.currentRearDisplayStatus = initialState
-            val callback = TestWindowAreaSessionCallback()
-            val windowAreaInfo: WindowAreaInfo? =
-                async {
-                        return@async controller.windowAreaInfos.first().firstOrNull {
-                            it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
-                        }
-                    }
-                    .await()
+            val collector = TestWindowAreaListConsumer()
+            controller.addWindowAreasListener(Runnable::run, collector)
+            val windowArea: WindowArea? = collector.values.last().firstOrNull()
 
-            assertNotNull(windowAreaInfo)
+            assertNotNull(windowArea)
             assertEquals(
-                windowAreaInfo.getCapability(OPERATION_TRANSFER_ACTIVITY_TO_AREA).status,
+                windowArea.getCapability(OPERATION_TRANSFER_TO_AREA).status,
                 WindowAreaAdapter.translate(initialState),
             )
 
             activityScenario.scenario.onActivity { testActivity ->
-                controller.transferActivityToWindowArea(
-                    windowAreaInfo.token,
-                    testActivity,
-                    Runnable::run,
-                    callback,
-                )
-                assertNotNull(callback.error)
-                assertNull(callback.currentSession)
+                assertFailsWith<IllegalStateException> {
+                    controller.transferToWindowArea(windowArea.token, testActivity)
+                }
             }
         }
 
@@ -285,24 +289,20 @@ class WindowAreaControllerImplTest {
 
             extensions.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
             extensions.updateRearDisplayPresentationStatusListeners(STATUS_AVAILABLE)
-            val windowAreaInfo: WindowAreaInfo? =
-                async {
-                        return@async controller.windowAreaInfos.first().firstOrNull {
-                            it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
-                        }
-                    }
-                    .await()
+            val collector = TestWindowAreaListConsumer()
+            controller.addWindowAreasListener(Runnable::run, collector)
+            val windowArea: WindowArea? = collector.values.last().firstOrNull()
 
-            assertNotNull(windowAreaInfo)
+            assertNotNull(windowArea)
             assertTrue {
-                windowAreaInfo.getCapability(OPERATION_PRESENT_ON_AREA).status ==
+                windowArea.getCapability(OPERATION_PRESENT_ON_AREA).status ==
                     WINDOW_AREA_STATUS_AVAILABLE
             }
 
             val callback = TestWindowAreaPresentationSessionCallback()
             activityScenario.scenario.onActivity { testActivity ->
                 controller.presentContentOnWindowArea(
-                    windowAreaInfo.token,
+                    windowArea.token,
                     testActivity,
                     Runnable::run,
                     callback,
@@ -330,24 +330,20 @@ class WindowAreaControllerImplTest {
 
             extensionComponent.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
             extensionComponent.updateRearDisplayPresentationStatusListeners(STATUS_UNAVAILABLE)
-            val windowAreaInfo: WindowAreaInfo? =
-                async {
-                        return@async controller.windowAreaInfos.first().firstOrNull {
-                            it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
-                        }
-                    }
-                    .await()
+            val collector = TestWindowAreaListConsumer()
+            controller.addWindowAreasListener(Runnable::run, collector)
+            val windowArea: WindowArea? = collector.values.last().firstOrNull()
 
-            assertNotNull(windowAreaInfo)
+            assertNotNull(windowArea)
             assertTrue {
-                windowAreaInfo.getCapability(OPERATION_PRESENT_ON_AREA).status ==
+                windowArea.getCapability(OPERATION_PRESENT_ON_AREA).status ==
                     WINDOW_AREA_STATUS_UNAVAILABLE
             }
 
             val callback = TestWindowAreaPresentationSessionCallback()
             activityScenario.scenario.onActivity { testActivity ->
                 controller.presentContentOnWindowArea(
-                    windowAreaInfo.token,
+                    windowArea.token,
                     testActivity,
                     Runnable::run,
                     callback,
@@ -369,19 +365,15 @@ class WindowAreaControllerImplTest {
             extensions.updateRearDisplayStatusListeners(STATUS_AVAILABLE)
             extensions.updateRearDisplayPresentationStatusListeners(STATUS_AVAILABLE)
 
-            val windowAreaInfo =
-                async {
-                        return@async controller.windowAreaInfos.first().firstOrNull {
-                            it.type == WindowAreaInfo.Type.TYPE_REAR_FACING
-                        }
-                    }
-                    .await()
+            val collector = TestWindowAreaListConsumer()
+            controller.addWindowAreasListener(Runnable::run, collector)
+            val windowArea: WindowArea? = collector.values.last().firstOrNull()
 
-            assertNotNull(windowAreaInfo)
-            assertTrue {
-                windowAreaInfo.getCapability(OPERATION_PRESENT_ON_AREA).status ==
-                    WINDOW_AREA_STATUS_AVAILABLE
-            }
+            assertNotNull(windowArea)
+            assertEquals(
+                WINDOW_AREA_STATUS_AVAILABLE,
+                windowArea.getCapability(OPERATION_PRESENT_ON_AREA).status,
+            )
 
             // Create a new controller to start the presentation.
             val controller2 = WindowAreaControllerImpl(windowAreaComponent = extensions)
@@ -389,7 +381,7 @@ class WindowAreaControllerImplTest {
             val callback = TestWindowAreaPresentationSessionCallback()
             activityScenario.scenario.onActivity { testActivity ->
                 controller2.presentContentOnWindowArea(
-                    windowAreaInfo.token,
+                    windowArea.token,
                     testActivity,
                     Runnable::run,
                     callback,
@@ -397,18 +389,18 @@ class WindowAreaControllerImplTest {
 
                 assert(!callback.sessionActive)
                 assert(callback.sessionError != null)
-                assert(callback.sessionError is IllegalStateException)
+                assert(callback.sessionError is IllegalArgumentException)
             }
         }
 
     /**
-     * Tests that we can get a list of [WindowAreaInfo] objects with a type of
-     * [WindowAreaInfo.Type.TYPE_REAR_FACING]. Verifies that updating the status of features on
-     * device returns an updated [WindowAreaInfo] list.
+     * Tests that we can get a list of [WindowArea] objects with a type of
+     * [WindowArea.Type.TYPE_REAR_FACING]. Verifies that updating the status of features on device
+     * returns an updated [WindowArea] list.
      */
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
-    fun testRearFacingWindowAreaInfoList_getRearDisplayMetricsClassCastException(): Unit =
+    fun testRearFacingWindowAreaList_getRearDisplayMetricsClassCastException(): Unit =
         testScope.runTest {
             assumeTrue(Build.VERSION.SDK_INT > Build.VERSION_CODES.Q)
             assumeAtLeastWindowExtensionVersion(minVendorApiLevel)
@@ -417,38 +409,37 @@ class WindowAreaControllerImplTest {
                 val controller = WindowAreaControllerImpl(windowAreaComponent = extensionComponent)
                 extensionComponent.currentRearDisplayStatus = STATUS_UNAVAILABLE
                 extensionComponent.currentRearDisplayPresentationStatus = STATUS_UNAVAILABLE
-                val collector = TestWindowAreaInfoListConsumer()
-                testScope.launch(Job()) { controller.windowAreaInfos.collect(collector::accept) }
+                val collector = TestWindowAreaListConsumer()
+                controller.addWindowAreasListener(Runnable::run, collector)
 
-                val expectedAreaInfo =
-                    WindowAreaInfo(
-                        metrics = WindowMetricsCalculator.fromDisplayMetrics(DisplayMetrics()),
-                        type = WindowAreaInfo.Type.TYPE_REAR_FACING,
-                        token = Binder(REAR_FACING_BINDER_DESCRIPTION),
-                        windowAreaComponent = extensionComponent,
-                    )
+                val capabilityMap = HashMap<WindowAreaCapability.Operation, WindowAreaCapability>()
                 val rearDisplayCapability =
-                    WindowAreaCapability(
-                        OPERATION_TRANSFER_ACTIVITY_TO_AREA,
-                        WINDOW_AREA_STATUS_UNAVAILABLE,
-                    )
+                    WindowAreaCapability(OPERATION_TRANSFER_TO_AREA, WINDOW_AREA_STATUS_UNAVAILABLE)
                 val rearDisplayPresentationCapability =
                     WindowAreaCapability(OPERATION_PRESENT_ON_AREA, WINDOW_AREA_STATUS_UNAVAILABLE)
-                expectedAreaInfo.capabilityMap[OPERATION_TRANSFER_ACTIVITY_TO_AREA] =
-                    rearDisplayCapability
-                expectedAreaInfo.capabilityMap[OPERATION_PRESENT_ON_AREA] =
-                    rearDisplayPresentationCapability
+                capabilityMap[OPERATION_TRANSFER_TO_AREA] = rearDisplayCapability
+                capabilityMap[OPERATION_PRESENT_ON_AREA] = rearDisplayPresentationCapability
+
+                val expectedAreaInfo =
+                    WindowArea(
+                        windowMetrics =
+                            WindowMetricsCalculator.fromDisplayMetrics(DisplayMetrics()),
+                        type = WindowArea.Type.TYPE_REAR_FACING,
+                        token = REAR_DISPLAY_WINDOW_AREA_TOKEN,
+                        capabilityMap = capabilityMap,
+                    )
 
                 assertEquals(listOf(expectedAreaInfo), collector.values[collector.values.size - 1])
             }
         }
 
-    private class TestWindowAreaInfoListConsumer : Consumer<List<WindowAreaInfo>> {
+    @RequiresApi(Build.VERSION_CODES.N)
+    private class TestWindowAreaListConsumer : AndroidXConsumer<List<WindowArea>> {
 
-        val values: MutableList<List<WindowAreaInfo>> = mutableListOf()
+        val values: MutableList<List<WindowArea>> = mutableListOf()
 
-        override fun accept(infos: List<WindowAreaInfo>) {
-            values.add(infos)
+        override fun accept(value: List<WindowArea>) {
+            values.add(value)
         }
     }
 
@@ -494,6 +485,7 @@ class WindowAreaControllerImplTest {
             if (currentRearDisplayStatus != STATUS_AVAILABLE) {
                 rearDisplaySessionConsumer.accept(SESSION_STATE_INACTIVE)
             }
+            updateRearDisplayStatusListeners(STATUS_ACTIVE)
             testActivity = activity
             this.rearDisplaySessionConsumer = rearDisplaySessionConsumer
             testActivity!!.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -501,6 +493,7 @@ class WindowAreaControllerImplTest {
         }
 
         override fun endRearDisplaySession() {
+            updateRearDisplayStatusListeners(STATUS_AVAILABLE)
             testActivity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             rearDisplaySessionConsumer?.accept(SESSION_STATE_INACTIVE)
         }
@@ -560,22 +553,6 @@ class WindowAreaControllerImplTest {
         }
     }
 
-    private class TestWindowAreaSessionCallback : WindowAreaSessionCallback {
-        var currentSession: WindowAreaSession? = null
-        var error: Throwable? = null
-
-        override fun onSessionStarted(session: WindowAreaSession) {
-            currentSession = session
-        }
-
-        override fun onSessionEnded(t: Throwable?) {
-            error = t
-            currentSession = null
-        }
-
-        fun endSession() = currentSession?.close()
-    }
-
     private class TestWindowAreaPresentationSessionCallback :
         WindowAreaPresentationSessionCallback {
         var sessionActive: Boolean = false
@@ -629,9 +606,5 @@ class WindowAreaControllerImplTest {
         override fun getWindow(): Window {
             return activity.window
         }
-    }
-
-    companion object {
-        private const val REAR_FACING_BINDER_DESCRIPTION = "TEST_WINDOW_AREA_REAR_FACING"
     }
 }

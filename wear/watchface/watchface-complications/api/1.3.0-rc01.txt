@@ -1,0 +1,117 @@
+// Signature format: 4.0
+package androidx.wear.watchface.complications {
+
+  public final class ComplicationDataSourceInfo {
+    ctor public ComplicationDataSourceInfo(String appName, String name, android.graphics.drawable.Icon icon, androidx.wear.watchface.complications.data.ComplicationType type, android.content.ComponentName? componentName);
+    method @InaccessibleFromKotlin public String getAppName();
+    method @InaccessibleFromKotlin public android.content.ComponentName? getComponentName();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationData getFallbackPreviewData();
+    method @InaccessibleFromKotlin public android.graphics.drawable.Icon getIcon();
+    method @InaccessibleFromKotlin public String getName();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationType getType();
+    property public String appName;
+    property public android.content.ComponentName? componentName;
+    property public androidx.wear.watchface.complications.data.ComplicationData fallbackPreviewData;
+    property public android.graphics.drawable.Icon icon;
+    property public String name;
+    property public androidx.wear.watchface.complications.data.ComplicationType type;
+  }
+
+  public final class ComplicationDataSourceInfoRetriever implements java.lang.AutoCloseable {
+    ctor public ComplicationDataSourceInfoRetriever(android.content.Context context);
+    method public void close();
+    method @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrieveComplicationDataSourceInfo(android.content.ComponentName watchFaceComponent, int[] watchFaceComplicationIds, kotlin.coroutines.Continuation<? super androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.Result[]?>) throws androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.ServiceDisconnectedException;
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) @kotlin.jvm.Throws(exceptionClasses=ServiceDisconnectedException::class) public suspend Object? retrievePreviewComplicationData(android.content.ComponentName complicationDataSourceComponent, androidx.wear.watchface.complications.data.ComplicationType complicationType, kotlin.coroutines.Continuation<? super androidx.wear.watchface.complications.data.ComplicationData?>) throws androidx.wear.watchface.complications.ComplicationDataSourceInfoRetriever.ServiceDisconnectedException;
+  }
+
+  public static final class ComplicationDataSourceInfoRetriever.Result {
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.ComplicationDataSourceInfo? getInfo();
+    method @InaccessibleFromKotlin public int getSlotId();
+    property public androidx.wear.watchface.complications.ComplicationDataSourceInfo? info;
+    property public int slotId;
+  }
+
+  public static final class ComplicationDataSourceInfoRetriever.ServiceDisconnectedException extends java.lang.Exception {
+    ctor public ComplicationDataSourceInfoRetriever.ServiceDisconnectedException();
+  }
+
+  public final class ComplicationSlotBounds {
+    ctor public ComplicationSlotBounds(android.graphics.RectF bounds);
+    ctor public ComplicationSlotBounds(android.graphics.RectF bounds, optional android.graphics.RectF margins);
+    ctor @BytecodeOnly public ComplicationSlotBounds(android.graphics.RectF!, android.graphics.RectF!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @Deprecated public ComplicationSlotBounds(java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds);
+    ctor public ComplicationSlotBounds(java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeBounds, java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,? extends android.graphics.RectF> perComplicationTypeMargins);
+    method @InaccessibleFromKotlin public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeBounds();
+    method @InaccessibleFromKotlin public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> getPerComplicationTypeMargins();
+    property public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeBounds;
+    property public java.util.Map<androidx.wear.watchface.complications.data.ComplicationType,android.graphics.RectF> perComplicationTypeMargins;
+    field public static final androidx.wear.watchface.complications.ComplicationSlotBounds.Companion Companion;
+  }
+
+  public static final class ComplicationSlotBounds.Companion {
+  }
+
+  public final class DefaultComplicationDataSourcePolicy {
+    ctor public DefaultComplicationDataSourcePolicy();
+    ctor @Deprecated public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, android.content.ComponentName secondaryDataSource, int systemDataSourceFallback);
+    ctor public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, androidx.wear.watchface.complications.data.ComplicationType primaryDataSourceDefaultType, android.content.ComponentName secondaryDataSource, androidx.wear.watchface.complications.data.ComplicationType secondaryDataSourceDefaultType, int systemDataSourceFallback, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType);
+    ctor public DefaultComplicationDataSourcePolicy(android.content.ComponentName primaryDataSource, androidx.wear.watchface.complications.data.ComplicationType primaryDataSourceDefaultType, int systemDataSourceFallback, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType);
+    ctor @Deprecated public DefaultComplicationDataSourcePolicy(android.content.ComponentName dataSource, int systemDataSourceFallback);
+    ctor @Deprecated public DefaultComplicationDataSourcePolicy(int systemProvider);
+    ctor public DefaultComplicationDataSourcePolicy(int systemDataSource, androidx.wear.watchface.complications.data.ComplicationType systemDataSourceDefaultType);
+    method @InaccessibleFromKotlin public android.content.ComponentName? getPrimaryDataSource();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationType? getPrimaryDataSourceDefaultType();
+    method @InaccessibleFromKotlin public android.content.ComponentName? getSecondaryDataSource();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationType? getSecondaryDataSourceDefaultType();
+    method @InaccessibleFromKotlin public int getSystemDataSourceFallback();
+    method @InaccessibleFromKotlin public androidx.wear.watchface.complications.data.ComplicationType getSystemDataSourceFallbackDefaultType();
+    method public boolean isEmpty();
+    property public android.content.ComponentName? primaryDataSource;
+    property public androidx.wear.watchface.complications.data.ComplicationType? primaryDataSourceDefaultType;
+    property public android.content.ComponentName? secondaryDataSource;
+    property public androidx.wear.watchface.complications.data.ComplicationType? secondaryDataSourceDefaultType;
+    property public int systemDataSourceFallback;
+    property public androidx.wear.watchface.complications.data.ComplicationType systemDataSourceFallbackDefaultType;
+    field public static final androidx.wear.watchface.complications.DefaultComplicationDataSourcePolicy.Companion Companion;
+  }
+
+  public static final class DefaultComplicationDataSourcePolicy.Companion {
+  }
+
+  public final class SystemDataSources {
+    field public static final androidx.wear.watchface.complications.SystemDataSources.Companion Companion;
+    field public static final int DATA_SOURCE_APP_SHORTCUT = 6; // 0x6
+    field public static final int DATA_SOURCE_DATE = 2; // 0x2
+    field public static final int DATA_SOURCE_DAY_AND_DATE = 16; // 0x10
+    field public static final int DATA_SOURCE_DAY_OF_WEEK = 13; // 0xd
+    field public static final int DATA_SOURCE_FAVORITE_CONTACT = 14; // 0xe
+    field @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public static final int DATA_SOURCE_HEART_RATE = 17; // 0x11
+    field public static final int DATA_SOURCE_NEXT_EVENT = 9; // 0x9
+    field public static final int DATA_SOURCE_STEP_COUNT = 4; // 0x4
+    field public static final int DATA_SOURCE_SUNRISE_SUNSET = 12; // 0xc
+    field public static final int DATA_SOURCE_TIME_AND_DATE = 3; // 0x3
+    field public static final int DATA_SOURCE_UNREAD_NOTIFICATION_COUNT = 7; // 0x7
+    field public static final int DATA_SOURCE_WATCH_BATTERY = 1; // 0x1
+    field public static final int DATA_SOURCE_WORLD_CLOCK = 5; // 0x5
+    field public static final int NO_DATA_SOURCE = -1; // 0xffffffff
+  }
+
+  public static final class SystemDataSources.Companion {
+    property public static int DATA_SOURCE_APP_SHORTCUT;
+    property public static int DATA_SOURCE_DATE;
+    property public static int DATA_SOURCE_DAY_AND_DATE;
+    property public static int DATA_SOURCE_DAY_OF_WEEK;
+    property public static int DATA_SOURCE_FAVORITE_CONTACT;
+    property public static int DATA_SOURCE_HEART_RATE;
+    property public static int DATA_SOURCE_NEXT_EVENT;
+    property public static int DATA_SOURCE_STEP_COUNT;
+    property public static int DATA_SOURCE_SUNRISE_SUNSET;
+    property public static int DATA_SOURCE_TIME_AND_DATE;
+    property public static int DATA_SOURCE_UNREAD_NOTIFICATION_COUNT;
+    property public static int DATA_SOURCE_WATCH_BATTERY;
+    property public static int DATA_SOURCE_WORLD_CLOCK;
+    property public static int NO_DATA_SOURCE;
+  }
+
+}
+

@@ -1167,7 +1167,6 @@ class CameraUseCaseAdapterTest {
         return createCameraUseCaseAdapter(fakeCamera, cameraConfig)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun cameraControlFailed_whenNoCameraOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1202,7 +1201,6 @@ class CameraUseCaseAdapterTest {
             .build()
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun zoomEnabled_whenZoomOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1218,7 +1216,6 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.linearZoom).isEqualTo(1.0f)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun torchEnabled_whenTorchOperationSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1234,7 +1231,6 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.torchEnabled).isEqualTo(true)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun focusMetering_afEnabled_whenAfOperationSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1258,7 +1254,6 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAwb).isEmpty()
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun focusMetering_aeEnabled_whenAeOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1278,7 +1273,6 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAwb).isEmpty()
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun focusMetering_awbEnabled_whenAwbOperationsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1298,7 +1292,6 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction?.meteringPointsAe).isEmpty()
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun focusMetering_disabled_whenNoneIsSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1316,7 +1309,6 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.lastSubmittedFocusMeteringAction).isNull()
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun exposureEnabled_whenExposureOperationSupported(): Unit = runBlocking {
         // 1. Arrange
@@ -1332,7 +1324,6 @@ class CameraUseCaseAdapterTest {
         assertThat(fakeCameraControl.exposureCompensationIndex).isEqualTo(0)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun cameraInfo_returnsDisabledState_AllOpsDisabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1370,7 +1361,6 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(0)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun cameraInfo_zoomEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1391,7 +1381,6 @@ class CameraUseCaseAdapterTest {
         assertThat(zoomState.linearZoom).isEqualTo(fakeZoomState.linearZoom)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun cameraInfo_torchEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1406,7 +1395,6 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(fakeCameraInfo.torchState.value)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun cameraInfo_afEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1427,7 +1415,6 @@ class CameraUseCaseAdapterTest {
             .isTrue()
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun cameraInfo_exposureExposureEnabled(): Unit = runBlocking {
         // 1. Arrange
@@ -1448,7 +1435,6 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(fakeCameraInfo.exposureState.isExposureCompensationSupported)
     }
 
-    @org.robolectric.annotation.Config(minSdk = 23)
     @Test
     fun cameraInfo_flashEnabled(): Unit = runBlocking {
         // 1. Arrange

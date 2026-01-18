@@ -66,9 +66,9 @@ public class StampAnnotation(
         for (pdfObject in pdfObjects) {
             when (pdfObject) {
                 is PathPdfObject -> {
-                    dest.writeInt(PdfObject.TYPE_PATH_PDF_OBJECT)
                     pdfObject.writeToParcel(dest, flags)
                 }
+                else -> {}
             }
         }
     }

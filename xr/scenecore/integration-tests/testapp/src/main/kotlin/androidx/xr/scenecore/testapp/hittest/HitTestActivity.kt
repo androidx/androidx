@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
@@ -50,6 +51,9 @@ class HitTestActivity : AppCompatActivity() {
     private lateinit var device: ArDevice
     private var transformWidgetModel: GltfModel? = null
 
+    private var xyzArrLoaded = false
+    private var dragonLoaded = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hittest)
@@ -71,6 +75,12 @@ class HitTestActivity : AppCompatActivity() {
             it.setOnClickListener { ActivityCompat.recreate(this@HitTestActivity) }
         }
 
+        // Text View for logging hit test result
+        val resultTextView =
+            findViewById<TextView>(R.id.textView_hit_result).also {
+                it.text = getHitTestLog(xyzArrowLoaded = false, dragonLoaded = false)
+            }
+
         // Create a single panel with text
         @SuppressLint("InflateParams")
         val panelContentView = layoutInflater.inflate(R.layout.hittest_panel, null)
@@ -88,9 +98,10 @@ class HitTestActivity : AppCompatActivity() {
             Log.e("HitTestActivity", "Error adding MovableComponent to panelEntity")
         }
 
-        var transformWidgetModel: GltfModel? = null
         lifecycleScope.launch {
             transformWidgetModel = GltfModel.create(session!!, Paths.get("models", "xyzArrows.glb"))
+            xyzArrLoaded = true
+            resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded)
         }
 
         val buttonHitTest: Button = panelContentView.findViewById(R.id.buttonHitTest)
@@ -129,6 +140,10 @@ class HitTestActivity : AppCompatActivity() {
                             val gltfEntity = GltfModelEntity.create(session!!, it, hitTestPose)
                             gltfEntity.parent = session!!.scene.activitySpace
                         }
+                        resultTextView.text =
+                            getHitTestLog(xyzArrLoaded, dragonLoaded, hitTestPose.translation, true)
+                    } else {
+                        resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded, null, true)
                     }
                 }
             }
@@ -144,6 +159,37 @@ class HitTestActivity : AppCompatActivity() {
             if (!gltfEntity.addComponent(interactableComponent)) {
                 Log.e("HitTestActivity", "Error adding InteractableComponent to gltfEntity")
             }
+            dragonLoaded = true
+            resultTextView.text = getHitTestLog(xyzArrLoaded, dragonLoaded)
         }
+    }
+
+    private fun getHitTestLog(
+        xyzArrowLoaded: Boolean,
+        dragonLoaded: Boolean,
+        hitPos: Vector3? = null, // Add default value
+        hitTestPerformed: Boolean = false, // Add a flag to know if test was run
+    ): String {
+        val assetStatus =
+            "Asset Loading Status:\n" +
+                " - Transform Widget: ${if (xyzArrowLoaded) "Loaded" else "Loading..."}\n" +
+                " - Dragon Model:     ${if (dragonLoaded) "Loaded" else "Loading..."}\n\n"
+
+        if (!hitTestPerformed) {
+            return assetStatus
+        }
+
+        val hitStatus =
+            if (hitPos == null) {
+                "No hit result. Point at a panel or the model and try again."
+            } else {
+                "Hit successful at ${hitPos.toShortString()}"
+            }
+
+        return assetStatus + hitStatus
+    }
+
+    private fun Vector3.toShortString(): String {
+        return String.format("[%.2f, %.2f, %.2f]", x, y, z)
     }
 }

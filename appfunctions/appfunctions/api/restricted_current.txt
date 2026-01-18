@@ -120,7 +120,7 @@ package androidx.appfunctions {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionIntValueConstraint {
     ctor @KotlinOnly public AppFunctionIntValueConstraint(optional int[] enumValues);
-    method @InaccessibleFromKotlin public abstract int[] enumValues();
+    method @InaccessibleFromKotlin public abstract int[] enumValues() default {};
     property public abstract int[] enumValues;
   }
 
@@ -134,9 +134,9 @@ package androidx.appfunctions {
     ctor @BytecodeOnly public AppFunctionLimitExceededException(String!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
   }
 
-  public final class AppFunctionManagerCompat {
+  public final class AppFunctionManager {
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? executeAppFunction(androidx.appfunctions.ExecuteAppFunctionRequest request, kotlin.coroutines.Continuation<? super androidx.appfunctions.ExecuteAppFunctionResponse>);
-    method public static androidx.appfunctions.AppFunctionManagerCompat? getInstance(android.content.Context context);
+    method public static androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public suspend Object? isAppFunctionEnabled(String packageName, String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method public suspend Object? isAppFunctionEnabled(String functionId, kotlin.coroutines.Continuation<? super java.lang.Boolean>);
     method @RequiresPermission(value="android.permission.EXECUTE_APP_FUNCTIONS", conditional=true) public kotlinx.coroutines.flow.Flow<java.util.List<androidx.appfunctions.metadata.AppFunctionPackageMetadata>> observeAppFunctions(androidx.appfunctions.AppFunctionSearchSpec searchSpec);
@@ -144,11 +144,11 @@ package androidx.appfunctions {
     field public static final int APP_FUNCTION_STATE_DEFAULT = 0; // 0x0
     field public static final int APP_FUNCTION_STATE_DISABLED = 2; // 0x2
     field public static final int APP_FUNCTION_STATE_ENABLED = 1; // 0x1
-    field public static final androidx.appfunctions.AppFunctionManagerCompat.Companion Companion;
+    field public static final androidx.appfunctions.AppFunctionManager.Companion Companion;
   }
 
-  public static final class AppFunctionManagerCompat.Companion {
-    method public androidx.appfunctions.AppFunctionManagerCompat? getInstance(android.content.Context context);
+  public static final class AppFunctionManager.Companion {
+    method public androidx.appfunctions.AppFunctionManager? getInstance(android.content.Context context);
     property public static int APP_FUNCTION_STATE_DEFAULT;
     property public static int APP_FUNCTION_STATE_DISABLED;
     property public static int APP_FUNCTION_STATE_ENABLED;
@@ -213,7 +213,7 @@ package androidx.appfunctions {
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER}) public @interface AppFunctionStringValueConstraint {
     ctor @KotlinOnly public AppFunctionStringValueConstraint(optional String[] enumValues);
-    method @InaccessibleFromKotlin public abstract String[] enumValues();
+    method @InaccessibleFromKotlin public abstract String[] enumValues() default {};
     property public abstract String[] enumValues;
   }
 

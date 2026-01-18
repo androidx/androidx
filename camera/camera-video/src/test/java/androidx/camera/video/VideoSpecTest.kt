@@ -33,11 +33,11 @@ class VideoSpecTest {
     fun newBuilder_containsCorrectDefaults() {
         val videoSpec = VideoSpec.builder().build()
 
-        assertThat(videoSpec.qualitySelector).isEqualTo(VideoSpec.QUALITY_SELECTOR_AUTO)
-        assertThat(videoSpec.bitrate).isEqualTo(VideoSpec.BITRATE_AUTO)
-        assertThat(videoSpec.encodeFrameRate).isEqualTo(VideoSpec.ENCODE_FRAME_RATE_AUTO)
+        assertThat(videoSpec.qualitySelector).isEqualTo(VideoSpec.QUALITY_SELECTOR_UNSPECIFIED)
+        assertThat(videoSpec.bitrate).isEqualTo(VideoSpec.BITRATE_UNSPECIFIED)
+        assertThat(videoSpec.encodeFrameRate).isEqualTo(VideoSpec.ENCODE_FRAME_RATE_UNSPECIFIED)
         assertThat(videoSpec.aspectRatio).isEqualTo(RATIO_DEFAULT)
-        assertThat(videoSpec.mimeType).isEqualTo(VideoSpec.MIME_TYPE_AUTO)
+        assertThat(videoSpec.mimeType).isEqualTo(VideoSpec.MIME_TYPE_UNSPECIFIED)
     }
 
     @Test

@@ -437,7 +437,6 @@ class UseCaseManagerTest {
         val graphConfig =
             useCaseManager
                 .createUseCaseCameraConfig(
-                    listOf(fakeUseCase),
                     sessionConfigAdapter,
                     GraphStateToCameraStateAdapter(CameraStateAdapter()),
                 )
@@ -476,7 +475,6 @@ class UseCaseManagerTest {
         val graphConfig =
             useCaseManager
                 .createUseCaseCameraConfig(
-                    listOf(fakeUseCase),
                     sessionConfigAdapter,
                     GraphStateToCameraStateAdapter(CameraStateAdapter()),
                 )
@@ -516,7 +514,6 @@ class UseCaseManagerTest {
         val graphConfig =
             useCaseManager
                 .createUseCaseCameraConfig(
-                    listOf(fakeUseCase),
                     sessionConfigAdapter,
                     GraphStateToCameraStateAdapter(CameraStateAdapter()),
                 )
@@ -573,7 +570,6 @@ class UseCaseManagerTest {
         val graphConfig =
             useCaseManager
                 .createUseCaseCameraConfig(
-                    listOf(fakeUseCase),
                     sessionConfigAdapter,
                     GraphStateToCameraStateAdapter(CameraStateAdapter()),
                 )
@@ -607,7 +603,6 @@ class UseCaseManagerTest {
         val graphConfig =
             useCaseManager
                 .createUseCaseCameraConfig(
-                    listOf(fakeUseCase),
                     sessionConfigAdapter,
                     GraphStateToCameraStateAdapter(CameraStateAdapter()),
                 )
@@ -646,7 +641,6 @@ class UseCaseManagerTest {
         val cameraGraphConfig =
             useCaseManager
                 .createUseCaseCameraConfig(
-                    listOf(fakeUseCase),
                     sessionConfigAdapter,
                     GraphStateToCameraStateAdapter(CameraStateAdapter()),
                 )
@@ -722,7 +716,6 @@ class UseCaseManagerTest {
         // Act.
         useCaseManager
             .createUseCaseCameraConfig(
-                listOf(fakeUseCase),
                 sessionConfigAdapter,
                 GraphStateToCameraStateAdapter(CameraStateAdapter()),
             )

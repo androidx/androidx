@@ -28,4 +28,7 @@ public data class NetworkState(
 
     /** Determines if the network is not roaming. */
     val isNotRoaming: Boolean,
+
+    /** Determines if the network is blocked. */
+    val isBlocked: Boolean,
 )

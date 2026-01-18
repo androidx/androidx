@@ -19,23 +19,17 @@
 
 package androidx.compose.runtime
 
-import androidx.collection.ObjectList
-import androidx.collection.ScatterMap
-import androidx.collection.emptyScatterMap
-import androidx.collection.mutableScatterMapOf
-import androidx.compose.runtime.collection.fastFilter
-import androidx.compose.runtime.collection.sortedBy
-import androidx.compose.runtime.composer.gapbuffer.Anchor
+import androidx.compose.runtime.Composer.Companion.Empty
+import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.composer.gapbuffer.SlotReader
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
-import androidx.compose.runtime.composer.gapbuffer.compositionGroupOf
+import androidx.compose.runtime.composer.gapbuffer.asGapAnchor
+import androidx.compose.runtime.tooling.ComposeStackTrace
+import androidx.compose.runtime.tooling.ComposeStackTraceFrame
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import androidx.compose.runtime.tooling.CompositionData
-import androidx.compose.runtime.tooling.CompositionGroup
-import androidx.compose.runtime.tooling.CompositionInstance
-import androidx.compose.runtime.tooling.findSubcompositionContextGroup
-import kotlin.collections.plus
+import androidx.compose.runtime.tooling.CompositionErrorContextImpl
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.coroutines.CoroutineContext
@@ -183,105 +177,6 @@ internal constructor(
         get() = (explicitNull || value != null) && !isDynamic
 
     internal fun ifNotAlreadyProvided() = this.also { canOverride = false }
-}
-
-/**
- * This class is used internally by [movableContentOf]. Please see [movableContentOf] which has
- * documentation and example for how to use movable content. This class cannot be used directly.
- *
- * A Compose compiler plugin API. DO NOT call directly.
- *
- * An instance used to track the identity of the movable content. Using a holder object allows
- * creating unique movable content instances from the same instance of a lambda. This avoids using
- * the identity of a lambda instance as it can be merged into a singleton or merged by later
- * rewritings and using its identity might lead to unpredictable results that might change from the
- * debug and release builds.
- *
- * @see movableContentOf
- */
-@InternalComposeApi
-public class MovableContent<P>(public val content: @Composable (parameter: P) -> Unit)
-
-/**
- * A Compose compiler plugin API. DO NOT call directly.
- *
- * A reference to the movable content state prior to changes being applied.
- */
-@InternalComposeApi
-public class MovableContentStateReference
-internal constructor(
-    internal val content: MovableContent<Any?>,
-    internal val parameter: Any?,
-    internal val composition: ControlledComposition,
-    internal val slotTable: SlotTable,
-    internal val anchor: Anchor,
-    internal var invalidations: List<Pair<RecomposeScopeImpl, Any?>>,
-    internal val locals: PersistentCompositionLocalMap,
-    internal val nestedReferences: List<MovableContentStateReference>?,
-)
-
-/**
- * A Compose compiler plugin API. DO NOT call directly.
- *
- * A reference to the state of a [MovableContent] after changes have being applied. This is the
- * state that was removed from the `from` composition during [ControlledComposition.applyChanges]
- * and before it is inserted during [ControlledComposition.insertMovableContent].
- */
-@InternalComposeApi
-public class MovableContentState internal constructor(internal val slotTable: SlotTable) {
-
-    /** Extract one or more states for movable content that is nested in the [slotTable]. */
-    internal fun extractNestedStates(
-        applier: Applier<*>,
-        references: ObjectList<MovableContentStateReference>,
-    ): ScatterMap<MovableContentStateReference, MovableContentState> {
-        // We can only remove states that are contained in this states slot table so the references
-        // with anchors not owned by the slotTable should be removed. We also should traverse the
-        // slot table in order to avoid thrashing the gap buffer so the references are sorted.
-        val referencesToExtract =
-            references
-                .fastFilter { slotTable.ownsAnchor(it.anchor) }
-                .sortedBy { slotTable.anchorIndex(it.anchor) }
-        if (referencesToExtract.isEmpty()) return emptyScatterMap()
-        val result = mutableScatterMapOf<MovableContentStateReference, MovableContentState>()
-        slotTable.write { writer ->
-            fun closeToGroupContaining(group: Int) {
-                while (writer.parent >= 0 && writer.currentGroupEnd <= group) {
-                    writer.skipToGroupEnd()
-                    writer.endGroup()
-                }
-            }
-            fun openParent(parent: Int) {
-                closeToGroupContaining(parent)
-                while (writer.currentGroup != parent && !writer.isGroupEnd) {
-                    if (parent < writer.nextGroup) {
-                        writer.startGroup()
-                    } else {
-                        writer.skipGroup()
-                    }
-                }
-                runtimeCheck(writer.currentGroup == parent) { "Unexpected slot table structure" }
-                writer.startGroup()
-            }
-            referencesToExtract.forEach { reference ->
-                val newGroup = writer.anchorIndex(reference.anchor)
-                val newParent = writer.parent(newGroup)
-                closeToGroupContaining(newParent)
-                openParent(newParent)
-                writer.advanceBy(newGroup - writer.currentGroup)
-                val content =
-                    extractMovableContentAtCurrent(
-                        composition = reference.composition,
-                        reference = reference,
-                        slots = writer,
-                        applier = applier,
-                    )
-                result[reference] = content
-            }
-            closeToGroupContaining(Int.MAX_VALUE)
-        }
-        return result
-    }
 }
 
 private val SlotWriter.nextGroup
@@ -1118,6 +1013,58 @@ public sealed interface Composer {
     }
 }
 
+internal abstract class InternalComposer : Composer {
+    internal abstract val areChildrenComposing: Boolean
+    internal abstract val isComposing: Boolean
+    internal abstract val hasPendingChanges: Boolean
+    internal abstract val currentRecomposeScope: RecomposeScopeImpl?
+    internal abstract val errorContext: CompositionErrorContextImpl?
+    internal abstract val deferredChanges: Changes?
+    internal abstract val sourceMarkersEnabled: Boolean
+
+    internal abstract fun startReuseFromRoot()
+
+    internal abstract fun endReuseFromRoot()
+
+    internal abstract fun changesApplied()
+
+    internal abstract fun forceRecomposeScopes(): Boolean
+
+    internal abstract fun dispose()
+
+    internal abstract fun deactivate()
+
+    internal abstract fun verifyConsistent()
+
+    internal abstract fun stacksSize(): Int
+
+    internal abstract fun stackTraceForValue(value: Any?): ComposeStackTrace
+
+    internal abstract fun parentStackTrace(): List<ComposeStackTraceFrame>
+
+    internal abstract fun prepareCompose(block: () -> Unit)
+
+    internal abstract fun composeContent(
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
+        content: @Composable () -> Unit,
+        shouldPause: ShouldPauseCallback?,
+    )
+
+    internal abstract fun recompose(
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
+        shouldPause: ShouldPauseCallback?,
+    ): Boolean
+
+    internal abstract fun tryImminentInvalidation(
+        scope: RecomposeScopeImpl,
+        instance: Any?,
+    ): Boolean
+
+    internal abstract fun updateComposerInvalidations(
+        invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>
+    )
+}
+
 /**
  * A Compose compiler plugin API. DO NOT call directly.
  *
@@ -1418,7 +1365,7 @@ internal inline fun <R> SlotWriter.withAfterAnchorInfo(anchor: Anchor?, cb: (Int
     var priority = -1
     var endRelativeAfter = -1
     if (anchor != null && anchor.valid) {
-        priority = anchorIndex(anchor)
+        priority = anchorIndex(anchor.asGapAnchor())
         endRelativeAfter = slotsSize - slotsEndAllIndex(priority)
     }
     cb(priority, endRelativeAfter)
@@ -1584,7 +1531,7 @@ internal fun extractMovableContentAtCurrent(
     if (anchor.valid) {
         val extracted =
             (composition as CompositionImpl).extractInvalidationsOfGroup {
-                slots.inGroup(anchor, it)
+                slots.inGroup(anchor.asGapAnchor(), it.asGapAnchor())
             }
         reference.invalidations += extracted
     }
@@ -1603,7 +1550,7 @@ internal fun extractMovableContentAtCurrent(
             writer.update(reference.parameter)
 
             // Move the content into current location
-            val anchors = slots.moveTo(reference.anchor, 1, writer)
+            val anchors = slots.moveTo(reference.anchor.asGapAnchor(), 1, writer)
 
             // skip the group that was just inserted.
             writer.skipGroup()
@@ -1663,47 +1610,4 @@ internal fun extractMovableContentAtCurrent(
         }
     }
     return state
-}
-
-internal class CompositionDataImpl(val composition: Composition) :
-    CompositionData, CompositionInstance {
-    private val slotTable
-        get() = (composition as CompositionImpl).slotTable
-
-    override val compositionGroups: Iterable<CompositionGroup>
-        get() = slotTable.compositionGroups
-
-    override val isEmpty: Boolean
-        get() = slotTable.isEmpty
-
-    override fun find(identityToFind: Any): CompositionGroup? = slotTable.find(identityToFind)
-
-    override fun hashCode(): Int = composition.hashCode() * 31
-
-    override fun equals(other: Any?): Boolean =
-        other is CompositionDataImpl && composition == other.composition
-
-    override val parent: CompositionInstance?
-        get() = composition.parent?.let { CompositionDataImpl(it) }
-
-    override val data: CompositionData
-        get() = this
-
-    override fun findContextGroup(): CompositionGroup? {
-        val parentSlotTable = composition.parent?.slotTable ?: return null
-        val context = composition.context ?: return null
-
-        return parentSlotTable.findSubcompositionContextGroup(context)?.let {
-            parentSlotTable.compositionGroupOf(it)
-        }
-    }
-
-    private val Composition.slotTable
-        get() = (this as? CompositionImpl)?.slotTable
-
-    private val Composition.context
-        get() = (this as? CompositionImpl)?.parent
-
-    private val Composition.parent
-        get() = context?.composition
 }

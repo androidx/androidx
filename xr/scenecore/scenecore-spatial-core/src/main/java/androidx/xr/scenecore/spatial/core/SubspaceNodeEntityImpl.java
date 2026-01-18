@@ -16,9 +16,6 @@
 
 package androidx.xr.scenecore.spatial.core;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-
 import android.content.Context;
 
 import androidx.xr.runtime.math.Pose;
@@ -94,11 +91,12 @@ final class SubspaceNodeEntityImpl extends AndroidXrEntity implements SubspaceNo
     }
 
     @Override
-    public void setAlpha(float alpha, @SpaceValue int relativeTo) {
-        alpha = max(0.0f, min(1.0f, alpha));
-        super.setAlpha(alpha, relativeTo);
+    public void setAlpha(float alpha) {
+        super.setAlpha(alpha);
         try (NodeTransaction transaction = mExtensions.createNodeTransaction()) {
-            transaction.setAlpha(mSubspaceNode, alpha).apply();
+            // Get the final clamped alpha value from the inheritance chain (from BaseEntity).
+            // This is then applied to mSubspaceNode to ensure its alpha is consistent with mNode's.
+            transaction.setAlpha(mSubspaceNode, super.getAlpha()).apply();
         }
     }
 

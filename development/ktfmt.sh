@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 function usage() {
   echo "usage: $0 [--skip-if-empty] <gradle_arguments>"

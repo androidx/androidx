@@ -31,6 +31,9 @@ import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 import android.view.accessibility.AccessibilityNodeInfo.EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,12 +41,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
@@ -55,6 +60,7 @@ import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompa
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRegionKey
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeTypeKey
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testClipEntry
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -125,9 +131,11 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1622,6 +1630,77 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(info.actionList)
                 .comparingElementsUsing(IdAndLabel)
                 .contains(AccessibilityActionCompat(ACTION_CLICK, actionLabel))
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun showOnScreen_nestedScrollables() {
+        assumeTrue(ComposeUiFlags.isAccessibilityShowOnScreenNestedScrollingEnabled)
+        val verticalScroll = ScrollState(initial = 0)
+        val horizontalScroll = ScrollState(initial = 0)
+        var density: Density? = null
+        var scope: CoroutineScope? = null
+        rule.setContentWithAccessibilityEnabled {
+            scope = rememberCoroutineScope()
+            density = LocalDensity.current
+            NestedScroll(verticalScroll, horizontalScroll)
+        }
+        val virtualViewId = rule.onNodeWithTag(tag).semanticsId()
+        val delegate = androidComposeView.composeAccessibilityDelegate
+        val provider = delegate.getAccessibilityNodeProvider(androidComposeView)
+
+        val boxsize = with(density!!) { 75.dp.roundToPx() }
+        val withOffset = (boxsize * 1.5).toInt()
+
+        // Act.
+        rule.runOnIdle {
+            scope!!.launch {
+                verticalScroll.scrollTo(withOffset)
+                horizontalScroll.scrollTo(withOffset)
+            }
+        }
+
+        rule.runOnIdle {
+            // Check that we scrolled
+            assertThat(horizontalScroll.value).isEqualTo(withOffset)
+            assertThat(verticalScroll.value).isEqualTo(withOffset)
+        }
+        rule.runOnIdle {
+            provider.performAction(
+                virtualViewId,
+                android.R.id.accessibilityActionShowOnScreen,
+                null,
+            )
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            // Check that we scrolled up to make the inner scroller fully visible.
+            assertThat(horizontalScroll.value).isEqualTo(boxsize)
+            // Check that we scrolled left to make the item fully visible.
+            assertThat(verticalScroll.value).isEqualTo(boxsize)
+        }
+    }
+
+    @Composable
+    private fun NestedScroll(verticalScroll: ScrollState, horizontalScroll: ScrollState) {
+        val testBoxSize = Modifier.size(75.dp)
+        @Composable fun SpacerBox() = Box(testBoxSize)
+        Column(Modifier.size(100.dp).background(Color.Magenta).verticalScroll(verticalScroll)) {
+            SpacerBox()
+            Row(
+                Modifier.size(width = 100.dp, height = 75.dp)
+                    .background(Color.Yellow)
+                    .horizontalScroll(horizontalScroll)
+            ) {
+                SpacerBox()
+                Box(Modifier.then(testBoxSize).background(Color.Green).semantics { testTag = tag })
+                SpacerBox()
+                SpacerBox()
+            }
+            SpacerBox()
+            SpacerBox()
         }
     }
 

@@ -23,6 +23,7 @@ import androidx.core.os.ParcelCompat
 import androidx.pdf.ink.view.brush.BrushSizeSelectorView
 import androidx.pdf.ink.view.colorpalette.ColorPaletteView
 import androidx.pdf.ink.view.colorpalette.model.PaletteItem
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState
 import androidx.pdf.ink.view.tool.model.AnnotationToolsKey.HIGHLIGHTER
 import androidx.pdf.ink.view.tool.model.AnnotationToolsKey.PEN
 
@@ -115,6 +116,12 @@ internal data class AnnotationToolbarState(
      * configuration will be applied.
      */
     val highlighterState: ToolAttributes,
+
+    /** The current docking state of the toolbar. */
+    @get:ToolbarDockState.DockState @param:ToolbarDockState.DockState val dockedState: Int,
+
+    /** Whether the toolbar is currently expanded. */
+    val isExpanded: Boolean,
 ) : Parcelable {
 
     // Secondary constructor to read from a Parcel.
@@ -144,6 +151,8 @@ internal data class AnnotationToolbarState(
                     ToolAttributes::class.java,
                 )
             ),
+        dockedState = parcel.readInt(),
+        isExpanded = parcel.readByte() != 0.toByte(),
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -156,6 +165,8 @@ internal data class AnnotationToolbarState(
         parcel.writeByte(if (isColorPaletteVisible) 1 else 0)
         parcel.writeParcelable(penState, flags)
         parcel.writeParcelable(highlighterState, flags)
+        parcel.writeInt(dockedState)
+        parcel.writeByte(if (isExpanded) 1 else 0)
     }
 
     override fun describeContents(): Int {

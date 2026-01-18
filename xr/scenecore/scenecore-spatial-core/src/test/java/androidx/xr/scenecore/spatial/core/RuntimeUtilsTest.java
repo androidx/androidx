@@ -373,64 +373,6 @@ public final class RuntimeUtilsTest {
     }
 
     @Test
-    public void getHitInfo_nullInputNode_returnsNull() {
-        EntityManager entityManager = new EntityManager();
-        SpatialSceneRuntime sceneRuntime = createSceneRuntime(entityManager);
-        Entity testEntity =
-                sceneRuntime.createGroupEntity(
-                        new Pose(), "testGroup", sceneRuntime.getActivitySpace());
-        Node testNode = ((AndroidXrEntity) testEntity).getNode();
-
-        float[] transformData = new float[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-        Mat4f transform = new Mat4f(transformData);
-        Vec3 hitPosition = new Vec3(1, 2, 3);
-
-        com.android.extensions.xr.node.InputEvent.HitInfo extensionHitInfo =
-                new com.android.extensions.xr.node.InputEvent.HitInfo(
-                        1, null, transform, hitPosition);
-        InputEvent.HitInfo hitInfo = RuntimeUtils.getHitInfo(extensionHitInfo, entityManager);
-
-        assertThat(hitInfo).isNull();
-    }
-
-    @Test
-    public void getHitInfo_nullTransform_returnsNull() {
-        EntityManager entityManager = new EntityManager();
-        SpatialSceneRuntime sceneRuntime = createSceneRuntime(entityManager);
-        Entity testEntity =
-                sceneRuntime.createGroupEntity(
-                        new Pose(), "testGroup", sceneRuntime.getActivitySpace());
-        Node testNode = ((AndroidXrEntity) testEntity).getNode();
-
-        Vec3 hitPosition = new Vec3(1, 2, 3);
-
-        com.android.extensions.xr.node.InputEvent.HitInfo extensionHitInfo =
-                new com.android.extensions.xr.node.InputEvent.HitInfo(
-                        1, testNode, null, hitPosition);
-        InputEvent.HitInfo hitInfo = RuntimeUtils.getHitInfo(extensionHitInfo, entityManager);
-
-        assertThat(hitInfo).isNull();
-    }
-
-    @Test
-    public void getHitInfo_nullHitEntity_returnsNull() {
-        // Create the entity manager but do not set the hit entity.
-        EntityManager entityManager = new EntityManager();
-        SpatialSceneRuntime sceneRuntime = createSceneRuntime(entityManager);
-
-        float[] transformData = new float[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
-        Mat4f transform = new Mat4f(transformData);
-        Vec3 hitPosition = new Vec3(1, 2, 3);
-
-        com.android.extensions.xr.node.InputEvent.HitInfo extensionHitInfo =
-                new com.android.extensions.xr.node.InputEvent.HitInfo(
-                        1, null, transform, hitPosition);
-        InputEvent.HitInfo hitInfo = RuntimeUtils.getHitInfo(extensionHitInfo, entityManager);
-
-        assertThat(hitInfo).isNull();
-    }
-
-    @Test
     public void getHitInfo_unKnownNode_returnsNull() {
         EntityManager entityManager = new EntityManager();
         SpatialSceneRuntime sceneRuntime = createSceneRuntime(entityManager);
@@ -616,7 +558,8 @@ public final class RuntimeUtilsTest {
     @Test
     public void getHitTestResult_convertsFromExtensionHitTestResult_withNoHit() {
         float distance = Float.POSITIVE_INFINITY;
-        Vec3 hitPosition = null;
+        Vector3 expectedNoHitPosition = new Vector3(0.0f, 0.0f, 0.0f);
+        Vec3 hitPosition = new Vec3(0.0f, 0.0f, 0.0f);
         int surfaceType = com.android.extensions.xr.space.HitTestResult.SURFACE_UNKNOWN;
 
         com.android.extensions.xr.space.HitTestResult.Builder hitTestResultBuilder =
@@ -628,7 +571,7 @@ public final class RuntimeUtilsTest {
         HitTestResult hitTestResult = RuntimeUtils.getHitTestResult(extensionsHitTestResult);
 
         assertThat(hitTestResult.getDistance()).isEqualTo(distance);
-        assertThat(hitTestResult.getHitPosition()).isNull();
+        assertThat(hitTestResult.getHitPosition()).isEqualTo(expectedNoHitPosition);
         assertThat(hitTestResult.getSurfaceNormal()).isNull();
         assertThat(hitTestResult.getSurfaceType())
                 .isEqualTo(HitTestResult.HitTestSurfaceType.HIT_TEST_RESULT_SURFACE_TYPE_UNKNOWN);

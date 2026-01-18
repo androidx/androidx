@@ -22,6 +22,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +32,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
@@ -56,6 +60,7 @@ import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.offset
 import androidx.xr.compose.subspace.layout.width
+import androidx.xr.compose.testapp.common.isDrmSupported
 
 /** A Fragment using spatial UI. */
 class VideoPlayerFragment : Fragment() {
@@ -92,6 +97,7 @@ class VideoPlayerFragment : Fragment() {
     private fun VideoInSpatialExternalSurface(stereoMode: StereoMode) {
         var videoWidth by remember { mutableStateOf(600.dp) }
         var videoHeight by remember { mutableStateOf(600.dp) }
+        val isDrmSupported = remember { isDrmSupported() }
         SpatialExternalSurface(
             modifier =
                 SubspaceModifier.width(
@@ -156,8 +162,16 @@ class VideoPlayerFragment : Fragment() {
             }
 
             Orbiter(position = ContentEdge.Bottom, offset = 48.dp) {
-                Button(onClick = { useDrmState.value = !useDrmState.value }) {
-                    Text(text = if (useDrmState.value) "Use non-drm video" else "Use drm video")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(onClick = { useDrmState.value = !useDrmState.value }) {
+                        Text(text = if (useDrmState.value) "Use non-drm video" else "Use drm video")
+                    }
+                    if (!isDrmSupported) {
+                        Text(
+                            text = "DRM is not supported on this device",
+                            modifier = Modifier.padding(start = 16.dp),
+                        )
+                    }
                 }
             }
         }

@@ -21,7 +21,9 @@ package androidx.compose.remote.creation.compose.capture
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
@@ -48,29 +50,39 @@ public suspend fun captureSingleRemoteDocument(
     creationDisplayInfo: CreationDisplayInfo = createCreationDisplayInfo(context),
     profile: Profile = RcPlatformProfiles.ANDROIDX,
     content: @Composable @RemoteComposable () -> Unit,
-): CapturedDocument = suspendCancellableCoroutine { continuation ->
-    val virtualDisplay = DisplayPool.allocate(context, creationDisplayInfo)
+): CapturedDocument {
+    if (RemoteComposeCreationComposeFlags.isRemoteApplierEnabled) {
+        return captureSingleRemoteDocumentV2(
+            creationDisplayInfo = creationDisplayInfo,
+            profile = profile,
+            content = content,
+        )
+    }
 
-    val writerEvents = WriterEvents()
+    return suspendCancellableCoroutine { continuation ->
+        val virtualDisplay = DisplayPool.allocate(context, creationDisplayInfo)
 
-    RemoteComposeCapture(
-        context = context,
-        virtualDisplay = virtualDisplay,
-        creationDisplayInfo = creationDisplayInfo,
-        immediateCapture = true,
-        onPaint = { _, writer ->
-            if (continuation.isActive) {
-                val docBytes = writer.encodeToByteArray()
-                continuation.resume(CapturedDocument(docBytes, writerEvents.pendingIntents))
-                DisplayPool.release(virtualDisplay)
-            }
-            true
-        },
-        onCaptureReady = @Composable {},
-        profile = profile,
-        writerEvents = writerEvents,
-        content = content,
-    )
+        val writerEvents = WriterEvents()
 
-    continuation.invokeOnCancellation { DisplayPool.release(virtualDisplay) }
+        RemoteComposeCapture(
+            context = context,
+            virtualDisplay = virtualDisplay,
+            creationDisplayInfo = creationDisplayInfo,
+            immediateCapture = true,
+            onPaint = { _, writer ->
+                if (continuation.isActive) {
+                    val docBytes = writer.encodeToByteArray()
+                    continuation.resume(CapturedDocument(docBytes, writerEvents.pendingIntents))
+                    DisplayPool.release(virtualDisplay)
+                }
+                true
+            },
+            onCaptureReady = @Composable {},
+            profile = profile,
+            writerEvents = writerEvents,
+            content = content,
+        )
+
+        continuation.invokeOnCancellation { DisplayPool.release(virtualDisplay) }
+    }
 }

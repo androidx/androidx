@@ -15,12 +15,12 @@ abstract interface androidx.compose.material3.xr.stub/XrVerticalOrbiterStub { //
 }
 
 abstract interface androidx.compose.material3.xr/XrStubs { // androidx.compose.material3.xr/XrStubs|null[0]
-    open fun horizontalOrbiterStub(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr.stub/XrHorizontalOrbiterStub? // androidx.compose.material3.xr/XrStubs.horizontalOrbiterStub|horizontalOrbiterStub(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
-    open fun verticalOrbiterStub(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr.stub/XrVerticalOrbiterStub? // androidx.compose.material3.xr/XrStubs.verticalOrbiterStub|verticalOrbiterStub(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    abstract fun horizontalOrbiterStub(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr.stub/XrHorizontalOrbiterStub? // androidx.compose.material3.xr/XrStubs.horizontalOrbiterStub|horizontalOrbiterStub(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+    abstract fun verticalOrbiterStub(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr.stub/XrVerticalOrbiterStub? // androidx.compose.material3.xr/XrStubs.verticalOrbiterStub|verticalOrbiterStub(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
 
     final object Companion { // androidx.compose.material3.xr/XrStubs.Companion|null[0]
         final fun Set(androidx.compose.material3.xr/XrStubs?, kotlin/Function2<androidx.compose.runtime/Composer, kotlin/Int, kotlin/Unit>, androidx.compose.runtime/Composer?, kotlin/Int) // androidx.compose.material3.xr/XrStubs.Companion.Set|Set(androidx.compose.material3.xr.XrStubs?;kotlin.Function2<androidx.compose.runtime.Composer,kotlin.Int,kotlin.Unit>;androidx.compose.runtime.Composer?;kotlin.Int){}[0]
-        final fun get(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr/XrStubs? // androidx.compose.material3.xr/XrStubs.Companion.get|get(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
+        final fun get(androidx.compose.runtime/Composer?, kotlin/Int): androidx.compose.material3.xr/XrStubs // androidx.compose.material3.xr/XrStubs.Companion.get|get(androidx.compose.runtime.Composer?;kotlin.Int){}[0]
     }
 }
 

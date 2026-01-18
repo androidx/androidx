@@ -106,8 +106,7 @@ package androidx.xr.scenecore.runtime {
     method public void removeAllComponents();
     method public void removeComponent(androidx.xr.scenecore.runtime.Component component);
     method public void removeInputEventListener(androidx.xr.scenecore.runtime.InputEventListener listener);
-    method public default void setAlpha(float alpha);
-    method public void setAlpha(float alpha, @androidx.xr.scenecore.runtime.SpaceValue int relativeTo);
+    method public void setAlpha(float alpha);
     method @InaccessibleFromKotlin public void setContentDescription(CharSequence);
     method public void setHidden(boolean hidden);
     method @InaccessibleFromKotlin public void setParent(androidx.xr.scenecore.runtime.Entity?);
@@ -639,7 +638,10 @@ package androidx.xr.scenecore.runtime {
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getActivitySpaceScale();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.Vector3 getWorldSpaceScale();
     method public suspend Object? hitTest(androidx.xr.runtime.math.Vector3 origin, androidx.xr.runtime.math.Vector3 direction, @androidx.xr.scenecore.runtime.ScenePose.HitTestFilterValue int hitTestFilter, kotlin.coroutines.Continuation<? super androidx.xr.scenecore.runtime.HitTestResult>);
+    method public default androidx.xr.runtime.math.Vector3 transformDirectionTo(androidx.xr.runtime.math.Vector3 direction, androidx.xr.scenecore.runtime.ScenePose destination);
     method public androidx.xr.runtime.math.Pose transformPoseTo(androidx.xr.runtime.math.Pose pose, androidx.xr.scenecore.runtime.ScenePose destination);
+    method public default androidx.xr.runtime.math.Vector3 transformPositionTo(androidx.xr.runtime.math.Vector3 position, androidx.xr.scenecore.runtime.ScenePose destination);
+    method public default androidx.xr.runtime.math.Vector3 transformVectorTo(androidx.xr.runtime.math.Vector3 vector, androidx.xr.scenecore.runtime.ScenePose destination);
     property public abstract androidx.xr.runtime.math.Pose activitySpacePose;
     property public abstract androidx.xr.runtime.math.Vector3 activitySpaceScale;
     property public abstract androidx.xr.runtime.math.Vector3 worldSpaceScale;
@@ -1035,8 +1037,12 @@ package androidx.xr.scenecore.runtime {
 
   public static final class SurfaceEntity.Shape.Quad implements androidx.xr.scenecore.runtime.SurfaceEntity.Shape {
     ctor public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d extents);
+    ctor public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d extents, optional float cornerRadius);
+    ctor @BytecodeOnly public SurfaceEntity.Shape.Quad(androidx.xr.runtime.math.FloatSize2d!, float, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public float getCornerRadius();
     method @InaccessibleFromKotlin public androidx.xr.scenecore.runtime.Dimensions getDimensions();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize2d getExtents();
+    property public float cornerRadius;
     property public androidx.xr.scenecore.runtime.Dimensions dimensions;
     property public androidx.xr.runtime.math.FloatSize2d extents;
   }

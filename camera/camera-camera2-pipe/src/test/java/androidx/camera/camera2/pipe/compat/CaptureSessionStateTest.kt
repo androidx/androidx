@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
@@ -134,6 +135,7 @@ class CaptureSessionStateTest {
                 cameraGraphFlags,
                 concurrentSessionSequencer = null,
                 streamGraph,
+                StrictMode(true),
                 fakeThreads,
                 this,
             )
@@ -161,6 +163,7 @@ class CaptureSessionStateTest {
                 cameraGraphFlags,
                 concurrentSessionSequencer = null,
                 streamGraph,
+                StrictMode(true),
                 fakeThreads,
                 this,
             )
@@ -193,6 +196,7 @@ class CaptureSessionStateTest {
                 cameraGraphFlags,
                 concurrentSessionSequencer = null,
                 streamGraph,
+                StrictMode(true),
                 fakeThreads,
                 this,
             )
@@ -231,6 +235,7 @@ class CaptureSessionStateTest {
                 cameraGraphFlags,
                 concurrentSessionSequencer = null,
                 streamGraph,
+                StrictMode(true),
                 fakeThreads,
                 this,
             )
@@ -259,6 +264,7 @@ class CaptureSessionStateTest {
                 cameraGraphFlags,
                 concurrentSessionSequencer = null,
                 streamGraph,
+                StrictMode(true),
                 fakeThreads,
                 this,
             )
@@ -288,6 +294,7 @@ class CaptureSessionStateTest {
                 cameraGraphFlags,
                 concurrentSessionSequencer = null,
                 streamGraph,
+                StrictMode(true),
                 fakeThreads,
                 this,
             )
@@ -316,6 +323,7 @@ class CaptureSessionStateTest {
                 CameraGraph.Flags(closeCaptureSessionOnDisconnect = true),
                 concurrentSessionSequencer = null,
                 streamGraph,
+                StrictMode(false),
                 fakeThreads,
                 this,
             )

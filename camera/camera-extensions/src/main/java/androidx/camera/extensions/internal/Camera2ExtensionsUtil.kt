@@ -44,15 +44,17 @@ public object Camera2ExtensionsUtil {
 
     /** Returns the CameraX extension mode corresponding to the input Camera2 extension mode. */
     @RequiresApi(31)
-    public fun convertCamera2ModeToCameraXMode(camera2Mode: Int): Int =
+    public fun convertCamera2ModeToCameraXMode(camera2Mode: Int): Int? =
         when (camera2Mode) {
             CameraExtensionCharacteristics.EXTENSION_BOKEH -> ExtensionMode.BOKEH
             CameraExtensionCharacteristics.EXTENSION_HDR -> ExtensionMode.HDR
             CameraExtensionCharacteristics.EXTENSION_NIGHT -> ExtensionMode.NIGHT
             CameraExtensionCharacteristics.EXTENSION_FACE_RETOUCH -> ExtensionMode.FACE_RETOUCH
             CameraExtensionCharacteristics.EXTENSION_AUTOMATIC -> ExtensionMode.AUTO
-            else ->
-                throw IllegalArgumentException("Unavailable Camera2 extension mode ($camera2Mode)")
+            else -> {
+                Log.w(TAG, "Unknown Camera2 extension mode ($camera2Mode)")
+                null
+            }
         }
 
     /** Creates the camera id to CameraExtensionCharacteristics map. */

@@ -35,8 +35,8 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
     BaseRemoteState<Boolean>() {
-    public override val constantValue: Boolean?
-        get() = v.constantValue?.let { it != 0 }
+    public override val constantValueOrNull: Boolean?
+        get() = v.constantValueOrNull?.let { it != 0 }
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         v.writeToDocument(creationState)
@@ -86,7 +86,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
      * @return A new [RemoteString] representing the conditionally selected string.
      */
     public fun select(ifTrue: RemoteString, ifFalse: RemoteString): RemoteString {
-        v.constantValue?.let {
+        v.constantValueOrNull?.let {
             return if (it != 0) {
                 ifTrue
             } else {
@@ -95,7 +95,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
                     return creationState.document.textLookup(
@@ -127,7 +127,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
      * @return A new [RemoteFloat] representing the conditionally selected float value.
      */
     public fun select(ifTrue: RemoteFloat, ifFalse: RemoteFloat): RemoteFloat {
-        v.constantValue?.let {
+        v.constantValueOrNull?.let {
             return if (it != 0) {
                 ifTrue
             } else {
@@ -135,7 +135,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
             }
         }
         return RemoteFloatExpression(
-            constantValue = null,
+            constantValueOrNull = null,
             { creationState ->
                 combineToFloatArray(
                     creationState,
@@ -155,7 +155,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
      * @return A new [RemoteInt] representing the conditionally selected integer value.
      */
     public fun select(ifTrue: RemoteInt, ifFalse: RemoteInt): RemoteInt {
-        v.constantValue?.let {
+        v.constantValueOrNull?.let {
             return if (it != 0) {
                 ifTrue
             } else {
@@ -163,7 +163,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
             }
         }
         return RemoteIntExpression(
-            constantValue = null,
+            constantValueOrNull = null,
             { creationState ->
                 combineToLongArray(
                     creationState,
@@ -183,7 +183,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
      * @return A new [RemoteBoolean] representing the conditionally selected integer value.
      */
     public fun select(ifTrue: RemoteBoolean, ifFalse: RemoteBoolean): RemoteBoolean {
-        v.constantValue?.let {
+        v.constantValueOrNull?.let {
             return if (it != 0) {
                 ifTrue
             } else {
@@ -193,7 +193,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
 
         return RemoteBoolean(
             RemoteIntExpression(
-                constantValue = null,
+                constantValueOrNull = null,
                 { creationState ->
                     combineToLongArray(
                         creationState,
@@ -216,7 +216,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
      * @return A new [RemoteColor] representing the conditionally selected color.
      */
     public fun select(@ColorInt ifTrue: Int, @ColorInt ifFalse: Int): RemoteColor {
-        v.constantValue?.let {
+        v.constantValueOrNull?.let {
             return if (it != 0) {
                 RemoteColor(ifTrue)
             } else {
@@ -236,7 +236,7 @@ public class RemoteBoolean internal constructor(internal val v: RemoteInt) :
      * @return A new [RemoteColor] representing the conditionally selected color.
      */
     public fun select(ifTrue: RemoteColor, ifFalse: RemoteColor): RemoteColor {
-        v.constantValue?.let {
+        v.constantValueOrNull?.let {
             return if (it != 0) {
                 ifTrue
             } else {

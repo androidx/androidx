@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.CameraPipeModule
@@ -144,6 +145,7 @@ internal class CaptureSessionFactoryTest {
                         ),
                         concurrentSessionSequencer = null,
                         streamMap,
+                        StrictMode(true),
                         threads,
                         this,
                     ),

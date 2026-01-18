@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.DurationNs
@@ -63,6 +64,7 @@ internal class Camera2CameraController
 constructor(
     private val scope: CoroutineScope,
     private val threads: Threads,
+    private val strictMode: StrictMode,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
     private val surfaceTracker: SurfaceTracker,
@@ -232,6 +234,7 @@ constructor(
                 graphConfig.flags,
                 concurrentSessionSequencer,
                 streamGraph,
+                strictMode,
                 threads,
                 scope,
             )

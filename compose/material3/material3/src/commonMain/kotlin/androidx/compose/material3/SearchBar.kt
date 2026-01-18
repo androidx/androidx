@@ -32,6 +32,7 @@ import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -137,6 +138,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusDirection
@@ -455,7 +457,11 @@ fun AppBarWithSearch(
                     )
                 }
             }
-            Box(modifier = Modifier.weight(1f)) {
+            val isVisible =
+                !state.expandsToFullScreen ||
+                    state.currentValue == SearchBarValue.Collapsed ||
+                    state.targetValue == SearchBarValue.Expanded // prevent flickering
+            Box(modifier = Modifier.weight(1f).alpha(if (isVisible) 1f else 0f)) {
                 SearchBar(
                     state = state,
                     inputField = inputField,
@@ -536,6 +542,7 @@ fun ExpandedFullScreenContainedSearchBar(
     properties: DialogProperties = DialogProperties(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    state.expandsToFullScreen = true
     ExpandedFullScreenSearchBarImpl(state = state, properties = properties) {
         focusRequester,
         predictiveBackState ->
@@ -557,6 +564,7 @@ fun ExpandedFullScreenContainedSearchBar(
             tonalElevation = tonalElevation,
             shadowElevation = shadowElevation,
             windowInsets = windowInsets(),
+            isContained = true,
             content = content,
         )
     }
@@ -603,6 +611,7 @@ fun ExpandedFullScreenSearchBar(
     properties: DialogProperties = DialogProperties(),
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    state.expandsToFullScreen = true
     ExpandedFullScreenSearchBarImpl(state = state, properties = properties) {
         focusRequester,
         predictiveBackState ->
@@ -624,6 +633,7 @@ fun ExpandedFullScreenSearchBar(
             tonalElevation = tonalElevation,
             shadowElevation = shadowElevation,
             windowInsets = windowInsets(),
+            isContained = false,
             content = {
                 HorizontalDivider(color = colors.dividerColor)
                 content()
@@ -1064,9 +1074,12 @@ enum class SearchBarValue {
 @Stable
 class SearchBarState
 private constructor(
-    private val animatable: Animatable<Float, AnimationVector1D>,
+    internal val animatable: Animatable<Float, AnimationVector1D>,
+    private val contentAnimatable: Animatable<Float, AnimationVector1D>,
     private val animationSpecForExpand: AnimationSpec<Float>,
     private val animationSpecForCollapse: AnimationSpec<Float>,
+    private val animationSpecForContentFadeIn: AnimationSpec<Float>,
+    private val animationSpecForContentFadeOut: AnimationSpec<Float>,
 ) {
     /**
      * Construct a [SearchBarState].
@@ -1082,9 +1095,43 @@ private constructor(
     ) : this(
         animatable =
             Animatable(if (initialValue == SearchBarValue.Expanded) Expanded else Collapsed),
+        contentAnimatable =
+            Animatable(if (initialValue == SearchBarValue.Expanded) Expanded else Collapsed),
         animationSpecForExpand = animationSpecForExpand,
         animationSpecForCollapse = animationSpecForCollapse,
+        animationSpecForContentFadeIn = snap(),
+        animationSpecForContentFadeOut = snap(),
     )
+
+    /**
+     * Construct a [SearchBarState].
+     *
+     * @param initialValue the initial value of whether the search bar is collapsed or expanded.
+     * @param animationSpecForExpand the animation spec used when the search bar expands.
+     * @param animationSpecForCollapse the animation spec used when the search bar collapses.
+     * @param animationSpecForContentFadeIn the animation spec used for the content when the search
+     *   bar expands.
+     * @param animationSpecForContentFadeOut the animation spec used for the content when the search
+     *   bar collapses.
+     */
+    constructor(
+        initialValue: SearchBarValue,
+        animationSpecForExpand: AnimationSpec<Float>,
+        animationSpecForCollapse: AnimationSpec<Float>,
+        animationSpecForContentFadeIn: AnimationSpec<Float>,
+        animationSpecForContentFadeOut: AnimationSpec<Float>,
+    ) : this(
+        animatable =
+            Animatable(if (initialValue == SearchBarValue.Expanded) Expanded else Collapsed),
+        contentAnimatable =
+            Animatable(if (initialValue == SearchBarValue.Expanded) Expanded else Collapsed),
+        animationSpecForExpand = animationSpecForExpand,
+        animationSpecForCollapse = animationSpecForCollapse,
+        animationSpecForContentFadeIn = animationSpecForContentFadeIn,
+        animationSpecForContentFadeOut = animationSpecForContentFadeOut,
+    )
+
+    internal var expandsToFullScreen by mutableStateOf(false)
 
     /**
      * The layout coordinates, if available, of the search bar when it is collapsed. Used to
@@ -1099,6 +1146,10 @@ private constructor(
     @get:FloatRange(from = 0.0, to = 1.0)
     val progress: Float
         get() = animatable.value.coerceIn(0f, 1f)
+
+    @get:FloatRange(from = 0.0, to = 1.0)
+    internal val contentProgress: Float
+        get() = contentAnimatable.value.coerceIn(0f, 1f)
 
     /** Whether the state is currently animating */
     val isAnimating: Boolean
@@ -1129,10 +1180,18 @@ private constructor(
     /** Animate the search bar to its expanded state. */
     suspend fun animateToExpanded() {
         animatable.animateTo(targetValue = Expanded, animationSpec = animationSpecForExpand)
+        contentAnimatable.animateTo(
+            targetValue = Expanded,
+            animationSpec = animationSpecForContentFadeIn,
+        )
     }
 
     /** Animate the search bar to its collapsed state. */
     suspend fun animateToCollapsed() {
+        contentAnimatable.animateTo(
+            targetValue = Collapsed,
+            animationSpec = animationSpecForContentFadeOut,
+        )
         animatable.animateTo(targetValue = Collapsed, animationSpec = animationSpecForCollapse)
     }
 
@@ -1154,12 +1213,36 @@ private constructor(
             animationSpecForCollapse: AnimationSpec<Float>,
         ): Saver<SearchBarState, *> =
             listSaver(
-                save = { listOf(it.progress) },
+                save = { listOf(it.progress, it.contentProgress) },
                 restore = {
                     SearchBarState(
                         animatable = Animatable(it[0], Float.VectorConverter),
+                        contentAnimatable = Animatable(it[1], Float.VectorConverter),
                         animationSpecForExpand = animationSpecForExpand,
                         animationSpecForCollapse = animationSpecForCollapse,
+                        animationSpecForContentFadeIn = snap(),
+                        animationSpecForContentFadeOut = snap(),
+                    )
+                },
+            )
+
+        /** The default [Saver] implementation for [SearchBarState]. */
+        fun Saver(
+            animationSpecForExpand: AnimationSpec<Float>,
+            animationSpecForCollapse: AnimationSpec<Float>,
+            animationSpecForContentFadeIn: AnimationSpec<Float>,
+            animationSpecForContentFadeOut: AnimationSpec<Float>,
+        ): Saver<SearchBarState, *> =
+            listSaver(
+                save = { listOf(it.progress, it.contentProgress) },
+                restore = {
+                    SearchBarState(
+                        animatable = Animatable(it[0], Float.VectorConverter),
+                        contentAnimatable = Animatable(it[1], Float.VectorConverter),
+                        animationSpecForExpand = animationSpecForExpand,
+                        animationSpecForCollapse = animationSpecForCollapse,
+                        animationSpecForContentFadeIn = animationSpecForContentFadeIn,
+                        animationSpecForContentFadeOut = animationSpecForContentFadeOut,
                     )
                 },
             )
@@ -1194,6 +1277,52 @@ fun rememberSearchBarState(
             initialValue = initialValue,
             animationSpecForExpand = animationSpecForExpand,
             animationSpecForCollapse = animationSpecForCollapse,
+        )
+    }
+}
+
+/**
+ * Create and remember a [SearchBarState] to use in conjunction with
+ * [ExpandedFullScreenContainedSearchBar].
+ *
+ * @param initialValue the initial value of whether the search bar is collapsed or expanded.
+ * @param animationSpecForExpand the animation spec used when the search bar expands.
+ * @param animationSpecForCollapse the animation spec used when the search bar collapses.
+ * @param animationSpecForContentFadeIn the animation spec used for the content when the search bar
+ *   expands.
+ * @param animationSpecForContentFadeOut the animation spec used for the content when the search bar
+ *   collapses.
+ */
+@ExperimentalMaterial3Api
+@Composable
+fun rememberContainedSearchBarState(
+    initialValue: SearchBarValue = SearchBarValue.Collapsed,
+    animationSpecForExpand: AnimationSpec<Float> = MotionSchemeKeyTokens.FastSpatial.value(),
+    animationSpecForCollapse: AnimationSpec<Float> = MotionSchemeKeyTokens.FastSpatial.value(),
+    animationSpecForContentFadeIn: AnimationSpec<Float> = MotionSchemeKeyTokens.SlowEffects.value(),
+    animationSpecForContentFadeOut: AnimationSpec<Float> =
+        MotionSchemeKeyTokens.DefaultEffects.value(),
+): SearchBarState {
+    return rememberSaveable(
+        initialValue,
+        animationSpecForExpand,
+        animationSpecForCollapse,
+        animationSpecForContentFadeIn,
+        animationSpecForContentFadeOut,
+        saver =
+            Saver(
+                animationSpecForExpand = animationSpecForExpand,
+                animationSpecForCollapse = animationSpecForCollapse,
+                animationSpecForContentFadeIn = animationSpecForContentFadeIn,
+                animationSpecForContentFadeOut = animationSpecForContentFadeOut,
+            ),
+    ) {
+        SearchBarState(
+            initialValue = initialValue,
+            animationSpecForExpand = animationSpecForExpand,
+            animationSpecForCollapse = animationSpecForCollapse,
+            animationSpecForContentFadeIn = animationSpecForContentFadeIn,
+            animationSpecForContentFadeOut = animationSpecForContentFadeOut,
         )
     }
 }
@@ -1615,7 +1744,7 @@ object SearchBarDefaults {
     @Composable
     fun containedColors(state: SearchBarState): SearchBarColors {
         val containerColor =
-            if (state.targetValue == SearchBarValue.Expanded) {
+            if (state.currentValue == SearchBarValue.Expanded) {
                 fullScreenContainedSearchBarColor
             } else {
                 collapsedContainedSearchBarColor
@@ -3147,6 +3276,7 @@ private fun FullScreenSearchBarLayout(
     tonalElevation: Dp,
     shadowElevation: Dp,
     windowInsets: WindowInsets,
+    isContained: Boolean,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val backEvent by remember { derivedStateOf { predictiveBackState.value } }
@@ -3252,8 +3382,15 @@ private fun FullScreenSearchBarLayout(
                 .coerceAtLeast(collapsedHeight)
         val endWidth = lerp(constraints.maxWidth, predictiveBackEndWidth, predictiveBackProgress)
         val endHeight = lerp(constraints.maxHeight, predictiveBackEndHeight, predictiveBackProgress)
-        val width = constraints.constrainWidth(lerp(collapsedWidth, endWidth, state.progress))
-        val height = constraints.constrainHeight(lerp(collapsedHeight, endHeight, state.progress))
+        val width: Int
+        val height: Int
+        if (isContained) {
+            width = endWidth
+            height = endHeight
+        } else {
+            width = constraints.constrainWidth(lerp(collapsedWidth, endWidth, state.progress))
+            height = constraints.constrainHeight(lerp(collapsedHeight, endHeight, state.progress))
+        }
 
         val surfaceMeasurable = measurables.fastFirst { it.layoutId == LayoutIdSurface }
         val surfacePlaceable = surfaceMeasurable.measure(Constraints.fixed(width, height))
@@ -3262,21 +3399,29 @@ private fun FullScreenSearchBarLayout(
             inputFieldPadding.calculateStartPadding(this@Layout.layoutDirection).roundToPx()
         val endPadding =
             inputFieldPadding.calculateEndPadding(this@Layout.layoutDirection).roundToPx()
-        val animatedStartPadding = lerp(0, startPadding, state.progress)
-        val animatedEndPadding = lerp(0, endPadding, state.progress)
-        val paddedInputFieldWidth = width - animatedStartPadding - animatedEndPadding
+        val paddedInputFieldWidth =
+            lerp(collapsedWidth, width - startPadding - endPadding, state.animatable.value)
         val inputFieldMeasurable = measurables.fastFirst { it.layoutId == LayoutIdInputField }
         val inputFieldPlaceable =
             inputFieldMeasurable.measure(Constraints.fixed(paddedInputFieldWidth, collapsedHeight))
 
-        val topPadding = unconsumedInsets.getTop(this@Layout) + SearchBarVerticalPadding.roundToPx()
-        val bottomPadding = SearchBarVerticalPadding.roundToPx()
+        val topPadding =
+            unconsumedInsets.getTop(this@Layout) +
+                if (isContained) {
+                    AppBarWithSearchVerticalPadding.roundToPx()
+                } else {
+                    SearchBarVerticalPadding.roundToPx()
+                }
         val animatedTopPadding =
             lerp(0, topPadding, min(state.progress, 1 - predictiveBackProgress))
-        val animatedBottomPadding = lerp(0, bottomPadding, state.progress)
+        val bottomPadding =
+            if (isContained) {
+                SearchBarVerticalPadding.roundToPx()
+            } else {
+                lerp(0, SearchBarVerticalPadding.roundToPx(), state.progress)
+            }
 
-        val paddedInputFieldHeight =
-            inputFieldPlaceable.height + animatedTopPadding + animatedBottomPadding
+        val paddedInputFieldHeight = inputFieldPlaceable.height + animatedTopPadding + bottomPadding
         val contentMeasurable = measurables.fastFirst { it.layoutId == LayoutIdSearchContent }
         val contentPlaceable =
             contentMeasurable.measure(
@@ -3315,26 +3460,52 @@ private fun FullScreenSearchBarLayout(
                     .coerceAtMost(state.collapsedBounds.top)
             }
 
-            val endOffsetX =
+            val predictiveBackOffsetX =
                 lerp(0, lastInProgressValue.value?.endOffsetX() ?: 0, predictiveBackProgress)
-            val endOffsetY =
+            val offsetX =
+                if (isContained) {
+                    predictiveBackOffsetX
+                } else {
+                    lerp(state.collapsedBounds.left, predictiveBackOffsetX, state.progress)
+                }
+            val currentCenterX =
+                lerp(
+                    state.collapsedBounds.center.x.toFloat(),
+                    offsetX + width / 2f,
+                    state.animatable.value,
+                )
+            val offsetY =
                 lerp(0, lastInProgressValue.value?.endOffsetY() ?: 0, predictiveBackProgress)
-            val offsetX = lerp(state.collapsedBounds.left, endOffsetX, state.progress)
-            val offsetY = lerp(state.collapsedBounds.top, endOffsetY, state.progress)
+            val animatedOffsetY = lerp(state.collapsedBounds.top, offsetY, state.progress)
 
-            surfacePlaceable.place(x = offsetX, y = offsetY)
+            surfacePlaceable.placeWithLayer(
+                x = offsetX,
+                y = if (isContained) offsetY else animatedOffsetY,
+                layerBlock = {
+                    if (isContained) {
+                        alpha = state.progress
+                    }
+                },
+            )
             inputFieldPlaceable.place(
-                x = offsetX + animatedStartPadding,
-                y = offsetY + animatedTopPadding,
+                x = (currentCenterX - inputFieldPlaceable.width / 2f).roundToInt(),
+                y = animatedOffsetY + animatedTopPadding,
             )
             contentPlaceable.placeWithLayer(
                 x = offsetX,
                 y =
-                    offsetY +
+                    animatedOffsetY +
                         animatedTopPadding +
                         inputFieldPlaceable.height +
-                        animatedBottomPadding,
-                layerBlock = { alpha = state.progress },
+                        bottomPadding,
+                layerBlock = {
+                    alpha =
+                        if (isContained) {
+                            state.contentProgress
+                        } else {
+                            state.progress
+                        }
+                },
             )
         }
     }

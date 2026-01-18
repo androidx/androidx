@@ -19,7 +19,6 @@ package androidx.pdf.adapter
 import android.graphics.Bitmap
 import android.graphics.PointF
 import android.graphics.Rect
-import android.graphics.pdf.RenderParams
 import android.graphics.pdf.component.PdfAnnotation
 import android.graphics.pdf.component.PdfPageObject
 import android.graphics.pdf.content.PdfPageGotoLinkContent
@@ -31,7 +30,7 @@ import android.graphics.pdf.models.FormWidgetInfo
 import android.graphics.pdf.models.PageMatchBounds
 import android.graphics.pdf.models.selection.PageSelection
 import android.graphics.pdf.models.selection.SelectionBoundary
-import android.util.Pair
+import androidx.pdf.RenderParams
 import androidx.pdf.annotation.models.EditOperation
 
 class FakePdfPage(private val pageNum: Int, override val height: Int, override val width: Int) :
@@ -42,11 +41,22 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
         val operation: EditOperation.Operation,
     )
 
-    internal val annotationsOperation = mutableListOf<AnnotationOperationRecord>()
-    val annotationsMap = mutableMapOf<Int, PdfAnnotation>()
+    // --- Test Configuration ---
+    var shouldFailInsert: Boolean = false
+    var shouldFailUpdate: Boolean = false
+    var exceptionToThrow: RuntimeException? = null
 
-    override fun renderPage(bitmap: Bitmap) {
-        TODO("Not yet implemented")
+    // Tracking what was called
+    val addedAnnotations = mutableListOf<PdfAnnotation>()
+    val updatedAnnotations = mutableListOf<Pair<Int, PdfAnnotation>>()
+    val removedAnnotationIds = mutableListOf<Int>()
+    var renderBitmapCalled = false
+
+    // Counter to generate fake IDs
+    private var idCounter = 1000
+
+    override fun renderPage(bitmap: Bitmap, renderParams: RenderParams) {
+        renderBitmapCalled = true
     }
 
     override fun renderTile(
@@ -55,6 +65,7 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
         top: Int,
         scaledPageWidth: Int,
         scaledPageHeight: Int,
+        renderParams: RenderParams,
     ) {
         TODO("Not yet implemented")
     }
@@ -91,10 +102,6 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
         TODO("Not yet implemented")
     }
 
-    override fun getRenderParams(): RenderParams {
-        TODO("Not yet implemented")
-    }
-
     override fun applyEdit(editRecord: FormEditRecord): List<Rect> {
         TODO("Not yet implemented")
     }
@@ -103,14 +110,14 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
         TODO("Not yet implemented")
     }
 
-    override fun getPageObjects(): List<Pair<Int, PdfPageObject>> {
+    override fun getPageObjects(): List<android.util.Pair<Int, PdfPageObject>> {
         TODO("Not yet implemented")
     }
 
     override fun getTopPageObjectAtPosition(
         point: PointF,
         types: IntArray,
-    ): Pair<Int, PdfPageObject>? {
+    ): android.util.Pair<Int, PdfPageObject>? {
         TODO("Not yet implemented")
     }
 
@@ -123,28 +130,28 @@ class FakePdfPage(private val pageNum: Int, override val height: Int, override v
     }
 
     override fun addPageAnnotation(annotation: PdfAnnotation): Int {
-        if (pageNum == -1) throw IllegalStateException()
-        val fakeAospId = annotationsMap.size
-        annotationsOperation.add(AnnotationOperationRecord(fakeAospId, EditOperation.Add))
-        annotationsMap[fakeAospId] = annotation
-        return fakeAospId
+        if (exceptionToThrow != null) throw exceptionToThrow!!
+        if (shouldFailInsert) throw RuntimeException("Failed to add annotation")
+
+        addedAnnotations.add(annotation)
+        return idCounter++
     }
 
-    override fun getPageAnnotations(): List<Pair<Int, PdfAnnotation>> {
-        return annotationsMap.map { (aospId, annotation) -> Pair(aospId, annotation) }
+    override fun getPageAnnotations(): List<android.util.Pair<Int, PdfAnnotation>> {
+        TODO("Not yet implemented")
     }
 
     override fun updatePageAnnotation(annotationId: Int, annotation: PdfAnnotation): Boolean {
-        if (pageNum < 0) throw IllegalStateException()
-        annotationsOperation.add(AnnotationOperationRecord(annotationId, EditOperation.Update))
-        annotationsMap[annotationId] = annotation
+        if (exceptionToThrow != null) throw exceptionToThrow!!
+        if (shouldFailUpdate) return false
+
+        updatedAnnotations.add(annotationId to annotation)
         return true
     }
 
     override fun removePageAnnotation(annotationId: Int) {
-        if (pageNum < 0) throw IllegalStateException()
-        annotationsOperation.add(AnnotationOperationRecord(annotationId, EditOperation.Remove))
-        annotationsMap.remove(annotationId)
+        if (exceptionToThrow != null) throw exceptionToThrow!!
+        removedAnnotationIds.add(annotationId)
     }
 
     override fun close() {

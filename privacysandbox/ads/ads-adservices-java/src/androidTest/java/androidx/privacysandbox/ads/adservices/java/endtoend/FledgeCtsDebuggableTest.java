@@ -263,6 +263,7 @@ public class FledgeCtsDebuggableTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testAdSelection_etldViolation_failure() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
@@ -442,6 +443,7 @@ public class FledgeCtsDebuggableTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testAdSelection_malformedScoringLogic_failure() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(
@@ -550,6 +552,7 @@ public class FledgeCtsDebuggableTest {
     }
 
     @Test
+    @Ignore("b/463382540")
     public void testAdSelection_errorGettingScoringLogic_failure() throws Exception {
         // Skip the test if the right SDK extension is not present.
         Assume.assumeTrue(

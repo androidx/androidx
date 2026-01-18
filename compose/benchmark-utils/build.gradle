@@ -54,7 +54,7 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.compose.benchmarkutils"
 
     // workarounds for b/328649293

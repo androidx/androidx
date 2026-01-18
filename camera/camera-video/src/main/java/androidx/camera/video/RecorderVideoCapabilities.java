@@ -16,52 +16,24 @@
 
 package androidx.camera.video;
 
-import static androidx.camera.core.DynamicRange.ENCODING_HLG;
-import static androidx.camera.core.DynamicRange.SDR;
-import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
-import static androidx.camera.video.CapabilitiesByQuality.containsSupportedQuality;
-import static androidx.camera.video.Quality.FHD;
-import static androidx.camera.video.Quality.HD;
-import static androidx.camera.video.Quality.QUALITY_SOURCE_HIGH_SPEED;
-import static androidx.camera.video.Quality.QUALITY_SOURCE_REGULAR;
-import static androidx.camera.video.Quality.SD;
-import static androidx.camera.video.Quality.getSortedQualities;
-import static androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE;
-import static androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES;
-import static androidx.camera.video.Recorder.VIDEO_RECORDING_TYPE_HIGH_SPEED;
-import static androidx.core.util.Preconditions.checkArgument;
-
-import static java.util.Collections.singleton;
-
 import android.util.Size;
 
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.EncoderProfilesProxy;
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy;
-import androidx.camera.core.impl.Quirks;
 import androidx.camera.video.Quality.QualitySource;
-import androidx.camera.video.internal.BackupHdrProfileEncoderProfilesProvider;
 import androidx.camera.video.internal.DynamicRangeMatchedEncoderProfilesProvider;
-import androidx.camera.video.internal.QualityExploredEncoderProfilesProvider;
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
-import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
-import androidx.camera.video.internal.encoder.VideoEncoderInfo;
-import androidx.camera.video.internal.workaround.DefaultEncoderProfilesProvider;
-import androidx.camera.video.internal.workaround.QualityAddedEncoderProfilesProvider;
-import androidx.camera.video.internal.workaround.QualityResolutionModifiedEncoderProfilesProvider;
-import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,16 +43,12 @@ import java.util.Set;
  * RecorderVideoCapabilities is used to query video recording capabilities related to Recorder.
  *
  * <p>The {@link EncoderProfilesProxy} queried from RecorderVideoCapabilities will contain
- * {@link VideoProfileProxy}s matches with the target {@link DynamicRange}. When HDR is
- * supported, RecorderVideoCapabilities will try best to provide additional backup HDR
- * {@link VideoProfileProxy}s in case the information is lacked in the device.
+ * {@link VideoProfileProxy}s matches with the target {@link DynamicRange}.
  *
  * @see Recorder#getVideoCapabilities(CameraInfo)
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class RecorderVideoCapabilities implements VideoCapabilities {
-    private static final String TAG = "RecorderVideoCapabilities";
-
     private final EncoderProfilesProvider mProfilesProvider;
     private final boolean mIsStabilizationSupported;
     private final @QualitySource int mQualitySource;
@@ -98,28 +66,19 @@ public class RecorderVideoCapabilities implements VideoCapabilities {
     /**
      * Creates a RecorderVideoCapabilities.
      *
-     * @param videoCapabilitiesSource the video capabilities source. Possible values include
-     *                                {@link Recorder#VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE}
-     *                                and
-     *                                {@link Recorder#VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES}.
+     * @param profilesProvider        the encoder profiles provider.
      * @param cameraInfo              the cameraInfo.
-     * @param videoEncoderInfoFinder  the VideoEncoderInfo finder.
-     * @param videoCaptureType        the video capture type.
+     * @param qualitySource           the quality source.
      * @throws IllegalArgumentException if unable to get the capability information from the
      *                                  CameraInfo or the videoCapabilitiesSource is not supported.
      */
-    RecorderVideoCapabilities(@Recorder.VideoCapabilitiesSource int videoCapabilitiesSource,
-            @NonNull CameraInfoInternal cameraInfo,
-            @Recorder.VideoRecordingType int videoCaptureType,
-            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder) {
-        checkArgument(videoCapabilitiesSource == VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
-                        || videoCapabilitiesSource == VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES,
-                "Not a supported video capabilities source: " + videoCapabilitiesSource);
-
-        mQualitySource = videoCaptureType == VIDEO_RECORDING_TYPE_HIGH_SPEED
-                ? QUALITY_SOURCE_HIGH_SPEED : QUALITY_SOURCE_REGULAR;
-        mProfilesProvider = getEncoderProfilesProvider(videoCapabilitiesSource, cameraInfo,
-                videoEncoderInfoFinder, mQualitySource);
+    RecorderVideoCapabilities(
+            @NonNull EncoderProfilesProvider profilesProvider,
+            @Quality.QualitySource int qualitySource,
+            @NonNull CameraInfoInternal cameraInfo
+    ) {
+        mQualitySource = qualitySource;
+        mProfilesProvider = profilesProvider;
 
         // Group by dynamic range.
         for (DynamicRange dynamicRange : cameraInfo.getSupportedDynamicRanges()) {
@@ -193,70 +152,6 @@ public class RecorderVideoCapabilities implements VideoCapabilities {
                 : capabilities.findNearestHigherSupportedQualityFor(size);
     }
 
-    private static @NonNull EncoderProfilesProvider getEncoderProfilesProvider(
-            @Recorder.VideoCapabilitiesSource int videoCapabilitiesSource,
-            @NonNull CameraInfoInternal cameraInfo,
-            VideoEncoderInfo.@NonNull Finder videoEncoderInfoFinder,
-            @QualitySource int qualitySource) {
-
-        EncoderProfilesProvider encoderProfilesProvider = cameraInfo.getEncoderProfilesProvider();
-
-        if (qualitySource == QUALITY_SOURCE_HIGH_SPEED) {
-
-            if (!cameraInfo.isHighSpeedSupported()) {
-                return EncoderProfilesProvider.EMPTY;
-            }
-
-            // TODO(b/399585664): explore high speed quality when video source is
-            //  VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
-            return encoderProfilesProvider;
-        }
-
-        if (!containsSupportedQuality(encoderProfilesProvider, qualitySource)) {
-            Logger.w(TAG, "Camera EncoderProfilesProvider doesn't contain any supported Quality.");
-            // Limit maximum supported video resolution to 1080p(FHD).
-            // While 2160p(UHD) may be reported as supported by the Camera and MediaCodec APIs,
-            // testing on lab devices has shown that recording at this resolution is not always
-            // reliable. This aligns with the Android 5.1 CDD, which recommends 1080p as the
-            // supported resolution.
-            // See: https://source.android.com/static/docs/compatibility/5.1/android-5.1-cdd.pdf,
-            // 5.2. Video Encoding.
-            List<Quality> targetQualities = Arrays.asList(FHD, HD, SD);
-            encoderProfilesProvider = new DefaultEncoderProfilesProvider(cameraInfo,
-                    targetQualities, videoEncoderInfoFinder);
-        }
-
-        Quirks deviceQuirks = DeviceQuirks.getAll();
-        // Add extra supported quality.
-        encoderProfilesProvider = new QualityAddedEncoderProfilesProvider(encoderProfilesProvider,
-                deviceQuirks, cameraInfo, videoEncoderInfoFinder);
-
-        if (videoCapabilitiesSource == VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES) {
-            encoderProfilesProvider = new QualityExploredEncoderProfilesProvider(
-                    encoderProfilesProvider,
-                    getSortedQualities(),
-                    singleton(SDR),
-                    cameraInfo.getSupportedResolutions(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE),
-                    videoEncoderInfoFinder);
-        }
-
-        // Modify qualities' matching resolution to the value supported by camera.
-        encoderProfilesProvider = new QualityResolutionModifiedEncoderProfilesProvider(
-                encoderProfilesProvider, deviceQuirks);
-
-        // Add backup HDR video information. In the initial version, only HLG10 profile is added.
-        if (isHlg10SupportedByCamera(cameraInfo)) {
-            encoderProfilesProvider = new BackupHdrProfileEncoderProfilesProvider(
-                    encoderProfilesProvider, videoEncoderInfoFinder);
-        }
-
-        // Filter out unsupported qualities.
-        encoderProfilesProvider = new QualityValidatedEncoderProfilesProvider(
-                encoderProfilesProvider, cameraInfo, deviceQuirks);
-
-        return encoderProfilesProvider;
-    }
-
     private @Nullable CapabilitiesByQuality getCapabilities(@NonNull DynamicRange dynamicRange) {
         if (dynamicRange.isFullySpecified()) {
             return mCapabilitiesMapForFullySpecifiedDynamicRange.get(dynamicRange);
@@ -271,20 +166,6 @@ public class RecorderVideoCapabilities implements VideoCapabilities {
             mCapabilitiesMapForNonFullySpecifiedDynamicRange.put(dynamicRange, capabilities);
             return capabilities;
         }
-    }
-
-    private static boolean isHlg10SupportedByCamera(
-            @NonNull CameraInfoInternal cameraInfoInternal) {
-        Set<DynamicRange> dynamicRanges = cameraInfoInternal.getSupportedDynamicRanges();
-        for (DynamicRange dynamicRange : dynamicRanges) {
-            Integer encoding = dynamicRange.getEncoding();
-            int bitDepth = dynamicRange.getBitDepth();
-            if (encoding.equals(ENCODING_HLG) && bitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private @Nullable CapabilitiesByQuality generateCapabilitiesForNonFullySpecifiedDynamicRange(

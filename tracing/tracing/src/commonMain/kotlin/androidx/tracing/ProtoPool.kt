@@ -43,7 +43,7 @@ internal class ProtoPool(internal val isDebug: Boolean) {
             )
         }
 
-    fun obtainTracePacketArray(): PooledTracePacketArray? {
+    fun obtainTracePacketArray(): PooledTracePacketArray {
         return tracePacketArrayPool.obtain()
     }
 

@@ -51,9 +51,11 @@ class PendingIntentActionTest {
     fun toRemoteAction_withDefaultRemoteComposeWriter_throws() {
         val creationState =
             RemoteComposeCreationState(platform = AndroidxRcPlatformServices(), size = Size(1f, 1f))
-        val testAction = PendingIntentAction(creationState, testPendingIntent)
+        val testAction = PendingIntentAction(testPendingIntent)
 
-        assertThrows(IllegalStateException::class.java) { testAction.toRemoteAction() }
+        assertThrows(IllegalStateException::class.java) {
+            with(testAction) { creationState.toRemoteAction() }
+        }
     }
 
     @Test
@@ -66,8 +68,8 @@ class PendingIntentActionTest {
                 writerEvents = writerEvents,
             )
 
-        val testAction = PendingIntentAction(creationState, testPendingIntent)
-        val remoteAction = testAction.toRemoteAction()
+        val testAction = PendingIntentAction(testPendingIntent)
+        val remoteAction = with(testAction) { creationState.toRemoteAction() }
 
         val pendingIntents = writerEvents.pendingIntents
         assertThat(pendingIntents.size).isEqualTo(1)

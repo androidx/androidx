@@ -30,7 +30,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     defaultConfig.consumerProguardFiles("proguard-rules.pro")
     namespace = "androidx.work.multiprocess"
 }

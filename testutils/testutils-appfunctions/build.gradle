@@ -38,7 +38,7 @@ dependencies {
 
 android {
     namespace = "androidx.testutils.appfunctions"
-    compileSdk = 36
+    compileSdk { version = release(36) }
 }
 
 androidx {

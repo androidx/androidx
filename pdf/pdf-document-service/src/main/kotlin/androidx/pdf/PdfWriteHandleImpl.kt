@@ -34,6 +34,8 @@ internal class PdfWriteHandleImpl(private val editablePdfDocument: SandboxedPdfD
     override suspend fun writeTo(destination: ParcelFileDescriptor) {
         return editablePdfDocument.withDocument { document ->
             document.write(destination, /* removePasswordProtection= */ false)
+            // Ensure that the file is written to disk
+            destination.fileDescriptor.sync()
         }
     }
 

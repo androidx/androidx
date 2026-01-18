@@ -55,14 +55,14 @@ public abstract class UseCaseCameraModule {
         @UseCaseCameraScope
         @Provides
         public fun provideCapturePipeline(
-            capturePipelineImpl: CapturePipelineImpl,
-            capturePipelineTorchCorrection: CapturePipelineTorchCorrection,
+            capturePipelineImplProvider: Provider<CapturePipelineImpl>,
+            capturePipelineTorchCorrectionProvider: Provider<CapturePipelineTorchCorrection>,
         ): CapturePipeline {
             if (CapturePipelineTorchCorrection.isEnabled) {
-                return capturePipelineTorchCorrection
+                return capturePipelineTorchCorrectionProvider.get()
             }
 
-            return capturePipelineImpl
+            return capturePipelineImplProvider.get()
         }
     }
 }
@@ -70,34 +70,14 @@ public abstract class UseCaseCameraModule {
 /** Dagger module for binding the [UseCase]'s to the [UseCaseCamera]. */
 @Module
 public data class UseCaseCameraConfig(
-    private val useCases: List<UseCase>,
     private val cameraGraphFactory: (CameraGraph.Config) -> CameraGraph,
     private val graphStateToCameraStateAdapter: GraphStateToCameraStateAdapter,
     private val sessionConfigAdapter: SessionConfigAdapter,
-    private val isExtensions: Boolean,
     private val sessionProcessor: SessionProcessor?,
     private val lazyCreationResult: Lazy<CameraGraphConfigProvider.CameraGraphCreationResult>,
 ) {
     public val cameraGraphConfig: CameraGraph.Config
         get() = lazyCreationResult.value.config
-
-    @UseCaseCameraScope
-    @Provides
-    public fun provideCameraGraph(): CameraGraph {
-        return cameraGraphFactory(cameraGraphConfig)
-    }
-
-    @UseCaseCameraScope
-    @Provides
-    public fun provideStreamConfigMap(): Map<CameraStream.Config, DeferrableSurface> {
-        return lazyCreationResult.value.streamConfigMap
-    }
-
-    @UseCaseCameraScope
-    @Provides
-    public fun provideUseCaseList(): java.util.ArrayList<UseCase> {
-        return java.util.ArrayList(useCases)
-    }
 
     @UseCaseCameraScope
     @Provides
@@ -118,15 +98,13 @@ public data class UseCaseCameraConfig(
     @UseCaseCameraScope
     @Provides
     public fun provideUseCaseGraphContext(
-        cameraStateAdapter: CameraStateAdapter,
-        streamConfigMapProvider: Provider<Map<CameraStream.Config, DeferrableSurface>>,
-        cameraGraphProvider: Provider<CameraGraph>,
+        cameraStateAdapter: CameraStateAdapter
     ): UseCaseGraphContext {
         Camera2Logger.debug { "Prepared UseCaseGraphContext (Deferred)" }
         return UseCaseGraphContext(
-            cameraGraphProvider = cameraGraphProvider,
+            cameraGraphProvider = { cameraGraphFactory(cameraGraphConfig) },
             cameraStateAdapter = cameraStateAdapter,
-            streamConfigMapProvider = streamConfigMapProvider,
+            streamConfigMapProvider = { lazyCreationResult.value.streamConfigMap },
             graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
         )
     }
@@ -144,10 +122,8 @@ public data class UseCaseCameraConfig(
 
         other as UseCaseCameraConfig
 
-        if (useCases != other.useCases) return false
         if (sessionConfigAdapter != other.sessionConfigAdapter) return false
         if (graphStateToCameraStateAdapter != other.graphStateToCameraStateAdapter) return false
-        if (isExtensions != other.isExtensions) return false
         if (sessionProcessor != other.sessionProcessor) return false
 
         // Intentionally exclude:
@@ -157,10 +133,8 @@ public data class UseCaseCameraConfig(
     }
 
     override fun hashCode(): Int {
-        var result = useCases.hashCode()
-        result = 31 * result + sessionConfigAdapter.hashCode()
+        var result = sessionConfigAdapter.hashCode()
         result = 31 * result + graphStateToCameraStateAdapter.hashCode()
-        result = 31 * result + isExtensions.hashCode()
         result = 31 * result + (sessionProcessor?.hashCode() ?: 0)
         // Intentionally exclude lazyCreationResult and cameraGraphFactory from hash
         return result
@@ -168,7 +142,6 @@ public data class UseCaseCameraConfig(
 
     public companion object {
         public fun create(
-            useCases: List<UseCase>,
             sessionConfigAdapter: SessionConfigAdapter,
             cameraGraphConfigProvider: CameraGraphConfigProvider,
             cameraGraphFactory: (CameraGraph.Config) -> CameraGraph,
@@ -212,12 +185,10 @@ public data class UseCaseCameraConfig(
             }
 
             return UseCaseCameraConfig(
-                useCases = useCases,
                 sessionConfigAdapter = sessionConfigAdapter,
                 graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,
                 cameraGraphFactory = cameraGraphFactory,
                 sessionProcessor = sessionProcessor,
-                isExtensions = isExtensions,
                 lazyCreationResult = lazyResult,
             )
         }

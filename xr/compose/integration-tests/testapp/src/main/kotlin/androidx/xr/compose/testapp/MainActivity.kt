@@ -68,12 +68,13 @@ import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.height
 import androidx.xr.compose.subspace.layout.width
 import androidx.xr.compose.testapp.accessibility.AccessibilityActivity
-import androidx.xr.compose.testapp.anchoredsubspace.AnchoredSubspaceApp
 import androidx.xr.compose.testapp.animation.Animation
 import androidx.xr.compose.testapp.curvedlayout.CurvedLayout
 import androidx.xr.compose.testapp.depthstacking.DepthStacking
 import androidx.xr.compose.testapp.focuschange.FSMFocusChangeActivity
 import androidx.xr.compose.testapp.focuschange.HSMFocusChangeActivity
+import androidx.xr.compose.testapp.followingsubspace.AnchorFollowingSubspaceActivity
+import androidx.xr.compose.testapp.followingsubspace.UserSubspaceActivity
 import androidx.xr.compose.testapp.fragments.FragmentCompatibilityActivity
 import androidx.xr.compose.testapp.gravityaligned.GravityAlignedActivity
 import androidx.xr.compose.testapp.lifecycle.LifecycleDataStore
@@ -103,7 +104,6 @@ import androidx.xr.compose.testapp.ui.components.TestCaseButton
 import androidx.xr.compose.testapp.ui.theme.IntegrationTestsAppTheme
 import androidx.xr.compose.testapp.ui.theme.Purple40
 import androidx.xr.compose.testapp.ui.theme.Purple80
-import androidx.xr.compose.testapp.usersubspace.UserSubspaceActivity
 import androidx.xr.compose.testapp.videoplayer.VideoPlayerActivity
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -284,8 +284,8 @@ class MainActivity : ComponentActivity() {
                     TestCaseColumnRowItem(getString(R.string.mode_change_test)) {
                         startTest<ModeChange>()
                     }
-                    TestCaseColumnRowItem(getString(R.string.anchored_subspace_app_test)) {
-                        startTest<AnchoredSubspaceApp>()
+                    TestCaseColumnRowItem(getString(R.string.anchor_subspace_app_test)) {
+                        startTest<AnchorFollowingSubspaceActivity>()
                     }
                     TestCaseColumnRowItem(getString(R.string.value_based_animation_test)) {
                         startTest<Animation>()
@@ -308,7 +308,7 @@ class MainActivity : ComponentActivity() {
                     TestCaseColumnRowItem(getString(R.string.accessibility_test)) {
                         startTest<AccessibilityActivity>()
                     }
-                    TestCaseColumnRowItem(getString(R.string.user_subspace_test_case)) {
+                    TestCaseColumnRowItem(getString(R.string.ardevice_subspace_test_case)) {
                         startTest<UserSubspaceActivity>()
                     }
                     TestCaseColumnRowItem(getString(R.string.lookatuser_test_case)) {

@@ -59,7 +59,7 @@ public constructor(
     override fun get(): AudioEncoderConfig {
         val audioSpecBitrate = audioSpec.bitrate
         val resolvedBitrate: Int =
-            if (audioSpecBitrate != AudioSpec.BITRATE_AUTO) {
+            if (audioSpecBitrate != AudioSpec.BITRATE_UNSPECIFIED) {
                 audioSpecBitrate
             } else {
                 Logger.d(TAG, "Using fallback AUDIO bitrate")

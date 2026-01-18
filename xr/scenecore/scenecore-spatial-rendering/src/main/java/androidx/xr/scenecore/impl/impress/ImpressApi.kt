@@ -78,6 +78,22 @@ public interface ImpressApi {
     }
 
     /**
+     * Specifies the blending mode of the content.
+     *
+     * Values here match values from imp::MediaBlendingMode.
+     */
+    @Retention(AnnotationRetention.SOURCE)
+    @IntDef(MediaBlendingMode.OPAQUE, MediaBlendingMode.TRANSPARENT)
+    public annotation class MediaBlendingMode {
+        public companion object {
+            // Content is alpha-blended with the background.
+            public const val TRANSPARENT: Int = 0
+            // Content is opaque and does not blend with the background.
+            public const val OPAQUE: Int = 1
+        }
+    }
+
+    /**
      * Specifies the color standard of the content.
      *
      * Values here match values from androidx.media3.common.C.ColorSpace For the enum values, please
@@ -345,6 +361,28 @@ public interface ImpressApi {
     ): ImpressNode
 
     /**
+     * This method creates an Impress node with a stereo panel and returns the node object. Note
+     * that the StereoSurfaceEntity will not be render anything until the canvas shape is set.
+     *
+     * @param stereoMode The [Int] stereoMode to apply. Must be a member of StereoMode.
+     * @param mediaBlendingMode The [Int] mediaBlendingMode to apply. Must be a member of
+     *   MediaBlendingMode.
+     * @param contentSecurityLevel The [Int] contentSecurityLevel to apply. Must be a member of
+     *   ContentSecurityLevel.
+     * @param useSuperSampling This [Boolean] specifies if the super sampling filter is enabled when
+     *   rendering the surface.
+     * @return An int impress node ID which can be used for updating the surface later
+     * @throws InvalidArgumentException if stereoMode, mediaBlendingMode or contentSecurityLevel are
+     *   invalid.
+     */
+    public fun createStereoSurface(
+        @StereoMode stereoMode: Int,
+        @MediaBlendingMode mediaBlendingMode: Int,
+        @ContentSecurityLevel contentSecurityLevel: Int,
+        useSuperSampling: Boolean,
+    ): ImpressNode
+
+    /**
      * This method sets the Surface pixel dimenesions for a StereoSurfaceEntity.
      *
      * @param impressNode The Impress node which hosts the StereoSurfaceEntity to be updated.
@@ -366,6 +404,7 @@ public interface ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     )
 
     /**

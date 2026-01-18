@@ -101,7 +101,8 @@ public class NetworkUnmeteredController(tracker: ConstraintTracker<NetworkState>
             (Build.VERSION.SDK_INT >= 30 && requiredNetworkType == TEMPORARILY_UNMETERED)
     }
 
-    override fun isConstrained(value: NetworkState): Boolean = !value.isConnected || value.isMetered
+    override fun isConstrained(value: NetworkState): Boolean =
+        !value.isConnected || value.isMetered || value.isBlocked
 }
 
 /** A [ConstraintController] for storage not low events. */
@@ -136,8 +137,8 @@ public class NetworkNotRoamingController(tracker: ConstraintTracker<NetworkState
                     "Not-roaming network constraint is not supported before API 24, " +
                         "only checking for connected state.",
                 )
-            !value.isConnected
-        } else !value.isConnected || !value.isNotRoaming
+            !value.isConnected || value.isBlocked
+        } else !value.isConnected || !value.isNotRoaming || value.isBlocked
     }
 
     private companion object {
@@ -161,11 +162,7 @@ public class NetworkConnectedController(tracker: ConstraintTracker<NetworkState>
         workSpec.constraints.requiredNetworkType == NetworkType.CONNECTED
 
     override fun isConstrained(value: NetworkState): Boolean =
-        if (Build.VERSION.SDK_INT >= 26) {
-            !value.isConnected || !value.isValidated
-        } else {
-            !value.isConnected
-        }
+        value.isBlocked || !value.isConnected || (Build.VERSION.SDK_INT >= 26 && !value.isValidated)
 }
 
 /** A [ConstraintController] for monitoring that the network connection is metered. */
@@ -188,8 +185,8 @@ public class NetworkMeteredController(tracker: ConstraintTracker<NetworkState>) 
                     "Metered network constraint is not supported before API 26, " +
                         "only checking for connected state.",
                 )
-            !value.isConnected
-        } else !value.isConnected || !value.isMetered
+            !value.isConnected || value.isBlocked
+        } else !value.isConnected || !value.isMetered || value.isBlocked
     }
 
     private companion object {

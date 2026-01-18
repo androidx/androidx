@@ -108,12 +108,12 @@ class PdfViewFormFillingTest {
                     mapOf(
                         0 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+                                FormWidgetInfo.createRadioButton(
                                     widgetIndex = 0,
                                     widgetRect = Rect(10, 10, 100, 100),
                                     textValue = "TextField",
                                     accessibilityLabel = "TextField",
+                                    isReadOnly = false,
                                 )
                             )
                     ),
@@ -241,14 +241,16 @@ class PdfViewFormFillingTest {
                     mapOf(
                         0 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+                                FormWidgetInfo.createTextField(
                                     widgetIndex = 0,
                                     widgetRect = Rect(10, 10, 200, 200),
                                     textValue = "Hello",
                                     accessibilityLabel = "Hello",
-                                    multiLineText = false,
+                                    isReadOnly = false,
+                                    isMultiLineText = false,
                                     fontSize = 10.0f,
+                                    isEditableText = true,
+                                    maxLength = 100,
                                 )
                             )
                     ),
@@ -295,22 +297,22 @@ class PdfViewFormFillingTest {
                     mapOf(
                         0 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+                                FormWidgetInfo.createRadioButton(
                                     widgetIndex = 0,
                                     widgetRect = Rect(10, 10, 100, 100),
                                     textValue = "TextField",
                                     accessibilityLabel = "TextField",
+                                    isReadOnly = false,
                                 )
                             ),
                         1 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+                                FormWidgetInfo.createRadioButton(
                                     widgetIndex = 0,
                                     widgetRect = Rect(10, 10, 100, 100),
                                     textValue = "true",
                                     accessibilityLabel = "Radio",
+                                    isReadOnly = false,
                                 )
                             ),
                     ),
@@ -345,14 +347,14 @@ class PdfViewFormFillingTest {
         val choices =
             listOf(ListItem("Apple", false), ListItem("Banana", true), ListItem("Cherry", false))
         return listOf(
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_LISTBOX,
+            FormWidgetInfo.createListBox(
                 widgetIndex = 0,
                 widgetRect = Rect(10, 10, 100, 100),
                 textValue = "Banana",
                 accessibilityLabel = "ListBox",
+                isReadOnly = false,
                 listItems = choices,
-                multiSelect = multiselect,
+                isMultiSelect = multiselect,
             )
         )
     }

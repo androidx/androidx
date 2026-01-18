@@ -24,9 +24,9 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
-        minSdk = 25
+        minSdk { version = release(25) }
     }
     namespace = "androidx.wear.compose.navigation3.demos"
 }

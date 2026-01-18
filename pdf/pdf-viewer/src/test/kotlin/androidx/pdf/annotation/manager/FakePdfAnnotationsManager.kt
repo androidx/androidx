@@ -16,6 +16,7 @@
 
 package androidx.pdf.annotation.manager
 
+import androidx.pdf.EditsDraft
 import androidx.pdf.annotation.KeyedPdfAnnotation
 import androidx.pdf.annotation.models.PdfAnnotation
 import java.util.UUID
@@ -27,6 +28,10 @@ class FakePdfAnnotationsManager : PdfAnnotationsManager {
         return storage.entries
             .filter { it.value.pageNum == pageNum }
             .map { KeyedPdfAnnotation(it.key, it.value) }
+    }
+
+    override suspend fun getAnnotationModifications(): EditsDraft {
+        TODO("Not yet implemented")
     }
 
     override fun addAnnotation(keyedAnnotation: KeyedPdfAnnotation): String {

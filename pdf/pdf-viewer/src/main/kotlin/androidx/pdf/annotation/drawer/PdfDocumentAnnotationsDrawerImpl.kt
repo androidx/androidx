@@ -42,7 +42,9 @@ internal class PdfDocumentAnnotationsDrawerImpl(
      */
     override fun draw(pagesAnnotationData: SparseArray<PageAnnotationsData>, canvas: Canvas) {
         pagesAnnotationData.forEach { _, pageAnnotationData ->
-            pageAnnotationData.annotations.forEach { annotation ->
+            pageAnnotationData.keyedAnnotations.forEach { keyedAnnotation ->
+                val annotation = keyedAnnotation.annotation
+
                 @Suppress("UNCHECKED_CAST")
                 val drawer =
                     annotationDrawerFactory.create(annotation) as PdfAnnotationDrawer<PdfAnnotation>

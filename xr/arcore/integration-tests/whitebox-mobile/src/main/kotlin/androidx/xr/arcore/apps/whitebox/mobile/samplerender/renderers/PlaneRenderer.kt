@@ -274,6 +274,22 @@ class PlaneRenderer(render: SampleRender) {
                 },
             )
 
+            val planeCategory = plane.state.value.label.toString()
+            val planeTint =
+                if (PLANE_COLORS.containsKey(planeCategory)) {
+                    PLANE_COLORS[planeCategory]
+                } else if (planeCategory == "UNKNOWN") {
+                    if (plane.type.toString() == "VERTICAL") {
+                        PLANE_COLORS["WALL"]
+                    } else {
+                        PLANE_COLORS["FLOOR"]
+                    }
+                } else {
+                    DEFAULT_PLANE_COLOR
+                }
+
+            shader.setVec4("u_Tint", planeTint!!)
+
             // Set the position of the plane
             vertexBufferObject.set(vertexBuffer)
             indexBufferObject.set(indexBuffer)
@@ -321,6 +337,15 @@ class PlaneRenderer(render: SampleRender) {
         // lineFadeShrink:  lines will fade in between alpha = 1-(1/lineFadeShrink) and 1.0
         // occlusionShrink: occluded planes will fade out between alpha = 0 and 1/occlusionShrink
         private val GRID_CONTROL = floatArrayOf(0.2f, 0.4f, 2.0f, 1.5f)
+
+        private val DEFAULT_PLANE_COLOR = floatArrayOf(1f, 1f, 1f, 1f)
+        private val PLANE_COLORS =
+            mapOf(
+                "WALL" to floatArrayOf(0f, 1f, 0f, 1f),
+                "FLOOR" to floatArrayOf(0f, 0f, 1f, 1f),
+                "CEILING" to floatArrayOf(0f, 1f, 1f, 1f),
+                "TABLE" to floatArrayOf(1f, 0f, 1f, 1f),
+            )
 
         // Calculate the normal distance to plane from cameraPose, the given planePose should have y
         // axis parallel to plane's normal, for example plane's center pose or hit test pose.

@@ -289,9 +289,9 @@ abstract class AndroidXExtension(
         private set
 
     /** Description for this artifact to use in .pom files */
-    var description: String? = null
+    abstract val description: Property<String>
     /** The year when the development of this library started to use in .pom files */
-    var inceptionYear: String? = null
+    abstract val inceptionYear: Property<String>
 
     /** The main license to add when publishing. Default is Apache 2. */
     var license: License =
@@ -302,27 +302,32 @@ abstract class AndroidXExtension(
 
     private var extraLicenses: MutableCollection<License> = ArrayList()
 
-    fun shouldPublish(): Boolean = type.publish.shouldPublish()
+    val shouldPublish: Provider<Boolean>
+        get() = type.map { it.publish.shouldPublish() }
 
-    fun shouldRelease(): Boolean = type.publish.shouldRelease()
+    val shouldRelease: Provider<Boolean>
+        get() = type.map { it.publish.shouldRelease() }
 
     fun ifReleasing(action: () -> Unit) {
         project.afterEvaluate {
-            if (shouldRelease()) {
+            if (shouldRelease.get()) {
                 action()
             }
         }
     }
 
-    fun shouldPublishSbom(): Boolean {
-        if (isIsolatedProjectsEnabled()) return false
-        // IDE plugins are used by and ship inside Studio
-        return shouldPublish() || type == SoftwareType.IDE_PLUGIN
+    fun shouldPublishSbom(): Provider<Boolean> {
+        return type.zip(project.provider { isIsolatedProjectsEnabled() }) { type, isolated ->
+            if (isolated) return@zip false
+            // IDE plugins are used by and ship inside Studio
+            type.publish.shouldPublish() || type == SoftwareType.IDE_PLUGIN
+        }
     }
 
     var doNotDocumentReason: String? = null
 
-    var type: SoftwareType = SoftwareType.UNSET
+    val type: Property<SoftwareType> =
+        project.objects.property(SoftwareType::class.java).convention(SoftwareType.UNSET)
 
     val failOnDeprecationWarnings: Property<Boolean> =
         project.objects.property(Boolean::class.java).convention(true)
@@ -334,12 +339,13 @@ abstract class AndroidXExtension(
      * Whether Kotlin Strict API mode is enabled, see
      * [kotlin 1.4 release notes](https://kotlinlang.org/docs/whatsnew14.html#explicit-api-mode-for-library-authors)
      */
-    var legacyDisableKotlinStrictApiMode = false
+    val legacyDisableKotlinStrictApiMode =
+        project.objects.property(Boolean::class.java).convention(false)
 
     var bypassCoordinateValidation = false
 
     /** Whether Metalava should use K2 Kotlin front-end for source analysis */
-    var metalavaK2UastEnabled = true
+    val metalavaK2UastEnabled = project.objects.property(Boolean::class.java).convention(true)
 
     /** Whether the project has not yet been migrated to use JSpecify annotations. */
     var optOutJSpecify = false
@@ -364,9 +370,10 @@ abstract class AndroidXExtension(
         return@lazy tags
     }
 
-    fun shouldEnforceKotlinStrictApiMode(): Boolean {
-        return !legacyDisableKotlinStrictApiMode && type.checkApi is RunApiTasks.Yes
-    }
+    fun shouldEnforceKotlinStrictApiMode(): Provider<Boolean> =
+        type.zip(legacyDisableKotlinStrictApiMode) { type, legacyDisableKotlinStrictApiMode ->
+            !legacyDisableKotlinStrictApiMode && type.checkApi is RunApiTasks.Yes
+        }
 
     fun extraLicense(closure: Closure<Any>): License {
         val license = project.configure(License(), closure) as License

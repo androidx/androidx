@@ -24,8 +24,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
-import androidx.xr.compose.platform.LocalSession
-import androidx.xr.compose.subspace.layout.CoreGroupEntity
 import androidx.xr.compose.subspace.layout.SpatialAlignment
 import androidx.xr.compose.subspace.layout.SpatialArrangement
 import androidx.xr.compose.subspace.layout.SubspaceLayout
@@ -40,7 +38,6 @@ import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
-import androidx.xr.scenecore.GroupEntity
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -55,13 +52,19 @@ import kotlin.math.sin
  */
 @Composable
 @SubspaceComposable
-public fun SpatialRow(
+public inline fun SpatialRow(
     modifier: SubspaceModifier = SubspaceModifier,
     alignment: SpatialAlignment = SpatialAlignment.Center,
     horizontalArrangement: SpatialArrangement.Horizontal = SpatialArrangement.Center,
-    content: @Composable @SubspaceComposable SpatialRowScope.() -> Unit,
+    crossinline content: @Composable @SubspaceComposable SpatialRowScope.() -> Unit,
 ) {
-    SpatialRow(modifier, alignment, horizontalArrangement, Dp.Infinity, content)
+    SpatialCurvedRow(
+        modifier = modifier,
+        alignment = alignment,
+        horizontalArrangement = horizontalArrangement,
+        curveRadius = Dp.Infinity,
+        content = content,
+    )
 }
 
 /**
@@ -79,57 +82,57 @@ public fun SpatialRow(
  */
 @Composable
 @SubspaceComposable
-public fun SpatialCurvedRow(
+public inline fun SpatialCurvedRow(
     modifier: SubspaceModifier = SubspaceModifier,
     alignment: SpatialAlignment = SpatialAlignment.Center,
     horizontalArrangement: SpatialArrangement.Horizontal = SpatialArrangement.Center,
     curveRadius: Dp = SpatialCurvedRowDefaults.curveRadius,
-    content: @Composable @SubspaceComposable SpatialRowScope.() -> Unit,
+    crossinline content: @Composable @SubspaceComposable SpatialRowScope.() -> Unit,
 ) {
-    SpatialRow(modifier, alignment, horizontalArrangement, curveRadius, content)
-}
-
-/**
- * A layout composable that arranges its children in a horizontal sequence. For arranging children
- * vertically, see [SpatialColumn].
- *
- * @param modifier Appearance modifiers to apply to this Composable.
- * @param alignment The default alignment for child elements within the row.
- * @param horizontalArrangement The horizontal arrangement of the children.
- * @param curveRadius Defines the curve of the row by specifying its radius in Dp. A larger radius
- *   creates a gentler curve (less curvature), while a smaller positive radius results in a sharper
- *   curve (more curvature). Using [Dp.Infinity] or a non-positive value (zero or negative) makes
- *   the row straight. When curved, row items are angled to follow the curve's path. This value is
- *   the radial distance in the polar coordinate system.
- * @param content The composable content to be laid out horizontally in the row.
- */
-@Composable
-@SubspaceComposable
-private fun SpatialRow(
-    modifier: SubspaceModifier,
-    alignment: SpatialAlignment,
-    horizontalArrangement: SpatialArrangement.Horizontal,
-    curveRadius: Dp,
-    content: @Composable @SubspaceComposable SpatialRowScope.() -> Unit,
-) {
-    val session = checkNotNull(LocalSession.current) { "session must be initialized" }
-
-    val coreGroupEntity = remember {
-        CoreGroupEntity(GroupEntity.create(session, name = "SpatialRow", pose = Pose.Identity))
-    }
+    val measurePolicy =
+        spatialRowMeasurePolicy(
+            curveRadius = if (curveRadius > 0.dp) curveRadius else Dp.Infinity,
+            alignment = alignment,
+            horizontalArrangement = horizontalArrangement,
+        )
 
     SubspaceLayout(
         modifier = modifier,
         content = { SpatialRowScopeInstance.content() },
-        coreEntity = coreGroupEntity,
-        measurePolicy =
-            SpatialRowMeasurePolicy(
-                if (curveRadius > 0.dp) curveRadius else Dp.Infinity,
-                alignment,
-                horizontalArrangement,
-            ),
+        coreEntityName = "SpatialRow",
+        measurePolicy = measurePolicy,
     )
 }
+
+internal val DefaultSpatialRowMeasurePolicy: SubspaceMeasurePolicy =
+    SpatialRowMeasurePolicy(
+        curveRadius = Dp.Infinity,
+        alignment = SpatialAlignment.Center,
+        horizontalArrangement = SpatialArrangement.Center,
+    )
+
+@PublishedApi
+@Composable
+internal fun spatialRowMeasurePolicy(
+    curveRadius: Dp,
+    alignment: SpatialAlignment,
+    horizontalArrangement: SpatialArrangement.Horizontal,
+): SubspaceMeasurePolicy =
+    if (
+        curveRadius == Dp.Infinity &&
+            alignment == SpatialAlignment.Center &&
+            horizontalArrangement == SpatialArrangement.Center
+    ) {
+        DefaultSpatialRowMeasurePolicy
+    } else {
+        remember(curveRadius, alignment, horizontalArrangement) {
+            SpatialRowMeasurePolicy(
+                curveRadius = curveRadius,
+                alignment = alignment,
+                horizontalArrangement = horizontalArrangement,
+            )
+        }
+    }
 
 /**
  * Measure policy for [SpatialRow] and [SpatialCurvedRow] layouts. Handles the measurement and
@@ -379,6 +382,7 @@ public object SpatialCurvedRowDefaults {
 }
 
 /** Default implementation of the [SpatialRowScope] interface. */
+@PublishedApi
 internal object SpatialRowScopeInstance : SpatialRowScope {
     override fun SubspaceModifier.weight(weight: Float, fill: Boolean): SubspaceModifier {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }

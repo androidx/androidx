@@ -96,6 +96,7 @@ internal class CurvedRowChild(
         )
     }
 
+    @Suppress("ListIterator")
     override fun doAngularPosition(
         parentStartAngleRadians: Float,
         parentSweepRadians: Float,

@@ -18,6 +18,7 @@
 package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
@@ -27,7 +28,7 @@ public class WidthInModifier(
     public val min: Dp = Dp.Unspecified,
     public val max: Dp = Dp.Unspecified,
 ) : RemoteModifier.Element {
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         var minValue = 0f
         var maxValue = Float.MAX_VALUE
         if (min != Dp.Unspecified) {

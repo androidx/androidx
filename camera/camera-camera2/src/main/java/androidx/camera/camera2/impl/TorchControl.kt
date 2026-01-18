@@ -68,10 +68,12 @@ constructor(
         }
 
     override fun reset() {
-        updateTorchState(TorchMode.OFF)
         stopRunningTaskInternal()
-        setTorchAsync(false)
-        torchMode = null
+        if (torchMode != null) {
+            updateTorchState(TorchMode.OFF)
+            setTorchAsync(false)
+            torchMode = null
+        }
     }
 
     private val hasFlashUnit: Boolean = cameraProperties.isFlashAvailable()

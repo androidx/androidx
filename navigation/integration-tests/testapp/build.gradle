@@ -42,7 +42,7 @@ dependencies {
 
 android {
     namespace = "androidx.navigation.testapp"
-    compileSdk = 36
+    compileSdk { version = release(36) }
 }
 
 tasks["check"].dependsOn(tasks["connectedCheck"])

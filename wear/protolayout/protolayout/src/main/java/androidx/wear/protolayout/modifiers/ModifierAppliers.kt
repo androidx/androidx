@@ -31,6 +31,7 @@ import androidx.wear.protolayout.ModifiersBuilders.EnterTransition
 import androidx.wear.protolayout.ModifiersBuilders.ExitTransition
 import androidx.wear.protolayout.ModifiersBuilders.Padding
 import androidx.wear.protolayout.ModifiersBuilders.Semantics
+import androidx.wear.protolayout.ModifiersBuilders.Transformation
 import androidx.wear.protolayout.TypeBuilders.BoolProp
 import androidx.wear.protolayout.TypeBuilders.FloatProp
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental
@@ -51,6 +52,7 @@ fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
     var opacity: FloatProp.Builder? = null
     var enterTransition: EnterTransition.Builder? = null
     var exitTransition: ExitTransition.Builder? = null
+    var transformation: Transformation.Builder? = null
 
     this.foldRight(Unit) { _, e ->
         when (e) {
@@ -65,6 +67,7 @@ fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
             is BaseOpacityElement -> opacity = e.mergeTo(opacity)
             is BaseEnterTransitionElement -> enterTransition = e.mergeTo(enterTransition)
             is BaseExitTransitionElement -> exitTransition = e.mergeTo(exitTransition)
+            is BaseTransformationElement -> transformation = e.mergeTo(transformation)
         }
     }
 
@@ -80,6 +83,7 @@ fun LayoutModifier.toProtoLayoutModifiers(): ModifiersBuilders.Modifiers {
             border?.let { setBorder(it.build()) }
             visible?.let { setVisible(it.build()) }
             opacity?.let { setOpacity(it.build()) }
+            transformation?.let { setTransformation(it.build()) }
             if (enterTransition != null || exitTransition != null) {
                 val transition = AnimatedVisibility.Builder()
                 enterTransition?.let { transition.setEnterTransition(it.build()) }

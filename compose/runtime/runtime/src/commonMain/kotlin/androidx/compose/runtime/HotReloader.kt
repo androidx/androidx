@@ -20,6 +20,7 @@ package androidx.compose.runtime
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.compose.runtime.tooling.ComposeToolingApi
 import kotlin.jvm.JvmName
 
 /**
@@ -55,11 +56,24 @@ private class HotReloader {
             return Recomposer.invalidateGroupsWithKey(key)
         }
 
+        @Deprecated(
+            "`getCurrentErrors` only exists for backwards compatibility. Use `getRecomposerErrors` instead",
+            replaceWith = ReplaceWith("getRecomposerErrors"),
+        )
         @TestOnly
         // b/426871325: required for LiveEdit compatibility
+        // TODO(b/469471141): Remove when Live Edit no longer depends on this API.
         @JvmName("getCurrentErrors")
         internal fun getCurrentErrors(): List<RecomposerErrorInfo> {
             return Recomposer.getCurrentErrors()
+        }
+
+        @OptIn(ComposeToolingApi::class)
+        @TestOnly
+        // b/426871325: required for LiveEdit compatibility
+        @JvmName("getRecomposerErrors")
+        internal fun getRecomposerErrors(): List<RecomposerErrorInformation> {
+            return Recomposer.getRecomposerErrors()
         }
 
         @TestOnly
@@ -117,11 +131,12 @@ public fun currentCompositionErrors(): List<Pair<Exception, Boolean>> =
  * @return pair of error and whether the error is recoverable.
  */
 // suppressing for test-only api
+@OptIn(ComposeToolingApi::class)
 @Suppress("ListIterator")
 @RestrictTo(LIBRARY_GROUP)
 @TestOnly
 public fun getCurrentCompositionErrors(): List<Pair<Throwable, Boolean>> =
-    HotReloader.getCurrentErrors().map { it.cause to it.recoverable }
+    HotReloader.getRecomposerErrors().map { it.cause to it.isRecoverable }
 
 /**
  * Clears current composition errors in hot reload mode. Test-only API, not for use in production.

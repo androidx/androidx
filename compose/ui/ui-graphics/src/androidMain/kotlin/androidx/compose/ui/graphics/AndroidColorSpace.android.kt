@@ -105,13 +105,28 @@ private object ColorSpaceVerificationHelper {
                         } else {
                             null
                         }
+                    val transform = this.transform
                     if (androidTransferParams != null) {
-                        android.graphics.ColorSpace.Rgb(
-                            this.name,
-                            this.primaries,
-                            whitePointArray,
-                            androidTransferParams,
-                        )
+                        val directColorSpace =
+                            android.graphics.ColorSpace.Rgb(
+                                this.name,
+                                this.primaries,
+                                whitePointArray,
+                                androidTransferParams,
+                            )
+                        if (transform[0].isNaN()) {
+                            directColorSpace
+                        } else {
+                            if (directColorSpace.transform.contentEquals(transform)) {
+                                directColorSpace
+                            } else {
+                                android.graphics.ColorSpace.Rgb(
+                                    this.name,
+                                    transform,
+                                    androidTransferParams,
+                                )
+                            }
+                        }
                     } else {
                         android.graphics.ColorSpace.Rgb(
                             this.name,

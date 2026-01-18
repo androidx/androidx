@@ -387,6 +387,10 @@ private const val HalfPi = (PI * 0.5).toFloat()
 
 private val OurPercentCache: FloatArray = FloatArray(91)
 
-internal expect inline fun toRadians(value: Double): Double
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun toRadians(value: Double): Double {
+    // No Kotlin multiplatform function out of a box, but it's a trivial calculation
+    return value * (PI / 180.0)
+}
 
 internal expect inline fun binarySearch(array: FloatArray, position: Float): Int

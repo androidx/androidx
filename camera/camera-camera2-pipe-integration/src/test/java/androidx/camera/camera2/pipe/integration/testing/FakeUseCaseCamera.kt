@@ -89,7 +89,6 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 
     private var config: UseCaseCameraConfig =
         UseCaseCameraConfig.create(
-            useCases = emptyList(),
             cameraGraphConfigProvider = configProvider,
             cameraGraphFactory = { _ -> cameraGraph },
             graphStateToCameraStateAdapter = graphStateToCameraStateAdapter,

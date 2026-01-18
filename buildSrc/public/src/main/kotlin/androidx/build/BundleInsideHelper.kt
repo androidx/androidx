@@ -114,23 +114,9 @@ object BundleInsideHelper {
         compileOnly.extendsFrom(bundle)
         testImplementation.extendsFrom(bundle)
 
-        // Relocation needed to avoid classpath conflicts with Android Studio (b/337980250)
-        // Can be removed if we migrate from using kotlin-metadata-jvm inside of lint checks
-        val relocations = listOf(Relocation("kotlin.metadata", "androidx.lint.kotlin.metadata"))
-        val repackage = configureRepackageTaskForType(relocations, bundle, null)
+        val repackage = configureRepackageTaskForType(null, bundle, null)
         val sourceSets = extensions.getByType(SourceSetContainer::class.java)
-        repackage.configure { task ->
-            task.from(sourceSets.findByName("main")!!.output)
-            // kotlin-metadata-jvm has a service descriptor that needs transformation
-            task.mergeServiceFiles()
-            // Exclude Kotlin metadata files from kotlin-metadata-jvm
-            task.exclude(
-                "META-INF/kotlin-metadata-jvm.kotlin_module",
-                "META-INF/kotlin-metadata.kotlin_module",
-                "META-INF/metadata.jvm.kotlin_module",
-                "META-INF/metadata.kotlin_module",
-            )
-        }
+        repackage.configure { task -> task.from(sourceSets.findByName("main")!!.output) }
 
         listOf("apiElements", "runtimeElements").forEach { config ->
             configurations.getByName(config).apply {

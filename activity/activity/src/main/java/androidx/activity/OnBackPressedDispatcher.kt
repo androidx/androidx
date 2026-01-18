@@ -67,7 +67,7 @@ import androidx.navigationevent.OnBackInvokedOverlayInput
 // fallbackOnBackPressed. To avoid silently breaking source compatibility the new
 // primary constructor has no optional parameters to avoid ambiguity/wrong overload resolution
 // when a single parameter is provided as a trailing lambda.
-class OnBackPressedDispatcher(
+public class OnBackPressedDispatcher(
     @Suppress("unused") private val fallbackOnBackPressed: Runnable?,
     @Suppress("unused") private val onHasEnabledCallbacksChanged: Consumer<Boolean>?,
 ) {
@@ -75,18 +75,10 @@ class OnBackPressedDispatcher(
     private var hasEnabledCallbacks = false
 
     /**
-     * Bridges this dispatcher to the underlying [NavigationEventDispatcher] lazily.
-     *
-     * Initialization of the [NavigationEventDispatcher] involves loading the `navigation-event`
-     * library classes. We use an anonymous object to hold the dispatcher and input together,
-     * ensuring they are initialized and linked atomically only when first accessed.
+     * Input source representing back events initiated by this dispatcher (for example, via a direct
+     * call to [onBackPressed]).
      */
-    private val impl by lazy {
-        object {
-            val dispatcher = NavigationEventDispatcher { fallbackOnBackPressed?.run() }
-            val input = OnBackPressedEventInput().also { dispatcher.addInput(it) }
-        }
-    }
+    private val eventInput by lazy { OnBackPressedEventInput() }
 
     /**
      * This [OnBackPressedDispatcher] class will delegate all interactions to [eventDispatcher],
@@ -96,17 +88,10 @@ class OnBackPressedDispatcher(
      * @see [OnBackPressedCallback.eventHandlers]
      */
     internal val eventDispatcher
-        get() = impl.dispatcher
-
-    /**
-     * Input source representing back events initiated by this dispatcher (for example, via a direct
-     * call to [onBackPressed]).
-     */
-    private val eventInput
-        get() = impl.input
+        get() = eventInput.dispatcher
 
     @JvmOverloads
-    constructor(fallbackOnBackPressed: Runnable? = null) : this(fallbackOnBackPressed, null)
+    public constructor(fallbackOnBackPressed: Runnable? = null) : this(fallbackOnBackPressed, null)
 
     /**
      * Sets the [OnBackInvokedDispatcher] for handling system back for Android SDK T+.
@@ -114,7 +99,7 @@ class OnBackPressedDispatcher(
      * @param invoker the OnBackInvokedDispatcher to be set on this dispatcher
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun setOnBackInvokedDispatcher(invoker: OnBackInvokedDispatcher) {
+    public fun setOnBackInvokedDispatcher(invoker: OnBackInvokedDispatcher) {
         eventDispatcher.addInput(
             OnBackInvokedDefaultInput(invoker),
             NavigationEventDispatcher.PRIORITY_DEFAULT,
@@ -138,7 +123,7 @@ class OnBackPressedDispatcher(
      * @see onBackPressed
      */
     @MainThread
-    fun addCallback(onBackPressedCallback: OnBackPressedCallback) {
+    public fun addCallback(onBackPressedCallback: OnBackPressedCallback) {
         val info = OnBackPressedCallbackInfo(onBackPressedCallback)
         val handler = onBackPressedCallback.createNavigationEventHandler(info)
         eventDispatcher.addHandler(handler)
@@ -168,7 +153,7 @@ class OnBackPressedDispatcher(
      */
     @MainThread
     @OptIn(ExperimentalActivityApi::class)
-    fun addCallback(owner: LifecycleOwner, onBackPressedCallback: OnBackPressedCallback) {
+    public fun addCallback(owner: LifecycleOwner, onBackPressedCallback: OnBackPressedCallback) {
         val lifecycle = owner.lifecycle
 
         if (lifecycle.currentState === State.DESTROYED) {
@@ -236,17 +221,17 @@ class OnBackPressedDispatcher(
      *
      * @return True if there is at least one enabled callback.
      */
-    @MainThread fun hasEnabledCallbacks(): Boolean = hasEnabledCallbacks
+    @MainThread public fun hasEnabledCallbacks(): Boolean = hasEnabledCallbacks
 
     @VisibleForTesting
     @MainThread
-    fun dispatchOnBackStarted(backEvent: BackEventCompat) {
+    public fun dispatchOnBackStarted(backEvent: BackEventCompat) {
         eventInput.backStarted(backEvent.toNavigationEvent())
     }
 
     @VisibleForTesting
     @MainThread
-    fun dispatchOnBackProgressed(backEvent: BackEventCompat) {
+    public fun dispatchOnBackProgressed(backEvent: BackEventCompat) {
         eventInput.backProgressed(backEvent.toNavigationEvent())
     }
 
@@ -259,13 +244,13 @@ class OnBackPressedDispatcher(
      * set by the constructor will be triggered.
      */
     @MainThread
-    fun onBackPressed() {
+    public fun onBackPressed() {
         eventInput.backCompleted()
     }
 
     @VisibleForTesting
     @MainThread
-    fun dispatchOnBackCancelled() {
+    public fun dispatchOnBackCancelled() {
         eventInput.backCancelled()
     }
 
@@ -277,6 +262,15 @@ class OnBackPressedDispatcher(
      *   [hasEnabledCallbacks] method and [onHasEnabledCallbacksChanged] callback.
      */
     private inner class OnBackPressedEventInput : NavigationEventInput() {
+
+        /**
+         * The underlying dispatcher that coordinates back events.
+         *
+         * This is hosted here and initialized lazily alongside the input to ensure they are linked
+         * atomically.
+         */
+        val dispatcher =
+            NavigationEventDispatcher { fallbackOnBackPressed?.run() }.also { it.addInput(this) }
 
         /**
          * Syncs the enabled-handler count back to [OnBackPressedDispatcher].
@@ -327,7 +321,7 @@ class OnBackPressedDispatcher(
  * dispatch ordering across lifecycle transitions.
  */
 @Suppress("RegistrationName")
-fun OnBackPressedDispatcher.addCallback(
+public fun OnBackPressedDispatcher.addCallback(
     owner: LifecycleOwner? = null,
     enabled: Boolean = true,
     onBackPressed: OnBackPressedCallback.() -> Unit,

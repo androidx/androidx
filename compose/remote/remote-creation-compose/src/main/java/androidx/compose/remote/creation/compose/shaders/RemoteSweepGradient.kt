@@ -17,31 +17,19 @@
 
 package androidx.compose.remote.creation.compose.shaders
 
-import android.graphics.SweepGradient
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.paint.PaintBundle
+import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
+import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shader
-import androidx.compose.ui.graphics.toArgb
-
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteSweepShader(
-    public var centerX: Float,
-    public var centerY: Float,
-    public var colors: IntArray,
-    public var positions: FloatArray?,
-) : SweepGradient(centerX, centerY, colors, positions), RemoteShader {
-    override fun apply(paintBundle: PaintBundle) {
-        paintBundle.setSweepGradient(colors, 0, positions, centerX, centerY)
-    }
-
-    override var remoteMatrix3x3: RemoteMatrix3x3? = null
-}
+import androidx.compose.ui.util.fastMap
 
 /**
  * Creates a sweep gradient with the given colors dispersed around the center with offsets defined
@@ -51,28 +39,26 @@ public class RemoteSweepShader(
  * Ex:
  * ```
  *  Brush.sweepGradient(
- *      0.0f to Color.Red,
- *      0.3f to Color.Green,
- *      1.0f to Color.Blue,
- *      center = Offset(0.0f, 100.0f)
+ *      0.0.rf to Color.Red.rc,
+ *      0.3.rf to Color.Green.rc,
+ *      1.0.rf to Color.Blue.rc,
+ *      center = Offset(0.rf, 100.rf)
  * )
  * ```
  *
  * @param colorStops Colors and offsets to determine how the colors are dispersed throughout the
  *   sweep gradient
- * @param center Center position of the sweep gradient circle. If this is set to
- *   [Offset.Unspecified] then the center of the drawing area is used as the center for the sweep
- *   gradient
+ * @param center Center position of the sweep gradient circle. If this is set to null then the
+ *   center of the drawing area is used as the center for the sweep gradient
  */
 @Stable
-@Suppress("PrimitiveInCollection")
 public fun RemoteBrush.Companion.sweepGradient(
-    vararg colorStops: Pair<Float, Color>,
-    center: RemoteOffset,
+    vararg colorStops: Pair<RemoteFloat, RemoteColor>,
+    center: RemoteOffset? = null,
 ): RemoteSweepGradient =
     RemoteSweepGradient(
-        colors = List<Color>(colorStops.size) { i -> colorStops[i].second },
-        stops = List<Float>(colorStops.size) { i -> colorStops[i].first },
+        colors = List(colorStops.size) { i -> colorStops[i].second },
+        stops = List(colorStops.size) { i -> colorStops[i].first },
         center = center,
     )
 
@@ -84,56 +70,73 @@ public fun RemoteBrush.Companion.sweepGradient(
  * Ex:
  * ```
  *  Brush.sweepGradient(
- *      listOf(Color.Red, Color.Green, Color.Blue),
- *      center = Offset(10.0f, 20.0f)
+ *      listOf(Color.Red.rc, Color.Blue.rc),
+ *      center = Offset(10.rf, 20.rf)
  * )
  * ```
  *
  * @param colors List of colors to fill the sweep gradient
- * @param center Center position of the sweep gradient circle. If this is set to
- *   [Offset.Unspecified] then the center of the drawing area is used as the center for the sweep
- *   gradient
+ * @param center Center position of the sweep gradient circle. If this is null then the center of
+ *   the drawing area is used as the center for the sweep gradient
  */
 @Stable
-@Suppress("PrimitiveInCollection")
 public fun RemoteBrush.Companion.sweepGradient(
-    colors: List<Color>,
+    colors: List<RemoteColor>,
     center: RemoteOffset? = null,
 ): RemoteSweepGradient = RemoteSweepGradient(colors = colors, stops = null, center = center)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Immutable
-@Suppress("PrimitiveInCollection")
 public data class RemoteSweepGradient(
-    private val colors: List<Color>,
-    private val stops: List<Float>? = null,
+    private val colors: List<RemoteColor>,
+    private val stops: List<RemoteFloat>? = null,
     private val center: RemoteOffset? = null,
 ) : RemoteBrush() {
 
-    override fun createShader(size: RemoteSize): Shader {
+    override fun RemoteStateScope.createShader(size: RemoteSize): Shader {
         val realCenter = center ?: size.center
-        validateColorStops(colors = colors, colorStops = stops)
+        val centerX = resolve(realCenter.x, size.width)
+        val centerY = resolve(realCenter.y, size.height)
         return RemoteSweepShader(
-            realCenter.x.toFloat(),
-            realCenter.y.toFloat(),
-            // No change for Android O+, map the colors directly to their argb equivalent
-            IntArray(colors.size) { i -> colors[i].toArgb() },
-            stops?.toFloatArray(),
+            centerX = centerX,
+            centerY = centerY,
+            colors = colors,
+            positions = stops,
         )
     }
 }
 
-@Suppress("PrimitiveInCollection")
-private fun validateColorStops(colors: List<Color>, colorStops: List<Float>?) {
-    if (colorStops == null) {
-        if (colors.size < 2) {
-            throw IllegalArgumentException(
-                "colors must have length of at least 2 if colorStops " + "is omitted."
-            )
-        }
-    } else if (colors.size != colorStops.size) {
-        throw IllegalArgumentException(
-            "colors and colorStops arguments must have" + " equal length."
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteSweepShader(
+    public var centerX: RemoteFloat,
+    public var centerY: RemoteFloat,
+    public var colors: List<RemoteColor>,
+    public var positions: List<RemoteFloat>?,
+) : RemoteShader() {
+    override var remoteMatrix3x3: RemoteMatrix3x3? = null
+
+    override fun apply(creationState: RemoteComposeCreationState, paintBundle: PaintBundle) {
+        var mask = 0
+        val colorsArray =
+            IntArray(colors.size) { i ->
+                val color = colors[i]
+                val constantValue = color.constantValueOrNull
+                if (constantValue != null) {
+                    constantValue.toArgb()
+                } else {
+                    mask = mask or (1 shl i)
+                    color.getIdForCreationState(creationState)
+                }
+            }
+        val positionsArray =
+            positions?.fastMap { it.getFloatIdForCreationState(creationState) }?.toFloatArray()
+
+        paintBundle.setSweepGradient(
+            colorsArray,
+            mask,
+            positionsArray,
+            centerX.getFloatIdForCreationState(creationState),
+            centerY.getFloatIdForCreationState(creationState),
         )
     }
 }

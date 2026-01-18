@@ -247,10 +247,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         val debugPanelDefault = pointerLogManager.default.validPanel
         if (debugPanelDefault != null) {
             val oldPose = debugPanelDefault.getPose()
-            val newPose =
-                headPose.compose(
-                    Pose(Vector3(0f, 0f, -1f), Quaternion.fromAxisAngle(Vector3.Up, 180f))
-                )
+            val newPose = headPose.compose(Pose(Vector3(0f, 0f, -1f), Quaternion.Identity))
             debugPanelDefault.setPose(Pose.lerp(oldPose, newPose, followingPortion))
         }
 
@@ -259,7 +256,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         if (leftPose != null && debugPanelLeft != null) {
             val oldPose = debugPanelLeft.getPose()
             val newPos = leftPose.translation + Vector3(0f, 0.05f, 0f)
-            val newRot = Quaternion.fromLookTowards(headPose.translation - newPos, Vector3.Up)
+            val newRot = headPose.rotation
             debugPanelLeft.setPose(Pose.lerp(oldPose, Pose(newPos, newRot), followingPortion))
         }
 
@@ -268,7 +265,7 @@ class SurfaceEntityInteractionActivity : AppCompatActivity() {
         if (rightPose != null && debugPanelRight != null) {
             val oldPose = debugPanelRight.getPose()
             val newPos = rightPose.translation + Vector3(0f, 0.05f, 0f)
-            val newRot = Quaternion.fromLookTowards(headPose.translation - newPos, Vector3.Up)
+            val newRot = headPose.rotation
             debugPanelRight.setPose(Pose.lerp(oldPose, Pose(newPos, newRot), followingPortion))
         }
 

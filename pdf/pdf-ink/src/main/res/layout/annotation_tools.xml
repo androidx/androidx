@@ -21,7 +21,6 @@
         android:id="@+id/pen_button"
         android:layout_width="@dimen/annotation_tool_width"
         android:layout_height="@dimen/annotation_tool_height"
-        android:layout_marginEnd="@dimen/margin_4dp"
         android:contentDescription="@string/annotation_pen_button_content_desc"
         app:backgroundTint="@color/annotation_tool_background_color_state"
         app:iconTint="?attr/colorOnSurfaceVariant"
@@ -31,7 +30,6 @@
         android:id="@+id/highlighter_button"
         android:layout_width="@dimen/annotation_tool_width"
         android:layout_height="@dimen/annotation_tool_height"
-        android:layout_marginEnd="@dimen/margin_4dp"
         android:contentDescription="@string/annotation_highlighter_button_content_desc"
         app:backgroundTint="@color/annotation_tool_background_color_state"
         app:iconTint="?attr/colorOnSurfaceVariant"
@@ -41,7 +39,6 @@
         android:id="@+id/eraser_button"
         android:layout_width="@dimen/annotation_tool_width"
         android:layout_height="@dimen/annotation_tool_height"
-        android:layout_marginEnd="@dimen/margin_4dp"
         android:contentDescription="@string/annotation_eraser_button_content_desc"
         app:backgroundTint="@color/annotation_tool_background_color_state"
         app:iconTint="?attr/colorOnSurfaceVariant"
@@ -51,7 +48,6 @@
         android:id="@+id/color_palette_button"
         android:layout_width="@dimen/annotation_tool_width"
         android:layout_height="@dimen/annotation_tool_height"
-        android:layout_marginEnd="@dimen/margin_4dp"
         android:contentDescription="@string/annotation_color_palette_button_content_desc"
         app:cornerRadius="@dimen/color_palette_icon_corner_radius"
         app:backgroundTint="?attr/colorSurfaceContainerLowest"
@@ -63,8 +59,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:focusable="false"
-        android:background="@drawable/annotation_tool_container_background"
-        android:layout_marginEnd="@dimen/margin_4dp">
+        android:background="@drawable/annotation_tool_container_background">
 
         <androidx.pdf.ink.view.tool.AnnotationToolView
             android:id="@+id/undo_button"

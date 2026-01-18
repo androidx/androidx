@@ -66,8 +66,8 @@ public class RemoteBitmapFont(
         public val marginBottom: Short,
     )
 
-    public override val hasConstantValue: Boolean
-        get() = true
+    public override val constantValueOrNull: Any?
+        get() = null
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return creationState.document.addBitmapFont(
@@ -96,7 +96,7 @@ public class RemoteBitmapFont(
      * @return A [RemoteFloat] representing the calculated width in pixels.
      */
     public fun measureWidth(text: RemoteString): RemoteFloat {
-        return RemoteFloatExpression(constantValue = null) { creationState ->
+        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
             floatArrayOf(
                 creationState.document.bitmapTextMeasure(
                     text.getIdForCreationState(creationState),
@@ -115,7 +115,7 @@ public class RemoteBitmapFont(
      * @return A [RemoteFloat] representing the calculated height in pixels.
      */
     public fun measureHeight(text: RemoteString): RemoteFloat {
-        return RemoteFloatExpression(constantValue = null) { creationState ->
+        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
             floatArrayOf(
                 creationState.document.bitmapTextMeasure(
                     text.getIdForCreationState(creationState),
@@ -125,7 +125,4 @@ public class RemoteBitmapFont(
             )
         }
     }
-
-    override val constantValue: Any?
-        get() = null
 }

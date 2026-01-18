@@ -233,6 +233,41 @@ class SandboxedPdfLoaderTest {
         assertThat(document1.getPageInfo(2).width).isEqualTo(doc1Page3Info.width)
     }
 
+    @Test
+    fun openDocumentWithUri_assertDefaultRenderParams() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val uri = TestUtils.openFile(context, "sample.pdf")
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val document = sharedLoader.openDocument(uri)
+        assertThat(document.renderParams)
+            .isEqualTo(RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY))
+    }
+
+    @Test
+    fun openDocumentWithPfd_assertDefaultRenderParams() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val pfd = TestUtils.openFileDescriptor(context, "sample.pdf")
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val document = sharedLoader.openDocument(FAKE_URI_1, pfd)
+        assertThat(document.renderParams)
+            .isEqualTo(RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY))
+    }
+
+    @Test
+    fun openDocumentWithPfd_assertRenderParamsOnDocument() = runTest {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val pfd = TestUtils.openFileDescriptor(context, "sample.pdf")
+        val sharedLoader = SandboxedPdfLoader(context, Dispatchers.Main)
+        val customRenderParams =
+            RenderParams(
+                renderMode = RenderParams.RENDER_MODE_FOR_PRINT,
+                renderFlags = RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS,
+                renderFormContentMode = RenderParams.RENDER_FORM_CONTENT_ENABLED,
+            )
+        val document = sharedLoader.openDocument(FAKE_URI_1, pfd, renderParams = customRenderParams)
+        assertThat(document.renderParams).isEqualTo(customRenderParams)
+    }
+
     companion object {
         private const val PDF_DOCUMENT = "sample.pdf"
         private const val PASSWORD_PROTECTED_DOCUMENT = "sample-protected.pdf"

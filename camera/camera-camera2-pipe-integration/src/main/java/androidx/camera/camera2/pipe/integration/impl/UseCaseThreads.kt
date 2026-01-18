@@ -25,6 +25,7 @@ import java.util.concurrent.Executor
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -46,6 +47,14 @@ public class UseCaseThreads(
      * instance of [UseCaseThreads].
      */
     private val isSequentialThread = ThreadLocal<Boolean>()
+
+    /**
+     * Returns true if the current thread is the one associated with the [sequentialScope].
+     *
+     * This is useful for determining dispatching strategies (e.g., UNDISPATCHED) without the
+     * performance overhead of exception handling.
+     */
+    public fun isOnSequentialThread(): Boolean = isSequentialThread.get() == true
 
     /**
      * Executor that enforces sequential execution and sets the [isSequentialThread] flag during
@@ -75,7 +84,7 @@ public class UseCaseThreads(
      * @throws IllegalStateException if called from a different thread context.
      */
     public fun checkOnSequentialThread() {
-        check(isSequentialThread.get() == true) {
+        check(isOnSequentialThread()) {
             "Thread check failed: This method must be called from the UseCaseThreads sequential " +
                 "scope. Current thread: ${Thread.currentThread().name}"
         }
@@ -128,36 +137,45 @@ public class UseCaseThreads(
      * Cancelling the `Deferred` returned from this function does not cancel the `Deferred` returned
      * by `block`.
      *
+     * @param block The suspend lambda that returns a [Deferred].
+     * @param start The start option for the coroutine. Defaults to [CoroutineStart.DEFAULT].
+     *   **Note:** Do not use [CoroutineStart.LAZY] as the internal [Job] is not returned, meaning
+     *   the coroutine cannot be started manually.
      * @return A [Deferred] which is completed as per the [Deferred] returned from [block] via
      *   [propagateTo].
      */
     public inline fun <T> confineDeferredSuspend(
-        crossinline block: suspend () -> Deferred<T>
+        crossinline block: suspend () -> Deferred<T>,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
     ): Deferred<T> {
         val signal = CompletableDeferred<T>()
-        sequentialScope.launch { block().propagateTo(signal) }
+        sequentialScope.launch(start = start) { block().propagateTo(signal) }
         return signal
     }
 
     /**
-     * Confines a [Deferred] list returning suspendable `block` parameter to
+     * Confines a [Deferred] list returning suspendable [block] parameter to
      * [UseCaseThreads.sequentialScope] for the purpose of thread confinement and returns a new
-     * `Deferred` list with one-to-one mapping.
+     * [Deferred] list with one-to-one mapping.
      *
-     * Cancelling a `Deferred` returned from this function does not cancel the corresponding
-     * `Deferred` returned by `block`.
+     * Cancelling a [Deferred] returned from this function does not cancel the corresponding
+     * [Deferred] returned by [block].
      *
      * @param size Size of the list returned from [block], the list returned via this function will
-     *   also have th same size.
+     *   also have the same size.
+     * @param start Coroutine starting strategy (default: [CoroutineStart.DEFAULT]). Use
+     *   [CoroutineStart.UNDISPATCHED] to start execution immediately on the current thread if the
+     *   caller is already on the sequential thread.
      * @return A list of [Deferred] where each element is completed as per the corresponding
      *   [Deferred] in the list returned from [block].
      */
     public inline fun <T> confineDeferredListSuspend(
         size: Int,
+        start: CoroutineStart = CoroutineStart.DEFAULT,
         crossinline block: suspend () -> List<Deferred<T>>,
     ): List<Deferred<T>> {
         val deferredList = List(size) { CompletableDeferred<T>() }
-        sequentialScope.launch {
+        sequentialScope.launch(start = start) {
             block().forEachIndexed { index, deferred -> deferred.propagateTo(deferredList[index]) }
         }
         return deferredList

@@ -38,6 +38,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.SensorTimestamp
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -84,6 +85,7 @@ internal class Camera2CaptureSequenceTest {
             mapOf(surface to streamId),
             mapOf(surface to outputId),
             streamGraph,
+            StrictMode(true),
         )
 
     @Before
@@ -183,6 +185,7 @@ internal class Camera2CaptureSequenceTest {
                 mapOf(surface1 to stream.id),
                 mapOf(surface1 to output1.id, surface2 to output2.id),
                 streamGraph,
+                StrictMode(true),
             )
 
         val frameNumber1: Long = 5

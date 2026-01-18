@@ -17,84 +17,93 @@
 package androidx.window.area
 
 import android.app.Activity
-import android.os.Binder
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
-import androidx.window.WindowSdkExtensions
-import androidx.window.area.WindowAreaInfo.Type.Companion.TYPE_REAR_FACING
+import androidx.core.util.Consumer
+import androidx.window.area.WindowArea.Type.Companion.TYPE_REAR_FACING
+import androidx.window.area.WindowAreaCapability.Operation.Companion.OPERATION_TRANSFER_TO_AREA
+import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.core.BuildConfig
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.VerificationMode
 import java.util.concurrent.Executor
-import kotlinx.coroutines.flow.Flow
 
 /**
  * An interface to provide the information and behavior around moving windows between displays or
  * display areas on a device.
  */
-@ExperimentalWindowApi
 public abstract class WindowAreaController
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor() {
 
     /**
-     * [Flow] of the list of current [WindowAreaInfo]s that are currently available to be interacted
-     * with.
+     * Registers a listener that is interested in the current list of [WindowArea] available to be
+     * interacted with.
      *
-     * If [WindowSdkExtensions.extensionVersion] is less than 2, the flow will return empty
-     * [WindowAreaInfo] list flow.
+     * The [listener] will receive an initial value on registration, as soon as it becomes
+     * available.
+     *
+     * @param executor to handle sending listener updates.
+     * @param listener to receive updates to the list of [WindowArea].
+     * @see WindowAreaController.transferToWindowArea
+     * @see WindowAreaController.presentContentOnWindowArea
      */
-    public abstract val windowAreaInfos: Flow<List<WindowAreaInfo>>
-
-    /**
-     * Starts a transfer session where the calling [Activity] is moved to the window area identified
-     * by the [token]. Updates on the session are provided through the [WindowAreaSessionCallback].
-     * Attempting to start a transfer session when the [WindowAreaInfo] does not return
-     * [WindowAreaCapability.Status.WINDOW_AREA_STATUS_AVAILABLE] will result in
-     * [WindowAreaSessionCallback.onSessionEnded] containing an [IllegalStateException]
-     *
-     * Only the top visible application can request to start a transfer session.
-     *
-     * The calling [Activity] will likely go through a configuration change since the window area it
-     * will be transferred to is usually different from the current area the [Activity] is in. The
-     * callback is retained during the lifetime of the session. If an [Activity] is captured in the
-     * callback and it does not handle the configuration change then it will be leaked. Consider
-     * using an [androidx.lifecycle.ViewModel] since that is meant to outlive the [Activity]
-     * lifecycle. If the [Activity] does override configuration changes, it is safe to have the
-     * [Activity] handle the WindowAreaSessionCallback. This guarantees that the calling [Activity]
-     * will continue to receive [WindowAreaSessionCallback.onSessionEnded] and keep a handle to the
-     * [WindowAreaSession] provided through [WindowAreaSessionCallback.onSessionStarted].
-     *
-     * The [windowAreaSessionCallback] provided will receive a call to
-     * [WindowAreaSessionCallback.onSessionStarted] after the [Activity] has been transferred to the
-     * window area. The transfer session will stay active until the session provided through
-     * [WindowAreaSessionCallback.onSessionStarted] is closed. Depending on the
-     * [WindowAreaInfo.Type] there may be other triggers that end the session, such as if a device
-     * state change makes the window area unavailable. One example of this is if the [Activity] is
-     * currently transferred to the [TYPE_REAR_FACING] window area of a foldable device, the session
-     * will be ended when the device is closed. When this occurs,
-     * [WindowAreaSessionCallback.onSessionEnded] is called.
-     *
-     * @param token [Binder] token identifying the window area to be transferred to.
-     * @param activity Base Activity making the call to [transferActivityToWindowArea].
-     * @param executor Executor used to provide updates to [windowAreaSessionCallback].
-     * @param windowAreaSessionCallback to be notified when the rear display session is started and
-     *   ended.
-     * @see windowAreaInfos
-     */
-    public abstract fun transferActivityToWindowArea(
-        token: Binder,
-        activity: Activity,
+    public abstract fun addWindowAreasListener(
         executor: Executor,
-        // TODO(272064992) investigate how to make this safer from leaks
-        windowAreaSessionCallback: WindowAreaSessionCallback,
+        listener: Consumer<List<WindowArea>>,
     )
 
     /**
-     * Starts a presentation session on the [WindowAreaInfo] identified by the [token] and sends
-     * updates through the [WindowAreaPresentationSessionCallback].
+     * Removes a listener of available [WindowArea] records. If the listener is not present then
+     * this method is a no-op.
+     *
+     * @param listener to remove from receiving status updates.
+     * @see WindowAreaController.transferToWindowArea
+     * @see WindowAreaController.presentContentOnWindowArea
+     */
+    public abstract fun removeWindowAreasListener(listener: Consumer<List<WindowArea>>)
+
+    /**
+     * Moves the calling [Activity] and the global state of the device to the [WindowArea] provided.
+     * This is a long lasting and sticky operation that will outlive the application that requests
+     * this operation. Status updates can be received from the value received by registering a
+     * listener through [addWindowAreasListener] and then querying for the
+     * [WindowAreaCapability.Operation.OPERATION_TRANSFER_TO_AREA] operation.
+     *
+     * Attempting to move the device to a window area when the [WindowArea] does not return
+     * [WindowAreaCapability.Status.WINDOW_AREA_STATUS_AVAILABLE] will result in an
+     * [IllegalStateException].
+     *
+     * Only the top visible application can request the device ot move to a [WindowArea]. If this
+     * operation is requested when the application is not the top level process, a
+     * [SecurityException] will be thrown.
+     *
+     * Passing a null [WindowAreaToken] returns back to the default window area (usually going to be
+     * the [android.view.Display.DEFAULT_DISPLAY]). Depending on the [WindowArea.Type] there may be
+     * other triggers that end the session, such as if a device state change makes the window area
+     * =unavailable. One example of this is if the device is currently moved to the
+     * [TYPE_REAR_FACING] window area of a foldable device, the device will be moved back to the
+     * default window area, and the status of the operation will no longer be
+     * [WindowAreaCapability.Status.WINDOW_AREA_STATUS_ACTIVE].
+     *
+     * @param windowAreaToken [WindowAreaToken] window area token that identifies the [WindowArea]
+     *   to move to.
+     * @param activity Base Activity making the call to [transferToWindowArea].
+     * @throws IllegalStateException if this method is called when the provided [WindowArea] does
+     *   not have a [WINDOW_AREA_STATUS_AVAILABLE] status for [OPERATION_TRANSFER_TO_AREA].
+     * @throws SecurityException if this method is called from a process that is not the top-level
+     *   process.
+     * @throws IllegalArgumentException if this method is called with a [WindowArea] with a
+     *   [WindowArea.Type] that is unrecognized.
+     * @see windowAreas
+     */
+    public abstract fun transferToWindowArea(windowAreaToken: WindowAreaToken?, activity: Activity)
+
+    /**
+     * Starts a presentation session on the [WindowArea] identified by the [windowAreaToken] and
+     * sends updates through the [WindowAreaPresentationSessionCallback].
      *
      * If a presentation session is attempted to be started without it being available,
      * [WindowAreaPresentationSessionCallback.onSessionEnded] will be called immediately with an
@@ -103,8 +112,8 @@ constructor() {
      * Only the top visible application can request to start a presentation session.
      *
      * The presentation session will stay active until the presentation provided through
-     * [WindowAreaPresentationSessionCallback.onSessionStarted] is closed. The [WindowAreaInfo.Type]
-     * may provide different triggers to close the session such as if the calling application is no
+     * [WindowAreaPresentationSessionCallback.onSessionStarted] is closed. The [WindowArea.Type] may
+     * provide different triggers to close the session such as if the calling application is no
      * longer in the foreground, or there is a device state change that makes the window area
      * unavailable to be presented on. One example scenario is if a [TYPE_REAR_FACING] window area
      * is being presented to on a foldable device that is open and has 2 screens. If the device is
@@ -113,19 +122,32 @@ constructor() {
      * has been ended. The session may end prematurely if the device gets to a critical thermal
      * level, or if power saver mode is enabled.
      *
-     * @param token [Binder] token to identify which [WindowAreaInfo] is to be presented on
+     * @param windowAreaToken identifier for which [WindowArea] is to be presented on
      * @param activity An [Activity] that will present content on the Rear Display.
      * @param executor Executor used to provide updates to [windowAreaPresentationSessionCallback].
      * @param windowAreaPresentationSessionCallback to be notified of updates to the lifecycle of
      *   the currently enabled rear display presentation.
-     * @see windowAreaInfos
+     * @see addWindowAreasListener
      */
+    @ExperimentalWindowApi
     public abstract fun presentContentOnWindowArea(
-        token: Binder,
+        windowAreaToken: WindowAreaToken,
         activity: Activity,
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
     )
+
+    /**
+     * Returns the current active [WindowAreaSessionPresenter] if one is currently active in the
+     * [WindowArea] identified by the provided [WindowAreaToken].
+     *
+     * @throws IllegalArgumentException if there is no active presentation session for the provided
+     *   [windowAreaToken].
+     */
+    @ExperimentalWindowApi
+    public abstract fun getActivePresentationSession(
+        windowAreaToken: WindowAreaToken
+    ): WindowAreaSessionPresenter
 
     public companion object {
 
@@ -140,7 +162,7 @@ constructor() {
                     }
                 } catch (t: Throwable) {
                     if (BuildConfig.verificationMode == VerificationMode.LOG) {
-                        Log.d(TAG, "Failed to load WindowExtensions")
+                        Log.d(TAG, "Failed to load WindowExtensions: ${t.message}")
                     }
                     null
                 }
@@ -151,7 +173,7 @@ constructor() {
                     ExtensionsUtil.safeVendorApiLevel >= 3
 
             if (deviceSupported) {
-                WindowAreaControllerImpl(windowAreaComponent = windowAreaComponentExtensions!!)
+                WindowAreaControllerImpl(windowAreaComponent = windowAreaComponentExtensions)
             } else {
                 EmptyWindowAreaControllerImpl()
             }
@@ -179,7 +201,6 @@ constructor() {
 }
 
 /** Decorator that allows us to provide different functionality in our window-testing artifact. */
-@ExperimentalWindowApi
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface WindowAreaControllerDecorator {
     /** Returns an instance of [WindowAreaController] associated to the [Activity] */
@@ -187,7 +208,6 @@ public interface WindowAreaControllerDecorator {
     public fun decorate(controller: WindowAreaController): WindowAreaController
 }
 
-@ExperimentalWindowApi
 private object EmptyDecorator : WindowAreaControllerDecorator {
     override fun decorate(controller: WindowAreaController): WindowAreaController {
         return controller

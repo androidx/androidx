@@ -37,6 +37,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -303,7 +304,7 @@ class PdfDocumentViewModelTest {
                     latch.countDown()
                 }
             }
-        document.addOnPdfContentInvalidatedListener(listener)
+        document.addOnPdfContentInvalidatedListener({ command -> command.run() }, listener)
 
         // Bounds in content coordinates of the widget on which the edit is applied
         val widgetArea = Rect(135, 70, 155, 90)
@@ -364,31 +365,28 @@ class PdfDocumentViewModelTest {
         val document = (loadedState as PdfFragmentUiState.DocumentLoaded).pdfDocument
         val formWidgetInfos = document.getFormWidgetInfos(0)
         val expectedFormWidgetInfoIndex1 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = 1,
                 widgetRect = Rect(135, 70, 155, 90),
                 textValue = "true",
                 accessibilityLabel = "checkbox",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedFormWidgetInfoIndex5 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 widgetIndex = 5,
                 widgetRect = Rect(85, 230, 105, 250),
                 textValue = "true",
                 accessibilityLabel = "",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedFormWidgetInfoIndex7 =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 widgetIndex = 7,
                 widgetRect = Rect(185, 230, 205, 250),
                 textValue = "false",
                 accessibilityLabel = "",
-                readOnly = false,
+                isReadOnly = false,
             )
 
         for (widget: FormWidgetInfo in formWidgetInfos) {
@@ -400,8 +398,51 @@ class PdfDocumentViewModelTest {
         }
     }
 
+    @Test
+    fun test_pdfDocumentViewModel_forceLoadDocument_reloadsSuccessfully() = runTest {
+        val documentUri = openFileAsUri(appContext, "sample.pdf")
+        val savedState = SavedStateHandle()
+        val testViewModel =
+            TestPdfDocumentViewModel(savedState, SandboxedPdfLoader(appContext, dispatcher))
+
+        testViewModel.loadDocument(uri = documentUri, password = null)
+
+        testViewModel.fragmentUiScreenState.first { it is PdfFragmentUiState.DocumentLoaded }
+        assertTrue(testViewModel.fragmentUiScreenState.value is PdfFragmentUiState.DocumentLoaded)
+
+        val uiStates = mutableListOf<PdfFragmentUiState>()
+        val reloadJob = launch {
+            testViewModel.fragmentUiScreenState.collectTill(uiStates) { state ->
+                state is PdfFragmentUiState.DocumentLoaded &&
+                    uiStates.any { it is PdfFragmentUiState.Loading }
+            }
+        }
+
+        // force load document without current state
+        testViewModel.forceLoadDocument()
+        reloadJob.join()
+
+        // Should contain Loading followed by DocumentLoaded
+        assertTrue(uiStates.any { it is PdfFragmentUiState.Loading })
+        assertTrue(uiStates.last() is PdfFragmentUiState.DocumentLoaded)
+        // Assert states get reset
+        assertFalse(testViewModel.isTextSearchActiveFromState)
+        assertFalse(testViewModel.isImmersiveModeDesired)
+        assertFalse(savedState.contains("formEditInfos"))
+    }
+
     private fun fullyContains(innerRects: List<Rect>, outerRects: List<Rect>): Boolean {
         return innerRects.all { inner -> outerRects.any { outer -> outer.contains(inner) } }
+    }
+
+    /** A test-only subclass to expose protected methods for verification. */
+    private class TestPdfDocumentViewModel(
+        savedStateHandle: SavedStateHandle,
+        pdfLoader: SandboxedPdfLoader,
+    ) : PdfDocumentViewModel(savedStateHandle, pdfLoader) {
+        public override fun forceLoadDocument() {
+            super.forceLoadDocument()
+        }
     }
 
     companion object {

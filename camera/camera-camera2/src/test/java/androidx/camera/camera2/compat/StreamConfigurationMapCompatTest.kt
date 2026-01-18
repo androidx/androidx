@@ -89,7 +89,6 @@ class StreamConfigurationMapCompatTest {
     }
 
     @Test
-    @Config(minSdk = 23)
     fun getHighResolutionOutputSizesTwice_whenReturnedArrayIsNull() {
         assumeTrue(
             streamConfigurationMapCompat.getHighResolutionOutputSizes(ImageFormat.JPEG) == null

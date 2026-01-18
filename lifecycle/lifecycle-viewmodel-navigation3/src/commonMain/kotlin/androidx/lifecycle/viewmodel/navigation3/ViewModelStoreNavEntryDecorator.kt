@@ -64,11 +64,10 @@ public fun <T : Any> rememberViewModelStoreNavEntryDecorator(
         ViewModelStoreNavEntryDecoratorDefaults.removeViewModelStoreOnPop(),
 ): ViewModelStoreNavEntryDecorator<T> {
     val currentRemoveViewModelStoreOnPop = rememberUpdatedState(removeViewModelStoreOnPop)
-    return remember(viewModelStoreOwner, currentRemoveViewModelStoreOnPop) {
-        ViewModelStoreNavEntryDecorator(
-            viewModelStoreOwner.viewModelStore,
-            removeViewModelStoreOnPop,
-        )
+    return remember(viewModelStoreOwner) {
+        ViewModelStoreNavEntryDecorator(viewModelStoreOwner.viewModelStore) {
+            currentRemoveViewModelStoreOnPop.value.invoke()
+        }
     }
 }
 

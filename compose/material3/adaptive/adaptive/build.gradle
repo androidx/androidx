@@ -33,7 +33,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         namespace = "androidx.compose.material3.adaptive"
     }
     jvmStubs()
@@ -43,8 +43,8 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("androidx.compose.foundation:foundation:1.10.0-beta02")
-            implementation("androidx.compose.ui:ui:1.10.0-beta02")
+            implementation("androidx.compose.foundation:foundation:1.10.0")
+            implementation("androidx.compose.ui:ui:1.10.0")
             api("androidx.window:window-core:1.5.0")
         }
 

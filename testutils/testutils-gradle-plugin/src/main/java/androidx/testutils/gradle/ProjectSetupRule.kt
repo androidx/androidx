@@ -209,6 +209,7 @@ class ProjectSetupRule(parentFolder: File? = null) : ExternalResource() {
         gradlePropertiesFile.writer().use {
             val props = Properties()
             props.setProperty("android.useAndroidX", "true")
+            props.setProperty("org.gradle.configuration-cache", "true")
             props.store(it, null)
         }
     }

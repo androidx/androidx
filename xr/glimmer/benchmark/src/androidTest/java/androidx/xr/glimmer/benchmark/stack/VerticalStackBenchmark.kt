@@ -18,20 +18,29 @@ package androidx.xr.glimmer.benchmark.stack
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
+import androidx.compose.testutils.assertNoPendingChanges
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextMotion
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.xr.glimmer.GlimmerTheme
 import androidx.xr.glimmer.LocalTextStyle
 import androidx.xr.glimmer.Text
+import androidx.xr.glimmer.stack.StackState
 import androidx.xr.glimmer.stack.VerticalStack
+import androidx.xr.glimmer.testutils.createGlimmerRule
+import kotlin.test.assertEquals
+import kotlinx.coroutines.runBlocking
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -40,23 +49,52 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class VerticalStackBenchmark {
 
-    @get:Rule val benchmarkRule = ComposeBenchmarkRule()
+    @get:Rule(0) val benchmarkRule = ComposeBenchmarkRule()
+
+    @get:Rule(1) val glimmerRule = createGlimmerRule()
 
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstCompose { StackTestCase }
+        benchmarkRule.benchmarkFirstCompose { VerticalStackTestCase() }
     }
 
     @Test
     fun first_pixel() {
-        benchmarkRule.benchmarkToFirstPixel { StackTestCase }
+        benchmarkRule.benchmarkToFirstPixel { VerticalStackTestCase() }
+    }
+
+    @Test
+    fun scroll_firstFrame() {
+        with(benchmarkRule) {
+            runBenchmarkFor({ VerticalStackTestCase() }) {
+                runOnUiThread { doFramesUntilNoChangesPending() }
+
+                measureRepeatedOnUiThread {
+                    runWithMeasurementDisabled {
+                        getTestCase().resetScroll()
+                        doFramesUntilNoChangesPending()
+                        getTestCase().beforeScroll()
+                        assertNoPendingChanges()
+                    }
+
+                    getTestCase().scroll()
+                    doFrame()
+
+                    runWithMeasurementDisabled { getTestCase().afterScroll() }
+                }
+            }
+        }
     }
 }
 
-private object StackTestCase : LayeredComposeTestCase() {
+private class VerticalStackTestCase : LayeredComposeTestCase() {
+
+    private val stackState = StackState()
+    private var stackHeightPx = 0f
+
     @Composable
     override fun MeasuredContent() {
-        VerticalStack {
+        VerticalStack(state = stackState, modifier = Modifier.height(StackHeight)) {
             items(10) { index ->
                 Box(modifier = Modifier.focusable().itemDecoration(RectangleShape)) {
                     Text(
@@ -70,6 +108,25 @@ private object StackTestCase : LayeredComposeTestCase() {
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
+        with(LocalDensity.current) { stackHeightPx = StackHeight.toPx() }
         GlimmerTheme { content() }
     }
+
+    fun resetScroll() {
+        runBlocking { stackState.scrollToItem(0) }
+    }
+
+    fun beforeScroll() {
+        assertEquals(0, stackState.topItem)
+    }
+
+    fun scroll() {
+        stackState.dispatchRawDelta(stackHeightPx)
+    }
+
+    fun afterScroll() {
+        assertEquals(1, stackState.topItem)
+    }
 }
+
+private val StackHeight = 300.dp

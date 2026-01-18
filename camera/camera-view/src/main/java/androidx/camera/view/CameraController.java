@@ -3064,6 +3064,12 @@ public abstract class CameraController {
             return null;
         }
 
+        // While mSessionConfig is set, getBoundSessionConfig should be invoked to get the required
+        // SessionConfig for binding.
+        if (mSessionConfig != null) {
+            return null;
+        }
+
         // Always unbinds all UseCases to allow the resolution selection logic to re-select a
         // workable resolutions set for the new UseCases combination.
         unbindAllUseCases();
@@ -3095,6 +3101,15 @@ public abstract class CameraController {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected @Nullable SessionConfig getBoundSessionConfig() {
+        if (!isCameraInitialized()) {
+            Logger.d(TAG, CAMERA_NOT_INITIALIZED);
+            return null;
+        }
+        if (!isPreviewViewAttached()) {
+            // Preview is required. Return early if preview Surface is not ready.
+            Logger.d(TAG, PREVIEW_VIEW_NOT_ATTACHED);
+            return null;
+        }
         if (mSessionConfig == null) {
             return null;
         }

@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -57,18 +56,8 @@ public fun RemoteButtonGroup(
     horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.CenterHorizontally,
     content: @RemoteComposable @Composable (RemoteRowScope.() -> Unit),
 ) {
-    val contentPadding: RemoteModifier =
-        with(LocalDensity.current) {
-            RemoteModifier.padding(
-                left = contentPadding.leftPadding.value * density,
-                top = contentPadding.topPadding.value * density,
-                right = contentPadding.rightPadding.value * density,
-                bottom = contentPadding.bottomPadding.value * density,
-            )
-        }
-
     RemoteRow(
-        modifier.then(contentPadding),
+        modifier.padding(contentPadding),
         content = content,
         verticalAlignment = verticalAlignment,
         horizontalArrangement = horizontalArrangement,

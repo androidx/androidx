@@ -31,6 +31,7 @@ import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.testing.FakeCameraDeviceWrapper
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceListener
@@ -196,6 +197,7 @@ internal class Camera2CaptureSequenceProcessorTest {
                         stream2.outputs.single().id to surface2,
                     ),
                 streamGraph,
+                StrictMode(true),
             )
 
         val sequence =
@@ -239,6 +241,7 @@ internal class Camera2CaptureSequenceProcessorTest {
                 mapOf(stream1.id to surface1),
                 mapOf(stream1.outputs.single().id to surface1),
                 streamGraph,
+                StrictMode(true),
             )
         val captureSequence =
             captureSequenceProcessor.build(
@@ -267,6 +270,7 @@ internal class Camera2CaptureSequenceProcessorTest {
                 mapOf(stream1.id to surface1),
                 mapOf(stream1.outputs.single().id to surface1),
                 streamGraph,
+                StrictMode(true),
             )
 
         // Key part is that only stream1 has a surface, but stream2 is requested.
@@ -294,6 +298,7 @@ internal class Camera2CaptureSequenceProcessorTest {
                 mapOf(stream1.id to surface1),
                 mapOf(stream1.outputs.single().id to surface1),
                 streamGraph,
+                StrictMode(true),
             )
         val captureSequence =
             captureSequenceProcessor.build(
@@ -328,6 +333,7 @@ internal class Camera2CaptureSequenceProcessorTest {
                     stream4.outputs.single().id to surface4,
                 ),
                 highSpeedStreamGraph,
+                StrictMode(true),
             )
 
         val sequence =

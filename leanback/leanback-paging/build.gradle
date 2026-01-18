@@ -46,7 +46,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     lint {
         // Bug in Android Lint 7.0.0-alpha15 b/187419330
         disable.add("MissingLeanbackLauncher")

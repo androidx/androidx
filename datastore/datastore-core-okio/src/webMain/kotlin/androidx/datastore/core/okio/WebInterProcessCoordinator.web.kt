@@ -16,19 +16,22 @@
 
 package androidx.datastore.core.okio
 
-import androidx.annotation.RestrictTo
 import androidx.datastore.core.InterProcessCoordinator
+import kotlinx.browser.localStorage
 import kotlinx.browser.sessionStorage
+import kotlinx.browser.window
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
+import org.w3c.dom.StorageEvent
+import org.w3c.dom.events.Event
 
 /**
  * An InterProcessCoordinator for web environments.
  *
- * For [sessionStorage], it provides in-tab notifications. An InterProcessCoordinator for web
- * environments. For `sessionStorage`, no coordination is needed as its tab-isolated. For
- * `localStorage`, it uses BroadcastChannel to coordinate work across multiple browser tabs.
+ * For [sessionStorage], coordination is not needed as it's isolated to a single tab. For
+ * [localStorage], it uses the 'storage' event to coordinate reads and writes across multiple
+ * browser tabs.
  */
 internal class WebInterProcessCoordinator(
     name: String,
@@ -41,34 +44,46 @@ internal class WebInterProcessCoordinator(
     private val versionKey = "datastore_${storageType}_${name}_version"
     private val domStorage =
         when (storageType) {
+            WebStorageType.LOCAL -> localStorage
             WebStorageType.SESSION -> sessionStorage
         }
 
-    /* Handles notifications within the current tab. */
+    /**
+     * Handles notifications within the current tab.
+     *
+     * In addition to being triggered by changes within the current tab, for [localStorage], this is
+     * also triggered by the [StorageEvent] listener when another tab updates the data.
+     */
     private val inTabNotifier = MutableStateFlow(domStorage.getItem(versionKey)?.toIntOrNull() ?: 0)
 
-    /**
-     * Used to notify all tabs.
-     *
-     * For `sessionStorage` use the [inTabNotifier] to notify listeners in a single tab.
-     */
-    override val updateNotifications: Flow<Unit> =
-        when (storageType) {
-            WebStorageType.SESSION -> inTabNotifier.map { Unit }
-        }
-
-    override suspend fun <T> lock(block: suspend () -> T): T {
-        return when (storageType) {
-            // Don't need a lock since local storage is single-threaded.
-            WebStorageType.SESSION -> block()
+    /** Listen for [StorageEvent] which are fired when [localStorage] is modified in another tab. */
+    private val storageEventListener: ((Event) -> Unit) = { event ->
+        if (event is StorageEvent && event.key == versionKey) {
+            // Update the notifier with the new value from storage to trigger flows.
+            inTabNotifier.value = domStorage.getItem(versionKey)?.toIntOrNull() ?: 0
         }
     }
 
-    override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T {
-        return when (storageType) {
-            // Lock is always available since `sessionStorage` is single-threaded.
-            WebStorageType.SESSION -> block(true)
+    init {
+        // StorageEvent listener is only needed for localStorage.
+        if (storageType == WebStorageType.LOCAL) {
+            window.addEventListener("storage", storageEventListener)
         }
+    }
+
+    /** Used to notify listeners in a single tab. */
+    override val updateNotifications: Flow<Unit> = inTabNotifier.map {}
+
+    override suspend fun <T> lock(block: suspend () -> T): T {
+        // Lock is always available since `sessionStorage` and `localStorage` storage are
+        // single-threaded.
+        return block()
+    }
+
+    override suspend fun <T> tryLock(block: suspend (Boolean) -> T): T {
+        // Lock is always available since `sessionStorage` and `localStorage` storage are
+        // single-threaded.
+        return block(true)
     }
 
     override suspend fun getVersion(): Int {
@@ -83,18 +98,24 @@ internal class WebInterProcessCoordinator(
 
         // Set the notifier value to the new version to notify listeners within the current tab.
         inTabNotifier.value = newVersion
+
         return newVersion
+    }
+
+    /** Removes the [StorageEvent] listener from the window to prevent memory leaks. */
+    fun removeStorageEventListener() {
+        // StorageEvent listener is only needed for localStorage.
+        if (storageType == WebStorageType.LOCAL) {
+            window.removeEventListener("storage", storageEventListener)
+        }
     }
 }
 
 /** Create a coordinator for web use cases. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun createWebProcessCoordinator(
+internal fun createWebProcessCoordinator(
     path: String,
     storageType: WebStorageType,
-): InterProcessCoordinator {
-    // TODO(b/441511612): Add support for LocalStorage and OPFS.
-    return when (storageType) {
-        WebStorageType.SESSION -> WebInterProcessCoordinator(path, storageType)
-    }
+): WebInterProcessCoordinator {
+    // TODO(b/441511612): Add support for OPFS.
+    return WebInterProcessCoordinator(path, storageType)
 }

@@ -18,8 +18,6 @@ package androidx.camera.extensions
 
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
-import android.hardware.camera2.CaptureRequest
-import android.util.Pair
 import android.util.Range
 import android.util.Size
 import androidx.camera.core.Camera
@@ -29,17 +27,8 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.AdapterCameraInfo
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.SessionProcessor
-import androidx.camera.extensions.impl.advanced.Camera2OutputConfigImpl
-import androidx.camera.extensions.impl.advanced.Camera2SessionConfigImpl
-import androidx.camera.extensions.impl.advanced.OutputSurfaceConfigurationImpl
-import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl
-import androidx.camera.extensions.impl.advanced.RequestProcessorImpl
-import androidx.camera.extensions.impl.advanced.SessionProcessorImpl
-import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.ExtensionsUtils
 import androidx.camera.extensions.internal.VendorExtender
-import androidx.camera.extensions.internal.Version
-import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor
 import androidx.camera.extensions.internal.sessionprocessor.Camera2ExtensionsSessionProcessor
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.extensions.util.ExtensionsTestUtil.CAMERA_PIPE_IMPLEMENTATION_OPTION
@@ -152,13 +141,6 @@ class ExtensionsManagerTest(
 
     @Test
     fun correctAvailability_whenExtensionIsNotAvailable(): Unit = runBlocking {
-        // Skips the test if extensions availability is disabled by quirk.
-        assumeFalse(
-            ExtensionsTestUtil.extensionsDisabledByQuirk(
-                CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
-            )
-        )
-
         extensionsManager = ExtensionsManager.getInstance(context, cameraProvider)
         val baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
@@ -239,10 +221,6 @@ class ExtensionsManagerTest(
             extensionsManager.extensionsAvailability ==
                 ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE
         )
-        // Skips the test when the extension version is 1.1 or below. It is the case that the
-        // device has its own implementation and ExtensionsInfo will directly return null to impact
-        // the test result.
-        assumeTrue(ExtensionVersion.getRuntimeVersion()!! >= Version.VERSION_1_2)
 
         val estimatedCaptureLatency = Range(100L, 1000L)
 
@@ -265,20 +243,6 @@ class ExtensionsManagerTest(
                 extensionsManager.getEstimatedCaptureLatencyRange(baseCameraSelector, extensionMode)
             )
             .isEqualTo(estimatedCaptureLatency)
-    }
-
-    @Test
-    fun getEstimatedCaptureLatencyRangeReturnNull_belowVersion1_2() {
-        assumeTrue(ExtensionVersion.getRuntimeVersion()!!.compareTo(Version.VERSION_1_2) < 0)
-
-        checkExtensionAvailabilityAndInit()
-
-        // This call should not cause any exception even if the vendor library doesn't implement
-        // the getEstimatedCaptureLatencyRange function.
-        val latencyInfo =
-            extensionsManager.getEstimatedCaptureLatencyRange(baseCameraSelector, extensionMode)
-
-        assertThat(latencyInfo).isNull()
     }
 
     @Test
@@ -558,9 +522,8 @@ class ExtensionsManagerTest(
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 31)
     fun returnsCorrectCurrentExtensionTypeAvailabilityFromCameraExtensionsInfo() = runBlocking {
-        assumeTrue(ExtensionVersion.isAdvancedExtenderSupported())
-        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
         val extensionCameraSelector = checkExtensionAvailabilityAndInit()
 
         // Inject fake VendorExtenderFactory to provide custom VendorExtender
@@ -578,12 +541,10 @@ class ExtensionsManagerTest(
                 }
 
                 override fun createSessionProcessor(context: Context): SessionProcessor? {
-                    return AdvancedSessionProcessor(
-                        FakeSessionProcessorImpl(),
+                    return Camera2ExtensionsSessionProcessor(
                         Collections.emptyList(),
-                        this,
-                        context,
                         extensionMode,
+                        this,
                     )
                 }
             }
@@ -682,59 +643,5 @@ class ExtensionsManagerTest(
             cameraId,
             ExtensionsUtils.getCameraCharacteristicsMap(cameraInfo),
         )
-    }
-
-    private class FakeSessionProcessorImpl : SessionProcessorImpl {
-        override fun initSession(
-            cameraId: String,
-            cameraCharacteristicsMap: MutableMap<String, CameraCharacteristics>,
-            context: Context,
-            surfaceConfigs: OutputSurfaceConfigurationImpl,
-        ): Camera2SessionConfigImpl = FakeCamera2SessionConfigImpl()
-
-        override fun initSession(
-            cameraId: String,
-            cameraCharacteristicsMap: MutableMap<String, CameraCharacteristics>,
-            context: Context,
-            previewSurfaceConfig: OutputSurfaceImpl,
-            imageCaptureSurfaceConfig: OutputSurfaceImpl,
-            imageAnalysisSurfaceConfig: OutputSurfaceImpl?,
-        ): Camera2SessionConfigImpl = FakeCamera2SessionConfigImpl()
-
-        override fun deInitSession() {}
-
-        override fun setParameters(parameters: MutableMap<CaptureRequest.Key<*>, Any>) {}
-
-        override fun startTrigger(
-            triggers: MutableMap<CaptureRequest.Key<*>, Any>,
-            callback: SessionProcessorImpl.CaptureCallback,
-        ): Int = 0
-
-        override fun onCaptureSessionStart(requestProcessor: RequestProcessorImpl) {}
-
-        override fun onCaptureSessionEnd() {}
-
-        override fun startRepeating(callback: SessionProcessorImpl.CaptureCallback): Int = 0
-
-        override fun stopRepeating() {}
-
-        override fun startCapture(callback: SessionProcessorImpl.CaptureCallback): Int = 0
-
-        override fun startCaptureWithPostview(callback: SessionProcessorImpl.CaptureCallback): Int =
-            0
-
-        override fun abortCapture(captureSequenceId: Int) {}
-
-        override fun getRealtimeCaptureLatency(): Pair<Long, Long>? = null
-    }
-
-    private class FakeCamera2SessionConfigImpl : Camera2SessionConfigImpl {
-        override fun getOutputConfigs(): MutableList<Camera2OutputConfigImpl> = mutableListOf()
-
-        override fun getSessionParameters(): MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf()
-
-        override fun getSessionTemplateId(): Int = 0
-
-        override fun getSessionType(): Int = 0
     }
 }

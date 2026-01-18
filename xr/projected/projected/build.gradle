@@ -31,6 +31,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinCoroutinesCore)
+    api(project(":xr:runtime:runtime"))
 
     implementation(project(":xr:projected:projected-binding"))
     implementation("androidx.activity:activity-compose:1.10.1")
@@ -46,11 +47,12 @@ dependencies {
     testImplementation(libs.mockitoKotlin4)
     testImplementation(project(":compose:test-utils"))
     testImplementation(project(":lifecycle:lifecycle-runtime-testing"))
+    testImplementation(project(":xr:projected:projected-testing"))
 
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.xr.projected"
 
     buildFeatures {

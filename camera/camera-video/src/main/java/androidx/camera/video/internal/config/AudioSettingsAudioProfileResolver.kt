@@ -55,7 +55,7 @@ public constructor(
         val audioSpecChannelCount = audioSpec.channelCount
         val resolvedChannelCount: Int
         val audioProfileChannelCount = audioProfile.getChannels()
-        if (audioSpecChannelCount == AudioSpec.CHANNEL_COUNT_AUTO) {
+        if (audioSpecChannelCount == AudioSpec.CHANNEL_COUNT_UNSPECIFIED) {
             resolvedChannelCount = audioProfileChannelCount
             Logger.d(TAG, "Resolved AUDIO channel count from AudioProfile: $resolvedChannelCount")
         } else {
@@ -72,7 +72,7 @@ public constructor(
         val audioSpecSampleRate = audioSpec.sampleRate
         val audioProfileSampleRate = audioProfile.getSampleRate()
         val targetSampleRate: Int =
-            if (audioSpecSampleRate != AudioSpec.SAMPLE_RATE_AUTO) {
+            if (audioSpecSampleRate != AudioSpec.SAMPLE_RATE_UNSPECIFIED) {
                 audioSpecSampleRate
             } else {
                 audioProfileSampleRate

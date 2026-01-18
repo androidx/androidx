@@ -770,8 +770,10 @@ internal class Controller3A(
             }
 
         debug {
-            "lock3AForCapture result: meetsAeCondition = $meetsAeCondition" +
-                ", meetsAfCondition = $meetsAfCondition, meetsAwbCondition = $meetsAwbCondition"
+            "lock3AForCapture state ${frameMetadata.frameNumber}: " +
+                "meetsAeCondition = $meetsAeCondition, " +
+                "meetsAfCondition = $meetsAfCondition, " +
+                "meetsAwbCondition = $meetsAwbCondition"
         }
 
         meetsAeCondition && meetsAfCondition && meetsAwbCondition

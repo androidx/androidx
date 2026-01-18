@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.input.pointer
 
-import android.os.Handler
-import android.os.Looper
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -34,8 +32,6 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test
@@ -168,18 +164,10 @@ class MouseEventTest {
 
         alignment.value = Alignment.TopCenter
 
-        waitForPointerUpdate()
+        waitForPointerUpdate(rule)
 
         assertThat(events).hasSize(1)
         assertThat(events[0]).isEqualTo(PointerEventType.Exit)
-    }
-
-    private fun waitForPointerUpdate() {
-        rule.waitForIdle()
-        val latch = CountDownLatch(1)
-        Handler(Looper.getMainLooper()).postDelayed({ latch.countDown() }, 200)
-        latch.await(2, TimeUnit.SECONDS)
-        rule.waitForIdle()
     }
 
     @Test
@@ -199,7 +187,7 @@ class MouseEventTest {
 
         alignment.value = Alignment.TopCenter
 
-        waitForPointerUpdate()
+        waitForPointerUpdate(rule)
 
         assertThat(events).hasSize(0)
     }
@@ -217,7 +205,7 @@ class MouseEventTest {
         }
 
         // exit event doesn't fire until it is sure no associated down event is coming
-        waitForPointerUpdate()
+        waitForPointerUpdate(rule)
 
         assertThat(events).hasSize(2)
         assertThat(events[0]).isEqualTo(PointerEventType.Enter)
@@ -226,7 +214,7 @@ class MouseEventTest {
 
         alignment.value = Alignment.TopCenter
 
-        waitForPointerUpdate()
+        waitForPointerUpdate(rule)
 
         assertThat(events).hasSize(0)
     }

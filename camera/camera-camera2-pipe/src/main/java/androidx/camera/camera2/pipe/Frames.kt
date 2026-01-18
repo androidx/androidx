@@ -27,7 +27,9 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-public value class FrameNumber(public val value: Long)
+public value class FrameNumber(public val value: Long) {
+    override fun toString(): String = "Frame-$value"
+}
 
 /** [FrameInfo] is a wrapper around [TotalCaptureResult]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

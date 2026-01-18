@@ -119,8 +119,25 @@ constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     val excludeFromSystemGesture: Boolean = true,
-    val usePlatformDefaultWidth: Boolean = false,
+    actual val usePlatformDefaultWidth: Boolean = false,
 ) {
+    actual constructor(
+        focusable: Boolean,
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+        clippingEnabled: Boolean,
+        usePlatformDefaultWidth: Boolean,
+    ) : this(
+        focusable = focusable,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        securePolicy = SecureFlagPolicy.Inherit,
+        excludeFromSystemGesture = true,
+        clippingEnabled = clippingEnabled,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     actual constructor(
         focusable: Boolean,
         dismissOnBackPress: Boolean,

@@ -33,15 +33,15 @@ androidx {
 
 android {
     namespace = "androidx.compose.remote.creation.compose"
-    compileSdk = 35
+    compileSdk { version = release(35) }
     defaultConfig {
-        minSdk = 29
+        minSdk { version = release(29) }
     }
 }
 
 dependencies {
     api(libs.jspecify)
-    api(project(":collection:collection"))
+    api("androidx.collection:collection:1.5.0")
     implementation(project(":compose:remote:remote-core"))
     implementation(project(":compose:remote:remote-creation"))
     implementation(project(":compose:remote:remote-player-core"))
@@ -58,8 +58,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.7.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
+    testImplementation(libs.testParameterInjector)
     testImplementation(libs.testCoreKtx)
     testImplementation(libs.testRules)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)

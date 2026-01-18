@@ -78,21 +78,28 @@ internal class FrameState(
 
     private val state = atomic(STARTED)
     private val streamResultCount = atomic(0)
-    private val outputFrameListeners = CopyOnWriteArrayList<Frame.Listener>()
+    // A list of ListenerState, one for each listener.
+    private val listenerStates = CopyOnWriteArrayList<ListenerState>()
 
     fun addListener(listener: Frame.Listener) {
-        listener.onFrameStarted(frameNumber, frameTimestamp)
+        val listenerState = ListenerState(listener)
+        listenerStates.add(listenerState)
 
-        // Note: This operation is safe since the outputFrameListeners is a CopyOnWriteArrayList.
-        outputFrameListeners.add(listener)
+        val currentFrameState = state.value
+
+        // Listeners can be added during any Frame state. We want to trigger the callbacks that were
+        // already triggered before the listener is added.
+        when (currentFrameState) {
+            STARTED -> listenerState.invokeOnStarted(frameNumber, frameTimestamp)
+            FRAME_INFO_COMPLETE ->
+                listenerState.invokeOnFrameInfoAvailable(frameNumber, frameTimestamp)
+            STREAM_RESULTS_COMPLETE ->
+                listenerState.invokeOnImagesAvailable(frameNumber, frameTimestamp)
+            COMPLETE -> listenerState.invokeOnFrameComplete(frameNumber, frameTimestamp)
+        }
     }
 
     fun onFrameInfoComplete() {
-        // Invoke the onOutputResultsAvailable onOutputMetadataAvailable.
-        for (i in outputFrameListeners.indices) {
-            outputFrameListeners[i].onFrameInfoAvailable()
-        }
-
         val state =
             state.updateAndGet { current ->
                 when (current) {
@@ -105,25 +112,23 @@ internal class FrameState(
                 }
             }
 
+        for (listenerState in listenerStates) {
+            listenerState.invokeOnFrameInfoAvailable(frameNumber, frameTimestamp)
+        }
+
         if (state == COMPLETE) {
             invokeOnFrameComplete()
         }
     }
 
     fun onStreamResultComplete(streamId: StreamId) {
-        val allResultsCompleted = streamResultCount.incrementAndGet() != imageOutputs.size
+        val hasResultsRemaining = streamResultCount.incrementAndGet() != imageOutputs.size
 
-        // Invoke the onOutputResultsAvailable listener.
-        for (i in outputFrameListeners.indices) {
-            outputFrameListeners[i].onImageAvailable(streamId)
+        for (listenerState in listenerStates) {
+            listenerState.invokeOnImageAvailable(streamId)
         }
 
-        if (allResultsCompleted) return
-
-        // Invoke the onOutputResultsAvailable listener.
-        for (i in outputFrameListeners.indices) {
-            outputFrameListeners[i].onImagesAvailable()
-        }
+        if (hasResultsRemaining) return
 
         val state =
             state.updateAndGet { current ->
@@ -137,15 +142,18 @@ internal class FrameState(
                 }
             }
 
+        for (listenerState in listenerStates) {
+            listenerState.invokeOnImagesAvailable(frameNumber, frameTimestamp)
+        }
+
         if (state == COMPLETE) {
             invokeOnFrameComplete()
         }
     }
 
     private fun invokeOnFrameComplete() {
-        // Invoke the onOutputResultsAvailable listener.
-        for (i in outputFrameListeners.indices) {
-            outputFrameListeners[i].onFrameComplete()
+        for (listenerState in listenerStates) {
+            listenerState.invokeOnFrameComplete(frameNumber, frameTimestamp)
         }
     }
 
@@ -210,7 +218,7 @@ internal class FrameState(
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
-            outputSequence: Long,
+            cameraOutputSequence: Long,
             outputNumber: Long,
             outputResult: OutputResult<FrameInfo>,
         ) {
@@ -232,7 +240,7 @@ internal class FrameState(
         override fun onOutputComplete(
             cameraFrameNumber: FrameNumber,
             cameraTimestamp: CameraTimestamp,
-            outputSequence: Long,
+            cameraOutputSequence: Long,
             outputNumber: Long,
             outputResult: OutputResult<OutputImage>,
         ) {

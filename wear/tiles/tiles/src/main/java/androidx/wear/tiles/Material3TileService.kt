@@ -60,7 +60,9 @@ import kotlinx.coroutines.CoroutineScope
  *   a main thread will be used.
  * @sample androidx.wear.tiles.snippet_samples.material3TileServiceHelloWorld
  */
-public abstract class Material3TileService(
+public abstract class Material3TileService
+@JvmOverloads // For hilt support
+public constructor(
     private val allowDynamicTheme: Boolean = true,
     private val defaultColorScheme: ColorScheme = ColorScheme(),
     private val serviceScope: CoroutineScope? = null,

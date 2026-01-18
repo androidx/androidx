@@ -434,6 +434,7 @@ internal fun Float.toRadians() = this * PI.toFloat() / 180f
 
 internal fun Float.toDegrees() = this * 180f / PI.toFloat()
 
+@Suppress("ListIterator")
 internal fun <T> Iterable<T>.sumOf(selector: (T) -> Float): Float = map(selector).sum()
 
 internal fun offsetFromDistanceAndAngle(distance: Float, angle: Float) =

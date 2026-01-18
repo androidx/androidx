@@ -22,28 +22,25 @@ import android.app.PendingIntent
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Composable
 
 /** Create a [PendingIntentAction] to send the [PendingIntent] when invoked. */
 @Composable
 public fun pendingIntentAction(pendingIntent: PendingIntent): PendingIntentAction =
-    PendingIntentAction(LocalRemoteComposeCreationState.current, pendingIntent)
+    PendingIntentAction(pendingIntent)
 
 /** Send the [PendingIntent] when invoked. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class PendingIntentAction(
-    public val remoteComposeCreationState: RemoteComposeCreationState,
-    public val pendingIntent: PendingIntent,
-) : Action {
+public class PendingIntentAction(public val pendingIntent: PendingIntent) : Action {
 
-    override fun toRemoteAction(): androidx.compose.remote.creation.actions.Action {
-        val writerCallback = remoteComposeCreationState.document.writerCallback
+    override fun RemoteStateScope.toRemoteAction():
+        androidx.compose.remote.creation.actions.Action {
+        val writerCallback = document.writerCallback
         if (writerCallback is WriterEvents) {
             val index = writerCallback.storePendingIntent(pendingIntent)
-            val valueId = remoteComposeCreationState.document.addInteger(index)
+            val valueId = document.addInteger(index)
             return androidx.compose.remote.creation.actions.HostAction(
                 ACTION_NAME,
                 HostAction.Type.INT.ordinal,

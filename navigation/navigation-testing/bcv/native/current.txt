@@ -6,4 +6,18 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.navigation:navigation-testing>
+final class androidx.navigation.testing/TestNavHostController : androidx.navigation/NavHostController { // androidx.navigation.testing/TestNavHostController|null[0]
+    constructor <init>() // androidx.navigation.testing/TestNavHostController.<init>|<init>(){}[0]
+
+    final val backStack // androidx.navigation.testing/TestNavHostController.backStack|{}backStack[0]
+        final fun <get-backStack>(): kotlin.collections/List<androidx.navigation/NavBackStackEntry> // androidx.navigation.testing/TestNavHostController.backStack.<get-backStack>|<get-backStack>(){}[0]
+}
+
+final class androidx.navigation.testing/TestNavigatorState : androidx.navigation/NavigatorState { // androidx.navigation.testing/TestNavigatorState|null[0]
+    constructor <init>(kotlinx.coroutines/CoroutineDispatcher = ...) // androidx.navigation.testing/TestNavigatorState.<init>|<init>(kotlinx.coroutines.CoroutineDispatcher){}[0]
+
+    final fun createBackStackEntry(androidx.navigation/NavDestination, androidx.savedstate/SavedState?): androidx.navigation/NavBackStackEntry // androidx.navigation.testing/TestNavigatorState.createBackStackEntry|createBackStackEntry(androidx.navigation.NavDestination;androidx.savedstate.SavedState?){}[0]
+    final fun restoreBackStackEntry(androidx.navigation/NavBackStackEntry): androidx.navigation/NavBackStackEntry // androidx.navigation.testing/TestNavigatorState.restoreBackStackEntry|restoreBackStackEntry(androidx.navigation.NavBackStackEntry){}[0]
+}
+
 final fun (androidx.lifecycle/SavedStateHandle.Companion).androidx.navigation.testing/invoke(kotlin/Any, kotlin.collections/Map<kotlin.reflect/KType, androidx.navigation/NavType<*>> = ...): androidx.lifecycle/SavedStateHandle // androidx.navigation.testing/invoke|invoke@androidx.lifecycle.SavedStateHandle.Companion(kotlin.Any;kotlin.collections.Map<kotlin.reflect.KType,androidx.navigation.NavType<*>>){}[0]

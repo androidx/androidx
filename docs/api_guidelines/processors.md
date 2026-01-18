@@ -68,10 +68,10 @@ excluded from proguard optimization.
 -if class androidx.mylibrary.MyPublicApi
 -keep @androidx.mylibrary.MyProguardExemptionAnnotation public class *
 
-# The following keeps methods annotated with MyProguardExcemptionAnnotation
+# The following keeps methods annotated with MyProguardExemptionAnnotation
 -if class androidx.mylibrary.MyPublicApi
 -keepclasseswithmembers class * {
-    @androidx.mylibrary.MyProguardExcemptionAnnotation *;
+    @androidx.mylibrary.MyProguardExemptionAnnotation *;
 }
 ```
 

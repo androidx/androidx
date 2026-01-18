@@ -225,7 +225,7 @@ public class SpatialSceneRuntime implements SceneRuntime, RenderingEntityFactory
                 executor,
                 Objects.requireNonNull(XrExtensionsProvider.getXrExtensions()),
                 new EntityManager(),
-                /* unscaledGravityAlignedActivitySpace= */ false,
+                /* unscaledGravityAlignedActivitySpace= */ true,
                 /* sceneRootNode= */ sceneRootNode,
                 /* taskWindowLeashNode= */ taskWindowLeashNode);
     }

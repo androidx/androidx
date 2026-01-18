@@ -65,7 +65,6 @@ import org.junit.Test
 
 @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 class SwipeToDismissBoxTest {
-    @Suppress("ComposeTestRuleDispatcher")
     @OptIn(ExperimentalCoroutinesApi::class) // b/457630005
     @get:Rule
     val rule = createComposeRule(UnconfinedTestDispatcher())

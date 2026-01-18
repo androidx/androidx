@@ -26,8 +26,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.ExtensionsManager
-import androidx.camera.extensions.internal.ExtensionVersion
-import androidx.camera.extensions.internal.Version
 import androidx.camera.integration.extensions.CameraExtensionsActivity
 import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA2_IMPLEMENTATION_OPTION
 import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PIPE_IMPLEMENTATION_OPTION
@@ -123,11 +121,6 @@ object CameraXExtensionsTestUtil {
      */
     @JvmStatic
     fun isTargetDeviceAvailableForExtensions(): Boolean {
-        // Runtime version must be non-null if the device supports extensions.
-        if (ExtensionVersion.getRuntimeVersion() == null) {
-            return false
-        }
-
         // Skips Cuttlefish device since actually it is not a real marketing device which supports
         // extensions and it will cause pre-submit failures.
         return !Build.MODEL.contains("Cuttlefish", true)
@@ -200,18 +193,6 @@ object CameraXExtensionsTestUtil {
         }
 
         return ExtensionMode.NONE
-    }
-
-    @JvmStatic
-    fun isAdvancedExtenderImplemented(): Boolean {
-        if (!isTargetDeviceAvailableForExtensions()) {
-            return false
-        }
-        if (ExtensionVersion.getRuntimeVersion()!! < Version.VERSION_1_2) {
-            return false
-        }
-
-        return ExtensionVersion.isAdvancedExtenderSupported()
     }
 
     @JvmStatic

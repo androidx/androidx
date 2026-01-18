@@ -2152,7 +2152,7 @@ class SeekableTransitionStateTest {
                 }
             val val2 =
                 if (val1.value < 500) {
-                    mutableFloatStateOf(0f)
+                    remember { mutableFloatStateOf(0f) }
                 } else {
                     transition.animateFloat(
                         label = "Value2",
@@ -2226,7 +2226,7 @@ class SeekableTransitionStateTest {
                 }
             val val2 =
                 if (val1.value < 500) {
-                    mutableFloatStateOf(0f)
+                    remember { mutableFloatStateOf(0f) }
                 } else {
                     transition.animateFloat(
                         label = "Value2",

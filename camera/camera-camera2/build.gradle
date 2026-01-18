@@ -64,7 +64,7 @@ dependencies {
     testImplementation(project(":camera:camera-testing"))
     testImplementation(project(":internal-testutils-ktx"))
     testImplementation(project(":internal-testutils-truth"))
-    testImplementation(project(":exifinterface:exifinterface"))
+    testImplementation("androidx.exifinterface:exifinterface:1.4.2")
     testImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
     testImplementation("androidx.arch.core:core-runtime:2.1.0")
     testImplementation("androidx.lifecycle:lifecycle-common:2.3.1")
@@ -93,7 +93,7 @@ dependencies {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig.consumerProguardFiles("proguard-rules.pro")
 
     lint {

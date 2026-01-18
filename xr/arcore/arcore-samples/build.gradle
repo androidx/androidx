@@ -31,11 +31,11 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.xr.arcore.samples"
 
     defaultConfig {
-        minSdk = 27
+        minSdk { version = release(27) }
     }
 }
 

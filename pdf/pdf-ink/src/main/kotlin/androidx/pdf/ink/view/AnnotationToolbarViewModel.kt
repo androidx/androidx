@@ -93,6 +93,10 @@ internal class AnnotationToolbarViewModel(initialState: AnnotationToolbarState) 
             is ToolbarIntent.BrushSizeChanged -> onBrushSizeChanged(intent)
             is ToolbarIntent.ColorSelected -> onColorSelected(intent)
             is ToolbarIntent.DismissPopups -> hideAnyPopup()
+            is ToolbarIntent.DockStateChanged ->
+                _state.value = _state.value.copy(dockedState = intent.dockedState)
+            is ToolbarIntent.ExpandToolbar -> expandOrCollapseToolbar(isExpanded = true)
+            is ToolbarIntent.CollapseToolbar -> expandOrCollapseToolbar(isExpanded = false)
         }
     }
 
@@ -255,6 +259,16 @@ internal class AnnotationToolbarViewModel(initialState: AnnotationToolbarState) 
     private fun hideAnyPopup() {
         _state.value =
             _state.value.copy(isColorPaletteVisible = false, isBrushSizeSliderVisible = false)
+    }
+
+    private fun expandOrCollapseToolbar(isExpanded: Boolean) {
+        _state.value =
+            _state.value.copy(
+                isExpanded = isExpanded,
+                // Hide any popup shown while expanding or collapsing
+                isBrushSizeSliderVisible = false,
+                isColorPaletteVisible = false,
+            )
     }
 
     private fun dispatchAnnotationVisibility(state: AnnotationToolbarState) {

@@ -17,8 +17,5 @@
 package androidx.compose.animation.core
 
 @Suppress("NOTHING_TO_INLINE")
-internal actual inline fun toRadians(value: Double): Double = implementedInJetBrainsFork()
-
-@Suppress("NOTHING_TO_INLINE")
 internal actual inline fun binarySearch(array: FloatArray, position: Float): Int =
     implementedInJetBrainsFork()

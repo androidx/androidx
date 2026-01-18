@@ -50,7 +50,7 @@ public fun rememberSwipeDismissableSceneStrategyState(
  * alternating between list and detail entries:
  *
  * @sample androidx.wear.compose.navigation3.samples.ListDetailNavDisplaySample
- * @param [T] the KType of the backstack key
+ * @param [T] the type of the backstack key
  * @param swipeDismissableSceneStrategyState State containing information about ongoing swipe and
  *   animation. This parameter is unused API level 36 onwards, because the platform supports
  *   predictive back and [SwipeDismissableSceneStrategy] uses platform gestures to detect the back
@@ -98,7 +98,7 @@ public class SwipeDismissableSceneStrategyState(
  * alternating between list and detail entries:
  *
  * @sample androidx.wear.compose.navigation3.samples.ListDetailNavDisplaySample
- * @param [T] the KType of the backstack key
+ * @param [T] the type of the backstack key
  * @param state State containing information about ongoing swipe and animation. This parameter is
  *   unused API level 36 onwards, because the platform supports predictive back and
  *   [SwipeDismissableSceneStrategy] uses platform gestures to detect the back gestures.
@@ -117,7 +117,6 @@ public class SwipeDismissableSceneStrategy<T : Any>(
         val currentEntry = entries.last()
         val previousEntries = entries.dropLast(1)
         val background = previousEntries.lastOrNull()
-        val backEnabled = isUserSwipeEnabled && background != null
 
         return if (Build.VERSION.SDK_INT > Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             // api 36+, support predictive back
@@ -125,7 +124,7 @@ public class SwipeDismissableSceneStrategy<T : Any>(
                 modifier = modifier,
                 currentEntry = currentEntry,
                 previousEntries = previousEntries,
-                backEnabled = backEnabled,
+                backEnabled = isUserSwipeEnabled,
             )
         } else {
             val swipeToDismissBoxState = state.swipeToDismissBoxState
@@ -140,7 +139,7 @@ public class SwipeDismissableSceneStrategy<T : Any>(
                 currentBackStack = entries,
                 previousEntries = previousEntries,
                 swipeToDismissBoxState = swipeToDismissBoxState,
-                backEnabled = backEnabled,
+                backEnabled = isUserSwipeEnabled && background != null,
             )
         }
     }

@@ -27,6 +27,7 @@ import androidx.xr.scenecore.impl.impress.ImpressApi.ColorRange
 import androidx.xr.scenecore.impl.impress.ImpressApi.ColorSpace
 import androidx.xr.scenecore.impl.impress.ImpressApi.ColorTransfer
 import androidx.xr.scenecore.impl.impress.ImpressApi.ContentSecurityLevel
+import androidx.xr.scenecore.impl.impress.ImpressApi.MediaBlendingMode
 import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
@@ -53,12 +54,14 @@ public class FakeImpressApiImpl : ImpressApi {
         public var surface: Surface? = null,
         public var useSuperSampling: Boolean = false,
         @StereoMode public var stereoMode: Int = 0,
+        @MediaBlendingMode public var mediaBlendingMode: Int = 0,
         public var width: Float = 0f,
         public var height: Float = 0f,
         public var radius: Float = 0f,
         public var canvasShape: CanvasShape? = null,
         public var featherRadiusX: Float = 0f,
         public var featherRadiusY: Float = 0f,
+        public var cornerRadius: Float = 0f,
         public var surfaceWidth: Int = 1,
         public var surfaceHeight: Int = 1,
         public var colliderEnabled: Boolean = false,
@@ -352,6 +355,20 @@ public class FakeImpressApiImpl : ImpressApi {
         @ContentSecurityLevel contentSecurityLevel: Int,
         useSuperSampling: Boolean,
     ): ImpressNode {
+        return createStereoSurface(
+            stereoMode,
+            MediaBlendingMode.TRANSPARENT,
+            contentSecurityLevel,
+            useSuperSampling,
+        )
+    }
+
+    override fun createStereoSurface(
+        @StereoMode stereoMode: Int,
+        @MediaBlendingMode mediaBlendingMode: Int,
+        @ContentSecurityLevel contentSecurityLevel: Int,
+        useSuperSampling: Boolean,
+    ): ImpressNode {
         val impressNode: ImpressNode = createImpressNode()
         val data =
             StereoSurfaceEntityData(
@@ -359,6 +376,7 @@ public class FakeImpressApiImpl : ImpressApi {
                 surface = TestSurface(impressNode.handle),
                 useSuperSampling = useSuperSampling,
                 stereoMode = stereoMode,
+                mediaBlendingMode = mediaBlendingMode,
                 canvasShape = null,
             )
         stereoSurfaceEntities[data.impressNode] = data
@@ -369,6 +387,7 @@ public class FakeImpressApiImpl : ImpressApi {
         impressNode: ImpressNode,
         width: Float,
         height: Float,
+        cornerRadius: Float,
     ) {
         val data =
             stereoSurfaceEntities[impressNode]
@@ -376,6 +395,7 @@ public class FakeImpressApiImpl : ImpressApi {
         data.canvasShape = StereoSurfaceEntityData.CanvasShape.QUAD
         data.width = width
         data.height = height
+        data.cornerRadius = cornerRadius
     }
 
     override fun setStereoSurfaceEntityCanvasShapeSphere(impressNode: ImpressNode, radius: Float) {

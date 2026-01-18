@@ -21,7 +21,7 @@ import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEG
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.testing.FakeCamera2MetadataProvider
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
@@ -58,7 +58,7 @@ class Camera2QuirksTest {
     fun shouldWaitForRepeatingRequestStartOnDisconnect_strict_mode_off() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(metadataProvider = metadataProvider, cameraPipeFlags = CameraPipe.Flags())
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(false))
 
         // verify function return true
         assertThat(camera2Quirks.shouldWaitForRepeatingRequestStartOnDisconnect(graphConfig))
@@ -69,10 +69,7 @@ class Camera2QuirksTest {
     fun shouldWaitForRepeatingRequestStartOnDisconnect_strict_mode_on() {
         // strict mode on
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(strictModeEnabled = true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         // verify
         assertThat(camera2Quirks.shouldWaitForRepeatingRequestStartOnDisconnect(graphConfig))
@@ -84,7 +81,7 @@ class Camera2QuirksTest {
     fun shouldCreateEmptyCaptureSessionBeforeClosing_strict_mode_off_within_sdk_range() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(metadataProvider = metadataProvider, cameraPipeFlags = CameraPipe.Flags())
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(false))
 
         // verify
         assertThat(camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(fakeCameraId))
@@ -96,10 +93,7 @@ class Camera2QuirksTest {
     fun shouldCreateEmptyCaptureSessionBeforeClosing_strict_mode_off_outside_sdk_range() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(strictModeEnabled = true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         // verify
         assertThat(camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(fakeCameraId))
@@ -111,10 +105,7 @@ class Camera2QuirksTest {
     fun shouldCreateEmptyCaptureSessionBeforeClosing_strict_mode_on_within_sdk_range() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(strictModeEnabled = true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         // verify
         assertThat(camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(fakeCameraId))
@@ -126,10 +117,7 @@ class Camera2QuirksTest {
     fun shouldCreateEmptyCaptureSessionBeforeClosing_strict_mode_on_outside_sdk_range() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(strictModeEnabled = true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         // verify
         assertThat(camera2Quirks.shouldCreateEmptyCaptureSessionBeforeClosing(fakeCameraId))
@@ -140,7 +128,7 @@ class Camera2QuirksTest {
     fun shouldWaitForCameraDeviceOnClosed_strict_mode_off() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(metadataProvider = metadataProvider, cameraPipeFlags = CameraPipe.Flags())
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(false))
 
         assertThat(camera2Quirks.shouldWaitForCameraDeviceOnClosed(fakeCameraId)).isTrue()
     }
@@ -149,10 +137,7 @@ class Camera2QuirksTest {
     fun shouldWaitForCameraDeviceOnClosed_strict_mode_on() {
         // strict mode on
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(strictModeEnabled = true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         assertThat(camera2Quirks.shouldWaitForCameraDeviceOnClosed(fakeCameraId)).isFalse()
     }
@@ -162,7 +147,7 @@ class Camera2QuirksTest {
     fun shouldCloseCameraBeforeCreatingCaptureSession_strict_mode_off_within_sdk_range() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(metadataProvider = metadataProvider, cameraPipeFlags = CameraPipe.Flags())
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(false))
 
         // verify
         assertThat(camera2Quirks.shouldCloseCameraBeforeCreatingCaptureSession(fakeCameraId))
@@ -174,7 +159,7 @@ class Camera2QuirksTest {
     fun shouldCloseCameraBeforeCreatingCaptureSession_strict_mode_off_outside_sdk_range() {
         // strict mode off by default
         val camera2Quirks =
-            Camera2Quirks(metadataProvider = metadataProvider, cameraPipeFlags = CameraPipe.Flags())
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(false))
 
         // verify
         assertThat(camera2Quirks.shouldCloseCameraBeforeCreatingCaptureSession(fakeCameraId))
@@ -185,10 +170,7 @@ class Camera2QuirksTest {
     @Test
     fun shouldCloseCameraBeforeCreatingCaptureSession_strict_mode_on_within_sdk_range() {
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(strictModeEnabled = true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         // verify
         assertThat(camera2Quirks.shouldCloseCameraBeforeCreatingCaptureSession(fakeCameraId))
@@ -199,10 +181,7 @@ class Camera2QuirksTest {
     @Test
     fun shouldCloseCameraBeforeCreatingCaptureSession_strict_mode_on_outside_sdk_range() {
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(strictModeEnabled = true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         // verify
         assertThat(camera2Quirks.shouldCloseCameraBeforeCreatingCaptureSession(fakeCameraId))
@@ -213,7 +192,7 @@ class Camera2QuirksTest {
     @Test
     fun getRepeatingRequestFrameCountForCapture_strict_mode_off() {
         val camera2Quirks =
-            Camera2Quirks(metadataProvider = metadataProvider, cameraPipeFlags = CameraPipe.Flags())
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(false))
 
         val repeat = 3u
         val flags =
@@ -231,10 +210,7 @@ class Camera2QuirksTest {
     @Test
     fun getRepeatingRequestFrameCountForCapture_strict_mode_on() {
         val camera2Quirks =
-            Camera2Quirks(
-                metadataProvider = metadataProvider,
-                cameraPipeFlags = CameraPipe.Flags(true),
-            )
+            Camera2Quirks(metadataProvider = metadataProvider, strictMode = StrictMode(true))
 
         val repeat = 3u
         val flags =

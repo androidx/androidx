@@ -658,7 +658,8 @@ class RemoteBooleanTest {
         assertThat((RemoteInt(10) gt RemoteInt(5)).constantValue).isTrue()
 
         assertThat(
-                (RemoteFloat(100f) gt RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC)).constantValue
+                (RemoteFloat(100f) gt RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC))
+                    .constantValueOrNull
             )
             .isNull()
     }

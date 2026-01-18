@@ -34,7 +34,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.material3.adaptive.navigationsuite"
-        compileSdk = 35
+        compileSdk { version = release(35) }
     }
     jvmStubs()
 
@@ -43,8 +43,8 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api("androidx.compose.material3:material3:1.4.0-beta01")
-                api("androidx.compose.material3.adaptive:adaptive:1.2.0-alpha11")
+                api("androidx.compose.material3:material3:1.4.0")
+                api("androidx.compose.material3.adaptive:adaptive:1.2.0")
                 implementation("androidx.window:window-core:1.4.0")
             }
         }

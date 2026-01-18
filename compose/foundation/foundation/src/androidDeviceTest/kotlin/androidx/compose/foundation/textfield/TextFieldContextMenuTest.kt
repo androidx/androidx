@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.lerp
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlin.test.Ignore
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Rule
@@ -194,6 +195,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
             expectedClipboardContent = "clip",
         )
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf1_contextMenu_onClickProcessText() {
@@ -488,6 +490,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         }
     }
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf1_contextMenu_processText_itemsMatch() = runTest {
@@ -660,6 +663,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
         )
     }
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf2_contextMenu_onClickProcessText() {
@@ -935,6 +939,7 @@ class TextFieldContextMenuTest : FocusedWindowTest {
             )
         }
 
+    @Ignore // The test is flaky b/472497302
     @Test
     @ContextMenuFlagSuppress(suppressedFlagValue = false)
     fun btf2_contextMenu_processText_itemsMatch() = runBtf2CorrectItemsTest {

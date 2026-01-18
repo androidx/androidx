@@ -23,7 +23,6 @@ import android.os.DeadObjectException
 import android.util.Range
 import android.util.SparseArray
 import androidx.pdf.PdfDocument
-import androidx.pdf.PdfDocument.Companion.INCLUDE_FORM_WIDGET_INFO
 import androidx.pdf.PdfPoint
 import androidx.pdf.PdfRect
 import androidx.pdf.exceptions.RequestFailedException
@@ -391,8 +390,8 @@ internal class PageLayoutManager(
                             isFormFillingEnabled and
                                 (pdfDocument.formType != PdfDocument.PDF_FORM_TYPE_NONE)
                         )
-                            PdfDocument.PageInfoFlags.of(INCLUDE_FORM_WIDGET_INFO)
-                        else PdfDocument.PageInfoFlags.of(0)
+                            PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET
+                        else PdfDocument.PAGE_INFO_EXCLUDE_FORM_WIDGETS
                     val pageMetadata = pdfDocument.getPageInfo(pageNum, pageInfoFlags)
 
                     val size = Point(pageMetadata.width, pageMetadata.height)

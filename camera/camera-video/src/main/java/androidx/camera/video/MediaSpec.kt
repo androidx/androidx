@@ -33,9 +33,9 @@ import java.util.Objects
 public class MediaSpec
 @JvmOverloads
 public constructor(
-    public val videoSpec: VideoSpec = VIDEO_SPEC_AUTO,
-    public val audioSpec: AudioSpec = AUDIO_SPEC_AUTO,
-    @get:OutputFormat public val outputFormat: Int,
+    public val videoSpec: VideoSpec = VideoSpec.DEFAULT,
+    public val audioSpec: AudioSpec = AudioSpec.DEFAULT,
+    @get:OutputFormat public val outputFormat: Int = OUTPUT_FORMAT_UNSPECIFIED,
 ) {
 
     /** Returns a [Builder] instance with the same property values as this instance. */
@@ -69,9 +69,9 @@ public constructor(
     /** The builder for [MediaSpec]. */
     @RestrictTo(Scope.LIBRARY)
     public class Builder {
-        private var audioSpec: AudioSpec = AUDIO_SPEC_AUTO
-        private var videoSpec: VideoSpec = VIDEO_SPEC_AUTO
-        @OutputFormat private var outputFormat: Int = OUTPUT_FORMAT_AUTO
+        private var audioSpec: AudioSpec = AudioSpec.DEFAULT
+        private var videoSpec: VideoSpec = VideoSpec.DEFAULT
+        @OutputFormat private var outputFormat: Int = OUTPUT_FORMAT_UNSPECIFIED
 
         /** Sets the audio-related configuration. */
         public fun setAudioSpec(audioSpec: AudioSpec): Builder = apply {
@@ -106,17 +106,12 @@ public constructor(
         }
     }
 
-    @IntDef(OUTPUT_FORMAT_AUTO, OUTPUT_FORMAT_MPEG_4, OUTPUT_FORMAT_WEBM)
+    @IntDef(OUTPUT_FORMAT_UNSPECIFIED, OUTPUT_FORMAT_MPEG_4, OUTPUT_FORMAT_WEBM)
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(Scope.LIBRARY)
     public annotation class OutputFormat
 
     public companion object {
-
-        @JvmField public val VIDEO_SPEC_AUTO: VideoSpec = VideoSpec.builder().build()
-
-        @JvmField public val AUDIO_SPEC_AUTO: AudioSpec = AudioSpec.builder().build()
-
         private const val AUDIO_ENCODER_MIME_MPEG4_DEFAULT = MediaFormat.MIMETYPE_AUDIO_AAC
         private const val AUDIO_ENCODER_MIME_WEBM_DEFAULT = MediaFormat.MIMETYPE_AUDIO_VORBIS
         private const val VIDEO_ENCODER_MIME_MPEG4_DEFAULT = MediaFormat.MIMETYPE_VIDEO_AVC
@@ -124,7 +119,7 @@ public constructor(
         private const val AAC_DEFAULT_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
 
         /** The output format representing no preference. */
-        public const val OUTPUT_FORMAT_AUTO: Int = -1
+        public const val OUTPUT_FORMAT_UNSPECIFIED: Int = -1
         /** MPEG4 media file format. */
         public const val OUTPUT_FORMAT_MPEG_4: Int = 0
         /** VP8, VP9 media file format */

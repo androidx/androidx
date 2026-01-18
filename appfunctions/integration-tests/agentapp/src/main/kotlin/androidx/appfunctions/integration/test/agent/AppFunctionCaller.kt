@@ -17,7 +17,7 @@
 package androidx.appfunctions.integration.test.agent
 
 import android.content.Context
-import androidx.appfunctions.AppFunctionManagerCompat
+import androidx.appfunctions.AppFunctionManager
 import androidx.appfunctions.AppFunctionSearchSpec
 import androidx.appfunctions.ExecuteAppFunctionRequest
 import androidx.appfunctions.ExecuteAppFunctionResponse
@@ -26,13 +26,12 @@ import kotlinx.coroutines.flow.Flow
 
 class AppFunctionCaller(val context: Context) {
 
-    val appFunctionManagerCompat = checkNotNull(AppFunctionManagerCompat.getInstance(context))
+    val mAppFunctionManager = checkNotNull(AppFunctionManager.getInstance(context))
 
     suspend fun executeAppFunction(request: ExecuteAppFunctionRequest): ExecuteAppFunctionResponse =
-        appFunctionManagerCompat.executeAppFunction(request)
+        mAppFunctionManager.executeAppFunction(request)
 
     suspend fun observeAppFunctions(
         searchSpec: AppFunctionSearchSpec
-    ): Flow<List<AppFunctionPackageMetadata>> =
-        appFunctionManagerCompat.observeAppFunctions(searchSpec)
+    ): Flow<List<AppFunctionPackageMetadata>> = mAppFunctionManager.observeAppFunctions(searchSpec)
 }

@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.v2
 
-import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ComposeUiTest
@@ -46,7 +45,6 @@ import kotlinx.coroutines.test.runTest
  *   platform specific timeout exception will be thrown.
  * @param block The suspendable test body.
  */
-@SuppressLint("ComposeTestRuleDispatcher")
 @Suppress("RedundantUnitReturnType")
 @ExperimentalTestApi
 actual fun runComposeUiTest(
@@ -92,7 +90,6 @@ actual fun runComposeUiTest(
  *   platform specific timeout exception will be thrown.
  * @param block The test function.
  */
-@SuppressLint("ComposeTestRuleDispatcher")
 @Suppress("RedundantUnitReturnType")
 @ExperimentalTestApi
 inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(

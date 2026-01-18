@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.Dp
  */
 @RemoteComposable
 @Composable
-@Suppress("RestrictedApiAndroidX")
 internal fun WearWidgetContainer(
     horizontalPadding: Dp,
     verticalPadding: Dp,

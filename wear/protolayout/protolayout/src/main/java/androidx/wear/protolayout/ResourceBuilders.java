@@ -495,7 +495,9 @@ public final class ResourceBuilders {
             return Objects.hash(
                     getResourceId(),
                     getAnimatedImageFormat(),
-                    progress != null ? DynamicProtoHashEquals.hashCode(progress) : null);
+                    progress != null
+                            ? DynamicProtoHashEquals.hashCode(progress.toDynamicFloatProto())
+                            : null);
         }
 
         @Override
@@ -508,9 +510,13 @@ public final class ResourceBuilders {
             }
             AndroidSeekableAnimatedImageResourceByResId that =
                     (AndroidSeekableAnimatedImageResourceByResId) obj;
+            DynamicFloat progress = getProgress();
+            DynamicFloat thatProgress = that.getProgress();
             return that.getResourceId() == getResourceId()
                     && that.getAnimatedImageFormat() == getAnimatedImageFormat()
-                    && DynamicProtoHashEquals.equals(that.getProgress(), getProgress());
+                    && DynamicProtoHashEquals.equals(
+                            progress != null ? progress.toDynamicFloatProto() : null,
+                            thatProgress != null ? thatProgress.toDynamicFloatProto() : null);
         }
 
         /** Creates a new wrapper instance from the proto. */
@@ -643,7 +649,9 @@ public final class ResourceBuilders {
             return Objects.hash(
                     getRawResourceId(),
                     Trigger.hash(getStartTrigger()),
-                    progress != null ? DynamicProtoHashEquals.hashCode(progress) : null);
+                    progress != null
+                            ? DynamicProtoHashEquals.hashCode(progress.toDynamicFloatProto())
+                            : null);
         }
 
         @Override
@@ -655,9 +663,13 @@ public final class ResourceBuilders {
                 return false;
             }
             AndroidLottieResourceByResId that = (AndroidLottieResourceByResId) obj;
+            DynamicFloat progress = getProgress();
+            DynamicFloat thatProgress = that.getProgress();
             return that.getRawResourceId() == getRawResourceId()
                     && Trigger.equal(that.getStartTrigger(), getStartTrigger())
-                    && DynamicProtoHashEquals.equals(that.getProgress(), getProgress());
+                    && DynamicProtoHashEquals.equals(
+                            progress != null ? progress.toDynamicFloatProto() : null,
+                            thatProgress != null ? thatProgress.toDynamicFloatProto() : null);
         }
 
         /**

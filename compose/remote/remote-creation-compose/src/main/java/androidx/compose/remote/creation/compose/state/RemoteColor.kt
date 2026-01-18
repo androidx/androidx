@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.toArgb
+import kotlin.math.pow
 
 /**
  * Represents a color that can be used with canvas APIs. This class extends [RemoteState<Long>].
@@ -35,43 +36,56 @@ import androidx.compose.ui.graphics.toArgb
  *
  * @property constantValue The [Color] this [RemoteColor] always evaluates to, if any, or null if
  *   it's not constant.
- * @property alpha A [RemoteFloat] that evaluates to the alpha value of this [RemoteColor] in the
- *   range [0..1].
- * @property red A [RemoteFloat] that evaluates to the red value of this [RemoteColor] in the range
- *   [0..1].
- * @property green A [RemoteFloat] that evaluates to the green value of this [RemoteColor] in the
- *   range [0..1].
- * @property blue A [RemoteFloat] that evaluates to the blue value of this [RemoteColor] in the
- *   range [0..1].
  * @property idProvider A lambda function that provides the id of this [RemoteColor] within the
  *   [RemoteComposeCreationState].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public open class RemoteColor
 internal constructor(
-    public override val constantValue: Color?,
-    public val alpha: RemoteFloat,
-    public val red: RemoteFloat,
-    public val green: RemoteFloat,
-    public val blue: RemoteFloat,
+    public override val constantValueOrNull: Color?,
+    alpha: RemoteFloat?,
+    red: RemoteFloat?,
+    green: RemoteFloat?,
+    blue: RemoteFloat?,
     internal val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : BaseRemoteState<Color>() {
+    internal val configuredAlpha: RemoteFloat? = alpha
+    internal val configuredRed: RemoteFloat? = red
+    internal val configuredGreen: RemoteFloat? = green
+    internal val configuredBlue: RemoteFloat? = blue
 
-    /**
-     * Constructor for creating a [RemoteColor] from a direct ARGB integer color value. This creates
-     * a constant remote color that is added to the remote document.
-     *
-     * @param color The ARGB integer representation of the color.
-     */
     public constructor(
-        @ColorInt color: Int
+        alpha: RemoteFloat,
+        red: RemoteFloat,
+        green: RemoteFloat,
+        blue: RemoteFloat,
     ) : this(
-        Color.valueOf(color),
-        RemoteFloat(Color.alpha(color).toFloat() / 255f),
-        RemoteFloat(Color.red(color).toFloat() / 255f),
-        RemoteFloat(Color.green(color).toFloat() / 255f),
-        RemoteFloat(Color.blue(color).toFloat() / 255f),
-        { creationState -> creationState.document.addColor(color) },
+        constantValueOrNull = null,
+        alpha = alpha,
+        red = red,
+        green = green,
+        blue = blue,
+        idProvider = { creationState ->
+            creationState.document
+                .addColorExpression(
+                    alpha.getFloatIdForCreationState(creationState),
+                    red.getFloatIdForCreationState(creationState),
+                    green.getFloatIdForCreationState(creationState),
+                    blue.getFloatIdForCreationState(creationState),
+                )
+                .toInt()
+        },
+    )
+
+    internal constructor(
+        idProvider: (creationState: RemoteComposeCreationState) -> Int
+    ) : this(
+        constantValueOrNull = null,
+        alpha = null,
+        red = null,
+        green = null,
+        blue = null,
+        idProvider = idProvider,
     )
 
     /**
@@ -83,13 +97,21 @@ internal constructor(
     public constructor(
         color: Color
     ) : this(
-        Color.valueOf(color.toArgb()),
-        RemoteFloat(color.alpha()),
-        RemoteFloat(color.red()),
-        RemoteFloat(color.green()),
-        RemoteFloat(color.blue()),
-        { creationState -> creationState.document.addColor(color.toArgb()) },
+        constantValueOrNull = color,
+        alpha = color.alpha().rf,
+        red = color.red().rf,
+        green = color.green().rf,
+        blue = color.blue().rf,
+        idProvider = { creationState -> creationState.document.addColor(color.toArgb()) },
     )
+
+    /**
+     * Constructor for creating a [RemoteColor] from a direct ARGB integer color value. This creates
+     * a constant remote color that is added to the remote document.
+     *
+     * @param color The ARGB integer representation of the color.
+     */
+    public constructor(@ColorInt color: Int) : this(Color.valueOf(color))
 
     /**
      * Constructor for creating a [RemoteColor] from a [androidx.compose.ui.graphics.Color] value.
@@ -99,28 +121,10 @@ internal constructor(
      */
     public constructor(
         color: androidx.compose.ui.graphics.Color
-    ) : this(
-        Color.valueOf(color.toArgb()),
-        RemoteFloat(color.alpha),
-        RemoteFloat(color.red),
-        RemoteFloat(color.green),
-        RemoteFloat(color.blue),
-        { creationState -> creationState.document.addColor(color.toArgb()) },
-    )
+    ) : this(Color.valueOf(color.toArgb()))
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
-
-    // @Deprecated("Use getIdForCreationState directly")
-    // TODO: re-enable this asap
-    public val id: Int
-        get() {
-            // FallbackCreationState.state.platform.log(
-            //     Platform.LogCategory.TODO,
-            //     "Use RemoteColor.getIdForCreationState directly"
-            // )
-            return getIdForCreationState(FallbackCreationState.state)
-        }
 
     /**
      * Computes the pairwise product of this [RemoteColor] with [other].
@@ -161,18 +165,50 @@ internal constructor(
     }
 
     /**
+     * Returns a [RemoteFloat] that evaluates a color component of this [RemoteColor] in the range
+     * [0..1].
+     */
+    private fun colorComponent(component: Short): RemoteFloat {
+        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
+            floatArrayOf(
+                creationState.document.getColorAttribute(idProvider(creationState), component)
+            )
+        }
+    }
+
+    /**
+     * Returns a [RemoteFloat] that evaluates to the alpha of this [RemoteColor] in the range
+     * [0..1].
+     */
+    public val alpha: RemoteFloat
+        get() = configuredAlpha ?: colorComponent(ColorAttribute.COLOR_ALPHA)
+
+    /**
+     * Returns a [RemoteFloat] that evaluates to the red of this [RemoteColor] in the range [0..1].
+     */
+    public val red: RemoteFloat
+        get() = configuredRed ?: colorComponent(ColorAttribute.COLOR_RED)
+
+    /**
+     * Returns a [RemoteFloat] that evaluates to the green of this [RemoteColor] in the range
+     * [0..1].
+     */
+    public val green: RemoteFloat
+        get() = configuredGreen ?: colorComponent(ColorAttribute.COLOR_GREEN)
+
+    /**
+     * Returns a [RemoteFloat] that evaluates to the blue of this [RemoteColor] in the range [0..1].
+     */
+    public val blue: RemoteFloat
+        get() = configuredBlue ?: colorComponent(ColorAttribute.COLOR_BLUE)
+
+    /**
      * Returns a [RemoteFloat] that evaluates to the hue of this [RemoteColor] in the range [0..1].
      */
     public val hue: RemoteFloat
         get() =
-            RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    creationState.document.getColorAttribute(
-                        idProvider(creationState),
-                        ColorAttribute.COLOR_HUE,
-                    )
-                )
-            }
+            constantValueOrNull?.let { Utils.getHue(it.toArgb()).rf }
+                ?: colorComponent(ColorAttribute.COLOR_HUE)
 
     /**
      * Returns a [RemoteFloat] that evaluates to the saturation of this [RemoteColor] in the range
@@ -180,14 +216,8 @@ internal constructor(
      */
     public val saturation: RemoteFloat
         get() =
-            RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    creationState.document.getColorAttribute(
-                        idProvider(creationState),
-                        ColorAttribute.COLOR_SATURATION,
-                    )
-                )
-            }
+            constantValueOrNull?.let { Utils.getSaturation(it.toArgb()).rf }
+                ?: colorComponent(ColorAttribute.COLOR_SATURATION)
 
     /**
      * Returns a [RemoteFloat] that evaluates to the brightness of this [RemoteColor] in the range
@@ -195,14 +225,8 @@ internal constructor(
      */
     public val brightness: RemoteFloat
         get() =
-            RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    creationState.document.getColorAttribute(
-                        idProvider(creationState),
-                        ColorAttribute.COLOR_BRIGHTNESS,
-                    )
-                )
-            }
+            constantValueOrNull?.let { Utils.getBrightness(it.toArgb()).rf }
+                ?: colorComponent(ColorAttribute.COLOR_BRIGHTNESS)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
@@ -221,57 +245,25 @@ internal constructor(
             saturation: RemoteFloat,
             value: RemoteFloat,
         ): RemoteColor {
-            val constH = hue.constantValue
-            val constS = saturation.constantValue
-            val constV = value.constantValue
+            val constH = hue.constantValueOrNull
+            val constS = saturation.constantValueOrNull
+            val constV = value.constantValueOrNull
             if (constH != null && constS != null && constV != null) {
                 return RemoteColor(Color.valueOf(Utils.hsvToRgb(constH, constS, constV)))
             }
 
-            val idFactory =
-                Memorize() { creationState ->
-                    creationState.document
-                        .addColorExpression(
-                            1f,
-                            hue.getFloatIdForCreationState(creationState),
-                            saturation.getFloatIdForCreationState(creationState),
-                            value.getFloatIdForCreationState(creationState),
-                        )
-                        .toInt()
-                }
+            val idFactory = Memorize { creationState ->
+                creationState.document
+                    .addColorExpression(
+                        1f,
+                        hue.getFloatIdForCreationState(creationState),
+                        saturation.getFloatIdForCreationState(creationState),
+                        value.getFloatIdForCreationState(creationState),
+                    )
+                    .toInt()
+            }
 
-            return RemoteColor(
-                constantValue = null,
-                alpha = RemoteFloat(1f),
-                red =
-                    RemoteFloatExpression(constantValue = null) { creationState ->
-                        floatArrayOf(
-                            creationState.document.getColorAttribute(
-                                idFactory.getId(creationState),
-                                ColorAttribute.COLOR_RED,
-                            )
-                        )
-                    },
-                green =
-                    RemoteFloatExpression(constantValue = null) { creationState ->
-                        floatArrayOf(
-                            creationState.document.getColorAttribute(
-                                idFactory.getId(creationState),
-                                ColorAttribute.COLOR_GREEN,
-                            )
-                        )
-                    },
-                blue =
-                    RemoteFloatExpression(constantValue = null) { creationState ->
-                        floatArrayOf(
-                            creationState.document.getColorAttribute(
-                                idFactory.getId(creationState),
-                                ColorAttribute.COLOR_BLUE,
-                            )
-                        )
-                    },
-                { creationState -> idFactory.getId(creationState) },
-            )
+            return RemoteColor(idProvider = { creationState -> idFactory.getId(creationState) })
         }
 
         /**
@@ -291,58 +283,26 @@ internal constructor(
             saturation: RemoteFloat,
             value: RemoteFloat,
         ): RemoteColor {
-            val constH = hue.constantValue
-            val constS = saturation.constantValue
-            val constV = value.constantValue
+            val constH = hue.constantValueOrNull
+            val constS = saturation.constantValueOrNull
+            val constV = value.constantValueOrNull
             if (constH != null && constS != null && constV != null) {
                 val argb = (alpha shl 24) or (0xffffff and Utils.hsvToRgb(constH, constS, constV))
                 return RemoteColor(Color.valueOf(argb))
             }
 
-            val idFactory =
-                Memorize() { creationState ->
-                    creationState.document
-                        .addColorExpression(
-                            alpha.toFloat() / 255f,
-                            hue.getFloatIdForCreationState(creationState),
-                            saturation.getFloatIdForCreationState(creationState),
-                            value.getFloatIdForCreationState(creationState),
-                        )
-                        .toInt()
-                }
+            val idFactory = Memorize { creationState ->
+                creationState.document
+                    .addColorExpression(
+                        alpha.toFloat() / 255f,
+                        hue.getFloatIdForCreationState(creationState),
+                        saturation.getFloatIdForCreationState(creationState),
+                        value.getFloatIdForCreationState(creationState),
+                    )
+                    .toInt()
+            }
 
-            return RemoteColor(
-                constantValue = null,
-                alpha = RemoteFloat(alpha.toFloat() / 255f),
-                red =
-                    RemoteFloatExpression(constantValue = null) { creationState ->
-                        floatArrayOf(
-                            creationState.document.getColorAttribute(
-                                idFactory.getId(creationState),
-                                ColorAttribute.COLOR_RED,
-                            )
-                        )
-                    },
-                green =
-                    RemoteFloatExpression(constantValue = null) { creationState ->
-                        floatArrayOf(
-                            creationState.document.getColorAttribute(
-                                idFactory.getId(creationState),
-                                ColorAttribute.COLOR_GREEN,
-                            )
-                        )
-                    },
-                blue =
-                    RemoteFloatExpression(constantValue = null) { creationState ->
-                        floatArrayOf(
-                            creationState.document.getColorAttribute(
-                                idFactory.getId(creationState),
-                                ColorAttribute.COLOR_BLUE,
-                            )
-                        )
-                    },
-                { creationState -> idFactory.getId(creationState) },
-            )
+            return RemoteColor(idProvider = { creationState -> idFactory.getId(creationState) })
         }
 
         /**
@@ -360,27 +320,16 @@ internal constructor(
             green: RemoteFloat,
             blue: RemoteFloat,
         ): RemoteColor {
-            val constA = alpha.constantValue
-            val constR = red.constantValue
-            val constG = green.constantValue
-            val constB = blue.constantValue
+            val constA = alpha.constantValueOrNull
+            val constR = red.constantValueOrNull
+            val constG = green.constantValueOrNull
+            val constB = blue.constantValueOrNull
             if (constA != null && constR != null && constG != null && constB != null) {
                 val color = Color.valueOf(constR, constG, constB, constA)
-                return RemoteColor(color, alpha, red, green, blue) { creationState ->
-                    creationState.document.addColor(color.toArgb())
-                }
+                return RemoteColor(color)
             }
 
-            return RemoteColor(constantValue = null, alpha, red, green, blue) { creationState ->
-                creationState.document
-                    .addColorExpression(
-                        alpha.getFloatIdForCreationState(creationState),
-                        red.getFloatIdForCreationState(creationState),
-                        green.getFloatIdForCreationState(creationState),
-                        blue.getFloatIdForCreationState(creationState),
-                    )
-                    .toInt()
-            }
+            return RemoteColor(alpha = alpha, red = red, green = green, blue = blue)
         }
 
         /**
@@ -393,16 +342,7 @@ internal constructor(
          * @return A new [RemoteColor] derived from the provided ARGB components.
          */
         public fun fromARGB(alpha: Float, red: Float, green: Float, blue: Float): RemoteColor =
-            RemoteColor(
-                Color.valueOf(red, green, blue, alpha),
-                RemoteFloat(alpha),
-                RemoteFloat(red),
-                RemoteFloat(green),
-                RemoteFloat(blue),
-                { creationState ->
-                    creationState.document.addColorExpression(alpha, red, green, blue).toInt()
-                },
-            )
+            RemoteColor(Color.valueOf(red, green, blue, alpha))
     }
 }
 
@@ -424,20 +364,17 @@ public fun rememberRemoteColor(
     return rememberNamedState(name, domain) {
         val color = value().toArgb()
         RemoteColor(
-            constantValue = null,
-            RemoteFloat(Color.alpha(color).toFloat() / 255f),
-            RemoteFloat(Color.red(color).toFloat() / 255f),
-            RemoteFloat(Color.green(color).toFloat() / 255f),
-            RemoteFloat(Color.blue(color).toFloat() / 255f),
-            { creationState -> creationState.document.addNamedColor("$domain:$name", color) },
+            idProvider = { creationState ->
+                creationState.document.addNamedColor("$domain:$name", color)
+            }
         )
     }
 }
 
 /** The same calculation as [Utils.interpolateColor]. */
 private fun interpolate(from: Int, to: Int, tween: RemoteFloat): RemoteFloat {
-    val c1 = Math.pow(from.toDouble() / 255.0, 2.2).toFloat()
-    val c2 = Math.pow(to.toDouble() / 255.0, 2.2).toFloat()
+    val c1 = (from.toDouble() / 255.0).pow(2.2).toFloat()
+    val c2 = (to.toDouble() / 255.0).pow(2.2).toFloat()
     return clamp(0f, 1f, pow(lerp(c1, c2, tween), 1.0f / 2.2f))
 }
 
@@ -457,17 +394,12 @@ private fun interpolate(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat):
  * @return A new [RemoteColor] representing the tweened color.
  */
 public fun tween(@ColorInt from: Int, @ColorInt to: Int, tween: RemoteFloat): RemoteColor {
-    tween.constantValue?.let {
+    tween.constantValueOrNull?.let {
         return RemoteColor(Utils.interpolateColor(from, to, it))
     }
 
     return RemoteColor(
-        constantValue = null,
-        interpolate(Color.alpha(from), Color.alpha(to), tween),
-        interpolate(Color.red(from), Color.red(to), tween),
-        interpolate(Color.green(from), Color.green(to), tween),
-        interpolate(Color.blue(from), Color.blue(to), tween),
-        { creationState ->
+        idProvider = { creationState ->
             creationState.document
                 .addColorExpression(
                     from,
@@ -475,7 +407,7 @@ public fun tween(@ColorInt from: Int, @ColorInt to: Int, tween: RemoteFloat): Re
                     Utils.asNan(tween.getIdForCreationState(creationState)),
                 )
                 .toInt()
-        },
+        }
     )
 }
 
@@ -490,64 +422,24 @@ public fun tween(@ColorInt from: Int, @ColorInt to: Int, tween: RemoteFloat): Re
  * @return A new [RemoteColor] representing the tweened color.
  */
 public fun tween(from: RemoteColor, to: RemoteColor, tween: RemoteFloat): RemoteColor {
-    val constFrom = from.constantValue
-    val constTo = to.constantValue
-    val constTween = tween.constantValue
+    val constFrom = from.constantValueOrNull
+    val constTo = to.constantValueOrNull
+    val constTween = tween.constantValueOrNull
     if (constFrom != null && constTo != null && constTween != null) {
         return RemoteColor(Utils.interpolateColor(constFrom.toArgb(), constTo.toArgb(), constTween))
     }
 
-    val idFactory =
-        Memorize() { creationState ->
-            creationState.document
-                .addColorExpression(
-                    from.getIdForCreationState(creationState).toShort(),
-                    to.getIdForCreationState(creationState).toShort(),
-                    Utils.asNan(tween.getIdForCreationState(creationState)),
-                )
-                .toInt()
-        }
+    val idFactory = Memorize { creationState ->
+        creationState.document
+            .addColorExpression(
+                from.getIdForCreationState(creationState).toShort(),
+                to.getIdForCreationState(creationState).toShort(),
+                Utils.asNan(tween.getIdForCreationState(creationState)),
+            )
+            .toInt()
+    }
 
-    return RemoteColor(
-        constantValue = null,
-        alpha =
-            RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    creationState.document.getColorAttribute(
-                        idFactory.getId(creationState),
-                        ColorAttribute.COLOR_ALPHA,
-                    )
-                )
-            },
-        red =
-            RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    creationState.document.getColorAttribute(
-                        idFactory.getId(creationState),
-                        ColorAttribute.COLOR_RED,
-                    )
-                )
-            },
-        green =
-            RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    creationState.document.getColorAttribute(
-                        idFactory.getId(creationState),
-                        ColorAttribute.COLOR_GREEN,
-                    )
-                )
-            },
-        blue =
-            RemoteFloatExpression(constantValue = null) { creationState ->
-                floatArrayOf(
-                    creationState.document.getColorAttribute(
-                        idFactory.getId(creationState),
-                        ColorAttribute.COLOR_BLUE,
-                    )
-                )
-            },
-        { creationState -> idFactory.getId(creationState) },
-    )
+    return RemoteColor(idProvider = { creationState -> idFactory.getId(creationState) })
 }
 
 private class Memorize(val idProvider: (creationState: RemoteComposeCreationState) -> Int) {

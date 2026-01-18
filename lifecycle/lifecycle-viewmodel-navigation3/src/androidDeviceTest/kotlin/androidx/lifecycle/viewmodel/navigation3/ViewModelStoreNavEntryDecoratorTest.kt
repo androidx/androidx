@@ -16,8 +16,11 @@
 
 package androidx.lifecycle.viewmodel.navigation3
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
@@ -197,10 +200,64 @@ class ViewModelStoreNavEntryDecoratorTest {
         composeTestRule.waitForIdle()
         assertThat(viewModel.savedStateHandle).isNotNull()
     }
+
+    @Test
+    fun testChangeRemoveViewModelStoreOnPop() {
+        val viewModels = mutableMapOf<Int, MyViewModel>()
+        var removeViewModelStoreOnPop by mutableStateOf(true)
+
+        fun createNaveEntry(key: Int) = NavEntry(key) { viewModels[key] = viewModel<MyViewModel>() }
+
+        val entry1 = createNaveEntry(1)
+        val entry2 = createNaveEntry(2)
+        val entry3 = createNaveEntry(3)
+        val backStack = mutableStateListOf(entry1, entry2, entry3)
+
+        composeTestRule.setContent {
+            val decorated =
+                rememberDecoratedNavEntries(
+                    entries = backStack,
+                    entryDecorators =
+                        listOf(
+                            rememberSaveableStateHolderNavEntryDecorator(),
+                            rememberViewModelStoreNavEntryDecorator(
+                                removeViewModelStoreOnPop =
+                                    if (removeViewModelStoreOnPop) {
+                                        { true }
+                                    } else {
+                                        { false }
+                                    }
+                            ),
+                        ),
+                )
+
+            decorated.forEach { entry -> entry.Content() }
+        }
+
+        assertThat(viewModels.mapValues { (_, viewModel) -> viewModel.isCleared })
+            .isEqualTo(mapOf(1 to false, 2 to false, 3 to false))
+
+        backStack.removeAt(backStack.lastIndex)
+        composeTestRule.waitForIdle()
+        assertThat(viewModels.mapValues { (_, viewModel) -> viewModel.isCleared })
+            .isEqualTo(mapOf(1 to false, 2 to false, 3 to true))
+
+        removeViewModelStoreOnPop = false
+        backStack.removeAt(backStack.lastIndex)
+        composeTestRule.waitForIdle()
+        assertThat(viewModels.mapValues { (_, viewModel) -> viewModel.isCleared })
+            .isEqualTo(mapOf(1 to false, 2 to false, 3 to true))
+    }
 }
 
 class MyViewModel : ViewModel() {
     var myArg = "default"
+    var isCleared = false
+        private set
+
+    override fun onCleared() {
+        isCleared = true
+    }
 }
 
 var globalViewModelCount = 0

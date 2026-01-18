@@ -63,7 +63,7 @@ fun Project.configureProjectForKzipTasks(config: ApiTaskConfig, extension: Andro
             compilationInputs,
             compiledSources,
             extension.kotlinTarget,
-            getDefaultTargetJavaVersion(extension.type, project.name),
+            getDefaultTargetJavaVersion(extension.type.get(), project.name),
         )
 
         GenerateJavaKzipTask.setupProject(project, compilationInputs, compiledSources)

@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.MonitoredLogMessages.REPEATING_REQUEST_STARTED_TIMEOUT
@@ -63,6 +64,7 @@ constructor(
     private val graphConfig: CameraGraph.Config,
     private val streamGraph: StreamGraphImpl,
     private val quirks: Camera2Quirks,
+    private val strictMode: StrictMode,
 ) : Camera2CaptureSequenceProcessorFactory {
     @Suppress("UNCHECKED_CAST")
     override fun create(
@@ -77,6 +79,7 @@ constructor(
             streamToSurfaceMap,
             outputToSurfaceMap,
             streamGraph,
+            strictMode,
             quirks.shouldWaitForRepeatingRequestStartOnDisconnect(graphConfig),
         )
             as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
@@ -101,6 +104,7 @@ internal class Camera2CaptureSequenceProcessor(
     private val streamToSurfaceMap: Map<StreamId, Surface>,
     private val outputToSurfaceMap: Map<OutputId, Surface>,
     private val streamGraph: StreamGraph,
+    private val strictMode: StrictMode,
     private val awaitRepeatingRequestOnDisconnect: Boolean = false,
 ) : CaptureSequenceProcessor<CaptureRequest, Camera2CaptureSequence> {
     private val debugId = captureSequenceProcessorDebugIds.incrementAndGet()
@@ -302,6 +306,7 @@ internal class Camera2CaptureSequenceProcessor(
             surfaceToStreamMap,
             surfaceToOutputMap,
             streamGraph,
+            strictMode,
         )
     }
 

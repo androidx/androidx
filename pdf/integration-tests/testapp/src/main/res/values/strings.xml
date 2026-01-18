@@ -25,4 +25,6 @@
     <string name="thumbnail_preview">Thumbnail Preview</string>"
     <string name="enable_form_filling">Enable Form Filling</string>"
     <string name="comment_menu_item">Comment</string>
+    <string name="write_error_message">Error while writing to file: %s</string>
+    <string name="apply_error_message">Error while applying changes to document: %s</string>
 </resources>

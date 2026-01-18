@@ -20,6 +20,7 @@ import android.graphics.PointF
 import androidx.annotation.RestrictTo
 import androidx.pdf.annotation.highlights.models.InProgressHighlightId
 import androidx.pdf.annotation.models.PdfAnnotation
+import androidx.pdf.exceptions.RequestFailedException
 
 /** Callback interface for events related to the creation of text highlights. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -36,12 +37,12 @@ public interface InProgressTextHighlightsListener {
     )
 
     /**
-     * Called when a highlight gesture fails, typically because no selectable text was found at the
-     * gesture location.
+     * Called when a highlight gesture is rejected, typically because no selectable text was found
+     * at the gesture's starting location. In this case, no annotation is created.
      *
-     * @param viewPoint The view coordinates for which the highlight gesture failed.
+     * @param viewPoint The view coordinates where the highlight gesture was attempted.
      */
-    public fun onTextHighlightFailed(viewPoint: PointF)
+    public fun onTextHighlightRejected(viewPoint: PointF)
 
     /**
      * Called when a highlight gesture is successfully finished and converted to a [PdfAnnotation].
@@ -50,4 +51,12 @@ public interface InProgressTextHighlightsListener {
      *   final [PdfAnnotation].
      */
     public fun onTextHighlightFinished(annotations: Map<InProgressHighlightId, PdfAnnotation>)
+
+    /**
+     * Notifies that a non-fatal error has occurred during a highlight operation. The gesture will
+     * continue despite the error.
+     *
+     * @param exception The exception that occurred.
+     */
+    public fun onTextHighlightError(exception: RequestFailedException)
 }

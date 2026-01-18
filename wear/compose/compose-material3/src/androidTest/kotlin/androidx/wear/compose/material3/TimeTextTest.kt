@@ -41,7 +41,6 @@ import org.junit.Rule
 import org.junit.Test
 
 class TimeTextTest {
-    @Suppress("ComposeTestRuleDispatcher")
     @OptIn(ExperimentalCoroutinesApi::class) // b/457595340
     @get:Rule
     val rule = createComposeRule(UnconfinedTestDispatcher())

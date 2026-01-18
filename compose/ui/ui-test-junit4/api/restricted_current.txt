@@ -2,9 +2,9 @@
 package androidx.compose.ui.test.junit4 {
 
   public final class AndroidComposeTestRule<R extends org.junit.rules.TestRule, A extends androidx.activity.ComponentActivity> implements androidx.compose.ui.test.junit4.ComposeContentTestRule {
-    ctor @BytecodeOnly public AndroidComposeTestRule(org.junit.rules.TestRule!, kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public AndroidComposeTestRule(R activityRule, optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
-    ctor public AndroidComposeTestRule(R activityRule, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
+    ctor @BytecodeOnly @Deprecated public AndroidComposeTestRule(org.junit.rules.TestRule!, kotlin.coroutines.CoroutineContext!, kotlin.jvm.functions.Function1!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @Deprecated public AndroidComposeTestRule(R activityRule, optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
+    ctor @Deprecated public AndroidComposeTestRule(R activityRule, kotlin.jvm.functions.Function1<? super R,? extends A> activityProvider);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description description);
     method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void cancelAndRecreateRecomposer();
@@ -39,15 +39,15 @@ package androidx.compose.ui.test.junit4 {
 
   public final class AndroidComposeTestRule_androidKt {
     method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.junit4.AndroidComposeTestRule! createAndroidComposeRule(Class!);
-    method public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(Class<A> activityClass, optional kotlin.coroutines.CoroutineContext effectContext);
-    method @KotlinOnly public static inline <reified A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
-    method @BytecodeOnly public static androidx.compose.ui.test.junit4.AndroidComposeTestRule! createAndroidComposeRule$default(Class!, kotlin.coroutines.CoroutineContext!, int, Object!);
+    method @Deprecated public static <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(Class<A> activityClass, optional kotlin.coroutines.CoroutineContext effectContext);
+    method @KotlinOnly @Deprecated public static inline <reified A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.junit4.AndroidComposeTestRule<androidx.test.ext.junit.rules.ActivityScenarioRule<A>,A> createAndroidComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.junit4.AndroidComposeTestRule! createAndroidComposeRule$default(Class!, kotlin.coroutines.CoroutineContext!, int, Object!);
     method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.junit4.ComposeContentTestRule! createComposeRule();
-    method public static androidx.compose.ui.test.junit4.ComposeContentTestRule createComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
-    method @BytecodeOnly public static androidx.compose.ui.test.junit4.ComposeContentTestRule! createComposeRule$default(kotlin.coroutines.CoroutineContext!, int, Object!);
+    method @Deprecated public static androidx.compose.ui.test.junit4.ComposeContentTestRule createComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.junit4.ComposeContentTestRule! createComposeRule$default(kotlin.coroutines.CoroutineContext!, int, Object!);
     method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.junit4.ComposeTestRule! createEmptyComposeRule();
-    method public static androidx.compose.ui.test.junit4.ComposeTestRule createEmptyComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
-    method @BytecodeOnly public static androidx.compose.ui.test.junit4.ComposeTestRule! createEmptyComposeRule$default(kotlin.coroutines.CoroutineContext!, int, Object!);
+    method @Deprecated public static androidx.compose.ui.test.junit4.ComposeTestRule createEmptyComposeRule(optional kotlin.coroutines.CoroutineContext effectContext);
+    method @BytecodeOnly @Deprecated public static androidx.compose.ui.test.junit4.ComposeTestRule! createEmptyComposeRule$default(kotlin.coroutines.CoroutineContext!, int, Object!);
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface ComposeContentTestRule extends androidx.compose.ui.test.junit4.ComposeTestRule {

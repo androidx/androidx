@@ -39,27 +39,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
- * A [SubspaceModifier] that forces the content to remain upright and will rotate on the y-axis that
- * the content faces the user at all times.
- *
- * A user of this API should configure the activity's Session object with
- * [Config.DeviceTrackingMode.LAST_KNOWN] which requires android.permission.HEAD_TRACKING Android
- * permission be granted by the calling application. `session.configure( config =
- * session.config.copy(headTracking = Config.HeadTrackingMode.LAST_KNOWN) )`
- *
- * This modifier might not work as expected when used on content within a
- * [androidx.xr.compose.spatial.UserSubspace].
- *
- * The preceding rotate modifiers will be disregarded because this modifier will override them. But
- * the rotate after the lookAtUser modifier will be respected.
- *
- * @see lookAtUser modifier for making content that will tilt in all directions to face the user.
- */
-// TODO(b/461808266): LookAtUser and UserSubspace not compatible with each other
-public fun SubspaceModifier.billboard(): SubspaceModifier =
-    this.then(SubspaceModifier.lookAtUser().gravityAligned())
-
-/**
  * A [SubspaceModifier] that continuously rotates content so that it faces the user at all times.
  *
  * A user of this API should configure the activity's Session object with
@@ -73,12 +52,14 @@ public fun SubspaceModifier.billboard(): SubspaceModifier =
  * The preceding rotate modifiers will be disregarded because this modifier will override them. But
  * the rotate after the lookAtUser modifier will be respected.
  *
+ * To achieve a "billboard" effect—where the content rotates to face the user on the Y-axis while
+ * remaining upright and aligned with gravity—combine this with [gravityAligned].
+ *
+ * @sample androidx.xr.compose.samples.LookAtUserSamples
  * @param up Defines the reference "up" direction for the content's orientation. Pointing the
  *   content's forward vector at the user leaves the rotation around that axis (roll) undefined;
  *   this vector resolves that ambiguity. The default is Vector3.Up, which corresponds to the up
  *   direction of the ActivitySpace.
- * @see billboard modifier for making content that will generally face the user's direction but
- *   keeps the content in an upright position.
  */
 // TODO(b/461808266): LookAtUser and UserSubspace not compatible with each other
 // TODO(b/468104384): Optimize LookAtUser modifier initial rotation delay

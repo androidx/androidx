@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.vector
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -232,15 +233,18 @@ private object TestImageVectors {
             )
             .build()
 
+    val testRemoteStateScope = NoRemoteCompose()
+
     val RemoteVolumeUp =
         RemoteImageVector.Builder(
+                testRemoteStateScope,
                 name = "Volume up",
                 viewportWidth = 24.0f.rf,
                 viewportHeight = 24.0f.rf,
                 tintColor = RemoteColor(Color.Black),
             )
             .addPath(
-                RemotePathData {
+                RemotePathData(testRemoteStateScope) {
                     moveTo(3.0f.rf, 9.0f.rf)
                     verticalLineToRelative(6.0f.rf)
                     horizontalLineToRelative(4.0f.rf)

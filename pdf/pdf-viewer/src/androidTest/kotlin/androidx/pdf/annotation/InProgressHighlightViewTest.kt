@@ -20,6 +20,7 @@ import android.graphics.Matrix
 import android.graphics.Point
 import android.graphics.PointF
 import android.graphics.RectF
+import android.os.DeadObjectException
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewGroup
@@ -47,17 +48,15 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class InProgressHighlightViewTest {
 
-    private val startIdlingResource = CountingIdlingResource(HIGHLIGHT_START_RESOURCE_NAME)
-    private val finishIdlingResource = CountingIdlingResource(HIGHLIGHT_FINISH_RESOURCE_NAME)
+    private val highlightIdlingResource = CountingIdlingResource(HIGHLIGHT_RESOURCE_NAME)
     private lateinit var highlightView: InProgressHighlightsView
     private lateinit var testHighlightListener: FakeInProgressTextHighlightsListener
     private lateinit var testId: InProgressHighlightId
 
     @Before
     fun setUp() {
-        IdlingRegistry.getInstance().register(startIdlingResource, finishIdlingResource)
-        testHighlightListener =
-            FakeInProgressTextHighlightsListener(startIdlingResource, finishIdlingResource)
+        IdlingRegistry.getInstance().register(highlightIdlingResource)
+        testHighlightListener = FakeInProgressTextHighlightsListener(highlightIdlingResource)
         testId = InProgressHighlightId.create()
 
         setupActivity()
@@ -65,14 +64,14 @@ class InProgressHighlightViewTest {
 
     @After
     fun tearDown() {
-        IdlingRegistry.getInstance().unregister(startIdlingResource, finishIdlingResource)
+        IdlingRegistry.getInstance().unregister(highlightIdlingResource)
         PdfViewTestActivity.onCreateCallback = {}
     }
 
     @Test
     fun startTextHighlight_onText_invokesSuccessCallback() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            startIdlingResource.increment()
+            highlightIdlingResource.increment()
 
             scenario.onActivity {
                 val point = PointF(50f, 50f)
@@ -95,7 +94,7 @@ class InProgressHighlightViewTest {
     @Test
     fun startTextHighlight_noText_invokesFailureCallback() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            startIdlingResource.increment()
+            highlightIdlingResource.increment()
 
             scenario.onActivity {
                 // (5,5) is outside text bounds (10,10 - 100,100)
@@ -118,7 +117,7 @@ class InProgressHighlightViewTest {
     @Test
     fun finishTextHighlight_validSelection_createsStampAnnotation() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            startIdlingResource.increment()
+            highlightIdlingResource.increment()
 
             // 1. Start the highlight
             scenario.onActivity {
@@ -139,7 +138,7 @@ class InProgressHighlightViewTest {
             Espresso.onIdle()
 
             // 3. Finish the highlight
-            finishIdlingResource.increment()
+            highlightIdlingResource.increment()
             scenario.onActivity { highlightView.finishTextHighlight(testId, PointF(90f, 90f)) }
             Espresso.onIdle()
 
@@ -158,7 +157,7 @@ class InProgressHighlightViewTest {
     @Test
     fun cancelHighlight_afterStart_producesNoAnnotationOnFinish() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            startIdlingResource.increment()
+            highlightIdlingResource.increment()
 
             scenario.onActivity {
                 val point = PointF(50f, 50f)
@@ -183,10 +182,44 @@ class InProgressHighlightViewTest {
     }
 
     @Test
+    fun textHighlight_withError_invokesErrorCallback() {
+        val exception = DeadObjectException()
+        val pageText =
+            PdfPageTextContent(bounds = listOf(RectF(10f, 10f, 100f, 100f)), text = "Sample Text")
+        val fakePdfDocument =
+            FakePdfDocument(
+                pages = listOf(Point(500, 500)),
+                textContents = listOf(pageText),
+                exceptionToThrow = exception,
+            )
+
+        ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
+            highlightIdlingResource.increment()
+            scenario.onActivity {
+                highlightView.pdfDocument = fakePdfDocument
+                val point = PointF(50f, 50f)
+                highlightView.startTextHighlight(
+                    id = testId,
+                    pageNum = 0,
+                    startPdfPoint = point,
+                    startViewPoint = point,
+                    pageToViewTransform = Matrix(),
+                )
+            }
+
+            Espresso.onIdle()
+            assertThat(testHighlightListener.isStarted).isFalse()
+            assertThat(testHighlightListener.isFailed).isFalse()
+            assertThat(testHighlightListener.exceptionThrown).isNotNull()
+            assertThat(testHighlightListener.exceptionThrown?.throwable).isEqualTo(exception)
+        }
+    }
+
+    @Test
     fun touchEvents_dragAndUp_createsAnnotation() {
         setupActivity()
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            startIdlingResource.increment()
+            highlightIdlingResource.increment()
 
             scenario.onActivity {
                 val downEvent = obtainMotionEvent(50f, 50f, MotionEvent.ACTION_DOWN)
@@ -201,7 +234,7 @@ class InProgressHighlightViewTest {
                 moveEvent.recycle()
             }
 
-            finishIdlingResource.increment()
+            highlightIdlingResource.increment()
             scenario.onActivity {
                 val upEvent = obtainMotionEvent(90f, 90f, MotionEvent.ACTION_UP)
                 highlightView.onTouchEvent(upEvent)
@@ -226,7 +259,7 @@ class InProgressHighlightViewTest {
     fun touchEvents_cancelEvent_abortsHighlight() {
         setupActivity()
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            startIdlingResource.increment()
+            highlightIdlingResource.increment()
 
             scenario.onActivity {
                 val downEvent = obtainMotionEvent(50f, 50f, MotionEvent.ACTION_DOWN)
@@ -281,7 +314,6 @@ class InProgressHighlightViewTest {
     }
 
     companion object {
-        private val HIGHLIGHT_START_RESOURCE_NAME = "TextHighlightStart-${UUID.randomUUID()}"
-        private val HIGHLIGHT_FINISH_RESOURCE_NAME = "TextHighlightFinish-${UUID.randomUUID()}"
+        private val HIGHLIGHT_RESOURCE_NAME = "TextHighlight-${UUID.randomUUID()}"
     }
 }

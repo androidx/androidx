@@ -28,19 +28,16 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
-import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 
 @SmallTest
-@OptIn(ExperimentalTestApi::class)
 class StandardTestDispatcherPhaseOrderingTest {
 
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 
     @Test
     fun singlePass() {
-        assumeTrue(ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled)
         val counter = TestCounter()
         rule.setContent {
             // This should never recompose.
@@ -70,7 +67,6 @@ class StandardTestDispatcherPhaseOrderingTest {
 
     @Test
     fun frameCallbackRestartsLayout() {
-        assumeTrue(ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled)
         val counter = TestCounter()
         var firstPass by mutableStateOf(true)
         var layoutCount = 0

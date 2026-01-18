@@ -22,7 +22,7 @@ plugins {
 }
 
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
     namespace = "androidx.compose.integration.hero.pokedex.macrobenchmark.target"
 
     buildTypes {

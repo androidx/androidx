@@ -37,6 +37,37 @@ class EntryProviderTest {
     }
 
     @Test
+    fun entryProvider_properlyCreatesMetadata() {
+        val provider = entryProvider {
+            entry("first", "first", metadata = { mapOf("feature1" to 1) }) {}
+        }
+
+        val entry1 = provider.invoke("first")
+
+        assertThat(entry1.metadata["feature1"]).isEqualTo(1)
+    }
+
+    @Test
+    fun entryProvider_getKeyArgsFromMetadataWithObject() {
+        val provider = entryProvider {
+            entry(MyKey("testArg"), "first", metadata = { mapOf("arg1" to it.name) }) {}
+        }
+
+        val entry1 = provider.invoke(MyKey("testArg"))
+
+        assertThat(entry1.metadata["arg1"]).isEqualTo("testArg")
+    }
+
+    @Test
+    fun entryProvider_getKeyArgsFromMetadataWithClass() {
+        val provider = entryProvider { entry<MyKey>(metadata = { mapOf("arg1" to it.name) }) {} }
+
+        val entry1 = provider.invoke(MyKey("testArg"))
+
+        assertThat(entry1.metadata["arg1"]).isEqualTo("testArg")
+    }
+
+    @Test
     fun entryProvider_withDuplicatedInitializers_throwsException() {
         try {
             entryProvider {
@@ -62,3 +93,5 @@ class EntryProviderTest {
         }
     }
 }
+
+data class MyKey(val name: String)

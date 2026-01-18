@@ -195,12 +195,7 @@ constructor(
         }
     }
 
-    /**
-     * Feature that allows tracking of and provides information about scene planes.
-     *
-     * Setting this feature to [PlaneTrackingMode.HORIZONTAL_AND_VERTICAL] requires that the
-     * `SCENE_UNDERSTANDING_COARSE` Android permission is granted.
-     */
+    /** Feature that allows tracking of and provides information about scene planes. */
     @SuppressWarnings("HiddenSuperclass")
     public class PlaneTrackingMode
     private constructor(
@@ -212,6 +207,17 @@ constructor(
             /**
              * Horizontal and vertical planes will be tracked. Note that setting this mode will
              * consume additional runtime resources.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             * - Play Services
+             *
+             * Required permissions:
+             * - [SCENE_UNDERSTANDING_COARSE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_COARSE]
+             *   (OpenXR runtimes only)
+             * - [ACCESS_COARSE_LOCATION][android.Manifest.permission.ACCESS_COARSE_LOCATION] (Play
+             *   Services runtimes only)
+             * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
              */
             @JvmField public val HORIZONTAL_AND_VERTICAL: PlaneTrackingMode = PlaneTrackingMode(1)
         }
@@ -221,12 +227,7 @@ constructor(
         }
     }
 
-    /**
-     * Feature that allows tracking of the user's hands and hand joints.
-     *
-     * Setting this feature to [HandTrackingMode.BOTH] requires that the `HAND_TRACKING` Android
-     * permission is granted by the calling application.
-     */
+    /** Feature that allows tracking of the user's hands and hand joints. */
     @SuppressWarnings("HiddenSuperclass")
     public class HandTrackingMode
     private constructor(
@@ -238,6 +239,12 @@ constructor(
             /**
              * Both the left and right hands will be tracked. Note that setting this mode will
              * consume additional runtime resources.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             *
+             * Required permissions:
+             * - [HAND_TRACKING][androidx.xr.runtime.manifest.HAND_TRACKING]
              */
             @JvmField public val BOTH: HandTrackingMode = HandTrackingMode(1)
         }
@@ -247,11 +254,7 @@ constructor(
         }
     }
 
-    /**
-     * Feature that allows tracking of the AR device.
-     *
-     * This feature does not require any additional application permissions.
-     */
+    /** Feature that allows tracking of the AR device. */
     @SuppressWarnings("HiddenSuperclass")
     public class DeviceTrackingMode
     private constructor(
@@ -268,6 +271,13 @@ constructor(
              * The device pose will be tracked and the last known pose from the system at the time
              * of runtime update will be provided. Note that there is generally a delay between the
              * actual device pose and the pose provided by the system by the time of the update.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             * - Play Services
+             *
+             * Required permissions:
+             * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
              */
             @JvmField public val LAST_KNOWN: DeviceTrackingMode = DeviceTrackingMode(1)
         }
@@ -277,13 +287,7 @@ constructor(
         }
     }
 
-    /**
-     * Feature that allows more accurate information about scene depth and meshes.
-     *
-     * Setting this feature to any of [DepthEstimationMode.RAW_ONLY],
-     * [DepthEstimationMode.SMOOTH_ONLY] or [DepthEstimationMode.SMOOTH_AND_RAW] requires that the
-     * `SCENE_UNDERSTANDING_FINE` Android permission is granted by the calling application.
-     */
+    /** Feature that allows more accurate information about scene depth and meshes. */
     @SuppressWarnings("HiddenSuperclass")
     public class DepthEstimationMode
     private constructor(
@@ -293,15 +297,46 @@ constructor(
             /** No information about scene depth will be provided. */
             @JvmField public val DISABLED: DepthEstimationMode = DepthEstimationMode(0)
 
-            /** Depth estimation will be enabled with raw depth and confidence. */
+            /**
+             * Depth estimation will be enabled with raw depth and confidence.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             * - Play Services (on supported devices)
+             *
+             * Required permissions:
+             * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+             *   (OpenXR runtimes only)
+             * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+             */
             @JvmField public val RAW_ONLY: DepthEstimationMode = DepthEstimationMode(1)
 
-            /** Depth estimation will be enabled with smooth depth and confidence. */
+            /**
+             * Depth estimation will be enabled with smooth depth and confidence.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             * - Play Services (on supported devices)
+             *
+             * Required permissions:
+             * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+             *   (OpenXR runtimes only)
+             * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
+             */
             @JvmField public val SMOOTH_ONLY: DepthEstimationMode = DepthEstimationMode(2)
 
             /**
              * Depth estimation will be enabled with both raw and smooth depth and confidence. Note
              * that setting this mode will consume additional runtime resources.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             * - Play Services (on supported devices)
+             *
+             * Required permissions:
+             * - [SCENE_UNDERSTANDING_FINE][androidx.xr.runtime.manifest.SCENE_UNDERSTANDING_FINE]
+             *   (OpenXR runtimes only)
+             * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
              */
             @JvmField public val SMOOTH_AND_RAW: DepthEstimationMode = DepthEstimationMode(3)
         }
@@ -318,11 +353,7 @@ constructor(
         }
     }
 
-    /**
-     * Feature that allows anchors to be persisted through sessions.
-     *
-     * This feature does not require any additional application permissions.
-     */
+    /** Feature that allows anchors to be persisted through sessions. */
     @SuppressWarnings("HiddenSuperclass")
     public class AnchorPersistenceMode
     private constructor(
@@ -331,7 +362,14 @@ constructor(
         public companion object {
             /** Anchors cannot be persisted. */
             @JvmField public val DISABLED: AnchorPersistenceMode = AnchorPersistenceMode(0)
-            /** Anchors may be persisted and will be saved in the application's local storage. */
+            /**
+             * Anchors may be persisted and will be saved in the application's local storage.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             *
+             * Required permissions: None
+             */
             @JvmField public val LOCAL: AnchorPersistenceMode = AnchorPersistenceMode(1)
         }
 
@@ -358,10 +396,26 @@ constructor(
             /** Faces will not be tracked. */
             @JvmField public val DISABLED: FaceTrackingMode = FaceTrackingMode(0)
 
-            /** Blend shapes of the user's face will be tracked. */
+            /**
+             * Blend shapes of the user's face will be tracked.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             *
+             * Required permissions:
+             * - [FACE_TRACKING][androidx.xr.runtime.manifest.FACE_TRACKING]
+             */
             @JvmField public val BLEND_SHAPES: FaceTrackingMode = FaceTrackingMode(1)
 
-            /** Face meshes will be tracked using the front-facing camera. */
+            /**
+             * Face meshes will be tracked using the front-facing camera.
+             *
+             * Supported runtimes:
+             * - Play Services
+             *
+             * Required permissions:
+             * - [CAMERA][android.Manifest.permission.CAMERA]
+             */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
             @JvmField
             public val MESHES: FaceTrackingMode = FaceTrackingMode(2)
@@ -381,7 +435,7 @@ constructor(
      *   This can work even where GPS accuracy is low, such as dense urban environments. Under
      *   typical conditions, VPS can be expected to provide positional accuracy typically better
      *   than 5 meters and often around 1 meter, and a rotational accuracy of better than 5 degrees.
-     *   Use [Geospatial.checkVpsAvailability] to determine if a given location has VPS coverage.
+     *   Use `Geospatial.checkVpsAvailability` to determine if a given location has VPS coverage.
      * - In outdoor environments with few or no overhead obstructions, GPS may be sufficient to
      *   generate high accuracy poses. GPS accuracy may be low in dense urban environments and
      *   indoors.
@@ -395,21 +449,21 @@ constructor(
     ) : ConfigMode {
         public companion object {
             /**
-             * The Geospatial API is disabled. When GeospatialMode is disabled, current [Anchor]
-             * objects created from [Geospatial] will stop updating, and have their [TrackingState]
+             * The Geospatial API is disabled. When GeospatialMode is disabled, current `Anchor`
+             * objects created from `Geospatial` will stop updating, and have their [TrackingState]
              * set to [TrackingState.STOPPED].
              */
             @JvmField public val DISABLED: GeospatialMode = GeospatialMode(0)
 
             /**
-             * The Geospatial API is enabled. [Geospatial] should enter the running state shortly
+             * The Geospatial API is enabled. `Geospatial` should enter the running state shortly
              * after this mode is set.
              *
              * Using this mode requires your app do the following, depending on the Runtime:
              *
              * On mobile and projected devices:
              * - Include the
-             *   [ACCESS_INTERNET](https://developer.android.com/training/basics/network-ops/connecting)
+             *   [INTERNET](https://developer.android.com/training/basics/network-ops/connecting)
              *   permission to the app's AndroidManifest
              * - Request and be granted the
              *   [ACCESS_FINE_LOCATION permission](https://developer.android.com/training/location/permissions);
@@ -420,7 +474,7 @@ constructor(
              *   [dependencies for Google Play services](https://developers.google.com/android/guides/setup#declare-dependencies)
              *   for instructions on how to include this library in your app. If this library is not
              *   linked, [Session.configure] returns
-             *   [SessionResultGooglePlayServicesLocationLibraryNotLinked].
+             *   [SessionConfigureGooglePlayServicesLocationLibraryNotLinked].
              *
              * Location is tracked only while the [Session] is resumed.
              *
@@ -431,6 +485,15 @@ constructor(
              * Not all devices support GeospatialMode.VPS_AND_GPS, use [ConfigMode.isSupported] to
              * check if the current device and selected camera support enabling this mode. These
              * checks are done in the call to [Session.configure].
+             *
+             * Supported runtimes:
+             * - Play Services (on supported devices)
+             * - Projected
+             *
+             * Required permissions:
+             * - [INTERNET][android.Manifest.permission.INTERNET]
+             * - [ACCESS_FINE_LOCATION][android.Manifest.permission.ACCESS_FINE_LOCATION]
+             * - [CAMERA][android.Manifest.permission.CAMERA] (Play Services runtimes only)
              */
             @JvmField public val VPS_AND_GPS: GeospatialMode = GeospatialMode(1)
         }
@@ -440,12 +503,7 @@ constructor(
         }
     }
 
-    /**
-     * Feature that allows tracking of the user's eyes.
-     *
-     * Setting this feature to any mode other than [EyeTrackingMode.DISABLED] requires that the
-     * `EYE_TRACKING` Android permission is granted by the calling application.
-     */
+    /** Feature that allows tracking of the user's eyes. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @SuppressWarnings("HiddenSuperclass")
     public class EyeTrackingMode private constructor(public val mode: Int) : ConfigMode {
@@ -454,9 +512,23 @@ constructor(
             @JvmField public val DISABLED: EyeTrackingMode = EyeTrackingMode(0)
             /**
              * Enables coarse eye tracking, providing general gaze direction without high precision.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             *
+             * Required permissions:
+             * - [EYE_TRACKING_COARSE][androidx.xr.runtime.manifest.EYE_TRACKING_COARSE]
              */
             @JvmField public val COARSE_TRACKING: EyeTrackingMode = EyeTrackingMode(1)
-            /** Enables fine eye tracking, providing more precise gaze direction. */
+            /**
+             * Enables fine eye tracking, providing more precise gaze direction.
+             *
+             * Supported runtimes:
+             * - OpenXR
+             *
+             * Required permissions:
+             * - [EYE_TRACKING_FINE][androidx.xr.runtime.manifest.EYE_TRACKING_FINE]
+             */
             @JvmField public val FINE_TRACKING: EyeTrackingMode = EyeTrackingMode(2)
         }
     }
@@ -468,10 +540,26 @@ constructor(
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val mode: Int
     ) : ConfigMode {
         public companion object {
-            /** Use the world-facing camera. This is the default behavior across all devices. */
+            /**
+             * Use the world-facing camera. This is the default behavior across all devices.
+             *
+             * Supported runtimes:
+             * - Play Services
+             *
+             * Required permissions:
+             * - [CAMERA][android.Manifest.permission.CAMERA]
+             */
             @JvmField public val WORLD: CameraFacingDirection = CameraFacingDirection(0)
 
-            /** Use the user-facing camera. */
+            /**
+             * Use the user-facing camera.
+             *
+             * Supported runtimes:
+             * - Play Services
+             *
+             * Required permissions:
+             * - [CAMERA][android.Manifest.permission.CAMERA]
+             */
             @JvmField public val USER: CameraFacingDirection = CameraFacingDirection(1)
         }
     }

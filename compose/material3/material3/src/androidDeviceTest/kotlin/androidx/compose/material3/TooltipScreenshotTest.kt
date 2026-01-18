@@ -39,7 +39,6 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@OptIn(ExperimentalMaterial3Api::class)
 class TooltipScreenshotTest {
     @get:Rule val rule = createComposeRule(StandardTestDispatcher())
 

@@ -60,6 +60,8 @@ public class RemoteRoundedCornerShape(
 
 public val RemoteCircleShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(50)
 
+public val RemoteRectangleShape: RemoteRoundedCornerShape = RemoteRoundedCornerShape(0)
+
 /**
  * Creates [RemoteRoundedCornerShape] with the same size applied for all four corners.
  *

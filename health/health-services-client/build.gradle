@@ -50,7 +50,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 30
+        minSdk { version = release(30) }
         consumerProguardFiles("proguard-rules.pro")
     }
     buildFeatures {

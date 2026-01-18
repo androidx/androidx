@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MailOutline
+import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -31,6 +32,7 @@ import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.modifier.widthIn
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
@@ -83,6 +85,7 @@ private fun RemoteButtonGroupTwoButtonsPreview(
 @RemoteComposable
 private fun Button(imageVector: ImageVector, modifier: RemoteModifier) {
     RemoteIconButton(
+        testAction,
         modifier = modifier.widthIn(RemoteButtonGroupDefaults.MinWidth),
         enabled = true.rb,
         colors = tonalColors,
@@ -127,3 +130,5 @@ private val tonalColors
                     RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
                 disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
             )
+
+private val testAction = HostAction("testAction".rs, 1.rf)

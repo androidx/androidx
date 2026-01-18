@@ -124,19 +124,12 @@ public interface Entity : ScenePose {
     public fun getAlpha(): Float = getAlpha(Space.PARENT)
 
     /**
-     * Sets the alpha transparency for the given Entity, relative to the given space.
-     *
-     * @param alpha Alpha transparency level for the Entity.
-     * @param relativeTo The space in which to set the alpha.
-     */
-    public fun setAlpha(alpha: Float, @SpaceValue relativeTo: Int)
-
-    /**
-     * Sets the alpha transparency for the given Entity.
+     * Sets the alpha transparency for the given Entity, relative to the parent space. Values are in
+     * the range [0, 1] with 0 being fully transparent and 1 being fully opaque.
      *
      * @param alpha Alpha transparency level for the Entity.
      */
-    public fun setAlpha(alpha: Float): Unit = setAlpha(alpha, Space.PARENT)
+    public fun setAlpha(alpha: Float): Unit
 
     /** Sets the provided Entities to be children of the Entity. */
     public fun addChildren(children: List<Entity>): Unit

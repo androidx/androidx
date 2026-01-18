@@ -266,6 +266,49 @@ class ChipTest {
     }
 
     @Test
+    fun horizontalPadding_assistChip_withContentPaddingAndSpacing() {
+        var chipCoordinates: LayoutCoordinates? = null
+        rule.setMaterialContent(lightColorScheme()) {
+            AssistChip(
+                onClick = {},
+                modifier = Modifier.onGloballyPositioned { chipCoordinates = it },
+                label = { Text("Assist chip", Modifier.testTag(TestChipTag)) },
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(AssistChipDefaults.IconSize),
+                    )
+                },
+                trailingIcon = {
+                    Icon(
+                        imageVector = Icons.Filled.Done,
+                        contentDescription = "Localized Description",
+                        modifier = Modifier.size(AssistChipDefaults.IconSize),
+                    )
+                },
+                contentPadding = PaddingValues(horizontal = 4.dp),
+                horizontalSpacing = 6.dp,
+            )
+        }
+
+        var chipWidth = 0.dp
+        rule.runOnIdle {
+            chipWidth = with(rule.density) { chipCoordinates!!.boundsInWindow().width.toDp() }
+        }
+        rule
+            .onNodeWithTag(TestChipTag, useUnmergedTree = true)
+            .assertLeftPositionInRootIsEqualTo(4.dp + AssistChipDefaults.IconSize + 6.dp)
+            .assertWidthIsEqualTo(
+                chipWidth -
+                    10.dp -
+                    AssistChipDefaults.IconSize -
+                    AssistChipDefaults.IconSize -
+                    10.dp
+            )
+    }
+
+    @Test
     fun labelContentColor_assistChip() {
         var expectedLabelColor = Color.Unspecified
         var contentColor = Color.Unspecified

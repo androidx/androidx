@@ -19,12 +19,12 @@ package androidx.xr.compose.platform
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.xr.compose.testing.SubspaceTestingActivity
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -76,33 +76,40 @@ class ComposeXrOwnerLocalsKtTest {
     }
 
     @Test
-    @Ignore("b/454042420 This test is failing randomly")
     fun getOrCreateXrOwnerLocals_isClearedAndRecreated_onActivityRecreation() {
-        // Phase 1: Create the initial instance in the first activity.
-        val activity1 = composeTestRule.activity
-        val decorView1 = activity1.window.decorView
-        val locals1 = assertNotNull(activity1.getOrCreateXrOwnerLocals())
-        val locals2 = assertNotNull(activity1.getOrCreateXrOwnerLocals())
-        assertThat(locals1).isSameInstanceAs(locals2)
-        assertThat(locals1.session).isSameInstanceAs(locals2.session)
+        lateinit var decorView1: android.view.View
+        lateinit var locals1: ComposeXrOwnerLocals
+        lateinit var activity1: SubspaceTestingActivity
 
-        // Phase 2: Recreate the activity. This destroys the old activity and its
-        // lifecycle, which should trigger our observer to clear the cache.
-        // Recreating the activity in this way does not work with setContent and compose.
-        composeTestRule.activityRule.scenario.recreate()
+        ActivityScenario.launch(SubspaceTestingActivity::class.java).use { scenario ->
+            // Phase 1: Create the initial instance in the first activity.
+            scenario.onActivity { activity ->
+                activity1 = activity
+                decorView1 = activity.window.decorView
+                locals1 = assertNotNull(activity.getOrCreateXrOwnerLocals())
+                val locals2 = assertNotNull(activity.getOrCreateXrOwnerLocals())
+                assertThat(locals1).isSameInstanceAs(locals2)
+                assertThat(locals1.session).isSameInstanceAs(locals2.session)
+            }
 
-        // Verify that the cache has been cleared.
-        assertThat(decorView1.getTag(androidx.xr.compose.R.id.compose_xr_owner_locals)).isNull()
+            // Phase 2: Recreate the activity. This destroys the old activity and its
+            // lifecycle, which should trigger our observer to clear the cache.
+            scenario.recreate()
 
-        // Phase 3: Verify that a new, distinct instance is created for the new activity.
-        val activity2 = composeTestRule.activity
+            // Verify that the cache has been cleared.
+            assertThat(decorView1.getTag(androidx.xr.compose.R.id.compose_xr_owner_locals)).isNull()
 
-        // Check our understanding of the test infrastructure, that the activity is recreated.
-        assertThat(activity1.isDestroyed).isTrue()
-        assertThat(activity2).isNotSameInstanceAs(activity1)
+            // Phase 3: Verify that a new, distinct instance is created for the new activity.
+            scenario.onActivity { activity2 ->
+                // Check our understanding of the test infrastructure, that the activity is
+                // recreated.
+                assertThat(activity1.isDestroyed).isTrue()
+                assertThat(activity2).isNotSameInstanceAs(activity1)
 
-        val locals3 = assertNotNull(activity2.getOrCreateXrOwnerLocals())
-        assertThat(locals3).isNotSameInstanceAs(locals1)
-        assertThat(locals3.session).isNotSameInstanceAs(locals1.session)
+                val locals3 = assertNotNull(activity2.getOrCreateXrOwnerLocals())
+                assertThat(locals3).isNotSameInstanceAs(locals1)
+                assertThat(locals3.session).isNotSameInstanceAs(locals1.session)
+            }
+        }
     }
 }

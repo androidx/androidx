@@ -18,7 +18,9 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.padding
+import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
@@ -35,21 +37,21 @@ public class PaddingModifier(
 ) : RemoteModifier.Element {
     init {
         require(
-            (!left.hasConstantValue || left.toFloat() >= 0f) and
-                (!top.hasConstantValue || top.toFloat() >= 0f) and
-                (!right.hasConstantValue || right.toFloat() >= 0f) and
-                (!bottom.hasConstantValue || bottom.toFloat() >= 0f)
+            (!left.hasConstantValue || left.constantValue >= 0f) and
+                (!top.hasConstantValue || top.constantValue >= 0f) and
+                (!right.hasConstantValue || right.constantValue >= 0f) and
+                (!bottom.hasConstantValue || bottom.constantValue >= 0f)
         ) {
             "Padding must be non-negative"
         }
     }
 
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.PaddingModifier(
-            left.internalAsFloat(),
-            top.internalAsFloat(),
-            right.internalAsFloat(),
-            bottom.internalAsFloat(),
+            left.floatId,
+            top.floatId,
+            right.floatId,
+            bottom.floatId,
         )
     }
 }
@@ -98,3 +100,18 @@ public fun RemoteModifier.padding(
 @Composable
 public fun RemoteModifier.padding(horizontal: Dp = 0.dp, vertical: Dp = 0.dp): RemoteModifier =
     padding(left = horizontal, top = vertical, right = horizontal, bottom = vertical)
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+public fun RemoteModifier.padding(padding: RemotePaddingValues): RemoteModifier =
+    then(
+        with(LocalDensity.current) {
+            // TODO(b/466078229): uses padding modifiers that takes RemoteDp
+            PaddingModifier(
+                padding.leftPadding.value * density,
+                padding.topPadding.value * density,
+                padding.rightPadding.value * density,
+                padding.bottomPadding.value * density,
+            )
+        }
+    )

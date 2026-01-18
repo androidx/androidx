@@ -116,6 +116,37 @@ public object VideoConfigUtil {
     }
 
     /**
+     * Resolves a compatible [VideoProfileProxy] from a list based on the provided MIME type and
+     * [DynamicRange].
+     *
+     * This method attempts to find the first profile in the provided list that matches the
+     * requested [videoMime] and the constraints (HDR format and bit depth) of the [dynamicRange].
+     * If the [videoMime] is set to [VideoSpec.MIME_TYPE_AUTO], it will return the first profile
+     * that satisfies the [dynamicRange] requirements.
+     *
+     * @param videoMime The desired video MIME type.
+     * @param dynamicRange The fully specified [DynamicRange] required for the profile.
+     * @param videoProfiles A list of available [VideoProfileProxy]s.
+     * @return The first matching [VideoProfileProxy], or `null` if no compatible profile is found.
+     */
+    public fun resolveCompatibleVideoProfile(
+        videoMime: String,
+        dynamicRange: DynamicRange,
+        videoProfiles: List<VideoProfileProxy>,
+    ): VideoProfileProxy? {
+        val hdrFormats = DynamicRangeUtil.dynamicRangeToVideoProfileHdrFormats(dynamicRange)
+        val bitDepths = DynamicRangeUtil.dynamicRangeToVideoProfileBitDepth(dynamicRange)
+
+        return videoProfiles.firstOrNull {
+            // is HDR compatible
+            hdrFormats.contains(it.hdrFormat) &&
+                bitDepths.contains(it.bitDepth) &&
+                // is MIME type compatible
+                (videoMime == VideoSpec.MIME_TYPE_UNSPECIFIED || it.mediaType == videoMime)
+        }
+    }
+
+    /**
      * Resolves the video mime information into a [VideoMimeInfo].
      *
      * @param mediaSpec the media spec to resolve the mime info.
@@ -153,7 +184,7 @@ public object VideoConfigUtil {
                 }
 
                 // Dynamic range is compatible. Use EncoderProfiles settings if the media spec's
-                // output format is set to auto or happens to match the EncoderProfiles' output
+                // output format is UNSPECIFIED or happens to match the EncoderProfiles' output
                 // format.
                 val videoProfileMime = videoProfile.mediaType
                 if (mediaSpecVideoMime == videoProfileMime) {
@@ -163,10 +194,10 @@ public object VideoConfigUtil {
                             "EncoderProfiles to derive VIDEO settings [mime type: " +
                             "$resolvedVideoMime]",
                     )
-                } else if (mediaSpec.outputFormat == MediaSpec.OUTPUT_FORMAT_AUTO) {
+                } else if (mediaSpec.outputFormat == MediaSpec.OUTPUT_FORMAT_UNSPECIFIED) {
                     Logger.d(
                         TAG,
-                        "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile " +
+                        "MediaSpec contains OUTPUT_FORMAT_UNSPECIFIED. Using CamcorderProfile " +
                             "to derive VIDEO settings [mime type: $resolvedVideoMime, " +
                             "dynamic range: $dynamicRange]",
                     )
@@ -179,9 +210,9 @@ public object VideoConfigUtil {
             }
         }
         if (compatibleVideoProfile == null) {
-            if (mediaSpec.outputFormat == MediaSpec.OUTPUT_FORMAT_AUTO) {
-                // If output format is AUTO, use the dynamic range to get the mime. Otherwise we
-                // fall back to the default mime type from MediaSpec
+            if (mediaSpec.outputFormat == MediaSpec.OUTPUT_FORMAT_UNSPECIFIED) {
+                // If output format is UNSPECIFIED, use the dynamic range to get the mime.
+                // Otherwise, we fall back to the default mime type from MediaSpec
                 resolvedVideoMime = getDynamicRangeDefaultMime(dynamicRange)
             }
             if (encoderProfiles == null) {
@@ -397,7 +428,7 @@ public object VideoConfigUtil {
                 expectedCaptureFrameRateRange.upper
             }
         val encodeFrameRate: Int =
-            if (videoSpec.encodeFrameRate != VideoSpec.ENCODE_FRAME_RATE_AUTO) {
+            if (videoSpec.encodeFrameRate != VideoSpec.ENCODE_FRAME_RATE_UNSPECIFIED) {
                 videoSpec.encodeFrameRate
             } else {
                 captureFrameRate

@@ -1,0 +1,125 @@
+/*
+ * Copyright 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.wear.compose.remote.material3
+
+import android.annotation.SuppressLint
+import android.content.Context
+import androidx.compose.remote.creation.CreationDisplayInfo
+import androidx.compose.remote.creation.compose.action.HostAction
+import androidx.compose.remote.creation.compose.layout.RemoteAlignment
+import androidx.compose.remote.creation.compose.layout.RemoteArrangement
+import androidx.compose.remote.creation.compose.layout.RemoteBox
+import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.fillMaxSize
+import androidx.compose.remote.creation.compose.state.rb
+import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
+import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
+import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithIcon
+import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithIconAndLabel
+import androidx.wear.compose.remote.material3.previews.RemoteCompactButtonWithLabel
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.JUnit4
+
+@MediumTest
+@SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
+@SuppressLint("UnrememberedMutableState")
+@RunWith(JUnit4::class)
+class RemoteCompactButtonTest {
+    @get:Rule
+    val remoteComposeTestRule =
+        RemoteComposeScreenshotTestRule(
+            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
+            targetPlayer = TargetPlayer.View,
+        )
+    private val context: Context = ApplicationProvider.getApplicationContext()
+
+    private val creationDisplayInfo =
+        CreationDisplayInfo(500, 500, context.resources.displayMetrics.densityDpi)
+
+    @Test
+    fun compact_button_disabled() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+        ) {
+            Center(RemoteModifier.fillMaxSize()) {
+                RemoteCompactButton(
+                    onClick = testAction,
+                    modifier = RemoteModifier,
+                    enabled = false.rb,
+                    label = { RemoteText("disabled".rs) },
+                )
+            }
+        }
+    }
+
+    @Test
+    fun compact_button_icon_only() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+        ) {
+            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithIcon() }
+        }
+    }
+
+    @Test
+    fun compact_button_label_only() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+        ) {
+            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithLabel() }
+        }
+    }
+
+    @Test
+    fun compact_button_icon_and_label() {
+        remoteComposeTestRule.runScreenshotTest(
+            backgroundColor = Color.Black,
+            creationDisplayInfo = creationDisplayInfo,
+        ) {
+            Center(RemoteModifier.fillMaxSize()) { RemoteCompactButtonWithIconAndLabel() }
+        }
+    }
+
+    @Composable
+    @RemoteComposable
+    private fun Center(
+        modifier: RemoteModifier,
+        content: @Composable @RemoteComposable () -> Unit,
+    ) {
+        RemoteBox(
+            modifier,
+            horizontalAlignment = RemoteAlignment.CenterHorizontally,
+            verticalArrangement = RemoteArrangement.Center,
+            content = content,
+        )
+    }
+}
+
+private val testAction = HostAction("".rs, 1.rf)

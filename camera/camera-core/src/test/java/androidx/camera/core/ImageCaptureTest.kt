@@ -637,7 +637,6 @@ class ImageCaptureTest {
         assertThat(cameraControl.isZslConfigAdded).isFalse()
     }
 
-    @Config(minSdk = 23)
     @Test
     fun bindImageCaptureInRegularCaptureModeWithZslSupportedSdkVersion_notAddZslConfig() {
         bindImageCapture(
@@ -650,7 +649,6 @@ class ImageCaptureTest {
         assertThat(cameraControl.isZslConfigAdded).isFalse()
     }
 
-    @Config(minSdk = 23)
     @Test
     fun bindImageCaptureInZslCaptureModeWithZslSupportedSdkVersion_addZslConfig() {
         bindImageCapture(

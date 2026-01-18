@@ -123,7 +123,8 @@ class AnnotationRecordsHistoryManagerTest {
 
     @Test
     fun historySizeLimit_isRespected() {
-        for (i in 1..25) {
+        val totalAnnotations = AnnotationRecordsHistoryManager.MAX_STACK_SIZE + 5
+        for (i in 1..totalAnnotations) {
             val annotation = createStampAnnotationWithPath(pageNum = 1, pathSize = 1)
             val key = AnnotationHandleIdGenerator.composeAnnotationId(pageNum = 1, id = "edit$i")
             val keyedAnnotation = KeyedPdfAnnotation(key, annotation)
@@ -131,8 +132,7 @@ class AnnotationRecordsHistoryManagerTest {
             historyManager.recordAdd(keyedAnnotation)
         }
 
-        // Undo should only be possible 20 times (the max size)
-        for (i in 1..20) {
+        for (i in 1..AnnotationRecordsHistoryManager.MAX_STACK_SIZE) {
             assertThat(historyManager.canUndo.value).isTrue()
             historyManager.undo()
         }

@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.internal
 
 import androidx.camera.camera2.pipe.CameraTimestamp
+import androidx.camera.camera2.pipe.Frame
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStatus
@@ -29,6 +30,11 @@ import androidx.camera.camera2.pipe.testing.FakeImage
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import com.google.common.truth.Truth.assertThat
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,6 +68,35 @@ class FrameStateTest {
     private val fakeFrameMetadata = FakeFrameMetadata(frameNumber = frameNumber)
     private val fakeFrameInfo =
         FakeFrameInfo(metadata = fakeFrameMetadata, requestMetadata = fakeRequestMetadata)
+
+    private val fakeListener =
+        object : Frame.Listener {
+            val frameStartedCalled = atomic(0)
+            val frameInfoAvailableCalled = atomic(0)
+            val imageAvailableCalled = atomic(0)
+            val frameCompletedCalled = atomic(0)
+
+            override fun onFrameStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp) {
+                frameStartedCalled.incrementAndGet()
+            }
+
+            override fun onFrameInfoAvailable() {
+                frameInfoAvailableCalled.incrementAndGet()
+            }
+
+            override fun onImageAvailable(streamId: StreamId) {
+                // Do nothing. ListenerState doesn't care about onImageAvailable on stream level
+                // currently.
+            }
+
+            override fun onImagesAvailable() {
+                imageAvailableCalled.incrementAndGet()
+            }
+
+            override fun onFrameComplete() {
+                frameCompletedCalled.incrementAndGet()
+            }
+        }
 
     private val frameState =
         FrameState(
@@ -206,5 +241,126 @@ class FrameStateTest {
 
         assertThat(frameState.frameInfoOutput.status).isEqualTo(OutputStatus.UNAVAILABLE)
         assertThat(frameState.frameInfoOutput.outputOrNull()).isNull()
+    }
+
+    @Test
+    fun addListener_invokesOnStarted_whenStateIsStarted() {
+        // FrameState's initial state is STARTED
+        frameState.addListener(fakeListener)
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(0)
+    }
+
+    @Test
+    fun addListener_stateIsFrameInfoAvailable_invokesStartAndFrameInfoComplete() {
+        frameState.onFrameInfoComplete()
+
+        frameState.addListener(fakeListener)
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(0)
+    }
+
+    @Test
+    fun addListener_stateIsImagesAvailable_invokesStartAndImagesAvailable() {
+        // All stream result completed
+        frameState.onStreamResultComplete(stream1Id)
+        frameState.onStreamResultComplete(stream2Id)
+
+        frameState.addListener(fakeListener)
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(0)
+    }
+
+    @Test
+    fun addListener_stateIsFrameComplete_invokesAllCallbacks() {
+        frameState.onStreamResultComplete(stream1Id)
+        frameState.onStreamResultComplete(stream2Id)
+        frameState.onFrameInfoComplete()
+
+        frameState.addListener(fakeListener)
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(1)
+    }
+
+    @Test
+    fun onFrameInfoComplete_invokesOnFrameInfoAvailable() {
+        frameState.addListener(fakeListener)
+
+        frameState.onFrameInfoComplete()
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(0)
+    }
+
+    @Test
+    fun onStreamResultComplete_doesNotHaveStreamResultForAllStreams_doesNotInvokesOnImagesAvailable() {
+        frameState.addListener(fakeListener)
+
+        frameState.onStreamResultComplete(stream1Id)
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(0)
+    }
+
+    @Test
+    fun onStreamResultComplete_invokesOnImagesAvailable_afterAllStreamsComplete() {
+        frameState.addListener(fakeListener)
+
+        frameState.onStreamResultComplete(stream1Id)
+        frameState.onStreamResultComplete(stream2Id)
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(0)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(0)
+    }
+
+    @Test
+    fun frameState_transitionsToComplete_allCallbacksAreTriggered() {
+        frameState.addListener(fakeListener)
+
+        frameState.onFrameInfoComplete()
+        frameState.onStreamResultComplete(stream1Id)
+        frameState.onStreamResultComplete(stream2Id)
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(1)
+    }
+
+    @Test
+    fun concurrentFrameStateChangeAndNewListenerAdded_ensureCallbacksCalledOnce() = runBlocking {
+        val numCoroutines = 4
+
+        val jobs =
+            listOf(
+                launch(Dispatchers.Default) { frameState.onFrameInfoComplete() },
+                launch(Dispatchers.Default) { frameState.onStreamResultComplete(stream1Id) },
+                launch(Dispatchers.Default) { frameState.addListener(fakeListener) },
+                launch(Dispatchers.Default) { frameState.onStreamResultComplete(stream2Id) },
+            )
+        jobs.joinAll()
+
+        assertThat(fakeListener.frameStartedCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameInfoAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.imageAvailableCalled.value).isEqualTo(1)
+        assertThat(fakeListener.frameCompletedCalled.value).isEqualTo(1)
     }
 }

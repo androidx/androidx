@@ -69,7 +69,9 @@ jobs:
           # Gradle flags match those used in presubmit.yml, plus:
           # * disabling validating integration patches as a patch file may already be applied
           # * disabling klibs cross compilation because it is not supported with cinterops
+          # * setting max workers to 2 to avoid memory exhaustion
           gradle-flags: >
+            --max-workers=2
             -Pkotlin.native.enableKlibsCrossCompilation=false
             -Dorg.gradle.internal.http.connectionTimeout=60000
             -Dorg.gradle.internal.http.socketTimeout=60000

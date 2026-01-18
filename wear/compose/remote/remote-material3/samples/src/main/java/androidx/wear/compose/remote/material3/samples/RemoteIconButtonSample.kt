@@ -17,6 +17,7 @@
 package androidx.wear.compose.remote.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -24,6 +25,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.wear.compose.remote.material3.RemoteIcon
@@ -36,7 +38,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @Sampled
 @Composable
 fun RemoteIconButtonSimpleSample(modifier: RemoteModifier = RemoteModifier) {
-    RemoteIconButton(modifier = modifier, colors = tonalColors) {
+    RemoteIconButton(testAction, modifier = modifier, colors = tonalColors) {
         RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
     }
 }
@@ -72,3 +74,5 @@ private val tonalColors
                     RemoteMaterialTheme.colorScheme.primary.copy(alpha = 0.12f.rf),
                 disabledContentColor = RemoteMaterialTheme.colorScheme.primary.copy(0.38f.rf),
             )
+
+private val testAction = HostAction("testAction".rs, 1.rf)

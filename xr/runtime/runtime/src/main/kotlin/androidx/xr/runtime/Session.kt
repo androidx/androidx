@@ -130,7 +130,7 @@ public constructor(
             activity: Activity,
             coroutineContext: CoroutineContext = EmptyCoroutineContext,
         ): SessionCreateResult =
-            create(activity, coroutineContext, unscaledGravityAlignedActivitySpace = false)
+            create(activity, coroutineContext, unscaledGravityAlignedActivitySpace = true)
 
         /**
          * Creates a new [Session].
@@ -143,7 +143,7 @@ public constructor(
          *   activity space for the session. When true, causes ActivitySpace for this session to
          *   always be gravity aligned and to have a scale of [1 unit = 1 Meter]. Note that this
          *   might result in visual inconsistencies between HOME_SPACE and FULL_SPACE_MANAGED modes.
-         *   Defaults to false.
+         *   Defaults to true.
          * @return the result of the operation. Can be [SessionCreateSuccess], which contains the
          *   newly created session, or another [SessionCreateResult] if a certain criteria was not
          *   met.
@@ -157,7 +157,7 @@ public constructor(
         public fun create(
             activity: Activity,
             coroutineContext: CoroutineContext = EmptyCoroutineContext,
-            unscaledGravityAlignedActivitySpace: Boolean = false,
+            unscaledGravityAlignedActivitySpace: Boolean = true,
         ): SessionCreateResult {
             check(activity is LifecycleOwner) { "Unsupported Activity type: ${activity.javaClass}" }
             return create(
@@ -216,7 +216,7 @@ public constructor(
                 activity,
                 lifecycleOwner,
                 coroutineContext,
-                unscaledGravityAlignedActivitySpace = false,
+                unscaledGravityAlignedActivitySpace = true,
             )
 
         private fun create(
@@ -233,7 +233,7 @@ public constructor(
                 return SessionCreateSuccess(activitySessionMap[activity]!!)
             }
 
-            val features = getDeviceActivityFeatures(activity)
+            val features = getDeviceContextFeatures(activity)
 
             val runtimes = mutableListOf<JxrRuntime>()
 

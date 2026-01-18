@@ -39,7 +39,6 @@ import org.junit.runner.RunWith
 class CompositionRegistrationObserverWithUnconfinedDispatcherTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    @Suppress("ComposeTestRuleDispatcher")
     @get:Rule
     val composeTestRule = createAndroidComposeRule<ComponentActivity>(UnconfinedTestDispatcher())
 

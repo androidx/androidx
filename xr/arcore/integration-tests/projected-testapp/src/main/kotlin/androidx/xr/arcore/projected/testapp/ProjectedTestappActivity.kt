@@ -16,15 +16,22 @@
 
 package androidx.xr.arcore.projected.testapp
 
+import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.KeyEvent
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.xr.arcore.ArDevice
 import androidx.xr.arcore.CreateGeospatialPoseFromPoseSuccess
 import androidx.xr.arcore.CreatePoseFromGeospatialPoseSuccess
 import androidx.xr.arcore.Geospatial
+import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.permissions.ProjectedPermissionsRequestParams
+import androidx.xr.projected.permissions.ProjectedPermissionsResultContract
 import androidx.xr.runtime.Config
 import androidx.xr.runtime.Log
 import androidx.xr.runtime.Session
@@ -83,12 +90,49 @@ class ProjectedTestAppActivity : ComponentActivity() {
     private val currentConfig: Config
         get() = configs[currentConfigIndex].second
 
+    private val permissionsRequired =
+        listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
+
+    @OptIn(ExperimentalProjectedApi::class)
+    private val requestPermissionLauncher:
+        ActivityResultLauncher<List<ProjectedPermissionsRequestParams>> =
+        registerForActivityResult(ProjectedPermissionsResultContract()) { results ->
+            if (
+                results[Manifest.permission.ACCESS_FINE_LOCATION] == true &&
+                    results[Manifest.permission.ACCESS_COARSE_LOCATION] == true
+            ) {
+                onPermissionGranted()
+            }
+            var permissionDeniedText = ""
+            for (permission in permissionsRequired) {
+                if (results[permission] == true) {
+                    Log.info("$permission is granted")
+                } else {
+                    Log.warn("$permission is not granted")
+                    permissionDeniedText += "Please grant $permission permission.\n"
+                }
+            }
+            if (permissionDeniedText.isNotEmpty()) {
+                runOnUiThread {
+                    textView.text = "\n\n\n Cannot start Session.\n$permissionDeniedText"
+                }
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.info { "onCreate" }
         textView = TextView(this)
         textView.text = "\n\n\n\nWaiting for Geospatial Pose..."
         setContentView(textView)
+        if (!hasPermissions()) {
+            requestPermissions()
+        } else {
+            onPermissionGranted()
+        }
+    }
+
+    private fun onPermissionGranted() {
         lifecycleScope.launch(Dispatchers.IO) {
             delay(4000) // TODO: b/436981970 - the onResume 2x is happening again with this change.
             tryCreateSession()
@@ -105,6 +149,28 @@ class ProjectedTestAppActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    private fun hasPermissions(): Boolean {
+        for (permission in permissionsRequired) {
+            if (
+                ContextCompat.checkSelfPermission(this, permission) !=
+                    PackageManager.PERMISSION_GRANTED
+            ) {
+                return false
+            }
+        }
+        return true
+    }
+
+    @OptIn(ExperimentalProjectedApi::class)
+    private fun requestPermissions() {
+        val params =
+            ProjectedPermissionsRequestParams(
+                permissions = permissionsRequired,
+                rationale = "Location permission is required to determine your geospatial pose.",
+            )
+        requestPermissionLauncher.launch(listOf(params))
     }
 
     override fun onPause() {

@@ -187,6 +187,30 @@ class GltfJniMarshallingTest : BaseJniMarshallingTest() {
     }
 
     @Test
+    fun toggleGltfModelAnimation_marshalsParams_invokesOnPause() {
+        // Set toggle as false to pause the animation.
+        val expectedToggle = false
+        ImpressApiTestHelper.nativeSetExpectedToggleGltfModelAnimation(TEST_NODE_ID, expectedToggle)
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.toggleGltfModelAnimation(node, expectedToggle)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
+    fun toggleGltfModelAnimation_marshalsParams_invokesOnResume() {
+        // Set toggle as false to pause the animation.
+        val expectedToggle = true
+        ImpressApiTestHelper.nativeSetExpectedToggleGltfModelAnimation(TEST_NODE_ID, expectedToggle)
+        val node = ImpressNode(TEST_NODE_ID)
+
+        mImpressApi.toggleGltfModelAnimation(node, expectedToggle)
+
+        // This JNI call does not return any data, so the only assertion is on the native side.
+    }
+
+    @Test
     fun getGltfModelBoundingBox_marshalsNodeId_returnsBox() {
         val expectedCenter = floatArrayOf(1.0f, 2.0f, 3.0f)
         val expectedHalfExtents = floatArrayOf(4.0f, 5.0f, 6.0f)

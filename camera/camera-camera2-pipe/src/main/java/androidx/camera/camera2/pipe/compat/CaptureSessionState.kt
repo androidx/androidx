@@ -29,6 +29,7 @@ import androidx.camera.camera2.pipe.GraphState
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
@@ -73,6 +74,7 @@ internal class CaptureSessionState(
     private val cameraGraphFlags: CameraGraph.Flags,
     private val concurrentSessionSequencer: ConcurrentSessionSequencer?,
     private val streamGraph: StreamGraph,
+    private val strictMode: StrictMode,
     private val threads: Threads,
     private val scope: CoroutineScope,
 ) : CameraCaptureSessionWrapper.StateCallback {

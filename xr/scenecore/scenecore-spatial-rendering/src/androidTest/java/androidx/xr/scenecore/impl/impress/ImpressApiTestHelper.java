@@ -57,6 +57,8 @@ final class ImpressApiTestHelper {
 
     static native void nativeSetExpectedStopGltfModelAnimation(int nodeId);
 
+    static native void nativeSetExpectedToggleGltfModelAnimation(int nodeId, boolean toggle);
+
     static native void nativeSetExpectedGetGltfModelLocalBounds(int nodeId);
 
     static native void nativeSetGetGltfModelLocalBoundsSuccess(float[] center, float[] halfExtents);

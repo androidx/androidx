@@ -18,37 +18,22 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.RemoteDrawScope
-import androidx.compose.ui.graphics.drawscope.DrawContext
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.ui.unit.LayoutDirection
 
+/**
+ * A remote-compatible drawing scope for RemoteCompose that provides access to the content of the
+ * component being drawn.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RemoteDrawWithContentScope : RemoteDrawScope {
-    public fun drawContent()
-}
+public class RemoteDrawWithContentScope(
+    remoteCanvas: RemoteCanvas,
+    fontScale: RemoteFloat,
+    layoutDirection: LayoutDirection,
+) : RemoteDrawScope(remoteCanvas, fontScale, layoutDirection) {
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteDrawWithContentScopeImpl(
-    remoteComposeCreationState: RemoteComposeCreationState,
-    drawScope: DrawScope,
-    density: Float = drawScope.density,
-    fontScale: Float = drawScope.fontScale,
-    drawContext: DrawContext = drawScope.drawContext,
-    layoutDirection: LayoutDirection = drawScope.layoutDirection,
-) :
-    RemoteCanvasDrawScope(
-        remoteComposeCreationState = remoteComposeCreationState,
-        drawScope = drawScope,
-        density = density,
-        fontScale = fontScale,
-        drawContext = drawContext,
-        layoutDirection = layoutDirection,
-    ),
-    RemoteDrawWithContentScope {
-
-    override fun drawContent() {
-        canvas.document.drawComponentContent()
+    /** Draws the content of the component. */
+    public fun drawContent() {
+        remoteCanvas.internalCanvas.document.drawComponentContent()
     }
 }

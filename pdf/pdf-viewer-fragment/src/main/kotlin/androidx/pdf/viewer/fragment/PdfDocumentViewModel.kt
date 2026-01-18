@@ -225,6 +225,18 @@ public open class PdfDocumentViewModel(
         }
     }
 
+    /** Forces a reload of the current PDF document. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    protected open fun forceLoadDocument() {
+        if (documentLoadJob?.isActive == true) documentLoadJob?.cancel()
+
+        val uri: Uri? = state[DOCUMENT_URI_KEY]
+        resetState()
+        resetFormEditsState()
+
+        uri?.let { documentLoadJob = viewModelScope.launch { openDocument(uri, null) } }
+    }
+
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected open fun resetState() {
         updateSearchState(isTextSearchActive = false)

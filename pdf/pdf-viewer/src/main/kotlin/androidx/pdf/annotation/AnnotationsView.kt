@@ -47,19 +47,12 @@ public class AnnotationsView
 constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) :
     FrameLayout(context, attrs, defStyleAttr) {
 
-    private val onAnnotationHitListeners = mutableListOf<OnAnnotationHitListener>()
-    private val annotationHitTouchHandler =
-        AnnotationHitTouchHandler().apply {
-            setListener(
-                object : OnAnnotationHitListener {
-                    override fun onAnnotationHit(annotation: PdfAnnotation) {
-                        onAnnotationHitListeners.forEach { it.onAnnotationHit(annotation) }
-                    }
-                }
-            )
-        }
+    private val onAnnotationLocatedListeners = mutableListOf<OnAnnotationLocatedListener>()
+
     /** The view for displaying in-progress annotations (e.g., wet highlights). */
     private val inProgressHighlightsView: InProgressHighlightsView
+
+    private var annotationsLocator: AnnotationsLocator? = null
 
     init {
         setWillNotDraw(false)
@@ -83,23 +76,69 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
 
     /**
-     * The current interaction mode of the view, determining how touch events are handled (e.g.,
-     * selecting via [AnnotationMode.Select] or highlighting via [AnnotationMode.Highlight]).
+     * The current interaction mode, determining how touch events are handled for annotations.
+     *
+     * Set to [AnnotationMode.Select] to enable selecting existing annotations, or
+     * [AnnotationMode.Highlight] to create new text highlights. If `null`, touch interactions for
+     * annotations are disabled on [androidx.pdf.annotation.AnnotationsView] and its children.
      *
      * This property must only be modified on the UI thread.
      */
-    public var interactionMode: AnnotationMode = AnnotationMode.Select()
+    public var interactionMode: AnnotationMode? = null
         set(value) {
             checkMainThread()
             field = value
+            if (value is AnnotationMode.Highlight) {
+                setHighlighter(value.highlighterConfig)
+            } else {
+                setHighlighter(null)
+            }
         }
+
+    /** Provides page information from view coordinates */
+    public var pageInfoProvider: PageInfoProvider? = null
+        set(value) {
+            field = value
+            inProgressHighlightsView.pageInfoProvider = value
+
+            if (value != null) {
+                annotationsLocator = AnnotationsLocator(context, pageInfoProvider = value)
+            }
+        }
+
+    /** Adds a listener for highlight gesture events. */
+    public fun addInProgressTextHighlightsListener(listener: InProgressTextHighlightsListener) {
+        inProgressHighlightsView.addInProgressTextHighlightsListener(listener)
+    }
+
+    /** Adds a listener for annotation hit events. */
+    public fun addOnAnnotationLocatedListener(listener: OnAnnotationLocatedListener) {
+        if (!onAnnotationLocatedListeners.contains(listener)) {
+            onAnnotationLocatedListeners.add(listener)
+        }
+    }
+
+    /** Removes a listener that was previously added via [addInProgressTextHighlightsListener]. */
+    public fun removeInProgressTextHighlightsListener(listener: InProgressTextHighlightsListener) {
+        inProgressHighlightsView.removeInProgressTextHighlightsListener(listener)
+    }
+
+    /** Removes a listener that was previously added via [addOnAnnotationLocatedListener]. */
+    public fun removeOnAnnotationLocatedListener(listener: OnAnnotationLocatedListener) {
+        onAnnotationLocatedListeners.remove(listener)
+    }
+
+    private var pdfObjectDrawerFactory: PdfObjectDrawerFactory = DefaultPdfObjectDrawerFactoryImpl
+
+    private var annotationDrawerFactory: PdfAnnotationDrawerFactory =
+        PdfAnnotationDrawerFactoryImpl(pdfObjectDrawerFactory)
 
     /**
      * Configures the highlighter.
      *
      * @param config The configuration for the highlighter. Pass null to disable.
      */
-    public fun setHighlighter(config: HighlighterConfig?) {
+    private fun setHighlighter(config: HighlighterConfig?) {
         inProgressHighlightsView.apply {
             if (config != null) {
                 pdfDocument = config.pdfDocument
@@ -112,40 +151,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         }
     }
 
-    /** Provides page information from view coordinates */
-    public var pageInfoProvider: PageInfoProvider? = null
-        set(value) {
-            field = value
-            inProgressHighlightsView.pageInfoProvider = value
-        }
-
-    /** Adds a listener for highlight gesture events. */
-    public fun addInProgressTextHighlightsListener(listener: InProgressTextHighlightsListener) {
-        inProgressHighlightsView.addInProgressTextHighlightsListener(listener)
-    }
-
-    /** Adds a listener for annotation hit events. */
-    public fun addOnAnnotationHitListener(listener: OnAnnotationHitListener) {
-        if (!onAnnotationHitListeners.contains(listener)) {
-            onAnnotationHitListeners.add(listener)
-        }
-    }
-
-    /** Removes a listener that was previously added via [addInProgressTextHighlightsListener]. */
-    public fun removeInProgressTextHighlightsListener(listener: InProgressTextHighlightsListener) {
-        inProgressHighlightsView.removeInProgressTextHighlightsListener(listener)
-    }
-
-    /** Removes a listener that was previously added via [addOnAnnotationHitListener]. */
-    public fun removeOnAnnotationHitListener(listener: OnAnnotationHitListener) {
-        onAnnotationHitListeners.remove(listener)
-    }
-
-    private var pdfObjectDrawerFactory: PdfObjectDrawerFactory = DefaultPdfObjectDrawerFactoryImpl
-
-    private var annotationDrawerFactory: PdfAnnotationDrawerFactory =
-        PdfAnnotationDrawerFactoryImpl(pdfObjectDrawerFactory)
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         PdfDocumentAnnotationsDrawerImpl(annotationDrawerFactory).draw(annotations, canvas)
@@ -154,7 +159,20 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return when (interactionMode) {
             is AnnotationMode.Select -> {
-                annotationHitTouchHandler.handleTouch(this, event)
+                val localAnnotationsLocator = annotationsLocator
+                if (localAnnotationsLocator != null) {
+                    val foundAnnotations =
+                        localAnnotationsLocator.findAnnotations(annotations, event)
+                    if (foundAnnotations.isNotEmpty()) {
+                        onAnnotationLocatedListeners.forEach {
+                            val event =
+                                LocatedAnnotations(x = event.x, y = event.y, foundAnnotations)
+                            it.onAnnotationsLocated(event)
+                        }
+                        return true
+                    }
+                }
+                false
             }
             is AnnotationMode.Highlight -> {
                 if (inProgressHighlightsView.visibility == VISIBLE) {
@@ -169,11 +187,11 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
     /**
      * Holds all annotations for a single PDF page and their transformation matrix.
      *
-     * @property annotations List of [PdfAnnotation]s on the page.
+     * @property keyedAnnotations List of [PdfAnnotation]s on the page.
      * @property transform [Matrix] to apply when drawing these annotations.
      */
     public data class PageAnnotationsData(
-        val annotations: List<PdfAnnotation>,
+        val keyedAnnotations: List<KeyedPdfAnnotation>,
         val transform: Matrix,
     )
 
@@ -194,7 +212,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
         public class Select : AnnotationMode()
 
         /** Mode for creating new highlight annotations. */
-        public class Highlight : AnnotationMode()
+        public class Highlight(public val highlighterConfig: HighlighterConfig) : AnnotationMode()
     }
 
     public companion object {
@@ -208,6 +226,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 
 /** Callback interface for annotation hit events. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public interface OnAnnotationHitListener {
-    public fun onAnnotationHit(annotation: PdfAnnotation)
+public interface OnAnnotationLocatedListener {
+    public fun onAnnotationsLocated(locatedAnnotations: LocatedAnnotations)
 }

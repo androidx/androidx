@@ -72,7 +72,7 @@ import androidx.wear.compose.material3.TextButtonDefaults
 @RemoteComposable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteTextButton(
-    vararg onClick: Action,
+    onClick: Action,
     modifier: RemoteModifier = RemoteModifier,
     colors: RemoteTextButtonColors = RemoteTextButtonDefaults.textButtonColors(),
     enabled: RemoteBoolean = true.rb,

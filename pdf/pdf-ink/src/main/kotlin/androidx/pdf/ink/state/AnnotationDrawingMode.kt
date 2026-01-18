@@ -16,23 +16,26 @@
 
 package androidx.pdf.ink.state
 
-import androidx.ink.brush.Brush
+import androidx.pdf.PdfDocument
 
 /** Represents the current drawing mode for annotations. */
 internal sealed interface AnnotationDrawingMode {
     /**
      * Represents the pen mode.
      *
-     * @param brush The [Brush] to be used for drawing.
+     * @param size The size of the brush.
+     * @param color The color of the brush.
      */
-    data class PenMode(val brush: Brush) : AnnotationDrawingMode
+    data class PenMode(val size: Float, val color: Int) : AnnotationDrawingMode
 
     /**
      * Represents the highlighter mode.
      *
-     * @param brush The [Brush] to be used for highlighting.
+     * @param size The size of the brush.
+     * @param color The color of the brush.
      */
-    data class HighlighterMode(val brush: Brush) : AnnotationDrawingMode
+    data class HighlighterMode(val size: Float, val color: Int, val document: PdfDocument) :
+        AnnotationDrawingMode
 
     /** Represents the eraser mode. */
     object EraserMode : AnnotationDrawingMode

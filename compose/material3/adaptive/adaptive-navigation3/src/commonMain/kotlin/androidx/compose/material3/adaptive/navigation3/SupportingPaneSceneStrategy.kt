@@ -19,7 +19,6 @@ package androidx.compose.material3.adaptive.navigation3
 import androidx.collection.mutableIntListOf
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldDefaults
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffoldRole
@@ -34,10 +33,15 @@ import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
+import kotlin.jvm.JvmName
 
 /**
  * Creates and remembers a [SupportingPaneSceneStrategy].
  *
+ * @param shouldHandleSinglePaneLayout whether [SupportingPaneSceneStrategy] should apply when only
+ *   a single pane is displayed. By default, this is false and instead yields to the next
+ *   [SceneStrategy] in the chain. If true, single pane layouts will instead be handled internally
+ *   by the Material adaptive scaffold instead of the Navigation 3 system.
  * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the supporting-pane scaffold should arrange
@@ -50,14 +54,21 @@ import androidx.navigation3.scene.SceneStrategyScope
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 public fun <T : Any> rememberSupportingPaneSceneStrategy(
+    shouldHandleSinglePaneLayout: Boolean = false,
     backNavigationBehavior: BackNavigationBehavior =
         BackNavigationBehavior.PopUntilCurrentDestinationChange,
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
 ): SupportingPaneSceneStrategy<T> {
-    return remember(backNavigationBehavior, directive, adaptStrategies) {
+    return remember(
+        shouldHandleSinglePaneLayout,
+        backNavigationBehavior,
+        directive,
+        adaptStrategies,
+    ) {
         SupportingPaneSceneStrategy(
+            shouldHandleSinglePaneLayout = shouldHandleSinglePaneLayout,
             backNavigationBehavior = backNavigationBehavior,
             directive = directive,
             adaptStrategies = adaptStrategies,
@@ -72,6 +83,10 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
  * These panes will be displayed together if the window size is sufficiently large, and will
  * automatically adapt if the window size changes, for example, on a foldable device.
  *
+ * @param shouldHandleSinglePaneLayout whether [SupportingPaneSceneStrategy] should apply when only
+ *   a single pane is displayed. By default, this is false and instead yields to the next
+ *   [SceneStrategy] in the chain. If true, single pane layouts will instead be handled internally
+ *   by the Material adaptive scaffold instead of the Navigation 3 system.
  * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
  *   during the back navigation. See [BackNavigationBehavior].
  * @param directive The top-level directives about how the scaffold should arrange its panes.
@@ -82,6 +97,7 @@ public fun <T : Any> rememberSupportingPaneSceneStrategy(
  */
 @ExperimentalMaterial3AdaptiveApi
 public class SupportingPaneSceneStrategy<T : Any>(
+    @get:JvmName("shouldHandleSinglePaneLayout") public val shouldHandleSinglePaneLayout: Boolean,
     public val backNavigationBehavior: BackNavigationBehavior,
     public val directive: PaneScaffoldDirective,
     public val adaptStrategies: ThreePaneScaffoldAdaptStrategies,
@@ -131,12 +147,11 @@ public class SupportingPaneSceneStrategy<T : Any>(
                 scaffoldType = ThreePaneScaffoldType.SupportingPane,
             )
 
-        // TODO(b/417475283): decide if/how we should handle scenes with only a single pane
-        if (scene.currentScaffoldValue.paneCount <= 1) {
-            return null
+        return when {
+            scene.currentScaffoldValue.paneCount == 1 && shouldHandleSinglePaneLayout -> scene
+            scene.currentScaffoldValue.paneCount <= 1 -> null
+            else -> scene
         }
-
-        return scene
     }
 
     internal sealed interface PaneMetadata {

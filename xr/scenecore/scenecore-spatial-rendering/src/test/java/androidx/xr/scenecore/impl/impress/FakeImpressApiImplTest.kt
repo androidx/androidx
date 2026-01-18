@@ -18,6 +18,8 @@ package androidx.xr.scenecore.impl.impress
 
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl.StereoSurfaceEntityData
 import androidx.xr.scenecore.impl.impress.FakeImpressApiImpl.StereoSurfaceEntityData.CanvasShape
+import androidx.xr.scenecore.impl.impress.ImpressApi.ContentSecurityLevel
+import androidx.xr.scenecore.impl.impress.ImpressApi.MediaBlendingMode
 import androidx.xr.scenecore.impl.impress.ImpressApi.StereoMode
 import androidx.xr.scenecore.runtime.KhronosPbrMaterialSpec
 import androidx.xr.scenecore.runtime.TextureSampler
@@ -312,10 +314,28 @@ class FakeImpressApiImplTest {
     }
 
     @Test
+    fun createStereoSurface_withBlendingMode_createsStereoSurface() {
+        val stereoMode = StereoMode.MONO
+        val blendingMode = MediaBlendingMode.OPAQUE
+        val contentSecurityLevel = ContentSecurityLevel.NONE
+        val stereoSurfaceNode =
+            fakeImpressApi.createStereoSurface(
+                stereoMode,
+                blendingMode,
+                contentSecurityLevel,
+                useSuperSampling = false,
+            )
+        val stereoSurface = fakeImpressApi.getStereoSurfaceEntities()
+        val stereoSurfaceData = stereoSurface[stereoSurfaceNode]
+        assertNotNull(stereoSurfaceData)
+        assertThat(stereoSurfaceData.mediaBlendingMode).isEqualTo(blendingMode)
+    }
+
+    @Test
     fun setStereoSurfaceEntityCanvasShapeQuad_setsCanvasShapeQuad() {
         val stereoMode = StereoMode.MONO
         val stereoSurfaceNode = fakeImpressApi.createStereoSurface(stereoMode)
-        fakeImpressApi.setStereoSurfaceEntityCanvasShapeQuad(stereoSurfaceNode, 11.0f, 11.0f)
+        fakeImpressApi.setStereoSurfaceEntityCanvasShapeQuad(stereoSurfaceNode, 11.0f, 11.0f, 1.0f)
         val stereoSurface = fakeImpressApi.getStereoSurfaceEntities()
         val stereoSurfaceData = stereoSurface[stereoSurfaceNode]
         assertNotNull(stereoSurfaceData)
@@ -325,6 +345,8 @@ class FakeImpressApiImplTest {
         assertThat(width).isEqualTo(11.0f)
         val height = stereoSurfaceData.height
         assertThat(height).isEqualTo(11.0f)
+        val cornerRadius = stereoSurfaceData.cornerRadius
+        assertThat(cornerRadius).isEqualTo(1.0f)
     }
 
     @Test

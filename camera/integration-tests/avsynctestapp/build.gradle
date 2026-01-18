@@ -22,7 +22,7 @@ plugins {
 
 android {
     namespace = "androidx.camera.integration.avsync"
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
         applicationId = "androidx.camera.integration.avsync"
     }

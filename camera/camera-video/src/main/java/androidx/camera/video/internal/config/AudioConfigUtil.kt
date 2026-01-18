@@ -15,6 +15,8 @@
  */
 package androidx.camera.video.internal.config
 
+import android.media.MediaCodecInfo
+import android.media.MediaFormat.MIMETYPE_AUDIO_AAC
 import android.util.Rational
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.EncoderProfilesProxy.AudioProfileProxy
@@ -25,6 +27,7 @@ import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
 import androidx.camera.video.internal.audio.AudioSettings
 import androidx.camera.video.internal.audio.AudioSource
 import androidx.camera.video.internal.encoder.AudioEncoderConfig
+import androidx.camera.video.internal.encoder.EncoderConfig
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -43,6 +46,42 @@ public object AudioConfigUtil {
 
     // Defaults to Camcorder as this should be the source closest to the camera
     public const val AUDIO_SOURCE_DEFAULT: Int = AudioSpec.SOURCE_CAMCORDER
+
+    private const val AAC_DEFAULT_PROFILE = MediaCodecInfo.CodecProfileLevel.AACObjectLC
+
+    /**
+     * Resolves a compatible [AudioProfileProxy] from a list based on the provided MIME type.
+     *
+     * This method attempts to find the first profile in the provided list that matches the
+     * requested [audioMime] and its corresponding codec profile. If the [audioMime] is set to
+     * [AudioSpec.MIME_TYPE_UNSPECIFIED], it will return the first available profile in the list.
+     *
+     * @param audioMime The desired audio MIME type.
+     * @param audioProfiles A list of available [AudioProfileProxy]s.
+     * @return The first matching [AudioProfileProxy], or `null` if no compatible profile is found.
+     */
+    public fun resolveCompatibleAudioProfile(
+        audioMime: String,
+        audioProfiles: List<AudioProfileProxy>,
+    ): AudioProfileProxy? {
+        val audioCodecProfile = audioMimeToAudioProfile(audioMime)
+        return audioProfiles.firstOrNull {
+            audioMime == AudioSpec.MIME_TYPE_UNSPECIFIED ||
+                (it.mediaType == audioMime && it.profile == audioCodecProfile)
+        }
+    }
+
+    /**
+     * Maps an audio MIME type to its corresponding standard [MediaCodecInfo.CodecProfileLevel].
+     *
+     * @param audioMime The audio MIME type.
+     * @return The codec profile.
+     */
+    public fun audioMimeToAudioProfile(audioMime: String): Int =
+        when (audioMime) {
+            MIMETYPE_AUDIO_AAC -> AAC_DEFAULT_PROFILE
+            else -> EncoderConfig.CODEC_PROFILE_NONE
+        }
 
     /**
      * Resolves the audio mime information into a [AudioMimeInfo].
@@ -72,13 +111,13 @@ public object AudioConfigUtil {
                         "used. May rely on fallback defaults to derive settings [chosen mime " +
                         "type: $resolvedAudioMime(profile: $resolvedAudioProfile)]",
                 )
-            } else if (mediaSpec.outputFormat == MediaSpec.OUTPUT_FORMAT_AUTO) {
+            } else if (mediaSpec.outputFormat == MediaSpec.OUTPUT_FORMAT_UNSPECIFIED) {
                 compatibleAudioProfile = audioProfile
                 resolvedAudioMime = encoderProfileAudioMime
                 resolvedAudioProfile = encoderProfileAudioProfile
                 Logger.d(
                     TAG,
-                    "MediaSpec contains OUTPUT_FORMAT_AUTO. Using EncoderProfiles " +
+                    "MediaSpec contains OUTPUT_FORMAT_UNSPECIFIED. Using EncoderProfiles " +
                         "to derive AUDIO settings [mime type: $resolvedAudioMime(profile: " +
                         "$resolvedAudioProfile)]",
                 )
@@ -182,7 +221,7 @@ public object AudioConfigUtil {
 
     public fun resolveAudioSource(audioSpec: AudioSpec): Int {
         var resolvedAudioSource = audioSpec.source
-        if (resolvedAudioSource == AudioSpec.SOURCE_AUTO) {
+        if (resolvedAudioSource == AudioSpec.SOURCE_UNSPECIFIED) {
             resolvedAudioSource = AUDIO_SOURCE_DEFAULT
             Logger.d(TAG, "Using default AUDIO source: $resolvedAudioSource")
         } else {
@@ -193,7 +232,7 @@ public object AudioConfigUtil {
 
     public fun resolveAudioSourceFormat(audioSpec: AudioSpec): Int {
         var resolvedAudioSourceFormat = audioSpec.sourceFormat
-        if (resolvedAudioSourceFormat == AudioSpec.SOURCE_FORMAT_AUTO) {
+        if (resolvedAudioSourceFormat == AudioSpec.SOURCE_FORMAT_UNSPECIFIED) {
             // TODO: This should come from a priority list and may need to be combined with
             //  AudioSource.isSettingsSupported.
             resolvedAudioSourceFormat = AUDIO_SOURCE_FORMAT_DEFAULT

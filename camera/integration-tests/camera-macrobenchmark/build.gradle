@@ -20,7 +20,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     namespace = "androidx.camera.integration.macrobenchmark"
     targetProjectPath = ":camera:integration-tests:camera-macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true

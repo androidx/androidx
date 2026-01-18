@@ -35,7 +35,6 @@ import org.junit.Test
 @SmallTest
 class UnconfinedTestDispatcherPhaseOrderingTest {
 
-    @Suppress("ComposeTestRuleDispatcher")
     @OptIn(ExperimentalCoroutinesApi::class)
     @get:Rule
     val rule = createComposeRule(UnconfinedTestDispatcher())

@@ -17,6 +17,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
+import androidx.compose.remote.creation.compose.action.HostAction
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -28,6 +29,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rb
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.remote.creation.compose.state.rs
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
@@ -42,7 +44,7 @@ import androidx.wear.compose.ui.tooling.preview.WearPreviewDevices
 @Composable
 @RemoteComposable
 fun RemoteIconButtonEnabled() {
-    RemoteIconButton(enabled = true.rb) {
+    RemoteIconButton(testAction, enabled = true.rb) {
         RemoteIcon(imageVector = TestImageVectors.VolumeUp, contentDescription = null)
     }
 }
@@ -56,7 +58,7 @@ private fun RemoteIconButtonEnabledPreview(
 @Composable
 @RemoteComposable
 fun RemoteIconButtonTonal() {
-    RemoteIconButton(enabled = true.rb, colors = tonalColors) {
+    RemoteIconButton(testAction, enabled = true.rb, colors = tonalColors) {
         RemoteIcon(
             modifier = RemoteModifier.size(RemoteIconButtonDefaults.SmallIconSize),
             imageVector = TestImageVectors.VolumeUp,
@@ -75,6 +77,7 @@ private fun RemoteIconButtonTonalPreview(
 @RemoteComposable
 fun RemoteIconButtonOutlined() {
     RemoteIconButton(
+        testAction,
         border = 1.rdp,
         borderColor = RemoteMaterialTheme.colorScheme.outline,
         enabled = true.rb,
@@ -130,3 +133,5 @@ private fun Container(
         content = content,
     )
 }
+
+private val testAction = HostAction("testAction".rs, 1.rf)

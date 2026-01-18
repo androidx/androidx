@@ -72,7 +72,11 @@ internal actual fun formatWithSkeleton(
     val pattern =
         cache
             .getOrPut(key = "S:$skeleton${locale.toLanguageTag()}") {
-                android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
+                android.text.format.DateFormat.getBestDateTimePattern(
+                    locale,
+                    // Replace 'Y' with 'y' for API levels below Android N (API 24)
+                    skeleton.replace("Y", "y"),
+                )
             }
             .toString()
 

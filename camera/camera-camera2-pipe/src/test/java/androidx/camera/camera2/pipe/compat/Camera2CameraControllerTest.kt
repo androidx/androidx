@@ -26,11 +26,11 @@ import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.CameraSurfaceManager
 import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.SurfaceTracker
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
@@ -98,7 +98,7 @@ class Camera2CameraControllerTest {
     private val fakeCamera2Quirks =
         Camera2Quirks(
             FakeCamera2MetadataProvider(mapOf(cameraId to fakeCameraMetadata)),
-            cameraPipeFlags = CameraPipe.Flags(),
+            StrictMode(false),
         )
     private val fakeTimeSource: TimeSource = mock()
     private val fakeGraphId = CameraGraphId.nextId()
@@ -124,6 +124,7 @@ class Camera2CameraControllerTest {
             Camera2CameraController(
                 testBackgroundScope,
                 fakeThreads,
+                StrictMode(true),
                 fakeGraphConfig,
                 fakeGraphListener,
                 fakeSurfaceTracker,

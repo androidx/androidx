@@ -30,26 +30,30 @@ import androidx.compose.runtime.staticCompositionLocalOf
  */
 @RestrictTo(LIBRARY_GROUP)
 public interface XrStubs {
-    @Composable public fun horizontalOrbiterStub(): XrHorizontalOrbiterStub? = null
+    @Composable public fun horizontalOrbiterStub(): XrHorizontalOrbiterStub?
 
-    @Composable public fun verticalOrbiterStub(): XrVerticalOrbiterStub? = null
-
-    // IMPORTANT: For backwards and forward compatibility, any function declared here must return
-    // the stub itself rather than invoking the stub directly, and must return null by default.
-    // This is because the client may be running an older version of the stubs impl that does not
-    // have your new function declared.
+    @Composable public fun verticalOrbiterStub(): XrVerticalOrbiterStub?
 
     @RestrictTo(LIBRARY_GROUP)
     public companion object {
         /** Sets the [LocalXrStubs] in this Compose [content] hierarchy to [stubs]. */
         @Composable
         public fun Set(stubs: XrStubs?, content: @Composable () -> Unit) {
-            CompositionLocalProvider(LocalXrStubs provides stubs, content = content)
+            CompositionLocalProvider(
+                LocalXrStubs provides (stubs ?: NoOpXrStubs),
+                content = content,
+            )
         }
 
         /** Returns the [XrStubs] set via [Set] in this Compose hierarchy, if any. */
-        @Composable public fun get(): XrStubs? = LocalXrStubs.current
+        @Composable public fun get(): XrStubs = LocalXrStubs.current
     }
 }
 
-private val LocalXrStubs = staticCompositionLocalOf<XrStubs?> { null }
+private val LocalXrStubs = staticCompositionLocalOf<XrStubs> { NoOpXrStubs }
+
+private object NoOpXrStubs : XrStubs {
+    @Composable override fun horizontalOrbiterStub(): XrHorizontalOrbiterStub? = null
+
+    @Composable override fun verticalOrbiterStub(): XrVerticalOrbiterStub? = null
+}

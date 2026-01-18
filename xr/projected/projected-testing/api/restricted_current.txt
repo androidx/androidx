@@ -1,0 +1,13 @@
+// Signature format: 4.0
+package androidx.xr.projected.testing {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ProjectedTestRule implements org.junit.rules.TestRule {
+    ctor public ProjectedTestRule();
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement? base, org.junit.runner.Description? description);
+    method @InaccessibleFromKotlin public boolean isDeviceConnected();
+    method @InaccessibleFromKotlin public void setDeviceConnected(boolean);
+    property public boolean isDeviceConnected;
+  }
+
+}
+

@@ -17,11 +17,9 @@
 package androidx.pdf.annotation.draftstate
 
 import androidx.annotation.RestrictTo
+import androidx.pdf.EditsDraft
 import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.annotation.models.PdfEdits
 
 /** Responsible for managing the draft edits of annotations. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -44,23 +42,12 @@ public interface AnnotationEditsDraftState {
     public fun getDraftAnnotations(pageNum: Int): List<KeyedPdfAnnotation>
 
     /**
-     * Retrieves all annotation edits for a specific page.
+     * Retrieves a snapshot of all current modifications accumulated in this draft state.
      *
-     * @param pageNum The page number (0-indexed) for which to retrieve edits.
-     * @return A list of [PdfAnnotationData] objects representing the id and the persisted
-     *   annotation.
+     * @return An [EditsDraft] object containing the ordered collection of operations (Inserts,
+     *   Updates, Removes).
      */
-    // TODO(b/462602307): Clean up after moving the draft state to view model
-    public fun getEdits(pageNum: Int): List<PdfAnnotationData>
-
-    /**
-     * Adds a new annotation edit to the draft state.
-     *
-     * @param id The [EditId] used to identify the annotation.
-     * @param annotation The [PdfAnnotation] to add.
-     */
-    // TODO(b/462602307): Clean up after moving the draft state to view model
-    public fun addEditById(id: EditId, annotation: PdfAnnotation)
+    public fun getModificationsSnapshot(): EditsDraft
 
     /**
      * Adds a keyed annotation to the draft.
@@ -79,15 +66,6 @@ public interface AnnotationEditsDraftState {
     public fun addDraftAnnotation(annotation: PdfAnnotation): String
 
     /**
-     * Adds a new annotation edit to the draft state.
-     *
-     * @param annotation The [PdfAnnotation] to add.
-     * @return The [EditId] assigned to the newly added annotation.
-     */
-    // TODO(b/462602307): Clean up after moving the draft state to view model
-    public fun addEdit(annotation: PdfAnnotation): EditId
-
-    /**
      * Removes an existing annotation from the draft state.
      *
      * @param pageNum The specified page number.
@@ -97,15 +75,6 @@ public interface AnnotationEditsDraftState {
     public fun removeAnnotation(pageNum: Int, annotationId: String): PdfAnnotation
 
     /**
-     * Removes an existing annotation edit from the draft state.
-     *
-     * @param editId The [EditId] of the annotation to remove.
-     * @return The [PdfAnnotation] that was removed.
-     */
-    // TODO(b/462602307): Clean up after moving the draft state to view model
-    public fun removeEdit(editId: EditId): PdfAnnotation
-
-    /**
      * Updates an existing annotation edit in the draft state.
      *
      * @param pageNum The specified page number.
@@ -113,26 +82,11 @@ public interface AnnotationEditsDraftState {
      * @param newAnnotation The new [PdfAnnotation] to replace the existing annotation.
      * @return The previous [PdfAnnotation].
      */
-    // TODO(b/462602307): Clean up after moving the draft state to view model
     public fun updateDraftAnnotation(
         pageNum: Int,
         annotationId: String,
         newAnnotation: PdfAnnotation,
     ): PdfAnnotation
-
-    /**
-     * Updates an existing annotation edit in the draft state.
-     *
-     * @param editId The [EditId] of the annotation to update.
-     * @param annotation The new [PdfAnnotation] to replace the existing annotation.
-     * @return The updated [PdfAnnotation].
-     */
-    // TODO(b/462602307): Clean up after moving the draft state to view model
-    public fun updateEdit(editId: EditId, annotation: PdfAnnotation): PdfAnnotation
-
-    /** Returns the state of the draft as a [PdfEdits] object. */
-    // TODO(b/462602307): Clean up after moving the draft state to view model
-    public fun toPdfEdits(): PdfEdits
 
     /** Clears all annotation edits from the draft state. */
     public fun clear()

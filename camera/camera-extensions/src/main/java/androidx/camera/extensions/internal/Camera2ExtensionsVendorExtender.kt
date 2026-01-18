@@ -269,10 +269,6 @@ public class Camera2ExtensionsVendorExtender(
         else emptyList()
     }
 
-    override fun willReceiveOnCaptureCompleted(): Boolean {
-        return super.willReceiveOnCaptureCompleted()
-    }
-
     override fun getAvailableCharacteristicsKeyValues():
         List<Pair<CameraCharacteristics.Key<*>, Any>> {
         checkInitialized()

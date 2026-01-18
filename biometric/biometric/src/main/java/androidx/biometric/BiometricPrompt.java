@@ -292,6 +292,7 @@ public class BiometricPrompt {
         private final @Nullable Signature mSignature;
         private final @Nullable Cipher mCipher;
         private final @Nullable Mac mMac;
+        private final javax.crypto.@Nullable KeyAgreement mKeyAgreement;
         private final android.security.identity.@Nullable IdentityCredential mIdentityCredential;
         private final android.security.identity.@Nullable PresentationSession mPresentationSession;
         private final long mOperationHandle;
@@ -305,6 +306,7 @@ public class BiometricPrompt {
             mSignature = signature;
             mCipher = null;
             mMac = null;
+            mKeyAgreement = null;
             mIdentityCredential = null;
             mPresentationSession = null;
             mOperationHandle = 0;
@@ -319,6 +321,7 @@ public class BiometricPrompt {
             mSignature = null;
             mCipher = cipher;
             mMac = null;
+            mKeyAgreement = null;
             mIdentityCredential = null;
             mPresentationSession = null;
             mOperationHandle = 0;
@@ -333,6 +336,7 @@ public class BiometricPrompt {
             mSignature = null;
             mCipher = null;
             mMac = mac;
+            mKeyAgreement = null;
             mIdentityCredential = null;
             mPresentationSession = null;
             mOperationHandle = 0;
@@ -352,6 +356,7 @@ public class BiometricPrompt {
             mSignature = null;
             mCipher = null;
             mMac = null;
+            mKeyAgreement = null;
             mIdentityCredential = identityCredential;
             mPresentationSession = null;
             mOperationHandle = 0;
@@ -369,8 +374,25 @@ public class BiometricPrompt {
             mSignature = null;
             mCipher = null;
             mMac = null;
+            mKeyAgreement = null;
             mIdentityCredential = null;
             mPresentationSession = presentationSession;
+            mOperationHandle = 0;
+        }
+
+        /**
+         * Creates a crypto object that wraps the given key agreement object.
+         *
+         * @param keyAgreement The key agreement to be associated with this crypto object.
+         */
+        @RequiresApi(Build.VERSION_CODES_FULL.BAKLAVA_1)
+        public CryptoObject(javax.crypto.@NonNull KeyAgreement keyAgreement) {
+            mSignature = null;
+            mCipher = null;
+            mMac = null;
+            mKeyAgreement = keyAgreement;
+            mIdentityCredential = null;
+            mPresentationSession = null;
             mOperationHandle = 0;
         }
 
@@ -385,11 +407,11 @@ public class BiometricPrompt {
             mSignature = null;
             mCipher = null;
             mMac = null;
+            mKeyAgreement = null;
             mIdentityCredential = null;
             mPresentationSession = null;
             mOperationHandle = operationHandle;
         }
-
 
         /**
          * Gets the signature object associated with this crypto object.
@@ -438,6 +460,16 @@ public class BiometricPrompt {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public android.security.identity.@Nullable PresentationSession getPresentationSession() {
             return mPresentationSession;
+        }
+
+        /**
+         * Gets the key agreement object associated with this crypto object.
+         *
+         * @return The key agreement, or {@code null} if none is associated with this object.
+         */
+        @RequiresApi(Build.VERSION_CODES_FULL.BAKLAVA_1)
+        public javax.crypto.@Nullable KeyAgreement getKeyAgreement() {
+            return mKeyAgreement;
         }
 
         /**

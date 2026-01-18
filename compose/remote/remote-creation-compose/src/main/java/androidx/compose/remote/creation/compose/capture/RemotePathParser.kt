@@ -17,8 +17,6 @@
 package androidx.compose.remote.creation.compose.capture
 
 import androidx.compose.remote.creation.RemotePath
-import androidx.compose.remote.creation.compose.layout.quadraticTo
-import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.PathNode.ArcTo
 import androidx.compose.ui.graphics.vector.PathNode.Close
@@ -169,7 +167,7 @@ internal fun List<PathNode>.toRemotePath(target: RemotePath = RemotePath()): Rem
                 currentY += node.dy2
             }
             is QuadTo -> {
-                target.quadraticTo(node.x1.rf, node.y1.rf, node.x2.rf, node.y2.rf)
+                target.quadTo(node.x1, node.y1, node.x2, node.y2)
                 ctrlX = node.x1
                 ctrlY = node.y1
                 currentX = node.x2
@@ -197,7 +195,7 @@ internal fun List<PathNode>.toRemotePath(target: RemotePath = RemotePath()): Rem
                     reflectiveCtrlX = currentX
                     reflectiveCtrlY = currentY
                 }
-                target.quadraticTo(reflectiveCtrlX.rf, reflectiveCtrlY.rf, node.x.rf, node.y.rf)
+                target.quadTo(reflectiveCtrlX, reflectiveCtrlY, node.x, node.y)
                 ctrlX = reflectiveCtrlX
                 ctrlY = reflectiveCtrlY
                 currentX = node.x

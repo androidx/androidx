@@ -36,11 +36,8 @@ import androidx.compose.ui.unit.Dp
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteDp(public val value: RemoteFloat) : BaseRemoteState<Dp>() {
 
-    override val constantValue: Dp?
+    override val constantValueOrNull: Dp?
         get() = null
-
-    override val hasConstantValue: Boolean
-        get() = false
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
         return toPx().writeToDocument(creationState)
@@ -51,7 +48,7 @@ public class RemoteDp(public val value: RemoteFloat) : BaseRemoteState<Dp>() {
      * current float value by the screen\'s density.
      */
     public fun toPx(): RemoteFloat {
-        return RemoteFloatExpression(constantValue = null) { creationState ->
+        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
             floatArrayOf(
                 *value.arrayForCreationState(creationState),
                 RemoteContext.FLOAT_DENSITY,

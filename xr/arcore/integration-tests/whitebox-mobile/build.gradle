@@ -34,8 +34,7 @@ plugins {
 
 android {
     defaultConfig {
-        minSdk = 27
-        targetSdk = 35
+        minSdk { version = release(27) }
     }
     buildFeatures { viewBinding = true }
     namespace = "androidx.xr.arcore.apps.whitebox.mobile"
@@ -75,6 +74,7 @@ dependencies {
     implementation("androidx.compose.ui:ui:1.7.5")
     implementation("androidx.graphics:graphics-core:1.0.3")
     implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+    implementation("androidx.window:window:1.1.0")
     implementation("com.google.ar:core:1.49.0")
     implementation("de.javagl:obj:0.4.0")
 

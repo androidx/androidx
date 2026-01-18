@@ -23,9 +23,9 @@ plugins {
 
 android {
     namespace = "androidx.appfunctions.integration.testapp"
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
-        minSdk = 33
+        minSdk { version = release(33) }
     }
     // Prevent assets file from being compressed. This is for Uri access test.
     aaptOptions {

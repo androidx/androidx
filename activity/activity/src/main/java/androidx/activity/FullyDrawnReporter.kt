@@ -49,7 +49,10 @@ import java.util.concurrent.Executor
  * @param executor The [Executor] on which to call [reportFullyDrawn].
  * @param reportFullyDrawn Will be called when all reporters have been removed.
  */
-class FullyDrawnReporter(private val executor: Executor, private val reportFullyDrawn: () -> Unit) {
+public class FullyDrawnReporter(
+    private val executor: Executor,
+    private val reportFullyDrawn: () -> Unit,
+) {
     private val lock = Any()
 
     @GuardedBy("lock") private var reporterCount = 0
@@ -62,7 +65,7 @@ class FullyDrawnReporter(private val executor: Executor, private val reportFully
      * Returns `true` after [reportFullyDrawn] has been called or if backed by a [ComponentActivity]
      * and [ComponentActivity.reportFullyDrawn] has been called.
      */
-    val isFullyDrawnReported: Boolean
+    public val isFullyDrawnReported: Boolean
         get() {
             return synchronized(lock) { reportedFullyDrawn }
         }
@@ -80,7 +83,7 @@ class FullyDrawnReporter(private val executor: Executor, private val reportFully
     }
 
     /** Adds a lock to prevent calling [reportFullyDrawn]. */
-    fun addReporter() {
+    public fun addReporter() {
         synchronized(lock) {
             if (!reportedFullyDrawn) {
                 reporterCount++
@@ -92,7 +95,7 @@ class FullyDrawnReporter(private val executor: Executor, private val reportFully
      * Removes a lock added in [addReporter]. When all locks have been removed, [reportFullyDrawn]
      * will be called on the next animation frame.
      */
-    fun removeReporter() {
+    public fun removeReporter() {
         synchronized(lock) {
             if (!reportedFullyDrawn && reporterCount > 0) {
                 reporterCount--
@@ -108,7 +111,7 @@ class FullyDrawnReporter(private val executor: Executor, private val reportFully
      * Once [callback] has been called, it will be removed and [removeOnReportDrawnListener] does
      * not need to be called to remove it.
      */
-    fun addOnReportDrawnListener(callback: () -> Unit) {
+    public fun addOnReportDrawnListener(callback: () -> Unit) {
         val callImmediately =
             synchronized(lock) {
                 if (reportedFullyDrawn) {
@@ -127,7 +130,7 @@ class FullyDrawnReporter(private val executor: Executor, private val reportFully
      * Removes a previously registered [callback] so that it won't be called when [reportFullyDrawn]
      * is called by this class.
      */
-    fun removeOnReportDrawnListener(callback: () -> Unit) {
+    public fun removeOnReportDrawnListener(callback: () -> Unit) {
         synchronized(lock) { onReportCallbacks -= callback }
     }
 
@@ -137,7 +140,7 @@ class FullyDrawnReporter(private val executor: Executor, private val reportFully
      * [Activity.reportFullyDrawn] has been called outside of this class.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    fun fullyDrawnReported() {
+    public fun fullyDrawnReported() {
         synchronized(lock) {
             reportedFullyDrawn = true
             onReportCallbacks.forEach { it() }
@@ -162,7 +165,7 @@ class FullyDrawnReporter(private val executor: Executor, private val reportFully
  * Tells the [FullyDrawnReporter] to wait until [reporter] has completed before calling
  * [Activity.reportFullyDrawn].
  */
-suspend inline fun FullyDrawnReporter.reportWhenComplete(
+public suspend inline fun FullyDrawnReporter.reportWhenComplete(
     @Suppress("REDUNDANT_INLINE_SUSPEND_FUNCTION_TYPE") reporter: suspend () -> Unit
 ) {
     addReporter()

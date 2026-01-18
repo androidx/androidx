@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.SensorTimestamp
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.Debug
 import kotlinx.coroutines.CompletableDeferred
 
@@ -53,6 +54,7 @@ internal class Camera2CaptureSequence(
     private val surfaceToStreamMap: Map<Surface, StreamId>,
     private val surfaceToOutputMap: Map<Surface, OutputId>,
     private val streamGraph: StreamGraph,
+    private val strictMode: StrictMode,
 ) :
     Camera2CaptureCallback,
     CameraCaptureSession.CaptureCallback(),
@@ -287,7 +289,7 @@ internal class Camera2CaptureSequence(
         hasStarted.complete(Unit)
         sequenceListener.onCaptureSequenceComplete(this)
 
-        check(sequenceNumber == captureSequenceId) {
+        strictMode.check(sequenceNumber == captureSequenceId) {
             "onCaptureSequenceCompleted was invoked on $sequenceNumber, but expected " +
                 "$captureSequenceId!"
         }
@@ -309,7 +311,7 @@ internal class Camera2CaptureSequence(
         hasStarted.complete(Unit)
         sequenceListener.onCaptureSequenceComplete(this)
 
-        check(sequenceNumber == captureSequenceId) {
+        strictMode.check(sequenceNumber == captureSequenceId) {
             "onCaptureSequenceAborted was invoked on $sequenceNumber, but expected " +
                 "$captureSequenceId!"
         }

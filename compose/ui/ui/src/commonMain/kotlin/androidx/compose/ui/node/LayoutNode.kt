@@ -899,6 +899,7 @@ internal class LayoutNode(
                     }
                     coordinator = coordinator?.wrappedBy
                 }
+                innerLayerCoordinatorIsDirty = false
             }
             val layerCoordinator = _innerLayerCoordinator
             if (layerCoordinator != null) {

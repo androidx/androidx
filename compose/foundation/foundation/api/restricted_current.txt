@@ -149,6 +149,7 @@ package androidx.compose.foundation {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
+    property public boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     property public boolean isBringIntoViewRltBouncyBehaviorInPagerFixEnabled;
     property public boolean isCacheWindowForPagerEnabled;
     property public boolean isCacheWindowRefillFixEnabled;
@@ -157,6 +158,7 @@ package androidx.compose.foundation {
     property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isSmartSelectionEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
+    field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     field public static boolean isBringIntoViewRltBouncyBehaviorInPagerFixEnabled;
     field public static boolean isCacheWindowForPagerEnabled;
     field public static boolean isCacheWindowRefillFixEnabled;

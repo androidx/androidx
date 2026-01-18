@@ -193,6 +193,7 @@ data class ProfInfo(val profDexInfoList: List<ProfDexInfo>) {
                     "prof_dexSortedChecksumsCrc32",
                     description =
                         "Sorted list of dex crc checksums from baseline profile - any of these that are missing from dex indicate profile corruption",
+                    requiresVerbose = true,
                     calculate = { profInfo ->
                         (profInfo
                                 ?.profDexInfoList

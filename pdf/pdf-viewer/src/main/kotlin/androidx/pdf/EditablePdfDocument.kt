@@ -18,29 +18,10 @@ package androidx.pdf
 
 import android.os.ParcelFileDescriptor
 import androidx.annotation.RestrictTo
-import androidx.pdf.annotation.models.AnnotationResult
-import androidx.pdf.annotation.models.EditId
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.annotation.models.PdfEdit
-import androidx.pdf.annotation.models.PdfEditEntry
-import androidx.pdf.annotation.models.PdfEdits
 import androidx.pdf.models.FormEditInfo
 
 /** Represents a PDF document that allows for editing. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public abstract class EditablePdfDocument : PdfDocument {
-
-    /**
-     * Retrieves a list of all edits for the specified page.
-     *
-     * @param pageNum The page number (0-indexed) from which to retrieve edits.
-     * @return A list of [androidx.pdf.annotation.models.PdfEditEntry] objects representing the
-     *   staged edits on the page. Returns an empty list if there are no edits on the page.
-     * @throws IllegalArgumentException if the page number is invalid.
-     */
-    public abstract suspend fun <T : PdfEditEntry<out PdfEdit>> getEditsForPage(
-        pageNum: Int
-    ): List<T>
 
     /**
      * Applies the changes specified by [record] to the form.
@@ -52,66 +33,22 @@ public abstract class EditablePdfDocument : PdfDocument {
      * document so they can be saved and restored across destructive events like low memory kills or
      * configuration changes.
      *
-     * @property record The [androidx.pdf.models.FormEditInfo] to apply to the form.
+     * @param record The [androidx.pdf.models.FormEditInfo] to apply to the form.
      * @throws IllegalArgumentException if the provided [record] cannot be applied to the widget
      *   indicated by the index, or if the index does not correspond to a widget on the page.
      */
     public abstract suspend fun applyEdit(record: FormEditInfo)
 
     /**
-     * Applies a list of annotation edits to the document.
+     * Applies a list of edits to the document sequentially.
      *
-     * @param annotations A list of [androidx.pdf.annotation.models.PdfAnnotationData] representing
-     *   the edits to be applied.
-     * @return An [androidx.pdf.annotation.models.AnnotationResult] indicating the success or
-     *   failure of the operation.
+     * @param editsDraft: edits to be applied on pdf document.
+     * @return List of annotationId for each operation in sequence of the order they were enqueued.
+     * @throws [PdfEditApplyException] if any of the edit failed to be applied.
      */
-    public abstract suspend fun applyEdits(annotations: List<PdfAnnotationData>): AnnotationResult
-
-    /**
-     * Creates a new [PdfEdit] onto to the document with the [androidx.pdf.annotation.models.EditId]
-     * provided.
-     *
-     * @param entry The [PdfEditEntry] to be added.
-     */
-    public abstract fun <T : PdfEdit> addPdfEditEntry(entry: PdfEditEntry<T>)
-
-    /**
-     * Creates a new PdfEdit onto the PdfDocument.
-     *
-     * @param edit The [PdfEdit] to be added.
-     * @return An [androidx.pdf.annotation.models.EditId] that uniquely identifies this edit
-     *   operation.
-     */
-    public abstract fun addEdit(edit: PdfEdit): EditId
-
-    /**
-     * Removes an existing PdfEdit from the PdfDocument.
-     *
-     * @param editId The [EditId] of the PdfEdit to be removed.
-     * @return The [PdfEdit] that was removed.
-     */
-    public abstract fun removeEdit(editId: EditId): PdfEdit
-
-    /**
-     * Updates an existing PdfEdit in the PdfDocument.
-     *
-     * @param editId The [EditId] of the edit to be updated.
-     * @param edit The [PdfEdit] to be updated.
-     * @return The old [PdfEdit] that was updated.
-     */
-    public abstract fun updateEdit(editId: EditId, edit: PdfEdit): PdfEdit
-
-    /**
-     * Returns an immutable snapshot of all [PdfEdit]s, organized by page number.
-     *
-     * @return [androidx.pdf.annotation.models.PdfEdits] representing all [PdfEdit]s in the
-     *   document.
-     */
-    public abstract fun getAllEdits(): PdfEdits
-
-    /** Discards all uncommitted edits. */
-    public abstract fun clearUncommittedEdits()
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @Suppress("HiddenAbstractMethod")
+    public abstract suspend fun applyEdits(editsDraft: EditsDraft): List<String>
 
     /**
      * Creates a [PdfWriteHandle] which can be used to save the document to a

@@ -28,9 +28,9 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
-        minSdk = 31 // These benchmarks do not run below API 31 as they use newer APIs
+        minSdk { version = release(31) } // These benchmarks do not run below API 31 as they use newer APIs
     }
     namespace = "androidx.compose.integration.hero.sysui.macrobenchmark"
     targetProjectPath = ":compose:integration-tests:hero:sysui:sysui-macrobenchmark-target"

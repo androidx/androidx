@@ -17,84 +17,72 @@
 package androidx.window.java.area
 
 import android.app.Activity
-import android.os.Binder
 import androidx.core.util.Consumer
+import androidx.window.area.WindowArea
 import androidx.window.area.WindowAreaController
-import androidx.window.area.WindowAreaInfo
 import androidx.window.area.WindowAreaPresentationSessionCallback
-import androidx.window.area.WindowAreaSessionCallback
+import androidx.window.area.WindowAreaSessionPresenter
+import androidx.window.area.WindowAreaToken
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.java.core.CallbackToFlowAdapter
 import java.util.concurrent.Executor
-import kotlinx.coroutines.flow.Flow
 
 /** An adapter for [WindowAreaController] to provide callback APIs. */
-@ExperimentalWindowApi
 public class WindowAreaControllerCallbackAdapter
 private constructor(
     private val controller: WindowAreaController,
     private val callbackToFlowAdapter: CallbackToFlowAdapter,
-) : WindowAreaController() {
+) {
 
     public constructor(controller: WindowAreaController) : this(controller, CallbackToFlowAdapter())
 
     /**
-     * Registers a listener that is interested in the current list of [WindowAreaInfo] available to
-     * be interacted with.
+     * Registers a listener that is interested in the current list of [WindowArea] available to be
+     * interacted with.
      *
      * The [listener] will receive an initial value on registration, as soon as it becomes
      * available.
      *
      * @param executor to handle sending listener updates.
-     * @param listener to receive updates to the list of [WindowAreaInfo].
-     * @see WindowAreaController.transferActivityToWindowArea
+     * @param listener to receive updates to the list of [WindowArea].
+     * @see WindowAreaController.transferToWindowArea
      * @see WindowAreaController.presentContentOnWindowArea
      */
-    public fun addWindowAreaInfoListListener(
-        executor: Executor,
-        listener: Consumer<List<WindowAreaInfo>>,
-    ) {
-        callbackToFlowAdapter.connect(executor, listener, controller.windowAreaInfos)
+    public fun addWindowAreasListener(executor: Executor, listener: Consumer<List<WindowArea>>) {
+        controller.addWindowAreasListener(executor, listener)
     }
 
     /**
-     * Removes a listener of available [WindowAreaInfo] records. If the listener is not present then
+     * Removes a listener of available [WindowArea] records. If the listener is not present then
      * this method is a no-op.
      *
      * @param listener to remove from receiving status updates.
-     * @see WindowAreaController.transferActivityToWindowArea
+     * @see WindowAreaController.transferToWindowArea
      * @see WindowAreaController.presentContentOnWindowArea
      */
-    public fun removeWindowAreaInfoListListener(listener: Consumer<List<WindowAreaInfo>>) {
-        callbackToFlowAdapter.disconnect(listener)
+    public fun removeWindowAreasListener(listener: Consumer<List<WindowArea>>) {
+        controller.removeWindowAreasListener(listener)
     }
 
-    override val windowAreaInfos: Flow<List<WindowAreaInfo>>
-        get() = controller.windowAreaInfos
+    public fun transferToWindowArea(windowAreaToken: WindowAreaToken?, activity: Activity): Unit =
+        controller.transferToWindowArea(windowAreaToken, activity)
 
-    override fun transferActivityToWindowArea(
-        token: Binder,
-        activity: Activity,
-        executor: Executor,
-        windowAreaSessionCallback: WindowAreaSessionCallback,
-    ): Unit =
-        controller.transferActivityToWindowArea(
-            token,
-            activity,
-            executor,
-            windowAreaSessionCallback,
-        )
-
-    override fun presentContentOnWindowArea(
-        token: Binder,
+    @ExperimentalWindowApi
+    public fun presentContentOnWindowArea(
+        windowAreaToken: WindowAreaToken,
         activity: Activity,
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
     ): Unit =
         controller.presentContentOnWindowArea(
-            token,
+            windowAreaToken,
             activity,
             executor,
             windowAreaPresentationSessionCallback,
         )
+
+    @ExperimentalWindowApi
+    public fun getActivePresentationSession(
+        windowAreaToken: WindowAreaToken
+    ): WindowAreaSessionPresenter = controller.getActivePresentationSession(windowAreaToken)
 }

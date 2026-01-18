@@ -210,7 +210,9 @@ public class ActivitySpaceImpl(
                 Vector3(abs(transformScale.x), abs(transformScale.y), abs(transformScale.z))
             // Get the unscaled rotation of the activity space.
             activitySpaceRotation = newTransform.unscaled().rotation
-            val gravityAlignedRotation = activitySpaceRotation.inverse
+            val yaw = activitySpaceRotation.eulerAngles.y
+            val yawRotation = Quaternion.fromEulerAngles(0.0f, yaw, 0.0f)
+            val gravityAlignedRotation = activitySpaceRotation.inverse * yawRotation
             mExtensions.createNodeTransaction().use { transaction ->
                 transaction
                     .setScale(
@@ -228,6 +230,10 @@ public class ActivitySpaceImpl(
                     )
                     .apply()
             }
+            // Update the rotation to be sent out in onSpatialModeChanged.
+            // It needs to provide identity yaw rotation since we already preserved that part of
+            // original rotation for the activity space origin.
+            activitySpaceRotation = yawRotation.inverse * activitySpaceRotation
         }
 
         // The translation is zero - since the activity space origin has been already translated by

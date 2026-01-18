@@ -421,6 +421,20 @@ class QuerySetTest {
         depthTexture.destroy()
     }
 
+    /**
+     * Test case: Draw a triangle to get a positive occlusion query result. Since the test uses a
+     * 1x1 render target with 1 sample per pixel, and the triangle successfully draws, the query
+     * must return the exact sample count.
+     */
+    @Test
+    @ApiRequirement(minApi = 35, onlySkipOnEmulator = true)
+    fun testResolveQuerySetAndReadback() {
+        executeQueryResolveTest(
+            drawAction = { passEncoder -> passEncoder.draw(3) },
+            expectedResult = 1L,
+        )
+    }
+
     /** Perform no drawing, which should result in an occlusion query count of 0. */
     @Test
     @ApiRequirement(minApi = 35, onlySkipOnEmulator = true)

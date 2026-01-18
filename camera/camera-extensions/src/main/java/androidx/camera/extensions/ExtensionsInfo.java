@@ -36,10 +36,8 @@ import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.internal.Camera2ExtensionsInfo;
 import androidx.camera.extensions.internal.Camera2ExtensionsVendorExtender;
-import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.ExtensionsUseCaseConfigFactory;
 import androidx.camera.extensions.internal.VendorExtender;
-import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.PostviewFormatValidator;
 
 import org.jspecify.annotations.NonNull;
@@ -178,11 +176,6 @@ final class ExtensionsInfo {
         }
 
         extensionsCameraInfo = cameraInfos.get(0);
-
-        // This API is only supported since version 1.2
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_2) < 0) {
-            return null;
-        }
 
         try {
             VendorExtender vendorExtender = mVendorExtenderFactory.createVendorExtender(mode);

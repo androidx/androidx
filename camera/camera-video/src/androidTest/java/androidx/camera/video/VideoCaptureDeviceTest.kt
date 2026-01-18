@@ -41,6 +41,9 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
+import androidx.camera.video.Quality.FHD
+import androidx.camera.video.Quality.HD
+import androidx.camera.video.Quality.SD
 import androidx.camera.video.VideoOutput.SourceState
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
@@ -111,6 +114,12 @@ class VideoCaptureDeviceTest(
             listOf(
                 arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
                 arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig()),
+            )
+
+        private val DEFAULT_QUALITY_SELECTOR =
+            QualitySelector.fromOrderedList(
+                listOf(FHD, HD, SD),
+                FallbackStrategy.higherQualityOrLowerThan(FHD),
             )
     }
 
@@ -219,11 +228,7 @@ class VideoCaptureDeviceTest(
                 val videoOutput =
                     createTestVideoOutput(
                         mediaSpec =
-                            MediaSpec.builder()
-                                .configureVideo {
-                                    it.setQualitySelector(QualitySelector.from(quality))
-                                }
-                                .build(),
+                            createMediaSpec(qualitySelector = QualitySelector.from(quality)),
                         videoCapabilities = videoCapabilities,
                     )
 
@@ -469,10 +474,18 @@ class VideoCaptureDeviceTest(
     private fun createTestVideoOutput(
         streamInfo: StreamInfo =
             StreamInfo.of(StreamInfo.STREAM_ID_ANY, StreamInfo.StreamState.ACTIVE),
-        mediaSpec: MediaSpec = MediaSpec.builder().build(),
+        mediaSpec: MediaSpec = createMediaSpec(),
         videoCapabilities: VideoCapabilities = Recorder.getVideoCapabilities(cameraInfo),
     ): TestVideoOutput {
         return TestVideoOutput(streamInfo, mediaSpec, videoCapabilities)
+    }
+
+    private fun createMediaSpec(
+        qualitySelector: QualitySelector = DEFAULT_QUALITY_SELECTOR
+    ): MediaSpec {
+        return MediaSpec.builder()
+            .configureVideo { config -> config.setQualitySelector(qualitySelector) }
+            .build()
     }
 
     private class TestVideoOutput(

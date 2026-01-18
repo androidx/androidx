@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.junit4
 
-import android.annotation.SuppressLint
 import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +34,6 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(minSdk = 26)
 class ClearMessageQueueTest {
-    @SuppressLint("ComposeTestRuleDispatcher")
     @OptIn(ExperimentalCoroutinesApi::class)
     @get:Rule
     val rule = createComposeRule(effectContext = UnconfinedTestDispatcher(null, null))

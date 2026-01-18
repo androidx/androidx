@@ -31,7 +31,7 @@ plugins {
 // This project can be removed once b/239659205 has landed and use only the
 // profile-verification-sample project.
 android {
-    compileSdk = 35
+    compileSdk { version = release(35) }
 
     buildTypes {
         release {

@@ -25,11 +25,9 @@ import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationSta
 /** Represents a 3x3 transformation matrix. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteMatrix3x3
-internal constructor(
-    public override val hasConstantValue: Boolean,
-    private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
-) : BaseRemoteState<Any>() {
-    override val constantValue: Any?
+internal constructor(private val idProvider: (creationState: RemoteComposeCreationState) -> Int) :
+    BaseRemoteState<Any>() {
+    override val constantValueOrNull: Any?
         get() = null
 
     /**
@@ -39,18 +37,15 @@ internal constructor(
      * @return A new [RemoteMatrix3x3] representing the multiplication.
      */
     public operator fun times(v: RemoteMatrix3x3): RemoteMatrix3x3 =
-        RemoteMatrix3x3(
-            true,
-            { creationState ->
-                Utils.idFromNan(
-                    creationState.document.matrixExpression(
-                        getFloatIdForCreationState(creationState),
-                        v.getFloatIdForCreationState(creationState),
-                        MatrixOperations.MUL,
-                    )
+        RemoteMatrix3x3({ creationState ->
+            Utils.idFromNan(
+                creationState.document.matrixExpression(
+                    getFloatIdForCreationState(creationState),
+                    v.getFloatIdForCreationState(creationState),
+                    MatrixOperations.MUL,
                 )
-            },
-        )
+            )
+        })
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
@@ -59,14 +54,9 @@ internal constructor(
     public companion object {
         /** Creates a [RemoteMatrix3x3] representing an identity matrix. */
         public fun createIdentity(): RemoteMatrix3x3 =
-            RemoteMatrix3x3(
-                true,
-                { creationState ->
-                    Utils.idFromNan(
-                        creationState.document.matrixExpression(MatrixOperations.IDENTITY)
-                    )
-                },
-            )
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(creationState.document.matrixExpression(MatrixOperations.IDENTITY))
+            })
 
         /**
          * Creates a [RemoteMatrix3x3] that rotates around the Z-axis.
@@ -74,17 +64,14 @@ internal constructor(
          * @param angle The angle of rotation.
          */
         public fun createRotate(angle: RemoteFloat): RemoteMatrix3x3 =
-            RemoteMatrix3x3(
-                angle.hasConstantValue,
-                { creationState ->
-                    Utils.idFromNan(
-                        creationState.document.matrixExpression(
-                            angle.getFloatIdForCreationState(creationState),
-                            MatrixOperations.ROT_Z,
-                        )
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        angle.getFloatIdForCreationState(creationState),
+                        MatrixOperations.ROT_Z,
                     )
-                },
-            )
+                )
+            })
 
         /**
          * Creates a [RemoteMatrix3x3] that translates along the X-axis.
@@ -92,17 +79,14 @@ internal constructor(
          * @param x The distance to translate along the X-axis.
          */
         public fun createTranslateX(x: RemoteFloat): RemoteMatrix3x3 =
-            RemoteMatrix3x3(
-                x.hasConstantValue,
-                { creationState ->
-                    Utils.idFromNan(
-                        creationState.document.matrixExpression(
-                            x.getFloatIdForCreationState(creationState),
-                            MatrixOperations.TRANSLATE_X,
-                        )
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        x.getFloatIdForCreationState(creationState),
+                        MatrixOperations.TRANSLATE_X,
                     )
-                },
-            )
+                )
+            })
 
         /**
          * Creates a [RemoteMatrix3x3] that translates along the Y-axis.
@@ -110,17 +94,14 @@ internal constructor(
          * @param y The distance to translate along the Y-axis.
          */
         public fun createTranslateY(y: RemoteFloat): RemoteMatrix3x3 =
-            RemoteMatrix3x3(
-                y.hasConstantValue,
-                { creationState ->
-                    Utils.idFromNan(
-                        creationState.document.matrixExpression(
-                            y.getFloatIdForCreationState(creationState),
-                            MatrixOperations.TRANSLATE_Y,
-                        )
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        y.getFloatIdForCreationState(creationState),
+                        MatrixOperations.TRANSLATE_Y,
                     )
-                },
-            )
+                )
+            })
 
         /**
          * Creates a [RemoteMatrix3x3] that scales along the X-axis.
@@ -128,17 +109,14 @@ internal constructor(
          * @param scale The scaling factor.
          */
         public fun createScaleX(scale: RemoteFloat): RemoteMatrix3x3 =
-            RemoteMatrix3x3(
-                scale.hasConstantValue,
-                { creationState ->
-                    Utils.idFromNan(
-                        creationState.document.matrixExpression(
-                            scale.getFloatIdForCreationState(creationState),
-                            MatrixOperations.SCALE_X,
-                        )
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        scale.getFloatIdForCreationState(creationState),
+                        MatrixOperations.SCALE_X,
                     )
-                },
-            )
+                )
+            })
 
         /**
          * Creates a [RemoteMatrix3x3] that scales along the Y-axis.
@@ -146,17 +124,14 @@ internal constructor(
          * @param scale The scaling factor.
          */
         public fun createScaleY(scale: RemoteFloat): RemoteMatrix3x3 =
-            RemoteMatrix3x3(
-                scale.hasConstantValue,
-                { creationState ->
-                    Utils.idFromNan(
-                        creationState.document.matrixExpression(
-                            scale.getFloatIdForCreationState(creationState),
-                            MatrixOperations.SCALE_Y,
-                        )
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        scale.getFloatIdForCreationState(creationState),
+                        MatrixOperations.SCALE_Y,
                     )
-                },
-            )
+                )
+            })
 
         /**
          * Creates a [RemoteMatrix3x3] that rotates around a pivot point on the Z-plane.
@@ -170,18 +145,15 @@ internal constructor(
             centerX: RemoteFloat,
             centerY: RemoteFloat,
         ): RemoteMatrix3x3 =
-            RemoteMatrix3x3(
-                angle.hasConstantValue && centerX.hasConstantValue && centerY.hasConstantValue,
-                { creationState ->
-                    Utils.idFromNan(
-                        creationState.document.matrixExpression(
-                            angle.getFloatIdForCreationState(creationState),
-                            centerX.getFloatIdForCreationState(creationState),
-                            centerY.getFloatIdForCreationState(creationState),
-                            MatrixOperations.ROT_PZ,
-                        )
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        angle.getFloatIdForCreationState(creationState),
+                        centerX.getFloatIdForCreationState(creationState),
+                        centerY.getFloatIdForCreationState(creationState),
+                        MatrixOperations.ROT_PZ,
                     )
-                },
-            )
+                )
+            })
     }
 }

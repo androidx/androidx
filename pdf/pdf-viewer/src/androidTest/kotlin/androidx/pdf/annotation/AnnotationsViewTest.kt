@@ -55,30 +55,28 @@ class AnnotationsViewTest {
     private lateinit var annotationsView: AnnotationsView
     private lateinit var fakePdfDocument: FakePdfDocument
     private lateinit var testHighlightListener: FakeInProgressTextHighlightsListener
-    private lateinit var testOnAnnotationHitListener: FakeOnAnnotationHitListener
+    private lateinit var testOnAnnotationSelectedListener: FakeOnAnnotationLocatedListener
 
-    private val startIdlingResource = CountingIdlingResource(HIGHLIGHT_START_RESOURCE_NAME)
-    private val finishIdlingResource = CountingIdlingResource(HIGHLIGHT_FINISH_RESOURCE_NAME)
+    private val highlightIdlingResource = CountingIdlingResource(HIGHLIGHT_RESOURCE_NAME)
 
     @Before
     fun setUp() {
-        IdlingRegistry.getInstance().register(startIdlingResource, finishIdlingResource)
+        IdlingRegistry.getInstance().register(highlightIdlingResource)
 
         val pageText =
             PdfPageTextContent(bounds = listOf(RectF(0f, 0f, 100f, 100f)), text = "Test Content")
         fakePdfDocument =
             FakePdfDocument(pages = listOf(Point(100, 100)), textContents = listOf(pageText))
 
-        testHighlightListener =
-            FakeInProgressTextHighlightsListener(startIdlingResource, finishIdlingResource)
-        testOnAnnotationHitListener = FakeOnAnnotationHitListener()
+        testHighlightListener = FakeInProgressTextHighlightsListener(highlightIdlingResource)
+        testOnAnnotationSelectedListener = FakeOnAnnotationLocatedListener()
 
         setupActivity()
     }
 
     @After
     fun tearDown() {
-        IdlingRegistry.getInstance().unregister(startIdlingResource, finishIdlingResource)
+        IdlingRegistry.getInstance().unregister(highlightIdlingResource)
         PdfViewTestActivity.onCreateCallback = {}
     }
 
@@ -96,11 +94,11 @@ class AnnotationsViewTest {
                         color = Color.YELLOW,
                         pdfDocument = fakePdfDocument,
                     )
-                annotationsView.setHighlighter(config)
+                annotationsView.interactionMode = AnnotationMode.Highlight(config)
                 assertThat(internalView.visibility).isEqualTo(View.VISIBLE)
 
                 // 3. Set Null -> GONE
-                annotationsView.setHighlighter(null)
+                annotationsView.interactionMode = null
                 assertThat(internalView.visibility).isEqualTo(View.GONE)
             }
         }
@@ -109,7 +107,7 @@ class AnnotationsViewTest {
     @Test
     fun onTouchEvent_whenHighlighterEnabled_consumesAndDispatchesEvents() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            startIdlingResource.increment()
+            highlightIdlingResource.increment()
 
             scenario.onActivity {
                 val config =
@@ -117,8 +115,7 @@ class AnnotationsViewTest {
                         color = Color.YELLOW,
                         pdfDocument = fakePdfDocument,
                     )
-                annotationsView.interactionMode = AnnotationMode.Highlight()
-                annotationsView.setHighlighter(config)
+                annotationsView.interactionMode = AnnotationMode.Highlight(config)
                 annotationsView.addInProgressTextHighlightsListener(testHighlightListener)
 
                 // Touch down on valid text
@@ -139,8 +136,7 @@ class AnnotationsViewTest {
     fun onTouchEvent_whenHighlighterDisabled_ignoresEvents() {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
             scenario.onActivity {
-                annotationsView.interactionMode = AnnotationMode.Highlight()
-                annotationsView.setHighlighter(null)
+                annotationsView.interactionMode = null
                 annotationsView.addInProgressTextHighlightsListener(testHighlightListener)
 
                 val event = obtainMotionEvent(10f, 10f, MotionEvent.ACTION_DOWN)
@@ -158,18 +154,15 @@ class AnnotationsViewTest {
 
     @Test
     fun addInProgressTextHighlightsListener_multipleListeners_allReceiveEvents() {
-        val listenerA =
-            FakeInProgressTextHighlightsListener(startIdlingResource, finishIdlingResource)
-        val listenerB =
-            FakeInProgressTextHighlightsListener(startIdlingResource, finishIdlingResource)
+        val listenerA = FakeInProgressTextHighlightsListener(highlightIdlingResource)
+        val listenerB = FakeInProgressTextHighlightsListener(highlightIdlingResource)
 
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
-            repeat(2) { startIdlingResource.increment() }
+            repeat(2) { highlightIdlingResource.increment() }
 
             scenario.onActivity {
                 val config = AnnotationsView.HighlighterConfig(Color.YELLOW, fakePdfDocument)
-                annotationsView.interactionMode = AnnotationMode.Highlight()
-                annotationsView.setHighlighter(config)
+                annotationsView.interactionMode = AnnotationMode.Highlight(config)
 
                 annotationsView.addInProgressTextHighlightsListener(listenerA)
                 annotationsView.addInProgressTextHighlightsListener(listenerB)
@@ -191,7 +184,7 @@ class AnnotationsViewTest {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
             scenario.onActivity {
                 annotationsView.interactionMode = AnnotationMode.Select()
-                annotationsView.addOnAnnotationHitListener(testOnAnnotationHitListener)
+                annotationsView.addOnAnnotationLocatedListener(testOnAnnotationSelectedListener)
 
                 // Touch down on annotation free point.
                 val event = obtainMotionEvent(10f, 10f, MotionEvent.ACTION_DOWN)
@@ -199,7 +192,7 @@ class AnnotationsViewTest {
                 event.recycle()
 
                 // No annotation found
-                assertThat(testOnAnnotationHitListener.isHit).isFalse()
+                assertThat(testOnAnnotationSelectedListener.isHit).isFalse()
             }
         }
     }
@@ -209,7 +202,7 @@ class AnnotationsViewTest {
         ActivityScenario.launch(PdfViewTestActivity::class.java).use { scenario ->
             scenario.onActivity {
                 annotationsView.interactionMode = AnnotationMode.Select()
-                annotationsView.addOnAnnotationHitListener(testOnAnnotationHitListener)
+                annotationsView.addOnAnnotationLocatedListener(testOnAnnotationSelectedListener)
 
                 // Touch down on annotation point.
                 val event = obtainMotionEvent(75f, 75f, MotionEvent.ACTION_DOWN)
@@ -217,7 +210,7 @@ class AnnotationsViewTest {
                 event.recycle()
 
                 // Annotation found
-                assertThat(testOnAnnotationHitListener.isHit).isTrue()
+                assertThat(testOnAnnotationSelectedListener.isHit).isTrue()
             }
         }
     }
@@ -240,7 +233,8 @@ class AnnotationsViewTest {
 
     private fun setFakeAnnotations(): SparseArray<PageAnnotationsData> {
         val annotation = createStampAnnotation(RectF(50f, 50f, 100f, 100f))
-        val data = PageAnnotationsData(listOf(annotation), Matrix())
+        val keyedAnnotation = KeyedPdfAnnotation(key = UUID.randomUUID().toString(), annotation)
+        val data = PageAnnotationsData(listOf(keyedAnnotation), Matrix())
         val sparseArray = SparseArray<PageAnnotationsData>()
         sparseArray.put(0, data)
         return sparseArray
@@ -282,7 +276,6 @@ class AnnotationsViewTest {
     }
 
     companion object {
-        private val HIGHLIGHT_START_RESOURCE_NAME = "TextHighlightStart-${UUID.randomUUID()}"
-        private val HIGHLIGHT_FINISH_RESOURCE_NAME = "TextHighlightFinish-${UUID.randomUUID()}"
+        private val HIGHLIGHT_RESOURCE_NAME = "TextHighlight-${UUID.randomUUID()}"
     }
 }

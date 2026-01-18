@@ -46,7 +46,7 @@ dependencies {
 
 android {
     defaultConfig {
-        compileSdk = 35
+        compileSdk { version = release(35) }
         testInstrumentationRunner "androidx.recyclerview.test.TestRunner"
         consumerProguardFiles("proguard-rules.pro")
     }

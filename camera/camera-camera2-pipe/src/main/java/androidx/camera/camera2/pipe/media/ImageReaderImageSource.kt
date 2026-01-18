@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.media.AndroidImageReader.Companion.IMAGEREADER_MAX_CAPACITY
 import androidx.camera.camera2.pipe.media.ImageReaderImageSource.Companion.IMAGE_SOURCE_CAPACITY
+import androidx.camera.camera2.pipe.media.OutputImage.Companion.toLogString
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
@@ -261,6 +262,8 @@ public class ImageReaderImageSource(
             // Wrapper images that are no longer reachable should be closed to avoid memory leaks.
             close()
         }
+
+        override fun toString(): String = this.toLogString()
     }
 
     private enum class State {

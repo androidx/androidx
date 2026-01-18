@@ -30,11 +30,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
-    }
+    compileSdk { version = release(36) }
     buildTypes.configureEach {
         // TODO(b/161836669): Minifiation is currently disabled because if it is on, the aar gets
         //   desugared twice in some workflows, which fails. Decide how to handle this (e.g.

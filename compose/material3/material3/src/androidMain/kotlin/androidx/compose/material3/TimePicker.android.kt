@@ -16,9 +16,17 @@
 
 package androidx.compose.material3
 
+import android.content.Context
+import android.media.AudioManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType.Companion.Reject
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,3 +39,36 @@ internal actual fun defaultTimePickerLayoutType(): TimePickerLayoutType =
             TimePickerLayoutType.Vertical
         }
     }
+
+@Composable
+internal actual fun rememberTimeInputErrorHandler(
+    isTouchExplorationEnabled: Boolean
+): TimeInputErrorHandler {
+    val context = LocalContext.current
+    val haptics = LocalHapticFeedback.current
+    val audioManager =
+        remember(context) { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+
+    return remember(haptics, audioManager, isTouchExplorationEnabled) {
+        TimeInputErrorHandlerImpl(
+            haptics = haptics,
+            audioManager = audioManager,
+            isTouchExplorationEnabled = isTouchExplorationEnabled,
+        )
+    }
+}
+
+private class TimeInputErrorHandlerImpl(
+    private val haptics: HapticFeedback,
+    private val audioManager: AudioManager,
+    private val isTouchExplorationEnabled: Boolean,
+) : TimeInputErrorHandler {
+
+    override fun onError() {
+        haptics.performHapticFeedback(HapticFeedbackType.Reject)
+
+        if (!isTouchExplorationEnabled) {
+            audioManager.playSoundEffect(AudioManager.FX_KEYPRESS_INVALID, 0.5f)
+        }
+    }
+}

@@ -809,4 +809,45 @@ class ConsumerModule(
                 .trimIndent()
         )
     }
+
+    fun setupKotlinMultiplatformLibrary(
+        otherPluginsBlock: String = "",
+        dependenciesBlock: String = "",
+        dependencyOnProducerProject: Boolean = true,
+        additionalGradleCodeBlock: String = "",
+    ) {
+        isLibraryModule = true
+        // Use appendText() directly here to avoid the android() block.
+        rule.buildFile.appendText(
+            """
+            plugins {
+                id("org.jetbrains.kotlin.multiplatform")
+                id("com.android.kotlin.multiplatform.library")
+                id("androidx.baselineprofile.consumer")
+                $otherPluginsBlock
+            }
+
+            kotlin {
+              androidLibrary {
+                namespace = "com.example.namespace"
+                compileSdk = ${rule.props.compileSdk}
+              }
+              sourceSets {
+                androidMain.dependencies {
+                  $dependenciesBlock
+                }
+              }
+            }
+            baselineProfile {
+              variants {
+                androidMain {
+                  ${if (dependencyOnProducerProject) """from(project(":$producerName"))""" else ""}
+                }
+              }
+            }
+            $additionalGradleCodeBlock
+        """
+                .trimIndent()
+        )
+    }
 }

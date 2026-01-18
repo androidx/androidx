@@ -20,6 +20,7 @@ package androidx.compose.ui.platform
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Point
 import android.graphics.Rect
@@ -78,6 +79,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.retain.ForgetfulRetainedValuesStore
 import androidx.compose.runtime.retain.RetainedValuesStore
 import androidx.compose.runtime.setValue
@@ -127,6 +129,7 @@ import androidx.compose.ui.focus.toLayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -135,6 +138,7 @@ import androidx.compose.ui.graphics.setFrom
 import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.InputModeManager
@@ -180,6 +184,7 @@ import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
+import androidx.compose.ui.node.LayoutNodeDrawScope
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
@@ -206,6 +211,7 @@ import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputServiceAndroid
@@ -237,7 +243,12 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.get
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
@@ -254,7 +265,7 @@ private const val ONE_FRAME_120_HERTZ_IN_MILLISECONDS = 8L
 
 @Suppress("ViewConstructor", "VisibleForTests")
 @OptIn(InternalComposeUiApi::class)
-internal class AndroidComposeView(context: Context, composeViewContext: ComposeViewContext) :
+internal class AndroidComposeView(context: Context, coroutineContext: CoroutineContext) :
     ViewGroup(context),
     Owner,
     PlatformFocusOwner,
@@ -266,45 +277,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     ViewTreeObserver.OnScrollChangedListener,
     ViewTreeObserver.OnTouchModeChangeListener,
     FocusListener {
-
-    // We must access the value to decrement the View count on the ComposeViewContext when setting
-    // the composeViewContext. This is a copy of _composeViewContext that doesn't require triggering
-    // a state read while setting the value.
-    private var nonStateReadComposeViewContext: ComposeViewContext = composeViewContext
-    private var _composeViewContext by mutableStateOf(composeViewContext)
-    var composeViewContext: ComposeViewContext
-        get() = _composeViewContext
-        set(value) {
-            val hasCoroutineContextChanged =
-                coroutineContext != value.compositionContext.effectCoroutineContext
-            if (isAttachedToWindow) {
-                nonStateReadComposeViewContext.decrementViewCount()
-                value.incrementViewCount()
-            }
-            _composeViewContext = value
-            nonStateReadComposeViewContext = value
-            // In some rare cases, the CoroutineContext is cancelled (because the parent
-            // CompositionContext containing the CoroutineContext is no longer associated with this
-            // class). Changing this CoroutineContext to the new CompositionContext's
-            // CoroutineContext needs to cancel all Pointer Input Nodes relying on the old
-            // CoroutineContext. See [Wrapper.android.kt] for more details.
-            if (hasCoroutineContextChanged) {
-                val headModifierNode = root.nodes.head
-
-                // Reset head Modifier.Node's pointer input handler (that is, the underlying
-                // coroutine used to run the handler for input pointer events).
-                if (headModifierNode is SuspendingPointerInputModifierNode) {
-                    headModifierNode.resetPointerInputHandler()
-                }
-
-                // Reset all other Modifier.Node's pointer input handler in the chain.
-                headModifierNode.visitSubtree(Nodes.PointerInput) {
-                    if (it is SuspendingPointerInputModifierNode) {
-                        it.resetPointerInputHandler()
-                    }
-                }
-            }
-        }
 
     /**
      * Remembers the position of the last pointer input event that was down. This position will be
@@ -330,8 +302,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         IndirectPointerEventPrimaryDirectionalMotionAxis? =
         null
 
-    override val sharedDrawScope
-        get() = composeViewContext.sharedDrawScope
+    override val sharedDrawScope = LayoutNodeDrawScope()
 
     override val view: View
         get() = this
@@ -357,14 +328,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
     }
 
-    override val density by composeViewContext.density
+    override var density by mutableStateOf(Density(context), referentialEqualityPolicy())
+        private set
 
     private var frameRateCategoryView: View? = null
 
-    internal val isArrEnabled: Boolean
-        get() =
-            @OptIn(ExperimentalComposeUiApi::class) isAdaptiveRefreshRateEnabled &&
-                SDK_INT >= VANILLA_ICE_CREAM
+    internal val isArrEnabled =
+        @OptIn(ExperimentalComposeUiApi::class) isAdaptiveRefreshRateEnabled &&
+            SDK_INT >= VANILLA_ICE_CREAM
+
+    private val rootSemanticsNode = EmptySemanticsModifier()
 
     override val focusOwner: FocusOwner = FocusOwnerImpl(this, this)
 
@@ -372,19 +345,36 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         return IMPORTANT_FOR_AUTOFILL_YES
     }
 
-    override val coroutineContext: CoroutineContext
-        get() = composeViewContext.compositionContext.effectCoroutineContext
+    override var coroutineContext: CoroutineContext = coroutineContext
+        // In some rare cases, the CoroutineContext is cancelled (because the parent
+        // CompositionContext containing the CoroutineContext is no longer associated with this
+        // class). Changing this CoroutineContext to the new CompositionContext's CoroutineContext
+        // needs to cancel all Pointer Input Nodes relying on the old CoroutineContext.
+        // See [Wrapper.android.kt] for more details.
+        set(value) {
+            field = value
+
+            val headModifierNode = root.nodes.head
+
+            // Reset head Modifier.Node's pointer input handler (that is, the underlying
+            // coroutine used to run the handler for input pointer events).
+            if (headModifierNode is SuspendingPointerInputModifierNode) {
+                headModifierNode.resetPointerInputHandler()
+            }
+
+            // Reset all other Modifier.Node's pointer input handler in the chain.
+            headModifierNode.visitSubtree(Nodes.PointerInput) {
+                if (it is SuspendingPointerInputModifierNode) {
+                    it.resetPointerInputHandler()
+                }
+            }
+        }
 
     override val dragAndDropManager = AndroidDragAndDropManager(::startDrag)
 
+    private val _windowInfo: LazyWindowInfo = LazyWindowInfo()
     override val windowInfo: WindowInfo
-        get() = composeViewContext.windowInfo
-
-    // This is only needed because the existing XR implementation is lacking. It is currently
-    // relying on the derivedStateOf() notification change. This can be removed when
-    // b/442011315 is fixed.
-    private var isAttached by mutableStateOf(false)
-    private val derivedIsAttached by derivedStateOf { isAttached }
+        get() = _windowInfo
 
     /**
      * Because AndroidComposeView always accepts focus, we have to divert focus to another View if
@@ -550,8 +540,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         return null
     }
 
-    override val viewConfiguration: ViewConfiguration
-        get() = composeViewContext.viewConfiguration
+    private val canvasHolder = CanvasHolder()
+
+    override val viewConfiguration: ViewConfiguration =
+        AndroidViewConfiguration(android.view.ViewConfiguration.get(context))
 
     val insetsListener = InsetsListener(this)
 
@@ -584,17 +576,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     override val rectManager = RectManager(layoutNodes)
 
-    override val rootForTest: RootForTest
-        get() = this
-
-    internal var uncaughtExceptionHandler: RootForTest.UncaughtExceptionHandler?
-        get() = composeViewContext.uncaughtExceptionHandler
-        set(value) {
-            composeViewContext.uncaughtExceptionHandler = value
-        }
+    override val rootForTest: RootForTest = this
+    internal var uncaughtExceptionHandler: RootForTest.UncaughtExceptionHandler? = null
 
     override val semanticsOwner: SemanticsOwner =
-        SemanticsOwner(root, EmptySemanticsModifier(), layoutNodes)
+        SemanticsOwner(root, rootSemanticsNode, layoutNodes)
     private val composeAccessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
     internal var contentCaptureManager =
         AndroidContentCaptureManager(
@@ -605,8 +591,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     /**
      * Provide accessibility manager to the user. Use the Android version of accessibility manager.
      */
-    override val accessibilityManager
-        get() = composeViewContext.accessibilityManager
+    override val accessibilityManager = AndroidAccessibilityManager(context)
 
     /**
      * Provide access to a GraphicsContext instance used to create GraphicsLayers for providing
@@ -634,9 +619,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private val motionEventAdapter = MotionEventAdapter()
     private val pointerInputEventProcessor = PointerInputEventProcessor(root)
 
+    /**
+     * The snapshot-state backed current [Configuration]. This is updated by [updateConfiguration].
+     */
+    var configuration: Configuration by
+        mutableStateOf(Configuration(context.resources.configuration))
+
     override val localeList: LocaleList by derivedStateOf {
-        val platformLocaleListCompat =
-            ConfigurationCompat.getLocales(composeViewContext.configuration.value)
+        val platformLocaleListCompat = ConfigurationCompat.getLocales(configuration)
         LocaleList(List(platformLocaleListCompat.size()) { Locale(platformLocaleListCompat[it]!!) })
     }
 
@@ -668,11 +658,9 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private var observationClearRequested = false
 
     /** Provide clipboard manager to the user. Use the Android version of clipboard manager. */
-    override val clipboardManager
-        get() = composeViewContext.clipboardManager
+    override val clipboardManager = AndroidClipboardManager(context)
 
-    override val clipboard
-        get() = composeViewContext.clipboard
+    override val clipboard = AndroidClipboard(clipboardManager)
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
         val exceptionHandler = uncaughtExceptionHandler
@@ -689,10 +677,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 command
             }
 
-        if (view.handler?.looper === Looper.myLooper()) {
+        if (handler?.looper === Looper.myLooper()) {
             command()
         } else {
-            view.handler?.post(command)
+            handler?.post(command)
         }
     }
 
@@ -758,37 +746,33 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     // so that we don't have to continue using try/catch after fails once.
     private var isRenderNodeCompatible = true
 
-    private var onReadyForComposition: ((ComposeViewContext) -> Unit)? = null
+    private var _viewTreeOwners: ViewTreeOwners? by mutableStateOf(null)
 
-    private var _legacyTextInputServiceAndroid: TextInputServiceAndroid? = null
-    private val legacyTextInputServiceAndroid: TextInputServiceAndroid
-        get() =
-            _legacyTextInputServiceAndroid
-                ?: TextInputServiceAndroid(view, this).also { _legacyTextInputServiceAndroid = it }
+    // Having an extra derived state here (instead of directly using _viewTreeOwners) is a
+    // workaround for b/271579465 to avoid unnecessary extra recompositions when this is mutated
+    // before setContent is called.
+    /**
+     * Current [ViewTreeOwners]. Use [setOnViewTreeOwnersAvailable] if you want to execute your code
+     * when the object will be created.
+     */
+    val viewTreeOwners: ViewTreeOwners? by derivedStateOf { _viewTreeOwners }
 
-    private var _textInputService: TextInputService? = null
+    private var onViewTreeOwnersAvailable: ((ViewTreeOwners) -> Unit)? = null
+
+    private val legacyTextInputServiceAndroid = TextInputServiceAndroid(view, this)
+
     /**
      * The legacy text input service. This is only used for new text input sessions if
      * [textInputSessionMutex] is null.
      */
     @Deprecated("Use PlatformTextInputModifierNode instead.")
-    override val textInputService: TextInputService
-        get() =
-            _textInputService
-                ?: TextInputService(
-                        platformTextInputServiceInterceptor(legacyTextInputServiceAndroid)
-                    )
-                    .also { _textInputService = it }
+    override val textInputService =
+        TextInputService(platformTextInputServiceInterceptor(legacyTextInputServiceAndroid))
 
     private val textInputSessionMutex = SessionMutex<AndroidPlatformTextInputSession>()
 
-    private var _softwareKeyboardController: SoftwareKeyboardController? = null
-    override val softwareKeyboardController: SoftwareKeyboardController
-        get() =
-            _softwareKeyboardController
-                ?: DelegatingSoftwareKeyboardController(textInputService).also {
-                    _softwareKeyboardController = it
-                }
+    override val softwareKeyboardController: SoftwareKeyboardController =
+        DelegatingSoftwareKeyboardController(textInputService)
 
     override val placementScope: Placeable.PlacementScope
         get() = PlacementScope(this)
@@ -812,12 +796,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         replaceWith = ReplaceWith("fontFamilyResolver"),
     )
     @Suppress("DEPRECATION")
-    override val fontLoader: Font.ResourceLoader
-        get() = composeViewContext.fontLoader
+    override val fontLoader: Font.ResourceLoader = AndroidFontResourceLoader(context)
 
     // Backed by mutableStateOf so that the local provider recomposes when it changes
     // FontFamily.Resolver is not guaranteed to be stable or immutable, hence referential check
-    override val fontFamilyResolver: FontFamily.Resolver by composeViewContext.fontFamilyResolver
+    override var fontFamilyResolver: FontFamily.Resolver by
+        mutableStateOf(createFontFamilyResolver(context), referentialEqualityPolicy())
+        private set
+
+    private val Configuration.fontWeightAdjustmentCompat: Int
+        get() = if (SDK_INT >= S) fontWeightAdjustment else 0
 
     // Backed by mutableStateOf so that the ambient provider recomposes when it changes
     override var layoutDirection by
@@ -833,8 +821,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         private set
 
     /** Provide haptic feedback to the user. Use the Android version of haptic feedback. */
-    override val hapticFeedBack: HapticFeedback
-        get() = composeViewContext.hapticFeedback
+    override val hapticFeedBack: HapticFeedback = PlatformHapticFeedback(this)
 
     /** Provide an instance of [InputModeManager] which is available as a CompositionLocal. */
     private val _inputModeManager =
@@ -897,14 +884,8 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 removeCallbacks(this)
                 val lastMotionEvent = previousMotionEvent
                 if (lastMotionEvent != null) {
-                    val wasMouseEvent = lastMotionEvent.getToolType(0) == TOOL_TYPE_MOUSE
                     val action = lastMotionEvent.actionMasked
-                    val resend =
-                        if (wasMouseEvent) {
-                            action != ACTION_HOVER_EXIT && action != ACTION_UP
-                        } else {
-                            action != ACTION_UP
-                        }
+                    val resend = action != ACTION_HOVER_EXIT && action != ACTION_UP
                     if (resend) {
                         val newAction =
                             if (action == ACTION_HOVER_MOVE || action == ACTION_HOVER_ENTER) {
@@ -974,14 +955,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      */
     private var keyboardModifiersRequireUpdate = false
 
-    /**
-     * Used to track when [composeViewContext] calls [ComposeViewContext.incrementViewCount] during
-     * init. This is needed because once this has been added to the hierarchy, we don't need to
-     * specially treat it with respect to [ComposeViewContext]. It will stop composing when detached
-     * from the hierarchy.
-     */
-    internal var composeViewContextIncrementedDuringInit = false
-
     init {
         addOnAttachStateChangeListener(contentCaptureManager)
         setWillNotDraw(false)
@@ -1012,18 +985,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 }
             frameRateCategoryView = view
             addView(view)
-        }
-    }
-
-    /**
-     * Called when [AbstractComposeView.composeViewContext] is set to `null`. This will remove the
-     * attachment of this AndroidComposeView from the ComposeViewContext so that it can stop
-     * observing when no AndroidComposeViews need it.
-     */
-    fun removeConnectionToComposeViewContext() {
-        if (composeViewContextIncrementedDuringInit) {
-            composeViewContext.decrementViewCount()
-            composeViewContextIncrementedDuringInit = false
         }
     }
 
@@ -1379,6 +1340,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
+        _windowInfo.isWindowFocused = hasWindowFocus
         keyboardModifiersRequireUpdate = true
         super.onWindowFocusChanged(hasWindowFocus)
 
@@ -1423,8 +1385,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         if (isFocused) {
             // Focus lies within the Compose hierarchy, so we dispatch the key event to the
             // appropriate place.
-            composeViewContext.windowInfo.keyboardModifiers =
-                PointerKeyboardModifiers(event.metaState)
+            _windowInfo.keyboardModifiers = PointerKeyboardModifiers(event.metaState)
             // If the event is not consumed, use the default implementation.
             focusOwner.dispatchKeyEvent(KeyEvent(event)) || super.dispatchKeyEvent(event)
         } else {
@@ -2108,7 +2069,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         // that will observe all children. The AndroidComposeView has only the
         // root, so it doesn't have to invalidate itself based on model changes.
         try {
-            composeViewContext.canvasHolder.drawInto(canvas) {
+            canvasHolder.drawInto(canvas) {
                 root.draw(
                     canvas = this,
                     graphicsLayer = null, // the root node will provide the root graphics layer
@@ -2186,18 +2147,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     /**
-     * The callback to be executed when the View is attached to the window or a custom
-     * [ComposeViewContext] is used. Note that this callback will be fired inline if it is already
-     * ready.
+     * The callback to be executed when [viewTreeOwners] is created and not-null anymore. Note that
+     * this callback will be fired inline when it is already available
      */
-    fun setOnReadyForComposition(callback: (ComposeViewContext) -> Unit) {
-        // Use a derivedStateOf so that the caller is notified when the attachment state
-        // changes. This is relied on by XR.
-        derivedIsAttached
-        if (isAttachedToWindow || composeViewContextIncrementedDuringInit) {
-            callback(composeViewContext)
-        } else {
-            onReadyForComposition = callback
+    fun setOnViewTreeOwnersAvailable(callback: (ViewTreeOwners) -> Unit) {
+        val viewTreeOwners = viewTreeOwners
+        if (viewTreeOwners != null) {
+            callback(viewTreeOwners)
+        }
+        if (!isAttachedToWindow) {
+            onViewTreeOwnersAvailable = callback
         }
     }
 
@@ -2233,7 +2192,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        isAttached = true
         if (SDK_INT < 30) {
             showLayoutBounds = getIsShowingLayoutBounds()
         }
@@ -2241,13 +2199,12 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             insetsListener.onViewAttachedToWindow(this)
         }
         addNotificationForSysPropsChange(this)
-        if (!composeViewContextIncrementedDuringInit) {
-            composeViewContext.incrementViewCount()
-            snapshotObserver.startObserving()
-        }
-        composeViewContextIncrementedDuringInit = false
+        _windowInfo.isWindowFocused = hasWindowFocus()
+        _windowInfo.setOnInitializeContainerSize { calculateWindowSize(this) }
+        updateWindowMetrics()
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
+        snapshotObserver.startObserving()
         ifDebug {
             if (autofillSupported()) {
                 // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
@@ -2256,17 +2213,57 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             }
         }
 
-        retainedValuesStore = installLocalRetainedValuesStore() ?: ForgetfulRetainedValuesStore
+        val lifecycleOwner = findViewTreeLifecycleOwner()
+        val savedStateRegistryOwner = findViewTreeSavedStateRegistryOwner()
+        val viewModelStoreOwner = findViewTreeViewModelStoreOwner()
 
-        onReadyForComposition?.let {
-            it(composeViewContext)
-            onReadyForComposition = null
+        retainedValuesStore =
+            installLocalRetainedValuesStore(lifecycleOwner, viewModelStoreOwner)
+                ?: ForgetfulRetainedValuesStore
+
+        val oldViewTreeOwners = viewTreeOwners
+        // We need to change the ViewTreeOwner if there isn't one yet (null)
+        // or if either the lifecycleOwner, savedStateRegistryOwner, viewModelStoreOwner has
+        // changed.
+        val resetViewTreeOwner =
+            oldViewTreeOwners == null ||
+                ((lifecycleOwner != null && savedStateRegistryOwner != null) &&
+                    (lifecycleOwner !== oldViewTreeOwners.lifecycleOwner ||
+                        savedStateRegistryOwner !== oldViewTreeOwners.savedStateRegistryOwner ||
+                        viewModelStoreOwner !== oldViewTreeOwners.viewModelStoreOwner))
+        if (resetViewTreeOwner) {
+            if (lifecycleOwner == null) {
+                throw IllegalStateException(
+                    "Composed into the View which doesn't propagate ViewTreeLifecycleOwner!"
+                )
+            }
+            if (savedStateRegistryOwner == null) {
+                throw IllegalStateException(
+                    "Composed into the View which doesn't propagate" +
+                        "ViewTreeSavedStateRegistryOwner!"
+                )
+            }
+            oldViewTreeOwners?.lifecycleOwner?.lifecycle?.removeObserver(this)
+            lifecycleOwner.lifecycle.addObserver(this)
+            val viewTreeOwners =
+                ViewTreeOwners(
+                    lifecycleOwner = lifecycleOwner,
+                    savedStateRegistryOwner = savedStateRegistryOwner,
+                    viewModelStoreOwner = viewModelStoreOwner,
+                )
+            _viewTreeOwners = viewTreeOwners
+            onViewTreeOwnersAvailable?.invoke(viewTreeOwners)
+            onViewTreeOwnersAvailable = null
         }
 
-        val lifecycle = composeViewContext.lifecycleOwner.lifecycle
+        _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
+
+        val lifecycle =
+            checkPreconditionNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
+                "No lifecycle owner exists"
+            }
         lifecycle.addObserver(this)
         lifecycle.addObserver(contentCaptureManager)
-        _inputModeManager.inputMode = if (isInTouchMode) Touch else Keyboard
         viewTreeObserver.addOnGlobalLayoutListener(this)
         viewTreeObserver.addOnScrollChangedListener(this)
         viewTreeObserver.addOnTouchModeChangeListener(this)
@@ -2279,9 +2276,13 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         focusOwner.listeners += this
     }
 
-    private fun installLocalRetainedValuesStore(): RetainedValuesStore? {
-        val viewModelStoreOwner = composeViewContext.viewModelStoreOwner ?: return null
-        if (frameEndScheduler == null) return null
+    private fun installLocalRetainedValuesStore(
+        lifecycleOwner: LifecycleOwner?,
+        viewModelStoreOwner: ViewModelStoreOwner?,
+    ): RetainedValuesStore? {
+        val frameEndScheduler = frameEndScheduler
+        if (lifecycleOwner == null || viewModelStoreOwner == null || frameEndScheduler == null)
+            return null
 
         val retainedValuesStoreOwner =
             ViewModelProvider.create(
@@ -2302,7 +2303,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     @OptIn(ExperimentalComposeUiApi::class)
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        isAttached = false
         if (ComposeUiFlags.areWindowInsetsRulersEnabled) {
             insetsListener.onViewDetachedFromWindow(this)
         }
@@ -2312,11 +2312,14 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         }
 
         removeNotificationForSysPropsChange(this)
-        composeViewContext.decrementViewCount()
-        val lifecycle = composeViewContext.lifecycleOwner.lifecycle
+        snapshotObserver.stopObserving()
+        _windowInfo.setOnInitializeContainerSize(null)
+        val lifecycle =
+            checkPreconditionNotNull(viewTreeOwners?.lifecycleOwner?.lifecycle) {
+                "No lifecycle owner exists"
+            }
         lifecycle.removeObserver(contentCaptureManager)
         lifecycle.removeObserver(this)
-        snapshotObserver.stopObserving()
         ifDebug {
             if (autofillSupported()) {
                 // TODO(b/333102566): Use _semanticAutofill after switching to the newer Autofill
@@ -2662,8 +2665,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     private fun sendMotionEvent(motionEvent: MotionEvent): ProcessResult {
         if (keyboardModifiersRequireUpdate) {
             keyboardModifiersRequireUpdate = false
-            composeViewContext.windowInfo.keyboardModifiers =
-                PointerKeyboardModifiers(motionEvent.metaState)
+            _windowInfo.keyboardModifiers = PointerKeyboardModifiers(motionEvent.metaState)
         }
         val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(motionEvent, this)
         val action = motionEvent.actionMasked
@@ -2762,7 +2764,6 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                 /* flags */ motionEvent.flags,
             )
         val pointerInputEvent = motionEventAdapter.convertToPointerInputEvent(event, this)!!
-
         pointerInputEventProcessor.process(pointerInputEvent, this, true)
         event.recycle()
     }
@@ -2850,6 +2851,10 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
         viewToWindowMatrix.invertTo(windowToViewMatrix)
     }
 
+    private fun updateWindowMetrics() {
+        _windowInfo.updateContainerSizeIfObserved { calculateWindowSize(this) }
+    }
+
     override fun onCheckIsTextEditor(): Boolean {
         val parentSession =
             textInputSessionMutex.currentSession
@@ -2881,12 +2886,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
 
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
-        // While ComposeViewContext receives configuration change events through the
-        // context's ComponentCallback, some changes come through the view hierarchy and have
-        // to be notified that way. For example, a dev may trigger night mode on the Activity
-        // and it won't come through the context. We'll trigger the change here also
-        // to catch those types of changes.
-        composeViewContext.onConfigurationChanged(newConfig)
+        updateConfiguration(newConfig)
     }
 
     /**
@@ -2904,7 +2904,36 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
      */
     private fun dispatchConfigurationChangeIfNeeded() {
         if (SDK_INT in 32..33) {
-            composeViewContext.onConfigurationChanged(resources.configuration)
+            updateConfiguration(resources.configuration)
+        }
+    }
+
+    /** Updates this [AndroidComposeView] with properties from the updated [Configuration]. */
+    private fun updateConfiguration(newConfig: Configuration) {
+        // Keep track of the old configuration for checking if components have updated
+        val oldConfig = configuration
+        if (oldConfig != newConfig) {
+            // Create a deep copy for comparison - both here in the future, and to allow
+            // consumers to properly use LocalConfiguration as a proper key.
+            configuration = Configuration(newConfig)
+        } else {
+            // Nothing changed at all, short circuit
+            return
+        }
+        // Density can only change if the densityDpi changed or if the fontScale changed.
+        // Otherwise, don't create a new Density object.
+        if (
+            oldConfig.fontScale != newConfig.fontScale ||
+                oldConfig.densityDpi != newConfig.densityDpi
+        ) {
+            density = Density(context)
+        }
+        if (oldConfig.diffForWindowMetricsChanged(newConfig)) {
+            updateWindowMetrics()
+        }
+        // Update the font family resolver if the font weight adjustment changed
+        if (oldConfig.fontWeightAdjustmentCompat != newConfig.fontWeightAdjustmentCompat) {
+            fontFamilyResolver = createFontFamilyResolver(context)
         }
     }
 
@@ -2948,6 +2977,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                     previousMotionEvent?.recycle()
                     previousMotionEvent = MotionEvent.obtainNoHistory(event)
                     hoverExitReceived = true
+
                     // There are cases where the hover exit will incorrectly trigger because this
                     // post is called right before the end of the frame and the new frame checks for
                     // a press/down event (which hasn't occurred yet). Therefore, we delay the post
@@ -3110,7 +3140,7 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
     }
 
     override val isLifecycleInResumedState: Boolean
-        get() = composeViewContext.lifecycleOwner.lifecycle.currentState == Lifecycle.State.RESUMED
+        get() = viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState == Lifecycle.State.RESUMED
 
     override fun shouldDelayChildPressedState(): Boolean = false
 
@@ -3250,11 +3280,11 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
                                     val oldValue = it.showLayoutBounds
                                     it.showLayoutBounds = getIsShowingLayoutBounds()
                                     if (oldValue != it.showLayoutBounds) {
-                                        it.invalidateDescendants()
+                                        it.post { it.invalidateDescendants() }
                                     }
                                 }
                             } else {
-                                composeViews.forEach { it.invalidateDescendants() }
+                                composeViews.forEach { it.post { it.invalidateDescendants() } }
                             }
                         }
                     }
@@ -3301,6 +3331,16 @@ internal class AndroidComposeView(context: Context, composeViewContext: ComposeV
             } catch (_: Exception) {}
         }
     }
+
+    /** Combines objects populated via ViewTree*Owner */
+    class ViewTreeOwners(
+        /** The [LifecycleOwner] associated with this owner. */
+        val lifecycleOwner: LifecycleOwner,
+        /** The [SavedStateRegistryOwner] associated with this owner. */
+        val savedStateRegistryOwner: SavedStateRegistryOwner,
+        /** The [ViewModelStoreOwner] associated with this owner. */
+        val viewModelStoreOwner: ViewModelStoreOwner?,
+    )
 
     private inner class RootModifierNode :
         Modifier.Node(),
@@ -3876,3 +3916,48 @@ internal class IndirectPointerNavigationGestureDetector(
         ignoreCurrentGestureStream = true
     }
 }
+
+/**
+ * A combined mask of all known configuration changes that do not affect the window metrics.
+ *
+ * For optimization purposes, any new configuration changes that don't result in the window metrics
+ * changes should be added to this list.
+ *
+ * Order is copied from `ActivityInfo.Config` with the config change types that can affect the
+ * window metrics excluded
+ */
+private const val maskForNonWindowMetricsChanges =
+    ActivityInfo.CONFIG_MCC or
+        ActivityInfo.CONFIG_MNC or
+        ActivityInfo.CONFIG_LOCALE or
+        ActivityInfo.CONFIG_TOUCHSCREEN or
+        ActivityInfo.CONFIG_KEYBOARD or
+        ActivityInfo.CONFIG_KEYBOARD_HIDDEN or
+        ActivityInfo.CONFIG_NAVIGATION or
+        ActivityInfo.CONFIG_UI_MODE or
+        ActivityInfo.CONFIG_LAYOUT_DIRECTION or
+        ActivityInfo.CONFIG_COLOR_MODE or
+        ActivityInfo.CONFIG_FONT_SCALE or
+        ActivityInfo.CONFIG_GRAMMATICAL_GENDER or
+        ActivityInfo.CONFIG_FONT_WEIGHT_ADJUSTMENT // or
+
+// TODO(b/450557132): Add when compileSdk is bumped to 36
+//   ActivityInfo.CONFIG_ASSETS_PATHS
+
+/**
+ * Diffs this [Configuration] with the [other] to determine if there were any configuration changes
+ * that could result in the window metrics being changed.
+ *
+ * We also can't just look at [Configuration.screenWidthDp] and [Configuration.screenHeightDp]:
+ * Those are represented by integer coordinates, which means that there is necessary rounding.
+ * Therefore, small window size changes that are 1 dp or less, may not change the rounded value of
+ * [Configuration.screenWidthDp] and [Configuration.screenHeightDp], but this does indeed cause a
+ * configuration change that is captured by a change in the non-public window configuration.
+ *
+ * Because the window configuration is not-public, and to guard against future configuration changes
+ * that may change the window metrics, the implementation for this is inverted: We assume that the
+ * window metrics may have changed if there were any changes in the configuration other than those
+ * defined by [maskForNonWindowMetricsChanges], which we know will not.
+ */
+private fun Configuration.diffForWindowMetricsChanged(other: Configuration): Boolean =
+    (diff(other) and maskForNonWindowMetricsChanges.inv()) != 0

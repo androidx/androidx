@@ -514,7 +514,7 @@ class SpatialEnvironmentFeatureImplTest {
         runUiThreadTasks()
         val secondEnvNode = ShadowXrExtensions.extract(xrExtensions).getEnvironmentNode(activity)
 
-        assertThat(secondEnvNode).isSameInstanceAs(firstEnvNode)
+        assertThat(secondEnvNode).isEqualTo(firstEnvNode)
     }
 
     @Test

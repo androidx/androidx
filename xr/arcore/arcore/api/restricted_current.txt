@@ -504,6 +504,17 @@ package androidx.xr.arcore {
     method public static java.util.List<androidx.xr.arcore.HitResult> hitTest(androidx.xr.runtime.Session session, androidx.xr.runtime.math.Ray ray);
   }
 
+  public final class NativeData {
+    method @InaccessibleFromKotlin public Long? getNativeInstancePointer();
+    method @InaccessibleFromKotlin public long getNativeSessionPointer();
+    property public Long? nativeInstancePointer;
+    property public long nativeSessionPointer;
+  }
+
+  @SuppressCompatibility public final class NativeDataExt {
+    method @SuppressCompatibility @androidx.xr.arcore.UnstableNativeResourceApi public static androidx.xr.arcore.NativeData getNativeData(androidx.xr.runtime.Session);
+  }
+
   public final class PerceptionState {
     method @InaccessibleFromKotlin public androidx.xr.arcore.ArDevice getArDevice();
     method @InaccessibleFromKotlin public androidx.xr.arcore.DepthMap? getLeftDepthMap();
@@ -660,6 +671,9 @@ package androidx.xr.arcore {
   public static interface Trackable.State {
     method @InaccessibleFromKotlin public androidx.xr.runtime.TrackingState getTrackingState();
     property public abstract androidx.xr.runtime.TrackingState trackingState;
+  }
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="Access to native pointers is discouraged and the data returned by this API may change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface UnstableNativeResourceApi {
   }
 
 }

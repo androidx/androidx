@@ -31,12 +31,12 @@ class AudioSpecTest {
     fun newBuilder_containsCorrectDefaults() {
         val audioSpec = AudioSpec.builder().build()
 
-        assertThat(audioSpec.source).isEqualTo(AudioSpec.SOURCE_AUTO)
-        assertThat(audioSpec.sourceFormat).isEqualTo(AudioSpec.SOURCE_FORMAT_AUTO)
-        assertThat(audioSpec.bitrate).isEqualTo(AudioSpec.BITRATE_AUTO)
-        assertThat(audioSpec.channelCount).isEqualTo(AudioSpec.CHANNEL_COUNT_AUTO)
-        assertThat(audioSpec.sampleRate).isEqualTo(AudioSpec.SAMPLE_RATE_AUTO)
-        assertThat(audioSpec.mimeType).isEqualTo(AudioSpec.MIME_TYPE_AUTO)
+        assertThat(audioSpec.source).isEqualTo(AudioSpec.SOURCE_UNSPECIFIED)
+        assertThat(audioSpec.sourceFormat).isEqualTo(AudioSpec.SOURCE_FORMAT_UNSPECIFIED)
+        assertThat(audioSpec.bitrate).isEqualTo(AudioSpec.BITRATE_UNSPECIFIED)
+        assertThat(audioSpec.channelCount).isEqualTo(AudioSpec.CHANNEL_COUNT_UNSPECIFIED)
+        assertThat(audioSpec.sampleRate).isEqualTo(AudioSpec.SAMPLE_RATE_UNSPECIFIED)
+        assertThat(audioSpec.mimeType).isEqualTo(AudioSpec.MIME_TYPE_UNSPECIFIED)
     }
 
     @Test

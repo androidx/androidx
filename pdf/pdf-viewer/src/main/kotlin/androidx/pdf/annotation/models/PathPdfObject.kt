@@ -47,13 +47,14 @@ public class PathPdfObject(
     }
 
     /** Flattens this object in to a Parcel. */
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
+    public override fun writeToParcel(dest: Parcel, flags: Int) {
+        super.writeToParcel(dest, flags)
         val inputs: List<PathInput> = inputs
-        parcel.writeInt(brushColor)
-        parcel.writeFloat(brushWidth)
-        parcel.writeInt(inputs.size)
+        dest.writeInt(brushColor)
+        dest.writeFloat(brushWidth)
+        dest.writeInt(inputs.size)
         for (input in inputs) {
-            input.writeToParcel(parcel, flags)
+            input.writeToParcel(dest, flags)
         }
     }
 

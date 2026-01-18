@@ -33,7 +33,7 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.ui.tooling.data"
-        compileSdk = 35
+        compileSdk { version = release(35) }
     }
     jvmStubs()
 

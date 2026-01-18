@@ -23,8 +23,8 @@ All public drawing APIs should prioritize "Remote" types over standard platform 
 
 ### 1. Handling `RemoteFloat`
 `RemoteFloat` can represent either a constant value or a dynamic expression (identified by an ID).
-- **NEVER** use `internalAsFloat()` for arithmetic or logic. It returns the remote ID encoded as a NaN, which will corrupt any calculation.
-- **DO** use `getFloatIdForCreationState(creationState)` when you need to serialize the value/ID into a `RecordingCanvas` command. If this is required put a TODO in RecordingCanvas to add a Remote overload.
+- **NEVER** use `RemoteFloat.floatId` for arithmetic or logic. It returns the remote ID encoded as a NaN, which will corrupt any calculation.
+- **DO** use `RemoteStateScope` when you need to serialize the value/ID into a `RecordingCanvas` command. If this is required put a TODO in RecordingCanvas to add a Remote overload.
 
 ### 2. `RemotePaint` usage
 `RemotePaint` is a critical bridge. It allows standard `android.graphics.Paint` properties to be associated with remote IDs.
@@ -37,3 +37,10 @@ When bridging standard Compose types (like `BlendMode` or `ColorFilter`) to the 
 
 ### 4. Incremental Public API Design
 Always start with the minimum set of methods required by downstream consumers (like `remote-material3`). This reduces the maintenance surface and serialization overhead. Implementing unused methods will introduce a lot of transitive complexity and untested code.
+
+### 5. V1 Compatibility in RecordingCanvas
+While `RemoteCanvas2` and `RemoteDrawScope2` are pruned and use remote-first types, `RecordingCanvas` must maintain overloads for standard platform types (`Float`, `Rect`, etc.) to support the existing V1 `RemoteDrawScope` during the migration period.
+- **CAUTION**: When adding new functionality to V2, consider if a V1 bridge is needed in `RecordingCanvas` to prevent build regressions.
+
+### 6. Specialized Drawing Signatures
+Some drawing operations, like `drawTextOnCircle`, have complex signatures in the underlying `RemoteComposeWriter`. Ensure these signatures are correctly mirrored in `RemoteCanvas2` and `RemoteDrawScope2`, matching the writer's expectations for optional parameters like warp radius, alignment, and placement.

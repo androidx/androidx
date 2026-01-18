@@ -37,6 +37,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.navigationevent.NavigationEventDispatcherOwner
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.LocalNavigationEventDispatcherOwner
 
@@ -105,23 +106,25 @@ public object LocalOnBackPressedDispatcherOwner {
 @OptIn(ExperimentalActivityApi::class)
 @Composable
 public fun BackHandler(enabled: Boolean = true, onBack: () -> Unit) {
-    val navigationEventDispatcherOwner = LocalNavigationEventDispatcherOwner.current
-    val onBackPressedDispatcherOwner = LocalOnBackPressedDispatcherOwner.current
+    // Short-circuit: Only read the legacy owner if the new one is missing.
     val owner =
-        requireNotNull(navigationEventDispatcherOwner ?: onBackPressedDispatcherOwner) {
-            "No NavigationEventDispatcherOwner was provided via " +
-                "LocalNavigationEventDispatcherOwner and no OnBackPressedDispatcherOwner was " +
-                "provided via LocalOnBackPressedDispatcherOwner. Please provide one of the two."
-        }
+        LocalNavigationEventDispatcherOwner.current
+            ?: LocalOnBackPressedDispatcherOwner.current
+            ?: error(
+                "No NavigationEventDispatcherOwner was provided via " +
+                    "LocalNavigationEventDispatcherOwner and no OnBackPressedDispatcherOwner was " +
+                    "provided via LocalOnBackPressedDispatcherOwner. Please provide one of the two."
+            )
 
-    val dispatcher = remember {
-        // Create a dispatcher compatibility layer that decides whether to use the new
-        // 'NavigationEventDispatcher' or the legacy 'OnBackPressedDispatcher'.
-        BackHandlerDispatcherCompat(
-            navigationEventDispatcher = navigationEventDispatcherOwner?.navigationEventDispatcher,
-            onBackPressedDispatcher = onBackPressedDispatcherOwner?.onBackPressedDispatcher,
-        )
-    }
+    val dispatcher =
+        remember(owner) {
+            // Create a dispatcher compatibility layer that decides whether to use the new
+            // 'NavigationEventDispatcher' or the legacy 'OnBackPressedDispatcher'.
+            BackHandlerDispatcherCompat(
+                (owner as? NavigationEventDispatcherOwner)?.navigationEventDispatcher,
+                (owner as? OnBackPressedDispatcherOwner)?.onBackPressedDispatcher,
+            )
+        }
 
     val compositeKey = currentCompositeKeyHashCode
     val handler =

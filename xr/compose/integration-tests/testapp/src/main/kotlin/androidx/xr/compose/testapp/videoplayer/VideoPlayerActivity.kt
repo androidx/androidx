@@ -80,6 +80,7 @@ import androidx.xr.compose.subspace.SpatialPanel
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.testapp.R
+import androidx.xr.compose.testapp.common.isDrmSupported
 import androidx.xr.compose.testapp.common.isMvHevcSupported
 import androidx.xr.compose.testapp.ui.components.CommonTestScaffold
 import androidx.xr.compose.unit.DpVolumeSize
@@ -452,6 +453,9 @@ class VideoPlayerActivity : ComponentActivity() {
                 }
                 if (!isMvHevcSupported()) {
                     ApiText(text = "MV-HEVC is not supported on this device")
+                }
+                if (!isDrmSupported()) {
+                    ApiText(text = "DRM is not supported on this device")
                 }
             }
         }

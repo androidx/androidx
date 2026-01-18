@@ -22,6 +22,7 @@
     <dimen name="margin_12dp">12dp</dimen>
     <dimen name="margin_16dp">16dp</dimen>
     <dimen name="corner_radius_8dp">8dp</dimen>
+    <dimen name="color_palette_max_width">176dp</dimen>
 
     <!-- Annotation Toolbar dimens - BEGIN -->
     <dimen name="annotation_tool_width">48dp</dimen>
@@ -40,5 +41,8 @@
     <dimen name="color_palette_expanded_content_width">40dp</dimen>
     <dimen name="color_palette_item_stroke_width">1dp</dimen>
     <dimen name="annotation_toolbar_corner_radius">28dp</dimen>
+
+    <dimen name="toolbar_anchor_length">388dp</dimen>
+    <dimen name="toolbar_anchor_width">72dp</dimen>
     <!-- Annotation Toolbar dimens - END -->
 </resources>

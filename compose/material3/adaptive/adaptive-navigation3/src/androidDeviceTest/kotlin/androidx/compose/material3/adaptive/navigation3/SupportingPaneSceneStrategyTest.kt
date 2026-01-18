@@ -80,6 +80,42 @@ class SupportingPaneSceneStrategyTest {
     }
 
     @Test
+    fun calculateScene_singlePane_forceSupportingPaneScene() {
+        var scene: Scene<TestKey>? = null
+        val entries = listOf(mainEntry, supportingEntry)
+
+        composeRule.setContent {
+            val strategy =
+                rememberSupportingPaneSceneStrategy<TestKey>(
+                    shouldHandleSinglePaneLayout = true,
+                    directive = PaneScaffoldDirective.Default,
+                )
+            scene = strategy.calculateScene(entries)
+        }
+
+        composeRule.waitForIdle()
+        assertThat(scene).isNotNull()
+        assertThat(scene!!.entries).containsExactlyElementsIn(entries).inOrder()
+    }
+
+    @Test
+    fun calculateScene_singlePane_forceSupportingPaneScene_butNoEntriesWithScaffoldMetadata() {
+        var scene: Scene<TestKey>? = null
+
+        composeRule.setContent {
+            val strategy =
+                rememberSupportingPaneSceneStrategy<TestKey>(
+                    shouldHandleSinglePaneLayout = true,
+                    directive = PaneScaffoldDirective.Default,
+                )
+            scene = strategy.calculateScene(listOf(nonSupportingPaneEntry, nonSupportingPaneEntry))
+        }
+
+        composeRule.waitForIdle()
+        assertThat(scene).isNull()
+    }
+
+    @Test
     fun calculateScene_reflowedPane_mainAndSupporting() {
         var scene: Scene<TestKey>? = null
         val entries = listOf(mainEntry, supportingEntry)

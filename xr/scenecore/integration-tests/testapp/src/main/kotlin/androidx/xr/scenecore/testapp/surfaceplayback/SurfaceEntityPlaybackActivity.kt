@@ -94,6 +94,7 @@ import androidx.xr.scenecore.PanelEntity
 import androidx.xr.scenecore.SurfaceEntity
 import androidx.xr.scenecore.Texture
 import androidx.xr.scenecore.scene
+import androidx.xr.scenecore.testapp.common.isDrmSupported
 import androidx.xr.scenecore.testapp.common.isMvHevcSupported
 import java.io.File
 import java.nio.ByteBuffer
@@ -992,7 +993,7 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
             shape = SurfaceEntity.Shape.Quad(FloatSize2d(1.0f, 1.0f)),
             buttonText = "[DRM] Play MVHEVC Left Primary",
             buttonColor = VideoButtonColors.DRM,
-            enabled = enabled,
+            enabled = isDrmSupported(),
             loop = loop,
             protected = true,
         )
@@ -1144,6 +1145,13 @@ class SurfaceEntityPlaybackActivity : ComponentActivity() {
                         activity,
                         isMvHevcSupported(),
                     )
+                    if (!isDrmSupported()) {
+                        Text(
+                            text = "DRM is not supported on this device.",
+                            fontSize = 18.sp,
+                            color = Color.Red,
+                        )
+                    }
                     HDRVideoPlaybackButton(session, arDevice, activity)
                     SingleViewRotated270HalfWidthButton(session, arDevice, activity)
                     MVHEVCLeftPrimaryRotated180Button(

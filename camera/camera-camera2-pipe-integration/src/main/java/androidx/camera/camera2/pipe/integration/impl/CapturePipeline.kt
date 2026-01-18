@@ -86,6 +86,7 @@ import androidx.camera.core.impl.ConvergenceUtils
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlin.reflect.KClass
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -133,7 +134,7 @@ constructor(
     private val requestListener: ComboRequestListener,
     private val useTorchAsFlash: UseTorchAsFlash,
     cameraProperties: CameraProperties,
-    private val useCaseCameraState: UseCaseCameraState,
+    private val useCaseCameraStateProvider: Provider<UseCaseCameraState>,
     private val useCaseGraphContext: UseCaseGraphContext,
 ) : CapturePipeline {
     private enum class PipelineTask {
@@ -149,7 +150,9 @@ constructor(
     )
 
     // If there is no flash unit, skip the flash related task instead of failing the pipeline.
-    private val hasFlashUnit = cameraProperties.isFlashAvailable()
+    private val hasFlashUnit by lazy { cameraProperties.isFlashAvailable() }
+
+    private val useCaseCameraState by lazy { useCaseCameraStateProvider.get() }
 
     override var template: Int = CameraDevice.TEMPLATE_PREVIEW
 

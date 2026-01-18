@@ -17,6 +17,7 @@
 
 package androidx.wear.compose.remote.material3.previews
 
+import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
@@ -90,15 +91,18 @@ private fun Container(
     )
 }
 
+val testRemoteStateScope = NoRemoteCompose()
+
 private val VolumeUp =
     RemoteImageVector.Builder(
+            testRemoteStateScope,
             name = "Volume up",
             viewportWidth = 24.0f.rf,
             viewportHeight = 24.0f.rf,
             tintColor = RemoteColor(Color.White),
         )
         .addPath(
-            RemotePathData {
+            RemotePathData(testRemoteStateScope) {
                 moveTo(3.0f.rf, 9.0f.rf)
                 verticalLineToRelative(6.0f.rf)
                 horizontalLineToRelative(4.0f.rf)

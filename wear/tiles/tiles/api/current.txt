@@ -782,6 +782,8 @@ package androidx.wear.tiles {
 
   public abstract class Material3TileService extends androidx.wear.tiles.TileService {
     ctor public Material3TileService();
+    ctor public Material3TileService(optional boolean allowDynamicTheme);
+    ctor public Material3TileService(optional boolean allowDynamicTheme, optional androidx.wear.protolayout.material3.ColorScheme defaultColorScheme);
     ctor public Material3TileService(optional boolean allowDynamicTheme, optional androidx.wear.protolayout.material3.ColorScheme defaultColorScheme, optional kotlinx.coroutines.CoroutineScope? serviceScope);
     ctor @BytecodeOnly public Material3TileService(boolean, androidx.wear.protolayout.material3.ColorScheme!, kotlinx.coroutines.CoroutineScope!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) protected final void onTileEnterEvent(androidx.wear.tiles.EventBuilders.TileEnterEvent requestParams);

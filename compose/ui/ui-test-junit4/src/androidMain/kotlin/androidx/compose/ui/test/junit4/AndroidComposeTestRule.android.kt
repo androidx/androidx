@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.test.junit4
 
-import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
@@ -49,12 +48,19 @@ import org.junit.runners.model.Statement
     level = DeprecationLevel.HIDDEN,
     message = "Replaced with same function, but with effectContext",
 )
-@SuppressLint("ComposeTestRuleDispatcher")
+@Suppress("DEPRECATION")
 actual fun createComposeRule(): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>()
 
 // experimental in desktop
-@SuppressLint("ComposeTestRuleDispatcher", "KmpExperimentalMismatch")
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.junit4.v2.createComposeRule` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION", "KmpExperimentalMismatch")
 actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTestRule =
     createAndroidComposeRule<ComponentActivity>(effectContext)
 
@@ -77,7 +83,7 @@ actual fun createComposeRule(effectContext: CoroutineContext): ComposeContentTes
     level = DeprecationLevel.HIDDEN,
     message = "Replaced with same function, but with effectContext",
 )
-@SuppressLint("ComposeTestRuleDispatcher")
+@Suppress("DEPRECATION")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule():
     AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
     // TODO(b/138993381): By launching custom activities we are losing control over what content is
@@ -107,7 +113,14 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
-@SuppressLint("ComposeTestRuleDispatcher")
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> {
@@ -137,6 +150,7 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule(
     level = DeprecationLevel.HIDDEN,
     message = "Replaced with same function, but with effectContext",
 )
+@Suppress("DEPRECATION")
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>
 ): AndroidComposeTestRule<ActivityScenarioRule<A>, A> =
@@ -166,6 +180,14 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.junit4.v2.createAndroidComposeRule` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 fun <A : ComponentActivity> createAndroidComposeRule(
     activityClass: Class<A>,
     effectContext: CoroutineContext = EmptyCoroutineContext,
@@ -192,6 +214,7 @@ fun <A : ComponentActivity> createAndroidComposeRule(
     level = DeprecationLevel.HIDDEN,
     message = "Replaced with same function, but with effectContext",
 )
+@Suppress("DEPRECATION")
 fun createEmptyComposeRule(): ComposeTestRule =
     AndroidComposeTestRule<TestRule, ComponentActivity>(
         activityRule = TestRule { base, _ -> base },
@@ -220,6 +243,14 @@ fun createEmptyComposeRule(): ComposeTestRule =
  *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
  *   used for composition and the [MainTestClock].
  */
+@Deprecated(
+    message =
+        "Use `androidx.compose.ui.test.junit4.v2.createEmptyComposeRule` instead. The v2 APIs use " +
+            "`StandardTestDispatcher` by default to better simulate production behavior where " +
+            "coroutines are queued rather than executed immediately.",
+    level = DeprecationLevel.WARNING,
+)
+@Suppress("DEPRECATION")
 fun createEmptyComposeRule(
     effectContext: CoroutineContext = EmptyCoroutineContext
 ): ComposeTestRule =
@@ -234,7 +265,6 @@ fun createEmptyComposeRule(
         },
     )
 
-@Suppress("DEPRECATION")
 @OptIn(ExperimentalTestApi::class)
 class AndroidComposeTestRule<R : TestRule, A : ComponentActivity>
 private constructor(
@@ -261,6 +291,14 @@ private constructor(
      * @param activityRule Test rule to use to launch the Activity.
      * @param activityProvider Function to retrieve the Activity from the given [activityRule].
      */
+    @Deprecated(
+        message =
+            "Use `androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule` instead. The v2 APIs use " +
+                "`StandardTestDispatcher` by default to better simulate production behavior where " +
+                "coroutines are queued rather than executed immediately.",
+        level = DeprecationLevel.WARNING,
+    )
+    @Suppress("DEPRECATION")
     constructor(
         activityRule: R,
         activityProvider: (R) -> A,
@@ -292,6 +330,13 @@ private constructor(
      *   used for composition and the [MainTestClock].
      * @param activityProvider Function to retrieve the Activity from the given [activityRule].
      */
+    @Deprecated(
+        message =
+            "Use `androidx.compose.ui.test.junit4.v2.AndroidComposeTestRule` instead. The v2 APIs use " +
+                "`StandardTestDispatcher` by default to better simulate production behavior where " +
+                "coroutines are queued rather than executed immediately.",
+        level = DeprecationLevel.WARNING,
+    )
     constructor(
         activityRule: R,
         effectContext: CoroutineContext = EmptyCoroutineContext,

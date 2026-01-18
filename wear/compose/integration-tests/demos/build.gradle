@@ -22,12 +22,12 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk { version = release(36) }
     defaultConfig {
         applicationId = "androidx.wear.compose.integration.demos"
-        minSdk = 25
-        versionCode = 92
-        versionName = "1.92"
+        minSdk { version = release(25) }
+        versionCode = 93
+        versionName = "1.93"
     }
 
     buildTypes {

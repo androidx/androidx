@@ -141,6 +141,7 @@ package androidx.compose.ui {
 
   @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final class ComposeUiFlags {
     property public boolean areWindowInsetsRulersEnabled;
+    property public boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     property public boolean isAdaptiveRefreshRateEnabled;
     property public boolean isBypassUnfocusableComposeViewEnabled;
     property public boolean isGraphicsLayerShapeSemanticsEnabled;
@@ -153,11 +154,11 @@ package androidx.compose.ui {
     property @Deprecated public boolean isRemoveFocusedViewFixEnabled;
     property public boolean isRequestFocusOnNonFocusableFocusTargetEnabled;
     property public boolean isScrollCaptureCenteringEnabled;
-    property public boolean isSharedComposeViewContextEnabled;
     property public boolean isTraversableDelegatesFixEnabled;
     property public boolean isViewFocusFixEnabled;
     field public static final androidx.compose.ui.ComposeUiFlags INSTANCE;
     field public static boolean areWindowInsetsRulersEnabled;
+    field public static boolean isAccessibilityShowOnScreenNestedScrollingEnabled;
     field public static boolean isAdaptiveRefreshRateEnabled;
     field public static boolean isBypassUnfocusableComposeViewEnabled;
     field public static boolean isGraphicsLayerShapeSemanticsEnabled;
@@ -170,7 +171,6 @@ package androidx.compose.ui {
     field @Deprecated public static boolean isRemoveFocusedViewFixEnabled;
     field public static boolean isRequestFocusOnNonFocusableFocusTargetEnabled;
     field public static boolean isScrollCaptureCenteringEnabled;
-    field public static boolean isSharedComposeViewContextEnabled;
     field public static boolean isTraversableDelegatesFixEnabled;
     field public static boolean isViewFocusFixEnabled;
   }
@@ -5046,8 +5046,10 @@ package androidx.compose.ui.window {
     ctor public PopupProperties(optional boolean focusable, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional androidx.compose.ui.window.SecureFlagPolicy securePolicy, optional boolean excludeFromSystemGesture, optional boolean clippingEnabled, optional boolean usePlatformDefaultWidth);
     ctor @BytecodeOnly public PopupProperties(boolean, boolean, boolean, androidx.compose.ui.window.SecureFlagPolicy!, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public PopupProperties(boolean, boolean, boolean, androidx.compose.ui.window.SecureFlagPolicy!, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
-    ctor public PopupProperties(optional boolean focusable, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional boolean clippingEnabled);
-    ctor @BytecodeOnly public PopupProperties(boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @Deprecated public PopupProperties(boolean, boolean, boolean, boolean);
+    ctor public PopupProperties(optional boolean focusable, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional boolean clippingEnabled, optional boolean usePlatformDefaultWidth);
+    ctor @BytecodeOnly public PopupProperties(boolean, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor @BytecodeOnly @Deprecated public PopupProperties(boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor public PopupProperties(int flags, optional boolean inheritSecurePolicy, optional boolean dismissOnBackPress, optional boolean dismissOnClickOutside, optional boolean excludeFromSystemGesture, optional boolean usePlatformDefaultWidth);
     ctor @BytecodeOnly public PopupProperties(int, boolean, boolean, boolean, boolean, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @InaccessibleFromKotlin public boolean getClippingEnabled();

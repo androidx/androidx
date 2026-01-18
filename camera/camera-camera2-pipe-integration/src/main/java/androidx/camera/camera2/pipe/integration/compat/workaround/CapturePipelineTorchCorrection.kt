@@ -36,6 +36,7 @@ import androidx.camera.core.imagecapture.CameraCapturePipeline
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -52,11 +53,12 @@ public class CapturePipelineTorchCorrection
 @Inject
 constructor(
     cameraProperties: CameraProperties,
-    private val capturePipelineImpl: CapturePipelineImpl,
+    private val capturePipelineImplProvider: Provider<CapturePipelineImpl>,
     private val threads: UseCaseThreads,
     private val torchControl: TorchControl,
 ) : CapturePipeline {
-    private val isLegacyDevice = cameraProperties.metadata.isHardwareLevelLegacy
+    private val isLegacyDevice by lazy { cameraProperties.metadata.isHardwareLevelLegacy }
+    private val capturePipelineImpl by lazy { capturePipelineImplProvider.get() }
 
     override suspend fun submitStillCaptures(
         configs: List<CaptureConfig>,

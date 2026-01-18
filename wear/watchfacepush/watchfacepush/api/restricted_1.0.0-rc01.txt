@@ -1,0 +1,148 @@
+// Signature format: 4.0
+package androidx.wear.watchfacepush {
+
+  public interface WatchFacePushManager {
+    method @kotlin.jvm.Throws(exceptionClasses=AddWatchFaceException::class) public suspend Object? addWatchFace(android.os.ParcelFileDescriptor apkFd, String validationToken, kotlin.coroutines.Continuation<? super androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails>) throws androidx.wear.watchfacepush.WatchFacePushManager.AddWatchFaceException;
+    method @kotlin.jvm.Throws(exceptionClasses=IsWatchFaceActiveException::class) public suspend Object? isWatchFaceActive(String watchfacePackageName, kotlin.coroutines.Continuation<? super java.lang.Boolean>) throws androidx.wear.watchfacepush.WatchFacePushManager.IsWatchFaceActiveException;
+    method @kotlin.jvm.Throws(exceptionClasses=ListWatchFacesException::class) public suspend Object? listWatchFaces(kotlin.coroutines.Continuation<? super androidx.wear.watchfacepush.WatchFacePushManager.ListWatchFacesResponse>) throws androidx.wear.watchfacepush.WatchFacePushManager.ListWatchFacesException;
+    method @kotlin.jvm.Throws(exceptionClasses=RemoveWatchFaceException::class) public suspend Object? removeWatchFace(String slotId, kotlin.coroutines.Continuation<? super kotlin.Unit>) throws androidx.wear.watchfacepush.WatchFacePushManager.RemoveWatchFaceException;
+    method @kotlin.jvm.Throws(exceptionClasses=SetWatchFaceAsActiveException::class) public suspend Object? setWatchFaceAsActive(String slotId, kotlin.coroutines.Continuation<? super kotlin.Unit>) throws androidx.wear.watchfacepush.WatchFacePushManager.SetWatchFaceAsActiveException;
+    method @kotlin.jvm.Throws(exceptionClasses=UpdateWatchFaceException::class) public suspend Object? updateWatchFace(String slotId, android.os.ParcelFileDescriptor apkFd, String validationToken, kotlin.coroutines.Continuation<? super androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails>) throws androidx.wear.watchfacepush.WatchFacePushManager.UpdateWatchFaceException;
+  }
+
+  public static final class WatchFacePushManager.AddWatchFaceException extends java.lang.Exception {
+    ctor public WatchFacePushManager.AddWatchFaceException(int errorCode, Throwable rootCause);
+    method @InaccessibleFromKotlin public int getErrorCode();
+    property public int errorCode;
+    property public String? message;
+    field public static final androidx.wear.watchfacepush.WatchFacePushManager.AddWatchFaceException.Companion Companion;
+    field public static final int ERROR_INVALID_PACKAGE_NAME = 3; // 0x3
+    field public static final int ERROR_INVALID_VALIDATION_TOKEN = 6; // 0x6
+    field public static final int ERROR_MALFORMED_WATCHFACE_APK = 4; // 0x4
+    field public static final int ERROR_SLOT_LIMIT_REACHED = 5; // 0x5
+    field public static final int ERROR_UNEXPECTED_CONTENT = 2; // 0x2
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+  }
+
+  public static final class WatchFacePushManager.AddWatchFaceException.Companion {
+    property public static int ERROR_INVALID_PACKAGE_NAME;
+    property public static int ERROR_INVALID_VALIDATION_TOKEN;
+    property public static int ERROR_MALFORMED_WATCHFACE_APK;
+    property public static int ERROR_SLOT_LIMIT_REACHED;
+    property public static int ERROR_UNEXPECTED_CONTENT;
+    property public static int ERROR_UNKNOWN;
+  }
+
+  public static final class WatchFacePushManager.IsWatchFaceActiveException extends java.lang.Exception {
+    ctor public WatchFacePushManager.IsWatchFaceActiveException(int errorCode, Throwable rootCause);
+    method @InaccessibleFromKotlin public int getErrorCode();
+    property public int errorCode;
+    property public String? message;
+    field public static final androidx.wear.watchfacepush.WatchFacePushManager.IsWatchFaceActiveException.Companion Companion;
+    field public static final int ERROR_INVALID_PACKAGE_NAME = 2; // 0x2
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+  }
+
+  public static final class WatchFacePushManager.IsWatchFaceActiveException.Companion {
+    property public static int ERROR_INVALID_PACKAGE_NAME;
+    property public static int ERROR_UNKNOWN;
+  }
+
+  public static final class WatchFacePushManager.ListWatchFacesException extends java.lang.Exception {
+    ctor public WatchFacePushManager.ListWatchFacesException(int errorCode, Throwable rootCause);
+    method @InaccessibleFromKotlin public int getErrorCode();
+    property public int errorCode;
+    property public String? message;
+    field public static final androidx.wear.watchfacepush.WatchFacePushManager.ListWatchFacesException.Companion Companion;
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+  }
+
+  public static final class WatchFacePushManager.ListWatchFacesException.Companion {
+    property public static int ERROR_UNKNOWN;
+  }
+
+  public static final class WatchFacePushManager.ListWatchFacesResponse {
+    ctor public WatchFacePushManager.ListWatchFacesResponse(java.util.List<androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails> installedWatchFaceDetails, int remainingSlotCount);
+    method @InaccessibleFromKotlin public java.util.List<androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails> getInstalledWatchFaceDetails();
+    method @InaccessibleFromKotlin public int getRemainingSlotCount();
+    property public java.util.List<androidx.wear.watchfacepush.WatchFacePushManager.WatchFaceDetails> installedWatchFaceDetails;
+    property public int remainingSlotCount;
+  }
+
+  public static final class WatchFacePushManager.RemoveWatchFaceException extends java.lang.Exception {
+    ctor public WatchFacePushManager.RemoveWatchFaceException(int errorCode, Throwable rootCause);
+    method @InaccessibleFromKotlin public int getErrorCode();
+    property public int errorCode;
+    property public String? message;
+    field public static final androidx.wear.watchfacepush.WatchFacePushManager.RemoveWatchFaceException.Companion Companion;
+    field public static final int ERROR_INVALID_SLOT_ID = 2; // 0x2
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+  }
+
+  public static final class WatchFacePushManager.RemoveWatchFaceException.Companion {
+    property public static int ERROR_INVALID_SLOT_ID;
+    property public static int ERROR_UNKNOWN;
+  }
+
+  public static final class WatchFacePushManager.SetWatchFaceAsActiveException extends java.lang.Exception {
+    ctor public WatchFacePushManager.SetWatchFaceAsActiveException(int errorCode, optional Throwable? rootCause);
+    ctor @BytecodeOnly public WatchFacePushManager.SetWatchFaceAsActiveException(int, Throwable!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    method @InaccessibleFromKotlin public int getErrorCode();
+    property public int errorCode;
+    property public String? message;
+    field public static final androidx.wear.watchfacepush.WatchFacePushManager.SetWatchFaceAsActiveException.Companion Companion;
+    field public static final int ERROR_INVALID_SLOT_ID = 3; // 0x3
+    field public static final int ERROR_MAXIMUM_ATTEMPTS_REACHED = 2; // 0x2
+    field public static final int ERROR_MISSING_PERMISSION = 1000; // 0x3e8
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+  }
+
+  public static final class WatchFacePushManager.SetWatchFaceAsActiveException.Companion {
+    property public static int ERROR_INVALID_SLOT_ID;
+    property public static int ERROR_MAXIMUM_ATTEMPTS_REACHED;
+    property public static int ERROR_MISSING_PERMISSION;
+    property public static int ERROR_UNKNOWN;
+  }
+
+  public static final class WatchFacePushManager.UpdateWatchFaceException extends java.lang.Exception {
+    ctor public WatchFacePushManager.UpdateWatchFaceException(int errorCode, Throwable rootCause);
+    method @InaccessibleFromKotlin public int getErrorCode();
+    property public int errorCode;
+    property public String? message;
+    field public static final androidx.wear.watchfacepush.WatchFacePushManager.UpdateWatchFaceException.Companion Companion;
+    field public static final int ERROR_INVALID_PACKAGE_NAME = 3; // 0x3
+    field public static final int ERROR_INVALID_SLOT_ID = 5; // 0x5
+    field public static final int ERROR_INVALID_VALIDATION_TOKEN = 6; // 0x6
+    field public static final int ERROR_MALFORMED_WATCHFACE_APK = 4; // 0x4
+    field public static final int ERROR_UNEXPECTED_CONTENT = 2; // 0x2
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+  }
+
+  public static final class WatchFacePushManager.UpdateWatchFaceException.Companion {
+    property public static int ERROR_INVALID_PACKAGE_NAME;
+    property public static int ERROR_INVALID_SLOT_ID;
+    property public static int ERROR_INVALID_VALIDATION_TOKEN;
+    property public static int ERROR_MALFORMED_WATCHFACE_APK;
+    property public static int ERROR_UNEXPECTED_CONTENT;
+    property public static int ERROR_UNKNOWN;
+  }
+
+  public static final class WatchFacePushManager.WatchFaceDetails {
+    ctor public WatchFacePushManager.WatchFaceDetails(String slotId, long versionCode, String packageName, kotlin.jvm.functions.Function1<? super java.lang.String,? extends java.util.List<java.lang.String>> getMetaDataFunc);
+    method public kotlin.jvm.functions.Function0<java.util.List<java.lang.String>> getMetaData(String key);
+    method @InaccessibleFromKotlin public String getPackageName();
+    method @InaccessibleFromKotlin public String getSlotId();
+    method @InaccessibleFromKotlin public long getVersionCode();
+    property public String packageName;
+    property public String slotId;
+    property public long versionCode;
+  }
+
+  public final class WatchFacePushManagerFactory {
+    method public static androidx.wear.watchfacepush.WatchFacePushManager createWatchFacePushManager(android.content.Context context);
+    method public static boolean isSupported();
+    field public static final androidx.wear.watchfacepush.WatchFacePushManagerFactory INSTANCE;
+  }
+
+}
+

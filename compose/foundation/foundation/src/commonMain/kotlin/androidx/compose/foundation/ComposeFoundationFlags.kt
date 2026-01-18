@@ -109,4 +109,18 @@ object ComposeFoundationFlags {
      * from the dataset, the cache window won't know it until it tries to prefetch them.
      */
     @field:Suppress("MutableBareField") @JvmField var isCacheWindowRefillFixEnabled = true
+
+    /**
+     * With this flag enabled,
+     * [androidx.compose.foundation.gestures.AnchoredDraggableState.targetValue] correctly returns
+     * the [androidx.compose.foundation.gestures.AnchoredDraggableState.currentValue] when no
+     * [androidx.compose.foundation.gestures.AnchoredDraggableState.anchoredDrag] is in progress.
+     * Previously, [androidx.compose.foundation.gestures.AnchoredDraggableState.targetValue]
+     * incorrectly returned the last-inserted anchor when there were two or more anchors with the
+     * same offset, for example: `DraggableAnchors { Expanded at 100f; HalfExpanded at 0f; Hidden at
+     * 0f;}` Disabling the flag restores this previous behavior.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAnchoredDraggableTargetValueCalculationFixEnabled = true
 }

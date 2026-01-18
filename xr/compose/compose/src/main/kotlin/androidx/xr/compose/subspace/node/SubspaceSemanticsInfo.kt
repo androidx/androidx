@@ -30,7 +30,7 @@ import androidx.xr.scenecore.Entity
  * accessibility services and testing. Each `SubspaceSemanticsInfo` node represents a composable in
  * the UI tree that has semantics attached.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public sealed interface SubspaceSemanticsInfo {
 
     /** The unique ID of this semantics node. */

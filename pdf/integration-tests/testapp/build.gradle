@@ -6,12 +6,10 @@ plugins {
 
 android {
     namespace = "androidx.pdf.testapp"
-
+    compileSdk { version = release(36) { sdkExtension = 19 }}
     defaultConfig {
         applicationId = "androidx.pdf.testapp"
-        minSdk = 31
-        compileSdk = 36
-        compileSdkExtension = 19
+        minSdk { version = release(31) }
     }
 
     sourceSets {

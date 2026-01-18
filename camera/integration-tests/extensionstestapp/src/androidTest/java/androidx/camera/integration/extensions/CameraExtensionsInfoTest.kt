@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import androidx.camera.camera2.adapter.awaitUntil
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -33,18 +34,24 @@ import androidx.camera.integration.extensions.CameraExtensionsActivity.CAMERA_PI
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil
 import androidx.camera.integration.extensions.util.CameraXExtensionsTestUtil.CameraXExtensionTestParams
 import androidx.camera.integration.extensions.utils.CameraSelectorUtil
+import androidx.camera.integration.extensions.utils.ExtensionModeUtil.AVAILABLE_EXTENSION_MODES
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -165,14 +172,35 @@ class CameraExtensionsInfoTest(private val config: CameraXExtensionTestParams) {
         return false
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun isCurrentExtensionModeAvailable_returnCorrectValue() {
+    fun isCurrentExtensionModeAvailable_returnCorrectValue(): Unit = runBlocking {
         val available = isCamera2CurrentExtensionModeSupported()
         assertThat(cameraExtensionsInfo.isCurrentExtensionModeAvailable).isEqualTo(available)
 
         if (available) {
             // Getting the current extension type value should not cause exception
             cameraExtensionsInfo.currentExtensionMode!!.value
+
+            val completableDeferred = CompletableDeferred<Int>()
+            val observer =
+                Observer<Int> { currentExtensionType ->
+                    completableDeferred.complete(currentExtensionType)
+                }
+
+            withContext(Dispatchers.Main) {
+                cameraExtensionsInfo.currentExtensionMode!!.observeForever(observer)
+            }
+
+            try {
+                assertThat(completableDeferred.awaitUntil(3000)).isTrue()
+                assertThat(AVAILABLE_EXTENSION_MODES.toList())
+                    .contains(completableDeferred.getCompleted())
+            } finally {
+                withContext(Dispatchers.Main) {
+                    cameraExtensionsInfo.currentExtensionMode!!.removeObserver(observer)
+                }
+            }
         } else {
             assertThat(cameraExtensionsInfo.currentExtensionMode).isNull()
         }

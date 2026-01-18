@@ -17,9 +17,11 @@
 package androidx.pdf.testapp
 
 import android.annotation.SuppressLint
+import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.OpenableColumns
 import android.view.View
 import android.widget.ImageButton
 import androidx.activity.result.ActivityResultLauncher
@@ -55,6 +57,8 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
     private lateinit var openPdfButton: MaterialButton
     private lateinit var preferenceButton: ImageButton
 
+    private var currentFileName: String = SAMPLE_PDF_NAME
+
     private val settingsDialog: FeaturePreferencesDialog by lazy {
         FeaturePreferencesDialog(this, listener = pdfViewerFragment as? FeatureFlagListener)
     }
@@ -66,7 +70,10 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
     @VisibleForTesting
     private var filePicker: ActivityResultLauncher<String> =
         registerForActivityResult(GetContent()) { uri: Uri? ->
-            uri?.let { pdfViewerFragment.documentUri = uri }
+            uri?.let {
+                pdfViewerFragment.documentUri = uri
+                currentFileName = getFileName(it)
+            }
         }
 
     private val createDocumentLauncher: ActivityResultLauncher<String> =
@@ -84,6 +91,31 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
                 }
             }
         }
+
+    private fun getFileName(uri: Uri): String {
+        var result: String? = null
+        if (uri.scheme == "content") {
+            val cursor: Cursor? = contentResolver.query(uri, null, null, null, null)
+            try {
+                if (cursor != null && cursor.moveToFirst()) {
+                    val index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+                    if (index >= 0) {
+                        result = cursor.getString(index)
+                    }
+                }
+            } finally {
+                cursor?.close()
+            }
+        }
+        if (result == null) {
+            result = uri.path
+            val cut = result?.lastIndexOf('/')
+            if (cut != null && cut != -1) {
+                result = result?.substring(cut + 1)
+            }
+        }
+        return result ?: SAMPLE_PDF_NAME
+    }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -121,7 +153,7 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
         searchButton.setOnClickListener { pdfViewerFragment.isTextSearchActive = true }
 
         preferenceButton.setOnClickListener { view -> settingsDialog.show() }
-        savePdfButton.setOnClickListener { createDocumentLauncher.launch(SAMPLE_PDF_NAME) }
+        savePdfButton.setOnClickListener { createDocumentLauncher.launch(currentFileName) }
     }
 
     private fun setPdfView() {
@@ -187,11 +219,22 @@ internal class MainActivityV2 : AppCompatActivity(), EditablePdfHostFragment.Fra
         savePdfButton.isEnabled = true
     }
 
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        currentFileName = savedInstanceState.getString(CURRENT_FILE_NAME_KEY, SAMPLE_PDF_NAME)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putString(CURRENT_FILE_NAME_KEY, currentFileName)
+    }
+
     companion object {
         private const val MIME_TYPE_PDF = "application/pdf"
         private const val PDF_VIEWER_FRAGMENT_TAG = "pdf_viewer_fragment_tag"
         internal const val FRAGMENT_TYPE_KEY = "fragmentTypeKey"
         private const val SAMPLE_PDF_NAME = "Sample.pdf"
+        private const val CURRENT_FILE_NAME_KEY = "current_file_name_key"
 
         internal enum class FragmentType {
             BASIC_FRAGMENT,

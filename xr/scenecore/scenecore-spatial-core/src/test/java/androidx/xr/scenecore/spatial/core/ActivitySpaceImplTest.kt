@@ -323,6 +323,49 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     }
 
     @Test
+    fun handleOriginUpdate_unscaledGravityAlignedTrue_preservesYaw() {
+        val handler = FakeSpatialModeChangeListener()
+        testRuntime = createTestSceneRuntime(/* unscaledGravityAlignedActivitySpace= */ true)
+        activitySpace = testRuntime.activitySpace as ActivitySpaceImpl
+        activitySpace.setSpatialModeChangeListener(handler)
+
+        // Rotation with Pitch=45, Yaw=90, Roll=30
+        val initialRotation = Quaternion.fromEulerAngles(45f, 90f, 30f)
+        val initialScale = Vector3(1.0f, 1.0f, 1.0f)
+        val newTransform = Matrix4.fromTrs(Vector3.One, initialRotation, initialScale)
+
+        activitySpace.handleOriginUpdate(newTransform)
+
+        val activitySpaceRotation =
+            RuntimeUtils.getQuaternion(nodeRepository.getOrientation(activitySpace.getNode()))
+
+        // Expected: inverse of full rotation * yaw rotation
+        // This ensures the net global rotation has the original yaw but 0 pitch/roll (gravity
+        // aligned).
+        val yawRotation = Quaternion.fromEulerAngles(0f, 90f, 0f)
+        val expectedRotation = initialRotation.inverse * yawRotation
+
+        assertThat(activitySpaceRotation.x).isWithin(0.001f).of(expectedRotation.x)
+        assertThat(activitySpaceRotation.y).isWithin(0.001f).of(expectedRotation.y)
+        assertThat(activitySpaceRotation.z).isWithin(0.001f).of(expectedRotation.z)
+        assertThat(activitySpaceRotation.w).isWithin(0.001f).of(expectedRotation.w)
+
+        // Ensure the handler receives the rotation with identity yaw (Pitch and Roll only)
+        // Original rotation: Pitch=45, Yaw=90, Roll=30
+        // Expected rotation: Pitch=45, Yaw=0, Roll=30
+        val expectedCallbackRotation = Quaternion.fromEulerAngles(45f, 0f, 30f)
+        val expectedPose = Pose(Vector3.Zero, expectedCallbackRotation)
+
+        val actualPose = handler.lastRecommendedPose!!
+        assertThat(actualPose.rotation.x).isWithin(0.001f).of(expectedPose.rotation.x)
+        assertThat(actualPose.rotation.y).isWithin(0.001f).of(expectedPose.rotation.y)
+        assertThat(actualPose.rotation.z).isWithin(0.001f).of(expectedPose.rotation.z)
+        assertThat(actualPose.rotation.w).isWithin(0.001f).of(expectedPose.rotation.w)
+
+        assertThat(handler.updateCount).isEqualTo(1)
+    }
+
+    @Test
     fun handleOriginUpdate_noHandler_doesNotCallHandler() {
         val handler = FakeSpatialModeChangeListener()
         testRuntime = createTestSceneRuntime(/* unscaledGravityAlignedActivitySpace= */ true)
@@ -343,7 +386,12 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
         )
         val activitySpaceRotation =
             RuntimeUtils.getQuaternion(nodeRepository.getOrientation(activitySpace.getNode()))
-        val expectedRotation = newTransform.unscaled().rotation.inverse
+
+        // Even without handler, the physics correction applies.
+        // Rotation was 90 roll. Yaw=0.
+        // Expected: Inverse(90 roll) * Yaw(0) = Inverse(90 roll)
+        val expectedRotation = initialRotation.inverse
+
         assertThat(activitySpaceRotation.x).isWithin(0.001f).of(expectedRotation.x)
         assertThat(activitySpaceRotation.y).isWithin(0.001f).of(expectedRotation.y)
         assertThat(activitySpaceRotation.z).isWithin(0.001f).of(expectedRotation.z)

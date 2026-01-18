@@ -59,7 +59,7 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
     public fun captureWith(
         streamIds: Set<StreamId> = emptySet(),
         parameters: Map<Any, Any?> = emptyMap(),
-        capacity: Int = 1,
+        capacity: Int = DEFAULT_FRAME_BUFFER_CAPACITY,
     ): FrameBuffer
 
     /**
@@ -74,4 +74,16 @@ public interface FrameGraph : CameraGraphBase<FrameGraph.Session>, CameraControl
      * Example: A [Session] should *not* be held during video recording.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface Session : CameraGraph.Session
+
+    public companion object {
+        private const val DEFAULT_FRAME_BUFFER_CAPACITY = 1
+
+        /** Utility function for the common case of attaching a single stream. See [captureWith]. */
+        @JvmStatic
+        public fun FrameGraph.captureWith(
+            streamId: StreamId,
+            parameters: Map<Any, Any?> = emptyMap(),
+            capacity: Int = DEFAULT_FRAME_BUFFER_CAPACITY,
+        ): FrameBuffer = captureWith(setOf(streamId), parameters, capacity)
+    }
 }

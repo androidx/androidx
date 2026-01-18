@@ -18,7 +18,6 @@
 
 package androidx.compose.ui.test
 
-import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
@@ -61,7 +60,6 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 
-@SuppressLint("ComposeTestRuleDispatcher")
 @ExperimentalTestApi
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
@@ -82,7 +80,6 @@ fun runComposeUiTestNonSuspendingLambda(
     }
 }
 
-@SuppressLint("ComposeTestRuleDispatcher")
 @ExperimentalTestApi
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
@@ -104,7 +101,6 @@ fun <A : ComponentActivity> runAndroidComposeUiTestNonSuspendingLambda(
     }
 }
 
-@SuppressLint("ComposeTestRuleDispatcher")
 @ExperimentalTestApi
 @Deprecated(
     level = DeprecationLevel.HIDDEN,
@@ -162,7 +158,6 @@ fun <A : ComponentActivity> AndroidComposeUiTestEnvironmentNoSuspendingLambda(
             "coroutines are queued rather than executed immediately.",
     level = DeprecationLevel.WARNING,
 )
-@SuppressLint("ComposeTestRuleDispatcher")
 @Suppress("RedundantUnitReturnType")
 @ExperimentalTestApi
 actual fun runComposeUiTest(
@@ -206,7 +201,6 @@ actual fun runComposeUiTest(
             "coroutines are queued rather than executed immediately.",
     level = DeprecationLevel.WARNING,
 )
-@SuppressLint("ComposeTestRuleDispatcher")
 @Suppress("RedundantUnitReturnType")
 @ExperimentalTestApi
 inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
@@ -489,21 +483,8 @@ internal constructor(
      * TestCoroutineScheduler if it is provided
      */
     private val compositionCoroutineDispatcher: TestDispatcher =
-        customTestDispatcher ?: UnconfinedTestDispatcher(effectContext[TestCoroutineScheduler])
-
-    /**
-     * This flag is set to `false` when a custom `TestDispatcher` (including
-     * `UnconfinedTestDispatcher`) is provided to the `ComposeTestRule`.
-     */
-    private val isDefaultTestDispatcherUsed: Boolean
-        get() = customTestDispatcher == null
-
-    /**
-     * This enables a compatibility layer to support the `StandardTestDispatcher` behavior for
-     * tests.
-     */
-    private val isStandardTestDispatcherSupportEnabled: Boolean =
-        !isDefaultTestDispatcherUsed && ComposeUiTestFlags.isStandardTestDispatcherSupportEnabled
+        customTestDispatcher
+            ?: effectContext.createDefaultTestDispatcher(useStandardTestDispatcherForComposition)
 
     private val frameClockCoroutineScope = TestScope(compositionCoroutineDispatcher)
     private lateinit var recomposerCoroutineScope: CoroutineScope
@@ -542,7 +523,7 @@ internal constructor(
             MainTestClockImpl(
                 scheduler = compositionCoroutineDispatcher.scheduler,
                 frameClock = frameClock,
-                isStandardTestDispatcherSupportEnabled = isStandardTestDispatcherSupportEnabled,
+                isStandardTestDispatcherSupportEnabled = useStandardTestDispatcherForComposition,
             )
 
         infiniteAnimationPolicy =
@@ -587,7 +568,7 @@ internal constructor(
                 composeRootRegistry,
                 mainClockImpl,
                 recomposer,
-                isStandardTestDispatcherSupportEnabled,
+                useStandardTestDispatcherForComposition,
             )
     }
 
@@ -748,7 +729,7 @@ internal constructor(
                 // be called before the dispatch, leading to an unexpected recomposition when
                 // runRecomposeAndApplyChanges() is called.
                 val coroutineStart =
-                    if (isStandardTestDispatcherSupportEnabled) {
+                    if (useStandardTestDispatcherForComposition) {
                         CoroutineStart.UNDISPATCHED
                     } else {
                         CoroutineStart.DEFAULT
@@ -850,7 +831,7 @@ internal constructor(
 
             // With a StandardTestDispatcher, it could be that tasks are due which can satisfy the
             // condition, so run all pending tasks before checking the condition.
-            if (isStandardTestDispatcherSupportEnabled) {
+            if (useStandardTestDispatcherForComposition) {
                 mainClockImpl.runCurrent()
             }
 

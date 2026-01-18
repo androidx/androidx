@@ -185,29 +185,19 @@ class FakeEntityTest {
     }
 
     @Test
-    fun setAlpha_withDifferentSpaces() {
+    fun setAlpha_getsAlphaCorrectly() {
         assertThat(underTest.getAlpha(Space.PARENT)).isEqualTo(1.0f)
-        assertThat(underTest.getAlpha(Space.ACTIVITY)).isEqualTo(1.0f)
-        assertThat(underTest.getAlpha(Space.REAL_WORLD)).isEqualTo(1.0f)
 
         val alphaParent = 0.1f
-        underTest.setAlpha(alphaParent, Space.PARENT)
+        underTest.setAlpha(alphaParent)
         assertThat(underTest.getAlpha(Space.PARENT)).isEqualTo(alphaParent)
-
-        val alphaActivity = 0.2f
-        underTest.setAlpha(alphaActivity, Space.ACTIVITY)
-        assertThat(underTest.getAlpha(Space.ACTIVITY)).isEqualTo(alphaActivity)
-
-        val alphaWorld = 0.3f
-        underTest.setAlpha(alphaWorld, Space.REAL_WORLD)
-        assertThat(underTest.getAlpha(Space.REAL_WORLD)).isEqualTo(alphaWorld)
 
         // Alpha value range = coerceIn(0f, 1f)
         val invalidAlphaNegative = -0.1f
         val invalidAlphaMoreThanOne = 1.1f
-        underTest.setAlpha(invalidAlphaNegative, Space.REAL_WORLD)
+        underTest.setAlpha(invalidAlphaNegative)
         assertThat(underTest.getAlpha(Space.REAL_WORLD)).isEqualTo(0f)
-        underTest.setAlpha(invalidAlphaMoreThanOne, Space.REAL_WORLD)
+        underTest.setAlpha(invalidAlphaMoreThanOne)
         assertThat(underTest.getAlpha(Space.REAL_WORLD)).isEqualTo(1f)
     }
 

@@ -32,7 +32,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 36
+        compileSdk { version = release(36) }
         namespace = "androidx.navigation3.ui"
         androidResources.enable = true
     }
@@ -45,10 +45,10 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(project(":navigation3:navigation3-runtime"))
             api("androidx.navigationevent:navigationevent-compose:1.0.0")
-            api("androidx.compose.animation:animation:1.10.0-beta02")
-            api("androidx.compose.runtime:runtime:1.10.0-beta02")
-            api("androidx.compose.runtime:runtime-saveable:1.10.0-beta02")
-            api("androidx.compose.ui:ui:1.10.0-beta02")
+            api("androidx.compose.animation:animation:1.10.0")
+            api("androidx.compose.runtime:runtime:1.10.0")
+            api("androidx.compose.runtime:runtime-saveable:1.10.0")
+            api("androidx.compose.ui:ui:1.10.0")
             api("androidx.savedstate:savedstate:1.4.0")
             api("androidx.savedstate:savedstate-compose:1.4.0")
             implementation("androidx.annotation:annotation:1.8.0")

@@ -52,7 +52,6 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
 class PagerScaffoldScreenshotTest {
 
-    @Suppress("ComposeTestRuleDispatcher")
     @OptIn(ExperimentalCoroutinesApi::class) // b/457595340
     @get:Rule
     val rule = createComposeRule(UnconfinedTestDispatcher())

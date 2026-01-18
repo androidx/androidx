@@ -50,7 +50,7 @@ public final class MediaUtilsTest {
         com.android.extensions.xr.media.PointSourceParams result =
                 MediaUtils.convertPointSourceParamsToExtensions(rtParams);
 
-        assertThat(result.getNode()).isSameInstanceAs(expected);
+        assertThat(result.getNode()).isEqualTo(expected);
     }
 
     @Test

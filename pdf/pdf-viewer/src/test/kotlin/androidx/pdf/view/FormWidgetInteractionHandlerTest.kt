@@ -70,13 +70,12 @@ class FormWidgetInteractionHandlerTest {
         val touchPoint = PdfPoint(pageNum, pdfCoordinates)
         val widgetIndex = 0
         val formWidgetInfo =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_CHECKBOX,
+            FormWidgetInfo.createCheckbox(
                 widgetIndex = widgetIndex,
                 widgetRect = Rect(10, 10, 20, 20),
                 textValue = "Hello",
                 accessibilityLabel = "accessible",
-                readOnly = false,
+                isReadOnly = false,
             )
 
         val expectedEditRecord =
@@ -101,13 +100,12 @@ class FormWidgetInteractionHandlerTest {
 
         val widgetIndex = 0
         val formWidgetInfo =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_RADIOBUTTON,
+            FormWidgetInfo.createRadioButton(
                 widgetIndex = widgetIndex,
                 widgetRect = Rect(10, 10, 20, 20),
                 textValue = "Radio",
                 accessibilityLabel = "accessible",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedEditRecord =
             FormEditInfo.createClick(
@@ -130,13 +128,12 @@ class FormWidgetInteractionHandlerTest {
         val touchPoint = PdfPoint(pageNum, pdfCoordinates)
         val widgetIndex = 0
         val formWidgetInfo =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_PUSHBUTTON,
+            FormWidgetInfo.createPushButton(
                 widgetIndex = widgetIndex,
                 widgetRect = Rect(10, 10, 20, 20),
                 textValue = "Push",
                 accessibilityLabel = "accessible",
-                readOnly = false,
+                isReadOnly = false,
             )
         val expectedEditRecord =
             FormEditInfo.createClick(
@@ -159,13 +156,16 @@ class FormWidgetInteractionHandlerTest {
         val touchPoint = PdfPoint(pageNum, pdfCoordinates)
         val widgetIndex = 0
         val formWidgetInfo =
-            FormWidgetInfo(
-                widgetType = FormWidgetInfo.WIDGET_TYPE_TEXTFIELD,
+            FormWidgetInfo.createTextField(
                 widgetIndex = widgetIndex,
                 widgetRect = Rect(10, 10, 20, 20),
                 textValue = "Push",
                 accessibilityLabel = "accessible",
-                readOnly = false,
+                isReadOnly = false,
+                isEditableText = true,
+                isMultiLineText = false,
+                maxLength = 10,
+                fontSize = 10f,
             )
         handler.handleInteraction(touchPoint, formWidgetInfo)
         assertThat(formEditTextPlaced).isTrue()

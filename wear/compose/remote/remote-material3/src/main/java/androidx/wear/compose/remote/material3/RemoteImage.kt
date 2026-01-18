@@ -32,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.layout.ContentScale
 import androidx.wear.compose.remote.material3.image.toRemoteCompose
@@ -45,10 +46,10 @@ internal class RemoteComposeImageModifier(
     override fun ContentDrawScope.draw() {
         drawIntoRemoteCanvas { canvas ->
             canvas.document.image(
-                modifier.toRemoteCompose(),
+                with(modifier) { canvas.toRecordingModifier() },
                 bitmapId,
                 contentScale.toRemoteCompose(),
-                alpha.internalAsFloat(),
+                with(canvas) { alpha.floatId },
             )
         }
     }
@@ -75,7 +76,8 @@ public fun RemoteImage(
     contentScale: ContentScale = ContentScale.Fit,
     alpha: RemoteFloat = DefaultAlpha.rf,
 ) {
-    val bitmapId = LocalRemoteComposeCreationState.current.document.addBitmap(bitmap)
+    val bitmapId =
+        LocalRemoteComposeCreationState.current.document.addBitmap(bitmap.asAndroidBitmap())
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     Box(modifier = RemoteComposeImageModifier(modifier, bitmapId, contentScale, alpha))
 }
@@ -101,6 +103,15 @@ public fun RemoteImage(
     contentScale: ContentScale = ContentScale.Fit,
     alpha: RemoteFloat = DefaultAlpha.rf,
 ) {
+    val creationState = LocalRemoteComposeCreationState.current
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-    Box(modifier = RemoteComposeImageModifier(modifier, remoteBitmap.id, contentScale, alpha))
+    Box(
+        modifier =
+            RemoteComposeImageModifier(
+                modifier,
+                with(creationState) { remoteBitmap.id },
+                contentScale,
+                alpha,
+            )
+    )
 }

@@ -32,7 +32,7 @@ plugins {
 
 androidXMultiplatform {
     androidLibrary {
-        compileSdk = 36
+        compileSdk { version = release(36) }
         namespace = "androidx.compose.material3.adaptive.navigation3"
         androidResources.enable = true
     }
@@ -44,14 +44,14 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api(project(":compose:material3:adaptive:adaptive-navigation"))
-            api("androidx.navigation3:navigation3-ui:1.0.0-beta01")
+            api("androidx.navigation3:navigation3-ui:1.0.0")
             implementation("androidx.collection:collection:1.5.0")
-            implementation("androidx.navigationevent:navigationevent-compose:1.0.0-beta01")
+            implementation("androidx.navigationevent:navigationevent-compose:1.0.1")
         }
 
         androidMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")
-            implementation("androidx.activity:activity-compose:1.10.1")
+            implementation("androidx.activity:activity-compose:1.12.2")
         }
 
         androidDeviceTest.dependencies {

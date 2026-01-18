@@ -23,12 +23,15 @@ import androidx.compose.runtime.snapshotFlow
 import kotlin.concurrent.thread
 import kotlin.test.Test
 import kotlin.test.fail
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 
 class SnapshotFlowTestsJvm {
     private enum class SnapshotFlowManagerKind {
@@ -129,6 +132,50 @@ class SnapshotFlowTestsJvm {
     @Test
     fun snapshotFlowManagerRace_managingMultipleSnapshotFlows() =
         snapshotFlowManagerRaceTestsImpl(SnapshotFlowManagerKind.MULTI_SUBSCRIPTION)
+
+    /**
+     * We previously encountered deadlocks when:
+     * 1. Two `SnapshotFlowManager`s on different threads would each acquire their own locks
+     * 2. Both `SnapshotFlowManager`s would try to advance the global snapshot simultaneously, which
+     *    entails running the global apply observers
+     * 3. Both threads would run the apply observer associated with the `SnapshotFlowManager`
+     *    running on the other thread, and both threads would get stuck trying to acquire the lock
+     *    of the `SnapshotFlowManager` running on the other thread
+     *
+     * This test serves as a regression test against such deadlocks.
+     */
+    @Test
+    fun snapshotFlowDeadlockTest() = runTest {
+        val state = mutableIntStateOf(0)
+        val timesToIncrementState = 10000
+
+        val collectors = Array<Thread?>(2) { null }
+
+        withContext(Dispatchers.Default) {
+            (0 until collectors.size).forEach { i ->
+                collectors[i] = thread {
+                    runBlocking {
+                        lateinit var job: Job
+                        job =
+                            snapshotFlow { state.intValue }
+                                .onEach {
+                                    if (it == timesToIncrementState) {
+                                        job.cancel()
+                                    }
+                                }
+                                .launchIn(this)
+                    }
+                }
+            }
+        }
+
+        (0 until timesToIncrementState).forEach { _ ->
+            state.intValue++
+            Snapshot.sendApplyNotifications()
+        }
+
+        collectors.forEach { it!!.join() }
+    }
 
     companion object {
         // Like `snapshotFlow`, but with a nullable `manager` parameter.

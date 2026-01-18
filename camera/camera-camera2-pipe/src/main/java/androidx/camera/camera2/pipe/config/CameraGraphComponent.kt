@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.config
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics
 import androidx.camera.camera2.pipe.CameraBackend
 import androidx.camera.camera2.pipe.CameraBackends
 import androidx.camera.camera2.pipe.CameraContext
@@ -30,6 +31,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestListeners
 import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.SurfaceTracker
+import androidx.camera.camera2.pipe.core.SystemClockOffsets
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.CameraGraphImpl
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -174,9 +176,22 @@ internal abstract class SharedCameraGraphModules {
         fun provideFrameDistributor(
             streamGraphImpl: StreamGraphImpl,
             frameCaptureQueue: FrameCaptureQueue,
+            cameraMetadata: CameraMetadata,
+            systemClockOffsets: SystemClockOffsets,
         ): FrameDistributor {
-            return FrameDistributor(streamGraphImpl.imageSourceMap, frameCaptureQueue)
+            val isCameraTimebaseRealtime =
+                (cameraMetadata[CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE] ==
+                    CameraCharacteristics.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME)
+
+            return FrameDistributor(
+                streamGraphImpl,
+                frameCaptureQueue,
+                isCameraTimebaseRealtime,
+                systemClockOffsets.realtimeNsToMonotonicNs,
+            )
         }
+
+        @CameraGraphScope @Provides fun provideSystemClockOffsets() = SystemClockOffsets.estimate()
     }
 }
 

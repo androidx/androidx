@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.net.Network;
+import android.net.NetworkCapabilities;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -67,7 +68,7 @@ public class NetworkStateTrackerTest {
     @Test
     @SmallTest
     public void testGetInitialState_nullNetworkInfo() {
-        NetworkState expectedState = new NetworkState(false, false, false, false);
+        NetworkState expectedState = new NetworkState(false, false, false, false, false);
         assertThat(mTracker.readSystemState(), is(expectedState));
     }
 
@@ -127,7 +128,34 @@ public class NetworkStateTrackerTest {
     public void handleSecurityExceptions_whenGettingActiveNetworkState() {
         when(mMockConnectivityManager.getActiveNetworkInfo())
                 .thenThrow(new SecurityException("Exception"));
-        assertThat(getActiveNetworkState(mMockConnectivityManager), is(
-                new NetworkState(false, false, false, true)));
+        assertThat(getActiveNetworkState(mMockConnectivityManager, false), is(
+                new NetworkState(false, false, false, true, false)));
     }
+
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 30)
+    public void onBlockedStatusChanged_updatesState() {
+        mTracker.startTracking();
+        ArgumentCaptor<ConnectivityManager.NetworkCallback> callbackCaptor =
+                ArgumentCaptor.forClass(ConnectivityManager.NetworkCallback.class);
+        verify(mMockConnectivityManager)
+                .registerDefaultNetworkCallback(callbackCaptor.capture());
+        ConnectivityManager.NetworkCallback callback = callbackCaptor.getValue();
+        Network network = mock(Network.class);
+        when(mMockConnectivityManager.getActiveNetwork()).thenReturn(network);
+
+        NetworkCapabilities capabilities = new NetworkCapabilities();
+        when(mMockConnectivityManager.getNetworkCapabilities(network)).thenReturn(capabilities);
+
+        callback.onCapabilitiesChanged(network, capabilities);
+        assertThat(mTracker.getState().isBlocked(), is(false));
+
+        callback.onBlockedStatusChanged(network, true);
+        assertThat(mTracker.getState().isBlocked(), is(true));
+
+        callback.onBlockedStatusChanged(network, false);
+        assertThat(mTracker.getState().isBlocked(), is(false));
+    }
+
 }

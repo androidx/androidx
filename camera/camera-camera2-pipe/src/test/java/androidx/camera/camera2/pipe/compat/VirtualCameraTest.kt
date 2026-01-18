@@ -22,8 +22,8 @@ import android.os.Looper.getMainLooper
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.camera2.pipe.StrictMode
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
@@ -296,7 +296,7 @@ internal class AndroidCameraDeviceTest {
     private val fakeCamera2Quirks =
         Camera2Quirks(
             FakeCamera2MetadataProvider(mapOf(cameraId to fakeCameraMetadata)),
-            CameraPipe.Flags(),
+            StrictMode(false),
         )
     private val now = Timestamps.now(timeSource)
     private val cameraErrorListener =

@@ -18,6 +18,7 @@ package androidx.compose.ui.tooling.animation
 
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.InfiniteTransitionComposeAnimation.Companion.parse
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,7 +46,7 @@ class InfiniteTransitionComposeAnimationTest {
             val composeAnimation =
                 AnimationSearch.InfiniteTransitionSearchInfo(
                         rememberInfiniteTransition(),
-                        ToolingState(0L),
+                        remember { ToolingState(0L) },
                     )
                     .parse()
             assertNotNull(composeAnimation)
@@ -65,7 +66,7 @@ class InfiniteTransitionComposeAnimationTest {
             val composeAnimation =
                 AnimationSearch.InfiniteTransitionSearchInfo(
                         rememberInfiniteTransition(),
-                        ToolingState(0L),
+                        remember { ToolingState(0L) },
                     )
                     .parse()
             assertNull(composeAnimation)

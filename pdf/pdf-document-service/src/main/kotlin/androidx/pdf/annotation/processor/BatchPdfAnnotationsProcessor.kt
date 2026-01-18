@@ -20,91 +20,60 @@ import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.pdf.DraftEditOperation
+import androidx.pdf.DraftEditResult
+import androidx.pdf.EditsDraft
 import androidx.pdf.PdfDocumentRemote
-import androidx.pdf.annotation.models.AddEditResult
-import androidx.pdf.annotation.models.AnnotationResult
-import androidx.pdf.annotation.models.EditId
-import androidx.pdf.annotation.models.ModifyEditResult
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.annotation.models.PdfEditResult
+import androidx.pdf.PdfEditApplyException
 
 /**
- * A processor for handling a list of [PdfAnnotationData] objects by batching them and applying the
+ * A processor for handling a list of [DraftEditOperation] objects by batching them and applying the
  * edits to a remote PDF document.
  *
  * @property remoteDocument The [PdfDocumentRemote] interface used to apply the annotation edits.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocumentRemote) :
-    PdfAnnotationsProcessor {
+public class BatchPdfAnnotationsProcessor(private val remoteDocument: PdfDocumentRemote) {
 
     /**
-     * Processes a list of annotations by applying them to the remote PDF document in batches.
+     * Processes a draft of edits by applying them to the remote PDF document in batches.
      *
-     * This method prevents large lists of annotations from causing [TransactionTooLargeException]
-     * when sent over an AIDL connection. It splits the list into smaller batches based on a maximum
-     * size limit and processes each batch individually. The results from each batch are then
-     * combined into a single [AnnotationResult].
+     * This method prevents large lists of operations from causing [TransactionTooLargeException]
+     * when sent over an AIDL connection. It splits the list of operations from the [EditsDraft]
+     * into smaller batches based on a maximum size limit and processes each batch individually. The
+     * results from each batch are then combined into a single list of success IDs.
      *
-     * @param annotations The list of [PdfAnnotationData] objects to be applied.
-     * @return An [AnnotationResult] containing the combined list of successfully applied
-     *   annotations and the list of failed annotations.
+     * @param editsDraft The [EditsDraft] containing the operations to be applied.
+     * @return A list of unique identifiers for the successfully applied edits.
+     * @throws PdfEditApplyException if there is an error in applying the edits. The exception
+     *   contains details about which operations succeeded before the failure.
      */
-    override fun process(annotations: List<PdfAnnotationData>): AnnotationResult {
-        return processInBatches(
-            annotations,
-            remoteDocument::applyEdits,
-            { success, failures -> AnnotationResult(success, failures) },
-        )
-    }
+    public fun process(editsDraft: EditsDraft): List<String> =
+        processInBatches(operations = editsDraft.operations)
 
-    override fun processAddEdits(annotations: List<PdfAnnotationData>): AddEditResult {
-        return processInBatches(
-            annotations,
-            remoteDocument::addEdit,
-            { success, failures -> AddEditResult(success, failures) },
-        )
-    }
+    private fun processInBatches(operations: List<DraftEditOperation>): List<String> {
+        val annotationIds = mutableListOf<String>()
+        if (operations.isEmpty()) return annotationIds
 
-    override fun processUpdateEdits(annotations: List<PdfAnnotationData>): ModifyEditResult {
-        return processInBatches(
-            annotations,
-            remoteDocument::updateEdit,
-            { success, failures -> ModifyEditResult(success, failures) },
-        )
-    }
+        val batchedOperations = operations.unflatten(MAX_BATCH_SIZE_IN_BYTES)
 
-    override fun processRemoveEdits(editIds: List<EditId>): ModifyEditResult {
-        return processInBatches(
-            editIds,
-            remoteDocument::removeEdit,
-            { success, failures -> ModifyEditResult(success, failures) },
-        )
-    }
+        var processedCount = 0
+        batchedOperations.forEach { batch ->
+            when (val result = remoteDocument.applyDraftEdits(batch)) {
+                is DraftEditResult.Success -> {
+                    annotationIds += result.ids
+                    processedCount += batch.size
+                }
 
-    private fun <T : Parcelable, S, F, R> processInBatches(
-        items: List<T>,
-        compute: (List<T>) -> R,
-        resultFactory: (success: List<S>, failures: List<F>) -> R,
-    ): R where R : PdfEditResult<S, F> {
-
-        val emptyResult = resultFactory(emptyList(), emptyList())
-        if (items.isEmpty()) {
-            return emptyResult
+                is DraftEditResult.Failure ->
+                    throw PdfEditApplyException(
+                        failureIndex = processedCount + result.failedBatchIndex,
+                        appliedEditIds = annotationIds + result.appliedIds,
+                        error = Exception(result.errorMessage),
+                    )
+            }
         }
-
-        val batches = items.unflatten(MAX_BATCH_SIZE_IN_BYTES)
-
-        // The operation here applies each annotation batch and the result of each operation is
-        // folded into a single [AnnotationResult].
-        return batches.fold(emptyResult) { accumulator, batch ->
-            val newResult = compute(batch)
-
-            // Combine the previous results with the new results.
-            val combinedSuccesses = accumulator.success + newResult.success
-            val combinedFailures = accumulator.failures + newResult.failures
-            resultFactory(combinedSuccesses, combinedFailures)
-        }
+        return annotationIds
     }
 
     public companion object {

@@ -60,6 +60,42 @@ class ListDetailSceneStrategyTest {
     }
 
     @Test
+    fun calculateScene_singlePane_forceListDetailScene() {
+        var scene: Scene<TestKey>? = null
+        val entries = listOf(listEntry, detailEntry)
+
+        composeRule.setContent {
+            val strategy =
+                rememberListDetailSceneStrategy<TestKey>(
+                    shouldHandleSinglePaneLayout = true,
+                    directive = PaneScaffoldDirective.Default,
+                )
+            scene = strategy.calculateScene(entries)
+        }
+
+        composeRule.waitForIdle()
+        assertThat(scene).isNotNull()
+        assertThat(scene!!.entries).containsExactlyElementsIn(entries).inOrder()
+    }
+
+    @Test
+    fun calculateScene_singlePane_forceListDetailScene_butNoEntriesWithScaffoldMetadata() {
+        var scene: Scene<TestKey>? = null
+
+        composeRule.setContent {
+            val strategy =
+                rememberListDetailSceneStrategy<TestKey>(
+                    shouldHandleSinglePaneLayout = true,
+                    directive = PaneScaffoldDirective.Default,
+                )
+            scene = strategy.calculateScene(listOf(nonListDetailEntry, nonListDetailEntry))
+        }
+
+        composeRule.waitForIdle()
+        assertThat(scene).isNull()
+    }
+
+    @Test
     fun calculateScene_dualPane_onlyListDetailEntry() {
         var scene: Scene<TestKey>? = null
         val entries = listOf(listEntry, detailEntry)

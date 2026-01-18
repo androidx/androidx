@@ -40,8 +40,8 @@ public abstract class EventMetadata internal constructor() {
     /**
      * Adds additional categories to the [TraceEvent].
      *
-     * This is useful in the when an application is interested in a subset of [TraceEvent]s that
-     * belong to well known categories. These are typically small identifiers useful for namespacing
+     * This is useful when an application is interested in a subset of [TraceEvent]s that belong to
+     * well known categories. These are typically small identifiers useful for namespacing
      * [TraceEvent]s.
      */
     public abstract fun addCategory(name: String)

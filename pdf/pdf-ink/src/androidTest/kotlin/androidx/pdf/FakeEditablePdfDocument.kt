@@ -30,13 +30,8 @@ import android.util.SparseArray
 import androidx.annotation.OpenForTesting
 import androidx.annotation.RequiresExtension
 import androidx.pdf.annotation.KeyedPdfAnnotation
-import androidx.pdf.annotation.models.AnnotationResult
-import androidx.pdf.annotation.models.EditId
 import androidx.pdf.annotation.models.PdfAnnotation
-import androidx.pdf.annotation.models.PdfAnnotationData
-import androidx.pdf.annotation.models.PdfEdit
-import androidx.pdf.annotation.models.PdfEditEntry
-import androidx.pdf.annotation.models.PdfEdits
+import androidx.pdf.annotation.models.PdfObject
 import androidx.pdf.content.PageMatchBounds
 import androidx.pdf.content.PageSelection
 import androidx.pdf.content.PdfPageGotoLinkContent
@@ -47,6 +42,7 @@ import androidx.pdf.models.FormEditInfo
 import androidx.pdf.models.FormWidgetInfo
 import androidx.pdf.models.ListItem
 import java.util.UUID
+import java.util.concurrent.Executor
 import kotlin.random.Random
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,40 +50,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 
-/**
- * Fake implementation of [PdfDocument], for testing
- *
- * Provides an implementation of [getPageInfo] and [getPageInfos] that produces the dimensions
- * provided as [pages]. Provides an implementation of [getPageBitmapSource] that produces a random
- * solid RGB color bitmap for each page in [pages]. All other methods are fulfilled with no-op
- * implementations that return empty values.
- *
- * Requests made against an instance can be tracked:
- * - Using [layoutReach] to detect the maximum page whose dimensions have been requested
- *   corresponding [PdfDocument.BitmapSource]
- * - Using [bitmapRequests] to examine the type of bitmaps that have been requested for any page
- *
- * @param pages a list of [android.graphics.Point] defining the number of pages in the fake PDF and
- *   their dimensions. If a value is null, the document will throw CancellationException for
- *   getPageInfo call.
- * @param formType one of [PDF_FORM_TYPE_ACRO_FORM], [PDF_FORM_TYPE_XFA_FULL],
- *   [PDF_FORM_TYPE_XFA_FOREGROUND], or [PDF_FORM_TYPE_NONE] depending on the type of PDF form this
- *   fake PDF should represent
- * @param isLinearized true if this fake PDF is linearized
- */
 @OpenForTesting
 internal open class FakeEditablePdfDocument(
-    /** A list of (x, y) page dimensions in content coordinates */
     internal val pages: List<Point?> = listOf(),
     override val formType: Int = PDF_FORM_TYPE_NONE,
     override val isLinearized: Boolean = false,
+    override val renderParams: RenderParams = RenderParams(RenderParams.RENDER_MODE_FOR_DISPLAY),
     private val searchResults: SparseArray<List<PageMatchBounds>> = SparseArray(),
     override val uri: Uri = Uri.parse("content://test.app/document.pdf"),
     private val pageLinks: Map<Int, PdfDocument.PdfPageLinks> = mapOf(),
     private val textContents: List<PdfPageTextContent> = emptyList(),
     private val pageFormWidgetInfos: Map<Int, List<FormWidgetInfo>> = mapOf(),
     initialEdits: List<PdfAnnotation> = emptyList(),
-    private val onClearUncommittedChanges: (() -> Unit)? = null,
 ) : EditablePdfDocument() {
     override val pageCount: Int = pages.size
 
@@ -98,41 +72,43 @@ internal open class FakeEditablePdfDocument(
     internal val bitmapRequests
         get() = _bitmapRequests
 
-    internal fun clearBitmapRequests() {
-        _bitmapRequests.clear()
-    }
-
     private val _formWidgetRequests = mutableSetOf<Int>()
     internal val formWidgetRequests: Set<Int>
         get() = _formWidgetRequests.toSet()
 
-    internal fun clearFormWidgetRequests() {
-        _formWidgetRequests.clear()
-    }
-
     internal var editHistory: MutableList<FormEditInfo> = mutableListOf()
 
-    private val edits = mutableMapOf<EditId, PdfAnnotationData>()
+    // Store annotations keyed by Page Number
+    private val edits = mutableMapOf<Int, MutableList<KeyedPdfAnnotation>>()
 
     init {
-        initialEdits.forEach { addEdit(it) }
+        // Initialize with any provided edits
+        initialEdits.forEach { annotation ->
+            val pageEdits = edits.getOrPut(annotation.pageNum) { mutableListOf() }
+            pageEdits.add(KeyedPdfAnnotation(UUID.randomUUID().toString(), annotation))
+        }
     }
 
     override fun getPageBitmapSource(pageNumber: Int): PdfDocument.BitmapSource {
         return FakeBitmapSource(pageNumber)
     }
 
-    override suspend fun getFormWidgetInfos(pageNum: Int): List<FormWidgetInfo> {
-        logFormWidgetRequest(pageNum)
-        return pageFormWidgetInfos[pageNum] ?: emptyList()
-    }
-
     private fun logFormWidgetRequest(pageNum: Int) {
         _formWidgetRequests.add(pageNum)
     }
 
-    override suspend fun getFormWidgetInfos(pageNum: Int, types: IntArray): List<FormWidgetInfo> {
-        return pageFormWidgetInfos[pageNum]?.filter { it.widgetType in types } ?: emptyList()
+    override suspend fun getFormWidgetInfos(pageNum: Int, types: Long): List<FormWidgetInfo> {
+        logFormWidgetRequest(pageNum)
+        if (types == PdfDocument.FORM_WIDGET_INCLUDE_ALL_TYPES)
+            return pageFormWidgetInfos[pageNum] ?: emptyList()
+
+        return pageFormWidgetInfos[pageNum]?.filter {
+            (1 shl it.widgetType).toLong() and types != 0L
+        } ?: emptyList()
+    }
+
+    override suspend fun getTopPageObjectAtPosition(pageNum: Int, point: PointF): PdfObject? {
+        return null
     }
 
     override suspend fun applyEdit(record: FormEditInfo) {
@@ -143,21 +119,55 @@ internal open class FakeEditablePdfDocument(
         return pageLinks[pageNumber] ?: PdfDocument.PdfPageLinks(emptyList(), emptyList())
     }
 
+    // --- Annotation Implementations ---
+
     override suspend fun getAnnotationsForPage(pageNum: Int): List<KeyedPdfAnnotation> {
-        TODO("Not yet implemented")
+        return edits[pageNum] ?: emptyList()
+    }
+
+    override suspend fun applyEdits(editsDraft: EditsDraft): List<String> {
+        val results = mutableListOf<String>()
+
+        for (operation in editsDraft.operations) {
+            when (operation) {
+                is InsertDraftEditOperation -> {
+                    val id = UUID.randomUUID().toString()
+                    val pageEdits = edits.getOrPut(operation.annotation.pageNum) { mutableListOf() }
+                    pageEdits.add(KeyedPdfAnnotation(id, operation.annotation))
+                    results.add(id)
+                }
+                is UpdateDraftEditOperation -> {
+                    val pageNum = operation.annotation.pageNum
+                    val pageEdits = edits[pageNum]
+                    val index = pageEdits?.indexOfFirst { it.key == operation.id } ?: -1
+                    if (index != -1) {
+                        pageEdits!![index] = KeyedPdfAnnotation(operation.id, operation.annotation)
+                        results.add(operation.id)
+                    } else {
+                        // Simulate failure or ignore if not found in fake
+                        // Real service might throw, but fake can be lenient or throw
+                    }
+                }
+                is RemoveDraftEditOperation -> {
+                    val pageEdits = edits[operation.pageNum]
+                    val removed = pageEdits?.removeIf { it.key == operation.id } ?: false
+                    if (removed) {
+                        results.add(operation.id)
+                    }
+                }
+            }
+        }
+        return results
     }
 
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 13)
     override suspend fun getPageContent(pageNumber: Int): PdfDocument.PdfPageContent {
-        // Return content for the requested page if pageNumber is valid
         if (pageNumber in pages.indices && pageNumber < textContents.size) {
             return PdfDocument.PdfPageContent(
                 textContents = listOf(textContents[pageNumber]),
                 imageContents = emptyList(),
             )
         }
-
-        // Return default empty content if pageNumber is out of range
         return PdfDocument.PdfPageContent(textContents = emptyList(), imageContents = emptyList())
     }
 
@@ -167,7 +177,6 @@ internal open class FakeEditablePdfDocument(
         start: PointF,
         stop: PointF,
     ): PageSelection {
-        // TODO(b/376136631) provide a useful implementation when it's needed for testing
         val selectedTextContents =
             if (textContents.isEmpty()) {
                 listOf(PdfPageTextContent(listOf(RectF(0f, 0f, 10f, 10f)), "test"))
@@ -204,25 +213,22 @@ internal open class FakeEditablePdfDocument(
 
     override suspend fun getPageInfos(
         pageRange: IntRange,
-        pageInfoFlags: PdfDocument.PageInfoFlags,
+        pageInfoFlags: Long,
     ): List<PdfDocument.PageInfo> {
         return listOf()
     }
 
     override suspend fun getPageInfo(pageNumber: Int): PdfDocument.PageInfo {
-        return getPageInfo(pageNumber, PdfDocument.PageInfoFlags.of(0))
+        return getPageInfo(pageNumber, PdfDocument.PAGE_INFO_EXCLUDE_FORM_WIDGETS)
     }
 
-    override suspend fun getPageInfo(
-        pageNumber: Int,
-        pageInfoFlags: PdfDocument.PageInfoFlags,
-    ): PdfDocument.PageInfo {
+    override suspend fun getPageInfo(pageNumber: Int, pageInfoFlags: Long): PdfDocument.PageInfo {
         layoutReach = maxOf(pageNumber, layoutReach)
         val size = pages[pageNumber]
         if (size == null) {
             throw kotlinx.coroutines.CancellationException()
         }
-        if (pageInfoFlags.value and PdfDocument.INCLUDE_FORM_WIDGET_INFO != 0L) {
+        if (pageInfoFlags and PdfDocument.PAGE_INFO_INCLUDE_FORM_WIDGET != 0L) {
             return PdfDocument.PageInfo(
                 pageNum = pageNumber,
                 height = size.y,
@@ -233,49 +239,12 @@ internal open class FakeEditablePdfDocument(
         return PdfDocument.PageInfo(pageNumber, size.y, size.x)
     }
 
-    override fun close() {
-        // No-op, fake
-    }
+    override fun close() {}
 
-    override suspend fun applyEdits(annotations: List<PdfAnnotationData>): AnnotationResult {
-        annotations.forEach { edits[it.editId] = it }
-        return AnnotationResult(annotations, listOf())
-    }
-
-    override fun <T : PdfEdit> addPdfEditEntry(entry: PdfEditEntry<T>) {
-        TODO("Not yet implemented")
-    }
-
-    override fun addEdit(edit: PdfEdit): EditId {
-        require(edit is PdfAnnotation) { "This fake only supports PdfAnnotation edits" }
-        val id = EditId(edit.pageNum, UUID.randomUUID().toString())
-        edits[id] = PdfAnnotationData(id, edit)
-        return id
-    }
-
-    override fun removeEdit(editId: EditId): PdfEdit {
-        val edit = edits[editId]?.edit
-        edits.remove(editId)
-        return edit!!
-    }
-
-    override fun updateEdit(editId: EditId, edit: PdfEdit): PdfEdit {
-        require(edit is PdfAnnotation) { "This fake only supports PdfAnnotation edits" }
-        if (edits.containsKey(editId)) {
-            edits[editId] = PdfAnnotationData(editId, edit)
-        }
-        return edit
-    }
-
-    /**
-     * A fake [PdfDocument.BitmapSource] that produces random RGB [android.graphics.Bitmap]s of the
-     * requested size
-     */
     private inner class FakeBitmapSource(override val pageNumber: Int) : PdfDocument.BitmapSource {
 
         override suspend fun getBitmap(scaledPageSizePx: Size, tileRegion: Rect?): Bitmap {
             logRequest(scaledPageSizePx, tileRegion)
-            // Generate a solid random RGB bitmap at the requested size
             val size =
                 if (tileRegion != null) Size(tileRegion.width(), tileRegion.height())
                 else scaledPageSizePx
@@ -294,20 +263,13 @@ internal open class FakeEditablePdfDocument(
             return bitmap
         }
 
-        /**
-         * Logs the nature of a bitmap request to [bitmapRequests], so that testing code can examine
-         * the total set of bitmap requests observed during a test
-         */
         private fun logRequest(scaledPageSizePx: Size, tileRegion: Rect?) {
             synchronized(bitmapRequestsLock) {
                 val requestedSize = _bitmapRequests[pageNumber]
-                // Not tiling, log a full bitmap request
                 if (tileRegion == null) {
                     _bitmapRequests[pageNumber] = FullBitmap(scaledPageSizePx)
-                    // Tiling, and this is a new rect for a tile board we're already tracking
                 } else if (requestedSize != null && requestedSize is Tiles) {
                     requestedSize.withTile(tileRegion)
-                    // Tiling, and this is the first rect requested
                 } else {
                     _bitmapRequests[pageNumber] =
                         Tiles(scaledPageSizePx).apply { withTile(tileRegion) }
@@ -315,33 +277,17 @@ internal open class FakeEditablePdfDocument(
             }
         }
 
-        override fun close() {
-            /* No-op, fake */
-        }
-    }
-
-    override suspend fun <T : PdfEditEntry<out PdfEdit>> getEditsForPage(pageNum: Int): List<T> {
-        @Suppress("UNCHECKED_CAST")
-        return edits.values.filter { it.annotation.pageNum == pageNum } as List<T>
+        override fun close() {}
     }
 
     override fun addOnPdfContentInvalidatedListener(
-        listener: PdfDocument.OnPdfContentInvalidatedListener
-    ) {
-        TODO("Not yet implemented")
-    }
+        executor: Executor,
+        listener: PdfDocument.OnPdfContentInvalidatedListener,
+    ) {}
 
     override fun removeOnPdfContentInvalidatedListener(
         listener: PdfDocument.OnPdfContentInvalidatedListener
-    ) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getAllEdits(): PdfEdits = PdfEdits(edits.values.groupBy { it.annotation.pageNum })
-
-    override fun clearUncommittedEdits() {
-        onClearUncommittedChanges?.invoke()
-    }
+    ) {}
 
     override fun createWriteHandle(): PdfWriteHandle {
         return object : PdfWriteHandle {
@@ -396,26 +342,25 @@ internal open class FakeEditablePdfDocument(
                     mapOf(
                         0 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.Companion.WIDGET_TYPE_RADIOBUTTON,
+                                FormWidgetInfo.createRadioButton(
                                     widgetIndex = 0,
                                     widgetRect = Rect(50, 500, 100, 600),
                                     textValue = "false",
                                     accessibilityLabel = "Radio",
+                                    isReadOnly = false,
                                 )
                             ),
                         1 to
                             listOf(
-                                FormWidgetInfo(
-                                    widgetType = FormWidgetInfo.Companion.WIDGET_TYPE_LISTBOX,
+                                FormWidgetInfo.createListBox(
                                     widgetIndex = 0,
                                     widgetRect = Rect(50, 400, 100, 550),
                                     textValue = "Banana",
                                     accessibilityLabel = "ListBox",
                                     listItems =
                                         listOf(ListItem("Apple", false), ListItem("Banana", false)),
-                                    multiSelect = true,
-                                    readOnly = true,
+                                    isMultiSelect = true,
+                                    isReadOnly = true,
                                 )
                             ),
                     ),

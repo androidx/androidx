@@ -26,7 +26,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performTouchInput
@@ -43,6 +42,7 @@ import androidx.xr.glimmer.GOLDEN_DIRECTORY
 import androidx.xr.glimmer.Text
 import androidx.xr.glimmer.samples.VerticalStackSample
 import androidx.xr.glimmer.setGlimmerThemeContent
+import androidx.xr.glimmer.testutils.captureToImage
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
 import org.junit.Test

@@ -40,6 +40,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import java.util.UUID
 import org.junit.After
 import org.junit.Rule
 import org.junit.Test
@@ -232,7 +233,9 @@ class AnnotationViewScubaTest {
         annotations: List<PdfAnnotation>,
         transform: Matrix = Matrix(),
     ): PageAnnotationsData {
-        return PageAnnotationsData(annotations, transform)
+        val keyedAnnotations =
+            annotations.map { KeyedPdfAnnotation(key = UUID.randomUUID().toString(), it) }
+        return PageAnnotationsData(keyedAnnotations, transform)
     }
 
     companion object {

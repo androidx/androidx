@@ -19,6 +19,7 @@ package androidx.pdf.ink.view.state
 import androidx.pdf.ink.view.AnnotationToolbarViewModel
 import androidx.pdf.ink.view.brush.model.BrushSizes
 import androidx.pdf.ink.view.colorpalette.model.Color
+import androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_BOTTOM
 import androidx.pdf.ink.view.tool.Eraser
 import androidx.pdf.ink.view.tool.Highlighter
 import androidx.pdf.ink.view.tool.Pen
@@ -50,6 +51,8 @@ class AnnotationToolbarViewModelTest {
             canRedo = false,
             highlighterState = ToolAttributes(1, 2, Color(123, 4, 5, "blue color")),
             penState = ToolAttributes(2, 3, Color(123, 4, 5, "red color")),
+            dockedState = DOCK_STATE_BOTTOM,
+            isExpanded = true,
         )
 
     private fun createViewModel(initialState: AnnotationToolbarState = createInitialState()) =
@@ -324,6 +327,8 @@ class AnnotationToolbarViewModelTest {
                 canRedo = false,
                 highlighterState = ToolAttributes(1, 2, Color(123, 4, 5, "blue color")),
                 penState = ToolAttributes(2, 3, Color(123, 4, 5, "red color")),
+                dockedState = DOCK_STATE_BOTTOM,
+                isExpanded = true,
             )
         val collectedEffects = mutableListOf<ToolbarEffect>()
         val collectionJob = collectInto(viewmodel.effects, collectedEffects)
@@ -336,6 +341,48 @@ class AnnotationToolbarViewModelTest {
         assertThat(collectedEffects[1]).isEqualTo(ToolbarEffect.AnnotationVisibilityChanged(false))
 
         collectionJob.cancel()
+    }
+
+    @Test
+    fun onAction_ExpandOrCollapse_whenExpanded_collapsesToolbar() {
+        val initState = createInitialState().copy(isExpanded = true)
+        val viewmodel = createViewModel(initState)
+
+        viewmodel.onAction(ToolbarIntent.CollapseToolbar)
+
+        assertThat(viewmodel.state.value.isExpanded).isFalse()
+
+        // Assert brush slider and color palette are dismissed
+        // while expanding or collapsing
+        assertThat(viewmodel.state.value.isColorPaletteVisible).isFalse()
+        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isFalse()
+    }
+
+    @Test
+    fun onAction_ExpandOrCollapse_whenCollapsed_expandsToolbar() {
+        val initState = createInitialState().copy(isExpanded = false)
+        val viewmodel = createViewModel(initState)
+
+        viewmodel.onAction(ToolbarIntent.ExpandToolbar)
+
+        assertThat(viewmodel.state.value.isExpanded).isTrue()
+
+        // Assert brush slider and color palette are dismissed
+        // while expanding or collapsing
+        assertThat(viewmodel.state.value.isColorPaletteVisible).isFalse()
+        assertThat(viewmodel.state.value.isBrushSizeSliderVisible).isFalse()
+    }
+
+    @Test
+    fun onAction_DockedStateChanged_updatesState() {
+        val viewmodel = createViewModel()
+        // Assuming the initial state is DOCK_STATE_BOTTOM, change it to DOCK_STATE_END
+        val newDockState =
+            androidx.pdf.ink.view.draganddrop.ToolbarDockState.Companion.DOCK_STATE_END
+
+        viewmodel.onAction(ToolbarIntent.DockStateChanged(newDockState))
+
+        assertThat(viewmodel.state.value.dockedState).isEqualTo(newDockState)
     }
 
     private fun <T> CoroutineScope.collectInto(flow: Flow<T>, destination: MutableList<T>): Job {
