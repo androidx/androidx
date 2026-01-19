@@ -51,8 +51,7 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation("androidx.collection:collection:1.5.0")
-            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":collection:collection"))
         }
 
         commonTest.dependencies {

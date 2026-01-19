@@ -48,9 +48,9 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":compose:foundation:foundation"))
-            implementation(project(":compose:ui:ui"))
-            api(project(":window:window-core"))
+            api(project(":compose:foundation:foundation"))
+            api(project(":compose:ui:ui-geometry"))
+            api("org.jetbrains.androidx.window:window-core:1.5.0")
         }
 
         androidMain.dependencies {

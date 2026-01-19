@@ -64,10 +64,10 @@ androidXMultiplatform {
             implementation(project(":compose:runtime:runtime-saveable"))
 
             implementation(project(":compose:ui:ui-util"))
+            implementation(project(":compose:ui:ui-geometry"))
 
-            // TODO: Pin androidx.collection when SieveCache is available
-            api("androidx.annotation:annotation:1.9.1")
-            implementation("androidx.collection:collection:1.5.0")
+            implementation(project(":annotation:annotation"))
+            implementation(project(":collection:collection"))
         }
 
         commonTest.dependencies {

@@ -47,14 +47,17 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            api("androidx.lifecycle:lifecycle-viewmodel:2.9.3")
-            api("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.3")
-            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.3")
-            api("androidx.compose.runtime:runtime:1.9.0")
-            api("androidx.compose.runtime:runtime-saveable:1.9.2")
-            api(project(":navigation3:navigation3-runtime"))
-            api("androidx.savedstate:savedstate:1.3.2")
-            api("androidx.savedstate:savedstate-compose:1.3.2")
+            api(project(":lifecycle:lifecycle-viewmodel"))
+            api(project(":lifecycle:lifecycle-viewmodel-compose"))
+            def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
+            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
+            api("org.jetbrains.compose.runtime:runtime:1.9.3")
+            api("org.jetbrains.compose.runtime:runtime-saveable:1.9.3")
+            def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
+            api("androidx.navigation3:navigation3-runtime:$navigation3Version")
+            def savedstateVersion = project.findProperty('artifactRedirection.version.androidx.savedstate')
+            api("androidx.savedstate:savedstate:$savedstateVersion")
+            api("androidx.savedstate:savedstate-compose:$savedstateVersion")
             implementation("androidx.collection:collection:1.5.0")
         }
 
