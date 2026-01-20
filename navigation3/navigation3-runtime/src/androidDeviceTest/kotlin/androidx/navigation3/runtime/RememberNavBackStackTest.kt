@@ -17,7 +17,7 @@
 package androidx.navigation3.runtime
 
 import androidx.compose.ui.test.junit4.StateRestorationTester
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import androidx.savedstate.serialization.SavedStateConfiguration

@@ -8,7 +8,7 @@ package androidx.navigation3.runtime {
     method @KotlinOnly @androidx.compose.runtime.Composable public static <T> java.util.List<androidx.navigation3.runtime.NavEntry<T>> rememberDecoratedNavEntries(java.util.List<T> backStack, optional java.util.List<androidx.navigation3.runtime.NavEntryDecorator<T>> entryDecorators, kotlin.jvm.functions.Function1<T,androidx.navigation3.runtime.NavEntry<T>> entryProvider);
   }
 
-  @kotlin.DslMarker public @interface EntryDsl {
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface EntryDsl {
   }
 
   public final class EntryProviderKt {
