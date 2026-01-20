@@ -89,6 +89,8 @@ class ComposeLaunchTest {
         image.forEachPixel { _, _, color ->
             assertEquals(Color.Blue, color, "Expected to draw blue background")
         }
+
+        appDelegate.cleanUp()
     }
 
     @OptIn(ExperimentalForeignApi::class)
@@ -124,5 +126,7 @@ class ComposeLaunchTest {
         image.forEachPixel { _, _, color ->
             assertEquals(Color.Blue, color, "Expected to draw blue background")
         }
+
+        appDelegate.cleanUp()
     }
 }

@@ -426,8 +426,8 @@ internal class UIKitInstrumentedTest(
 
     val UITouch.location: DpOffset
         get() {
-        return locationInView(viewController.view).asDpOffset()
-    }
+            return locationInView(viewController.view).asDpOffset()
+        }
 }
 
 @OptIn(ExperimentalForeignApi::class)
@@ -440,12 +440,20 @@ internal class MockAppDelegate: NSObject(), UIApplicationDelegateProtocol {
     fun setUpWindow(viewController: UIViewController) {
         UIApplication.sharedApplication().setDelegate(this)
 
+        val scene = UIApplication.sharedApplication().connectedScenes.first() as? UIWindowScene
+                ?: error("No window scene found")
+        val allWindows = scene.windows
+
         _window = UIWindow(frame = UIScreen.mainScreen.bounds)
         _window?.backgroundColor = UIColor.systemBackgroundColor
-        _window?.windowScene = UIApplication.sharedApplication().connectedScenes.first() as? UIWindowScene
+        _window?.windowScene = scene
 
         _window?.rootViewController = viewController
         _window?.makeKeyAndVisible()
+
+        allWindows.forEach {
+            (it as UIWindow).setHidden(true)
+        }
     }
 
     fun cleanUp() {

@@ -60,6 +60,8 @@ class ComposeHostingViewIntegrationTest {
         UIKitInstrumentedTest.waitUntil("Wait until compose view being disposed") {
             composeView.rootRedrawer == null
         }
+
+        appDelegate.cleanUp()
     }
 
     @Test
@@ -94,5 +96,7 @@ class ComposeHostingViewIntegrationTest {
 
         assertNotNull(composeView.rootRedrawer, "ComposeView should be alive")
         assertEquals(1, compositionsCount, "Compose view should not have extra recompositions")
+
+        appDelegate.cleanUp()
     }
 }
