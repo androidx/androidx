@@ -29,8 +29,14 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isCtrlPressed
+import androidx.compose.ui.input.key.isMetaPressed
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.toComposeEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.BrowserCursor
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -40,6 +46,7 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.composeButton
 import androidx.compose.ui.input.pointer.composeButtons
+import androidx.compose.ui.internal.focusExt
 import androidx.compose.ui.navigationevent.BackNavigationEventInput
 import androidx.compose.ui.platform.DefaultArchitectureComponentsOwner
 import androidx.compose.ui.platform.DefaultInputModeManager
@@ -90,12 +97,14 @@ import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoRenderDelegate
+import org.jetbrains.skiko.hostOs
 import org.w3c.dom.AddEventListenerOptions
 import org.w3c.dom.DocumentReadyState
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
+import org.w3c.dom.HTMLTextAreaElement
 import org.w3c.dom.LOADING
 import org.w3c.dom.MediaQueryListEvent
 import org.w3c.dom.Node
@@ -180,6 +189,7 @@ internal class DefaultWindowState(private val viewportContainer: Element) : Comp
 internal class ComposeWindow(
     private val canvas: HTMLCanvasElement,
     private val rootNode: Node,
+    private val layerRoot: HTMLElement,
     private val interopContainerElement: HTMLDivElement,
     private val a11yContainerElement: HTMLDivElement?,
     private val configuration: ComposeViewportConfiguration,
@@ -207,6 +217,8 @@ internal class ComposeWindow(
 
     // Used in WebTextInputService. Also see https://youtrack.jetbrains.com/issue/CMP-8611
     private var activeTouchOffset: Offset? = null
+
+    private val clipTarget = clipTargetElement(canvas)
 
     private val platformContext: PlatformContext =
         object : PlatformContext by PlatformContext.Empty() {
@@ -327,7 +339,27 @@ internal class ComposeWindow(
         val keyEvent = keyboardEvent.toComposeEvent()
         val processed = scene.sendKeyEvent(keyEvent) ||
             navigationEventInput.onKeyEvent(keyEvent)
-        if (processed) keyboardEvent.preventDefault()
+
+        if (processed) {
+            keyboardEvent.preventDefault()
+        } else if (keyEvent.type == KeyEventType.KeyDown){
+            processClipKeyDown(keyEvent)
+        }
+    }
+
+    private val isMacOS = hostOs.isMacOS
+
+    private fun processClipKeyDown(keyEvent: KeyEvent) {
+        val mod = if (isMacOS) keyEvent.isMetaPressed else keyEvent.isCtrlPressed
+        if (!mod) return
+        if (keyEvent.key == Key.C || keyEvent.key == Key.V || keyEvent.key == Key.X) {
+            // A browser is about to dispatch a Clipboard Event.
+            // Some browsers do not dispatch Clipboard events to <canvas> despite it having focus,
+            // so let it dispatch the event to clipTarget (text area).
+            // By focusing on it, we let a browser dispatch the event to it.
+            layerRoot.appendChild(clipTarget)
+            focusExt(clipTarget, true)
+        }
     }
 
     private fun initEvents(canvas: HTMLCanvasElement) {
@@ -417,14 +449,15 @@ internal class ComposeWindow(
 
         val interopContainer = WebInteropContainer(InteropViewGroup(interopContainerElement))
 
+        val clipEventsTargetProvider: () -> HTMLElement = {
+            (platformContext.textInputService as WebTextInputService).getBackingInput()
+                ?: clipTarget
+        }
         scene.setContent {
             CompositionLocalProvider(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
                 LocalInteropContainer provides interopContainer,
-                LocalActiveClipEventsTarget provides {
-                    (platformContext.textInputService as WebTextInputService).getBackingInput()
-                        ?: canvas
-                },
+                LocalActiveClipEventsTarget provides clipEventsTargetProvider,
                 content = {
                     interopContainer.TrackInteropPlacementContainer {
                         content()
@@ -640,3 +673,35 @@ internal fun onDomReady(block: () -> Unit) {
 }
 
 private fun touchForce(touch: Touch): Double = js("touch.force || 0.0")
+
+/**
+ * The purpose of the clipTarget element is to briefly steal the focus to let the browser dispatch
+ * ClipboardEvent to it. Then it returns the focus to the canvas.
+ */
+private fun clipTargetElement(canvas: HTMLCanvasElement): HTMLTextAreaElement {
+    val clipTarget = (document.createElement("textarea") as HTMLTextAreaElement).apply {
+        tabIndex = -1
+        setAttribute("aria-hidden", "true")
+        style.position = "fixed"
+        style.left = "-1000px"
+        style.top = "0"
+        style.opacity = "0"
+        style.width = "1px"
+        style.height = "1px"
+    }
+
+    val clipEventListener: (Event) -> Unit = { _ ->
+        window.requestAnimationFrame {
+            focusExt(canvas, true)
+            clipTarget.remove()
+        }
+    }
+
+    // Here just return the focus to canvas.
+    // For the actual event handling see rememberClipboardEventsHandler implementations.
+    clipTarget.addEventListener("copy", clipEventListener)
+    clipTarget.addEventListener("cut", clipEventListener)
+    clipTarget.addEventListener("paste", clipEventListener)
+
+    return clipTarget
+}

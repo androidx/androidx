@@ -30,6 +30,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import org.w3c.dom.HTMLDivElement
+import org.w3c.dom.HTMLElement
 
 class ComposeWindowLifecycleTest : OnCanvasTests {
     @Test
@@ -41,6 +42,7 @@ class ComposeWindowLifecycleTest : OnCanvasTests {
         val composeWindow = ComposeWindow(
             canvas = canvas,
             rootNode = getShadowRoot(),
+            layerRoot = document.createElement("div") as HTMLElement,
             interopContainerElement = document.createElement("div") as HTMLDivElement,
             a11yContainerElement = null,
             content = {},

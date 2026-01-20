@@ -132,6 +132,7 @@ fun ComposeViewport(
     ComposeWindow(
         canvas = canvas,
         rootNode = shadowRoot,
+        layerRoot = layerRoot,
         interopContainerElement = interopContainerElement,
         a11yContainerElement = a11yContainerElement,
         content = content,
