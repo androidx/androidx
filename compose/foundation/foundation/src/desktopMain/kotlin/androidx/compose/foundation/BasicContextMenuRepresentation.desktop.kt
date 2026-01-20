@@ -25,6 +25,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.ComposeWindow
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.window.rememberPopupPositionProviderAtPosition
 import java.awt.Component
 import java.awt.MouseInfo
+import java.awt.Point
 import javax.swing.JMenuItem
 import javax.swing.JPopupMenu
 import javax.swing.SwingUtilities
@@ -150,25 +152,41 @@ class JPopupContextMenuRepresentation(
     override fun Representation(state: ContextMenuState, items: () -> List<ContextMenuItem>) {
         val isOpen = state.status is ContextMenuState.Status.Open
         if (isOpen) {
-            val menu = remember {
-                createMenu(items()).apply {
-                    addPopupMenuListener(object : PopupMenuListener {
-                        override fun popupMenuWillBecomeVisible(e: PopupMenuEvent?) = Unit
+            val menu = remember(createMenu) {
+                createMenu(items())
+            }
 
-                        override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent?) {
-                            state.status = ContextMenuState.Status.Closed
-                        }
+            // Remember the state to avoid closing the menu when the state object (but not the
+            // status) changes.
+            val currentState by rememberUpdatedState(state)
 
-                        override fun popupMenuCanceled(e: PopupMenuEvent?) = Unit
-                    })
+            // Remember the screen mouse position for as long as the menu is open to avoid having
+            // the popup move when recreating the menu due to other changes.
+            val mouseScreenPosition = remember { MouseInfo.getPointerInfo().location }
+
+            // The mouse position changes only when the owner changes.
+            val mousePosition = remember(owner) {
+                Point(mouseScreenPosition).also {
+                    SwingUtilities.convertPointFromScreen(it, owner)
                 }
             }
 
-            DisposableEffect(Unit) {
-                val mousePosition = MouseInfo.getPointerInfo().location
-                SwingUtilities.convertPointFromScreen(mousePosition, owner)
+            DisposableEffect(menu, owner, mousePosition) {
+                val popupMenuListener = object : PopupMenuListener {
+                    override fun popupMenuWillBecomeVisible(e: PopupMenuEvent?) = Unit
+
+                    override fun popupMenuWillBecomeInvisible(e: PopupMenuEvent?) {
+                        currentState.status = ContextMenuState.Status.Closed
+                    }
+
+                    override fun popupMenuCanceled(e: PopupMenuEvent?) = Unit
+                }
+                menu.addPopupMenuListener(popupMenuListener)
+
                 menu.show(owner, mousePosition.x, mousePosition.y)
+
                 onDispose {
+                    menu.removePopupMenuListener(popupMenuListener)
                     menu.isVisible = false
                 }
             }

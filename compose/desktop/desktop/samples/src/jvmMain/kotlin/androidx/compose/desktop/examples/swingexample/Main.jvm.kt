@@ -69,7 +69,7 @@ import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.rememberWindowState
 import androidx.savedstate.SavedState
 import java.awt.BorderLayout
-import java.awt.Color as awtColor
+import java.awt.Color as AwtColor
 import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
@@ -106,7 +106,7 @@ private val globalSavedState = mutableMapOf<String, SavedState?>()
 fun createGreenComposePanel(
     savedState: SavedState? = null,
 ) = ComposePanel(savedState = savedState).also {
-    it.background = awtColor(55, 155, 55)
+    it.background = AwtColor(55, 155, 55)
     it.setContent {
         JPopupTextMenuProvider(it) {
             ComposeContent(background = Color(55, 155, 55))
@@ -117,7 +117,7 @@ fun createGreenComposePanel(
 fun createBlueComposePanel(
     savedState: SavedState? = null,
 ) = ComposePanel(savedState = savedState).also {
-    it.background = awtColor(55, 55, 155)
+    it.background = AwtColor(55, 55, 155)
     it.setContent {
         CustomTextMenuProvider {
             ComposeContent(background = Color(55, 55, 155))
@@ -206,17 +206,17 @@ fun JPopupTextMenuProvider(owner: Component, content: @Composable () -> Unit) {
         LocalTextContextMenu provides JPopupTextMenu(owner) { textManager, items ->
             JPopupMenu().apply {
                 textManager.cut?.also {
-                    add(swingItem(localization.cut, java.awt.Color.RED, KeyEvent.VK_X, it))
+                    add(swingItem(localization.cut, AwtColor.RED, KeyEvent.VK_X, it))
                 }
                 textManager.copy?.also {
-                    add(swingItem(localization.copy, java.awt.Color.GREEN, KeyEvent.VK_C, it))
+                    add(swingItem(localization.copy, AwtColor.GREEN, KeyEvent.VK_C, it))
                 }
                 textManager.paste?.also {
-                    add(swingItem(localization.paste, java.awt.Color.BLUE, KeyEvent.VK_V, it))
+                    add(swingItem(localization.paste, AwtColor.BLUE, KeyEvent.VK_V, it))
                 }
                 textManager.selectAll?.also {
                     add(Separator())
-                    add(swingItem(localization.selectAll, java.awt.Color.BLACK, KeyEvent.VK_A, it))
+                    add(swingItem(localization.selectAll, AwtColor.BLACK, KeyEvent.VK_A, it))
                 }
                 for (item in items) {
                     add(
@@ -268,7 +268,7 @@ private fun AnnotatedString.crop() = if (length <= 5) toString() else "${take(5)
 @OptIn(ExperimentalFoundationApi::class)
 private fun swingItem(
     label: String,
-    color: java.awt.Color,
+    color: AwtColor,
     key: Int,
     menuItemAction: TextContextMenu.Action
 ) = JMenuItem(label).apply {
@@ -278,7 +278,7 @@ private fun swingItem(
     addActionListener { menuItemAction.execute() }
 }
 
-private fun circleIcon(color: java.awt.Color) = object : Icon {
+private fun circleIcon(color: AwtColor) = object : Icon {
     override fun paintIcon(c: Component?, g: Graphics, x: Int, y: Int) {
         g.create().apply {
             this.color = color
