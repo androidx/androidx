@@ -52,6 +52,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":collection:collection"))
+            implementation(project(":compose:runtime:runtime"))
         }
 
         commonTest.dependencies {
