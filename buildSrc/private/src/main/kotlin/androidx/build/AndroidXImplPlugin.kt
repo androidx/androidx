@@ -751,7 +751,8 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
                     BuildTypeAttr.ATTRIBUTE,
                     project.objects.named<BuildTypeAttr>("release"),
                 )
-                it.outgoing.artifact(project.tasks.named("createFullJarAndroidMain"))
+                // disable, as it triggers android compilation during IDEA sync
+                if (!isJetBrainsFork(project)) it.outgoing.artifact(project.tasks.named("createFullJarAndroidMain"))
             }
         }
     }
