@@ -48,6 +48,34 @@
         </service>
 
         <service
+            android:name=".UpdateWidgetService"
+            android:exported="true"
+            android:icon="@drawable/ic_launcher"
+            android:label="@string/update_widget_label"
+            android:permission="com.google.android.wearable.permission.BIND_TILE_PROVIDER">
+
+            <intent-filter>
+                <action android:name="androidx.glance.wear.action.BIND_WIDGET_PROVIDER" />
+                <action android:name="androidx.wear.tiles.action.BIND_TILE_PROVIDER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="androidx.glance.wear.widget.provider"
+                android:resource="@xml/update_widget_info" />
+        </service>
+
+
+        <activity android:name=".UpdaterActivity"
+            android:exported="true"
+            android:taskAffinity=""
+            android:label="_ AX Update W Main">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <service
             android:name=".Material3ThemeWidgetService"
             android:exported="true"
             android:icon="@drawable/ic_launcher"

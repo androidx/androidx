@@ -27,4 +27,7 @@
     <string name="material3_theme_widget_description">AX Material3 theme sample</string>
     <string name="health_data_widget_label">AX Health Data widget</string>
     <string name="health_data_widget_description">AX Health Data sample</string>
+    <string name="update_widget_label">AX Update widget</string>
+    <string name="update_widget_label_large">AX L Update widget</string>
+    <string name="update_widget_description">AX Update widget sample</string>
 </resources>
