@@ -278,6 +278,7 @@ abstract class AndroidXImplPlugin @Inject constructor() : Plugin<Project> {
         anchorTask: TaskProvider<Task>,
         androidXExtension: AndroidXExtension,
     ) {
+        if (isJetBrainsFork(project)) return
         anchorTask.configure { it.dependsOn(task) }
         val xmlReportDestDir = project.getHostTestResultDirectory()
         val testName = "${project.path}:${task.name}"

@@ -65,6 +65,8 @@ fun <T> AndroidXMultiplatformExtension.configureForkWebTarget(
             project.configurePinnedKotlinLibraries(platform)
             browser {
                 testTask {
+                    it.testLogging.showStandardStreams = true
+                    it.testLogging.showExceptions = true
                     // We need to set up at least one browser here due to kotlin tooling limitations
                     // Actual browser configuration is set in mpp/karma.config.d/js/config.js
                     it.passTestFlagsToEnvironment()
