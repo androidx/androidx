@@ -67,7 +67,6 @@ import javax.swing.text.SimpleAttributeSet
 import kotlin.math.roundToInt
 import kotlinx.atomicfu.atomic
 import org.jetbrains.skia.BreakIterator
-import org.jetbrains.skiko.nativeInitializeAccessible
 
 private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
 
@@ -128,7 +127,7 @@ internal class ComposeAccessible(
 
         // see doc for [nativeInitializeAccessible] for details, why this initialization is needed
         if (isNativelyInitialized.compareAndSet(expect = false, update = true)) {
-            nativeInitializeAccessible(this)
+            initializeAccessible(this)
         }
         return composeAccessibleContext
     }

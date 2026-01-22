@@ -36,10 +36,10 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
  */
 @OptIn(ExperimentalSkikoApi::class)
 internal class SwingSkiaLayerComponent(
-    private val mediator: ComposeSceneMediator,
+    mediator: ComposeSceneMediator,
     renderDelegate: SkikoRenderDelegate,
     skiaLayerAnalytics: SkiaLayerAnalytics,
-) : SkiaLayerComponent {
+) : BaseSkiaLayerComponent(mediator) {
     /**
      * See also backendLayer for standalone Compose in [WindowSkiaLayerComponent]
      */
@@ -47,11 +47,7 @@ internal class SwingSkiaLayerComponent(
         object : SkiaSwingLayer(
             renderDelegate = renderDelegate,
             analytics = skiaLayerAnalytics,
-            externalAccessibleFactory = {
-                // It depends on initialization order, so explicitly
-                // apply `checkNotNull` for "non-null" field.
-                checkNotNull(mediator.accessible)
-            }
+            accessibleContextProvider = ::provideAccessibleContext,
         ) {
             private var endCompositionWorkaround: InputMethodEndCompositionWorkaround? = null
 
@@ -131,10 +127,6 @@ internal class SwingSkiaLayerComponent(
 
     override fun dispose() {
         contentComponent.dispose()
-    }
-
-    override fun requestNativeFocusOnAccessible(accessible: Accessible?) {
-        contentComponent.requestNativeFocusOnAccessible(accessible)
     }
 
     override fun onComposeInvalidation() {

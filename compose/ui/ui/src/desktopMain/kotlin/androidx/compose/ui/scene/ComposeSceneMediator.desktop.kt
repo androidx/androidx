@@ -770,7 +770,7 @@ internal class ComposeSceneMediator(
 
         val semanticsOwners = mutableStateSetOf<SemanticsOwner>()
 
-        private var requestingNativeFocus = false
+        private var requestingFocus = false
 
         override fun onSemanticsOwnerAppended(semanticsOwner: SemanticsOwner) {
             check(semanticsOwner !in _accessibilityControllers)
@@ -779,15 +779,18 @@ internal class ComposeSceneMediator(
                 desktopComponent = platformComponent,
                 parentAccessible = accessible,
                 onFocusReceived = {
-                    // requestNativeFocusOnAccessible fires focusGained events, which in turn
+                    // requestFocusOnAccessible fires focusGained events, which in turn
                     // can call this method themselves, so we need to prevent infinite recursion
-                    if (requestingNativeFocus) return@AccessibilityController
-                    requestingNativeFocus = true
-                    try {
-                        val target = it ?: accessible.defaultAccessibilityFocusTarget()
-                        skiaLayerComponent.requestNativeFocusOnAccessible(target)
-                    } finally {
-                        requestingNativeFocus = false
+                    if (requestingFocus) return@AccessibilityController
+                    requestingFocus = true
+
+                    val target = it ?: accessible.defaultAccessibilityFocusTarget()
+                    if (target != null) {
+                        try {
+                            skiaLayerComponent.requestFocusOnAccessible(target)
+                        } finally {
+                            requestingFocus = false
+                        }
                     }
                 },
             ).also {

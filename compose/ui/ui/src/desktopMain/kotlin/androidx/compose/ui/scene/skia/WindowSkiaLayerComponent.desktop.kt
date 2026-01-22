@@ -42,21 +42,17 @@ import org.jetbrains.skiko.SkikoRenderDelegate
  * which is created when using [RenderSettings.SwingGraphics].
  */
 internal class WindowSkiaLayerComponent(
-    private val mediator: ComposeSceneMediator,
+    mediator: ComposeSceneMediator,
     private val windowContext: PlatformWindowContext,
     renderDelegate: SkikoRenderDelegate,
     skiaLayerAnalytics: SkiaLayerAnalytics,
     private val renderSettings: RenderSettings.SkiaSurface,
-) : SkiaLayerComponent {
+) : BaseSkiaLayerComponent(mediator) {
     /**
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
      */
     override val contentComponent: SkiaLayer = object : SkiaLayer(
-        externalAccessibleFactory = {
-            // It depends on initialization order, so explicitly
-            // apply `checkNotNull` for "non-null" field.
-            checkNotNull(mediator.accessible)
-        },
+        accessibleContextProvider = ::provideAccessibleContext,
         properties = run {
             val defaultProperties = SkiaLayerProperties()
 
@@ -161,10 +157,6 @@ internal class WindowSkiaLayerComponent(
 
     override fun dispose() {
         contentComponent.dispose()
-    }
-
-    override fun requestNativeFocusOnAccessible(accessible: Accessible?) {
-        contentComponent.requestNativeFocusOnAccessible(accessible)
     }
 
     override fun onComposeInvalidation() {

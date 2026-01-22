@@ -18,8 +18,11 @@ package androidx.compose.ui.scene.skia
 
 import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.platform.PlatformWindowContext
+import androidx.compose.ui.platform.a11y.AccessibleFocusHelper
 import androidx.compose.ui.scene.ComposeSceneMediator
+import java.awt.Component
 import javax.accessibility.Accessible
+import javax.accessibility.AccessibleContext
 import javax.swing.JComponent
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.GraphicsApi
@@ -47,11 +50,39 @@ internal interface SkiaLayerComponent {
     val windowHandle: Long
 
     fun dispose()
-    fun requestNativeFocusOnAccessible(accessible: Accessible?)
 
+    fun requestFocusOnAccessible(accessible: Accessible)
     fun onComposeInvalidation()
     fun renderImmediately()
     fun onRenderApiChanged(action: () -> Unit)
+}
+
+/**
+ * A base implementation of [SkiaLayerComponent]
+ */
+internal abstract class BaseSkiaLayerComponent(
+    protected val mediator: ComposeSceneMediator,
+): SkiaLayerComponent {
+    private var accessibleFocusHelper: AccessibleFocusHelper? = null
+
+    /**
+     * Returns the [AccessibleContext] for the component.
+     *
+     * This is called every time (but with the same [component]) the a11y system calls
+     * [Component.getAccessibleContext] on the underlying component where the scene is actually
+     * rendered.
+     */
+    protected fun provideAccessibleContext(component: Component): AccessibleContext {
+        val helper = accessibleFocusHelper ?:
+        AccessibleFocusHelper(component, mediator.accessible).also {
+            accessibleFocusHelper = it
+        }
+        return helper.accessibleContext
+    }
+
+    override fun requestFocusOnAccessible(accessible: Accessible) {
+        accessibleFocusHelper?.requestFocusOnAccessible(accessible)
+    }
 }
 
 /**
