@@ -163,8 +163,9 @@ internal class WindowSkiaLayerComponent(
         contentComponent.dispose()
     }
 
-    override fun requestNativeFocusOnAccessible(accessible: Accessible) =
+    override fun requestNativeFocusOnAccessible(accessible: Accessible?) {
         contentComponent.requestNativeFocusOnAccessible(accessible)
+    }
 
     override fun onComposeInvalidation() {
         contentComponent.needRender()

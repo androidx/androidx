@@ -784,7 +784,8 @@ internal class ComposeSceneMediator(
                     if (requestingNativeFocus) return@AccessibilityController
                     requestingNativeFocus = true
                     try {
-                        skiaLayerComponent.requestNativeFocusOnAccessible(it)
+                        val target = it ?: accessible.defaultAccessibilityFocusTarget()
+                        skiaLayerComponent.requestNativeFocusOnAccessible(target)
                     } finally {
                         requestingNativeFocus = false
                     }

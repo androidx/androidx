@@ -38,7 +38,7 @@ class ComposeSceneFocusManager internal constructor(
      */
     val hasFocus: Boolean get() = focusOwner().rootState.hasFocus
 
-    private inline fun <T: Any?> measureAndLayoutThen(request: () -> T): T {
+    private inline fun <T> measureAndLayoutThen(request: () -> T): T {
         measureAndLayout()
         return request()
     }

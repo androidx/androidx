@@ -133,6 +133,14 @@ internal class ComposeAccessible(
         return composeAccessibleContext
     }
 
+    override fun toString(): String {
+        if (disposed) return "ComposeAccessible(disposed)"
+        return with(composeAccessibleContext) {
+            val description = (accessibleDescription ?: text)?.let { "\"$it\"" } ?: "unknown"
+            "ComposeAccessible(role='$accessibleRole', $description)"
+        }
+    }
+
     open inner class ComposeAccessibleComponent : AccessibleContext(), AccessibleComponent, AccessibleAction {
         val textSelectionRange
             get() = semanticsConfig.getOrNull(SemanticsProperties.TextSelectionRange)
@@ -543,6 +551,11 @@ internal class ComposeAccessible(
             }
             if (state != null)
                 add(state)
+        }
+
+        override fun toString(): String {
+            val description = (accessibleDescription ?: text)?.let { "\"$it\"" } ?: "unknown"
+            return "ComposeAccessibleComponent(role='$accessibleRole', $description)"
         }
 
         open inner class ComposeAccessibleText : AccessibleText,

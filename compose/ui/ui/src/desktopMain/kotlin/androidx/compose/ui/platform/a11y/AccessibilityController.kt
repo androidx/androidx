@@ -47,7 +47,8 @@ import kotlinx.coroutines.launch
  * so that each [SemanticsNode] has [ComposeAccessible].
  *
  * @param onFocusReceived a callback that will be called with [ComposeAccessible]
- * when a [SemanticsNode] from [owner] received a focus
+ * when a [SemanticsNode] from [owner] received a focus. `null` is passed when no nodes in the scene
+ * are focused.
  *
  * @see ComposeSceneAccessible
  * @see ComposeAccessible
@@ -56,7 +57,7 @@ internal class AccessibilityController(
     val owner: SemanticsOwner,
     val desktopComponent: PlatformComponent,
     val parentAccessible: ComposeSceneAccessible,
-    private val onFocusReceived: (ComposeAccessible) -> Unit,
+    private val onFocusReceived: (ComposeAccessible?) -> Unit,
 ) {
 
     /**
@@ -66,7 +67,7 @@ internal class AccessibilityController(
     private var accessibleByNodeId = mutableScatterMapOf<Int, ComposeAccessible>()
 
     /**
-     * Whether [accessibleByNodeId] is up-to-date.
+     * Whether [accessibleByNodeId] is up to date.
      */
     private var nodeMappingIsValid = false
 
@@ -135,6 +136,27 @@ internal class AccessibilityController(
      * Invoked when a [ComposeAccessible] is removed.
      */
     private fun onNodeRemoved(accessible: ComposeAccessible) {
+        if (accessible.composeAccessibleContext.focused == true) {
+            notifyOnFocusLost(accessible)
+
+            // Testing showed that when focus is transferred manually when a node is removed (e.g.,
+            // via FocusRequester), the removed node doesn't report it's focused at this point, but
+            // just in case, check that no other nodes are focused before calling
+            // onFocusReceived(null)
+            val anyNodeFocused = accessibleByNodeId.any { _, accessible ->
+                accessible.composeAccessibleContext.focused == true
+            }
+            if (!anyNodeFocused) {
+                onFocusReceived(null)
+            }
+        }
+        if (accessible.composeAccessibleContext.isVisible) {
+            accessible.accessibleContext?.firePropertyChange(
+                ACCESSIBLE_STATE_PROPERTY,
+                AccessibleState.VISIBLE, null
+            )
+        }
+
         accessible.dispose()
     }
 

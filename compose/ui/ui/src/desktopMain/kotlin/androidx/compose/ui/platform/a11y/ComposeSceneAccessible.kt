@@ -82,6 +82,40 @@ internal class ComposeSceneAccessible(
         return accessibilityControllersProvider().indexOf(controller)
     }
 
+    /**
+     * Finds and returns a descendant [Accessible] that should receive accessibility focus when
+     * no element is actually focused.
+     *
+     * This is used, for example, to transfer focus when the currently focused [Accessible] is
+     * removed from the hierarchy.
+     */
+    fun defaultAccessibilityFocusTarget(): Accessible? {
+        val ignoredRoles = setOf(
+            AccessibleRole.PANEL,
+            AccessibleRole.GROUP_BOX,
+            AccessibleRole.UNKNOWN
+        )
+
+        // DFS over the Accessible hierarchy
+        val queue = ArrayDeque<Accessible>()
+        queue.addAll(accessibilityControllersProvider().map { it.rootAccessible })
+        while (queue.isNotEmpty()) {
+            val accessible = queue.removeFirst()
+            val context = accessible.accessibleContext ?: continue
+            if (context.accessibleRole !in ignoredRoles) {
+                return accessible
+            }
+
+            val childCount = context.accessibleChildrenCount
+            for (index in 0 until childCount) {
+                val child = context.getAccessibleChild(index)
+                queue.addFirst(child)
+            }
+        }
+
+        return null
+    }
+
     inner class ComposeSceneAccessibleContext : AccessibleContext(), AccessibleComponent {
         // Internal for testing
         internal val accessibilityControllers: List<AccessibilityController>

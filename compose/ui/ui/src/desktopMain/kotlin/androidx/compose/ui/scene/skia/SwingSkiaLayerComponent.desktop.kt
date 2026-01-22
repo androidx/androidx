@@ -133,7 +133,7 @@ internal class SwingSkiaLayerComponent(
         contentComponent.dispose()
     }
 
-    override fun requestNativeFocusOnAccessible(accessible: Accessible) {
+    override fun requestNativeFocusOnAccessible(accessible: Accessible?) {
         contentComponent.requestNativeFocusOnAccessible(accessible)
     }
 
