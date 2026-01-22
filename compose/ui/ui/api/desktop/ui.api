@@ -4491,6 +4491,9 @@ public final class androidx/compose/ui/window/Popup_skikoKt {
 	public static final fun Popup-_4-4ZA4 (Landroidx/compose/ui/Alignment;JZLkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
 }
 
+public abstract interface class androidx/compose/ui/window/SingleWindowApplicationScope : androidx/compose/ui/window/ApplicationScope, androidx/compose/ui/window/FrameWindowScope {
+}
+
 public final class androidx/compose/ui/window/TrayState {
 	public static final field $stable I
 	public fun <init> ()V
@@ -4630,7 +4633,9 @@ public final class androidx/compose/ui/window/Window_desktopKt {
 	public static final fun MenuBar (Landroidx/compose/ui/window/FrameWindowScope;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;I)V
 	public static final fun Window (Lkotlin/jvm/functions/Function0;Landroidx/compose/ui/window/WindowState;ZLjava/lang/String;Landroidx/compose/ui/graphics/painter/Painter;ZZZZZZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;III)V
 	public static final fun Window (ZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
-	public static final fun singleWindowApplication (Landroidx/compose/ui/window/WindowState;ZLjava/lang/String;Landroidx/compose/ui/graphics/painter/Painter;ZZZZZZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function3;)V
+	public static final synthetic fun singleWindowApplication (Landroidx/compose/ui/window/WindowState;ZLjava/lang/String;Landroidx/compose/ui/graphics/painter/Painter;ZZZZZZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function3;)V
 	public static synthetic fun singleWindowApplication$default (Landroidx/compose/ui/window/WindowState;ZLjava/lang/String;Landroidx/compose/ui/graphics/painter/Painter;ZZZZZZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
+	public static final fun singleWindowApplicationWithAppScope (Landroidx/compose/ui/window/WindowState;ZLjava/lang/String;Landroidx/compose/ui/graphics/painter/Painter;ZZZZZZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function3;)V
+	public static synthetic fun singleWindowApplicationWithAppScope$default (Landroidx/compose/ui/window/WindowState;ZLjava/lang/String;Landroidx/compose/ui/graphics/painter/Painter;ZZZZZZLkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;ZLkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
 }
 

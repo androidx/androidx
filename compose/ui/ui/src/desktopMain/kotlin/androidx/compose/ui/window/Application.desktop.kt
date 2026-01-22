@@ -57,8 +57,8 @@ import org.jetbrains.skiko.MainUIDispatcher
  * ```
  *
  * After all windows are closed and all operations are completed, the application will end.
- * Set [exitProcessOnExit] to `false`, if you need to execute some code after [application] block, otherwise the code after it
- * won't be executed, as [application] will exit the process.
+ * Set [exitProcessOnExit] to `false`, if you need to execute some code after [application] block,
+ * otherwise the code after it won't be executed, as [application] will exit the process.
  *
  * This entry point is a blocking operation (it blocks the current thread until application
  * finishes) and can't be called inside UI thread. To launch new application from UI thread (for

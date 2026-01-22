@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeWindow
@@ -241,22 +242,23 @@ fun Window(
 }
 
 /**
- * An entry point for the Compose application with single window.
+ * An entry point for Compose applications that only need a single top-level window.
  *
  * If you need to change attributes of the window in runtime, or need a custom closing logic, use
- * Composable `Window` in `application` entry point instead:
+ * Composable [androidx.compose.ui.window.Window] in [application] entry point instead:
  * ```
  * application {
  *     Window(...) { }
  * }
  * ```
  *
- * Set [exitProcessOnExit] to `false`, if you need to execute some code after [singleWindowApplication] block, otherwise the code after it
- * won't be executed, as [singleWindowApplication] will exit the process.
+ * Set [exitProcessOnExit] to `false` if you need to execute code after the
+ * [singleWindowApplication] block, otherwise it won't be executed as [singleWindowApplication] will
+ * exit the process.
  *
  * @param state The state object to be used to control or observe the window's state
- * When size/position/status is changed by the user, state will be updated.
- * When size/position/status of the window is changed by the application (changing state),
+ * When the size / position / status is changed by the user, the state will be updated.
+ * When the size / position / status of the window is changed by the application (changing state),
  * the native window will update its corresponding properties.
  * If application changes, for example [WindowState.placement], then after the next
  * recomposition, [WindowState.size] will be changed to correspond the real size of the window.
@@ -290,13 +292,57 @@ fun Window(
  * @param onKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. While implementing this callback, return true to stop propagation of this event.
  * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
- * @param exitProcessOnExit should `exitProcess(0)` be called after the window is closed.
- * exitProcess speedup process exit (instant instead of 1-4sec).
+ * @param exitProcessOnExit Whether `exitProcess(0)` will be called after the window is closed.
+ * `exitProcess` speeds up process exit (instant instead of 1-4sec).
  * If `false`, the execution of the function will be unblocked after application is exited
  * (when the last window is closed, and all [LaunchedEffect]s are complete).
  * @param content Composable content of the window.
  */
 @ExperimentalComposeUiApi
+@JvmName("singleWindowApplicationWithAppScope")
+fun singleWindowApplication(
+    state: WindowState = WindowState(),
+    visible: Boolean = true,
+    title: String = "Untitled",
+    icon: Painter? = null,
+    decoration: WindowDecoration,
+    transparent: Boolean = false,
+    resizable: Boolean = true,
+    enabled: Boolean = true,
+    focusable: Boolean = true,
+    alwaysOnTop: Boolean = false,
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    exitProcessOnExit: Boolean = true,
+    content: @Composable SingleWindowApplicationScope.() -> Unit
+) = application(exitProcessOnExit = exitProcessOnExit) {
+    Window(
+        onCloseRequest = ::exitApplication,
+        state = state,
+        visible = visible,
+        title = title,
+        icon = icon,
+        decoration = decoration,
+        transparent = transparent,
+        resizable = resizable,
+        enabled = enabled,
+        focusable = focusable,
+        alwaysOnTop = alwaysOnTop,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        content = {
+            with(SingleWindowApplicationScope(this@application, this@Window)) {
+                content()
+            }
+        }
+    )
+}
+
+@ExperimentalComposeUiApi
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced by override that takes a `SingleWindowApplicationScope`"
+)
 fun singleWindowApplication(
     state: WindowState = WindowState(),
     visible: Boolean = true,
@@ -332,22 +378,23 @@ fun singleWindowApplication(
 }
 
 /**
- * An entry point for the Compose application with single window.
+ * An entry point for Compose applications that only need a single top-level window.
  *
  * If you need to change attributes of the window in runtime, or need a custom closing logic, use
- * Composable `Window` in `application` entry point instead:
+ * Composable `Window` in [application] entry point instead:
  * ```
  * application {
  *     Window(...) { }
  * }
  * ```
  *
- * Set [exitProcessOnExit] to `false`, if you need to execute some code after [singleWindowApplication] block, otherwise the code after it
- * won't be executed, as [singleWindowApplication] will exit the process.
+ * Set [exitProcessOnExit] to `false` if you need to execute code after the
+ * [singleWindowApplication] block, otherwise it won't be executed as [singleWindowApplication] will
+ * exit the process.
  *
  * @param state The state object to be used to control or observe the window's state
- * When size/position/status is changed by the user, state will be updated.
- * When size/position/status of the window is changed by the application (changing state),
+ * When the size / position / status is changed by the user, the state will be updated.
+ * When the size / position / status of the window is changed by the application (changing state),
  * the native window will update its corresponding properties.
  * If application changes, for example [WindowState.placement], then after the next
  * recomposition, [WindowState.size] will be changed to correspond the real size of the window.
@@ -381,12 +428,51 @@ fun singleWindowApplication(
  * @param onKeyEvent This callback is invoked when the user interacts with the hardware
  * keyboard. While implementing this callback, return true to stop propagation of this event.
  * If you return false, the key event will be sent to this [onKeyEvent]'s parent.
- * @param exitProcessOnExit should `exitProcess(0)` be called after the window is closed.
- * exitProcess speedup process exit (instant instead of 1-4sec).
+ * @param exitProcessOnExit Whether `exitProcess(0)` will be called after the window is closed.
+ * `exitProcess` speeds up process exit (instant instead of 1-4sec).
  * If `false`, the execution of the function will be unblocked after application is exited
  * (when the last window is closed, and all [LaunchedEffect]s are complete).
  * @param content Composable content of the window.
  */
+@JvmName("singleWindowApplicationWithAppScope")
+fun singleWindowApplication(
+    state: WindowState = WindowState(),
+    visible: Boolean = true,
+    title: String = "Untitled",
+    icon: Painter? = null,
+    undecorated: Boolean = false,
+    transparent: Boolean = false,
+    resizable: Boolean = true,
+    enabled: Boolean = true,
+    focusable: Boolean = true,
+    alwaysOnTop: Boolean = false,
+    onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
+    onKeyEvent: (KeyEvent) -> Boolean = { false },
+    exitProcessOnExit: Boolean = true,
+    content: @Composable SingleWindowApplicationScope.() -> Unit
+) {
+    singleWindowApplication(
+        state = state,
+        visible = visible,
+        title = title,
+        icon = icon,
+        decoration = windowDecorationFromFlag(undecorated),
+        transparent = transparent,
+        resizable = resizable,
+        enabled = enabled,
+        focusable = focusable,
+        alwaysOnTop = alwaysOnTop,
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = onKeyEvent,
+        exitProcessOnExit = exitProcessOnExit,
+        content = content,
+    )
+}
+
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Replaced by override that takes a `SingleWindowApplicationScope`"
+)
 fun singleWindowApplication(
     state: WindowState = WindowState(),
     visible: Boolean = true,
@@ -495,6 +581,24 @@ interface FrameWindowScope : WindowScope {
      * [ComposeWindow] that was created inside [androidx.compose.ui.window.Window].
      */
     override val window: ComposeWindow
+}
+
+/**
+ * Receiver scope for [singleWindowApplication].
+ */
+@Stable
+interface SingleWindowApplicationScope: ApplicationScope, FrameWindowScope
+
+@Composable
+private fun SingleWindowApplicationScope(
+    applicationScope: ApplicationScope,
+    windowScope: FrameWindowScope
+): SingleWindowApplicationScope {
+    return remember(applicationScope, windowScope) {
+        object : SingleWindowApplicationScope,
+            ApplicationScope by applicationScope,
+            FrameWindowScope by windowScope {}
+    }
 }
 
 /**
