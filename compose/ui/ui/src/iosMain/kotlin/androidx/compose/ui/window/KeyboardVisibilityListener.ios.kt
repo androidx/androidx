@@ -34,6 +34,7 @@ import platform.UIKit.UIKeyboardFrameEndUserInfoKey
 import platform.UIKit.UIKeyboardWillChangeFrameNotification
 import platform.UIKit.UIKeyboardWillHideNotification
 import platform.UIKit.UIKeyboardWillShowNotification
+import platform.UIKit.UIViewAnimationOptionCurveEaseInOut
 import platform.UIKit.UIViewAnimationOptions
 import platform.darwin.NSObject
 
@@ -143,6 +144,6 @@ private class NativeKeyboardVisibilityListener : NSObject() {
     private val NSNotification.animationOptions: UIViewAnimationOptions
         get() {
             val value = userInfo?.get(UIKeyboardAnimationCurveUserInfoKey) as? NSNumber
-            return value?.unsignedIntegerValue() as UIViewAnimationOptions
+            return value?.unsignedIntegerValue() ?: UIViewAnimationOptionCurveEaseInOut
         }
 }
