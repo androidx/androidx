@@ -3,7 +3,16 @@ function configLaunchers(config) {
     config.customLaunchers = {
         ChromeForComposeTests: {
             base: "Chrome",
-            flags: ["--no-sandbox", "--disable-search-engine-choice-screen"]
+            flags: [
+                "--no-sandbox",
+                "--disable-search-engine-choice-screen",
+
+                // "CI-stabilizer" :D - otherwise webgl2 context is null:
+                "--disable-setuid-sandbox",
+                "--enable-webgl",
+                "--ignore-gpu-blocklist",
+                "--in-process-gpu"
+            ]
         },
         ChromiumForComposeTests: {
             base: "Chromium"
