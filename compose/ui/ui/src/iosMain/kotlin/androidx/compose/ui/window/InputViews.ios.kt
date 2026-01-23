@@ -558,6 +558,7 @@ internal class OverlayInputView(
         panGestureRecognizer.delaysTouchesBegan = false
         panGestureRecognizer.delaysTouchesEnded = false
         bounces = false
+        scrollsToTop = false
     }
 
     override fun canBecomeFirstResponder() = true
