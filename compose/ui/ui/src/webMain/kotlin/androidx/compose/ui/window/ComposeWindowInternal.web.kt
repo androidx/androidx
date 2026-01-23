@@ -276,7 +276,7 @@ internal class ComposeWindow(
                     get() = activeTouchOffset
 
                 override val backingDomInputContainer: HTMLElement
-                    get() = interopContainerElement
+                    get() = layerRoot
 
                 override fun getNewGeometryForBackingInput(rect: Rect): DpRect {
                     val dpRect = rect.toDpRect(density)

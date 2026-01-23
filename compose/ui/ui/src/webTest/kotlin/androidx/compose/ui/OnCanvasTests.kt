@@ -43,6 +43,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLCanvasElement
+import org.w3c.dom.HTMLDivElement
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.ShadowRoot
 import org.w3c.dom.events.Event
@@ -76,26 +77,26 @@ internal interface OnCanvasTests {
         (getContainer() as CanReplaceChildren).replaceChildren()
     }
 
+    /*
+    <container>
+      <positioning_container>
+        <shadow_container.shadow>
+          <style/>
+          <app_container>
+            <canvas/>
+            <a11y_container/>
+          </app_container>
+        </shadow_container>
+        <interopContainer/>
+      <positioning_container/>
+    </container>
+    */
     private fun getContainer() = document.getElementById(containerId) ?: error("failed to get canvas with id ${containerId}")
-
-    private fun getAppRoot() = getShadowRoot().children[1] as HTMLElement
-
-    fun getA11YContainer(): HTMLElement? {
-        return if (getAppRoot().children.length < 3) {
-            null
-        } else {
-            // The expected order is: canvas, interop container <div>, a11y container <div>
-            getAppRoot().children[2] as HTMLElement
-        }
-    }
-
-    fun getShadowRoot(): ExtendedShadowRoot =
-        (getContainer().shadowRoot as? ExtendedShadowRoot) ?: error("failed to get shadowRoot")
-
-    fun getCanvas(): HTMLCanvasElement {
-        val canvas = (getShadowRoot().querySelector("canvas") as? HTMLCanvasElement) ?: error("failed to get canvas")
-        return canvas
-    }
+    private fun getPositioningContainer() = getContainer().children[0] ?: error("failed to get positioning container")
+    fun getShadowRoot() = (getPositioningContainer().children[0]?.shadowRoot as? ExtendedShadowRoot) ?: error("failed to get shadowRoot")
+    private fun getAppRoot() = getShadowRoot().children[1] as? HTMLElement ?: error("failed to get app root")
+    fun getCanvas() = getAppRoot().children[0] as? HTMLCanvasElement ?: error("failed to get canvas")
+    fun getA11YContainer() = getAppRoot().children[1] as? HTMLDivElement
 
     suspend fun createComposeWindow(
         configure: ComposeViewportConfiguration.() -> Unit = {},

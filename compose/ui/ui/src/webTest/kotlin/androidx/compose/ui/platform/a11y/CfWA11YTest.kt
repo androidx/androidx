@@ -424,9 +424,8 @@ class CfWA11YTest : OnCanvasTests {
         val appContainer = getCanvas().parentElement as HTMLElement
 
         assertTrue(appContainer.isConnected)
-        assertEquals(2, appContainer.children.length)
+        assertEquals(1, appContainer.children.length)
         assertEquals(getCanvas(), appContainer.children[0])
-        assertEquals("DIV", appContainer.children[1]!!.tagName) // interop container
     }
 
     @Test

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -64,13 +65,13 @@ class WebInteropTest : OnCanvasTests {
         }
 
 
-        var div = getShadowRoot().getElementById(divId) as HTMLDivElement?
+        var div = document.getElementById(divId) as HTMLDivElement?
         assertNull(div)
 
         showDiv.value = true
         awaitIdle()
 
-        div = getShadowRoot().getElementById(divId) as HTMLDivElement?
+        div = document.getElementById(divId) as HTMLDivElement?
         assertNotNull(div)
         assertTrue(div.isConnected)
         assertEquals("Text1", div.innerText)
@@ -166,16 +167,17 @@ class WebInteropTest : OnCanvasTests {
 
     @Test
     fun hitPath() = runApplicationTest {
+        val divId = "interop_div"
         createComposeWindow {
             Box(modifier = Modifier.size(100.dp), contentAlignment = Alignment.Center) {
-                TestInteropView(Modifier.size(30.dp), "div")
+                TestInteropView(Modifier.size(30.dp), divId)
             }
         }
         awaitIdle()
 
-        assertEquals("CANVAS", getShadowRoot().elementFromPoint(10.0, 10.0).tagName)
-        assertEquals("DIV", getShadowRoot().elementFromPoint(50.0, 50.0).tagName)
-        assertEquals("CANVAS", getShadowRoot().elementFromPoint(90.0, 90.0).tagName)
+        assertNotEquals(divId, document.elementFromPoint(10.0, 10.0)?.id)
+        assertEquals(divId, document.elementFromPoint(50.0, 50.0)?.id)
+        assertNotEquals(divId, document.elementFromPoint(90.0, 90.0)?.id)
     }
 }
 

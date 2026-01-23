@@ -116,6 +116,7 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
 
     override fun changeInteropViewIndex(root: InteropViewGroup, index: Int) {
         val referenceNode = root.htmlElement.children.item(index)
+        if (referenceNode === group.htmlElement) return
 
         root.htmlElement.insertBefore(group.htmlElement, referenceNode)
     }

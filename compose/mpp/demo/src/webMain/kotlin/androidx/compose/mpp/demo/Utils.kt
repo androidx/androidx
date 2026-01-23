@@ -18,6 +18,7 @@ package androidx.compose.mpp.demo
 
 import androidx.compose.ui.platform.ClipEntry
 import kotlinx.browser.document
+import org.w3c.dom.HTMLDivElement
 
 expect suspend fun ClipEntry?.getPlainText(): String?
 
@@ -52,7 +53,8 @@ internal fun setupBackingTextAreaDebugHints() {
         }
 """.trimIndent()
 
-    val shadowRoot = document.getElementById("composeApplication")?.shadowRoot!!
+    val container = document.getElementById("composeApplication") as HTMLDivElement
+    val shadowRoot = (container.firstChild?.firstChild as HTMLDivElement).shadowRoot!!
 
     shadowRoot.prepend(shadowRootStyle)
     shadowRoot.appendChild(document.createElement("div").apply {
