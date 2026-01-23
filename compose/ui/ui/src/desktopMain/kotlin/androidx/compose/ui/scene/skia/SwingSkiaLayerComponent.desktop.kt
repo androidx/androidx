@@ -17,17 +17,17 @@
 package androidx.compose.ui.scene.skia
 
 import androidx.compose.ui.scene.ComposeSceneMediator
+import java.awt.Component
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.event.FocusEvent
-import javax.accessibility.Accessible
 import org.jetbrains.skiko.ExperimentalSkikoApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.jetbrains.skiko.SkikoRenderDelegate
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
 /**
- * Provides a lightweight Swing [contentComponent] used to render content
+ * Provides a lightweight Swing [hierarchyRoot] used to render content
  * (provided by [SkikoRenderDelegate]) on-screen with Skia.
  *
  * [SwingSkiaLayerComponent] provides smooth integration with Swing, so z-ordering, double-buffering etc. from Swing will be taken into account.
@@ -39,15 +39,15 @@ internal class SwingSkiaLayerComponent(
     mediator: ComposeSceneMediator,
     renderDelegate: SkikoRenderDelegate,
     skiaLayerAnalytics: SkiaLayerAnalytics,
-) : BaseSkiaLayerComponent(mediator) {
+) : SkiaLayerComponent {
     /**
      * See also backendLayer for standalone Compose in [WindowSkiaLayerComponent]
      */
-    override val contentComponent: SkiaSwingLayer =
+    override val hierarchyRoot: SkiaSwingLayer =
         object : SkiaSwingLayer(
             renderDelegate = renderDelegate,
             analytics = skiaLayerAnalytics,
-            accessibleContextProvider = ::provideAccessibleContext,
+            accessibleContextProvider = { mediator.getAccessibleContext() },
         ) {
             private var endCompositionWorkaround: InputMethodEndCompositionWorkaround? = null
 
@@ -98,22 +98,15 @@ internal class SwingSkiaLayerComponent(
             }
         }
 
-    override val sceneAccessibleParent: Accessible?
-        get() = run {
-            var parent = contentComponent.parent
-            while (parent != null) {
-                if (parent is Accessible) return@run parent
-                parent = parent.parent
-            }
-            null
-        }
+    override val contentRoot: Component
+        get() = hierarchyRoot
 
-    override val renderApi by contentComponent::renderApi
+    override val renderApi by hierarchyRoot::renderApi
 
     override val interopBlendingSupported: Boolean
         get() = true
 
-    override val clipComponents by contentComponent::clipComponents
+    override val clipComponents by hierarchyRoot::clipComponents
 
     override var transparency
         get() = true
@@ -126,15 +119,15 @@ internal class SwingSkiaLayerComponent(
     override val windowHandle get() = 0L
 
     override fun dispose() {
-        contentComponent.dispose()
+        hierarchyRoot.dispose()
     }
 
     override fun onComposeInvalidation() {
-        contentComponent.repaint()
+        hierarchyRoot.repaint()
     }
 
     override fun renderImmediately() {
-        contentComponent.paintImmediately(0, 0, contentComponent.width, contentComponent.height)
+        hierarchyRoot.paintImmediately(0, 0, hierarchyRoot.width, hierarchyRoot.height)
     }
 
     override fun onRenderApiChanged(action: () -> Unit) = Unit

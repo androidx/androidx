@@ -87,6 +87,7 @@ import javax.accessibility.AccessibleText
 import javax.accessibility.AccessibleValue
 import javax.swing.JFrame
 import javax.swing.JLayeredPane
+import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
@@ -745,8 +746,6 @@ class AccessibilityTest {
 @OptIn(ExperimentalTestApi::class, InternalTestApi::class)
 private fun runDesktopA11yTest(block: ComposeA11yTestScope.() -> Unit) {
 
-    val parentAccessible = Accessible { null }
-
     lateinit var composeSceneAccessible: ComposeSceneAccessible
 
     // A SemanticsOwnerListener to manage the AccessibilityControllers
@@ -777,10 +776,12 @@ private fun runDesktopA11yTest(block: ComposeA11yTestScope.() -> Unit) {
         }
     }
 
+    val component = JPanel()
+
     // The root (scene) accessible
     composeSceneAccessible = ComposeSceneAccessible(
         forceEnableA11y = true,
-        parent = { parentAccessible },
+        sceneRoot = { component },  // Not really needed for tests
         accessibilityControllersProvider = { semanticsOwnerListener.accessibilityControllers }
     )
 

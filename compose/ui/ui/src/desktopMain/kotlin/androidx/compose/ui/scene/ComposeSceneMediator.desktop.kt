@@ -59,6 +59,7 @@ import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.a11y.AccessibilityController
+import androidx.compose.ui.platform.a11y.AccessibleFocusHelper
 import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -138,11 +139,6 @@ internal class ComposeSceneMediator(
 
     private val semanticsOwnerManager = DesktopSemanticsOwnerManager()
     var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
-    val accessible: ComposeSceneAccessible = ComposeSceneAccessible(
-        isWindowLevel = isWindowLevel,
-        parent = { skiaLayerComponent.sceneAccessibleParent },
-        accessibilityControllersProvider = { semanticsOwnerManager.accessibilityControllers }
-    )
 
     private val navigationEventInput = BackNavigationEventInput()
 
@@ -153,11 +149,23 @@ internal class ComposeSceneMediator(
     val platformContext: PlatformContext get() = _platformContext
 
     private val skiaLayerComponent: SkiaLayerComponent by lazy { skiaLayerComponentFactory(this) }
-    val contentComponent by skiaLayerComponent::contentComponent
+    val contentComponent by skiaLayerComponent::hierarchyRoot
     var fullscreen by skiaLayerComponent::fullscreen
     val windowHandle by skiaLayerComponent::windowHandle
     val renderApi by skiaLayerComponent::renderApi
     val semanticsOwners: Collection<SemanticsOwner> by semanticsOwnerManager::semanticsOwners
+
+    val accessible: ComposeSceneAccessible = ComposeSceneAccessible(
+        isWindowLevel = isWindowLevel,
+        sceneRoot = { skiaLayerComponent.contentRoot },
+        accessibilityControllersProvider = { semanticsOwnerManager.accessibilityControllers }
+    )
+
+    private val accessibleFocusHelper by lazy {
+        AccessibleFocusHelper(skiaLayerComponent.contentRoot, accessible)
+    }
+
+    fun getAccessibleContext() = accessibleFocusHelper.accessibleContext
 
     /**
      * @see ComposeFeatureFlags.useInteropBlending
@@ -787,7 +795,7 @@ internal class ComposeSceneMediator(
                     val target = it ?: accessible.defaultAccessibilityFocusTarget()
                     if (target != null) {
                         try {
-                            skiaLayerComponent.requestFocusOnAccessible(target)
+                            accessibleFocusHelper.requestFocusOnAccessible(target)
                         } finally {
                             requestingFocus = false
                         }

@@ -18,11 +18,8 @@ package androidx.compose.ui.scene.skia
 
 import androidx.compose.ui.awt.RenderSettings
 import androidx.compose.ui.platform.PlatformWindowContext
-import androidx.compose.ui.platform.a11y.AccessibleFocusHelper
 import androidx.compose.ui.scene.ComposeSceneMediator
 import java.awt.Component
-import javax.accessibility.Accessible
-import javax.accessibility.AccessibleContext
 import javax.swing.JComponent
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.GraphicsApi
@@ -37,10 +34,12 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
  * It's implemented as adapter to [SkiaLayer] or [SkiaSwingLayer].
  */
 internal interface SkiaLayerComponent {
-    val contentComponent: JComponent
-    // The Accessible that will be reported as the accessible parent of
-    // ComposeSceneMediator.accessible (ComposeSceneAccessible)
-    val sceneAccessibleParent: Accessible?
+    // The component that needs to be added to the AWT hierarchy
+    val hierarchyRoot: JComponent
+    // The component that is actually the root of the composable content.
+    // It may be the same hierarchyRoot, or a descendant of it.
+    // For accessibility to work properly, this should implement `javax.accessibility.Accessible`
+    val contentRoot: Component
     val interopBlendingSupported: Boolean
     val renderApi: GraphicsApi
     val clipComponents: MutableList<ClipRectangle>
@@ -51,38 +50,9 @@ internal interface SkiaLayerComponent {
 
     fun dispose()
 
-    fun requestFocusOnAccessible(accessible: Accessible)
     fun onComposeInvalidation()
     fun renderImmediately()
     fun onRenderApiChanged(action: () -> Unit)
-}
-
-/**
- * A base implementation of [SkiaLayerComponent]
- */
-internal abstract class BaseSkiaLayerComponent(
-    protected val mediator: ComposeSceneMediator,
-): SkiaLayerComponent {
-    private var accessibleFocusHelper: AccessibleFocusHelper? = null
-
-    /**
-     * Returns the [AccessibleContext] for the component.
-     *
-     * This is called every time (but with the same [component]) the a11y system calls
-     * [Component.getAccessibleContext] on the underlying component where the scene is actually
-     * rendered.
-     */
-    protected fun provideAccessibleContext(component: Component): AccessibleContext {
-        val helper = accessibleFocusHelper ?:
-        AccessibleFocusHelper(component, mediator.accessible).also {
-            accessibleFocusHelper = it
-        }
-        return helper.accessibleContext
-    }
-
-    override fun requestFocusOnAccessible(accessible: Accessible) {
-        accessibleFocusHelper?.requestFocusOnAccessible(accessible)
-    }
 }
 
 /**

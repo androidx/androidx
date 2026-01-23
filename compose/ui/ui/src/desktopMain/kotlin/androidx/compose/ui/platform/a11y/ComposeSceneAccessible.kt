@@ -18,6 +18,7 @@ package androidx.compose.ui.platform.a11y
 
 import androidx.compose.ui.scene.ComposeScene
 import java.awt.Color
+import java.awt.Component
 import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Font
@@ -56,7 +57,7 @@ import org.jetbrains.skiko.hostOs
 internal class ComposeSceneAccessible(
     private val isWindowLevel: Boolean = false,
     private val forceEnableA11y: Boolean = false,
-    private val parent: () -> Accessible?,
+    private val sceneRoot: () -> Component,
     private val accessibilityControllersProvider: () -> List<AccessibilityController>,
 ) : Accessible {
     private val a11yEnabled by lazy {
@@ -160,7 +161,7 @@ internal class ComposeSceneAccessible(
         }
 
         override fun getAccessibleParent(): Accessible? {
-            return parent()
+            return sceneRoot().parent as? Accessible
         }
 
         override fun getAccessibleChildrenCount(): Int {
