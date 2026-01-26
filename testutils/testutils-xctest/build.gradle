@@ -16,6 +16,7 @@
 
 import androidx.build.KotlinTarget
 import androidx.build.SoftwareType
+import org.jetbrains.androidx.build.XcodeBuildLock
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.Architecture
 
@@ -119,6 +120,7 @@ private def configure(target, isDevice) {
     target.compilations.main {
         def libTaskName = "${compileTaskProvider.name}ObjCLib"
         project.tasks.register(libTaskName, Exec) {
+            usesService(XcodeBuildLock.instance(project))
             inputs.dir(frameworkSourcesDir)
                     .withPropertyName("${frameworkName}-${sdkName}")
                     .withPathSensitivity(PathSensitivity.RELATIVE)

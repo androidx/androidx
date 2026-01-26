@@ -15,10 +15,7 @@
  */
 
 import androidx.build.KotlinTarget
-import androidx.build.ProjectLayoutType
-import androidx.build.SoftwareType
-import org.gradle.api.services.BuildService
-import org.gradle.api.services.BuildServiceParameters
+import org.jetbrains.androidx.build.XcodeBuildLock
 
 plugins {
     id("AndroidXPlugin")
@@ -44,13 +41,6 @@ kotlin {
 }
 
 private def configure(target, isDevice, architecture, testTarget) {
-    // to prevent "Process 'command 'xcodebuild'' finished with non-zero exit value 65"
-    // "error: unable to attach DB: unable to initialize database (database is locked)"
-    def xcodeLock =
-        project.gradle.sharedServices.registerIfAbsent("xcodeBuildLock", XcodeBuildLock) {
-            maxParallelUsages.set(1)
-        }
-
     def frameworkName = "CMPUIKitUtils"
     def buildSchemeName = frameworkName
     def testSchemeName = "${frameworkName}Tests"
@@ -98,6 +88,7 @@ private def configure(target, isDevice, architecture, testTarget) {
         def testFrameworkTask = project.tasks.register(testFrameworkTaskName) {
             dependsOn getTargetDeviceTask
             doLast {
+                usesService(XcodeBuildLock.instance(project))
                 project.exec {
                     workingDir frameworkSourcesDir
                     commandLine "xcodebuild",
@@ -116,7 +107,7 @@ private def configure(target, isDevice, architecture, testTarget) {
     target.compilations.main {
         def libTaskName = "${compileTaskProvider.name}ObjCLib"
         project.tasks.register(libTaskName, Exec) {
-            usesService(xcodeLock)
+            usesService(XcodeBuildLock.instance(project))
             inputs.dir(frameworkSourcesDir)
                     .withPropertyName("${frameworkName}-${sdkName}")
                     .withPathSensitivity(PathSensitivity.RELATIVE)
@@ -173,5 +164,3 @@ androidx {
     description = "Internal iOS UIKit utilities including Objective-C library."
     legacyDisableKotlinStrictApiMode = true
 }
-
-abstract class XcodeBuildLock implements BuildService<BuildServiceParameters.None> {}
