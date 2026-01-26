@@ -66,8 +66,11 @@ kotlin {
                             "name" to "google-chrome",
                         )
                     )
-                    static(rootDirPath)
-                    static(projectDirPath)
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
                 }
             }
         }
