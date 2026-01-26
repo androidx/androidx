@@ -13,6 +13,7 @@
 !.idea/inspectionProfiles/Project_Default.xml
 !.idea/ktfmt.xml
 !.idea/icon.svg
+!.idea/vcs.xml
 .project
 .settings/
 project.properties
