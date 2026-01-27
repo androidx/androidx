@@ -2301,6 +2301,7 @@ final class androidx.compose.ui.window/DialogProperties { // androidx.compose.ui
 
 final class androidx.compose.ui.window/PopupProperties { // androidx.compose.ui.window/PopupProperties|null[0]
     constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.window/PopupProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.window/PopupProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
     constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.window/PopupProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
 
     final val clippingEnabled // androidx.compose.ui.window/PopupProperties.clippingEnabled|{}clippingEnabled[0]

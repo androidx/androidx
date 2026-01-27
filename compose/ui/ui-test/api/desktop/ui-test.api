@@ -373,12 +373,14 @@ public abstract interface class androidx/compose/ui/test/MainTestClock {
 	public static synthetic fun advanceTimeUntil$default (Landroidx/compose/ui/test/MainTestClock;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public abstract fun getAutoAdvance ()Z
 	public abstract fun getCurrentTime ()J
+	public fun getScheduler ()Lkotlinx/coroutines/test/TestCoroutineScheduler;
 	public abstract fun setAutoAdvance (Z)V
 }
 
 public final class androidx/compose/ui/test/MainTestClock$DefaultImpls {
 	public static synthetic fun advanceTimeBy$default (Landroidx/compose/ui/test/MainTestClock;JZILjava/lang/Object;)V
 	public static synthetic fun advanceTimeUntil$default (Landroidx/compose/ui/test/MainTestClock;JLkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
+	public static fun getScheduler (Landroidx/compose/ui/test/MainTestClock;)Lkotlinx/coroutines/test/TestCoroutineScheduler;
 }
 
 public final class androidx/compose/ui/test/MouseButton {

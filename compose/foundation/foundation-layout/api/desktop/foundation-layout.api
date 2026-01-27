@@ -131,7 +131,240 @@ public final class androidx/compose/foundation/layout/ColumnScopeInstance : andr
 	public fun weight (Landroidx/compose/ui/Modifier;FZ)Landroidx/compose/ui/Modifier;
 }
 
+public abstract interface annotation class androidx/compose/foundation/layout/ExperimentalFlexBoxApi : java/lang/annotation/Annotation {
+}
+
+public abstract interface annotation class androidx/compose/foundation/layout/ExperimentalGridApi : java/lang/annotation/Annotation {
+}
+
 public abstract interface annotation class androidx/compose/foundation/layout/ExperimentalLayoutApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/foundation/layout/FlexAlignContent {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexAlignContent$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/FlexAlignContent;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexAlignContent$Companion {
+	public final fun getCenter-d9B3MrI ()I
+	public final fun getEnd-d9B3MrI ()I
+	public final fun getSpaceAround-d9B3MrI ()I
+	public final fun getSpaceBetween-d9B3MrI ()I
+	public final fun getStart-d9B3MrI ()I
+	public final fun getStretch-d9B3MrI ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexAlignItems {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexAlignItems$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/FlexAlignItems;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexAlignItems$Companion {
+	public final fun getBaseline-20X20zU ()I
+	public final fun getCenter-20X20zU ()I
+	public final fun getEnd-20X20zU ()I
+	public final fun getStart-20X20zU ()I
+	public final fun getStretch-20X20zU ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexAlignSelf {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexAlignSelf$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/FlexAlignSelf;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexAlignSelf$Companion {
+	public final fun getAuto-_ov7Qcc ()I
+	public final fun getBaseline-_ov7Qcc ()I
+	public final fun getCenter-_ov7Qcc ()I
+	public final fun getEnd-_ov7Qcc ()I
+	public final fun getStart-_ov7Qcc ()I
+	public final fun getStretch-_ov7Qcc ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexBasis {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexBasis$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/foundation/layout/FlexBasis;
+	public static fun constructor-impl (J)J
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/foundation/layout/FlexBasis$Companion {
+	public final fun Dp-cHuBJEI (F)J
+	public final fun Percent-uoj9tHE (F)J
+	public final fun getAuto-d-lZNVs ()J
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlexBoxConfig {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexBoxConfig$Companion;
+	public abstract fun configure (Landroidx/compose/foundation/layout/FlexBoxConfigScope;)V
+}
+
+public final class androidx/compose/foundation/layout/FlexBoxConfig$Companion : androidx/compose/foundation/layout/FlexBoxConfig {
+	public fun configure (Landroidx/compose/foundation/layout/FlexBoxConfigScope;)V
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlexBoxConfigScope : androidx/compose/ui/unit/Density {
+	public abstract fun alignItemsToBaseline (Landroidx/compose/ui/layout/AlignmentLine;)V
+	public abstract fun alignItemsToBaseline (Lkotlin/jvm/functions/Function1;)V
+	public abstract fun gap-0680j_4 (F)V
+	public abstract fun getAlignContent-d9B3MrI ()I
+	public abstract fun getAlignItems-20X20zU ()I
+	public abstract fun getColumnGap-D9Ej5fM ()F
+	public abstract fun getConstraints-msEJaDk ()J
+	public abstract fun getDirection-T4wFHC8 ()I
+	public abstract fun getJustifyContent-GomtQF4 ()I
+	public abstract fun getRowGap-D9Ej5fM ()F
+	public abstract fun getWrap-7ziDAWk ()I
+	public abstract fun setAlignContent-RVFKNBI (I)V
+	public abstract fun setAlignItems-yvIbNKY (I)V
+	public abstract fun setColumnGap-0680j_4 (F)V
+	public abstract fun setDirection-d5Yd7B0 (I)V
+	public abstract fun setJustifyContent-q3qUS_E (I)V
+	public abstract fun setRowGap-0680j_4 (F)V
+	public abstract fun setWrap-CLQ35Ag (I)V
+}
+
+public final class androidx/compose/foundation/layout/FlexBoxKt {
+	public static final fun FlexBox (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/FlexBoxConfig;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun flexMultiContentMeasurePolicy (Landroidx/compose/runtime/State;Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/layout/MeasurePolicy;
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlexBoxScope {
+	public abstract fun flex (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/FlexConfig;)Landroidx/compose/ui/Modifier;
+	public fun flex (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/FlexBoxScope$DefaultImpls {
+	public static fun flex (Landroidx/compose/foundation/layout/FlexBoxScope;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function1;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/FlexBoxScopeInstance : androidx/compose/foundation/layout/FlexBoxScope {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/foundation/layout/FlexBoxScopeInstance;
+	public fun flex (Landroidx/compose/ui/Modifier;Landroidx/compose/foundation/layout/FlexConfig;)Landroidx/compose/ui/Modifier;
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlexConfig {
+	public abstract fun configure (Landroidx/compose/foundation/layout/FlexConfigScope;)V
+}
+
+public abstract interface class androidx/compose/foundation/layout/FlexConfigScope : androidx/compose/ui/unit/Density {
+	public abstract fun alignSelfToBaseline (Landroidx/compose/ui/layout/AlignmentLine;)V
+	public abstract fun alignSelfToBaseline (Lkotlin/jvm/functions/Function1;)V
+	public abstract fun basis (F)V
+	public abstract fun basis-0680j_4 (F)V
+	public abstract fun getAlignSelf-_ov7Qcc ()I
+	public abstract fun getBasis-d-lZNVs ()J
+	public abstract fun getFlexBoxCrossAxisMax ()I
+	public abstract fun getFlexBoxCrossAxisMin ()I
+	public abstract fun getFlexBoxMainAxisMax ()I
+	public abstract fun getFlexBoxMainAxisMin ()I
+	public abstract fun getGrow ()F
+	public abstract fun getOrder ()I
+	public abstract fun getShrink ()F
+	public abstract fun setAlignSelf-aKVMlHY (I)V
+	public abstract fun setBasis-MFoeH6Y (J)V
+	public abstract fun setGrow (F)V
+	public abstract fun setOrder (I)V
+	public abstract fun setShrink (F)V
+}
+
+public final class androidx/compose/foundation/layout/FlexDirection {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexDirection$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/FlexDirection;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexDirection$Companion {
+	public final fun getColumn-T4wFHC8 ()I
+	public final fun getColumnReverse-T4wFHC8 ()I
+	public final fun getRow-T4wFHC8 ()I
+	public final fun getRowReverse-T4wFHC8 ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexJustifyContent {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexJustifyContent$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/FlexJustifyContent;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexJustifyContent$Companion {
+	public final fun getCenter-GomtQF4 ()I
+	public final fun getEnd-GomtQF4 ()I
+	public final fun getSpaceAround-GomtQF4 ()I
+	public final fun getSpaceBetween-GomtQF4 ()I
+	public final fun getSpaceEvenly-GomtQF4 ()I
+	public final fun getStart-GomtQF4 ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexWrap {
+	public static final field Companion Landroidx/compose/foundation/layout/FlexWrap$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/FlexWrap;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/FlexWrap$Companion {
+	public final fun getNoWrap-7ziDAWk ()I
+	public final fun getWrap-7ziDAWk ()I
+	public final fun getWrapReverse-7ziDAWk ()I
 }
 
 public abstract interface class androidx/compose/foundation/layout/FlowColumnScope : androidx/compose/foundation/layout/ColumnScope {
@@ -148,6 +381,123 @@ public final class androidx/compose/foundation/layout/FlowRowOverflow$Companion 
 }
 
 public abstract interface class androidx/compose/foundation/layout/FlowRowScope : androidx/compose/foundation/layout/RowScope {
+}
+
+public final class androidx/compose/foundation/layout/Fr {
+	public static final synthetic fun box-impl (F)Landroidx/compose/foundation/layout/Fr;
+	public static fun constructor-impl (F)F
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (FLjava/lang/Object;)Z
+	public static final fun equals-impl0 (FF)Z
+	public final fun getValue ()F
+	public fun hashCode ()I
+	public static fun hashCode-impl (F)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (F)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()F
+}
+
+public abstract interface class androidx/compose/foundation/layout/GridConfigurationScope : androidx/compose/ui/unit/Density {
+	public abstract fun column (F)V
+	public abstract fun column-0680j_4 (F)V
+	public abstract fun column-118E5d0 (J)V
+	public abstract fun column-XZblgos (F)V
+	public abstract fun columnGap-0680j_4 (F)V
+	public abstract fun gap-0680j_4 (F)V
+	public abstract fun gap-YgX7TsA (FF)V
+	public abstract fun getFlow-ITJdzs4 ()I
+	public fun getFr-9P9H2UQ (D)F
+	public fun getFr-9P9H2UQ (F)F
+	public fun getFr-9P9H2UQ (I)F
+	public abstract fun row (F)V
+	public abstract fun row-0680j_4 (F)V
+	public abstract fun row-118E5d0 (J)V
+	public abstract fun row-XZblgos (F)V
+	public abstract fun rowGap-0680j_4 (F)V
+	public abstract fun setFlow-4t4_IgM (I)V
+}
+
+public final class androidx/compose/foundation/layout/GridFlow {
+	public static final field Companion Landroidx/compose/foundation/layout/GridFlow$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/foundation/layout/GridFlow;
+	public static fun constructor-impl (I)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/foundation/layout/GridFlow$Companion {
+	public final fun getColumn-ITJdzs4 ()I
+	public final fun getRow-ITJdzs4 ()I
+}
+
+public final class androidx/compose/foundation/layout/GridKt {
+	public static final fun Grid (Lkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
+	public static final fun columns (Landroidx/compose/foundation/layout/GridConfigurationScope;[Landroidx/compose/foundation/layout/GridTrackSpec;)V
+	public static final fun rows (Landroidx/compose/foundation/layout/GridConfigurationScope;[Landroidx/compose/foundation/layout/GridTrackSpec;)V
+}
+
+public final class androidx/compose/foundation/layout/GridMeasurePolicy : androidx/compose/ui/layout/MeasurePolicy {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/runtime/State;)V
+	public fun measure-3p2s80s (Landroidx/compose/ui/layout/MeasureScope;Ljava/util/List;J)Landroidx/compose/ui/layout/MeasureResult;
+}
+
+public abstract interface class androidx/compose/foundation/layout/GridScope {
+	public static final field Companion Landroidx/compose/foundation/layout/GridScope$Companion;
+	public static final field GridIndexUnspecified I
+	public static final field MaxGridIndex I
+	public abstract fun gridItem (Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+	public abstract fun gridItem (Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/GridScope$Companion {
+	public static final field GridIndexUnspecified I
+	public static final field MaxGridIndex I
+}
+
+public final class androidx/compose/foundation/layout/GridScope$DefaultImpls {
+	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+	public static synthetic fun gridItem$default (Landroidx/compose/foundation/layout/GridScope;Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;ILjava/lang/Object;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/GridScopeInstance : androidx/compose/foundation/layout/GridScope {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/foundation/layout/GridScopeInstance;
+	public fun gridItem (Landroidx/compose/ui/Modifier;IIIILandroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+	public fun gridItem (Landroidx/compose/ui/Modifier;Lkotlin/ranges/IntRange;Lkotlin/ranges/IntRange;Landroidx/compose/ui/Alignment;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/foundation/layout/GridTrackSize : androidx/compose/foundation/layout/GridTrackSpec {
+	public static final field Companion Landroidx/compose/foundation/layout/GridTrackSize$Companion;
+	public static final synthetic fun box-impl (J)Landroidx/compose/foundation/layout/GridTrackSize;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (JLjava/lang/Object;)Z
+	public static final fun equals-impl0 (JJ)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (J)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (J)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()J
+}
+
+public final class androidx/compose/foundation/layout/GridTrackSize$Companion {
+	public final fun Fixed-psSkOvk (F)J
+	public final fun Flex-KGB9zo8 (F)J
+	public final fun Percentage-9Tp3RV8 (F)J
+	public final fun getAuto-eyNpfc4 ()J
+	public final fun getMaxContent-eyNpfc4 ()J
+	public final fun getMinContent-eyNpfc4 ()J
+}
+
+public abstract interface class androidx/compose/foundation/layout/GridTrackSpec {
 }
 
 public final class androidx/compose/foundation/layout/IntrinsicKt {
