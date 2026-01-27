@@ -23,6 +23,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.MockAppDelegate
 import androidx.compose.ui.test.UIKitInstrumentedTest
+import androidx.compose.ui.test.findLayersWindow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.uikit.utils.CMPComposeContainerLifecycleDelegateProtocol
 import androidx.compose.ui.uikit.utils.CMPViewController
@@ -193,15 +194,6 @@ class ComposeLayersViewControllerTest {
         )
 
         appDelegate.cleanUp()
-    }
-
-    private fun MockAppDelegate.findLayersWindow(): LayersWindow {
-        val window = this@findLayersWindow.window?.windowScene?.windows?.mapNotNull {
-            it as? LayersWindow
-        }?.single { !it.isHidden() }
-
-        assertNotNull(window, "${LayersWindow::class} not found in scene")
-        return window
     }
 }
 

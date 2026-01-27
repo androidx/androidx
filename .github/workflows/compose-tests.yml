@@ -175,9 +175,17 @@ jobs:
         working-directory: compose/ui/ui/src/uikitInstrumentedTest/launcher
         run: |
           xcodebuild test \
+            -resultBundlePath TestResults.xcresult \
             -scheme Launcher \
             -project Launcher.xcodeproj \
             -destination 'platform=iOS Simulator,id=${{ steps.get-simulator-udid.outputs.simulator-id }}'
+
+      - name: Upload Test Results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: TestResults-${{ github.run_number }}.xcresult
+          path: compose/ui/ui/src/uikitInstrumentedTest/launcher/TestResults.xcresult
 
       - name: Test Summary
         uses: test-summary/action@v2
