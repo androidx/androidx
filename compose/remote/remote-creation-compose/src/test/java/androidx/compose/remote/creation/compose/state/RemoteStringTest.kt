@@ -797,6 +797,75 @@ class RemoteStringTest {
         assertThat(context.getInteger(lenId)).isEqualTo(8)
     }
 
+    @Test
+    fun remoteFloat_toRemoteString_caching() {
+        val rf = RemoteFloat.createNamedRemoteFloat("testFloat", 1.0f)
+
+        val rs1 = rf.toRemoteString(1, 2, 0)
+        val rs2 = rf.toRemoteString(1, 2, 0)
+        val rs3 = rf.toRemoteString(2, 2, 0) // Different 'before'
+        val rs4 = rf.toRemoteString(1, 3, 0) // Different 'after'
+        val rs5 = rf.toRemoteString(1, 2, 1) // Different 'flags'
+
+        val id1 = rs1.getIdForCreationState(creationState)
+        val id2 = rs2.getIdForCreationState(creationState)
+        val id3 = rs3.getIdForCreationState(creationState)
+        val id4 = rs4.getIdForCreationState(creationState)
+        val id5 = rs5.getIdForCreationState(creationState)
+
+        assertThat(id1).isEqualTo(id2)
+        assertThat(id1).isNotEqualTo(id3)
+        assertThat(id1).isNotEqualTo(id4)
+        assertThat(id1).isNotEqualTo(id5)
+    }
+
+    @Test
+    fun remoteInt_toRemoteString_caching() {
+        val ri = RemoteInt.createNamedRemoteInt("testInt", 1)
+
+        val rs1 = ri.toRemoteString(1, 0)
+        val rs2 = ri.toRemoteString(1, 0)
+        val rs3 = ri.toRemoteString(2, 0) // Different 'before'
+        val rs4 = ri.toRemoteString(1, 1) // Different 'flags'
+
+        val id1 = rs1.getIdForCreationState(creationState)
+        val id2 = rs2.getIdForCreationState(creationState)
+        val id3 = rs3.getIdForCreationState(creationState)
+        val id4 = rs4.getIdForCreationState(creationState)
+
+        assertThat(id1).isEqualTo(id2)
+        assertThat(id1).isNotEqualTo(id3)
+        assertThat(id1).isNotEqualTo(id4)
+    }
+
+    @Test
+    fun differentRemoteFloats_differentIds() {
+        val rf1 = RemoteFloat.createNamedRemoteFloat("testFloat1", 1.0f)
+        val rf2 = RemoteFloat.createNamedRemoteFloat("testFloat2", 2.0f)
+
+        val rs1 = rf1.toRemoteString(1, 2, 0)
+        val rs2 = rf2.toRemoteString(1, 2, 0)
+
+        val id1 = rs1.getIdForCreationState(creationState)
+        val id2 = rs2.getIdForCreationState(creationState)
+
+        assertThat(id1).isNotEqualTo(id2)
+    }
+
+    @Test
+    fun differentRemoteInts_differentIds() {
+        val ri1 = RemoteInt.createNamedRemoteInt("testInt1", 1)
+        val ri2 = RemoteInt.createNamedRemoteInt("testInt2", 2)
+
+        val rs1 = ri1.toRemoteString(1, 0)
+        val rs2 = ri2.toRemoteString(1, 0)
+
+        val id1 = rs1.getIdForCreationState(creationState)
+        val id2 = rs2.getIdForCreationState(creationState)
+
+        assertThat(id1).isNotEqualTo(id2)
+    }
+
     private fun makeAndPaintCoreDocument() =
         CoreDocument().apply {
             val buffer = creationState.document.buffer

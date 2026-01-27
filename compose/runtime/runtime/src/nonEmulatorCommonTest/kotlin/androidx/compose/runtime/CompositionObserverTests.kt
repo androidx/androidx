@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.Text
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectChanges
@@ -65,9 +66,9 @@ class CompositionObserverTests {
     }
 
     @Test
-    fun observeScope() = wrapRunTest {
+    fun observeScope_Gap() = wrapRunTest {
         val observer = SingleScopeObserver()
-        compositionTest {
+        compositionTest(ComposerToUse.Gap) {
                 var data by mutableStateOf(0)
                 var scope: RecomposeScope? = null
 
@@ -93,9 +94,37 @@ class CompositionObserverTests {
     }
 
     @Test
-    fun observeScope_dispose() = wrapRunTest {
+    fun observeScope_Link() = wrapRunTest {
         val observer = SingleScopeObserver()
-        compositionTest {
+        compositionTest(ComposerToUse.Link) {
+                var data by mutableStateOf(0)
+                var scope: RecomposeScope? = null
+
+                compose {
+                    scope = currentRecomposeScope
+                    Text("$data")
+                }
+
+                validate { Text("$data") }
+
+                observer.target = scope
+                composition?.setObserver(observer)
+
+                data++
+                expectChanges()
+                revalidate()
+            }
+            .awaitCompletion()
+
+        assertEquals(1, observer.startCount)
+        assertEquals(1, observer.endCount)
+        assertEquals(1, observer.disposedCount)
+    }
+
+    @Test
+    fun observeScope_dispose_Gap() = wrapRunTest {
+        val observer = SingleScopeObserver()
+        compositionTest(ComposerToUse.Gap) {
                 var data by mutableStateOf(0)
                 var scope: RecomposeScope? = null
 
@@ -128,9 +157,88 @@ class CompositionObserverTests {
     }
 
     @Test
-    fun observeScope_scopeRemoved() = wrapRunTest {
+    fun observeScope_dispose_Link() = wrapRunTest {
         val observer = SingleScopeObserver()
-        compositionTest {
+        compositionTest(ComposerToUse.Link) {
+                var data by mutableStateOf(0)
+                var scope: RecomposeScope? = null
+
+                compose {
+                    scope = currentRecomposeScope
+                    Text("$data")
+                }
+
+                validate { Text("$data") }
+
+                observer.target = scope
+                val handle = composition?.setObserver(observer)
+
+                data++
+                expectChanges()
+                revalidate()
+
+                handle?.dispose()
+
+                data++
+                expectChanges()
+                revalidate()
+            }
+            .awaitCompletion()
+
+        assertEquals(1, observer.startCount)
+        assertEquals(1, observer.endCount)
+        // 0 because the observer was disposed before the scope was disposed.
+        assertEquals(0, observer.disposedCount)
+    }
+
+    @Test
+    fun observeScope_scopeRemoved_linkComposer() = wrapRunTest {
+        val observer = SingleScopeObserver()
+        compositionTest(composerToUse = ComposerToUse.Link) {
+                var data by mutableStateOf(0)
+                var visible by mutableStateOf(true)
+                var scope: RecomposeScope? = null
+
+                compose {
+                    if (visible) {
+                        Wrap {
+                            scope = currentRecomposeScope
+                            Text("$data")
+                        }
+                    }
+                }
+
+                validate {
+                    if (visible) {
+                        Text("$data")
+                    }
+                }
+
+                observer.target = scope
+                composition?.setObserver(observer)
+
+                data++
+                expectChanges()
+                revalidate()
+
+                assertEquals(0, observer.disposedCount)
+                visible = false
+                expectChanges()
+                revalidate()
+
+                assertEquals(1, observer.disposedCount)
+            }
+            .awaitCompletion()
+
+        assertEquals(1, observer.startCount)
+        assertEquals(1, observer.endCount)
+        assertEquals(1, observer.disposedCount)
+    }
+
+    @Test
+    fun observeScope_scopeRemoved_gapComposer() = wrapRunTest {
+        val observer = SingleScopeObserver()
+        compositionTest(composerToUse = ComposerToUse.Gap) {
                 var data by mutableStateOf(0)
                 var visible by mutableStateOf(true)
                 var scope: RecomposeScope? = null

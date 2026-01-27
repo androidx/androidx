@@ -19,15 +19,16 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.action.Action
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.TouchActionModifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class TouchCancelActionModifier(public val actions: List<Action>) : RemoteModifier.Element {
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.TouchActionModifier(
             TouchActionModifier.CANCEL,
-            @Suppress("ListIterator") actions.map { it.toRemoteAction() },
+            @Suppress("ListIterator") actions.map { action -> with(action) { toRemoteAction() } },
         )
     }
 }

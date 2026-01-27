@@ -20,6 +20,7 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
@@ -34,9 +35,9 @@ public class RemoteComposeFitBoxModifier(
     override fun ContentDrawScope.draw() {
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startFitBox(
-                modifier.toRemoteCompose(),
-                horizontalAlignment.toRemoteCompose(),
-                verticalArrangement.toRemoteCompose(),
+                canvas.toRecordingModifier(modifier),
+                horizontalAlignment.toRemote(),
+                verticalArrangement.toRemote(),
             )
             this@draw.drawContent()
             canvas.document.endFitBox()

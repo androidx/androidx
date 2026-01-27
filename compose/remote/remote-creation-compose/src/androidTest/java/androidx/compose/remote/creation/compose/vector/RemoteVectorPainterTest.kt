@@ -19,6 +19,8 @@ package androidx.compose.remote.creation.compose.vector
 import android.content.Context
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas
@@ -157,7 +159,12 @@ private fun LoadFromImageVector(
     tint: RemoteColor = RemoteColor(color),
 ) {
     RemoteBox(modifier) {
-        val painter = painterRemoteVector(imageVector, tint)
+        val painter =
+            painterRemoteVector(
+                imageVector,
+                tint,
+                LocalRemoteComposeCreationState.current.remoteDensity,
+            )
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
     }
 }
@@ -170,7 +177,12 @@ private fun LoadFromRes(
     tint: RemoteColor = RemoteColor(color),
 ) {
     RemoteBox(modifier) {
-        val painter = painterRemoteVector(ImageVector.vectorResource(res), tint)
+        val painter =
+            painterRemoteVector(
+                ImageVector.vectorResource(res),
+                tint,
+                LocalRemoteComposeCreationState.current.remoteDensity,
+            )
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) { with(painter) { onDraw() } }
     }
 }
@@ -232,15 +244,18 @@ private object TestImageVectors {
             )
             .build()
 
+    val testRemoteStateScope = NoRemoteCompose()
+
     val RemoteVolumeUp =
         RemoteImageVector.Builder(
+                testRemoteStateScope,
                 name = "Volume up",
                 viewportWidth = 24.0f.rf,
                 viewportHeight = 24.0f.rf,
                 tintColor = RemoteColor(Color.Black),
             )
             .addPath(
-                RemotePathData {
+                RemotePathData(testRemoteStateScope) {
                     moveTo(3.0f.rf, 9.0f.rf)
                     verticalLineToRelative(6.0f.rf)
                     horizontalLineToRelative(4.0f.rf)

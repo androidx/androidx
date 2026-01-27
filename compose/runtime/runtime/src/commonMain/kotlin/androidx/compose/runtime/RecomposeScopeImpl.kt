@@ -19,7 +19,7 @@ package androidx.compose.runtime
 import androidx.collection.MutableObjectIntMap
 import androidx.collection.MutableScatterMap
 import androidx.collection.ScatterSet
-import androidx.compose.runtime.composer.gapbuffer.Anchor
+import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
 import androidx.compose.runtime.snapshots.fastAny
@@ -426,7 +426,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
     companion object {
         internal fun adoptAnchoredScopes(
             slots: SlotWriter,
-            anchors: List<Anchor>,
+            anchors: List<GapAnchor>,
             newOwner: RecomposeScopeOwner,
         ) {
             if (anchors.isNotEmpty()) {
@@ -439,7 +439,7 @@ internal class RecomposeScopeImpl(internal var owner: RecomposeScopeOwner?) :
             }
         }
 
-        internal fun hasAnchoredRecomposeScopes(slots: SlotTable, anchors: List<Anchor>) =
+        internal fun hasAnchoredRecomposeScopes(slots: SlotTable, anchors: List<GapAnchor>) =
             anchors.isNotEmpty() &&
                 anchors.fastAny {
                     slots.ownsAnchor(it) &&

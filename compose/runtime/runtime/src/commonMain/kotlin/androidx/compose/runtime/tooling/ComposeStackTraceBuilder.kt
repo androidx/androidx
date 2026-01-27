@@ -15,15 +15,17 @@
  */
 package androidx.compose.runtime.tooling
 
+import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.GapComposer.CompositionContextHolder
 import androidx.compose.runtime.RememberObserverHolder
-import androidx.compose.runtime.composer.gapbuffer.Anchor
-import androidx.compose.runtime.composer.gapbuffer.GroupSourceInformation
+import androidx.compose.runtime.composer.GroupSourceInformation
+import androidx.compose.runtime.composer.gapbuffer.GapAnchor
 import androidx.compose.runtime.composer.gapbuffer.SlotReader
 import androidx.compose.runtime.composer.gapbuffer.SlotTable
 import androidx.compose.runtime.composer.gapbuffer.SlotWriter
+import androidx.compose.runtime.composer.gapbuffer.asGapAnchor
 import androidx.compose.runtime.defaultsKey
 import androidx.compose.runtime.reference
 import androidx.compose.runtime.referenceKey
@@ -31,16 +33,18 @@ import androidx.compose.runtime.snapshots.fastForEach
 
 internal class WriterTraceBuilder(private val writer: SlotWriter) : ComposeStackTraceBuilder() {
     override fun sourceInformationOf(anchor: Anchor): GroupSourceInformation? =
-        writer.sourceInformationOf(writer.anchorIndex(anchor))
+        writer.sourceInformationOf(writer.anchorIndex(anchor.asGapAnchor()))
 
-    override fun groupKeyOf(anchor: Anchor): Int = writer.groupKey(writer.anchorIndex(anchor))
+    override fun groupKeyOf(anchor: Anchor): Int =
+        writer.groupKey(writer.anchorIndex(anchor.asGapAnchor()))
 }
 
 internal class ReaderTraceBuilder(private val reader: SlotReader) : ComposeStackTraceBuilder() {
     override fun sourceInformationOf(anchor: Anchor): GroupSourceInformation? =
-        reader.table.sourceInformationOf(reader.table.anchorIndex(anchor))
+        reader.table.sourceInformationOf(reader.table.anchorIndex(anchor.asGapAnchor()))
 
-    override fun groupKeyOf(anchor: Anchor): Int = reader.groupKey(reader.table.anchorIndex(anchor))
+    override fun groupKeyOf(anchor: Anchor): Int =
+        reader.groupKey(reader.table.anchorIndex(anchor.asGapAnchor()))
 }
 
 internal abstract class ComposeStackTraceBuilder {
@@ -86,7 +90,7 @@ internal abstract class ComposeStackTraceBuilder {
                         sourceInfo != null &&
                             (sourceInfo.key == defaultsKey ||
                                 (sourceInfo.key == 0 &&
-                                    child is Anchor &&
+                                    child is GapAnchor &&
                                     groupKeyOf(child) == defaultsKey))
 
                     // If sourceInformation is null, it means that default group does not capture
@@ -113,7 +117,7 @@ internal abstract class ComposeStackTraceBuilder {
 
     private fun sourceInformationOf(group: Any) =
         when (group) {
-            is Anchor -> sourceInformationOf(group)
+            is GapAnchor -> sourceInformationOf(group)
             is GroupSourceInformation -> group
             else -> error("Unexpected child source info $group")
         }
@@ -177,7 +181,7 @@ internal abstract class ComposeStackTraceBuilder {
         children.fastForEach { child ->
             // find the edge that leads to target anchor
             when (child) {
-                is Anchor -> {
+                is GapAnchor -> {
                     // edge found, return
                     if (child == target) {
                         appendTraceFrame(sourceInformation.key, sourceInformation, child)

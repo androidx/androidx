@@ -384,6 +384,9 @@ private class InsetsPaddingModifierElement(
     }
 }
 
+internal const val InsetsConsumingModifierNodeKey =
+    "androidx.compose.foundation.layout.ConsumedInsetsProvider"
+
 /** Base class for WindowInsets modifiers. */
 internal abstract class InsetsConsumingModifierNode : Modifier.Node(), TraversableNode {
 
@@ -392,7 +395,7 @@ internal abstract class InsetsConsumingModifierNode : Modifier.Node(), Traversab
         private set
 
     override val traverseKey: Any
-        get() = "androidx.compose.foundation.layout.ConsumedInsetsProvider"
+        get() = InsetsConsumingModifierNodeKey
 
     /**
      * The [WindowInsets] consumed by this modifier, including any [WindowInsets] consumed by

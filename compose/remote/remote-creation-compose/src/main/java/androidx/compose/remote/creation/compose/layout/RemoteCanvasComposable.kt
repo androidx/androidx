@@ -18,15 +18,20 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.v2.RemoteCanvasV2
 import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
+import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
+import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.nativeCanvas
 
 /**
@@ -46,10 +51,11 @@ public fun RemoteCanvas(
         RemoteCanvasV2(modifier, content)
         return
     }
+    val creationState = LocalRemoteComposeCreationState.current
     @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
     Spacer(
         modifier =
-            RemoteComposeCanvasModifier(modifier.toRemoteCompose())
+            RemoteComposeCanvasModifier(creationState.toRecordingModifier(modifier))
                 .drawBehind {
                     RemoteDrawScope(
                             remoteCanvas =
@@ -63,4 +69,24 @@ public fun RemoteCanvas(
                 }
                 .then(modifier.toComposeUiLayout())
     )
+}
+
+/** Utility modifier to record the layout information */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class RemoteComposeCanvasModifier(public val modifier: RecordingModifier) : DrawModifier {
+    override fun ContentDrawScope.draw() {
+        drawIntoRemoteCanvas { canvas ->
+            canvas.document.startCanvas(modifier)
+            this@draw.drawContent()
+            canvas.document.endCanvas()
+        }
+    }
+}
+
+/** Provides access to draw directly with the underlying [RecordingCanvas]. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public inline fun androidx.compose.ui.graphics.drawscope.DrawScope.drawIntoRemoteCanvas(
+    block: (RecordingCanvas) -> Unit
+) {
+    (drawContext.canvas.nativeCanvas as? RecordingCanvas)?.let(block)
 }

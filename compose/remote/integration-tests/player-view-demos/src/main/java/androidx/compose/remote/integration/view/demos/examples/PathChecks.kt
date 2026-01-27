@@ -17,7 +17,6 @@
 package androidx.compose.remote.integration.view.demos.examples
 
 import android.graphics.Typeface
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteCanvas0
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
@@ -28,6 +27,7 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.fillMaxHeight
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
@@ -37,7 +37,6 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -50,14 +49,11 @@ fun SimplePath() {
         verticalAlignment = RemoteAlignment.CenterVertically,
     ) {
         RemoteCanvas0(modifier = RemoteModifier.fillMaxWidth().fillMaxHeight()) {
-            val rec =
-                Rect(
-                    0f,
-                    0f,
-                    remote.component.width.internalAsFloat(),
-                    remote.component.height.internalAsFloat(),
-                )
-            drawRect(Color.DarkGray, RemoteOffset(rec.topLeft), RemoteSize(rec.size))
+            drawRect(
+                Color.DarkGray,
+                RemoteOffset(0f.rf, 0f.rf),
+                RemoteSize(remote.component.width, remote.component.height),
+            )
 
             val path =
                 Path().apply {
@@ -73,7 +69,7 @@ fun SimplePath() {
                     }
                     .asFrameworkPaint()
                     .apply {
-                        textSize = with(density) { 32f }
+                        textSize = 32f
                         typeface = Typeface.DEFAULT
                         color = Color.Red.toArgb()
 
@@ -82,12 +78,7 @@ fun SimplePath() {
                     }
 
             drawPath(path, color = Color.Green, style = Stroke(4f))
-            val canvas = drawScope.drawContext.canvas.nativeCanvas
-            if (canvas is RecordingCanvas) {
-                canvas.drawTextOnPath("10:10", path.asAndroidPath(), 20f, 0f, textPaint)
-            } else {
-                canvas.drawTextOnPath("10:10", path.asAndroidPath(), 20f, 0f, textPaint)
-            }
+            canvas.drawTextOnPath("10:10", path.asAndroidPath(), 20f, 0f, textPaint)
         }
     }
 }

@@ -23,3 +23,13 @@ internal actual inline fun makeSynchronizedObject(ref: Any?) = ref ?: Synchroniz
 
 @PublishedApi
 internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R = block()
+
+internal actual class Monitor {
+    actual fun wait() {}
+
+    actual fun notifyAll() {}
+}
+
+@Suppress("NOTHING_TO_INLINE") internal actual inline fun makeMonitor(ref: Any?) = Monitor()
+
+internal actual inline fun <R> synchronized(monitor: Monitor, block: () -> R): R = block()

@@ -19,13 +19,14 @@ package androidx.compose.remote.creation.compose.modifier
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ZIndexModifier(public val value: RemoteFloat) : RemoteModifier.Element {
 
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.ZIndexModifier(value.internalAsFloat())
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
+        return androidx.compose.remote.creation.modifiers.ZIndexModifier(value.floatId)
     }
 }
 

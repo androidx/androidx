@@ -16,4 +16,4 @@
 
 package androidx.compose.ui.text.intl
 
-internal expect fun PlatformLocale.isRtl(): Boolean
+internal expect fun Locale.isRtl(): Boolean

@@ -20,10 +20,12 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.managers.CollapsiblePriority
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.CollapsiblePriorityModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
@@ -42,8 +44,8 @@ public class RemoteComposeCollapsibleRowModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startCollapsibleRow(
                 modifier,
-                horizontalArrangement.toRemoteCompose(),
-                verticalAlignment.toRemoteCompose(),
+                horizontalArrangement.toRemote(),
+                verticalAlignment.toRemote(),
             )
             this@draw.drawContent()
             canvas.document.endCollapsibleRow()
@@ -79,9 +81,10 @@ public fun RemoteCollapsibleRow(
 
     val scope = remember { RemoteCollapsibleRowScope() }
 
+    val creationState = LocalRemoteComposeCreationState.current
     val composeModifiers =
         RemoteComposeCollapsibleRowModifier(
-                modifier.toRemoteCompose(),
+                creationState.toRecordingModifier(modifier),
                 horizontalArrangement,
                 verticalAlignment,
             )

@@ -34,6 +34,7 @@ import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.B
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.C
+import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.D
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
 import androidx.compose.foundation.gestures.AnchoredDraggableMinFlingVelocity
@@ -235,6 +236,28 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
 
         assertWithMessage("Current state").that(state.currentValue).isEqualTo(B)
         assertWithMessage("Target state").that(state.targetValue).isEqualTo(B)
+    }
+
+    @Test
+    fun anchoredDraggable_targetValue_shouldBeEqualToCurrentValue_multipleAnchorsAtSameOffset() {
+        val (state, _) =
+            createStateAndModifier(
+                initialValue = B,
+                orientation = Orientation.Vertical,
+                anchors =
+                    DraggableAnchors {
+                        A at 1000f
+                        B at 0f
+                        C at 0f
+                        D at 0f
+                    },
+            )
+        assertThat(state.currentValue).isEqualTo(B)
+        assertThat(state.targetValue).isEqualTo(B)
+
+        runBlocking { state.snapTo(C) }
+        assertThat(state.currentValue).isEqualTo(C)
+        assertThat(state.targetValue).isEqualTo(C)
     }
 
     @Test
@@ -487,6 +510,7 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
                 remember {
                     createStateAndModifier(initialValue = B, orientation = Orientation.Horizontal)
                 }
+            @Suppress("FrequentlyChangingValue")
             progress = state.progress(from = A, to = B)
             Box(Modifier.fillMaxSize()) {
                 Box(
@@ -616,21 +640,47 @@ class AnchoredDraggableStateTest(testNewBehavior: Boolean) :
     }
 
     @Test
-    fun anchoredDraggable_targetNotInAnchors_animateTo_updatesCurrentValue() {
+    fun anchoredDraggable_targetNotInAnchors_emptyAnchors_animateTo_updatesCurrentValue() {
         val state = createAnchoredDraggableState(initialValue = A)
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
         runBlocking { state.animateTo(B, tween()) }
-        assertThat(state.currentValue).isEqualTo(B)
+        assertWithMessage("currentValue").that(state.currentValue).isEqualTo(B)
+        assertWithMessage("settledValue").that(state.settledValue).isEqualTo(B)
+        assertWithMessage("targetValue").that(state.targetValue).isEqualTo(B)
     }
 
     @Test
-    fun anchoredDraggable_targetNotInAnchors_snapTo_updatesCurrentValue() {
+    fun anchoredDraggable_targetNotInAnchors_animateTo_updatesCurrentValue() {
+        val state =
+            createAnchoredDraggableState(initialValue = A, anchors = DraggableAnchors { A at 0f })
+        assertThat(state.currentValue).isEqualTo(A)
+        runBlocking { state.animateTo(B, tween()) }
+        assertWithMessage("currentValue").that(state.currentValue).isEqualTo(B)
+        assertWithMessage("settledValue").that(state.settledValue).isEqualTo(B)
+        assertWithMessage("targetValue").that(state.targetValue).isEqualTo(B)
+    }
+
+    @Test
+    fun anchoredDraggable_targetNotInAnchors_emptyAnchors_snapTo_updatesCurrentValue() {
         val state = createAnchoredDraggableState(initialValue = A)
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
         runBlocking { state.snapTo(B) }
-        assertThat(state.currentValue).isEqualTo(B)
+        assertWithMessage("currentValue").that(state.currentValue).isEqualTo(B)
+        assertWithMessage("settledValue").that(state.settledValue).isEqualTo(B)
+        assertWithMessage("targetValue").that(state.targetValue).isEqualTo(B)
+    }
+
+    @Test
+    fun anchoredDraggable_targetNotInAnchors_snapTo_updatesCurrentValue() {
+        val state =
+            createAnchoredDraggableState(initialValue = A, anchors = DraggableAnchors { A at 0f })
+        assertThat(state.currentValue).isEqualTo(A)
+        runBlocking { state.snapTo(B) }
+        assertWithMessage("currentValue").that(state.currentValue).isEqualTo(B)
+        assertWithMessage("settledValue").that(state.settledValue).isEqualTo(B)
+        assertWithMessage("targetValue").that(state.targetValue).isEqualTo(B)
     }
 
     @Test

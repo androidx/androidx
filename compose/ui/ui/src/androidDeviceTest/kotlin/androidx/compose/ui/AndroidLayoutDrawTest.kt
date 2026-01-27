@@ -21,7 +21,6 @@ package androidx.compose.ui
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
-import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.transition.TransitionManager
@@ -42,7 +41,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -91,7 +89,6 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ComposeViewContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.RenderNodeApi23
@@ -110,13 +107,6 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.unit.toOffset
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LifecycleRegistry
-import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistryController
-import androidx.savedstate.SavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -124,7 +114,6 @@ import com.google.common.truth.Truth
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -360,52 +349,6 @@ class AndroidLayoutDrawTest {
         assertTrue(cameraDistanceApplied)
     }
 
-    private fun createAndroidComposeView(
-        activity: TestActivity,
-        coroutineContext: CoroutineContext,
-    ): AndroidComposeView {
-        val lifecycleOwner =
-            object : LifecycleOwner {
-                override val lifecycle: Lifecycle
-                    get() =
-                        object : Lifecycle() {
-                            override val currentState: Lifecycle.State
-                                get() = Lifecycle.State.RESUMED
-
-                            override fun addObserver(observer: LifecycleObserver) {}
-
-                            override fun removeObserver(observer: LifecycleObserver) {}
-                        }
-            }
-        val savedStateRegistryOwner =
-            object : SavedStateRegistryOwner {
-                val lifecycleRegistry = LifecycleRegistry.createUnsafe(this)
-                private val controller =
-                    SavedStateRegistryController.create(this).apply { performRestore(Bundle()) }
-
-                init {
-                    lifecycleRegistry.currentState = Lifecycle.State.RESUMED
-                }
-
-                override val savedStateRegistry: SavedStateRegistry
-                    get() = controller.savedStateRegistry
-
-                override val lifecycle: LifecycleRegistry
-                    get() = lifecycleRegistry
-            }
-
-        return AndroidComposeView(
-            activity,
-            ComposeViewContext(
-                compositionContext = Recomposer(coroutineContext),
-                lifecycleOwner = lifecycleOwner,
-                savedStateRegistryOwner = savedStateRegistryOwner,
-                viewModelStoreOwner = null,
-                view = activity.window.decorView,
-            ),
-        )
-    }
-
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun verifyRenderNode29CompositingStrategy(
         compositingStrategy: CompositingStrategy,
@@ -414,7 +357,7 @@ class AndroidLayoutDrawTest {
     ): Boolean {
         val node =
             RenderNodeApi29(
-                    createAndroidComposeView(
+                    AndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     )
@@ -432,7 +375,7 @@ class AndroidLayoutDrawTest {
     ): Boolean {
         val node =
             RenderNodeApi23(
-                    createAndroidComposeView(
+                    AndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     )
@@ -449,7 +392,7 @@ class AndroidLayoutDrawTest {
     ): Boolean {
         val view =
             ViewLayer(
-                    createAndroidComposeView(
+                    AndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     ),
@@ -474,7 +417,7 @@ class AndroidLayoutDrawTest {
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
         RenderNodeApi29(
-                createAndroidComposeView(
+                AndroidComposeView(
                     activity,
                     Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                 )
@@ -488,7 +431,7 @@ class AndroidLayoutDrawTest {
         // Verify that the internal render node has the camera distance property
         // given to the wrapper
         RenderNodeApi23(
-                createAndroidComposeView(
+                AndroidComposeView(
                     activity,
                     Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                 )
@@ -500,7 +443,7 @@ class AndroidLayoutDrawTest {
     private fun verifyViewLayerCameraDistance(cameraDistance: Float): Boolean {
         val layer =
             ViewLayer(
-                    createAndroidComposeView(
+                    AndroidComposeView(
                         activity,
                         Executors.newFixedThreadPool(3).asCoroutineDispatcher(),
                     ),

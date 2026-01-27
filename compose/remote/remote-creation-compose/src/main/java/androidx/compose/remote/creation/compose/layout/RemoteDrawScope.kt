@@ -20,12 +20,14 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.DrawTextOnCircle
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.shaders.RemoteSolidColor
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
+import androidx.compose.remote.creation.compose.state.RemoteBoolean
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rf
+import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.layout.ContentScale
@@ -37,11 +39,11 @@ import androidx.compose.ui.unit.LayoutDirection
  * API incompatibilities.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteDrawScope(
+public open class RemoteDrawScope(
     public val remoteCanvas: RemoteCanvas,
     public val fontScale: RemoteFloat,
     public val layoutDirection: LayoutDirection,
-) {
+) : RemoteStateScope by remoteCanvas {
     public val remoteComposeCreationState: RemoteComposeCreationState
         get() = remoteCanvas.creationState
 
@@ -57,6 +59,14 @@ public class RemoteDrawScope(
     public val remoteCenter: RemoteOffset
         get() = RemoteOffset(remoteWidth / 2f, remoteHeight / 2f)
 
+    /** The x-coordinate of the center of the drawing area. */
+    public val centerX: RemoteFloat
+        get() = remoteWidth / 2f
+
+    /** The y-coordinate of the center of the drawing area. */
+    public val centerY: RemoteFloat
+        get() = remoteHeight / 2f
+
     /** The size of the drawing area as a [RemoteSize]. */
     public val remoteSize: RemoteSize
         get() = RemoteSize(remoteWidth, remoteHeight)
@@ -66,23 +76,12 @@ public class RemoteDrawScope(
         block()
     }
 
-    private fun resolveRemoteBrush(paint: RemotePaint, size: RemoteSize) {
-        paint.remoteBrush?.let { brush ->
-            if (brush.hasShader) {
-                paint.shader = brush.createShader(size)
-            } else if (brush is RemoteSolidColor) {
-                paint.remoteColor = brush.color
-            }
-        }
-    }
-
     /** Draws a rectangle. */
     public fun drawRect(
         paint: RemotePaint,
         topLeft: RemoteOffset = RemoteOffset.Zero,
         size: RemoteSize = remoteSize,
     ) {
-        resolveRemoteBrush(paint, size)
         remoteCanvas.drawRect(
             topLeft.x,
             topLeft.y,
@@ -99,7 +98,6 @@ public class RemoteDrawScope(
         size: RemoteSize = remoteSize,
         cornerRadius: RemoteOffset = RemoteOffset.Zero,
     ) {
-        resolveRemoteBrush(paint, size)
         remoteCanvas.drawRoundRect(
             topLeft.x,
             topLeft.y,
@@ -111,13 +109,68 @@ public class RemoteDrawScope(
         )
     }
 
+    /** Draws a circle. */
+    public fun drawCircle(
+        paint: RemotePaint,
+        center: RemoteOffset = remoteCenter,
+        radius: RemoteFloat,
+    ) {
+        RemoteSize(radius * 2f, radius * 2f)
+        remoteCanvas.drawCircle(center.x, center.y, radius, paint)
+    }
+
+    /** Draws an oval. */
+    public fun drawOval(
+        paint: RemotePaint,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize,
+    ) {
+        remoteCanvas.drawOval(
+            topLeft.x,
+            topLeft.y,
+            topLeft.x + size.width,
+            topLeft.y + size.height,
+            paint,
+        )
+    }
+
+    /**
+     * Draws an arc.
+     *
+     * @param useCenter If true, include the center of the oval in the arc, which creates a sector.
+     */
+    public fun drawArc(
+        paint: RemotePaint,
+        startAngle: RemoteFloat,
+        sweepAngle: RemoteFloat,
+        useCenter: Boolean,
+        topLeft: RemoteOffset = RemoteOffset.Zero,
+        size: RemoteSize = remoteSize,
+    ) {
+        remoteCanvas.drawArc(
+            topLeft.x,
+            topLeft.y,
+            topLeft.x + size.width,
+            topLeft.y + size.height,
+            startAngle,
+            sweepAngle,
+            useCenter,
+            paint,
+        )
+    }
+
+    /** Draws a line. */
+    public fun drawLine(paint: RemotePaint, start: RemoteOffset, end: RemoteOffset) {
+        remoteCanvas.drawLine(start.x, start.y, end.x, end.y, paint)
+    }
+
     /** Draws an image. */
     public fun drawImage(
         image: RemoteBitmap,
         topLeft: RemoteOffset = RemoteOffset.Zero,
         paint: RemotePaint = RemotePaint(),
     ) {
-        resolveRemoteBrush(paint, RemoteSize(image.width, image.height))
+        RemoteSize(image.width, image.height)
         remoteCanvas.drawBitmap(image, topLeft.x, topLeft.y, paint)
     }
 
@@ -142,7 +195,7 @@ public class RemoteDrawScope(
             dstOffset.y,
             dstOffset.x + dstSize.width,
             dstOffset.y + dstSize.height,
-            scaleType.toRemoteCompose(),
+            scaleType.toImageScalingInt(),
             scaleFactor,
             contentDescription,
         )
@@ -158,6 +211,58 @@ public class RemoteDrawScope(
         remoteCanvas.drawPath(path.asAndroidPath(), paint)
     }
 
+    public fun drawTweenPath(
+        path1: androidx.compose.ui.graphics.Path,
+        path2: androidx.compose.ui.graphics.Path,
+        tween: RemoteFloat,
+        start: RemoteFloat = 0f.rf,
+        stop: RemoteFloat = 1f.rf,
+        paint: androidx.compose.ui.graphics.Paint,
+    ) {
+        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
+    }
+
+    /** Draws a tween path. */
+    public fun drawTweenPath(
+        path1: RemotePath,
+        path2: RemotePath,
+        tween: RemoteFloat,
+        start: RemoteFloat = 0f.rf,
+        stop: RemoteFloat = 1f.rf,
+        paint: androidx.compose.ui.graphics.Paint,
+    ) {
+        remoteCanvas.drawTweenPath(path1, path2, tween, start, stop, paint)
+    }
+
+    /** Draws text. */
+    public fun drawText(text: RemoteString, x: RemoteFloat, y: RemoteFloat, paint: RemotePaint) {
+        remoteCanvas.drawText(text, x, y, paint)
+    }
+
+    /** Draws anchored text. */
+    public fun drawAnchoredText(
+        text: RemoteString,
+        anchorX: RemoteFloat,
+        anchorY: RemoteFloat,
+        panx: RemoteFloat = 0f.rf,
+        pany: RemoteFloat = 0f.rf,
+        flags: Int = 0,
+        paint: RemotePaint,
+    ) {
+        remoteCanvas.drawAnchoredText(text, anchorX, anchorY, panx, pany, flags, paint)
+    }
+
+    /** Draws text along a path. */
+    public fun drawTextOnPath(
+        text: RemoteString,
+        path: androidx.compose.ui.graphics.Path,
+        hOffset: RemoteFloat = 0f.rf,
+        vOffset: RemoteFloat = 0f.rf,
+        paint: RemotePaint,
+    ) {
+        remoteCanvas.drawTextOnPath(text, path.asAndroidPath(), hOffset, vOffset, paint)
+    }
+
     /** Performs a rotation. */
     public fun rotate(degrees: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
         withTransform({ rotate(degrees) }, block)
@@ -166,6 +271,11 @@ public class RemoteDrawScope(
     /** Performs a translation. */
     public fun translate(left: RemoteFloat, top: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
         withTransform({ translate(left, top) }, block)
+    }
+
+    /** Performs a scaling. */
+    public fun scale(scale: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
+        withTransform({ scale(scale, scale) }, block)
     }
 
     /** Performs a scaling. */
@@ -233,4 +343,48 @@ public class RemoteDrawScope(
             paint,
         )
     }
+
+    /** Clips the drawing area to the specified rectangle and executes [block] within it. */
+    public fun clipRect(
+        left: RemoteFloat,
+        top: RemoteFloat,
+        right: RemoteFloat,
+        bottom: RemoteFloat,
+        clipOp: ClipOp = ClipOp.Intersect,
+        block: RemoteDrawScope.() -> Unit,
+    ) {
+        withTransform({ clipRect(left, top, right, bottom, clipOp) }, block)
+    }
+
+    /** Clips the drawing area to the specified [path] and executes [block] within it. */
+    public fun clipPath(
+        path: RemotePath,
+        clipOp: ClipOp = ClipOp.Intersect,
+        block: RemoteDrawScope.() -> Unit,
+    ) {
+        withTransform({ clipPath(path, clipOp) }, block)
+    }
+
+    /** Executes [body] if [condition] evaluates to true. */
+    public fun drawConditionally(condition: RemoteBoolean, body: RemoteDrawScope.() -> Unit) {
+        remoteCanvas.drawConditionally(condition) { this.body() }
+    }
+
+    /** Draws into an offscreen bitmap and executes [body]. */
+    public fun drawToOffscreenBitmap(bitmap: RemoteBitmap, body: RemoteDrawScope.() -> Unit) {
+        remoteCanvas.drawToOffscreenBitmap(bitmap) { this.body() }
+    }
+
+    /** Executes [body] commands in a loop. */
+    public fun loop(
+        from: RemoteFloat,
+        until: RemoteFloat,
+        step: RemoteFloat,
+        body: RemoteDrawScope.(index: RemoteFloat) -> Unit,
+    ) {
+        remoteCanvas.loop(from, until, step) { index -> this.body(index) }
+    }
+
+    /** Access to remote-specific utilities like time and animations. */
+    public val remote: RemoteAccess = RemoteAccess(this, remoteComposeCreationState)
 }

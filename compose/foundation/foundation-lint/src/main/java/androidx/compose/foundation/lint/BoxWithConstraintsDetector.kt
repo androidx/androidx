@@ -73,23 +73,18 @@ class BoxWithConstraintsDetector : Detector(), SourceCodeScanner {
                                     val propertySymbol =
                                         variableAccessCall.symbol as? KaPropertySymbol
                                     // Check if the property is inside BoxWithConstraintsScope
-                                    val containingClassFqn =
-                                        propertySymbol?.callableId?.classId?.asFqNameString()
+                                    val containingClassId = propertySymbol?.callableId?.classId
                                     // Check if the property is an extension on
                                     // BoxWithConstraintsScope
-                                    val receiverFqn =
-                                        propertySymbol
-                                            ?.receiverType
-                                            ?.expandedSymbol
-                                            ?.classId
-                                            ?.asFqNameString()
+                                    val receiverClassId =
+                                        propertySymbol?.receiverType?.expandedSymbol?.classId
                                     if (
-                                        containingClassFqn ==
+                                        containingClassId ==
                                             FoundationNames.Layout.BoxWithConstraintsScope
-                                                .javaFqn ||
-                                            receiverFqn ==
+                                                .classId ||
+                                            receiverClassId ==
                                                 FoundationNames.Layout.BoxWithConstraintsScope
-                                                    .javaFqn
+                                                    .classId
                                     ) {
                                         foundValidReference = true
                                     }

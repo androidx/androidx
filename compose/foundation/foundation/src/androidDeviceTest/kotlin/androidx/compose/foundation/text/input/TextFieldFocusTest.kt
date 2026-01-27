@@ -134,12 +134,13 @@ internal class TextFieldFocusTest {
         lateinit var testDataList: List<FocusTestData>
 
         rule.setContent {
-            testDataList =
+            testDataList = remember {
                 listOf(
                     FocusTestData(FocusRequester()),
                     FocusTestData(FocusRequester()),
                     FocusTestData(FocusRequester()),
                 )
+            }
 
             TextFieldApp(testDataList)
         }

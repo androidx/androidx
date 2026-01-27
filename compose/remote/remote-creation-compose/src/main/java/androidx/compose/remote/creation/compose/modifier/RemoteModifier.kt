@@ -18,6 +18,7 @@ package androidx.compose.remote.creation.compose.modifier
 
 import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -31,7 +32,8 @@ import androidx.compose.ui.Modifier
 @Stable
 public sealed interface RemoteModifier {
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun toRemoteCompose(): RecordingModifier
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun RemoteStateScope.toRecordingModifier(): RecordingModifier
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Composable
@@ -94,11 +96,11 @@ public sealed interface RemoteModifier {
 
         override fun all(predicate: (Element) -> Boolean): Boolean = predicate(this)
 
-        override fun toRemoteCompose(): RecordingModifier {
-            return RecordingModifier().then(toRemoteComposeElement())
+        override fun RemoteStateScope.toRecordingModifier(): RecordingModifier {
+            return RecordingModifier().then(toRecordingModifierElement())
         }
 
-        public fun toRemoteComposeElement(): RecordingModifier.Element
+        public fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element
     }
 
     /**
@@ -127,7 +129,7 @@ public sealed interface RemoteModifier {
         override fun toString(): String = "Modifier"
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        override fun toRemoteCompose(): RecordingModifier = RecordingModifier()
+        override fun RemoteStateScope.toRecordingModifier(): RecordingModifier = RecordingModifier()
 
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @Composable
@@ -142,6 +144,15 @@ public sealed interface RemoteModifier {
 public fun RemoteModifier.toComposeUi(): Modifier {
     return Modifier.toComposeUi()
 }
+
+/**
+ * Converts a [RemoteModifier] to a [RecordingModifier] within a [RemoteStateScope].
+ *
+ * This is the primary entry point for converting remote modifiers during document capture.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public fun RemoteStateScope.toRecordingModifier(modifier: RemoteModifier): RecordingModifier =
+    with(modifier) { toRecordingModifier() }
 
 /**
  * Filter the Layout relevant [RemoteModifier.Element]s and then convert to Compose UI [Modifier].
@@ -163,18 +174,19 @@ public class CombinedRemoteModifier(
     private val inner: RemoteModifier,
 ) : RemoteModifier {
 
-    override fun toRemoteCompose(): RecordingModifier {
+    override fun RemoteStateScope.toRecordingModifier(): RecordingModifier {
+        val scope = this
         return RecordingModifier().apply {
             if (outer is RemoteModifier.Element) {
-                then(outer.toRemoteComposeElement())
+                then(with(outer) { scope.toRecordingModifierElement() })
             } else {
-                then(outer.toRemoteCompose())
+                then(with(outer) { scope.toRecordingModifier() })
             }
 
             if (inner is RemoteModifier.Element) {
-                then(inner.toRemoteComposeElement())
+                then(with(inner) { scope.toRecordingModifierElement() })
             } else {
-                then(inner.toRemoteCompose())
+                then(with(inner) { scope.toRecordingModifier() })
             }
         }
     }

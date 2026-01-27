@@ -21,6 +21,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.player.core.platform.AndroidRemoteContext
 import androidx.compose.ui.geometry.Size
@@ -59,14 +61,18 @@ import org.junit.rules.ExternalResource
 class RemoteDocumentTestRule : ExternalResource() {
     val androidContext by lazy { ApplicationProvider.getApplicationContext<Context>() }
 
-    val density by lazy { androidContext.resources.displayMetrics.density }
+    val density by lazy { RemoteDensity(androidContext.resources.displayMetrics.density.rf, 1f.rf) }
     val context =
         AndroidRemoteContext().apply {
             useCanvas(Canvas(Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)))
-            density = this@RemoteDocumentTestRule.density
+            density = this@RemoteDocumentTestRule.density.density.constantValue
         }
 
-    val creationState = RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f))
+    val creationState by lazy {
+        RemoteComposeCreationState(AndroidxRcPlatformServices(), Size(1f, 1f)).apply {
+            remoteDensity = density
+        }
+    }
 
     inline fun <T> initialise(crossinline body: (RemoteComposeCreationState) -> T): T {
         return body(creationState).also { makeAndPaintCoreDocument() }

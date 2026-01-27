@@ -485,20 +485,23 @@ public class Header extends Operation implements RemoteComposeOperation {
     }
 
     /**
-     * Read the Header api level
+     * Peeks and returns the Header api level
      *
      * @param buffer
      * @return api level, -1 if not found
      */
-    public static int readApiLevel(@NonNull WireBuffer buffer) {
-        int index = buffer.getIndex();
+    public static int peekApiLevel(@NonNull WireBuffer buffer) {
+        if (buffer.getIndex() != 0) {
+            throw new IllegalStateException(
+                    "Invalid buffer reading position; can't read the header");
+        }
         int headerOpId = buffer.readByte();
         if (headerOpId != Operations.HEADER) {
             return -1;
         }
         int majorVersion = buffer.readInt();
         int minorVersion = buffer.readInt();
-        buffer.setIndex(index);
+        buffer.setIndex(0);
         if (majorVersion >= 0x10000) {
             if ((majorVersion & 0xFFFF0000) != MAGIC_NUMBER) {
                 return -1;
@@ -575,55 +578,52 @@ public class Header extends Operation implements RemoteComposeOperation {
      * @throws IOException if there is an error reading the header
      */
     public static @NonNull Header readDirect(@NonNull WireBuffer buffer) throws IOException {
-        int index = buffer.getIndex();
-        try {
-
-            int type = buffer.readByte();
-
-            if (type != OP_CODE) {
-                throw new IOException("Invalid header " + type + " != " + OP_CODE);
-            }
-            int majorVersion = buffer.readInt();
-            int minorVersion = buffer.readInt();
-            int patchVersion = buffer.readInt();
-
-            if (majorVersion < 0x10000) {
-                int width = buffer.readInt();
-                int height = buffer.readInt();
-                // float density = is.read();
-                float density = 1f;
-                long capabilities = buffer.readLong();
-                return new Header(
-                        majorVersion,
-                        minorVersion,
-                        patchVersion,
-                        width,
-                        height,
-                        density,
-                        capabilities);
-            }
-
-            if ((majorVersion & 0xFFFF0000) != MAGIC_NUMBER) {
-                throw new IOException(
-                        "Invalid header MAGIC_NUMBER "
-                                + (majorVersion & 0xFFFF0000)
-                                + " != "
-                                + MAGIC_NUMBER);
-            }
-            majorVersion &= 0xFFFF;
-            int len = buffer.readInt();
-            short[] types = new short[len];
-            Object[] values = new Object[len];
-            readMap(buffer, types, values);
-            IntMap<Object> map = new IntMap<>();
-            for (int i = 0; i < len; i++) {
-                map.put(types[i], values[i]);
-            }
-            return new Header(majorVersion, minorVersion, patchVersion, map);
-
-        } finally {
-            buffer.setIndex(index);
+        if (buffer.getIndex() != 0) {
+            throw new IllegalStateException(
+                    "Invalid buffer reading position; can't read the header.");
         }
+        int type = buffer.readByte();
+
+        if (type != OP_CODE) {
+            throw new IOException("Invalid header " + type + " != " + OP_CODE);
+        }
+        int majorVersion = buffer.readInt();
+        int minorVersion = buffer.readInt();
+        int patchVersion = buffer.readInt();
+
+        if (majorVersion < 0x10000) {
+            int width = buffer.readInt();
+            int height = buffer.readInt();
+            // float density = is.read();
+            float density = 1f;
+            long capabilities = buffer.readLong();
+            return new Header(
+                    majorVersion,
+                    minorVersion,
+                    patchVersion,
+                    width,
+                    height,
+                    density,
+                    capabilities);
+        }
+
+        if ((majorVersion & 0xFFFF0000) != MAGIC_NUMBER) {
+            throw new IOException(
+                    "Invalid header MAGIC_NUMBER "
+                            + (majorVersion & 0xFFFF0000)
+                            + " != "
+                            + MAGIC_NUMBER);
+        }
+        majorVersion &= 0xFFFF;
+        int len = buffer.readInt();
+        short[] types = new short[len];
+        Object[] values = new Object[len];
+        readMap(buffer, types, values);
+        IntMap<Object> map = new IntMap<>();
+        for (int i = 0; i < len; i++) {
+            map.put(types[i], values[i]);
+        }
+        return new Header(majorVersion, minorVersion, patchVersion, map);
     }
 
     /**

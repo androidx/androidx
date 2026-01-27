@@ -16,7 +16,6 @@
 
 package androidx.compose.remote.player.compose.creation.compose.state
 
-import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteText
@@ -56,6 +55,8 @@ class RemoteStateTest {
 
         composeTestRule.runTest {
             RemoteColumn(modifier = RemoteModifier.size(100.rdp)) {
+                val creationState = LocalRemoteComposeCreationState.current
+
                 val width = rememberRemoteFloat { componentWidth() }
 
                 val configurableWidth = rememberRemoteFloat(name = "configurableWidth") { width }
@@ -70,9 +71,11 @@ class RemoteStateTest {
                     RemoteString("Configurable Width2: ") + configurableWidth2.toRemoteString(3, 0)
                 )
 
-                widthId = Utils.idFromNan(width.id)
-                configurableWidthId = Utils.idFromNan(configurableWidth.id)
-                configurableWidth2Id = Utils.idFromNan(configurableWidth2.id)
+                with(creationState) {
+                    widthId = width.id
+                    configurableWidthId = configurableWidth.id
+                    configurableWidth2Id = configurableWidth2.id
+                }
             }
         }
 

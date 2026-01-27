@@ -357,7 +357,7 @@ class RemoteIntTest {
     fun constantValue_notConstant() {
         assertThat(
                 (RemoteInt(10) - RemoteFloat(RemoteContext.FLOAT_CONTINUOUS_SEC).toRemoteInt())
-                    .constantValue
+                    .constantValueOrNull
             )
             .isNull()
     }

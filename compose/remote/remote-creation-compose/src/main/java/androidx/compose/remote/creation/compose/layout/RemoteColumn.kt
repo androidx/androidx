@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifie
 import androidx.compose.remote.creation.compose.modifier.HeightModifier
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.v2.RemoteColumnV2
 import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
@@ -41,9 +42,9 @@ public class RemoteComposeColumnModifier(
     override fun ContentDrawScope.draw() {
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startColumn(
-                modifier.toRemoteCompose(),
-                horizontalAlignment.toRemoteCompose(),
-                verticalArrangement.toRemoteCompose(),
+                canvas.toRecordingModifier(modifier),
+                horizontalAlignment.toRemote(),
+                verticalArrangement.toRemote(),
             )
             this@draw.drawContent()
             canvas.document.endColumn()

@@ -79,7 +79,7 @@ public fun StrokeJoin.toAndroidJoin(): android.graphics.Paint.Join =
     }
 
 /** Converts [ContentScale] to [ImageScaling]. */
-internal fun ContentScale.toRemoteCompose(): Int {
+internal fun ContentScale.toImageScalingInt(): Int {
     return when (this) {
         ContentScale.Fit -> ImageScaling.SCALE_FIT
         ContentScale.Crop -> ImageScaling.SCALE_CROP

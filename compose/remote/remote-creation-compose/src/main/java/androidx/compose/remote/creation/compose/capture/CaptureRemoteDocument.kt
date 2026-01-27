@@ -19,17 +19,15 @@
 package androidx.compose.remote.creation.compose.capture
 
 import android.content.Context
-import androidx.collection.emptyIntObjectMap
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.v2.captureRemoteDocumentV2
+import androidx.compose.remote.creation.compose.v2.captureSingleRemoteDocumentV2
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
 import kotlin.coroutines.resume
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
@@ -54,15 +52,11 @@ public suspend fun captureSingleRemoteDocument(
     content: @Composable @RemoteComposable () -> Unit,
 ): CapturedDocument {
     if (RemoteComposeCreationComposeFlags.isRemoteApplierEnabled) {
-        val bytes =
-            captureRemoteDocumentV2(
-                    creationDisplayInfo = creationDisplayInfo,
-                    profile = profile,
-                    content = content,
-                )
-                .first()
-        // TODO: WriterEvents/PendingIntents support in V2
-        return CapturedDocument(bytes, emptyIntObjectMap())
+        return captureSingleRemoteDocumentV2(
+            creationDisplayInfo = creationDisplayInfo,
+            profile = profile,
+            content = content,
+        )
     }
 
     return suspendCancellableCoroutine { continuation ->

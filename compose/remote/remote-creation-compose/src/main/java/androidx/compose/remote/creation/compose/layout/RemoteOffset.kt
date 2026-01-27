@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.Offset
 
@@ -46,8 +47,10 @@ public class RemoteOffset {
     public val minDimension: RemoteFloat
         get() = x.min(y)
 
-    public fun asOffset(): Offset {
-        return Offset(x.internalAsFloat(), y.internalAsFloat())
+    public fun asOffset(scope: RemoteStateScope): Offset {
+        with(scope) {
+            return Offset(x.floatId, y.floatId)
+        }
     }
 
     public companion object {

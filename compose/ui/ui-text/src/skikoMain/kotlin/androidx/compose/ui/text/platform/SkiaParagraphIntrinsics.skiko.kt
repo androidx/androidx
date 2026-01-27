@@ -113,7 +113,7 @@ private fun contentBasedTextDirection(text: String, fallback: () -> ResolvedText
     }
 
 private fun localeBasedTextDirection(locale: Locale?) =
-    if ((locale ?: Locale.current).platformLocale.isRtl()) {
+    if ((locale ?: Locale.current).isRtl()) {
         ResolvedTextDirection.Rtl
     } else {
         ResolvedTextDirection.Ltr

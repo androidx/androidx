@@ -22,17 +22,15 @@ import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
 import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WidthModifier(public val type: Type, public val value: RemoteFloat) :
     RemoteModifier.Element {
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
-        return androidx.compose.remote.creation.modifiers.WidthModifier(
-            type,
-            value.internalAsFloat(),
-        )
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
+        return androidx.compose.remote.creation.modifiers.WidthModifier(type, value.floatId)
     }
 }
 

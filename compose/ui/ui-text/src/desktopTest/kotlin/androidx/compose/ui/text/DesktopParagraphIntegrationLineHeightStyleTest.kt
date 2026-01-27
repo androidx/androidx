@@ -43,7 +43,7 @@ class DesktopParagraphIntegrationLineHeightStyleTest {
     private val fontFamilyMeasureFont =
         FontFamily(
             Font(
-                "font/sample_font.ttf",
+                "font_desktop/sample_font.ttf",
                 weight = FontWeight.Normal,
                 style = FontStyle.Normal
             )

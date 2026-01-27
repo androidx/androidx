@@ -37,7 +37,7 @@ public class RemoteStringList(public var listId: Float) {
     public operator fun get(value: RemoteInt): RemoteIntReference {
         val state = LocalRemoteComposeCreationState.current
 
-        val valueId = value.id.toInt()
+        val valueId = with(state) { value.id }
         return RemoteIntReference(state.document.textLookup(listId, valueId))
     }
 
@@ -45,7 +45,7 @@ public class RemoteStringList(public var listId: Float) {
     public operator fun get(value: Int): RemoteIntReference {
         val state = LocalRemoteComposeCreationState.current
 
-        val index = rememberRemoteIntValue { value }.id.toInt()
+        val index = with(state) { rememberRemoteIntValue { value }.id }
         return RemoteIntReference(state.document.textLookup(listId, index))
     }
 }

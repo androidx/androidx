@@ -2246,6 +2246,7 @@ final class androidx.compose.ui.window/DialogProperties { // androidx.compose.ui
 
 final class androidx.compose.ui.window/PopupProperties { // androidx.compose.ui.window/PopupProperties|null[0]
     constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.window/PopupProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
+    constructor <init>(kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.compose.ui.window/PopupProperties.<init>|<init>(kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean;kotlin.Boolean){}[0]
 
     final val clippingEnabled // androidx.compose.ui.window/PopupProperties.clippingEnabled|{}clippingEnabled[0]
         final fun <get-clippingEnabled>(): kotlin/Boolean // androidx.compose.ui.window/PopupProperties.clippingEnabled.<get-clippingEnabled>|<get-clippingEnabled>(){}[0]
@@ -2255,6 +2256,8 @@ final class androidx.compose.ui.window/PopupProperties { // androidx.compose.ui.
         final fun <get-dismissOnClickOutside>(): kotlin/Boolean // androidx.compose.ui.window/PopupProperties.dismissOnClickOutside.<get-dismissOnClickOutside>|<get-dismissOnClickOutside>(){}[0]
     final val focusable // androidx.compose.ui.window/PopupProperties.focusable|{}focusable[0]
         final fun <get-focusable>(): kotlin/Boolean // androidx.compose.ui.window/PopupProperties.focusable.<get-focusable>|<get-focusable>(){}[0]
+    final val usePlatformDefaultWidth // androidx.compose.ui.window/PopupProperties.usePlatformDefaultWidth|{}usePlatformDefaultWidth[0]
+        final fun <get-usePlatformDefaultWidth>(): kotlin/Boolean // androidx.compose.ui.window/PopupProperties.usePlatformDefaultWidth.<get-usePlatformDefaultWidth>|<get-usePlatformDefaultWidth>(){}[0]
 }
 
 final class androidx.compose.ui/BiasAbsoluteAlignment : androidx.compose.ui/Alignment { // androidx.compose.ui/BiasAbsoluteAlignment|null[0]

@@ -30,6 +30,8 @@ import androidx.compose.runtime.rootKey
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastNone
+import androidx.compose.runtime.tooling.ComposeStackTraceMode.Companion.GroupKeys
+import androidx.compose.runtime.tooling.ComposeStackTraceMode.Companion.None
 import kotlin.jvm.JvmInline
 
 /**
@@ -66,10 +68,10 @@ public value class ComposeStackTraceMode private constructor(private val value: 
         public val GroupKeys: ComposeStackTraceMode = ComposeStackTraceMode(1)
 
         /**
-         * Collects source information for stack trace purposes. When this flag is enabled,
-         * composition will record source information at runtime. When crash occurs, Compose will
-         * append a suppressed exception that contains a stack trace pointing to the place in
-         * composition closest to the crash.
+         * Collects a stack trace based on source information embedded by Compose compiler. When
+         * this flag is enabled, composition will record source information at runtime. When crash
+         * occurs, Compose will append a suppressed exception that contains a stack trace pointing
+         * to the place in composition closest to the crash.
          *
          * Note that:
          * - Recording source information introduces additional performance overhead, so this option
@@ -107,11 +109,10 @@ public value class ComposeStackTraceMode private constructor(private val value: 
  */
 internal expect class DiagnosticComposeException(trace: ComposeStackTrace) : RuntimeException
 
-internal class ComposeStackTrace(val frames: List<ComposeStackTraceFrame>) {
-    @OptIn(ComposeToolingApi::class)
-    val hasSourceInformation
-        get() = frames.fastAny { it.sourceInfo != null }
-}
+internal class ComposeStackTrace(
+    val frames: List<ComposeStackTraceFrame>,
+    val hasSourceInformation: Boolean,
+)
 
 @OptIn(ComposeToolingApi::class)
 internal data class ComposeStackTraceFrame(
@@ -120,13 +121,20 @@ internal data class ComposeStackTraceFrame(
     val groupOffset: Int?,
 )
 
+@OptIn(ComposeToolingApi::class)
 internal fun Throwable.tryAttachComposeStackTrace(trace: () -> ComposeStackTrace?): Boolean {
     var result = false
     if (suppressedExceptions.fastNone { it is DiagnosticComposeException }) {
         val traceException =
             try {
                 val stackTrace = trace()
-                result = stackTrace != null && stackTrace.frames.isNotEmpty()
+                result =
+                    stackTrace != null &&
+                        if (stackTrace.hasSourceInformation) {
+                            stackTrace.frames.fastAny { it.sourceInfo != null }
+                        } else {
+                            stackTrace.frames.isNotEmpty()
+                        }
                 if (result) DiagnosticComposeException(stackTrace!!) else null
             } catch (e: Throwable) {
                 // Attach the exception thrown while collecting trace.

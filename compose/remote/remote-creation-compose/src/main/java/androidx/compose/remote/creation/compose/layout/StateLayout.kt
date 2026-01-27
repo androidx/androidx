@@ -22,6 +22,7 @@ import androidx.collection.MutableObjectIntMap
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
 import androidx.compose.runtime.Composable
@@ -32,8 +33,8 @@ import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StateMachineSpec(public val currentState: RemoteInt, public var states: IntArray) {
 
-    public val statesNames: MutableObjectIntMap<String> = MutableObjectIntMap<String>()
-    public val values: HashMap<String, RemoteInt> = HashMap<String, RemoteInt>()
+    public val statesNames: MutableObjectIntMap<String> = MutableObjectIntMap()
+    public val values: HashMap<String, RemoteInt> = HashMap()
 
     public operator fun component1(): Int {
         return states[0]
@@ -137,7 +138,10 @@ public class RemoteComposeStateLayoutModifier(
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
         drawIntoRemoteCanvas { canvas ->
-            canvas.document.startStateLayout(modifier.toRemoteCompose(), currentState.getIntId())
+            canvas.document.startStateLayout(
+                canvas.toRecordingModifier(modifier),
+                with(canvas) { currentState.id },
+            )
             this@draw.drawContent()
             canvas.document.endStateLayout()
         }

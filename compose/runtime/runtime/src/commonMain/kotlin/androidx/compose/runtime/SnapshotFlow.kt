@@ -179,19 +179,19 @@ internal abstract class SnapshotFlowManagerImpl internal constructor() {
      */
     internal fun <T> runAndWatch(channel: SendChannel<Unit>, block: () -> T): T {
         val readObserver: (Any) -> Unit = { watch(channel, it) }
-        synchronized(lock) {
-            clearWatchSet(channel)
-            val result =
-                Snapshot.takeSnapshot(readObserver).run {
+        val result =
+            Snapshot.takeSnapshot(readObserver).run {
+                synchronized(lock) {
+                    clearWatchSet(channel)
                     try {
                         enter(block)
                     } finally {
                         dispose()
                     }
                 }
+            }
 
-            return result
-        }
+        return result
     }
 
     /** Unsubscribes [channel] from being notified of changes to all objects. */

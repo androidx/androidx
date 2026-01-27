@@ -166,6 +166,12 @@ package androidx.compose.ui.text {
     property public androidx.compose.ui.unit.TextUnit DefaultSize;
   }
 
+  @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public final class ComposeUiTextFlags {
+    property public boolean isCorrectShadowLerpWithNullsEnabled;
+    field public static final androidx.compose.ui.text.ComposeUiTextFlags INSTANCE;
+    field public static boolean isCorrectShadowLerpWithNullsEnabled;
+  }
+
   @kotlin.jvm.JvmInline public final value class EmojiSupportMatch {
     method @BytecodeOnly public static androidx.compose.ui.text.EmojiSupportMatch! box-impl(int);
     method @BytecodeOnly public int unbox-impl();
@@ -1673,6 +1679,7 @@ package androidx.compose.ui.text.intl {
   @androidx.compose.runtime.Immutable public final class Locale {
     ctor public Locale(String languageTag);
     ctor public Locale(java.util.Locale platformLocale);
+    method public operator boolean equals(Object? other);
     method @InaccessibleFromKotlin public String getLanguage();
     method @InaccessibleFromKotlin public java.util.Locale getPlatformLocale();
     method @InaccessibleFromKotlin public String getRegion();
@@ -1724,7 +1731,7 @@ package androidx.compose.ui.text.intl {
     property public androidx.compose.ui.text.intl.LocaleList current;
   }
 
-  public typealias PlatformLocale = java.util.Locale;
+  @Deprecated public typealias PlatformLocale = java.util.Locale;
 
 }
 

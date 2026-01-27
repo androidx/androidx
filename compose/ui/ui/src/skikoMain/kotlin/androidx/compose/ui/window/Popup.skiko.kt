@@ -81,9 +81,26 @@ actual class PopupProperties constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     actual val clippingEnabled: Boolean = true,
-    val usePlatformDefaultWidth: Boolean = false,
+    actual val usePlatformDefaultWidth: Boolean = false,
     val usePlatformInsets: Boolean = true,
 ) {
+
+    actual constructor(
+        focusable: Boolean,
+        dismissOnBackPress: Boolean,
+        dismissOnClickOutside: Boolean,
+        clippingEnabled: Boolean,
+        usePlatformDefaultWidth: Boolean
+    ): this(
+        focusable = focusable,
+        dismissOnBackPress = dismissOnBackPress,
+        dismissOnClickOutside = dismissOnClickOutside,
+        clippingEnabled = clippingEnabled,
+        usePlatformDefaultWidth = usePlatformDefaultWidth,
+        usePlatformInsets = true
+    )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     actual constructor(
         focusable: Boolean,
         dismissOnBackPress: Boolean,

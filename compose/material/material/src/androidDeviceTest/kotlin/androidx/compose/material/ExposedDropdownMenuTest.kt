@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
@@ -109,6 +110,7 @@ class ExposedDropdownMenuTest {
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
     }
 
+    @SdkSuppress(maxSdkVersion = 35) // b/454429920
     @Test
     fun expandedBehaviour_dismissesOnBackPress() {
         rule.setMaterialContent {

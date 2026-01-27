@@ -16,11 +16,11 @@
 
 package androidx.compose.foundation.text.input.internal
 
-import androidx.compose.ui.text.intl.PlatformLocale
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDirection
 
 internal actual fun resolveTextDirectionForKeyboardTypePhone(
-    locale: PlatformLocale
+    locale: Locale
 ): TextDirection {
     // TODO implement resolveTextDirectionForKeyboardTypePhone
     //  Added in a0f82d5c7de2155a1f144bd606d9eea32659a9d7

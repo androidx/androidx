@@ -26,6 +26,7 @@ internal actual inline fun rememberClipboardEventsHandler(
     crossinline onCopy: () -> AnnotatedString?,
     crossinline onCut: () -> AnnotatedString?,
     isEnabled: Boolean,
-) {
+): Boolean {
     // NoOp on Android and Desktop
+    return false
 }

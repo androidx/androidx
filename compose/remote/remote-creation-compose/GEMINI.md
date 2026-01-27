@@ -23,8 +23,8 @@ All public drawing APIs should prioritize "Remote" types over standard platform 
 
 ### 1. Handling `RemoteFloat`
 `RemoteFloat` can represent either a constant value or a dynamic expression (identified by an ID).
-- **NEVER** use `internalAsFloat()` for arithmetic or logic. It returns the remote ID encoded as a NaN, which will corrupt any calculation.
-- **DO** use `getFloatIdForCreationState(creationState)` when you need to serialize the value/ID into a `RecordingCanvas` command. If this is required put a TODO in RecordingCanvas to add a Remote overload.
+- **NEVER** use `RemoteFloat.floatId` for arithmetic or logic. It returns the remote ID encoded as a NaN, which will corrupt any calculation.
+- **DO** use `RemoteStateScope` when you need to serialize the value/ID into a `RecordingCanvas` command. If this is required put a TODO in RecordingCanvas to add a Remote overload.
 
 ### 2. `RemotePaint` usage
 `RemotePaint` is a critical bridge. It allows standard `android.graphics.Paint` properties to be associated with remote IDs.

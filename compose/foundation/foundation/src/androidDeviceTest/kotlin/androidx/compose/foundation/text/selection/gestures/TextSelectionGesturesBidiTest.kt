@@ -67,7 +67,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
             selection = 24 to 29
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
     }
 
@@ -157,7 +157,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
             selection = 24 to 29
             selectionHandlesShown = true
             magnifierShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(forwardOffset)
@@ -165,7 +165,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
         asserter.applyAndAssert {
             selection = forwardSelection
             endLayoutDirection = forwardEndDirection
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(backwardOffset)
@@ -173,7 +173,7 @@ internal abstract class TextSelectionGesturesBidiTest : AbstractSelectionGesture
         asserter.applyAndAssert {
             selection = backwardSelection
             endLayoutDirection = backwardEndDirection
-            if (forwardSelection != backwardSelection) hapticsCount++
+            if (forwardSelection != backwardSelection) hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }

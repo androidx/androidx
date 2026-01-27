@@ -20,10 +20,8 @@ package androidx.compose.runtime.lint
 
 import androidx.compose.lint.Name
 import androidx.compose.lint.Package
-import androidx.compose.lint.inheritsFrom
 import androidx.compose.lint.isComposable
 import androidx.compose.lint.isInvokedWithinComposable
-import androidx.compose.lint.toKmFunction
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -33,15 +31,15 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.impl.compiled.ClsMethodImpl
 import java.util.EnumSet
-import kotlin.metadata.KmClassifier
-import org.jetbrains.kotlin.psi.KtNamedFunction
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
+import org.jetbrains.kotlin.analysis.api.symbols.receiverType
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UMethod
-import org.jetbrains.uast.UTypeReferenceExpression
 import org.jetbrains.uast.resolveToUElement
-import org.jetbrains.uast.toUElement
 
 /**
  * [Detector] that checks calls to Flow operator functions (such as map) to make sure they don't
@@ -58,10 +56,10 @@ class ComposableFlowOperatorDetector : Detector(), SourceCodeScanner {
         object : UElementHandler() {
             override fun visitCallExpression(node: UCallExpression) {
                 val method = node.resolveToUElement() as? UMethod ?: return
-                val receiverType = node.receiverType
+                val source = node.sourcePsi as? KtCallExpression ?: return
 
-                // We are calling a method on a `Flow` type, and the method is an operator function
-                if (receiverType?.inheritsFrom(FlowName) == true && method.isFlowOperator()) {
+                // We are calling a flow operator function
+                if (source.isFlowOperator()) {
                     if (!method.isComposable && node.isInvokedWithinComposable()) {
                         context.report(
                             FlowOperatorInvokedInComposition,
@@ -95,32 +93,25 @@ class ComposableFlowOperatorDetector : Detector(), SourceCodeScanner {
 }
 
 /**
- * @return whether this [UMethod] is an extension function with a receiver of Flow, and a return
- *   type of Flow
+ * @return whether this [UMethod] is an extension function with a receiver of Flow (or a subtype),
+ *   and a return type of Flow (or a subtype)
  */
-private fun UMethod.isFlowOperator(): Boolean {
-    // Whether this method returns Flow
-    if (returnType?.inheritsFrom(FlowName) != true) {
-        return false
-    }
-    // Whether this method is an extension on Flow
-    return when (val source = sourcePsi) {
-        // Parsing a class file
-        is ClsMethodImpl -> {
-            val kmFunction = source.toKmFunction()
-            kmFunction?.receiverParameterType?.classifier == FlowClassifier
-        }
-        // Parsing Kotlin source
-        is KtNamedFunction -> {
-            val receiver = source.receiverTypeReference
-            (receiver.toUElement() as? UTypeReferenceExpression)?.getQualifiedName() ==
-                FlowName.javaFqn
-        }
-        // Should never happen, safe return if it does
-        else -> false
+private fun KtCallExpression.isFlowOperator(): Boolean {
+    analyze(this) {
+        val functionCallSymbol =
+            resolveToCall()?.singleFunctionCallOrNull()?.partiallyAppliedSymbol?.symbol
+                ?: return false
+        // Ignore non-extension functions
+        if (!functionCallSymbol.isExtension) return false
+        val returnType = functionCallSymbol.returnType
+        // We check the symbol.receiverType instead of signature.receiverType to get the defined
+        // (non substituted type). We want to ignore generic T.foo() extensions like flow.apply {}.
+        val extensionReceiverType = functionCallSymbol.receiverType ?: return false
+
+        return extensionReceiverType.isSubtypeOf(FlowName.classId) &&
+            returnType.isSubtypeOf(FlowName.classId)
     }
 }
 
 private val FlowPackageName = Package("kotlinx.coroutines.flow")
 private val FlowName = Name(FlowPackageName, "Flow")
-private val FlowClassifier = KmClassifier.Class(FlowName.kmClassName)

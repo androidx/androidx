@@ -19,6 +19,8 @@ package androidx.compose.runtime
 import androidx.compose.runtime.internal.PlatformOptimizedCancellationException
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.ComposeToolingFlags
 import androidx.compose.runtime.tooling.CompositionErrorContextImpl
 import kotlin.concurrent.Volatile
 import kotlin.coroutines.CoroutineContext
@@ -270,8 +272,17 @@ internal class LaunchedEffectImpl(
     private val parentCoroutineContext: CoroutineContext,
     private val task: suspend CoroutineScope.() -> Unit,
 ) : RememberObserver, CoroutineExceptionHandler {
-    private val scope = CoroutineScope(parentCoroutineContext + this)
+    private val scope: CoroutineScope
     private var job: Job? = null
+
+    init {
+        var context = parentCoroutineContext + this
+        @OptIn(ComposeToolingApi::class)
+        if (ComposeToolingFlags.isVerboseTracingEnabled) {
+            context += LaunchedEffectTracingContext
+        }
+        scope = CoroutineScope(context)
+    }
 
     override fun onRemembered() {
         // This should never happen but is left here for safety
@@ -505,6 +516,11 @@ internal class RememberedCoroutineScope(
                             }
                         localCoroutineContext =
                             parentContext + cancelledChildJob + overlayContext + exceptionHandler
+
+                        @OptIn(ComposeToolingApi::class)
+                        if (ComposeToolingFlags.isVerboseTracingEnabled) {
+                            localCoroutineContext += RememberedCoroutineScopeTracingContext
+                        }
                     }
                     _coroutineContext = localCoroutineContext
                 }
@@ -599,4 +615,14 @@ public inline fun rememberCoroutineScope(
 ): CoroutineScope {
     val composer = currentComposer
     return remember { createCompositionCoroutineScope(getContext(), composer) }
+}
+
+private object LaunchedEffectTracingContext : TracingContext("Compose:LaunchedEffect")
+
+private object RememberedCoroutineScopeTracingContext : TracingContext("Compose:coroutineScope")
+
+internal expect abstract class TracingContext(name: String) : CoroutineContext.Element {
+    override val key: CoroutineContext.Key<*>
+
+    companion object Key : CoroutineContext.Key<TracingContext>
 }

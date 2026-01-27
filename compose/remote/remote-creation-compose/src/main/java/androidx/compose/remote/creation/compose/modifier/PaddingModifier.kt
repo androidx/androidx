@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.padding
 import androidx.compose.remote.creation.compose.layout.RemotePaddingValues
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.runtime.Composable
@@ -36,21 +37,21 @@ public class PaddingModifier(
 ) : RemoteModifier.Element {
     init {
         require(
-            (!left.hasConstantValue || left.toFloat() >= 0f) and
-                (!top.hasConstantValue || top.toFloat() >= 0f) and
-                (!right.hasConstantValue || right.toFloat() >= 0f) and
-                (!bottom.hasConstantValue || bottom.toFloat() >= 0f)
+            (!left.hasConstantValue || left.constantValue >= 0f) and
+                (!top.hasConstantValue || top.constantValue >= 0f) and
+                (!right.hasConstantValue || right.constantValue >= 0f) and
+                (!bottom.hasConstantValue || bottom.constantValue >= 0f)
         ) {
             "Padding must be non-negative"
         }
     }
 
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.PaddingModifier(
-            left.internalAsFloat(),
-            top.internalAsFloat(),
-            right.internalAsFloat(),
-            bottom.internalAsFloat(),
+            left.floatId,
+            top.floatId,
+            right.floatId,
+            bottom.floatId,
         )
     }
 }

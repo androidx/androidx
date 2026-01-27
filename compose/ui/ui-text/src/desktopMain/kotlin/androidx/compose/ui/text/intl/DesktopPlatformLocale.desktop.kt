@@ -22,13 +22,8 @@ import java.util.Locale as JavaLocale
 internal actual fun createPlatformLocaleDelegate() = object : PlatformLocaleDelegate {
     override val current: LocaleList
         get() = LocaleList(listOf(Locale(JavaLocale.getDefault())))
-
-    override fun parseLanguageTag(languageTag: String): PlatformLocale =
-        JavaLocale.forLanguageTag(
-            languageTag
-        )
 }
 
-internal actual fun PlatformLocale.isRtl(): Boolean =
+internal actual fun Locale.isRtl(): Boolean =
     // TODO Get rid of AWT reference here
-    !ComponentOrientation.getOrientation(this).isLeftToRight
+    !ComponentOrientation.getOrientation(this.platformLocale).isLeftToRight

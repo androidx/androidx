@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.mock.ComposerToUse
 import androidx.compose.runtime.mock.InlineLinear
 import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.MockViewValidator
@@ -1885,10 +1886,56 @@ class MovableContentTests {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
-    fun movableContentInvalidatedWhileDeleted() {
+    fun movableContentInvalidatedWhileDeleted_linkComposer() {
         val clock = ManualClock()
 
-        compositionTest(clock) {
+        compositionTest(clock = clock, composerToUse = ComposerToUse.Link) {
+            var value by mutableStateOf(true)
+            var targetScope: RecomposeScope? = null
+            val movableContent = movableContentOf { key: Int ->
+                Linear {
+                    targetScope = currentRecomposeScope
+                    Text(key.toString())
+                }
+            }
+
+            val content: @Composable () -> Unit = {
+                if (value) {
+                    movableContent(20)
+                } else {
+                    Linear { repeat(5) { Text("$it") } }
+                }
+
+                targetScope?.invalidate()
+            }
+
+            compose(content)
+            validate { Linear { Text("20") } }
+
+            value = false
+            Snapshot.sendApplyNotifications()
+
+            while (clock.awaiters.isEmpty()) {
+                testCoroutineScheduler.advanceTimeBy(5.milliseconds)
+            }
+            clock.runFrame(testCoroutineScheduler.currentTime.milliseconds.inWholeNanoseconds)
+
+            // This is before previous content is disposed (e.g. during measure)
+            composition!!.setContent(content)
+            verifyConsistent()
+
+            testCoroutineScheduler.runCurrent()
+
+            validate { Linear { repeat(5) { Text("$it") } } }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun movableContentInvalidatedWhileDeleted_gapComposer() {
+        val clock = ManualClock()
+
+        compositionTest(clock = clock, composerToUse = ComposerToUse.Gap) {
             var value by mutableStateOf(true)
             var targetScope: RecomposeScope? = null
             val movableContent = movableContentOf { key: Int ->

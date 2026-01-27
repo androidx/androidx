@@ -17,6 +17,8 @@
 package androidx.compose.remote.creation.compose.v2
 
 import androidx.annotation.RestrictTo
+import androidx.compose.remote.core.Operations
+import androidx.compose.remote.core.operations.layout.managers.TextLayout
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
@@ -25,6 +27,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
@@ -34,16 +37,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNode
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.Updater
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.util.fastForEach
 import androidx.core.graphics.createBitmap
 
@@ -67,7 +69,7 @@ internal class RemoteCanvasNodeV2 : RemoteComposeNodeV2() {
                 setRemoteComposeCreationState(creationState)
             }
 
-        val recordingModifier = modifier.toRemoteCompose()
+        val recordingModifier = creationState.toRecordingModifier(modifier)
         creationState.document.startCanvas(recordingModifier)
         onDraw?.let { drawLambda ->
             val remoteCanvas = RemoteCanvas(recordingCanvas)
@@ -87,7 +89,7 @@ internal class RemoteCanvasNodeV2 : RemoteComposeNodeV2() {
 
 internal class RemoteRootNodeV2 : RemoteComposeNodeV2() {
     override fun render(creationState: RemoteComposeCreationState) {
-        renderChildren(creationState)
+        creationState.document.root { renderChildren(creationState) }
     }
 }
 
@@ -96,11 +98,11 @@ internal class RemoteBoxNodeV2 : RemoteComposeNodeV2() {
     var verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top
 
     override fun render(creationState: RemoteComposeCreationState) {
-        val recordingModifier = modifier.toRemoteCompose()
+        val recordingModifier = creationState.toRecordingModifier(modifier)
         creationState.document.startBox(
             recordingModifier,
-            horizontalAlignment.toRemoteCompose(),
-            verticalArrangement.toRemoteCompose(),
+            horizontalAlignment.toRemote(),
+            verticalArrangement.toRemote(),
         )
         renderChildren(creationState)
         creationState.document.endBox()
@@ -112,11 +114,11 @@ internal class RemoteRowNodeV2 : RemoteComposeNodeV2() {
     var verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top
 
     override fun render(creationState: RemoteComposeCreationState) {
-        val recordingModifier = modifier.toRemoteCompose()
+        val recordingModifier = creationState.toRecordingModifier(modifier)
         creationState.document.startRow(
             recordingModifier,
-            horizontalArrangement.toRemoteCompose(),
-            verticalAlignment.toRemoteCompose(),
+            horizontalArrangement.toRemote(),
+            verticalAlignment.toRemote(),
         )
         renderChildren(creationState)
         creationState.document.endRow()
@@ -128,11 +130,11 @@ internal class RemoteColumnNodeV2 : RemoteComposeNodeV2() {
     var horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start
 
     override fun render(creationState: RemoteComposeCreationState) {
-        val recordingModifier = modifier.toRemoteCompose()
+        val recordingModifier = creationState.toRecordingModifier(modifier)
         creationState.document.startColumn(
             recordingModifier,
-            horizontalAlignment.toRemoteCompose(),
-            verticalArrangement.toRemoteCompose(),
+            horizontalAlignment.toRemote(),
+            verticalArrangement.toRemote(),
         )
         renderChildren(creationState)
         creationState.document.endColumn()
@@ -140,82 +142,136 @@ internal class RemoteColumnNodeV2 : RemoteComposeNodeV2() {
 }
 
 internal class RemoteTextNodeV2 : RemoteComposeNodeV2() {
-    var text: String? = null
-    var remoteText: RemoteString? = null
+    lateinit var text: RemoteString
     var color: RemoteColor? = null
-    var fontSize: TextUnit = TextUnit.Unspecified
-    var fontWeight: FontWeight? = null
+    var fontSize: RemoteFloat = 14f.rf
+    var fontWeight: RemoteFloat = 400f.rf
     var fontStyle: FontStyle? = null
-    var fontFamily: FontFamily? = null
+    var fontFamily: String? = null
     var textAlign: TextAlign? = null
     var overflow: TextOverflow = TextOverflow.Clip
     var maxLines: Int = Int.MAX_VALUE
+    var minFontSize: Float? = null
+    var maxFontSize: Float? = null
+    var letterSpacing: Float? = null
+    var lineHeightAdd: Float? = null
+    var lineHeightMultiply: Float? = null
     var textDecoration: TextDecoration = TextDecoration.None
     var fontVariationSettings: FontVariation.Settings? = null
 
+    private fun extractFontSettings(
+        settings: List<FontVariation.Setting>?
+    ): Pair<Array<String>?, FloatArray?> {
+        val size = settings?.size ?: return Pair(null, null)
+
+        val fontAxisNames = Array(size) { settings[it].axisName }
+        val fontAxisValues = FloatArray(size) { settings[it].toVariationValue(null) }
+
+        return Pair(fontAxisNames, fontAxisValues)
+    }
+
     override fun render(creationState: RemoteComposeCreationState) {
-        val textId =
-            remoteText?.getIdForCreationState(creationState)
-                ?: text?.let { creationState.document.addText(it) }
-                ?: 0
+        val useCoreTextComponent =
+            creationState.profile.supportedOperations.contains(Operations.CORE_TEXT)
 
-        val colorInt = color?.constantValue?.toArgb() ?: android.graphics.Color.BLACK
-        val colorId =
-            if (color?.hasConstantValue == false) {
-                color!!.getIdForCreationState(creationState)
-            } else {
-                -1
-            }
+        if (useCoreTextComponent) {
+            val textIdValue = text.getIdForCreationState(creationState)
 
-        // density is available in creationState if needed, but for now we continue with simplified
-        // logic
-        val fontSizePx =
-            if (fontSize == TextUnit.Unspecified) {
-                14f * creationState.creationDisplayInfo.density
-            } else {
-                fontSize.value * creationState.creationDisplayInfo.density
-            }
+            val colorInt = color?.constantValueOrNull?.toArgb() ?: android.graphics.Color.BLACK
+            val colorId =
+                if (color?.hasConstantValue == false) {
+                    color!!.getIdForCreationState(creationState)
+                } else {
+                    -1
+                }
 
-        creationState.document.textComponent(
-            modifier.toRemoteCompose(),
-            textId,
-            colorInt,
-            colorId,
-            fontSizePx,
-            -1f, // minFontSize
-            -1f, // maxFontSize
-            fontStyle.toRemoteCompose(),
-            fontWeight?.weight?.toFloat() ?: 400f,
-            fontFamily.toRemoteCompose(),
-            textAlign.toRemoteCompose(),
-            overflow.toRemoteCompose(),
-            maxLines,
-            0f, // letterSpacing
-            0f, // lineHeightAdd
-            1f, // lineHeightMultiply
-            0, // lineBreakStrategy
-            0, // hyphenationFrequency
-            0, // justificationMode
-            textDecoration.contains(TextDecoration.Underline),
-            textDecoration.contains(TextDecoration.LineThrough),
-            null, // fontAxis
-            null, // fontAxisValues
-            false, // autosize
-            0, // flags
-            { /* content runs children if any, but RemoteTextV2 is a leaf */ },
-        )
+            val (fontAxisNames, fontAxisValues) =
+                extractFontSettings(fontVariationSettings?.settings)
+
+            val fontSizePx = fontSize.getFloatIdForCreationState(creationState)
+
+            creationState.document.startTextComponent(
+                with(modifier) { creationState.toRecordingModifier() },
+                textIdValue,
+                colorInt,
+                colorId,
+                fontSizePx,
+                minFontSize ?: -1f,
+                maxFontSize ?: -1f,
+                fontStyle.encode(),
+                fontWeight.getFloatIdForCreationState(creationState),
+                fontFamily,
+                textAlign.encode(),
+                overflow.encode(),
+                maxLines,
+                letterSpacing ?: 0f,
+                lineHeightAdd ?: 0f,
+                lineHeightMultiply ?: 1f,
+                0, // lineBreakStrategy
+                0, // hyphenationFrequency
+                0, // justificationMode
+                textDecoration.contains(TextDecoration.Underline),
+                textDecoration.contains(TextDecoration.LineThrough),
+                fontAxisNames,
+                fontAxisValues,
+                false, // autosize
+                0, // flags
+            )
+            creationState.document.endTextComponent()
+        } else {
+            val textId = text.getIdForCreationState(creationState)
+
+            val colorInt = color?.constantValueOrNull?.toArgb() ?: android.graphics.Color.BLACK
+            val colorId =
+                if (color?.hasConstantValue == false) {
+                    color!!.getIdForCreationState(creationState)
+                } else {
+                    -1
+                }
+
+            val colorValue =
+                color?.constantValueOrNull?.toArgb()
+                    ?: (if (color?.hasConstantValue == false) {
+                        color!!.getIdForCreationState(creationState)
+                    } else {
+                        android.graphics.Color.BLACK
+                    })
+            val flags =
+                if (color?.hasConstantValue == false) {
+                    TextLayout.FLAG_IS_DYNAMIC_COLOR.toShort()
+                } else {
+                    0.toShort()
+                }
+
+            val fontSizePx = fontSize.getFloatIdForCreationState(creationState)
+            creationState.document.startTextComponent(
+                with(modifier) { creationState.toRecordingModifier() },
+                textId,
+                colorValue,
+                fontSizePx,
+                fontStyle.encode(),
+                fontWeight.constantValueOrNull ?: 400f,
+                fontFamily,
+                flags,
+                textAlign.encode().toShort(),
+                overflow.encode(),
+                maxLines,
+            )
+            creationState.document.endTextComponent()
+        }
     }
 }
 
-private fun FontStyle?.toRemoteCompose(): Int =
+private fun FontStyle?.encode(): Int =
     when (this) {
         FontStyle.Normal -> 0
         FontStyle.Italic -> 1
         else -> 0
     }
 
-private fun FontFamily?.toRemoteCompose(): String? =
+private fun FontFamily?.encode(): String? =
     when (this) {
+        null -> null
         FontFamily.Default -> "default"
         FontFamily.SansSerif -> "sans-serif"
         FontFamily.Serif -> "serif"
@@ -224,7 +280,7 @@ private fun FontFamily?.toRemoteCompose(): String? =
         else -> null
     }
 
-private fun TextAlign?.toRemoteCompose(): Int =
+private fun TextAlign?.encode(): Int =
     when (this) {
         TextAlign.Left -> 1
         TextAlign.Right -> 2
@@ -235,7 +291,7 @@ private fun TextAlign?.toRemoteCompose(): Int =
         else -> 5
     }
 
-private fun TextOverflow.toRemoteCompose(): Int =
+private fun TextOverflow.encode(): Int =
     when (this) {
         TextOverflow.Clip -> 0
         TextOverflow.Ellipsis -> 1
@@ -255,7 +311,7 @@ internal class RemoteImageNodeV2 : RemoteComposeNodeV2() {
                 ?: image?.let { creationState.document.addBitmap(it) }
                 ?: 0
         creationState.document.image(
-            modifier.toRemoteCompose(),
+            creationState.toRecordingModifier(modifier),
             bitmapId,
             contentScaleToInt(contentScale),
             alpha.getFloatIdForCreationState(creationState),

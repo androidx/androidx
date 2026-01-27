@@ -22,10 +22,11 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloatExpression
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.remoteFloat
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteFloatContext(public val state: RemoteComposeCreationState) {
+public class RemoteFloatContext(public val state: RemoteStateScope) {
     public fun componentWidth(): RemoteFloat {
         val doc = state.document
         val value = doc.addComponentWidthValue()

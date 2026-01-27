@@ -19,9 +19,11 @@ package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.operations.layout.modifiers.DimensionModifierOperation.Type
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.WidthModifier
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
+import androidx.compose.remote.creation.compose.modifier.toRecordingModifier
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.v2.RemoteComposeApplierV2
 import androidx.compose.remote.creation.compose.v2.RemoteRowV2
@@ -43,8 +45,8 @@ public class RemoteComposeRowModifier(
         drawIntoRemoteCanvas { canvas ->
             canvas.document.startRow(
                 modifier,
-                horizontalArrangement.toRemoteCompose(),
-                verticalAlignment.toRemoteCompose(),
+                horizontalArrangement.toRemote(),
+                verticalAlignment.toRemote(),
             )
             this@draw.drawContent()
             canvas.document.endRow()
@@ -83,10 +85,11 @@ public fun RemoteRow(
         return
     }
 
+    val creationState = LocalRemoteComposeCreationState.current
     val scope = remember { RemoteRowScope() }
     val composeModifiers =
         RemoteComposeRowModifier(
-                modifier.toRemoteCompose(),
+                creationState.toRecordingModifier(modifier),
                 horizontalArrangement,
                 verticalAlignment,
             )

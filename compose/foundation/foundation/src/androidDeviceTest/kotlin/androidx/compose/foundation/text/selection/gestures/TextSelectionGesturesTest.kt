@@ -118,7 +118,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
         asserter.applyAndAssert {
             selection = 6.collapsed
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // we want to test at least one drag that shouldn't affect selection as well
@@ -143,7 +143,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 7.collapsed
             selectionHandlesShown = false
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // we want to test at least one drag that shouldn't affect selection as well
@@ -156,14 +156,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 7 to 6
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(topEnd)
 
         asserter.applyAndAssert {
             selection = 7 to 0
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(topStart)
@@ -180,7 +180,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
         asserter.applyAndAssert {
             selection = 7 to 6
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -194,7 +194,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 12 to 17
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { click(characterPosition(14)) }
@@ -203,7 +203,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = null
             selectionHandlesShown = false
             textToolbarShown = false
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
     }
 
@@ -216,7 +216,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 6 to 11
             selectionHandlesShown = true
             magnifierShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // beginning of middle line
@@ -227,7 +227,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(characterPosition(0) + Offset(-2f, 0f))
         asserter.applyAndAssert {
             selection = 11 to 0
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // above top line
@@ -238,7 +238,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         touchDragTo(bottomStart.nudge(START, DOWN))
         asserter.applyAndAssert {
             selection = 6 to 29
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -252,7 +252,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 12 to 17
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
     }
 
@@ -266,7 +266,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
 
             asserter.applyAndAssert {
                 this.selection = selection
-                hapticsCount++
+                hapticsTextHandleMoveCount++
             }
         }
 
@@ -327,14 +327,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 12 to 17
             selectionHandlesShown = true
             magnifierShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(forwardOffset)
 
         asserter.applyAndAssert {
             selection = expectedSelection
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(backwardOffset)
@@ -371,7 +371,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 12 to 17
             selectionHandlesShown = true
             magnifierShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(endOffset)
@@ -379,7 +379,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = endSelection
             magnifierShown = false
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -394,7 +394,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 0 to 5
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // we want to test at least one drag that shouldn't affect selection as well
@@ -414,14 +414,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 18 to 23
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(topEnd)
 
         asserter.applyAndAssert {
             selection = 23 to 0
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // do it again for a regression where selection was only wrong the second time
@@ -430,14 +430,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 18 to 23
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(topEnd)
 
         asserter.applyAndAssert {
             selection = 23 to 0
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -452,14 +452,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 18 to 23
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(bottomEnd)
 
         asserter.applyAndAssert {
             selection = 18 to 29
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // do it again for a regression where selection was only wrong the second time
@@ -468,14 +468,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 18 to 23
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(bottomEnd)
 
         asserter.applyAndAssert {
             selection = 18 to 29
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -490,7 +490,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 24 to 29
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // we want to test at least one drag that shouldn't affect selection as well
@@ -512,14 +512,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 24 to 29
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(centerEnd)
 
         asserter.applyAndAssert {
             selection = 29 to 18
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         // do it again for a regression where selection was only wrong the second time
@@ -528,14 +528,14 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 24 to 29
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         touchDragTo(centerEnd)
 
         asserter.applyAndAssert {
             selection = 29 to 18
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -551,7 +551,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
         asserter.applyAndAssert {
             selection = 18 to 23
             selectionHandlesShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         performTouchGesture { up() }
@@ -893,7 +893,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 12 to 17
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         enterMouseMode()
@@ -1184,7 +1184,7 @@ internal abstract class TextSelectionGesturesTest : AbstractSelectionGesturesTes
             selection = 12 to 17
             selectionHandlesShown = true
             textToolbarShown = true
-            hapticsCount++
+            hapticsTextHandleMoveCount++
         }
 
         enterTrackpadMode()

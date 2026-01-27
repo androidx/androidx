@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.vector
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.DefaultIconSize
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteImageVector
 import androidx.compose.remote.creation.compose.capture.RemoteVectorGroup
 import androidx.compose.remote.creation.compose.capture.RemoteVectorPath
@@ -122,8 +123,9 @@ public fun painterRemoteVector(
 public fun painterRemoteVector(
     image: ImageVector,
     tintColor: RemoteColor = RemoteColor(Color.Black),
+    density: RemoteDensity,
 ): RemoteVectorPainter {
-    return createVectorPainterFromImageVector(image, tintColor)
+    return createVectorPainterFromImageVector(image, tintColor, density)
 }
 
 /** Helper method to configure the properties of a VectorPainter that maybe re-used */
@@ -163,11 +165,15 @@ internal fun createVectorPainterFromRemoteImageVector(
 internal fun createVectorPainterFromImageVector(
     imageVector: ImageVector,
     tintColor: RemoteColor = RemoteColor(imageVector.tintColor),
+    density: RemoteDensity,
 ): RemoteVectorPainter {
     val root = RemoteGroupComponent().createGroupComponent(imageVector.root)
 
     val defaultSize =
-        RemoteSize(imageVector.defaultWidth.asRdp().toPx(), imageVector.defaultWidth.asRdp().toPx())
+        RemoteSize(
+            imageVector.defaultWidth.asRdp().toPx(density),
+            imageVector.defaultWidth.asRdp().toPx(density),
+        )
     val viewportWidth =
         if (imageVector.viewportWidth.isNaN()) defaultSize.width else imageVector.viewportWidth.rf
     val viewportHeight =

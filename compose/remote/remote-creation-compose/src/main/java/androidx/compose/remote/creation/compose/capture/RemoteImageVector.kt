@@ -21,6 +21,7 @@ import android.graphics.Path
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.vector.RemotePathBuilder
 import androidx.compose.remote.creation.compose.vector.RemotePathData
 import androidx.compose.ui.graphics.BlendMode
@@ -87,6 +88,7 @@ public class RemoteImageVector(
     @Suppress("MissingGetterMatchingBuilder")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class Builder(
+        scope: RemoteStateScope,
 
         /** Name of the vector asset */
         private val name: String = DefaultGroupName,
@@ -113,7 +115,7 @@ public class RemoteImageVector(
          * Determines if the vector asset should automatically be mirrored for right to left locales
          */
         private val autoMirror: Boolean = false,
-    ) {
+    ) : RemoteStateScope by scope {
 
         private val nodes = ArrayList<RemoteGroupParams>()
 
@@ -521,7 +523,7 @@ public inline fun RemoteImageVector.Builder.path(
     pathBuilder: RemotePathBuilder.() -> Unit,
 ): RemoteImageVector.Builder =
     addPath(
-        RemotePathData(pathBuilder),
+        RemotePathData(this, pathBuilder),
         pathFillType,
         name,
         fill,
