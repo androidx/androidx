@@ -35,7 +35,7 @@ internal actual inline fun rememberClipboardEventsHandler(
     crossinline onCopy: () -> AnnotatedString?,
     crossinline onCut: () -> AnnotatedString?,
     isEnabled: Boolean,
-) {
+): Boolean {
     if (isEnabled) {
         val clipEventsTargetProvider = LocalActiveClipEventsTarget.current
         DisposableEffect(Unit) {
@@ -75,6 +75,8 @@ internal actual inline fun rememberClipboardEventsHandler(
             }
         }
     }
+
+    return true
 }
 
 private fun EventListener(handler: (Event) -> Unit): EventListenerInterface =
