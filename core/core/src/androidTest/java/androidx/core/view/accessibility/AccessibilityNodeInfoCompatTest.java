@@ -38,9 +38,11 @@ import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 import android.widget.TextView;
 
+import androidx.core.flagging.Flags;
 import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompatActivity;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.AccessibilityActionCompat;
+import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.MathInfoCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.SelectionPositionCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.TouchDelegateInfoCompat;
@@ -168,6 +170,62 @@ public class AccessibilityNodeInfoCompatTest extends
         assertThat(collectionItemInfoCompat.getRowIndex()).isEqualTo(1);
         assertThat(collectionItemInfoCompat.getRowSpan()).isEqualTo(2);
         assertThat(collectionItemInfoCompat.isHeading()).isTrue();
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @Test
+    public void testStructuredDataInfoCompatEquals() {
+        MathInfoCompat division = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
+        division.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "divide($a, $b)");
+
+        MathInfoCompat anotherDivision = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
+        anotherDivision.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "divide($b, $c)");
+
+        MathInfoCompat sqrt = new MathInfoCompat(MathInfoCompat.MATH_TAG_SQUARE_ROOT);
+        sqrt.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "square-root($x)");
+
+        MathInfoCompat anotherSqrt = new MathInfoCompat(MathInfoCompat.MATH_TAG_SQUARE_ROOT);
+        anotherSqrt.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "square-root($x)");
+
+        assertThat(division).isEqualTo(division);
+        assertThat(division).isNotEqualTo(anotherDivision);
+        assertThat(division).isNotEqualTo(sqrt);
+        assertThat(division).isNotEqualTo(anotherSqrt);
+
+        // When the flag is on, it depends on the platform implementation; when it's off, it just
+        // checks if it's the same wrapper.
+        if (Flags.getBooleanFlagValue("android.view.accessibility", "a11y_math_api")) {
+            assertThat(sqrt).isEqualTo(anotherSqrt);
+        } else {
+            assertThat(sqrt).isNotEqualTo(anotherSqrt);
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES_FULL.BAKLAVA_1, codeName = "Baklava")
+    @Test
+    public void testGetSetMathInfo() {
+        AccessibilityNodeInfoCompat nodeCompat = obtainedWrappedNodeCompat();
+
+        // Verify the values are correct for a node with valid math info.
+        MathInfoCompat mathInfoCompat = new MathInfoCompat(MathInfoCompat.MATH_TAG_FRACTION);
+        mathInfoCompat.putAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT, "division");
+        nodeCompat.setStructuredDataInfo(mathInfoCompat);
+        MathInfoCompat retrievedMathInfoCompat =
+                (MathInfoCompat) nodeCompat.getStructuredDataInfo();
+        if (Flags.getBooleanFlagValue("android.view.accessibility", "a11y_math_api")) {
+            assertThat(retrievedMathInfoCompat).isNotNull();
+            assertThat(retrievedMathInfoCompat.getTag())
+                    .isEqualTo(MathInfoCompat.MATH_TAG_FRACTION);
+            assertThat(retrievedMathInfoCompat.getAttributes().size()).isEqualTo(1);
+            assertThat(retrievedMathInfoCompat.getAttribute(MathInfoCompat.MATH_ATTRIBUTE_INTENT))
+                    .isEqualTo("division");
+        } else {
+            assertThat(retrievedMathInfoCompat).isNull();
+        }
+
+        // Verify the behavior for a node without math info.
+        nodeCompat.setStructuredDataInfo(null);
+        assertThat(nodeCompat.getStructuredDataInfo()).isNull();
     }
 
     @Test
