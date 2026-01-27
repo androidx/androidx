@@ -17,21 +17,20 @@
 package androidx.compose.ui.text.platform
 
 import androidx.compose.ui.text.PlatformStringDelegate
-import androidx.compose.ui.text.intl.PlatformLocale
-import androidx.compose.ui.text.intl.language
+import androidx.compose.ui.text.intl.Locale
 import kotlin.js.js
 
 /**
  * A JS implementation of StringDelegate
  */
 internal class JsStringDelegate : PlatformStringDelegate {
-    override fun toUpperCase(string: String, locale: PlatformLocale): String =
+    override fun toUpperCase(string: String, locale: Locale): String =
         toLocaleUpperCase(string, locale.language)
 
-    override fun toLowerCase(string: String, locale: PlatformLocale): String =
+    override fun toLowerCase(string: String, locale: Locale): String =
         toLocaleLowerCase(string, locale.language)
 
-    override fun capitalize(string: String, locale: PlatformLocale): String {
+    override fun capitalize(string: String, locale: Locale): String {
         return string.replaceFirstChar {
             if (it.isLowerCase()) {
                 it.titlecaseImpl(locale)
@@ -42,7 +41,7 @@ internal class JsStringDelegate : PlatformStringDelegate {
     }
 
     // Copy-pasted from kotlin _OneToManyTitlecaseMappings.kt (internal in stdlib, but doesn't take locale into account)
-    private fun Char.titlecaseImpl(locale: PlatformLocale): String {
+    private fun Char.titlecaseImpl(locale: Locale): String {
         val uppercase = toLocaleUpperCase(this.toString(), locale.language)
         if (uppercase.length > 1) {
             return if (this == '\u0149') uppercase else uppercase[0] + uppercase.substring(1).lowercase()
@@ -50,7 +49,7 @@ internal class JsStringDelegate : PlatformStringDelegate {
         return titlecaseChar().toString()
     }
 
-    override fun decapitalize(string: String, locale: PlatformLocale): String {
+    override fun decapitalize(string: String, locale: Locale): String {
         return string.replaceFirstChar {
             toLocaleLowerCase(it.toString(), locale.language)
         }
