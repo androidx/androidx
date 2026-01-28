@@ -28,6 +28,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.text.internal.requirePrecondition
 import androidx.compose.ui.text.platform.SkiaParagraphIntrinsics
@@ -751,7 +752,3 @@ private inline fun <T> Array<out T>.binarySearchFirstMatchingOrLast(
     // The search will always return a negative value because the comparison never returns 0
     return this[(-index - 1).coerceAtMost(this.lastIndex)]
 }
-
-@Suppress("INVISIBLE_REFERENCE")
-private val Canvas.nativeCanvas: org.jetbrains.skia.Canvas
-    get() = (this as androidx.compose.ui.graphics.SkiaBackedCanvas).skia

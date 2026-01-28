@@ -23,8 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
 import kotlin.math.roundToInt
 import org.jetbrains.skia.Rect
 import org.jetbrains.skia.skottie.Animation
@@ -84,7 +84,3 @@ private fun InfiniteAnimation(animation: Animation, modifier: Modifier) {
         }
     }
 }
-
-@Suppress("INVISIBLE_REFERENCE")
-internal val Canvas.nativeCanvas: org.jetbrains.skia.Canvas
-    get() = (this as androidx.compose.ui.graphics.SkiaBackedCanvas).skia
