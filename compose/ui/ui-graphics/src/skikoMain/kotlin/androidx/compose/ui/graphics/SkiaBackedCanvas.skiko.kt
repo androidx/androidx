@@ -35,7 +35,10 @@ import org.jetbrains.skia.MipmapMode
 import org.jetbrains.skia.SamplingMode
 import org.jetbrains.skia.impl.use
 
-@Deprecated("Use direct reference to platform type instead of typealias")
+@Deprecated(
+    message = "Use direct reference to org.jetbrains.skia.Canvas instead of typealias",
+    replaceWith = ReplaceWith("Canvas", "org.jetbrains.skia.Canvas")
+)
 actual typealias NativeCanvas = org.jetbrains.skia.Canvas
 
 internal actual fun ActualCanvas(image: ImageBitmap): Canvas {

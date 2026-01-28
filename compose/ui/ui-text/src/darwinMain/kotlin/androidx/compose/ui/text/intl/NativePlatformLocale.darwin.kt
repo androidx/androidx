@@ -35,6 +35,7 @@ internal fun NSLocale.isRtl(): Boolean =
     NSLocale.characterDirectionForLanguage(languageCode) == NSLocaleLanguageDirectionRightToLeft
 
 
+// TODO: https://youtrack.jetbrains.com/issue/CMP-9697/Add-public-API-to-create-a-Compose-Locale-instance-via-NSLocale
 @Immutable
 actual class Locale internal constructor(internal val platformLocale: NSLocale) {
     actual val language: String
