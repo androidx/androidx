@@ -17,15 +17,12 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.runtime.InternalComposeApi
-import org.jetbrains.skia.ClipMode as SkClipMode
-import org.jetbrains.skia.RRect as SkRRect
-import org.jetbrains.skia.Rect as SkRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
+import org.jetbrains.skia.ClipMode as SkClipMode
 import org.jetbrains.skia.CubicResampler
 import org.jetbrains.skia.FilterMipmap
 import org.jetbrains.skia.FilterMode
@@ -112,7 +109,14 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
 
     override fun clipRect(left: Float, top: Float, right: Float, bottom: Float, clipOp: ClipOp) {
         val antiAlias = true
-        skia.clipRect(SkRect.makeLTRB(left, top, right, bottom), clipOp.toSkia(), antiAlias)
+        skia.clipRect(
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
+            mode = clipOp.toSkia(),
+            antiAlias = antiAlias
+        )
     }
 
     override fun clipPath(path: Path, clipOp: ClipOp) {
@@ -125,7 +129,7 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        skia.drawRect(SkRect.makeLTRB(left, top, right, bottom), paint.skia)
+        skia.drawRect(left = left, top = top, right = right, bottom = bottom, paint = paint.skia)
     }
 
     override fun drawRoundRect(
@@ -138,20 +142,17 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         paint: Paint
     ) {
         skia.drawRRect(
-            SkRRect.makeLTRB(
-                left,
-                top,
-                right,
-                bottom,
-                radiusX,
-                radiusY
-            ),
-            paint.skia
+            left = left,
+            top = top,
+            right = right,
+            bottom = bottom,
+            radii = floatArrayOf(radiusX, radiusY),
+            paint = paint.skia
         )
     }
 
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        skia.drawOval(SkRect.makeLTRB(left, top, right, bottom), paint.skia)
+        skia.drawOval(left = left, top = top, right = right, bottom = bottom, paint = paint.skia)
     }
 
     override fun drawCircle(center: Offset, radius: Float, paint: Paint) {
@@ -185,8 +186,18 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
     }
 
     override fun drawImage(image: ImageBitmap, topLeftOffset: Offset, paint: Paint) {
-        val size = Size(image.width.toFloat(), image.height.toFloat())
-        drawImageRect(image, Offset.Zero, size, topLeftOffset, size, paint)
+        drawImageRect(
+            image,
+            0f,
+            0f,
+            image.width.toFloat(),
+            image.height.toFloat(),
+            topLeftOffset.x,
+            topLeftOffset.y,
+            topLeftOffset.x + image.width.toFloat(),
+            topLeftOffset.y + image.height.toFloat(),
+            paint
+        )
     }
 
     override fun drawImageRect(
@@ -198,22 +209,30 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         paint: Paint
     ) {
         drawImageRect(
-            image,
-            Offset(srcOffset.x.toFloat(), srcOffset.y.toFloat()),
-            Size(srcSize.width.toFloat(), srcSize.height.toFloat()),
-            Offset(dstOffset.x.toFloat(), dstOffset.y.toFloat()),
-            Size(dstSize.width.toFloat(), dstSize.height.toFloat()),
-            paint
+            image = image,
+            srcLeft = srcOffset.x.toFloat(),
+            srcTop = srcOffset.y.toFloat(),
+            srcRight = srcOffset.x.toFloat() + srcSize.width.toFloat(),
+            srcBottom = srcOffset.y.toFloat() + srcSize.height.toFloat(),
+            dstLeft = dstOffset.x.toFloat(),
+            dstTop = dstOffset.y.toFloat(),
+            dstRight = dstOffset.x.toFloat() + dstSize.width.toFloat(),
+            dstBottom = dstOffset.y.toFloat() + dstSize.height.toFloat(),
+            paint = paint
         )
     }
 
     // TODO(demin): probably this method should be in the common Canvas
     private fun drawImageRect(
         image: ImageBitmap,
-        srcOffset: Offset,
-        srcSize: Size,
-        dstOffset: Offset,
-        dstSize: Size,
+        srcLeft: Float,
+        srcTop: Float,
+        srcRight: Float,
+        srcBottom: Float,
+        dstLeft: Float,
+        dstTop: Float,
+        dstRight: Float,
+        dstBottom: Float,
         paint: Paint
     ) {
         val bitmap = image.asSkiaBitmap()
@@ -221,18 +240,14 @@ internal class SkiaBackedCanvas(val skia: org.jetbrains.skia.Canvas) : Canvas {
         Image.makeFromBitmap(bitmap).use { skiaImage ->
             skia.drawImageRect(
                 skiaImage,
-                SkRect.makeXYWH(
-                    srcOffset.x,
-                    srcOffset.y,
-                    srcSize.width,
-                    srcSize.height
-                ),
-                SkRect.makeXYWH(
-                    dstOffset.x,
-                    dstOffset.y,
-                    dstSize.width,
-                    dstSize.height
-                ),
+                srcLeft,
+                srcTop,
+                srcRight,
+                srcBottom,
+                dstLeft,
+                dstTop,
+                dstRight,
+                dstBottom,
                 paint.filterQuality.toSkia(),
                 paint.skia,
                 true

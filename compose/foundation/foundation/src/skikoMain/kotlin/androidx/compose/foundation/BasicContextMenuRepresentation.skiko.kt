@@ -55,6 +55,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -75,7 +76,7 @@ internal fun DefaultOpenContextMenu(
 
     Popup(
         properties = PopupProperties(focusable = true),
-        onDismissRequest = { session.close() },
+        onDismissRequest = session::close,
         popupPositionProvider = popupPositionProvider,
         onKeyEvent = {
             if (it.type == KeyEventType.KeyDown) {
@@ -105,7 +106,7 @@ internal fun DefaultOpenContextMenu(
                 .width(IntrinsicSize.Max)
                 .verticalScroll(rememberScrollState())
         ) {
-            components.forEach { component ->
+            components.fastForEach { component ->
                 when (component) {
                     is TextContextMenuSeparator ->
                         MenuSeparator(colors.textColor)
