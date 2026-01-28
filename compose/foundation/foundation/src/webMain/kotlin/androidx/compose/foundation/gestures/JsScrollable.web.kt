@@ -23,6 +23,7 @@ import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastFold
 
 internal actual fun CompositionLocalConsumerModifierNode.platformScrollConfig(): ScrollConfig = JsConfig
@@ -35,7 +36,7 @@ private object JsConfig : ScrollConfig {
         // 2. Provides satisfactory UI behavior
         // In future iterations, this value could be refined to enhance UI behavior.
         // However, keep in mind that any modifications would also necessitate adjustments to the corresponding tests.
-        return event.totalScrollDelta * -1f
+        return event.totalScrollDelta * -1.dp.toPx()
     }
 }
 

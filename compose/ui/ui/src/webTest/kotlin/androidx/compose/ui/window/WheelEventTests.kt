@@ -53,11 +53,11 @@ class WheelEventTests : OnCanvasTests {
         assertEquals(0, verticalScrollState.value)
 
         // do horizontal scroll, and check that scroll state didn't change
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaX = 10.0)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaX = 5.0)))
         assertEquals(0, verticalScrollState.value, "vertical scroll was not expected to change")
 
         // vertical scroll
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 10.0)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 5.0)))
         assertEquals(10, verticalScrollState.value, "vertical scroll was expected to change")
     }
 
@@ -78,11 +78,11 @@ class WheelEventTests : OnCanvasTests {
         assertEquals(0, horizontalScrollState.value)
 
         // do vertical scroll, and check that scroll state didn't change
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 10.0)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 5.0)))
         assertEquals(0, horizontalScrollState.value, "horizontal scroll was not expected to change")
 
         // horizontal scroll
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaX = 10.0)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaX = 5.0)))
         assertEquals(10, horizontalScrollState.value, "horizontal scroll was expected to change")
     }
 
@@ -104,11 +104,11 @@ class WheelEventTests : OnCanvasTests {
         assertEquals(0, horizontalScrollState.value)
 
         // do vertical scroll w/o Shift, and check that scroll state didn't change
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 10.0)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 5.0)))
         assertEquals(0, horizontalScrollState.value, "horizontal scroll was not expected to change")
 
         // do vertical scroll with Shift
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 10.0, shiftKey = true)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 5.0, shiftKey = true)))
         assertEquals(10, horizontalScrollState.value, "horizontal scroll was expected to change")
     }
 
@@ -129,15 +129,15 @@ class WheelEventTests : OnCanvasTests {
         assertEquals(0, verticalScrollState.value)
 
         // press shift and do horizontal scroll (X-axis)
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaX = 10.0, shiftKey = true)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaX = 5.0, shiftKey = true)))
         assertEquals(0, verticalScrollState.value, "horizontal scroll was not expected to change")
 
         // press shift and do vertical scroll (Y-axis) - verticalScrollState won't change because Shift is pressed
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 10.0, shiftKey = true)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 5.0, shiftKey = true)))
         assertEquals(0, verticalScrollState.value, "horizontal scroll was not expected to change")
 
         // no Shift, do vertical scroll (Y-axis)
-        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 10.0, shiftKey = false)))
+        getCanvas().dispatchEvent(WheelEvent("wheel", WheelEventInit(deltaY = 5.0, shiftKey = false)))
         assertEquals(10, verticalScrollState.value, "horizontal scroll expected to change")
     }
 }

@@ -100,7 +100,7 @@ class ScrollTests : OnCanvasTests {
             }
         }
 
-        dispatchEvents(createWheelEvent(clientX = 100, clientY = 100, deltaX = 0.0, deltaY = 200.0))
+        dispatchEvents(createWheelEvent(clientX = 50, clientY = 50, deltaX = 0.0, deltaY = 100.0))
 
         awaitIdle()
 
