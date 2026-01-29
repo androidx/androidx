@@ -20,14 +20,14 @@ import androidx.compose.runtime.CompositionContext
 import androidx.compose.ui.awt.toAwtColor
 import androidx.compose.ui.awt.toAwtRectangle
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.SwingSkiaLayerComponent
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
 import java.awt.Dimension
@@ -97,8 +97,12 @@ internal class SwingComposeSceneLayer(
     override var scrimColor: Color? = null
 
     init {
-        val boundsInPx = windowContainer.sizeInPx.toRect()
-        drawBounds = boundsInPx.roundToIntRect()
+        drawBounds = IntRect(
+            0,
+            0,
+            windowContainer.sizeInPx.width.fastRoundToInt(),
+            windowContainer.sizeInPx.height.fastRoundToInt()
+        )
         mediator = ComposeSceneMediator(
             container = container,
             isWindowLevel = false,
