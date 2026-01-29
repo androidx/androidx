@@ -23,10 +23,13 @@ package androidx.xr.scenecore {
     method public void addOnBoundsChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
     method public void addOnOriginChangedListener(Runnable listener);
     method public void addOnOriginChangedListener(java.util.concurrent.Executor executor, Runnable listener);
+    method @Deprecated public void addOnSpaceUpdatedListener(Runnable listener);
+    method @Deprecated public void addOnSpaceUpdatedListener(java.util.concurrent.Executor executor, Runnable listener);
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.FloatSize3d getBounds();
     method @InaccessibleFromKotlin public androidx.xr.runtime.math.BoundingBox getRecommendedContentBoxInFullSpace();
     method public void removeOnBoundsChangedListener(java.util.function.Consumer<androidx.xr.runtime.math.FloatSize3d> listener);
     method public void removeOnOriginChangedListener(Runnable listener);
+    method @Deprecated public void removeOnSpaceUpdatedListener(Runnable listener);
     property public androidx.xr.runtime.math.FloatSize3d bounds;
     property public androidx.xr.runtime.math.BoundingBox recommendedContentBoxInFullSpace;
   }

@@ -889,6 +889,47 @@ public class Component extends PaintOperation
         getLocationInWindow(value, true);
     }
 
+    /**
+     * Calculates the bounding box of this component relative to a specific ancestor component
+     * (semantic parent).
+     *
+     * <p>This method traverses up the component tree, accumulating coordinates and accounting for
+     * layout offsets such as padding and scroll positions if the intermediate components are
+     * {@link LayoutComponent}s.
+     *
+     * @param bounds   A 4-element array that will receive the bounds: [left, top, right, bottom].
+     * @param parentId The ID of the ancestor component to calculate the bounds relative to.
+     *                 If {@code null}, the coordinates will be relative to the root component.
+     */
+    public void getBoundsInSemanticParent(int @NonNull [] bounds, @Nullable Integer parentId) {
+        float x = 0;
+        float y = 0;
+
+        Component currentComponent = this;
+        while (currentComponent != null) {
+            // Add offset from parent origin
+            x += currentComponent.getX();
+            y += currentComponent.getY();
+
+            if (currentComponent instanceof LayoutComponent && currentComponent != this) {
+                LayoutComponent layoutComponent = (LayoutComponent) currentComponent;
+                x += layoutComponent.getPaddingLeft() + layoutComponent.getScrollX();
+                y += layoutComponent.getPaddingTop() + layoutComponent.getScrollY();
+            }
+
+            if (parentId != null && currentComponent.getComponentId() == parentId) {
+                break;
+            }
+
+            currentComponent = currentComponent.getParent();
+        }
+
+        bounds[0] = (int) x;
+        bounds[1] = (int) y;
+        bounds[2] = (int) (x + getWidth());
+        bounds[3] = (int) (y + getHeight());
+    }
+
     @NonNull
     @Override
     public String toString() {

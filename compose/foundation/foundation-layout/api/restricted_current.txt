@@ -388,23 +388,23 @@ package androidx.compose.foundation.layout {
     method @InaccessibleFromKotlin public int getFlexBoxCrossAxisMin();
     method @InaccessibleFromKotlin public int getFlexBoxMainAxisMax();
     method @InaccessibleFromKotlin public int getFlexBoxMainAxisMin();
-    method @InaccessibleFromKotlin public float getGrow();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getGrow();
     method @InaccessibleFromKotlin public int getOrder();
-    method @InaccessibleFromKotlin public float getShrink();
+    method @InaccessibleFromKotlin @FloatRange(from=0.0) public float getShrink();
     method @BytecodeOnly public void setAlignSelf-aKVMlHY(int);
     method @BytecodeOnly public void setBasis-MFoeH6Y(long);
-    method @InaccessibleFromKotlin public void setGrow(float);
+    method @InaccessibleFromKotlin public void setGrow(@FloatRange(from=0.0) float);
     method @InaccessibleFromKotlin public void setOrder(int);
-    method @InaccessibleFromKotlin public void setShrink(float);
+    method @InaccessibleFromKotlin public void setShrink(@FloatRange(from=0.0) float);
     property public abstract androidx.compose.foundation.layout.FlexAlignSelf alignSelf;
     property public abstract androidx.compose.foundation.layout.FlexBasis basis;
     property public abstract int flexBoxCrossAxisMax;
     property public abstract int flexBoxCrossAxisMin;
     property public abstract int flexBoxMainAxisMax;
     property public abstract int flexBoxMainAxisMin;
-    property public abstract float grow;
+    property @FloatRange(from=0.0) public abstract float grow;
     property public abstract int order;
-    property public abstract float shrink;
+    property @FloatRange(from=0.0) public abstract float shrink;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.layout.ExperimentalFlexBoxApi @kotlin.jvm.JvmInline public final value class FlexDirection {

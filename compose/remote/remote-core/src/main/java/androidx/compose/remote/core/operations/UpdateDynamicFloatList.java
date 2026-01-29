@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.operations.Utils.floatToString;
 
 import androidx.annotation.RestrictTo;
@@ -110,11 +112,11 @@ public class UpdateDynamicFloatList extends Operation implements VariableSupport
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Data Operations", OP_CODE, "UpdateDynamicFloatList")
                 .description("Update a value in a dynamic float list")
-                .field(androidx.compose.remote.core.documentation.DocumentedOperation.INT,
+                .field(INT,
                         "arrayId", "The ID of the array")
-                .field(androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT,
+                .field(FLOAT,
                         "index", "The index to update")
-                .field(androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT,
+                .field(FLOAT,
                         "value", "The new value");
     }
 

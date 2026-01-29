@@ -34,14 +34,20 @@ import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.xr.projected.ProjectedDeviceController.Capability
+import androidx.xr.projected.ProjectedDisplayController
 import androidx.xr.projected.ProjectedDisplayController.ProjectedLayoutParamsFlags
 import androidx.xr.projected.ProjectedInputEvent.ProjectedInputAction
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
+import androidx.xr.projected.platform.IEngagementModeCallback
+import androidx.xr.projected.platform.IEngagementModeService
+import androidx.xr.projected.platform.IProjectedDeviceStateListener
 import androidx.xr.projected.platform.IProjectedInputEventListener
 import androidx.xr.projected.platform.IProjectedService
+import androidx.xr.projected.platform.ProjectedDeviceState
 import androidx.xr.projected.platform.ProjectedInputEvent
 import java.lang.reflect.Constructor
 import java.lang.reflect.Method
@@ -51,6 +57,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.doAnswer
 import org.mockito.kotlin.firstValue
 import org.mockito.kotlin.mock
@@ -124,8 +131,10 @@ public class ProjectedTestRule : TestRule {
         set(value) {
             if (value) {
                 disableProjectedService()
+                disableEngagementModeService()
             } else {
                 enableProjectedService()
+                enableEngagementModeService()
             }
             field = value
         }
@@ -153,6 +162,58 @@ public class ProjectedTestRule : TestRule {
     public var projectedLayoutParamFlags: Int = 0
         private set
 
+    /**
+     * This property can be used to control the
+     * [androidx.xr.projected.ProjectedDisplayController.PresentationMode] flags. By default, all
+     * the presentation mode flags are set.
+     */
+    public var presentationModeFlags: Set<ProjectedDisplayController.PresentationMode> =
+        setOf(
+            ProjectedDisplayController.PresentationMode.AUDIO_ON,
+            ProjectedDisplayController.PresentationMode.VISUALS_ON,
+        )
+        set(value) {
+            val callbackCaptor = argumentCaptor<IEngagementModeCallback>()
+            verify(mockEngagementModeService).registerCallback(callbackCaptor.capture())
+
+            var engagementModeFlags = 0
+            if (value.contains(ProjectedDisplayController.PresentationMode.AUDIO_ON)) {
+                engagementModeFlags =
+                    engagementModeFlags or IEngagementModeService.ENGAGEMENT_STATE_FLAG_AUDIO_ON
+            }
+            if (value.contains(ProjectedDisplayController.PresentationMode.VISUALS_ON)) {
+                engagementModeFlags =
+                    engagementModeFlags or IEngagementModeService.ENGAGEMENT_STATE_FLAG_VISUALS_ON
+            }
+
+            callbackCaptor.firstValue.onEngagementModeChanged(engagementModeFlags)
+            field = value
+        }
+
+    /**
+     * This property can be used to control the lifecycle state of the Projected device. By default,
+     * the Projected device is in the [Lifecycle.State.INITIALIZED] state.
+     */
+    public var lifecycleState: Lifecycle.State = Lifecycle.State.INITIALIZED
+        set(value) {
+            val projectedDeviceState =
+                when (value) {
+                    Lifecycle.State.INITIALIZED,
+                    Lifecycle.State.CREATED -> ProjectedDeviceState.INACTIVE
+                    Lifecycle.State.STARTED,
+                    Lifecycle.State.RESUMED -> ProjectedDeviceState.ACTIVE
+                    Lifecycle.State.DESTROYED -> ProjectedDeviceState.DESTROYED
+                }
+            val deviceStateListenerArgumentCaptor = argumentCaptor<IProjectedDeviceStateListener>()
+            verify(mockProjectedService)
+                .registerProjectedDeviceStateListener(deviceStateListenerArgumentCaptor.capture())
+            deviceStateListenerArgumentCaptor.firstValue.onProjectedDeviceStateChanged(
+                projectedDeviceState,
+                /* data= */ null,
+            )
+            field = value
+        }
+
     private val context: Application = ApplicationProvider.getApplicationContext()
     private val virtualDeviceManager =
         context.getSystemService(Context.VIRTUAL_DEVICE_SERVICE) as VirtualDeviceManager
@@ -172,6 +233,11 @@ public class ProjectedTestRule : TestRule {
     private val mockProjectedServiceStub =
         mock<IProjectedService.Stub> {
             on { queryLocalInterface(any()) }.thenReturn(mockProjectedService)
+        }
+    private val mockEngagementModeService = mock<IEngagementModeService>()
+    private val mockEngagementModeServiceStub =
+        mock<IEngagementModeService.Stub> {
+            on { queryLocalInterface(any()) }.thenReturn(mockEngagementModeService)
         }
 
     override fun apply(base: Statement?, description: Description?): Statement =
@@ -316,7 +382,11 @@ public class ProjectedTestRule : TestRule {
         }
 
         shadowOf(context).apply {
-            setComponentNameAndServiceForBindService(
+            setComponentNameAndServiceForBindServiceForIntent(
+                Intent().apply {
+                    action = PROJECTED_ACTION_BIND
+                    component = PROJECTED_SERVICE_COMPONENT_NAME
+                },
                 PROJECTED_SERVICE_COMPONENT_NAME,
                 mockProjectedServiceStub,
             )
@@ -327,6 +397,34 @@ public class ProjectedTestRule : TestRule {
     private fun disableProjectedService() {
         shadowOf(context.packageManager).apply {
             clearIntentFilterForService(PROJECTED_SERVICE_COMPONENT_NAME)
+        }
+    }
+
+    private fun enableEngagementModeService() {
+        shadowOf(context.packageManager).apply {
+            addServiceIfNotPresent(ENGAGEMENT_MODE_SERVICE_COMPONENT_NAME)
+            addIntentFilterForService(
+                ENGAGEMENT_MODE_SERVICE_COMPONENT_NAME,
+                IntentFilter(ENGAGEMENT_MODE_ACTION_BIND),
+            )
+            installPackage(ENGAGEMENT_MODE_PACKAGE_INFO)
+        }
+        shadowOf(context).apply {
+            setComponentNameAndServiceForBindServiceForIntent(
+                Intent().apply {
+                    action = ENGAGEMENT_MODE_ACTION_BIND
+                    `package` = ENGAGEMENT_MODE_SYSTEM_PACKAGE_NAME
+                },
+                ENGAGEMENT_MODE_SERVICE_COMPONENT_NAME,
+                mockEngagementModeServiceStub,
+            )
+            setBindServiceCallsOnServiceConnectedDirectly(true)
+        }
+    }
+
+    private fun disableEngagementModeService() {
+        shadowOf(context.packageManager).apply {
+            clearIntentFilterForService(ENGAGEMENT_MODE_SERVICE_COMPONENT_NAME)
         }
     }
 
@@ -354,19 +452,38 @@ public class ProjectedTestRule : TestRule {
         private const val DISPLAY_DENSITY = 10
 
         private const val PROJECTED_ACTION_BIND = "androidx.xr.projected.ACTION_BIND"
-        private const val SYSTEM_PACKAGE_NAME = "com.system.service"
+        private const val ENGAGEMENT_MODE_ACTION_BIND: String =
+            "androidx.xr.projected.ACTION_ENGAGEMENT_BIND"
+        private const val PROJECTED_SERVICE_PACKAGE_NAME = "com.system.service"
+        private const val ENGAGEMENT_MODE_SYSTEM_PACKAGE_NAME = "com.system.service1"
         private const val PROJECTED_SERVICE_CLASS_NAME = "com.system.service.ProjectedService"
+        private const val ENGAGEMENT_MODE_SYSTEM_CLASS_NAME =
+            "com.system.service.EngagementModeService"
         private val PROJECTED_SERVICE_COMPONENT_NAME: ComponentName =
-            ComponentName(SYSTEM_PACKAGE_NAME, PROJECTED_SERVICE_CLASS_NAME)
+            ComponentName(PROJECTED_SERVICE_PACKAGE_NAME, PROJECTED_SERVICE_CLASS_NAME)
+        private val ENGAGEMENT_MODE_SERVICE_COMPONENT_NAME =
+            ComponentName(ENGAGEMENT_MODE_SYSTEM_PACKAGE_NAME, ENGAGEMENT_MODE_SYSTEM_CLASS_NAME)
         private val PROJECTED_SERVICE_INFO =
             ServiceInfo().apply {
-                packageName = SYSTEM_PACKAGE_NAME
+                packageName = PROJECTED_SERVICE_PACKAGE_NAME
                 name = PROJECTED_SERVICE_CLASS_NAME
+            }
+        private val ENGAGEMENT_MODE_SERVICE_INFO =
+            ServiceInfo().apply {
+                packageName = ENGAGEMENT_MODE_SYSTEM_PACKAGE_NAME
+                name = ENGAGEMENT_MODE_SYSTEM_CLASS_NAME
             }
         private val PROJECTED_PACKAGE_INFO =
             PackageInfo().apply {
-                packageName = SYSTEM_PACKAGE_NAME
+                packageName = PROJECTED_SERVICE_PACKAGE_NAME
                 services = arrayOf(PROJECTED_SERVICE_INFO)
+                applicationInfo = ApplicationInfo().apply { flags = ApplicationInfo.FLAG_SYSTEM }
+            }
+
+        private val ENGAGEMENT_MODE_PACKAGE_INFO =
+            PackageInfo().apply {
+                packageName = ENGAGEMENT_MODE_SYSTEM_PACKAGE_NAME
+                services = arrayOf(ENGAGEMENT_MODE_SERVICE_INFO)
                 applicationInfo = ApplicationInfo().apply { flags = ApplicationInfo.FLAG_SYSTEM }
             }
     }

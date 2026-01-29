@@ -36,7 +36,7 @@ dependencies {
     api(project(":xr:arcore:arcore-testing"))
     api(project(":xr:scenecore:scenecore-runtime"))
 
-    implementation("com.google.ar:impress:0.0.11")
+    implementation("com.google.ar:impress:0.0.12")
     implementation(libs.testExtTruth)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")

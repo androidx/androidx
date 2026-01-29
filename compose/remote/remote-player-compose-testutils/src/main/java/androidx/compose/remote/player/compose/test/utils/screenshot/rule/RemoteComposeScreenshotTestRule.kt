@@ -33,7 +33,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -75,7 +74,6 @@ import org.junit.runners.model.Statement
 class RemoteComposeScreenshotTestRule(
     moduleDirectory: String,
     private val matcher: BitmapMatcher? = null,
-    private val targetPlayer: TargetPlayer,
     private val profile: Profile = RcPlatformProfiles.ANDROIDX,
 ) : ExternalResource() {
     private val composeTestRule = createComposeRule(StandardTestDispatcher())

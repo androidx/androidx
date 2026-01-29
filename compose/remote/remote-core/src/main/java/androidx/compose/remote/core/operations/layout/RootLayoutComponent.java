@@ -29,6 +29,7 @@ import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.layout.measure.Measurable;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
+import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.SerializeTags;
@@ -144,6 +145,9 @@ public class RootLayoutComponent extends Component {
         if (!mNeedsMeasure) {
             return;
         }
+        if (context.isLayoutDebug()) {
+            DebugLog.clear();
+        }
         mNeedsMeasure = false;
         context.mLastComponent = this;
         setWidth(context.mWidth);
@@ -157,6 +161,9 @@ public class RootLayoutComponent extends Component {
                 m.measure(context.getPaintContext(), 0f, mWidth, 0f, mHeight, measurePass);
                 m.layout(context, measurePass);
             }
+        }
+        if (context.isLayoutDebug()) {
+            DebugLog.display();
         }
     }
 

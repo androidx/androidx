@@ -28,6 +28,7 @@ import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.glance.wear.ContainerInfo
 import androidx.glance.wear.GlanceWearWidget
 import androidx.glance.wear.GlanceWearWidgetService
 import androidx.glance.wear.WearWidgetData
@@ -42,7 +43,15 @@ private class HelloWidget : GlanceWearWidget() {
     override suspend fun provideWidgetData(
         context: Context,
         params: WearWidgetParams,
-    ): WearWidgetData = WearWidgetDocument(backgroundColor = Color.Red) { HelloWidgetContent() }
+    ): WearWidgetData {
+        val backgroundColor =
+            when (params.containerType) {
+                ContainerInfo.CONTAINER_TYPE_LARGE -> Color.Blue
+                ContainerInfo.CONTAINER_TYPE_SMALL -> Color.Red
+                else -> Color.Yellow
+            }
+        return WearWidgetDocument(backgroundColor = backgroundColor) { HelloWidgetContent() }
+    }
 }
 
 @RemoteComposable

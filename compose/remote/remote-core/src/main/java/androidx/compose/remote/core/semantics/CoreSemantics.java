@@ -15,6 +15,10 @@
  */
 package androidx.compose.remote.core.semantics;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BYTE;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -209,22 +213,15 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
     public static void documentation(
             @NonNull DocumentationBuilder doc) {
         doc.operation("Accessibility Operations", Operations.ACCESSIBILITY_SEMANTICS,
-                "CoreSemantics").description(
-                "Define accessibility semantics for a component").field(
-                androidx.compose.remote.core.documentation.DocumentedOperation.INT,
-                "contentDescriptionId", "ID of the content description string").field(
-                androidx.compose.remote.core.documentation.DocumentedOperation.BYTE, "role",
-                "The accessibility role (BUTTON, CHECKBOX, etc.)").field(
-                androidx.compose.remote.core.documentation.DocumentedOperation.INT, "textId",
-                "ID of the text string").field(
-                androidx.compose.remote.core.documentation.DocumentedOperation.INT,
-                "stateDescriptionId", "ID of the state description string").field(
-                androidx.compose.remote.core.documentation.DocumentedOperation.BYTE, "mode",
-                "Semantics merge mode (SET, MERGE)").field(
-                androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN, "enabled",
-                "Whether the component is enabled").field(
-                androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN, "clickable",
-                "Whether the component is clickable");
+                        "CoreSemantics")
+                .description("Define accessibility semantics for a component")
+                .field(INT, "contentDescriptionId", "ID of the content description string")
+                .field(BYTE, "role", "The accessibility role (BUTTON, CHECKBOX, etc.)")
+                .field(INT, "textId", "ID of the text string")
+                .field(INT, "stateDescriptionId", "ID of the state description string")
+                .field(BYTE, "mode", "Semantics merge mode (SET, MERGE)")
+                .field(BOOLEAN, "enabled", "Whether the component is enabled")
+                .field(BOOLEAN, "clickable", "Whether the component is clickable");
     }
 
     @Override

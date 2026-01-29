@@ -22,6 +22,7 @@ import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider
 import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.Dimensions
@@ -75,6 +76,7 @@ class EntityTest {
     fun setUp() {
         expect(true, "XrExtensions should not be null") { xrExtensions != null }
 
+        FakeSpatialApiVersionProvider.testSpatialApiVersion = 1
         activity = Robolectric.buildActivity(Activity::class.java).create().start().get()
 
         spatialSceneRuntime =
@@ -100,6 +102,7 @@ class EntityTest {
     fun tearDown() {
         spatialSceneRuntime.destroy()
         xrExtensions = null
+        FakeSpatialApiVersionProvider.testSpatialApiVersion = null
     }
 
     @Test

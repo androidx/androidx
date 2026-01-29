@@ -23,6 +23,7 @@ import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Quaternion
 import androidx.xr.runtime.math.Vector3
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider
 import androidx.xr.runtime.testing.math.assertPose
 import androidx.xr.runtime.testing.math.assertVector3
 import androidx.xr.scenecore.runtime.ActivitySpace
@@ -94,6 +95,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     @Before
     fun setUp() {
         xrExtensions = XrExtensionsProvider.getXrExtensions()!!
+        FakeSpatialApiVersionProvider.testSpatialApiVersion = 1
 
         testRuntime = createTestSceneRuntime(/* unscaledGravityAlignedActivitySpace= */ false)
 
@@ -110,6 +112,7 @@ class ActivitySpaceImplTest : SystemSpaceEntityImplTest() {
     fun tearDown() {
         // Destroy the runtime between test cases to clean up lingering references.
         testRuntime.destroy()
+        FakeSpatialApiVersionProvider.testSpatialApiVersion = null
     }
 
     override fun getSystemSpaceEntityImpl(): SystemSpaceEntityImpl = activitySpace

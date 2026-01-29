@@ -1014,10 +1014,10 @@ internal class TouchSlopDetector(
             ) * 180 / PI
         return when (orientation) {
             Orientation.Horizontal -> {
-                angle < 30
+                angle < GestureAngleThreshold
             }
             Orientation.Vertical -> {
-                angle > 30
+                angle > GestureAngleThreshold
             }
             else -> {
                 false
@@ -1150,3 +1150,6 @@ internal fun ViewConfiguration.pointerSlop(pointerType: PointerType): Float {
         else -> touchSlop
     }
 }
+
+// An angle in degrees where horizontal and vertical gestures are disambiguated.
+private const val GestureAngleThreshold = 30

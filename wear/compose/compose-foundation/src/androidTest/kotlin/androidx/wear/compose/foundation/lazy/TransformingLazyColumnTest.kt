@@ -18,6 +18,7 @@ package androidx.wear.compose.foundation.lazy
 
 import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -33,11 +34,13 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.SubcomposeLayout
@@ -67,6 +70,9 @@ import androidx.wear.compose.foundation.rotary.RotaryScrollableDefaults
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.Rule
@@ -1200,6 +1206,102 @@ class TransformingLazyColumnTest {
 
         assertThat(state.anchorItemIndex).isEqualTo(initialIndex + 1)
         assertThat(state.anchorItemScrollOffset).isEqualTo(snapOffsetPx)
+    }
+
+    @Test
+    fun topItemBiggerThanThreshold_itemIsClickable() {
+        assertEdgeClick(isTopEdge = true, isBiggerThanThreshold = true)
+    }
+
+    @Test
+    fun topItemSmallerThanThreshold_itemIsNotClickable() {
+        assertEdgeClick(isTopEdge = true, isBiggerThanThreshold = false)
+    }
+
+    @Test
+    fun bottomItemBiggerThanThreshold_itemIsClickable() {
+        assertEdgeClick(isTopEdge = false, isBiggerThanThreshold = true)
+    }
+
+    @Test
+    fun bottomItemSmallerThanThreshold_itemIsNotClickable() {
+        assertEdgeClick(isTopEdge = false, isBiggerThanThreshold = false)
+    }
+
+    private fun assertEdgeClick(
+        isTopEdge: Boolean,
+        isBiggerThanThreshold: Boolean,
+        visibleThreshold: Dp = 20.dp,
+    ) {
+        lateinit var state: TransformingLazyColumnState
+        lateinit var coroutineScope: CoroutineScope
+        val itemHeightDp = 50
+        var clickedIndex = -1
+        val itemHeightPx = with(rule.density) { itemHeightDp.dp.toPx().toInt() }
+
+        rule.setContent {
+            state = rememberTransformingLazyColumnState()
+            coroutineScope = rememberCoroutineScope()
+            TransformingLazyColumn(state = state, modifier = Modifier.testTag(lazyListTag)) {
+                items(100) { index ->
+                    Box(
+                        Modifier.height(itemHeightDp.dp)
+                            .clickable(onClick = { clickedIndex = index })
+                    )
+                }
+            }
+        }
+        val expectedClickedIndex =
+            if (isBiggerThanThreshold) {
+                if (isTopEdge) 0 else 99
+            } else {
+                -1
+            }
+        val scrollDistance =
+            with(rule.density) {
+                if (isBiggerThanThreshold) {
+                    (itemHeightDp.dp - visibleThreshold - 1.dp).toPx()
+                } else {
+                    (itemHeightDp.dp - visibleThreshold + 1.dp).toPx()
+                }
+            }
+
+        rule.runOnIdle {
+            coroutineScope.launch {
+                if (isTopEdge) {
+                    // Scroll up until top item is partly visible
+                    state.scrollBy(scrollDistance)
+                } else {
+                    // Scroll up until last item is fully visible in the bottom
+                    state.scrollToItem(
+                        99,
+                        -state.layoutInfo.viewportSize.height / 2 + itemHeightPx / 2,
+                    )
+                    // Scroll down until last item is partly visible
+                    state.scrollBy(-scrollDistance)
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        val clickOffset =
+            with(rule.density) {
+                Offset(
+                    state.layoutInfo.viewportSize.width / 2f,
+                    if (isTopEdge) {
+                        visibleThreshold.toPx() / 2
+                    } else {
+                        state.layoutInfo.viewportSize.height - visibleThreshold.toPx() / 2
+                    },
+                )
+            }
+
+        rule.onNodeWithTag(lazyListTag).performTouchInput {
+            down(clickOffset)
+            move()
+            up()
+        }
+        assertEquals(expectedClickedIndex, clickedIndex)
     }
 
     @Composable

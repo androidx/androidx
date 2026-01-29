@@ -22,8 +22,6 @@ import androidx.compose.remote.core.operations.BitmapData
 import androidx.compose.remote.core.operations.BitmapFontData
 import androidx.compose.remote.core.operations.BitmapTextMeasure
 import androidx.compose.remote.core.operations.ClickArea
-import androidx.compose.remote.core.operations.ClipPath
-import androidx.compose.remote.core.operations.ClipRect
 import androidx.compose.remote.core.operations.ColorAttribute
 import androidx.compose.remote.core.operations.ColorConstant
 import androidx.compose.remote.core.operations.ColorExpression
@@ -77,7 +75,6 @@ import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
-import androidx.compose.remote.core.operations.PathData
 import androidx.compose.remote.core.operations.Rem
 import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.RootContentDescription
@@ -117,6 +114,7 @@ import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLay
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.CoreText
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout
+import androidx.compose.remote.core.operations.layout.managers.FlowLayout
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.StateLayout
@@ -455,6 +453,8 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
             Operations.LAYOUT_COLLAPSIBLE_COLUMN,
             CollapsibleColumnLayout::documentation,
         )
+        operationsMap.put(Operations.LAYOUT_FLOW, FlowLayout::documentation)
+
         operationsMap.put(Operations.LAYOUT_CANVAS, CanvasLayout::documentation)
         operationsMap.put(Operations.LAYOUT_TEXT, TextLayout::documentation)
         operationsMap.put(Operations.CORE_TEXT, CoreText::documentation)
@@ -565,186 +565,6 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
         operationsMap.put(Operations.ACCESSIBILITY_SEMANTICS, CoreSemantics::documentation)
         // Miscellaneous
         operationsMap.put(Operations.HAPTIC_FEEDBACK, HapticFeedback::documentation)
-    }
-
-    fun listOperationsOld() {
-
-        // Protocol
-        operationsMap.put(Operations.HEADER, Header::documentation)
-        operationsMap.put(Operations.THEME, Theme::documentation)
-        operationsMap.put(Operations.CLICK_AREA, ClickArea::documentation)
-        operationsMap.put(Operations.ROOT_CONTENT_BEHAVIOR, RootContentBehavior::documentation)
-        operationsMap.put(
-            Operations.ROOT_CONTENT_DESCRIPTION,
-            RootContentDescription::documentation,
-        )
-
-        // wipOperation("Protocol Operations", Operations.HEADER, "Header")
-        // wipOperation("Protocol Operations", Operations.THEME, "Theme")
-        //    wipOperation("Protocol Operations", Operations.ROOT_CONTENT_BEHAVIOR,
-        // "RootContentBehavior")
-        //    wipOperation(
-        //      "Protocol Operations",
-        //      Operations.ROOT_CONTENT_DESCRIPTION,
-        //      "RootContentDescription",
-        //    )
-
-        // Data
-        operationsMap.put(Operations.DATA_BITMAP, BitmapData::documentation)
-        operationsMap.put(Operations.DATA_BITMAP_FONT, BitmapFontData::documentation)
-        operationsMap.put(Operations.DATA_TEXT, TextData::documentation)
-        operationsMap.put(Operations.DATA_SHADER, ShaderData::documentation)
-        operationsMap.put(Operations.DATA_PATH, PathData::documentation)
-        operationsMap.put(Operations.DATA_FLOAT, FloatConstant::documentation)
-        operationsMap.put(Operations.DATA_INT, IntegerConstant::documentation)
-        operationsMap.put(Operations.PAINT_VALUES, PaintData::documentation)
-        operationsMap.put(Operations.DATA_BOOLEAN, BooleanConstant::documentation)
-        operationsMap.put(Operations.DATA_LONG, LongConstant::documentation)
-        operationsMap.put(Operations.ID_LIST, DataListIds::documentation)
-        operationsMap.put(Operations.ID_MAP, DataMapIds::documentation)
-        operationsMap.put(Operations.FLOAT_LIST, DataListFloat::documentation)
-
-        // wipOperation("Data Operations", Operations.DATA_BITMAP, "BitmapData")
-        // wipOperation("Data Operations", Operations.DATA_TEXT, "TextData")
-        wipOperation("Data Operations", Operations.DATA_SHADER, "ShaderData")
-        // wipOperation("Data Operations", Operations.DATA_PATH, "PathData")
-        // wipOperation("Data Operations", Operations.PAINT_VALUES, "PaintData")
-        // wipOperation("Data Operations", Operations.DATA_FLOAT, "FloatConstant")
-        // wipOperation("Data Operations", Operations.DATA_INT, "IntegerConstant")
-        // wipOperation("Data Operations", Operations.DATA_BOOLEAN, "BooleanConstant")
-
-        // Draw
-        operationsMap.put(Operations.DRAW_SECTOR, DrawSector::documentation)
-        operationsMap.put(Operations.DRAW_ARC, DrawArc::documentation)
-        operationsMap.put(Operations.DRAW_BITMAP, DrawBitmap::documentation)
-        operationsMap.put(Operations.DRAW_BITMAP_INT, DrawBitmapInt::documentation)
-        operationsMap.put(Operations.DRAW_CIRCLE, DrawCircle::documentation)
-        operationsMap.put(Operations.DRAW_LINE, DrawLine::documentation)
-        operationsMap.put(Operations.DRAW_OVAL, DrawOval::documentation)
-        operationsMap.put(Operations.DRAW_PATH, DrawPath::documentation)
-        operationsMap.put(Operations.DRAW_RECT, DrawRect::documentation)
-        operationsMap.put(Operations.DRAW_ROUND_RECT, DrawRoundRect::documentation)
-        operationsMap.put(Operations.DRAW_BITMAP_FONT_TEXT_RUN, DrawBitmapFontText::documentation)
-        operationsMap.put(Operations.DRAW_TEXT_ON_PATH, DrawTextOnPath::documentation)
-        operationsMap.put(Operations.DRAW_TEXT_RUN, DrawText::documentation)
-        operationsMap.put(Operations.DRAW_TWEEN_PATH, DrawTweenPath::documentation)
-        operationsMap.put(Operations.DRAW_TEXT_ANCHOR, DrawTextAnchored::documentation)
-        operationsMap.put(Operations.TEXT_FROM_FLOAT, TextFromFloat::documentation)
-        operationsMap.put(Operations.TEXT_MERGE, TextMerge::documentation)
-
-        // wipOperation("Draw Operations", Operations.DRAW_ARC, "DrawArc")
-        //    wipOperation("Draw Operations", Operations.DRAW_BITMAP, "DrawBitmap")
-        //    wipOperation("Draw Operations", Operations.DRAW_BITMAP_INT, "DrawBitmapInt")
-        // wipOperation("Draw Operations", Operations.DRAW_CIRCLE, "DrawCircle")
-        // wipOperation("Draw Operations", Operations.DRAW_LINE, "DrawLine")
-        // wipOperation("Draw Operations", Operations.DRAW_OVAL, "DrawOval")
-        //    wipOperation("Draw Operations", Operations.DRAW_PATH, "DrawPath")
-        // wipOperation("Draw Operations", Operations.DRAW_RECT, "DrawRect")
-        // wipOperation("Draw Operations", Operations.DRAW_ROUND_RECT, "DrawRoundRect")
-        //    wipOperation("Draw Operations", Operations.DRAW_TEXT_ON_PATH, "DrawTextOnPath")
-        //    wipOperation("Draw Operations", Operations.DRAW_TEXT_RUN, "DrawText")
-        //    wipOperation("Draw Operations", Operations.DRAW_TWEEN_PATH, "DrawTweenPath")
-        //    wipOperation("Draw Operations", Operations.DRAW_TEXT_ANCHOR, "DrawTextAnchored")
-        //   wipOperation("Draw Operations", Operations.TEXT_FROM_FLOAT, "TextFromFloat")
-        //   wipOperation("Draw Operations", Operations.TEXT_MERGE, "TextMerge")
-
-        // Canvas
-        operationsMap.put(Operations.MATRIX_RESTORE, MatrixRestore::documentation)
-        operationsMap.put(Operations.MATRIX_ROTATE, MatrixRotate::documentation)
-        operationsMap.put(Operations.MATRIX_SAVE, MatrixSave::documentation)
-        operationsMap.put(Operations.MATRIX_SCALE, MatrixScale::documentation)
-        operationsMap.put(Operations.MATRIX_SKEW, MatrixSkew::documentation)
-        operationsMap.put(Operations.MATRIX_TRANSLATE, MatrixTranslate::documentation)
-        operationsMap.put(Operations.CLIP_PATH, ClipPath::documentation)
-        operationsMap.put(Operations.CLIP_RECT, ClipRect::documentation)
-
-        // Expressions
-        operationsMap.put(Operations.NAMED_VARIABLE, NamedVariable::documentation)
-        operationsMap.put(Operations.COLOR_CONSTANT, ColorConstant::documentation)
-        operationsMap.put(Operations.ANIMATED_FLOAT, FloatExpression::documentation)
-        operationsMap.put(Operations.COLOR_EXPRESSIONS, ColorExpression::documentation)
-        operationsMap.put(Operations.INTEGER_EXPRESSION, IntegerExpression::documentation)
-        operationsMap.put(Operations.COMPONENT_VALUE, ComponentValue::documentation)
-        //    wipOperation("Expressions Operations", Operations.NAMED_VARIABLE, "NamedVariable")
-        //    wipOperation("Expressions Operations", Operations.COLOR_CONSTANT, "ColorConstant")
-        //    wipOperation("Expressions Operations", Operations.ANIMATED_FLOAT, "FloatExpression")
-        //    wipOperation("Expressions Operations", Operations.COLOR_EXPRESSIONS,
-        // "ColorExpression")
-        //    wipOperation("Expressions Operations", Operations.INTEGER_EXPRESSION,
-        // "IntegerExpression")
-
-        // Layout
-        operationsMap.put(Operations.COMPONENT_START, ComponentStart::documentation)
-        operationsMap.put(Operations.ANIMATION_SPEC, AnimationSpec::documentation)
-
-        operationsMap.put(Operations.LAYOUT_ROOT, RootLayoutComponent::documentation)
-        operationsMap.put(Operations.LAYOUT_CONTENT, LayoutComponentContent::documentation)
-        operationsMap.put(Operations.LAYOUT_BOX, BoxLayout::documentation)
-        operationsMap.put(Operations.LAYOUT_COLUMN, ColumnLayout::documentation)
-        operationsMap.put(Operations.LAYOUT_ROW, RowLayout::documentation)
-        operationsMap.put(Operations.LAYOUT_CANVAS, CanvasLayout::documentation)
-        operationsMap.put(Operations.LAYOUT_TEXT, TextLayout::documentation)
-
-        // Modifiers
-        operationsMap.put(Operations.MODIFIER_WIDTH, WidthModifierOperation::documentation)
-        operationsMap.put(Operations.MODIFIER_HEIGHT, HeightModifierOperation::documentation)
-        operationsMap.put(Operations.MODIFIER_PADDING, PaddingModifierOperation::documentation)
-        operationsMap.put(
-            Operations.MODIFIER_BACKGROUND,
-            BackgroundModifierOperation::documentation,
-        )
-        operationsMap.put(Operations.MODIFIER_BORDER, BorderModifierOperation::documentation)
-        operationsMap.put(
-            Operations.MODIFIER_ROUNDED_CLIP_RECT,
-            RoundedClipRectModifierOperation::documentation,
-        )
-        operationsMap.put(Operations.MODIFIER_CLIP_RECT, ClipRectModifierOperation::documentation)
-        operationsMap.put(Operations.MODIFIER_CLICK, ClickModifierOperation::documentation)
-        operationsMap.put(Operations.CONTAINER_END, ContainerEnd::documentation)
-        operationsMap.put(Operations.HOST_ACTION, HostActionOperation::documentation)
-        operationsMap.put(Operations.HOST_NAMED_ACTION, HostNamedActionOperation::documentation)
-        operationsMap.put(
-            Operations.VALUE_INTEGER_CHANGE_ACTION,
-            ValueIntegerChangeActionOperation::documentation,
-        )
-
-        wipOperation(
-            "Modifier Operations",
-            Operations.MODIFIER_GRAPHICS_LAYER,
-            "GraphicsLayerOperation",
-        )
-
-        operationsMap.put(Operations.MODIFIER_OFFSET, OffsetModifierOperation::documentation)
-        operationsMap.put(Operations.MODIFIER_ZINDEX, ZIndexModifierOperation::documentation)
-
-        operationsMap.put(Operations.MODIFIER_TOUCH_DOWN, TouchDownModifierOperation::documentation)
-        operationsMap.put(Operations.MODIFIER_TOUCH_UP, TouchUpModifierOperation::documentation)
-        operationsMap.put(
-            Operations.MODIFIER_TOUCH_CANCEL,
-            TouchCancelModifierOperation::documentation,
-        )
-
-        wipOperation("Modifier Operations", Operations.MODIFIER_WIDTH, "WidthModifierOperation")
-        wipOperation("Modifier Operations", Operations.MODIFIER_HEIGHT, "HeightModifierOperation")
-        wipOperation("Modifier Operations", Operations.MODIFIER_PADDING, "PaddingModifierOperation")
-        wipOperation(
-            "Modifier Operations",
-            Operations.MODIFIER_BACKGROUND,
-            "BackgroundModifierOperation",
-        )
-        wipOperation("Modifier Operations", Operations.MODIFIER_BORDER, "BorderModifierOperation")
-        wipOperation(
-            "Modifier Operations",
-            Operations.MODIFIER_ROUNDED_CLIP_RECT,
-            "RoundedClipRectModifierOperation",
-        )
-        wipOperation(
-            "Modifier Operations",
-            Operations.MODIFIER_CLIP_RECT,
-            "ClipRectModifierOperation",
-        )
-
-        operationsMap.put(Operations.MODIFIER_RIPPLE, RippleModifierOperation::documentation)
     }
 
     fun content(): String {

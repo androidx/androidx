@@ -23,6 +23,7 @@ import android.app.Activity;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Vector2;
 import androidx.xr.runtime.math.Vector3;
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.PixelDimensions;
 import androidx.xr.scenecore.runtime.extensions.XrExtensionsProvider;
@@ -54,6 +55,7 @@ public class MainPanelEntityImplTest {
 
     @Before
     public void setUp() {
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(1);
         mTestRuntime =
                 SpatialSceneRuntime.create(
                         mHostActivity,
@@ -69,6 +71,7 @@ public class MainPanelEntityImplTest {
     public void tearDown() {
         // Destroy the runtime between test cases to clean up lingering references.
         mTestRuntime.destroy();
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(null);
     }
 
     @Test

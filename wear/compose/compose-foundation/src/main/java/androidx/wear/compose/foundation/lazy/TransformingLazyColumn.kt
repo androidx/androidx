@@ -44,11 +44,17 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.compose.ui.util.fastForEach
 import androidx.wear.compose.foundation.LocalReduceMotion
 import androidx.wear.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.wear.compose.foundation.requestFocusOnHierarchyActive
@@ -188,7 +194,7 @@ public fun TransformingLazyColumn(
 
     val semanticState = remember(state) { TransformingLazyColumnSemanticState(state) }
     val focusRequester = remember { FocusRequester() }
-
+    val minimumHeightPx = remember { with(density) { VISIBLE_THRESHOLD_EDGE_ITEM.toPx() } }
     LazyLayout(
         itemProvider = itemProviderLambda,
         modifier =
@@ -222,7 +228,23 @@ public fun TransformingLazyColumn(
                     orientation = Orientation.Vertical,
                     flingBehavior = flingBehavior,
                     overscrollEffect = overscrollEffect,
-                ),
+                )
+                .pointerInput(Unit) {
+                    awaitPointerEventScope {
+                        while (true) {
+                            val event = awaitPointerEvent(PointerEventPass.Initial)
+                            val upEvent = event.changes.fastFirstOrNull { it.changedToUp() }
+                            // Check if there is any item at when pointer leaves screen then consume
+                            // it, if no then consume all PointerInputChange.
+                            if (
+                                upEvent != null &&
+                                    !state.isItemClickableAt(upEvent.position, minimumHeightPx)
+                            ) {
+                                event.changes.fastForEach { it.consume() }
+                            }
+                        }
+                    }
+                },
         measurePolicy = measurePolicy,
         prefetchState = state.prefetchState,
     )
@@ -425,3 +447,37 @@ internal class NearestRangeKeyIndexMap(
 
     override fun getKey(index: Int) = keys.getOrElse(index - keysStartIndex) { null }
 }
+
+private fun TransformingLazyColumnState.isItemClickableAt(
+    position: Offset,
+    minimumHeightPx: Float,
+): Boolean {
+    // 1. Check if click event is on edge item
+    val edgeItems =
+        layoutInfo.visibleItems.let { items ->
+            if (items.size > 1) {
+                listOf(items.first(), items.last())
+            } else {
+                items
+            }
+        }
+    val foundItem =
+        edgeItems.fastFirstOrNull { info ->
+            info.offset <= position.y && position.y <= info.offset + info.transformedHeight
+        }
+    // 2. Check if found item has visible area that is big enough. If click is not on edge items,
+    // the function will return true since the visible check should be done only on edge items and
+    // other items are considered clickable.
+    return foundItem?.let {
+        return if (it.offset > 0) {
+            it.offset + minimumHeightPx <= layoutInfo.viewportSize.height &&
+                it.transformedHeight >= minimumHeightPx
+        } else {
+            // Item was clipped at upper bound
+            it.transformedHeight + it.offset >= minimumHeightPx
+        }
+    } ?: true
+}
+
+// Minimum visible height of edge item to be eligible for click.
+private val VISIBLE_THRESHOLD_EDGE_ITEM = 20.dp

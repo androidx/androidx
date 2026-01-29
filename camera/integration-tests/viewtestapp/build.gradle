@@ -71,6 +71,9 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.0")
     implementation("androidx.compose.ui:ui:1.4.0")
     implementation("androidx.compose.foundation:foundation:1.4.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.1")
+    implementation(project(":camera:camera-compose"))
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.media3Common)
     implementation(libs.media3Effect)
 

@@ -23,6 +23,7 @@ import android.view.ViewGroup
 import androidx.xr.runtime.NodeHolder
 import androidx.xr.runtime.math.Matrix4
 import androidx.xr.runtime.math.Pose
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider
 import androidx.xr.scenecore.runtime.ActivityPanelEntity
 import androidx.xr.scenecore.runtime.ActivitySpace
 import androidx.xr.scenecore.runtime.AnchorEntity
@@ -60,6 +61,7 @@ class EntityManagerTest {
 
     @Before
     fun setUp() {
+        FakeSpatialApiVersionProvider.testSpatialApiVersion = 1
         spatialSceneRuntime =
             SpatialSceneRuntime.create(
                 activity,
@@ -79,6 +81,7 @@ class EntityManagerTest {
                 /* unscaledGravityAlignedActivitySpace= */ false,
                 fakeScheduledExecutorService,
             )
+
         val currentTimeMillis = 1000000000L
         SystemClock.setCurrentTimeMillis(currentTimeMillis)
 
@@ -90,6 +93,7 @@ class EntityManagerTest {
     fun tearDown() {
         // Destroy the runtime between test cases to clean up lingering references.
         spatialSceneRuntime.destroy()
+        FakeSpatialApiVersionProvider.testSpatialApiVersion = null
     }
 
     @Test

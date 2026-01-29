@@ -19,7 +19,7 @@ package androidx.compose.foundation.gestures
 import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.ComposeFoundationFlags.isNestedDraggablesTouchConflictFixEnabled
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.GestureCoordinator
+import androidx.compose.foundation.GestureConnection
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestureNode
@@ -30,7 +30,7 @@ import androidx.compose.foundation.gestures.DragEvent.DragStopped
 import androidx.compose.foundation.interaction.DragInteraction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
-import androidx.compose.foundation.parentGestureCoordinator
+import androidx.compose.foundation.parentGestureConnection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -395,7 +395,7 @@ internal abstract class DragGestureNode(
     PointerInputModifierNode,
     IndirectPointerInputModifierNode,
     CompositionLocalConsumerModifierNode,
-    GestureCoordinator {
+    GestureConnection {
 
     var canDrag = canDrag
         private set
@@ -854,7 +854,7 @@ internal abstract class DragGestureNode(
                             .getPostSlopOffset(dragEvent.positionChangeIgnoreConsumed(), touchSlop)
 
                     /**
-                     * Here we use the [gestureNode] and [GestureCoordinator] APIs to make a
+                     * Here we use the [gestureNode] and [GestureConnection] APIs to make a
                      * decision. About this gesture. At this point we have all the triggers to start
                      * a recognizing a gesture in this current
                      * [androidx.compose.foundation.gestures.DragGestureNode]. This is the moment
@@ -868,7 +868,7 @@ internal abstract class DragGestureNode(
                         if (postSlopOffset.isSpecified) {
                             val isSelfInterested = isInterested(dragEvent)
                             val isParentInterested =
-                                parentGestureCoordinator?.isInterested(dragEvent) == true
+                                parentGestureConnection?.isInterested(dragEvent) == true
                             if (!isSelfInterested && isParentInterested) {
                                 state.verifyConsumptionInFinalPass = true
                             } else {
@@ -1124,7 +1124,7 @@ private sealed class DragDetectionState {
      * [consumedOnInitial]. We also save the [awaitTouchSlop] between passes so we don't call the
      * [DragGestureNode.startDragImmediately] as often.
      */
-    data class AwaitDown(
+    class AwaitDown(
         var awaitTouchSlop: AwaitTouchSlop = AwaitTouchSlop.NotInitialized,
         var consumedOnInitial: Boolean = false,
     ) : DragDetectionState() {
@@ -1140,7 +1140,7 @@ private sealed class DragDetectionState {
      * If drag should wait for touch slop, after the initial down recognition we move to this state.
      * Here we will collect drag events until touch slop is crossed.
      */
-    data class AwaitTouchSlop(
+    class AwaitTouchSlop(
         var initialDown: PointerInputChange? = null,
         var pointerId: PointerId = PointerId(Long.MAX_VALUE),
         var verifyConsumptionInFinalPass: Boolean = false,
@@ -1152,12 +1152,12 @@ private sealed class DragDetectionState {
      * that gesture. Once a gesture is lost the draggable will pass on to this state until all
      * fingers are up.
      */
-    data class AwaitGesturePickup(
+    class AwaitGesturePickup(
         var initialDown: PointerInputChange? = null,
         var pointerId: PointerId = PointerId(Long.MAX_VALUE),
         var touchSlopDetector: TouchSlopDetector? = null,
     ) : DragDetectionState()
 
     /** State where dragging is happening. */
-    data class Dragging(var pointerId: PointerId = PointerId(Long.MAX_VALUE)) : DragDetectionState()
+    class Dragging(var pointerId: PointerId = PointerId(Long.MAX_VALUE)) : DragDetectionState()
 }

@@ -680,7 +680,7 @@ fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, c
         var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
         var debugMode by remember { mutableIntStateOf(0) }
         var documentWidth = remember { mutableIntStateOf(300) }
-        var documentHeight = remember { mutableIntStateOf(300) }
+        var documentHeight = remember { mutableIntStateOf(600) }
         val currentDocument = func.getDoc()
 
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -746,10 +746,10 @@ private fun DocumentView(
             },
             update = {
                 it.setTheme(playbackTheme)
+                it.setDebug(debugMode)
                 if (currentDocument.value != null) {
                     it.setDocument(RemoteDocument(currentDocument.value!!))
                 }
-                it.setDebug(debugMode)
             },
         )
 
@@ -988,10 +988,10 @@ fun DisplayMain(
                         },
                         update = {
                             it.setTheme(playbackTheme)
+                            it.setDebug(debugMode)
                             if (currentDocument.value != null) {
                                 it.setDocument(RemoteDocument(currentDocument.value!!))
                             }
-                            it.setDebug(debugMode)
                         },
                     )
                 }

@@ -20,8 +20,12 @@
     label="@string/hello_widget_label"
     preferredType="@integer/glance_wear_container_type_small">
 
-    <container type="@integer/glance_wear_container_type_small" />
+    <container
+        label="@string/hello_widget_label_small"
+        type="@integer/glance_wear_container_type_small" />
 
-    <container type="@integer/glance_wear_container_type_large" />
+    <container
+        label="@string/hello_widget_label_large"
+        type="@integer/glance_wear_container_type_large" />
 
 </wearwidget-provider>

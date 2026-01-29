@@ -166,6 +166,22 @@ private constructor(rtActivitySpace: RtActivitySpace, entityManager: EntityManag
     public fun addOnOriginChangedListener(listener: Runnable): Unit =
         addOnOriginChangedListener(DirectExecutor, listener)
 
+    @Deprecated(
+        "Use addOnOriginChangedListener",
+        replaceWith = ReplaceWith("addOnOriginChangedListener()"),
+    )
+    public fun addOnSpaceUpdatedListener(executor: Executor, listener: Runnable) {
+        addOnOriginChangedListener(executor, listener)
+    }
+
+    @Deprecated(
+        "Use addOnOriginChangedListener",
+        replaceWith = ReplaceWith("addOnOriginChangedListener()"),
+    )
+    public fun addOnSpaceUpdatedListener(listener: Runnable) {
+        addOnOriginChangedListener(listener)
+    }
+
     /**
      * Removes the previously-added listener.
      *
@@ -178,6 +194,14 @@ private constructor(rtActivitySpace: RtActivitySpace, entityManager: EntityManag
         if (originChangedListeners.isEmpty()) {
             rtEntity!!.setOnOriginChangedListener(null, null)
         }
+    }
+
+    @Deprecated(
+        "Use removeOnOriginChangedListener",
+        replaceWith = ReplaceWith("removeOnOriginChangedListener()"),
+    )
+    public fun removeOnSpaceUpdatedListener(listener: Runnable) {
+        removeOnOriginChangedListener(listener)
     }
 
     /**

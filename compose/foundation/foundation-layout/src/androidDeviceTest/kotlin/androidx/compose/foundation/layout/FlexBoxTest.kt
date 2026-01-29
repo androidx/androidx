@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.layout
 
+import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.FlexBoxScopeInstance.flex
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -42,6 +44,7 @@ import com.google.common.truth.Truth
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.test.StandardTestDispatcher
+import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1866,6 +1869,50 @@ class FlexBoxTest {
         rule.onNodeWithTag("item0").assertIsDisplayed()
         rule.onNodeWithTag("item1").assertIsDisplayed()
         rule.onNodeWithTag("item2").assertIsNotDisplayed()
+    }
+
+    @SuppressLint
+    @OptIn(ExperimentalFlexBoxApi::class)
+    @Test
+    fun test_invalidFlexGrow_negative() {
+        val negativeValueModifier = Modifier.flex { grow = -1f }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule.setContent { FlexBox { Box(negativeValueModifier) } }
+        }
+    }
+
+    @SuppressLint
+    @OptIn(ExperimentalFlexBoxApi::class)
+    @Test
+    fun test_invalidFlexGrow_nan() {
+        val nanValueModifier = Modifier.flex { grow = Float.NaN }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule.setContent { FlexBox { Box(nanValueModifier) } }
+        }
+    }
+
+    @SuppressLint
+    @OptIn(ExperimentalFlexBoxApi::class)
+    @Test
+    fun test_invalidFlexShrink_negative() {
+        val negativeValueModifier = Modifier.flex { shrink = -1f }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule.setContent { FlexBox { Box(negativeValueModifier) } }
+        }
+    }
+
+    @SuppressLint
+    @OptIn(ExperimentalFlexBoxApi::class)
+    @Test
+    fun test_invalidFlexShrink_nan() {
+        val nanValueModifier = Modifier.flex { shrink = Float.NaN }
+
+        assertThrows(IllegalArgumentException::class.java) {
+            rule.setContent { FlexBox { Box(nanValueModifier) } }
+        }
     }
 
     companion object {

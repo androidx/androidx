@@ -88,7 +88,7 @@ public class FitBoxLayout extends LayoutManager {
     @NonNull
     @Override
     public String toString() {
-        return "BOX ["
+        return "FITBOX ["
                 + mComponentId
                 + ":"
                 + mAnimationId
@@ -251,7 +251,7 @@ public class FitBoxLayout extends LayoutManager {
      */
     @NonNull
     public static String name() {
-        return "BoxLayout";
+        return "FitBoxLayout";
     }
 
     /**

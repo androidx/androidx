@@ -190,7 +190,8 @@ RowLayout               | Layout elements in a row
 ColumnLayout            | Layout elements in a column
 CollapsibleRowLayout    | as RowLayout, but skip elements that don't fit
 CollapsibleColumnLayout | as ColumnLayout, but skip elements that don't fit
-LazyRow/Column           | on demand list layout
+FitBoxLayout		| pick the first child that fits
+FlowLayout              | as RowLayout, but wrap elements if they don't fit
 
 ### Scroll areas
 

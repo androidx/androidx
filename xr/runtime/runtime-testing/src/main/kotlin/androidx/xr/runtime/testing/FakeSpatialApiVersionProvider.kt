@@ -34,6 +34,7 @@ public class FakeSpatialApiVersionProvider : SpatialApiVersionProvider {
          * If null, accessing [spatialApiVersion] will throw an [IllegalStateException].
          */
         public var testSpatialApiVersion: Int? = null
+
         /**
          * The value to be returned by [previewSpatialApiVersion].
          *

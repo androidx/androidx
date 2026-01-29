@@ -85,6 +85,8 @@ public class MainActivity extends AppCompatActivity {
     // The default scale type is FILL_CENTER.
     public static final int DEFAULT_SCALE_TYPE_ID = 1;
 
+    private static final String KEY_FRAGMENT_TYPE = "fragment_type";
+
     private boolean mCheckedPermissions = false;
     private FragmentType mFragmentType = FragmentType.CAMERA_CONTROLLER;
 
@@ -106,6 +108,14 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
+
+        if (savedInstanceState != null) {
+            mFragmentType = FragmentType.values()[savedInstanceState.getInt(KEY_FRAGMENT_TYPE)];
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setTitle(getTitleRes(mFragmentType));
+            }
+        }
+
         // TODO(b/173019455): make this penaltyDeath after we fix the IO in test apps.
         StrictMode.ThreadPolicy threadPolicy =
                 new StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build();
@@ -123,6 +133,12 @@ public class MainActivity extends AppCompatActivity {
                 startFragment();
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(KEY_FRAGMENT_TYPE, mFragmentType.ordinal());
     }
 
     @Override
@@ -190,31 +206,58 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startFragment() {
+        Fragment fragment;
         switch (mFragmentType) {
             case PREVIEW_VIEW:
-                startFragment(R.string.preview_view, new PreviewViewFragment());
+                fragment = new PreviewViewFragment();
                 break;
             case CAMERA_CONTROLLER:
-                startFragment(R.string.camera_controller, new CameraControllerFragment());
+                fragment = new CameraControllerFragment();
                 break;
             case TRANSFORM:
-                startFragment(R.string.transform, new TransformFragment());
+                fragment = new TransformFragment();
                 break;
             case COMPOSE_UI:
-                startFragment(R.string.compose_ui, new ComposeUiFragment());
+                fragment = new ComposeUiFragment();
                 break;
             case MLKIT:
-                startFragment(R.string.mlkit, new MlKitFragment());
+                fragment = new MlKitFragment();
                 break;
             case EFFECTS:
-                startFragment(R.string.effects, new EffectsFragment());
+                fragment = new EffectsFragment();
                 break;
             case OVERLAY_EFFECTS:
-                startFragment(R.string.overlay_effect, new OverlayEffectFragment());
+                fragment = new OverlayEffectFragment();
                 break;
             case MEDIA3_EFFECT:
-                startFragment(R.string.media3_effect, new Media3EffectsFragment());
+                fragment = new Media3EffectsFragment();
                 break;
+            default:
+                throw new IllegalArgumentException("Unknown fragment type: " + mFragmentType);
+        }
+        startFragment(getTitleRes(mFragmentType), fragment);
+    }
+
+    private int getTitleRes(FragmentType type) {
+        switch (type) {
+            case PREVIEW_VIEW:
+                return R.string.preview_view;
+            case CAMERA_CONTROLLER:
+                return R.string.camera_controller;
+            case TRANSFORM:
+                return R.string.transform;
+            case COMPOSE_UI:
+                return R.string.compose_ui;
+            case MLKIT:
+                return R.string.mlkit;
+            case EFFECTS:
+                return R.string.effects;
+            case OVERLAY_EFFECTS:
+                return R.string.overlay_effect;
+            case MEDIA3_EFFECT:
+                return R.string.media3_effect;
+            default:
+                throw new IllegalArgumentException("Unknown fragment type: " + type);
         }
     }
 

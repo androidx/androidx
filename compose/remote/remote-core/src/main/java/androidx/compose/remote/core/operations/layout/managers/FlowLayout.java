@@ -16,17 +16,23 @@
 
 package androidx.compose.remote.core.operations.layout.managers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
 import androidx.compose.remote.core.operations.layout.measure.MeasurePass;
 import androidx.compose.remote.core.operations.layout.measure.Size;
 import androidx.compose.remote.core.operations.layout.modifiers.WidthInModifierOperation;
+import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
@@ -36,6 +42,15 @@ import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FlowLayout extends RowLayout {
+
+    public static final int START = 1;
+    public static final int CENTER = 2;
+    public static final int END = 3;
+    public static final int TOP = 4;
+    public static final int BOTTOM = 5;
+    public static final int SPACE_BETWEEN = 6;
+    public static final int SPACE_EVENLY = 7;
+    public static final int SPACE_AROUND = 8;
 
     public FlowLayout(
             @Nullable Component parent,
@@ -49,6 +64,12 @@ public class FlowLayout extends RowLayout {
             int horizontalPositioning, int verticalPositioning, float spacedBy) {
         super(parent, componentId, animationId, horizontalPositioning, verticalPositioning,
                 spacedBy);
+    }
+
+    @NonNull
+    @Override
+    protected String getSerializedName() {
+        return "FLOW";
     }
 
     /**
@@ -157,6 +178,8 @@ public class FlowLayout extends RowLayout {
             currentRow.add(c);
             currentWidth += componentWidth;
         }
+        DebugLog.s(() -> "COMPUTED " + rows.size() + " SEGMENTS OF ROWS for " + this + " ("
+                + mComponentId + ")");
         return rows;
     }
 
@@ -169,6 +192,12 @@ public class FlowLayout extends RowLayout {
             boolean verticalWrap,
             @NonNull MeasurePass measure,
             @NonNull Size size) {
+        DebugLog.s(() -> "COMPUTE WRAP SIZE in " + this + " (" + mComponentId + ")");
+        for (Component c : mChildrenComponents) {
+            if (c.needsMeasure()) {
+                c.measure(context, 0f, maxWidth, 0f, maxHeight, measure);
+            }
+        }
         ArrayList<ArrayList<Component>> rows = segmentComponents(context, maxWidth, maxHeight,
                 measure);
         Size rowSize = new Size(0f, 0f);
@@ -194,6 +223,7 @@ public class FlowLayout extends RowLayout {
             float minHeight,
             float maxHeight,
             @NonNull MeasurePass measure) {
+        DebugLog.s(() -> "COMPUTE SIZE in " + this + " (" + mComponentId + ")");
         ArrayList<ArrayList<Component>> rows = segmentComponents(context, maxWidth,
                 maxHeight, measure);
         for (ArrayList<Component> row : rows) {
@@ -210,6 +240,7 @@ public class FlowLayout extends RowLayout {
 
     @Override
     public void internalLayoutMeasure(@NonNull PaintContext context, @NonNull MeasurePass measure) {
+        DebugLog.s(() -> "INTERNAL LAYOUT MEASURE in " + this + " (" + mComponentId + ")");
         if (mChildrenComponents.isEmpty()) {
             return;
         }
@@ -251,4 +282,31 @@ public class FlowLayout extends RowLayout {
             positionY += rowSize.getHeight();
         }
     }
+
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation("Layout Operations", id(), "FlowLayout")
+                .description("Flow layout implementation. Positions components one after the"
+                        + " other horizontally and wraps to the next line if space is exhausted.")
+                .field(DocumentedOperation.INT, "componentId", "Unique ID for this component")
+                .field(DocumentedOperation.INT, "animationId", "ID for animation purposes")
+                .field(INT, "horizontalPositioning", "Horizontal positioning value")
+                .possibleValues("START", START)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("END", END)
+                .possibleValues("SPACE_BETWEEN", SPACE_BETWEEN)
+                .possibleValues("SPACE_EVENLY", SPACE_EVENLY)
+                .possibleValues("SPACE_AROUND", SPACE_AROUND)
+                .field(INT, "verticalPositioning", "Vertical positioning value")
+                .possibleValues("TOP", TOP)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("BOTTOM", BOTTOM)
+                .field(FLOAT, "spacedBy", "Horizontal spacing between components");
+    }
+
 }

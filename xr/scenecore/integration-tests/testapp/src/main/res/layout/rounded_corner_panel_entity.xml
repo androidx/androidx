@@ -29,46 +29,78 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBaseline_toTopOf="@id/main_panel_switch"
         app:title="Panel Entity"
         app:titleCentered="true"
         app:titleTextColor="@color/white"
         tools:layout_editor_absoluteX="10dp"/>
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/main_panel_switch"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+    <TextView
+        android:id="@+id/main_panel_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginTop="20dp"
         android:text="@string/main_panel_switch_text"
-        app:layout_constraintTop_toBottomOf="@+id/activity_panel_tool_bar"
-        app:layout_constraintBottom_toTopOf="@+id/activity_panel_switch"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_panel_tool_bar" />
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/activity_panel_switch"
+    <SeekBar
+        android:id="@+id/main_panel_seekbar"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:max="100"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_panel_label" />
+
+    <TextView
+        android:id="@+id/activity_panel_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
         android:text="@string/activity_panel_switch_text"
-        app:layout_constraintTop_toBottomOf="@+id/main_panel_switch"
-        app:layout_constraintBottom_toTopOf="@+id/panel_entity_switch"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_panel_seekbar" />
 
-    <com.google.android.material.materialswitch.MaterialSwitch
-        android:id="@+id/panel_entity_switch"
+    <SeekBar
+        android:id="@+id/activity_panel_seekbar"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:text="@string/panel_entity_switch_text"
-        app:layout_constraintTop_toBottomOf="@+id/activity_panel_switch"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="8dp"
+        android:max="100"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_panel_label" />
+
+    <TextView
+        android:id="@+id/panel_entity_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:text="@string/panel_entity_switch_text"
+        android:textColor="@android:color/white"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_panel_seekbar" />
+
+    <SeekBar
+        android:id="@+id/panel_entity_seekbar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="8dp"
+        android:max="100"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/panel_entity_label" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

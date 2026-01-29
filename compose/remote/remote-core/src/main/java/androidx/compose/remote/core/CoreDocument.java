@@ -1288,6 +1288,9 @@ public class CoreDocument implements Serializable {
      * listeners.
      */
     public void onClick(@NonNull RemoteContext context, float x, float y) {
+        if (context.isBasicDebug()) {
+            System.out.println("[RC] Click at " + x + ", " + y);
+        }
         for (ClickAreaRepresentation clickArea : mClickAreas) {
             if (clickArea.contains(x, y)) {
                 warnClickListeners(clickArea);
@@ -1306,6 +1309,9 @@ public class CoreDocument implements Serializable {
      * @param metadata the metadata of the click event
      */
     public void performClick(@NonNull RemoteContext context, int id, @NonNull String metadata) {
+        if (context.isBasicDebug()) {
+            System.out.println("[RC] performClick for " + id);
+        }
         for (ClickAreaRepresentation clickArea : mClickAreas) {
             if (clickArea.mId == id) {
                 warnClickListeners(clickArea);

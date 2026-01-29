@@ -41,7 +41,7 @@ class ListRCWidget : AppWidgetProvider() {
     override fun onUpdate(context: Context, wm: AppWidgetManager, widgetIds: IntArray) {
         widgetIds.forEach { widgetId ->
             goAsync {
-                val bytes = listWidget(context.applicationContext)
+                val bytes = listWidget(context.applicationContext, "ListRCWidget")
 
                 val widget = RemoteViews(DrawInstructions(bytes))
 
@@ -49,29 +49,28 @@ class ListRCWidget : AppWidgetProvider() {
             }
         }
     }
+}
 
-    private suspend fun listWidget(context: Context): ByteArray {
-        return record(context.applicationContext) {
-            ScrollableList(modifier = RemoteModifier.fillMaxSize())
-        }
+suspend fun listWidget(context: Context, name: String): ByteArray {
+    return record(context.applicationContext) {
+        ScrollableList(modifier = RemoteModifier.fillMaxSize(), name = name)
+    }
+}
+
+@OptIn(ExperimentalRemoteCreationComposeApi::class, ExperimentalRemoteCreationApi::class)
+@Suppress("RestrictedApiAndroidX")
+suspend fun record(context: Context, content: @RemoteComposable @Composable () -> Unit): ByteArray =
+    withContext(Dispatchers.Main) {
+        captureSingleRemoteDocument(
+                context = context,
+                creationDisplayInfo = createCreationDisplayInfo(context),
+                profile = RcPlatformProfiles.WIDGETS_V6,
+                content = content,
+            )
+            .bytes
     }
 
-    @OptIn(ExperimentalRemoteCreationComposeApi::class, ExperimentalRemoteCreationApi::class)
-    suspend fun record(
-        context: Context,
-        content: @RemoteComposable @Composable () -> Unit,
-    ): ByteArray =
-        withContext(Dispatchers.Main) {
-            captureSingleRemoteDocument(
-                    context = context,
-                    creationDisplayInfo = createCreationDisplayInfo(context),
-                    profile = RcPlatformProfiles.WIDGETS_V6,
-                    content = content,
-                )
-                .bytes
-        }
-
-    private fun DrawInstructions(bytes: ByteArray): RemoteViews.DrawInstructions {
-        return RemoteViews.DrawInstructions.Builder(listOf(bytes)).build()
-    }
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+fun DrawInstructions(bytes: ByteArray): RemoteViews.DrawInstructions {
+    return RemoteViews.DrawInstructions.Builder(listOf(bytes)).build()
 }

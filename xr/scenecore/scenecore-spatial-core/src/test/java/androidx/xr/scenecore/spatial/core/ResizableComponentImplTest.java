@@ -43,6 +43,7 @@ import android.view.ViewGroup;
 import androidx.xr.runtime.NodeHolder;
 import androidx.xr.runtime.math.FloatSize2d;
 import androidx.xr.runtime.math.Pose;
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.MoveEventListener;
@@ -96,6 +97,7 @@ public class ResizableComponentImplTest {
     @Before
     public void setUp() {
         assume().that(mXrExtensions).isNotNull();
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(1);
         Node activitySpaceNode = mXrExtensions.createNode();
         mActivitySpaceImpl =
                 new ActivitySpaceImpl(
@@ -119,6 +121,7 @@ public class ResizableComponentImplTest {
     public void tearDown() {
         // Destroy the runtime between test cases to clean up lingering references.
         mFakeRuntime.destroy();
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(null);
     }
 
     private Entity createTestEntity() {

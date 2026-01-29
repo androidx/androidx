@@ -21,6 +21,7 @@ import androidx.compose.remote.core.operations.ShaderData;
 import androidx.compose.remote.core.operations.Theme;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
+import androidx.compose.remote.core.operations.layout.utils.DebugLog;
 import androidx.compose.remote.core.operations.utilities.ArrayAccess;
 import androidx.compose.remote.core.operations.utilities.CollectionsAccess;
 import androidx.compose.remote.core.operations.utilities.DataMap;
@@ -512,8 +513,13 @@ public abstract class RemoteContext {
         return mDebug == 2;
     }
 
+    public boolean isLayoutDebug() {
+        return mDebug == 3;
+    }
+
     public void setDebug(int debug) {
         this.mDebug = debug;
+        DebugLog.DEBUG_LAYOUT_ON = mDebug == 3;
     }
 
     /**

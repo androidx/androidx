@@ -51,4 +51,23 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isPrecisionPointerComponentSizingEnabled: Boolean = false
+
+    /**
+     * This flag affects Material3 components that use
+     * [androidx.compose.ui.Modifier.anchoredDraggable]. Those are: [BottomSheetScaffold],
+     * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
+     *
+     * When this flag is set to true, these components will require their internal offset to be
+     * initialized during measurement before they are placed, throwing an exception if the offset
+     * was not initialized in placement. When this flag is set to false, the component will not
+     * throw an exception and won't place the content while their internal offset is not
+     * initialized. The content will be placed as soon as the offset is initialized.
+     *
+     * This flag can be helpful if you are encountering a crash with an uninitialized offset (such
+     * as https://issuetracker.google.com/issues/477038695) and will be removed when the associated
+     * bugs are fixed.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAnchoredDraggableComponentsStrictOffsetCheckEnabled: Boolean = true
 }

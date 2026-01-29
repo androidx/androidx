@@ -32,6 +32,7 @@ import android.app.Activity;
 import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Vector3;
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider;
 import androidx.xr.scenecore.runtime.Entity;
 import androidx.xr.scenecore.runtime.HitTestResult;
 import androidx.xr.scenecore.runtime.InputEvent;
@@ -57,6 +58,8 @@ import com.android.extensions.xr.space.PerceivedResolution;
 import com.android.extensions.xr.space.ShadowSpatialCapabilities;
 import com.android.extensions.xr.space.VisibilityState;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -74,6 +77,16 @@ public final class RuntimeUtilsTest {
 
     @Rule
     public final ExpectedLogMessagesRule expectedLogMessagesRule = new ExpectedLogMessagesRule();
+
+    @Before
+    public void setUp() {
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(1);
+    }
+
+    @After
+    public void tearDown() {
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(null);
+    }
 
     SpatialSceneRuntime createSceneRuntime(EntityManager entityManager) {
         ActivityController<Activity> mActivityController;

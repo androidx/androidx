@@ -71,7 +71,7 @@ while read line
              | tail -n +3 \
              | sed '$ d') # Remove the last line
 
-ATP_VERSION=${4:-0.0.9-alpha03}
+ATP_VERSION=${4:-0.0.9-alpha04}
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-test-plugin:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:launcher:$ATP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.google.testing.platform:android-driver-instrumentation:$ATP_VERSION,"

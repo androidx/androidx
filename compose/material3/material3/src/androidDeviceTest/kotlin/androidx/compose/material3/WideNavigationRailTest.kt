@@ -20,6 +20,7 @@ import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -245,6 +246,23 @@ class WideNavigationRailTest {
             .onNodeWithTag("content")
             .assertTopPositionInRootIsEqualTo(13.dp + verticalPadding)
             .assertLeftPositionInRootIsEqualTo(13.dp)
+    }
+
+    @Test
+    fun rail_respectsContentPadding() {
+        rule.setMaterialContentForSizeAssertions {
+            WideNavigationRail(
+                contentPadding = PaddingValues(10.dp, 10.dp),
+                // Zero out windows insets to check only for the content padding.
+                windowInsets = WindowInsets(0.dp, 0.dp, 0.dp, 0.dp),
+            ) {
+                Box(Modifier.fillMaxSize().testTag("content"))
+            }
+        }
+        rule
+            .onNodeWithTag("content")
+            .assertTopPositionInRootIsEqualTo(10.dp)
+            .assertLeftPositionInRootIsEqualTo(10.dp)
     }
 
     @Test

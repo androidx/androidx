@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory
 import android.graphics.Paint
 import android.graphics.Shader
 import androidx.compose.remote.core.RcProfiles
+import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
@@ -28,6 +29,7 @@ import androidx.compose.remote.creation.RFloat
 import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.RemoteComposeContextAndroid
+import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.actions.HostAction
 import androidx.compose.remote.creation.arrayMax
@@ -65,12 +67,13 @@ fun RcTicker(context: Context): RemoteComposeContext {
     val res = context.resources
     val refresh = BitmapFactory.decodeResource(res, R.drawable.refresh)
     return RemoteComposeContextAndroid(
-        0,
-        0,
-        "Demo",
-        7,
-        RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
         AndroidxRcPlatformServices(),
+        7,
+        RemoteComposeWriter.HTag(
+            Header.DOC_PROFILES,
+            RcProfiles.PROFILE_ANDROIDX or RcProfiles.PROFILE_EXPERIMENTAL,
+        ),
+        RemoteComposeWriter.HTag(Header.DEBUG, 0),
     ) {
         color = RcTickerColorPack(this)
         fontSize = RcFontSizes(this)

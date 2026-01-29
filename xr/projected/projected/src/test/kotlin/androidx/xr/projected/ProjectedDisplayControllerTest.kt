@@ -18,11 +18,8 @@ package androidx.xr.projected
 
 import android.app.Activity
 import android.app.Application
-import android.content.ComponentName
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ActivityInfo
-import android.content.pm.ServiceInfo
 import android.os.Build
 import android.view.WindowManager
 import androidx.test.core.app.ActivityScenario
@@ -32,8 +29,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.xr.projected.ProjectedDisplayController.PresentationMode
 import androidx.xr.projected.ProjectedDisplayController.PresentationModeFlags
 import androidx.xr.projected.experimental.ExperimentalProjectedApi
-import androidx.xr.projected.platform.IEngagementModeCallback
-import androidx.xr.projected.platform.IEngagementModeService
 import androidx.xr.projected.testing.ProjectedTestRule
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
@@ -47,10 +42,6 @@ import org.junit.Assert.assertThrows
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.verify
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
@@ -143,33 +134,11 @@ class ProjectedDisplayControllerTest {
 
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalProjectedApi::class)
     @Test
-    fun addPresentationModeChangedListener_callsService() {
+    fun addPresentationModeChangedListener_receivesUpdates() =
         projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
             val dispatcher = UnconfinedTestDispatcher()
             Dispatchers.setMain(dispatcher)
             runBlocking {
-                val mockEngagementModeService = setUpEngagementModeService()
-                projectedDisplayController =
-                    ProjectedDisplayController.create(projectedDeviceActivity)
-
-                val listener = Consumer<PresentationModeFlags> {}
-                projectedDisplayController.addPresentationModeChangedListener(listener = listener)
-
-                verify(mockEngagementModeService).registerCallback(any())
-
-                removeEngagementModeService()
-            }
-        }
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalProjectedApi::class)
-    @Test
-    fun addPresentationModeChangedListener_receivesUpdates() {
-        projectedTestRule.launchTestProjectedDeviceActivity { projectedDeviceActivity ->
-            val dispatcher = UnconfinedTestDispatcher()
-            Dispatchers.setMain(dispatcher)
-            runBlocking {
-                val mockEngagementModeService = setUpEngagementModeService()
                 projectedDisplayController =
                     ProjectedDisplayController.create(projectedDeviceActivity)
 
@@ -180,21 +149,16 @@ class ProjectedDisplayControllerTest {
                 }
 
                 // Trigger the callback.
-                val callbackCaptor = argumentCaptor<IEngagementModeCallback>()
-                verify(mockEngagementModeService).registerCallback(callbackCaptor.capture())
-                callbackCaptor.firstValue.onEngagementModeChanged(
-                    EngagementModeClient.ENGAGEMENT_MODE_FLAG_VISUALS_ON
-                )
+                projectedTestRule.presentationModeFlags =
+                    setOf(PresentationMode.VISUALS_ON, PresentationMode.AUDIO_ON)
 
                 assertThat(presentationModes).isNotNull()
                 assertThat(presentationModes?.hasPresentationMode(PresentationMode.VISUALS_ON))
                     .isTrue()
                 assertThat(presentationModes?.hasPresentationMode(PresentationMode.AUDIO_ON))
                     .isTrue()
-                removeEngagementModeService()
             }
         }
-    }
 
     @OptIn(ExperimentalCoroutinesApi::class, ExperimentalProjectedApi::class)
     @Test
@@ -203,7 +167,6 @@ class ProjectedDisplayControllerTest {
             val dispatcher = UnconfinedTestDispatcher()
             Dispatchers.setMain(dispatcher)
             runBlocking {
-                val mockEngagementModeService = setUpEngagementModeService()
                 projectedDisplayController =
                     ProjectedDisplayController.create(projectedDeviceActivity)
 
@@ -225,11 +188,8 @@ class ProjectedDisplayControllerTest {
                 projectedDisplayController.addPresentationModeChangedListener(listener = listener2)
 
                 // Trigger the callback.
-                val callbackCaptor = argumentCaptor<IEngagementModeCallback>()
-                verify(mockEngagementModeService).registerCallback(callbackCaptor.capture())
-                callbackCaptor.firstValue.onEngagementModeChanged(
-                    EngagementModeClient.ENGAGEMENT_MODE_FLAG_VISUALS_ON
-                )
+                projectedTestRule.presentationModeFlags =
+                    setOf(PresentationMode.VISUALS_ON, PresentationMode.AUDIO_ON)
 
                 // Verify that both listeners were called once.
                 assertThat(callCount1).isEqualTo(1)
@@ -249,7 +209,7 @@ class ProjectedDisplayControllerTest {
                 projectedDisplayController.removePresentationModeChangedListener(listener2)
 
                 // Trigger another callback.
-                callbackCaptor.firstValue.onEngagementModeChanged(0)
+                projectedTestRule.presentationModeFlags = setOf(PresentationMode.AUDIO_ON)
 
                 // Verify that only the first listener was called again
                 assertThat(callCount1).isEqualTo(2)
@@ -264,42 +224,8 @@ class ProjectedDisplayControllerTest {
                     .isTrue()
                 assertThat(presentationModes1?.hasPresentationMode(PresentationMode.AUDIO_ON))
                     .isTrue()
-                removeEngagementModeService()
             }
         }
-    }
-
-    private fun setUpEngagementModeService(): IEngagementModeService {
-        val mockEngagementModeService = mock<IEngagementModeService>()
-        val mockEngagementModeServiceStub =
-            mock<IEngagementModeService.Stub> {
-                on { queryLocalInterface(any()) }.thenReturn(mockEngagementModeService)
-            }
-        shadowOf(context.packageManager).apply {
-            addServiceIfNotPresent(ENGAGEMENT_MODE_SERVICE_COMPONENT)
-            addOrUpdateService(
-                ServiceInfo().apply {
-                    packageName = SYSTEM_PACKAGE_NAME
-                    name = ENGAGEMENT_MODE_SYSTEM_CLASS_NAME
-                }
-            )
-            addIntentFilterForService(
-                ENGAGEMENT_MODE_SERVICE_COMPONENT,
-                IntentFilter(EngagementModeClient.SERVICE_ACTION),
-            )
-        }
-        shadowOf(context).apply {
-            setComponentNameAndServiceForBindService(
-                ENGAGEMENT_MODE_SERVICE_COMPONENT,
-                mockEngagementModeServiceStub,
-            )
-            setBindServiceCallsOnServiceConnectedDirectly(true)
-        }
-        return mockEngagementModeService
-    }
-
-    private fun removeEngagementModeService() {
-        shadowOf(context.packageManager).apply { removeService(ENGAGEMENT_MODE_SERVICE_COMPONENT) }
     }
 
     private fun launchTestActivity(block: (Activity) -> Unit) {
@@ -313,14 +239,6 @@ class ProjectedDisplayControllerTest {
         val activityScenario: ActivityScenario<TestActivity> =
             ActivityScenario.launch(Intent(context, TestActivity::class.java))
         activityScenario.onActivity { activity -> block(activity) }
-    }
-
-    companion object {
-        private const val SYSTEM_PACKAGE_NAME = "com.system.service"
-        private const val ENGAGEMENT_MODE_SYSTEM_CLASS_NAME =
-            "com.system.service.EngagementModeService"
-        private val ENGAGEMENT_MODE_SERVICE_COMPONENT =
-            ComponentName(SYSTEM_PACKAGE_NAME, ENGAGEMENT_MODE_SYSTEM_CLASS_NAME)
     }
 }
 

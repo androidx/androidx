@@ -46,10 +46,10 @@
             </style>
         
 **RemoteCompose Wire Format v1.1.0**
-    January 23, 2026
+    January 28, 2026
 
 
-*Current number of operations: 136 (0 not fully documented)*
+*Current number of operations: 137 (0 not fully documented)*
 
 
 !!! ERROR
@@ -348,7 +348,8 @@ RowLayout               | Layout elements in a row
 ColumnLayout            | Layout elements in a column
 CollapsibleRowLayout    | as RowLayout, but skip elements that don't fit
 CollapsibleColumnLayout | as ColumnLayout, but skip elements that don't fit
-LazyRow/Column           | on demand list layout
+FitBoxLayout		| pick the first child that fits
+FlowLayout              | as RowLayout, but wrap elements if they don't fit
 
 ### Scroll areas
 
@@ -979,7 +980,7 @@ Operations in this category:
     | 167 | BitmapFontData | 29 
     | 170 | TextMeasure | 13 
     | 182 | TextSubtext | 17 
-    | 183 | BitmapTextMeasure | 17 
+    | 183 | BitmapTextMeasure | 21 
     | 184 | DrawBitmapTextAnchored | 33 
     | 199 | TextTransform | 21 
     | 208 | TextLayout | 45 
@@ -1206,7 +1207,7 @@ Extract a substring from a source string
 ## BitmapTextMeasure
 Measure text dimensions specifically for bitmap fonts
 
-4 Fields, total size 17 bytes
+5 Fields, total size 21 bytes
     | Type | Name | Description |
     | ---- | ---- | ---- |
     | BYTE | BitmapTextMeasure | Value: 183 
@@ -1214,6 +1215,7 @@ Measure text dimensions specifically for bitmap fonts
     | INT | textId | The ID of the text to measure 
     | INT | bitmapFontId | The ID of the bitmap font 
     | INT | type | The type of measurement (WIDTH, HEIGHT, etc.) 
+    | FLOAT | glyphSpacing | Horizontal spacing adjustment between glyphs in pixels 
 ## DrawBitmapTextAnchored
 Draw bitmap font text anchored to a point with alignment (pan)
 
@@ -1307,7 +1309,7 @@ Operations in this category:
     | ID | Name | Size (bytes) 
     | ---- | ---- | ---- |
     | 2 | ComponentStart | 17 
-    | 176 | BoxLayout | 17 
+    | 176 | FitBoxLayout | 17 
     | 200 | RootLayout | 5 
     | 201 | LayoutContent | 5 
     | 202 | BoxLayout | 17 
@@ -1322,6 +1324,7 @@ Operations in this category:
     | 230 | CollapsibleRow | 21 
     | 233 | CollapsibleColumn | 21 
     | 234 | ImageLayout | 21 
+    | 240 | FlowLayout | 21 
 ## ComponentStart
 Basic component encapsulating draw commands. This is not resizable.
 
@@ -1333,7 +1336,7 @@ Basic component encapsulating draw commands. This is not resizable.
     | INT | componentId | Unique ID for this component 
     | FLOAT | width | Width of the component 
     | FLOAT | height | Height of the component 
-## BoxLayout
+## FitBoxLayout
 FitBox layout implementation.
 
 Only displays the first child component that fits in the available space.
@@ -1341,7 +1344,7 @@ Only displays the first child component that fits in the available space.
 4 Fields, total size 17 bytes
     | Type | Name | Description |
     | ---- | ---- | ---- |
-    | BYTE | BoxLayout | Value: 176 
+    | BYTE | FitBoxLayout | Value: 176 
     | INT | componentId | Unique ID for this component 
     | INT | animationId | ID used to match components for animation purposes 
     | INT | horizontalPositioning | Horizontal positioning value 
@@ -1702,6 +1705,33 @@ Image layout implementation
     | INT | bitmapId | The ID of the bitmap to display 
     | INT | scaleType | The scale type to apply 
     | FLOAT | alpha | The alpha transparency [0..1] 
+## FlowLayout
+Flow layout implementation. Positions components one after the other horizontally and wraps to the next line if space is exhausted.
+
+5 Fields, total size 21 bytes
+    | Type | Name | Description |
+    | ---- | ---- | ---- |
+    | BYTE | FlowLayout | Value: 240 
+    | INT | componentId | Unique ID for this component 
+    | INT | animationId | ID for animation purposes 
+    | INT | horizontalPositioning | Horizontal positioning value 
+    | INT | verticalPositioning | Vertical positioning value 
+    | FLOAT | spacedBy | Horizontal spacing between components 
+### horizontalPositioning
+    | Name | Value |
+    | ---- | ---- |
+    | START | 1 
+    | CENTER | 2 
+    | END | 3 
+    | SPACE_BETWEEN | 6 
+    | SPACE_EVENLY | 7 
+    | SPACE_AROUND | 8 
+### verticalPositioning
+    | Name | Value |
+    | ---- | ---- |
+    | TOP | 4 
+    | CENTER | 2 
+    | BOTTOM | 5 
 # Modifier Operations
 Augmentations applied to components to change their dimensions, appearance, or behavior.
 

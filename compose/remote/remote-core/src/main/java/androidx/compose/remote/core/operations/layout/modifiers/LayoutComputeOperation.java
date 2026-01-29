@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
@@ -189,7 +190,7 @@ public class LayoutComputeOperation extends Operation
                 .description("Compute component position and measure via dynamic expressions")
                 .field(INT, "type", "Type of computation (0=MEASURE, 1=POSITION)")
                 .field(INT, "boundsId", "The ID of the float list variable to store the bounds")
-                .field(androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN,
+                .field(BOOLEAN,
                         "animateChanges", "Whether to animate layout changes");
     }
 

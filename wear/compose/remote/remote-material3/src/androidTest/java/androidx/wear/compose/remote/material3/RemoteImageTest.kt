@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.state.rememberRemoteBitmap
 import androidx.compose.remote.creation.compose.state.rememberRemoteBitmapValue
 import androidx.compose.remote.creation.compose.state.rememberRemoteString
 import androidx.compose.remote.creation.compose.state.rf
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.ui.graphics.DefaultAlpha
@@ -50,16 +49,12 @@ import org.junit.runners.JUnit4
 class RemoteImageTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
-                moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-                targetPlayer = TargetPlayer.View,
-            )
-            .apply {
-                bitmapLoader = BitmapLoader {
-                    val resources = ApplicationProvider.getApplicationContext<Context>().resources
-                    resources.openRawResource(R.drawable.clear)
-                }
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY).apply {
+            bitmapLoader = BitmapLoader {
+                val resources = ApplicationProvider.getApplicationContext<Context>().resources
+                resources.openRawResource(R.drawable.clear)
             }
+        }
     private val context: Context = ApplicationProvider.getApplicationContext()
 
     @Test

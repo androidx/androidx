@@ -17,6 +17,8 @@
 <resources>
     <string name="app_name">Widget AX samples</string>
     <string name="hello_widget_label">AX Hello widget</string>
+    <string name="hello_widget_label_small">AX S Hello widget</string>
+    <string name="hello_widget_label_large">AX L Hello widget</string>
     <string name="hello_widget_description">AX Hello widget sample</string>
     <string name="hello">Hello Wear Widget!</string>
     <string name="material3_theme_widget_label">AX Material3 theme widget</string>

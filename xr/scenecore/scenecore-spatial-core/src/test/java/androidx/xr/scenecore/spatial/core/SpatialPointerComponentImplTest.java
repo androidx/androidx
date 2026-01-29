@@ -25,6 +25,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.PixelDimensions;
 import androidx.xr.scenecore.runtime.SceneRuntime;
@@ -60,6 +61,7 @@ public final class SpatialPointerComponentImplTest {
 
     @Before
     public void setUp() {
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(1);
         mRuntime =
                 SpatialSceneRuntime.create(
                         mActivity,
@@ -73,6 +75,7 @@ public final class SpatialPointerComponentImplTest {
     public void tearDown() {
         // Destroy the runtime between test cases to clean up lingering references.
         mRuntime.destroy();
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(null);
     }
 
     private PanelEntityImpl createTestPanelEntity() {

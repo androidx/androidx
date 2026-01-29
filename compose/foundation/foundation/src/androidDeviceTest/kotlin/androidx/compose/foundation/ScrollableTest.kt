@@ -4489,7 +4489,7 @@ internal class ScrollableContainerReaderNode(var hasScrollableBlock: (Boolean) -
 }
 
 internal class InspectGestureNodeElement(
-    val onDownEvent: (GestureCoordinator, PointerInputChange) -> Unit
+    val onDownEvent: (GestureConnection, PointerInputChange) -> Unit
 ) : ModifierNodeElement<InspectGestureNode>() {
     override fun create(): InspectGestureNode {
         return InspectGestureNode(onDownEvent)
@@ -4515,7 +4515,7 @@ internal class InspectGestureNodeElement(
 }
 
 internal class InspectGestureNode(
-    var onDownEvent: (GestureCoordinator, PointerInputChange) -> Unit
+    var onDownEvent: (GestureConnection, PointerInputChange) -> Unit
 ) : PointerInputModifierNode, DelegatingNode() {
 
     override fun onPointerEvent(
@@ -4527,7 +4527,7 @@ internal class InspectGestureNode(
             pass == PointerEventPass.Main &&
                 pointerEvent.changes.first().changedToDownIgnoreConsumed()
         ) {
-            parentGestureCoordinator?.let { onDownEvent(it, pointerEvent.changes.first()) }
+            parentGestureConnection?.let { onDownEvent(it, pointerEvent.changes.first()) }
         }
     }
 

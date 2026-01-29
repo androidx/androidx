@@ -51,6 +51,13 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".widget.ListRemoteViewActivity"
+            android:configChanges="uiMode"
+            android:exported="true"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar">
+        </activity>
+
         <receiver
             android:name=".widget.ListRCWidget"
             android:label="RC List"

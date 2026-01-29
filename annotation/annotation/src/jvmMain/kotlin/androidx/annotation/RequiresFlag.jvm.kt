@@ -35,7 +35,6 @@ package androidx.annotation
     AnnotationTarget.FIELD,
     AnnotationTarget.FILE,
 )
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // Flags are only supported internally for now.
 public annotation class RequiresFlag(
     /**
      * The string value for the aconfig flag used to guard the feature this API is part of, for

@@ -490,6 +490,8 @@ public fun WorkSpecDao.getWorkStatusPojoFlowForTag(
     tag: String,
 ): Flow<List<WorkInfo>> = getWorkStatusPojoFlowForTag(tag).dedup(dispatcher)
 
+public fun WorkSpecDao.getWorkInfo(id: String): WorkInfo? = getWorkStatusPojoForId(id)?.toWorkInfo()
+
 internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
     dispatcher: CoroutineDispatcher
 ): Flow<List<WorkInfo>> =

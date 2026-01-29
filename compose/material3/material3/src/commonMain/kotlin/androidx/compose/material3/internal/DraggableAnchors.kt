@@ -20,6 +20,8 @@ package androidx.compose.material3.internal
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.material3.ComposeMaterial3Flags.isAnchoredDraggableComponentsStrictOffsetCheckEnabled
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
@@ -109,6 +111,7 @@ private class DraggableAnchorsNode<T>(
         get() =
             requireLayoutDirection() == LayoutDirection.Rtl && orientation == Orientation.Horizontal
 
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -130,7 +133,20 @@ private class DraggableAnchorsNode<T>(
             val offset =
                 if (isLookingAhead) {
                     state.anchors.positionOf(state.targetValue)
-                } else state.requireOffset()
+                } else {
+                    state.offset
+                }
+
+            // By default, we want to be strict about cases with uninitialized offsets and throw an
+            // exception.
+            if (isAnchoredDraggableComponentsStrictOffsetCheckEnabled) {
+                checkOffsetIsValid(offset, isLookingAhead)
+            } else {
+                // For debugging purposes, we allow the offset to be uninitialized by disabling the
+                // flag. In that case, we don't place anything.
+                if (offset.isNaN()) return@layout
+            }
+
             val rtlModifier = if (isReverseDirection) -1f else 1f
             val xOffset = if (orientation == Orientation.Horizontal) offset * rtlModifier else 0f
             val yOffset = if (orientation == Orientation.Vertical) offset else 0f
@@ -144,6 +160,32 @@ private class DraggableAnchorsNode<T>(
             }
         }
     }
+
+    /**
+     * Require the [AnchoredDraggableState.offset] to be a valid float, or throw an exception with
+     * more information otherwise.
+     */
+    private fun checkOffsetIsValid(offset: Float, isLookingAhead: Boolean) {
+        if (offset.isNaN()) {
+            throw AnchoredDraggableUninitializedException(
+                isLookingAhead = isLookingAhead,
+                didLookahead = didLookahead,
+                anchors = state.anchors,
+                targetValue = state.targetValue,
+            )
+        }
+    }
+}
+
+private class AnchoredDraggableUninitializedException(
+    isLookingAhead: Boolean,
+    didLookahead: Boolean,
+    anchors: DraggableAnchors<*>,
+    targetValue: Any?,
+) : Throwable() {
+    override val message: String =
+        "AnchoredDraggableState was not initialized correctly. " +
+            "isLookingAhead=$isLookingAhead,didLookahead=$didLookahead,anchors=$anchors,targetValue=$targetValue"
 }
 
 internal const val ConfirmValueChangeDeprecated =

@@ -53,6 +53,7 @@ import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider;
 import androidx.xr.scenecore.runtime.ActivitySpace;
 import androidx.xr.scenecore.runtime.AnchorEntity;
 import androidx.xr.scenecore.runtime.AnchorEntity.State;
@@ -157,6 +158,7 @@ public class SpatialSceneRuntimeTest {
 
     @Before
     public void setUp() {
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(1);
         mActivity = Robolectric.buildActivity(Activity.class).create().start().get();
         mShadowContentResolver = shadowOf(mActivity.getContentResolver());
         mContentResolver = mActivity.getContentResolver();
@@ -172,6 +174,7 @@ public class SpatialSceneRuntimeTest {
         // Destroy the runtime between test cases to clean up lingering references.
         mRuntime.destroy();
         mRuntime = null;
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(null);
     }
 
     private GltfEntityImpl createGltfEntity() {

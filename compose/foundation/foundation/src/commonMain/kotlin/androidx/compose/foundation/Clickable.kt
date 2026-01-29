@@ -1238,7 +1238,7 @@ internal abstract class AbstractClickableNode(
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode,
     IndirectPointerInputModifierNode,
-    GestureCoordinator {
+    GestureConnection {
     protected var enabled = enabled
         private set
 
@@ -1822,7 +1822,7 @@ internal abstract class AbstractClickableNode(
     private fun delayPressInteraction(event: PointerInputChange?): Boolean {
         val hasInterestedParent =
             if (event == null) {
-                parentGestureCoordinator != null
+                parentGestureConnection != null
             } else {
                 hasInterestedParent(event)
             }
@@ -1920,7 +1920,7 @@ internal abstract class AbstractClickableNode(
 
 internal fun DelegatingNode.hasInterestedParent(event: IndirectPointerInputChange): Boolean {
     var hasInterestedParent = false
-    traverseAncestorGestureCoordinators { coordinator ->
+    traverseAncestorGestureConnections { coordinator ->
         val isCoordinatorInterested = coordinator.isInterested(event)
         hasInterestedParent = hasInterestedParent || isCoordinatorInterested
         !hasInterestedParent
@@ -1930,7 +1930,7 @@ internal fun DelegatingNode.hasInterestedParent(event: IndirectPointerInputChang
 
 internal fun DelegatingNode.hasInterestedParent(event: PointerInputChange): Boolean {
     var hasInterestedParent = false
-    traverseAncestorGestureCoordinators { coordinator ->
+    traverseAncestorGestureConnections { coordinator ->
         val isCoordinatorInterested = coordinator.isInterested(event)
         hasInterestedParent = hasInterestedParent || isCoordinatorInterested
         !hasInterestedParent

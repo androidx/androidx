@@ -18,6 +18,7 @@ package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
 import androidx.compose.foundation.layout.internal.JvmDefaultWithCompatibility
+import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -1859,24 +1860,28 @@ sealed interface FlexConfigScope : Density {
     /**
      * The flex grow factor.
      *
-     * When positive, the item grows to absorb free space along the main axis. Growth is
-     * proportional to this value relative to siblings' grow factors.
+     * This value determines how much the item will grow relative to the rest of the flexible items
+     * to absorb free space along the main axis.
+     *
+     * The value must be non-negative.
      *
      * **Note:** Items will grow even with explicit size constraints. Set `grow = 0f` to prevent
      * growth.
      */
-    var grow: Float
+    @get:FloatRange(from = 0.0) @setparam:FloatRange(from = 0.0) var grow: Float
 
     /**
      * The flex shrink factor.
      *
-     * When positive, the item can shrink if items exceed the container's main axis size. Shrinking
-     * is proportional to this value and the item's base size.
+     * This value determines how much the item will shrink relative to the rest of the flexible
+     * items when there is insufficient space along the main axis.
+     *
+     * The value must be non-negative.
      *
      * **Note:** Items will not shrink below their minimum intrinsic size. Items with explicit size
      * modifiers will not shrink at all.
      */
-    var shrink: Float
+    @get:FloatRange(from = 0.0) @setparam:FloatRange(from = 0.0) var shrink: Float
 
     /** The initial main size of this item before flex distribution. */
     var basis: FlexBasis
@@ -1929,8 +1934,16 @@ internal class ResolvedFlexItemInfo : FlexConfigScope {
     override var order: Int = 0
 
     override var grow: Float = 0f
+        set(value) {
+            requirePrecondition(value >= 0f) { "Flex grow cannot be negative: $value" }
+            field = value
+        }
 
     override var shrink: Float = 1f
+        set(value) {
+            requirePrecondition(value >= 0f) { "Flex shrink cannot be negative: $value" }
+            field = value
+        }
 
     override var basis: FlexBasis = FlexBasis.Auto
 

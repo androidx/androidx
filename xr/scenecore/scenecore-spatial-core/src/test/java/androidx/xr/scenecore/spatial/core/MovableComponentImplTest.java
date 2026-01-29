@@ -45,6 +45,7 @@ import androidx.xr.runtime.math.Matrix4;
 import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector3;
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider;
 import androidx.xr.scenecore.runtime.AnchorPlacement;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.Entity;
@@ -122,6 +123,7 @@ public class MovableComponentImplTest {
 
     @Before
     public void setUp() {
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(1);
         mFakeRuntime =
                 SpatialSceneRuntime.create(
                         mActivity,
@@ -137,6 +139,7 @@ public class MovableComponentImplTest {
     public void tearDown() {
         // Destroy the runtime between test cases to clean up lingering references.
         mFakeRuntime.destroy();
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(null);
     }
 
     private Entity createTestEntity() {

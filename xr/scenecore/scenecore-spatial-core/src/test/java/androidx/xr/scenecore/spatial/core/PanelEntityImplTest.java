@@ -32,6 +32,7 @@ import androidx.xr.runtime.math.Pose;
 import androidx.xr.runtime.math.Quaternion;
 import androidx.xr.runtime.math.Vector2;
 import androidx.xr.runtime.math.Vector3;
+import androidx.xr.runtime.testing.FakeSpatialApiVersionProvider;
 import androidx.xr.scenecore.runtime.Dimensions;
 import androidx.xr.scenecore.runtime.PerceivedResolutionResult;
 import androidx.xr.scenecore.runtime.PixelDimensions;
@@ -79,6 +80,7 @@ public class PanelEntityImplTest {
         String widthAndHeightConfig =
                 "+w" + mViewPlaneResolution.width + "dp-h" + mViewPlaneResolution.height + "dp";
         RuntimeEnvironment.setQualifiers(widthAndHeightConfig);
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(1);
         mRuntime =
                 SpatialSceneRuntime.create(
                         mActivity,
@@ -102,6 +104,7 @@ public class PanelEntityImplTest {
         // Destroy the runtime between test cases to clean up lingering references.
         mRuntime.destroy();
         mEntityManager.clear();
+        FakeSpatialApiVersionProvider.Companion.setTestSpatialApiVersion(null);
     }
 
     private PanelEntityImpl createPanelEntity(Dimensions surfaceDimensionsPx) {

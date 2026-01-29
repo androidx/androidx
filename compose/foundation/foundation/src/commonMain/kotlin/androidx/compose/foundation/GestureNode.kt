@@ -25,64 +25,66 @@ import androidx.compose.ui.node.findNearestAncestor
 import androidx.compose.ui.node.traverseAncestors
 
 /**
- * Creates a [DelegatableNode] that attaches [gestureCoordinator] to allow high level gesture
- * coordination. A [gestureCoordinator] can be used by nodes that perform input handling (e.g. use
+ * Creates a [DelegatableNode] that attaches [gestureConnection] to allow high level gesture
+ * coordination. A [gestureConnection] can be used by nodes that perform input handling (e.g. use
  * [androidx.compose.ui.node.PointerInputModifierNode] to allow further communication between
  * complex high level gestures.
  *
- * @param gestureCoordinator The [GestureCoordinator] to attach to the nodes tree.
+ * @param gestureConnection The [GestureConnection] to attach to the nodes tree.
  */
-internal fun gestureNode(gestureCoordinator: GestureCoordinator): DelegatableNode =
-    GestureNode(gestureCoordinator)
+internal fun gestureNode(gestureConnection: GestureConnection): DelegatableNode =
+    GestureNode(gestureConnection)
 
-/** Allows high level gesture coordination between nodes that perform input handling. */
-internal interface GestureCoordinator {
+/**
+ * Allows high level gesture coordination between gesture handlers (e.g. clicks, drags, scrolls).
+ */
+internal interface GestureConnection {
     /**
-     * Allows this node to demonstrate interest over a pointer event change. Interest signals that a
-     * node is interested in this event, and it needs additional information (e.g. time or more
-     * events) in order to decide if it will consume it. At a given moment in a node's gesture
-     * recognition process they can query their parent or children to see if they're also interested
-     * in this specific change. If so they can decide to give priority to the other node in the
+     * Allows this connection to demonstrate interest over a pointer event change. Interest signals
+     * that a connection is interested in this event, and it needs additional information (e.g. time
+     * or more events) in order to decide if it will consume it. At a given moment in a gesture
+     * handler recognition process they can query their parent to see if they're also interested in
+     * this specific change. If so they can decide to give priority to the other gestures in the
      * chain.
      *
-     * @param event The [PointerInputChange] this node will react to.
+     * @param event The [PointerInputChange] this connection will react to.
      */
     fun isInterested(event: PointerInputChange): Boolean = false
 
     /**
-     * Allows this node to demonstrate interest over an indirect pointer event change. Interest
-     * signals that a node is interested in this event, and it needs additional information (e.g.
-     * time or more events) in order to decide if it will consume it. At a given moment in a node's
-     * gesture recognition process they can query their parent or children to see if they're also
-     * interested in this specific change. If so they can decide to give priority to the other node
-     * in the chain.
+     * Allows this connection to demonstrate interest over an indirect pointer event change.
+     * Interest signals that a connection is interested in this event, and it needs additional
+     * information (e.g. time or more events) in order to decide if it will consume it. At a given
+     * moment in a gesture handler recognition process they can query their parent to see if they're
+     * also interested in this specific change. If so they can decide to give priority to the other
+     * gestures in the chain.
      *
-     * @param event The [IndirectPointerInputChange] this node will react to.
+     * @param event The [IndirectPointerInputChange] this connection will react to.
      */
     fun isInterested(event: IndirectPointerInputChange): Boolean = false
 }
 
-/** Searches the tree for a parent [GestureCoordinator]. Returns null if there isn't one. */
-internal val DelegatableNode.parentGestureCoordinator: GestureCoordinator?
-    get() = (findNearestAncestor(GestureNode.TraverseKey) as? GestureNode)?.gestureCoordinator
+/** Searches the tree for a parent [GestureConnection]. Returns null if there isn't one. */
+internal val DelegatableNode.parentGestureConnection: GestureConnection?
+    get() = (findNearestAncestor(GestureNode.TraverseKey) as? GestureNode)?.gestureConnection
 
 /**
- * Executes [block] for all ancestors with registered gesture coordinators.
+ * Executes [block] for all ancestors with a registered [GestureConnection].
  *
  * Note: The parameter [block]'s return boolean value will determine if the traversal will continue
  * (true = continue, false = cancel).
  */
-internal fun DelegatableNode.traverseAncestorGestureCoordinators(
-    block: (GestureCoordinator) -> Boolean
+internal fun DelegatableNode.traverseAncestorGestureConnections(
+    block: (GestureConnection) -> Boolean
 ) {
     traverseAncestors(GestureNode.TraverseKey) { node ->
         check(node is GestureNode) { "Node is not a GestureNode instance" }
-        block(node.gestureCoordinator)
+        block(node.gestureConnection)
     }
 }
 
 /** Represents a Node that interprets and process gesture data. */
-private class GestureNode(val gestureCoordinator: GestureCoordinator) :
+private class GestureNode(val gestureConnection: GestureConnection) :
     TraversableNode, DelegatableNode, Modifier.Node() {
     override val traverseKey: Any
         get() = TraverseKey
