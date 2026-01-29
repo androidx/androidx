@@ -83,7 +83,7 @@ class BottomNavSceneStrategy<T : Any>() : SceneStrategy<T> {
         return null
     }
 
-    override fun SceneStrategyScope<T>.calculateScene(scene: Scene<T>): Scene<T> {
+    override fun SceneStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T> {
         // If the scene provides metadata for a bottom nav display it.
         if (scene.metadata.containsKey(NAV_BAR)) {
             return BottomNavScene(scene)

@@ -72,6 +72,30 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
         require(key !in providers) {
             "An `entry` with the key `key` has already been added: ${key}."
         }
+        providers[key] = EntryProvider(key, contentKey, { metadata }, content)
+    }
+
+    /**
+     * Builds a [NavEntry] for the given [key] that displays [content].
+     *
+     * @param K the type of the key for this NavEntry
+     * @param key key for this entry
+     * @param contentKey A unique, stable id that uniquely identifies the content of this NavEntry.
+     *   To maximize stability, it should be derived from the [key]. The contentKey type must be
+     *   saveable (i.e. on Android, it should be saveable via Android). Defaults to
+     *   [key].toString().
+     * @param metadata lambda that takes the [key] and provides a map of additional info
+     * @param content content for this entry to be displayed when this entry is active
+     */
+    public fun <K : T> addEntryProvider(
+        key: K,
+        @Suppress("KotlinDefaultParameterOrder") contentKey: Any = defaultContentKey(key),
+        metadata: (K) -> Map<String, Any>,
+        content: @Composable (K) -> Unit,
+    ) {
+        require(key !in providers) {
+            "An `entry` with the key `key` has already been added: ${key}."
+        }
         providers[key] = EntryProvider(key, contentKey, metadata, content)
     }
 
@@ -91,6 +115,27 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
         key: K,
         contentKey: Any = defaultContentKey(key),
         metadata: Map<String, Any> = emptyMap(),
+        content: @Composable (K) -> Unit,
+    ) {
+        addEntryProvider(key, contentKey, { metadata }, content)
+    }
+
+    /**
+     * Add an entry provider to the [EntryProviderScope]
+     *
+     * @param K the type of the key for this NavEntry
+     * @param key key for this entry
+     * @param contentKey A unique, stable id that uniquely identifies the content of this NavEntry.
+     *   To maximize stability, it should be derived from the [key]. The contentKey type must be
+     *   saveable (i.e. on Android, it should be saveable via Android). Defaults to
+     *   [key].toString().
+     * @param metadata lambda that takes the [key] and provides a map of additional info
+     * @param content content for this entry to be displayed when this entry is active
+     */
+    public fun <K : T> EntryProviderScope<T>.entry(
+        key: K,
+        @Suppress("KotlinDefaultParameterOrder") contentKey: Any = defaultContentKey(key),
+        metadata: (K) -> Map<String, Any>,
         content: @Composable (K) -> Unit,
     ) {
         addEntryProvider(key, contentKey, metadata, content)
@@ -117,6 +162,31 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
         require(clazz !in clazzProviders) {
             "An `entry` with the same `clazz` has already been added: ${clazz.simpleName}."
         }
+        clazzProviders[clazz] = EntryClassProvider(clazz, clazzContentKey, { metadata }, content)
+    }
+
+    /**
+     * Builds a [NavEntry] for the given [clazz] that displays [content].
+     *
+     * @param K the type of the key for this NavEntry
+     * @param clazz the KClass<T> of the key for this NavEntry
+     * @param clazzContentKey A factory of unique, stable ids that uniquely identifies the content
+     *   of this NavEntry. To maximize stability, it should be derived from the factory's provided
+     *   key. The resulting key must be saveable (i.e. on Android, it should be saveable via
+     *   Android). The generated key will be stored in [NavEntry.contentKey].
+     * @param metadata lambda that takes the key and provides a map of additional info
+     * @param content content for this entry to be displayed when this entry is active
+     */
+    public fun <K : T> addEntryProvider(
+        clazz: KClass<out K>,
+        @Suppress("KotlinDefaultParameterOrder")
+        clazzContentKey: (key: @JvmSuppressWildcards K) -> Any = { defaultContentKey(it) },
+        metadata: (K) -> Map<String, Any>,
+        content: @Composable (K) -> Unit,
+    ) {
+        require(clazz !in clazzProviders) {
+            "An `entry` with the same `clazz` has already been added: ${clazz.simpleName}."
+        }
         clazzProviders[clazz] = EntryClassProvider(clazz, clazzContentKey, metadata, content)
     }
 
@@ -136,6 +206,26 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
         metadata: Map<String, Any> = emptyMap(),
         noinline content: @Composable (K) -> Unit,
     ) {
+        addEntryProvider(K::class, clazzContentKey, { metadata }, content)
+    }
+
+    /**
+     * Add an entry provider to the [EntryProviderScope]
+     *
+     * @param K the type of the key for this NavEntry
+     * @param clazzContentKey A factory of unique, stable ids that uniquely identifies the content
+     *   of this NavEntry. To maximize stability, it should be derived from the factory's provided
+     *   key. The resulting key must be saveable (i.e. on Android, it should be saveable via
+     *   Android). The generated key will be stored in [NavEntry.contentKey].
+     * @param metadata lambda that takes the key and provides a map of additional info
+     * @param content content for this entry to be displayed when this entry is active
+     */
+    public inline fun <reified K : T> entry(
+        @Suppress("KotlinDefaultParameterOrder")
+        noinline clazzContentKey: (key: @JvmSuppressWildcards K) -> Any = { defaultContentKey(it) },
+        noinline metadata: (K) -> Map<String, Any>,
+        noinline content: @Composable (K) -> Unit,
+    ) {
         addEntryProvider(K::class, clazzContentKey, metadata, content)
     }
 
@@ -147,8 +237,8 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
     internal fun build(): (T) -> NavEntry<T> = { key ->
         val entryClassProvider = clazzProviders[key::class] as? EntryClassProvider<T>
         val entryProvider = providers[key] as? EntryProvider<T>
-        entryClassProvider?.run { NavEntry(key, clazzContentKey(key), metadata, content) }
-            ?: entryProvider?.run { NavEntry(key, contentKey, metadata, content) }
+        entryClassProvider?.run { NavEntry(key, clazzContentKey(key), metadata(key), content) }
+            ?: entryProvider?.run { NavEntry(key, contentKey, metadata(key), content) }
             ?: fallback.invoke(key)
     }
 }
@@ -169,7 +259,7 @@ public class EntryProviderScope<T : Any>(private val fallback: (unknownScreen: T
 private data class EntryClassProvider<K : Any>(
     val clazz: KClass<K>,
     val clazzContentKey: (key: K) -> Any,
-    val metadata: Map<String, Any>,
+    val metadata: (K) -> Map<String, Any>,
     val content: @Composable (K) -> Unit,
 )
 
@@ -188,6 +278,6 @@ private data class EntryClassProvider<K : Any>(
 private data class EntryProvider<K : Any>(
     val key: K,
     val contentKey: Any,
-    val metadata: Map<String, Any>,
+    val metadata: (K) -> Map<String, Any>,
     val content: @Composable (K) -> Unit,
 )

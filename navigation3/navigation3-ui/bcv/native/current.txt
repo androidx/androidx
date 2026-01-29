@@ -8,7 +8,7 @@
 // Library unique name: <androidx.navigation3:navigation3-ui>
 abstract fun interface <#A: kotlin/Any> androidx.navigation3.scene/SceneStrategy { // androidx.navigation3.scene/SceneStrategy|null[0]
     abstract fun (androidx.navigation3.scene/SceneStrategyScope<#A>).calculateScene(kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>>): androidx.navigation3.scene/Scene<#A>? // androidx.navigation3.scene/SceneStrategy.calculateScene|calculateScene@androidx.navigation3.scene.SceneStrategyScope<1:0>(kotlin.collections.List<androidx.navigation3.runtime.NavEntry<1:0>>){}[0]
-    open fun (androidx.navigation3.scene/SceneStrategyScope<#A>).calculateScene(androidx.navigation3.scene/Scene<#A>): androidx.navigation3.scene/Scene<#A> // androidx.navigation3.scene/SceneStrategy.calculateScene|calculateScene@androidx.navigation3.scene.SceneStrategyScope<1:0>(androidx.navigation3.scene.Scene<1:0>){}[0]
+    open fun (androidx.navigation3.scene/SceneStrategyScope<#A>).decorateScene(androidx.navigation3.scene/Scene<#A>): androidx.navigation3.scene/Scene<#A> // androidx.navigation3.scene/SceneStrategy.decorateScene|decorateScene@androidx.navigation3.scene.SceneStrategyScope<1:0>(androidx.navigation3.scene.Scene<1:0>){}[0]
     open fun then(androidx.navigation3.scene/SceneStrategy<#A>): androidx.navigation3.scene/SceneStrategy<#A> // androidx.navigation3.scene/SceneStrategy.then|then(androidx.navigation3.scene.SceneStrategy<1:0>){}[0]
 }
 

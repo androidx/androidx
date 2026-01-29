@@ -24,10 +24,12 @@ import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,15 +47,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.DeviceConfigurationOverride
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
+import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.scene.usecases.ListDetailScene
+import androidx.navigation3.scene.usecases.rememberListDetailSceneStrategy
 import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
 import androidx.navigationevent.NavigationEvent
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -623,8 +631,9 @@ class NavDisplayScreenshotTest {
             NavDisplay(
                 backStack,
                 popTransitionSpec = {
-                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
-                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                    // both slides down
+                    slideInVertically(tween(duration)) { -it / 2 } togetherWith
+                        slideOutVertically(tween(duration)) { it / 2 }
                 },
                 sceneStrategy = TestTwoPaneSceneStrategy(),
                 modifier = Modifier.testTag(navHostTag),
@@ -649,6 +658,7 @@ class NavDisplayScreenshotTest {
 
         composeTestRule.waitForIdle()
 
+        // outgoing scene should be on top of incoming scene
         composeTestRule
             .onNodeWithTag(navHostTag)
             .captureToImage()
@@ -1186,6 +1196,58 @@ class NavDisplayScreenshotTest {
             .onNodeWithTag(navHostTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "testSwapStack")
+    }
+
+    @Test
+    fun testSharedElementCorrectlyDisplayedOnPredictiveBack() {
+        lateinit var backPressedDispatcher: OnBackPressedDispatcher
+        lateinit var backStack: MutableList<Any>
+        composeTestRule.setContent {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(1280.dp, 800.dp))
+            ) {
+                backPressedDispatcher =
+                    LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+                backStack = remember { mutableStateListOf(first, second) }
+                SharedTransitionLayout {
+                    NavDisplay(
+                        backStack = backStack,
+                        onBack = { backStack.removeAt(backStack.lastIndex) },
+                        sharedTransitionScope = this,
+                        sceneStrategy = rememberListDetailSceneStrategy(),
+                        entryProvider =
+                            entryProvider {
+                                entry(first, metadata = ListDetailScene.listPane()) {
+                                    RedBox("first")
+                                }
+                                entry(second, metadata = ListDetailScene.detailPane()) {
+                                    BlueBox("second")
+                                }
+                            },
+                        modifier = Modifier.testTag(navHostTag),
+                    )
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            backPressedDispatcher.dispatchOnBackStarted(
+                BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+            )
+            backPressedDispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.1F, 0.1F, 0.2F, BackEvent.EDGE_LEFT)
+            )
+        }
+
+        composeTestRule.waitForIdle()
+
+        composeTestRule
+            .onNodeWithTag(navHostTag)
+            .captureToImage()
+            .assertAgainstGolden(
+                screenshotRule,
+                "testNavDisplayPredictiveBackSharedElementListDetail",
+            )
     }
 }
 
