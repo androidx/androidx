@@ -478,7 +478,7 @@ public final class androidx/compose/material3/ComposableSingletons$SearchBarKt {
 	public static final field INSTANCE Landroidx/compose/material3/ComposableSingletons$SearchBarKt;
 	public fun <init> ()V
 	public final fun getLambda$1165377840$material3 ()Lkotlin/jvm/functions/Function2;
-	public final fun getLambda$549402172$material3 ()Lkotlin/jvm/functions/Function2;
+	public final fun getLambda$1464724888$material3 ()Lkotlin/jvm/functions/Function2;
 }
 
 public final class androidx/compose/material3/ComposableSingletons$SegmentedButtonKt {
@@ -631,6 +631,14 @@ public abstract interface class androidx/compose/material3/DateRangePickerState 
 	public abstract fun setDisplayMode-vCnGnXg (I)V
 	public abstract fun setDisplayedMonthMillis (J)V
 	public abstract fun setSelection (Ljava/lang/Long;Ljava/lang/Long;)V
+}
+
+public final class androidx/compose/material3/DefaultTooltipCaretShape : androidx/compose/ui/graphics/Shape {
+	public static final field $stable I
+	public synthetic fun <init> (JILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun createOutline-Pq9zytI (JLandroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/unit/Density;)Landroidx/compose/ui/graphics/Outline;
+	public final fun getCaretSize-MYxV2XQ ()J
 }
 
 public final class androidx/compose/material3/DisplayMode {
@@ -1362,6 +1370,19 @@ public final class androidx/compose/material3/RangeSliderState$Companion {
 	public final fun Saver (Lkotlin/jvm/functions/Function0;Lkotlin/ranges/ClosedFloatingPointRange;)Landroidx/compose/runtime/saveable/Saver;
 }
 
+public final class androidx/compose/material3/RichTooltipColors {
+	public static final field $stable I
+	public synthetic fun <init> (JJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun copy-jRlVdoo (JJJJ)Landroidx/compose/material3/RichTooltipColors;
+	public static synthetic fun copy-jRlVdoo$default (Landroidx/compose/material3/RichTooltipColors;JJJJILjava/lang/Object;)Landroidx/compose/material3/RichTooltipColors;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getActionContentColor-0d7_KjU ()J
+	public final fun getContainerColor-0d7_KjU ()J
+	public final fun getContentColor-0d7_KjU ()J
+	public final fun getTitleContentColor-0d7_KjU ()J
+	public fun hashCode ()I
+}
+
 public final class androidx/compose/material3/RippleConfiguration {
 	public static final field $stable I
 	public synthetic fun <init> (JLandroidx/compose/material/ripple/RippleAlpha;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1399,6 +1420,7 @@ public final class androidx/compose/material3/ScaffoldKt {
 
 public final class androidx/compose/material3/SearchBarState$Companion {
 	public final fun Saver (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;)Landroidx/compose/runtime/saveable/Saver;
+	public final fun Saver (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/animation/core/AnimationSpec;)Landroidx/compose/runtime/saveable/Saver;
 }
 
 public final class androidx/compose/material3/SecureTextFieldKt {
@@ -2065,6 +2087,19 @@ public final class androidx/compose/material3/ToggleButtonColors {
 	public fun hashCode ()I
 }
 
+public final class androidx/compose/material3/TooltipAnchorPosition {
+	public static final field Companion Landroidx/compose/material3/TooltipAnchorPosition$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/material3/TooltipAnchorPosition;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
 public final class androidx/compose/material3/TooltipAnchorPosition$Companion {
 	public final fun getAbove-lOKsHw4 ()I
 	public final fun getBelow-lOKsHw4 ()I
@@ -2072,6 +2107,52 @@ public final class androidx/compose/material3/TooltipAnchorPosition$Companion {
 	public final fun getLeft-lOKsHw4 ()I
 	public final fun getRight-lOKsHw4 ()I
 	public final fun getStart-lOKsHw4 ()I
+}
+
+public final class androidx/compose/material3/TooltipDefaults {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material3/TooltipDefaults;
+	public final fun caretShape ()Landroidx/compose/material3/DefaultTooltipCaretShape;
+	public final fun caretShape-EaSLcWc (J)Landroidx/compose/ui/graphics/Shape;
+	public static synthetic fun caretShape-EaSLcWc$default (Landroidx/compose/material3/TooltipDefaults;JILjava/lang/Object;)Landroidx/compose/ui/graphics/Shape;
+	public final fun getCaretSize-MYxV2XQ ()J
+	public final fun getPlainTooltipContainerColor (Landroidx/compose/runtime/Composer;I)J
+	public final fun getPlainTooltipContainerShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun getPlainTooltipContentColor (Landroidx/compose/runtime/Composer;I)J
+	public final fun getPlainTooltipMaxWidth-D9Ej5fM ()F
+	public final fun getRichTooltipContainerShape (Landroidx/compose/runtime/Composer;I)Landroidx/compose/ui/graphics/Shape;
+	public final fun getRichTooltipMaxWidth-D9Ej5fM ()F
+	public final fun rememberPlainTooltipPositionProvider-kHDZbjc (FLandroidx/compose/runtime/Composer;II)Landroidx/compose/ui/window/PopupPositionProvider;
+	public final fun rememberRichTooltipPositionProvider-kHDZbjc (FLandroidx/compose/runtime/Composer;II)Landroidx/compose/ui/window/PopupPositionProvider;
+	public final fun rememberTooltipPositionProvider-Hu5FAss (IFLandroidx/compose/runtime/Composer;II)Landroidx/compose/ui/window/PopupPositionProvider;
+	public final fun rememberTooltipPositionProvider-kHDZbjc (FLandroidx/compose/runtime/Composer;II)Landroidx/compose/ui/window/PopupPositionProvider;
+	public final fun richTooltipColors (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/RichTooltipColors;
+	public final fun richTooltipColors-ro_MJ88 (JJJJLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/RichTooltipColors;
+}
+
+public final class androidx/compose/material3/TooltipKt {
+	public static final fun PlainTooltip-gv3ox5I (Landroidx/compose/material3/TooltipScope;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/graphics/Shape;FLandroidx/compose/ui/graphics/Shape;JJFFLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun RichTooltip-EkvW5A0 (Landroidx/compose/material3/TooltipScope;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Landroidx/compose/ui/graphics/Shape;FLandroidx/compose/ui/graphics/Shape;Landroidx/compose/material3/RichTooltipColors;FFLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;III)V
+	public static final fun TooltipBox (Landroidx/compose/ui/window/PopupPositionProvider;Lkotlin/jvm/functions/Function3;Landroidx/compose/material3/TooltipState;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;ZZZLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+	public static final fun TooltipState (ZZLandroidx/compose/foundation/MutatorMutex;)Landroidx/compose/material3/TooltipState;
+	public static synthetic fun TooltipState$default (ZZLandroidx/compose/foundation/MutatorMutex;ILjava/lang/Object;)Landroidx/compose/material3/TooltipState;
+	public static final fun rememberTooltipState (ZZLandroidx/compose/foundation/MutatorMutex;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/TooltipState;
+}
+
+public abstract interface class androidx/compose/material3/TooltipScope {
+	public abstract synthetic fun drawCaret (Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function2;)Landroidx/compose/ui/Modifier;
+	public abstract fun obtainAnchorBounds (Landroidx/compose/ui/layout/MeasureScope;)Landroidx/compose/ui/layout/LayoutCoordinates;
+	public abstract fun obtainPositionProvider ()Landroidx/compose/ui/window/PopupPositionProvider;
+}
+
+public abstract interface class androidx/compose/material3/TooltipState {
+	public abstract fun dismiss ()V
+	public abstract fun getTransition ()Landroidx/compose/animation/core/MutableTransitionState;
+	public abstract fun isPersistent ()Z
+	public abstract fun isVisible ()Z
+	public abstract fun onDispose ()V
+	public abstract fun show (Landroidx/compose/foundation/MutatePriority;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun show$default (Landroidx/compose/material3/TooltipState;Landroidx/compose/foundation/MutatePriority;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
 public final class androidx/compose/material3/TopAppBarColors {

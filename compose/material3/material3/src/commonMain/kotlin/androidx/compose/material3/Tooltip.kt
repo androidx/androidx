@@ -156,8 +156,8 @@ import kotlinx.coroutines.withTimeout
  * @param hasAction whether the associated tooltip contains an action.
  * @param content the composable that the tooltip will anchor to.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@ExperimentalMaterial3Api
 fun TooltipBox(
     positionProvider: PopupPositionProvider,
     tooltip: @Composable TooltipScope.() -> Unit,
@@ -257,7 +257,6 @@ fun TooltipBox(
  * Tooltip scope for [TooltipBox] to be used to obtain the [LayoutCoordinates] of the anchor
  * content, and to draw a caret for the tooltip.
  */
-@ExperimentalMaterial3Api
 sealed interface TooltipScope {
     /**
      * [Modifier] that is used to draw the caret for the tooltip. A [LayoutCoordinates] will be
@@ -314,7 +313,6 @@ internal class TooltipScopeImpl(
  * @param content the composable that will be used to populate the tooltip's content.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun TooltipScope.PlainTooltip(
     modifier: Modifier = Modifier,
     caretShape: (Shape)? = null,
@@ -397,7 +395,6 @@ fun TooltipScope.PlainTooltip(
  * @param text the composable that will be used to populate the rich tooltip's text.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun TooltipScope.RichTooltip(
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
@@ -485,7 +482,6 @@ fun TooltipScope.RichTooltip(
 }
 
 /** Tooltip defaults that contain default values for both [PlainTooltip] and [RichTooltip] */
-@ExperimentalMaterial3Api
 object TooltipDefaults {
     /** The default [Shape] for a [PlainTooltip]'s container. */
     val plainTooltipContainerShape: Shape
@@ -730,7 +726,6 @@ object TooltipDefaults {
 
 @Stable
 @Immutable
-@ExperimentalMaterial3Api
 class RichTooltipColors(
     val containerColor: Color,
     val contentColor: Color,
@@ -776,7 +771,6 @@ class RichTooltipColors(
 }
 
 @JvmInline
-@ExperimentalMaterial3Api
 value class TooltipAnchorPosition private constructor(private val value: Int) {
     override fun toString(): String {
         return when (this) {
@@ -824,7 +818,6 @@ value class TooltipAnchorPosition private constructor(private val value: Int) {
  *   the mutator mutex, only one will be shown on the screen at any time.
  */
 @Composable
-@ExperimentalMaterial3Api
 fun rememberTooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = false,
@@ -850,7 +843,6 @@ fun rememberTooltipState(
  * @param mutatorMutex [MutatorMutex] used to ensure that for all of the tooltips associated with
  *   the mutator mutex, only one will be shown on the screen at any time.
  */
-@ExperimentalMaterial3Api
 fun TooltipState(
     initialIsVisible: Boolean = false,
     isPersistent: Boolean = true,
@@ -1104,7 +1096,6 @@ private class TooltipStateImpl(
  * The state that is associated with a [TooltipBox]. Each instance of [TooltipBox] should have its
  * own [TooltipState].
  */
-@ExperimentalMaterial3Api
 interface TooltipState {
     /**
      * The current transition state of the tooltip. Used to start the transition of the tooltip when
@@ -1426,7 +1417,6 @@ private fun Modifier.layoutCaret(
         layout(width, height) { placeable.place(0, 0) }
     }
 
-@ExperimentalMaterial3Api
 /**
  * Default [Shape] of the caret used by tooltips.
  *

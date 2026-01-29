@@ -1127,15 +1127,18 @@ class ModalBottomSheetTest {
         rule.waitForIdle()
 
         assertThat(sheetState.isVisible).isTrue()
-        // animateTo with a non-existent targetValue will force currentValue to the targetValue
-        // (Expanded). TargetValue then returns to the nearest available anchor (Hidden).
+        // animateTo with a non-existent target will force currentValue to the targetValue
+        // (Expanded). This allows moving the sheet to an anchor that we anticipate will be
+        // available in the next composition/layout pass, meaning the sheet will
+        // reconcile to that anchor when the sheet is re-laid out.
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
-        assertThat(sheetState.targetValue).isEqualTo(SheetValue.Hidden)
+        assertThat(sheetState.targetValue).isEqualTo(SheetValue.Expanded)
         assertThat(sheetState.requireOffset()).isEqualTo(rule.rootHeightPx())
 
         hasSheetContent = true // Recompose with sheet content
         rule.waitForIdle()
         assertThat(sheetState.currentValue).isEqualTo(SheetValue.Expanded)
+        assertThat(sheetState.targetValue).isEqualTo(SheetValue.Expanded)
         assertThat(sheetState.requireOffset()).isWithin(1f).of(rule.rootHeightPx() * 0.6f)
     }
 

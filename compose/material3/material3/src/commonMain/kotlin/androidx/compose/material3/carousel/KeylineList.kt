@@ -358,9 +358,15 @@ private class KeylineListScopeImpl : KeylineListScope {
                         } else {
                             itemSpacing / 2f
                         }
+                    // Count the number of item spaces between the center of the viewport and the
+                    // first focal item. We then need to use this count to get a total item spacing
+                    // number to subtract for an accurate pivot offset.
+                    val itemSpaceCounts = (focalItemCount / 2) * itemSpacing
+
                     (carouselMainAxisSize / 2) -
                         ((focalItemSize / 2) * focalItemCount) -
-                        itemSpacingSplit
+                        itemSpacingSplit -
+                        itemSpaceCounts
                 }
                 CarouselAlignment.End -> carouselMainAxisSize - (focalItemSize / 2)
                 // Else covers and defaults to CarouselAlignment.Start

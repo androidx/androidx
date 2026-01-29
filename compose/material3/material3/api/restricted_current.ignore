@@ -1075,3 +1075,7 @@ RemovedMethod: androidx.compose.material3.pulltorefresh.PullToRefreshDefaults#In
     Binary breaking change: Removed method androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.IndicatorBox(androidx.compose.material3.pulltorefresh.PullToRefreshState,boolean,androidx.compose.ui.Modifier,float,androidx.compose.ui.graphics.Shape,long,float,kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>)
 RemovedMethod: androidx.compose.material3.pulltorefresh.PullToRefreshKt#pullToRefresh(androidx.compose.ui.Modifier, boolean, androidx.compose.material3.pulltorefresh.PullToRefreshState, boolean, float, kotlin.jvm.functions.Function0<kotlin.Unit>):
     Binary breaking change: Removed method androidx.compose.material3.pulltorefresh.PullToRefreshKt.pullToRefresh(androidx.compose.ui.Modifier,boolean,androidx.compose.material3.pulltorefresh.PullToRefreshState,boolean,float,kotlin.jvm.functions.Function0<kotlin.Unit>)
+
+
+RemovedProperty: androidx.compose.material3.AppBarMenuState#isExpanded:
+    Source breaking change: Removed property androidx.compose.material3.AppBarMenuState#isExpanded
