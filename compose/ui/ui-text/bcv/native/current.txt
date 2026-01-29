@@ -547,13 +547,10 @@ final class androidx.compose.ui.text.input/TransformedText { // androidx.compose
 }
 
 final class androidx.compose.ui.text.intl/Locale { // androidx.compose.ui.text.intl/Locale|null[0]
-    constructor <init>(androidx.compose.ui.text.intl/PlatformLocale) // androidx.compose.ui.text.intl/Locale.<init>|<init>(androidx.compose.ui.text.intl.PlatformLocale){}[0]
     constructor <init>(kotlin/String) // androidx.compose.ui.text.intl/Locale.<init>|<init>(kotlin.String){}[0]
 
     final val language // androidx.compose.ui.text.intl/Locale.language|{}language[0]
         final fun <get-language>(): kotlin/String // androidx.compose.ui.text.intl/Locale.language.<get-language>|<get-language>(){}[0]
-    final val platformLocale // androidx.compose.ui.text.intl/Locale.platformLocale|{}platformLocale[0]
-        final fun <get-platformLocale>(): androidx.compose.ui.text.intl/PlatformLocale // androidx.compose.ui.text.intl/Locale.platformLocale.<get-platformLocale>|<get-platformLocale>(){}[0]
     final val region // androidx.compose.ui.text.intl/Locale.region|{}region[0]
         final fun <get-region>(): kotlin/String // androidx.compose.ui.text.intl/Locale.region.<get-region>|<get-region>(){}[0]
     final val script // androidx.compose.ui.text.intl/Locale.script|{}script[0]
@@ -595,10 +592,6 @@ final class androidx.compose.ui.text.intl/LocaleList : kotlin.collections/Collec
         final val current // androidx.compose.ui.text.intl/LocaleList.Companion.current|{}current[0]
             final fun <get-current>(): androidx.compose.ui.text.intl/LocaleList // androidx.compose.ui.text.intl/LocaleList.Companion.current.<get-current>|<get-current>(){}[0]
     }
-}
-
-final class androidx.compose.ui.text.intl/PlatformLocale { // androidx.compose.ui.text.intl/PlatformLocale|null[0]
-    constructor <init>() // androidx.compose.ui.text.intl/PlatformLocale.<init>|<init>(){}[0]
 }
 
 final class androidx.compose.ui.text.style/LineHeightStyle { // androidx.compose.ui.text.style/LineHeightStyle|null[0]
@@ -1761,7 +1754,6 @@ final val androidx.compose.ui.text.input/androidx_compose_ui_text_input_TextInpu
 final val androidx.compose.ui.text.input/androidx_compose_ui_text_input_TransformedText$stableprop // androidx.compose.ui.text.input/androidx_compose_ui_text_input_TransformedText$stableprop|#static{}androidx_compose_ui_text_input_TransformedText$stableprop[0]
 final val androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_Locale$stableprop // androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_Locale$stableprop|#static{}androidx_compose_ui_text_intl_Locale$stableprop[0]
 final val androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_LocaleList$stableprop // androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_LocaleList$stableprop|#static{}androidx_compose_ui_text_intl_LocaleList$stableprop[0]
-final val androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_PlatformLocale$stableprop // androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_PlatformLocale$stableprop|#static{}androidx_compose_ui_text_intl_PlatformLocale$stableprop[0]
 final val androidx.compose.ui.text.style/androidx_compose_ui_text_style_LineHeightStyle$stableprop // androidx.compose.ui.text.style/androidx_compose_ui_text_style_LineHeightStyle$stableprop|#static{}androidx_compose_ui_text_style_LineHeightStyle$stableprop[0]
 final val androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextDecoration$stableprop // androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextDecoration$stableprop|#static{}androidx_compose_ui_text_style_TextDecoration$stableprop[0]
 final val androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextForegroundStyle_Unspecified$stableprop // androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextForegroundStyle_Unspecified$stableprop|#static{}androidx_compose_ui_text_style_TextForegroundStyle_Unspecified$stableprop[0]
@@ -1783,6 +1775,7 @@ final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Buil
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop|#static{}androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop|#static{}androidx_compose_ui_text_AnnotatedString_Range$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop|#static{}androidx_compose_ui_text_Bullet$stableprop[0]
+final val androidx.compose.ui.text/androidx_compose_ui_text_ComposeUiTextFlags$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_ComposeUiTextFlags$stableprop|#static{}androidx_compose_ui_text_ComposeUiTextFlags$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop|#static{}androidx_compose_ui_text_LinkAnnotation$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Clickable$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Clickable$stableprop|#static{}androidx_compose_ui_text_LinkAnnotation_Clickable$stableprop[0]
 final val androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Url$stableprop // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Url$stableprop|#static{}androidx_compose_ui_text_LinkAnnotation_Url$stableprop[0]
@@ -1866,7 +1859,6 @@ final fun androidx.compose.ui.text.input/androidx_compose_ui_text_input_TextInpu
 final fun androidx.compose.ui.text.input/androidx_compose_ui_text_input_TransformedText$stableprop_getter(): kotlin/Int // androidx.compose.ui.text.input/androidx_compose_ui_text_input_TransformedText$stableprop_getter|androidx_compose_ui_text_input_TransformedText$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_Locale$stableprop_getter(): kotlin/Int // androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_Locale$stableprop_getter|androidx_compose_ui_text_intl_Locale$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_LocaleList$stableprop_getter(): kotlin/Int // androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_LocaleList$stableprop_getter|androidx_compose_ui_text_intl_LocaleList$stableprop_getter(){}[0]
-final fun androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_PlatformLocale$stableprop_getter(): kotlin/Int // androidx.compose.ui.text.intl/androidx_compose_ui_text_intl_PlatformLocale$stableprop_getter|androidx_compose_ui_text_intl_PlatformLocale$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text.style/androidx_compose_ui_text_style_LineHeightStyle$stableprop_getter(): kotlin/Int // androidx.compose.ui.text.style/androidx_compose_ui_text_style_LineHeightStyle$stableprop_getter|androidx_compose_ui_text_style_LineHeightStyle$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextDecoration$stableprop_getter(): kotlin/Int // androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextDecoration$stableprop_getter|androidx_compose_ui_text_style_TextDecoration$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextForegroundStyle_Unspecified$stableprop_getter(): kotlin/Int // androidx.compose.ui.text.style/androidx_compose_ui_text_style_TextForegroundStyle_Unspecified$stableprop_getter|androidx_compose_ui_text_style_TextForegroundStyle_Unspecified$stableprop_getter(){}[0]
@@ -1895,6 +1887,7 @@ final fun androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Buil
 final fun androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop_getter|androidx_compose_ui_text_AnnotatedString_Builder_BulletScope$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_AnnotatedString_Range$stableprop_getter|androidx_compose_ui_text_AnnotatedString_Range$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_Bullet$stableprop_getter|androidx_compose_ui_text_Bullet$stableprop_getter(){}[0]
+final fun androidx.compose.ui.text/androidx_compose_ui_text_ComposeUiTextFlags$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_ComposeUiTextFlags$stableprop_getter|androidx_compose_ui_text_ComposeUiTextFlags$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation$stableprop_getter|androidx_compose_ui_text_LinkAnnotation$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Clickable$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Clickable$stableprop_getter|androidx_compose_ui_text_LinkAnnotation_Clickable$stableprop_getter(){}[0]
 final fun androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Url$stableprop_getter(): kotlin/Int // androidx.compose.ui.text/androidx_compose_ui_text_LinkAnnotation_Url$stableprop_getter|androidx_compose_ui_text_LinkAnnotation_Url$stableprop_getter(){}[0]

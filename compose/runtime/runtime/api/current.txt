@@ -137,8 +137,10 @@ package androidx.compose.runtime {
   }
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final class ComposeRuntimeFlags {
+    property public boolean isLinkBufferComposerEnabled;
     property public boolean isMovingNestedMovableContentEnabled;
     field public static final androidx.compose.runtime.ComposeRuntimeFlags INSTANCE;
+    field public static boolean isLinkBufferComposerEnabled;
     field public static boolean isMovingNestedMovableContentEnabled;
   }
 
@@ -298,6 +300,7 @@ package androidx.compose.runtime {
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalOf(optional androidx.compose.runtime.SnapshotMutationPolicy<T> policy, kotlin.jvm.functions.Function0<? extends T> defaultFactory);
     method @BytecodeOnly public static androidx.compose.runtime.ProvidableCompositionLocal! compositionLocalOf$default(androidx.compose.runtime.SnapshotMutationPolicy!, kotlin.jvm.functions.Function0!, int, Object!);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalWithComputedDefaultOf(kotlin.jvm.functions.Function1<? super androidx.compose.runtime.CompositionLocalAccessorScope,? extends T> defaultComputation);
+    method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> compositionLocalWithHostDefaultOf(androidx.compose.runtime.HostDefaultKey<T> key);
     method public static <T> androidx.compose.runtime.ProvidableCompositionLocal<T> staticCompositionLocalOf(kotlin.jvm.functions.Function0<? extends T> defaultFactory);
     method @KotlinOnly @androidx.compose.runtime.Composable public static inline <T> T withCompositionLocal(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object?> value, kotlin.jvm.functions.Function0<T> content);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> T! withCompositionLocal(androidx.compose.runtime.ProvidedValue<? extends java.lang.Object!>, kotlin.jvm.functions.Function2<? super androidx.compose.runtime.Composer!,? super java.lang.Integer!,? extends T!>, androidx.compose.runtime.Composer?, int);
@@ -416,6 +419,22 @@ package androidx.compose.runtime {
     method @InaccessibleFromKotlin @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float getValue();
     property public abstract float floatValue;
     property @androidx.compose.runtime.snapshots.AutoboxingStateValueProperty(preferredPropertyName="floatValue") public default Float value;
+  }
+
+  public final class HostDefaultKey<T> {
+    ctor public HostDefaultKey();
+    ctor public HostDefaultKey(int id);
+    method @InaccessibleFromKotlin @IdRes public int getId();
+    property @IdRes public int id;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public interface HostDefaultProvider {
+    method public <T> T getHostDefault(androidx.compose.runtime.HostDefaultKey<T> key);
+  }
+
+  @SuppressCompatibility public final class HostDefaultProviderKt {
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.HostDefaultProvider> getLocalHostDefaultProvider();
+    property @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.runtime.HostDefaultProvider> LocalHostDefaultProvider;
   }
 
   public final class HotReloaderKt {
@@ -643,12 +662,21 @@ package androidx.compose.runtime {
     enum_constant public static final androidx.compose.runtime.Recomposer.State ShuttingDown;
   }
 
+  @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public interface RecomposerErrorInformation {
+    method @InaccessibleFromKotlin public Throwable getCause();
+    method @InaccessibleFromKotlin public boolean isRecoverable();
+    property public abstract Throwable cause;
+    property public abstract boolean isRecoverable;
+  }
+
   public interface RecomposerInfo {
     method @InaccessibleFromKotlin public long getChangeCount();
+    method @InaccessibleFromKotlin @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.RecomposerErrorInformation?> getErrorState();
     method @InaccessibleFromKotlin public boolean getHasPendingWork();
     method @InaccessibleFromKotlin public kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> getState();
     method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public default androidx.compose.runtime.tooling.CompositionObserverHandle? observe(androidx.compose.runtime.tooling.CompositionRegistrationObserver observer);
     property public abstract long changeCount;
+    property @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public abstract kotlinx.coroutines.flow.StateFlow<androidx.compose.runtime.RecomposerErrorInformation?> errorState;
     property public abstract boolean hasPendingWork;
     property public abstract kotlinx.coroutines.flow.Flow<androidx.compose.runtime.Recomposer.State> state;
   }
@@ -910,7 +938,7 @@ package androidx.compose.runtime.internal {
     method @androidx.compose.runtime.ComposeCompilerApi public static Void illegalDecoyCallException(String fName);
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface FunctionKeyMeta {
     ctor @KotlinOnly public FunctionKeyMeta(int key, int startOffset, int endOffset);
     method @InaccessibleFromKotlin public abstract int endOffset();
     method @InaccessibleFromKotlin public abstract int key();
@@ -920,7 +948,7 @@ package androidx.compose.runtime.internal {
     property public abstract int startOffset;
   }
 
-  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
+  @androidx.compose.runtime.ComposeCompilerApi @kotlin.annotation.Repeatable @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public static @interface FunctionKeyMeta.Container {
     method public abstract androidx.compose.runtime.internal.FunctionKeyMeta[] value();
   }
 
@@ -1284,6 +1312,12 @@ package androidx.compose.runtime.tooling {
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is for tooling only and is likely to change in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ComposeToolingApi {
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.tooling.ComposeToolingApi public final class ComposeToolingFlags {
+    property public boolean isVerboseTracingEnabled;
+    field public static final androidx.compose.runtime.tooling.ComposeToolingFlags INSTANCE;
+    field public static boolean isVerboseTracingEnabled;
   }
 
   public interface CompositionData {

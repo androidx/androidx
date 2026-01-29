@@ -278,6 +278,8 @@ private fun doRepeatingTapSelection(
         selectionOffset,
         isStartHandle = false,
         adjustment = selectionAdjustment,
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-9694/Pass-correct-values-to-haptic-feedback-type-in-TextFieldSelectionState.ios.kt
+        hapticFeedbackType = null,
     )
 
     selectionState.textFieldState.selectCharsIn(newSelection)
@@ -297,6 +299,8 @@ private fun clearSelection(
         selectionOffset,
         isStartHandle = false,
         adjustment = SelectionAdjustment.None,
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-9694/Pass-correct-values-to-haptic-feedback-type-in-TextFieldSelectionState.ios.kt
+        hapticFeedbackType = null,
     )
     selectionState.textFieldState.selectCharsIn(clearedSelection)
 }

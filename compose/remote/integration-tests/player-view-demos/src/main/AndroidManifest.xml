@@ -32,7 +32,6 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
-
     <application
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
@@ -129,6 +128,18 @@
             </intent-filter>
         </activity>
 
+        <receiver android:name=".widgets.MyWidget"
+            android:exported="true"
+            android:label="My New RemoteCompose Widget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
         <receiver
             android:name=".ExperimentWidgetProvider"
             android:exported="true"
@@ -144,7 +155,6 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/launcher_widget" />
         </receiver>
-
 
         <activity
             android:name=".TickerActivity"

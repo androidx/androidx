@@ -319,6 +319,37 @@ internal class ComputedProvidableCompositionLocal<T>(
         )
 }
 
+/**
+ * Creates a [ProvidableCompositionLocal] where the default value is resolved by querying the
+ * [LocalHostDefaultProvider] with the given [key].
+ *
+ * If a value is provided using [ProvidableCompositionLocal.provides], this behaves identically to a
+ * [CompositionLocal] created with [compositionLocalOf].
+ *
+ * When no value is provided, the default value is resolved by querying the
+ * [LocalHostDefaultProvider] currently present in the composition. This mechanism allows the
+ * default value to be determined dynamically by the hosting environment (such as an Android View)
+ * rather than being hardcoded or requiring an explicit provider at the root of the composition.
+ *
+ * This effectively acts as a bridge, decoupling the definition of the [CompositionLocal] from the
+ * platform-specific logic required to resolve its default. For example, a
+ * `LocalViewModelStoreOwner` can use this to ask the host for the owner without having a direct
+ * dependency on the Android View system.
+ *
+ * @param key An opaque key used to identify the requested value within the host's context. The type
+ *   and meaning of the key are defined by the [HostDefaultProvider] implementation (e.g., on
+ *   Android, this is typically a Resource ID).
+ * @throws NullPointerException If the host cannot find a value for [key], it returns `null`. If [T]
+ *   is a non-nullable type (e.g., `compositionLocalWithHostDefaultOf<String>`), a missing key will
+ *   result in a [NullPointerException] when the value is accessed.
+ */
+@OptIn(InternalComposeApi::class)
+public fun <T> compositionLocalWithHostDefaultOf(
+    key: HostDefaultKey<T>
+): ProvidableCompositionLocal<T> = compositionLocalWithComputedDefaultOf {
+    LocalHostDefaultProvider.currentValue.getHostDefault(key)
+}
+
 public interface CompositionLocalAccessorScope {
     /**
      * An extension property that allows accessing the current value of a composition local in the

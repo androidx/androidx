@@ -489,9 +489,11 @@ package androidx.compose.ui.test {
     method @BytecodeOnly public static void advanceTimeUntil$default(androidx.compose.ui.test.MainTestClock!, long, kotlin.jvm.functions.Function0!, int, Object!);
     method @InaccessibleFromKotlin public boolean getAutoAdvance();
     method @InaccessibleFromKotlin public long getCurrentTime();
+    method @InaccessibleFromKotlin public default kotlinx.coroutines.test.TestCoroutineScheduler getScheduler();
     method @InaccessibleFromKotlin public void setAutoAdvance(boolean);
     property public abstract boolean autoAdvance;
     property public abstract long currentTime;
+    property public default kotlinx.coroutines.test.TestCoroutineScheduler scheduler;
   }
 
   @kotlin.jvm.JvmInline public final value class MouseButton {

@@ -17,26 +17,14 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.ImageBitmapConfig
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.platform.Font
-import androidx.compose.ui.text.platform.LoadedFont
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
@@ -51,9 +39,6 @@ import androidx.kruth.FloatSubject
 import androidx.kruth.Subject
 import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
-import kotlin.math.abs
-import kotlin.math.ceil
-import kotlin.math.roundToInt
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -67,7 +52,7 @@ class DesktopParagraphIntegrationTest {
     private val fontFamilyMeasureFont =
         FontFamily(
             Font(
-                "font/sample_font.ttf",
+                "font_desktop/sample_font.ttf",
                 weight = FontWeight.Normal,
                 style = FontStyle.Normal
             )
@@ -2888,7 +2873,7 @@ class DesktopParagraphIntegrationTest {
         // First/last line is influenced by top/bottom padding
         for (i in 1 until paragraph.lineCount - 1) {
             val actualHeight = paragraph.getLineHeight(i)
-            // In the sample_font.ttf, the height of the line should be
+            // In the sample_font_fork.ttf, the height of the line should be
             // fontSize + 0.2f * fontSize(line gap)
             assertWithMessage("line number $i").that(actualHeight).isEqualToWithTolerance(lineHeight)
         }
@@ -2913,7 +2898,7 @@ class DesktopParagraphIntegrationTest {
         // First/last line is influenced by top/bottom padding
         for (i in 1 until paragraph.lineCount - 1) {
             val actualHeight = paragraph.getLineHeight(i)
-            // In the sample_font.ttf, the height of the line should be
+            // In the sample_font_fork.ttf, the height of the line should be
             // fontSize + 0.2f * fontSize(line gap)
             assertWithMessage("line number $i").that(actualHeight).isEqualToWithTolerance(lineHeight * fontSize)
         }

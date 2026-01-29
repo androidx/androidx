@@ -120,10 +120,11 @@ internal fun SelectionContainer(
         manager.coroutineScope = coroutineScope
     }
 
-    rememberClipboardEventsHandler(
-        onCopy = { manager.getSelectedText() },
-        isEnabled = manager.isNonEmptySelection(),
-    )
+    manager.shouldIgnoreCopyKeyEvent =
+        rememberClipboardEventsHandler(
+            onCopy = { manager.getSelectedText() },
+            isEnabled = manager.isNonEmptySelection(),
+        )
 
     /*
      * Need a layout for selection gestures that span multiple text children.

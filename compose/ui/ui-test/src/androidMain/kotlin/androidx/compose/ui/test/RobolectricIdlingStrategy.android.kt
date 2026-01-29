@@ -49,6 +49,7 @@ internal val HasRobolectricFingerprint
 internal class RobolectricIdlingStrategy(
     private val composeRootRegistry: ComposeRootRegistry,
     private val composeIdlingResource: ComposeIdlingResource,
+    private val idlingResourceRegistry: IdlingResourceRegistry,
 ) : IdlingStrategy {
     override val canSynchronizeOnUiThread: Boolean = true
 
@@ -69,14 +70,30 @@ internal class RobolectricIdlingStrategy(
             do {
                 // Check if we hit the timeout
                 if (System.currentTimeMillis() - start >= timeoutMillis) {
-                    throw AppNotIdleException.create(
-                        emptyList(),
-                        "Compose did not get idle after $iteration attempts in " +
-                            "${policy.idleTimeout} ${policy.idleTimeoutUnit}. " +
-                            "Please check your measure/layout lambdas, they may be " +
-                            "causing an infinite composition loop. Or set Espresso's " +
-                            "master idling policy if you require a longer timeout.",
-                    )
+                    val diagnosticInfo = idlingResourceRegistry.getDiagnosticMessageIfBusy()
+                    val errorMessage = buildString {
+                        appendLine(
+                            "Compose did not get idle after $iteration attempts in ${policy.idleTimeout} ${policy.idleTimeoutUnit}."
+                        )
+
+                        if (!diagnosticInfo.isNullOrEmpty()) {
+                            appendLine()
+                            appendLine(diagnosticInfo)
+                        }
+
+                        appendLine()
+                        appendLine(
+                            "1. Check your measure/layout lambdas for infinite composition loops."
+                        )
+                        appendLine(
+                            "2. Verify that the 'busy' resources listed above are not deadlocked."
+                        )
+                        appendLine(
+                            "3. Increase Espresso's master idling policy if a longer timeout is required."
+                        )
+                    }
+
+                    throw AppNotIdleException.create(emptyList(), errorMessage)
                 }
                 iteration++
                 // Run Espresso.onIdle() to drain the main message queue
@@ -84,9 +101,11 @@ internal class RobolectricIdlingStrategy(
                 // Check if we need a measure/layout pass
                 requestLayoutIfNeeded()
                 // Let ComposeIdlingResource fast-forward compositions
-                val isIdle = composeIdlingResource.isIdleNow
+                val isComposeIdle = composeIdlingResource.isIdleNow
+                // Check if user-registered resources are idle
+                val isRegistryIdle = idlingResourceRegistry.isIdleNow
                 // Repeat while not idle
-            } while (!isIdle)
+            } while (!isComposeIdle || !isRegistryIdle)
         }
     }
 

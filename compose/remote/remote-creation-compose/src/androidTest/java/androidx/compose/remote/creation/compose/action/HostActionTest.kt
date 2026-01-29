@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.compose.state.RemoteFloat.Companion.crea
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
 import androidx.compose.remote.creation.compose.state.RemoteString
-import androidx.compose.remote.creation.compose.state.rememberMutableRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberRemoteInt
 import androidx.compose.remote.creation.compose.state.rememberRemoteString
 import androidx.compose.remote.creation.compose.state.rf
@@ -108,7 +107,7 @@ class HostActionTest {
             val mutableValue =
                 when (value) {
                     is RemoteInt -> rememberRemoteInt { value }
-                    is RemoteFloat -> rememberMutableRemoteFloat { value }
+                    is RemoteFloat -> value
                     is RemoteString -> rememberRemoteString { value.constantValue!! }
                     else -> "null".rs
                 }
@@ -137,10 +136,6 @@ class HostActionTest {
 
         uiAutomator { onElement { isClickable }.click() }
 
-        println()
-
         assertThat(remoteComposeTestRule.clickEvents).contains(Pair("a", expected))
-
-        println()
     }
 }

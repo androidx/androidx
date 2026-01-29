@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocum
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.toArgb
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -66,15 +67,15 @@ class RemoteStateTest {
             captureSingleRemoteDocument(context) {
                 val blue =
                     rememberRemoteBitmapValue("blue") {
-                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888).apply {
-                            setPixel(0, 0, Color.Blue.toArgb())
-                        }
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                            .apply { setPixel(0, 0, Color.Blue.toArgb()) }
+                            .asImageBitmap()
                     }
                 val red =
                     rememberRemoteBitmapValue("red") {
-                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888).apply {
-                            setPixel(0, 0, Color.Red.toArgb())
-                        }
+                        Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_8888)
+                            .apply { setPixel(0, 0, Color.Red.toArgb()) }
+                            .asImageBitmap()
                     }
                 val blue2 = rememberRemoteBitmap("blue", url = "https://example.org/favicon.ico")
 

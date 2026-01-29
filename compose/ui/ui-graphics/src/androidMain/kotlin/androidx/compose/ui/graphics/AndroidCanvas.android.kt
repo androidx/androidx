@@ -22,6 +22,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 
+@Deprecated(
+    message = "Use android.graphics.Canvas directly instead",
+    replaceWith = ReplaceWith("android.graphics.Canvas"),
+)
 actual typealias NativeCanvas = android.graphics.Canvas
 
 /** Create a new Canvas instance that targets its drawing commands to the provided [ImageBitmap] */
@@ -46,7 +50,7 @@ class CanvasHolder {
 }
 
 /** Return an instance of the native primitive that implements the Canvas interface */
-actual val Canvas.nativeCanvas: NativeCanvas
+val Canvas.nativeCanvas: android.graphics.Canvas
     get() = (this as AndroidCanvas).internalCanvas
 
 // Stub canvas instance used to keep the internal canvas parameter non-null during its
@@ -58,7 +62,7 @@ internal class AndroidCanvas() : Canvas {
 
     // Keep the internal canvas as a var prevent having to allocate an AndroidCanvas
     // instance on each draw call
-    @PublishedApi internal var internalCanvas: NativeCanvas = EmptyCanvas
+    @PublishedApi internal var internalCanvas: android.graphics.Canvas = EmptyCanvas
 
     private var srcRect: android.graphics.Rect? = null
 

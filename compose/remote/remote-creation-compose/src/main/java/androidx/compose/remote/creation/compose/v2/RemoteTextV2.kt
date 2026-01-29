@@ -20,32 +20,35 @@ import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.TextUnit
 
 @Composable
 @RemoteComposable
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun RemoteTextV2(
-    text: String? = null,
-    remoteText: RemoteString? = null,
+    text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
     color: RemoteColor? = null,
-    fontSize: TextUnit = TextUnit.Unspecified,
-    fontWeight: FontWeight? = null,
+    fontSize: RemoteFloat = 14f.rf,
+    fontWeight: RemoteFloat = 400f.rf,
     fontStyle: FontStyle? = null,
-    fontFamily: FontFamily? = null,
+    fontFamily: String? = null,
     textAlign: TextAlign? = null,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
+    minFontSize: Float? = null,
+    maxFontSize: Float? = null,
+    letterSpacing: Float? = null,
+    lineHeightAdd: Float? = null,
+    lineHeightMultiply: Float? = null,
     textDecoration: TextDecoration = TextDecoration.None,
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
@@ -53,7 +56,6 @@ public fun RemoteTextV2(
         factory = { RemoteTextNodeV2() },
         update = {
             set(text) { this.text = it }
-            set(remoteText) { this.remoteText = it }
             set(modifier) { this.modifier = it }
             set(color) { this.color = it }
             set(fontSize) { this.fontSize = it }
@@ -63,6 +65,11 @@ public fun RemoteTextV2(
             set(textAlign) { this.textAlign = it }
             set(overflow) { this.overflow = it }
             set(maxLines) { this.maxLines = it }
+            set(minFontSize) { this.minFontSize = it }
+            set(maxFontSize) { this.maxFontSize = it }
+            set(letterSpacing) { this.letterSpacing = it }
+            set(lineHeightAdd) { this.lineHeightAdd = it }
+            set(lineHeightMultiply) { this.lineHeightMultiply = it }
             set(textDecoration) { this.textDecoration = it }
             set(fontVariationSettings) { this.fontVariationSettings = it }
         },

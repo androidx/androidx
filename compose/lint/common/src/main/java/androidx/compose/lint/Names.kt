@@ -16,7 +16,8 @@
 
 package androidx.compose.lint
 
-import kotlin.metadata.ClassName
+import org.jetbrains.kotlin.name.ClassId
+import org.jetbrains.kotlin.name.FqName
 
 /** Contains common names used for lint checks. */
 object Names {
@@ -38,7 +39,6 @@ object Names {
 
         val Composable = Name(PackageName, "Composable")
         val CompositionLocal = Name(PackageName, "CompositionLocal")
-        val DerivedStateOf = Name(PackageName, "derivedStateOf")
         val State = Name(PackageName, "State")
         val MutableState = Name(PackageName, "MutableState")
         val MutableStateOf = Name(PackageName, "mutableStateOf")
@@ -46,8 +46,6 @@ object Names {
         val MutableLongStateOf = Name(PackageName, "mutableLongStateOf")
         val MutableFloatStateOf = Name(PackageName, "mutableFloatStateOf")
         val MutableDoubleStateOf = Name(PackageName, "mutableDoubleStateOf")
-        val MutableStateListOf = Name(PackageName, "mutableStateListOf")
-        val MutableStateMapOf = Name(PackageName, "mutableStateMapOf")
         val ProduceState = Name(PackageName, "produceState")
         val Remember = Name(PackageName, "remember")
         val RememberObserver = Name(PackageName, "RememberObserver")
@@ -84,8 +82,6 @@ object Names {
 
         object Pointer {
             val PackageName = Package(Ui.PackageName, "input.pointer")
-            val PointerInputScope = Name(PackageName, "PointerInputScope")
-            val PointerInputScopeModifier = Name(PackageName, "pointerInput")
             val AwaitPointerEventScope = Name(PackageName, "awaitPointerEventScope")
         }
 
@@ -135,12 +131,13 @@ internal constructor(private val pkg: PackageName, private val nameSegments: Lis
     val javaFqn: String
         get() = pkg.segments.joinToString(".", postfix = ".") + nameSegments.joinToString(".")
 
-    /**
-     * The [ClassName] for use with kotlin.metadata. Note that in kotlin.metadata the actual type
-     * might be different from the underlying JVM type, for example: kotlin/Int -> java/lang/Integer
-     */
-    val kmClassName: ClassName
-        get() = pkg.segments.joinToString("/", postfix = "/") + nameSegments.joinToString(".")
+    /** The [ClassId] for use with analysis APIs. */
+    val classId: ClassId
+        get() =
+            ClassId(
+                FqName(pkg.segments.joinToString(".")),
+                org.jetbrains.kotlin.name.Name.identifier(nameSegments.joinToString(".")),
+            )
 
     /** The [PackageName] of this element. */
     val packageName: PackageName

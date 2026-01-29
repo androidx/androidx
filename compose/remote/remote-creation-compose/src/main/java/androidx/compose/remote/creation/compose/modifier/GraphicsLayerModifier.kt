@@ -21,6 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.remote.core.operations.layout.modifiers.GraphicsLayerModifierOperation
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.modifiers.CircleShape
 import androidx.compose.remote.creation.modifiers.RecordingModifier
@@ -35,69 +36,78 @@ import androidx.compose.ui.graphics.layer.CompositingStrategy.Companion.Offscree
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class GraphicsLayerModifier(
-    public val scaleX: Float,
-    public val scaleY: Float,
-    public val rotationX: Float,
-    public val rotationY: Float,
-    public val rotationZ: Float,
-    public val shadowElevation: Float,
-    public val transformOriginX: Float,
-    public val transformOriginY: Float,
-    public val translationX: Float,
-    public val translationY: Float,
+    public val scaleX: RemoteFloat,
+    public val scaleY: RemoteFloat,
+    public val rotationX: RemoteFloat,
+    public val rotationY: RemoteFloat,
+    public val rotationZ: RemoteFloat,
+    public val shadowElevation: RemoteFloat,
+    public val transformOriginX: RemoteFloat,
+    public val transformOriginY: RemoteFloat,
+    public val translationX: RemoteFloat,
+    public val translationY: RemoteFloat,
     public val shape: Shape,
     public val compositingStrategy: Int,
-    public val alpha: Float,
-    public val cameraDistance: Float,
+    public val alpha: RemoteFloat,
+    public val cameraDistance: RemoteFloat,
     public val renderEffect: RenderEffect?,
 ) : RemoteModifier.Element {
 
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         val layer = androidx.compose.remote.creation.modifiers.GraphicsLayerModifier()
-        if (scaleX != 1f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_X, scaleX)
+        if (scaleX.floatId != 1f) {
+            layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_X, scaleX.floatId)
         }
-        if (scaleY != 1f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_Y, scaleY)
+        if (scaleY.floatId != 1f) {
+            layer.setFloatAttribute(GraphicsLayerModifierOperation.SCALE_Y, scaleY.floatId)
         }
-        if (rotationX != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_X, rotationX)
+        if (rotationX.floatId != 0f) {
+            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_X, rotationX.floatId)
         }
-        if (rotationY != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_Y, rotationY)
+        if (rotationY.floatId != 0f) {
+            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_Y, rotationY.floatId)
         }
-        if (rotationZ != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_Z, rotationZ)
+        if (rotationZ.floatId != 0f) {
+            layer.setFloatAttribute(GraphicsLayerModifierOperation.ROTATION_Z, rotationZ.floatId)
         }
-        if (shadowElevation != 0f) {
+        if (shadowElevation.floatId != 0f) {
             layer.setFloatAttribute(
                 GraphicsLayerModifierOperation.SHADOW_ELEVATION,
-                shadowElevation,
+                shadowElevation.floatId,
             )
         }
-        if (transformOriginX != 0.5f) {
+        if (transformOriginX.floatId != 0.5f) {
             layer.setFloatAttribute(
                 GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_X,
-                transformOriginX,
+                transformOriginX.floatId,
             )
         }
-        if (transformOriginY != 0.5f) {
+        if (transformOriginY.floatId != 0.5f) {
             layer.setFloatAttribute(
                 GraphicsLayerModifierOperation.TRANSFORM_ORIGIN_Y,
-                transformOriginY,
+                transformOriginY.floatId,
             )
         }
-        if (translationX != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.TRANSLATION_X, translationX)
+        if (translationX.floatId != 0f) {
+            layer.setFloatAttribute(
+                GraphicsLayerModifierOperation.TRANSLATION_X,
+                translationX.floatId,
+            )
         }
-        if (translationY != 0f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.TRANSLATION_Y, translationY)
+        if (translationY.floatId != 0f) {
+            layer.setFloatAttribute(
+                GraphicsLayerModifierOperation.TRANSLATION_Y,
+                translationY.floatId,
+            )
         }
-        if (alpha != 1f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.ALPHA, alpha)
+        if (alpha.floatId != 1f) {
+            layer.setFloatAttribute(GraphicsLayerModifierOperation.ALPHA, alpha.floatId)
         }
-        if (cameraDistance != 8f) {
-            layer.setFloatAttribute(GraphicsLayerModifierOperation.CAMERA_DISTANCE, cameraDistance)
+        if (cameraDistance.floatId != 8f) {
+            layer.setFloatAttribute(
+                GraphicsLayerModifierOperation.CAMERA_DISTANCE,
+                cameraDistance.floatId,
+            )
         }
         if (compositingStrategy != 0) {
             layer.setIntAttribute(
@@ -172,20 +182,20 @@ public fun RemoteModifier.graphicsLayer(
         }
     return then(
         GraphicsLayerModifier(
-            scaleX.id,
-            scaleY.id,
-            rotationX.id,
-            rotationY.id,
-            rotationZ.id,
-            shadowElevation.id,
-            transformOriginX.id,
-            transformOriginY.id,
-            translationX.id,
-            translationY.id,
+            scaleX,
+            scaleY,
+            rotationX,
+            rotationY,
+            rotationZ,
+            shadowElevation,
+            transformOriginX,
+            transformOriginY,
+            translationX,
+            translationY,
             shape,
             cS,
-            alpha.id,
-            cameraDistance.id,
+            alpha,
+            cameraDistance,
             renderEffect,
         )
     )

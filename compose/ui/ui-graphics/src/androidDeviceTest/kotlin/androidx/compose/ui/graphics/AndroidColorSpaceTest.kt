@@ -28,6 +28,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -270,6 +272,22 @@ class AndroidColorSpaceTest {
             ),
             ColorSpace.Rgb(name, primaries, whitePoint, transferParameters),
         )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testConvertCustomTransform() {
+        val transform =
+            floatArrayOf(0.9642029f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.8249054f)
+        val transferParameters =
+            (ColorSpace.get(ColorSpace.Named.SRGB) as ColorSpace.Rgb).transferParameters!!
+        val androidColorSpace = ColorSpace.Rgb("custom", transform, transferParameters)
+        // On O and P, the transform doesn't stay, but on Q+, it works for grayscale transforms
+        assumeFalse(androidColorSpace.transform[0].isNaN())
+        val composeColorSpace = androidColorSpace.toComposeColorSpace()
+        val rgb = composeColorSpace.toAndroidColorSpace() as android.graphics.ColorSpace.Rgb
+        val actualTransform = rgb.transform
+        transform.indices.forEach { i -> assertEquals(transform[i], actualTransform[i], 0.01f) }
     }
 
     // Helper class to avoid NoSuchClassExceptions being thrown when tests are run on an older

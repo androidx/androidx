@@ -19,13 +19,17 @@ package androidx.compose.remote.creation.compose.state
 
 import android.graphics.BlendMode
 import android.graphics.BlendModeColorFilter
-import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
+import android.graphics.Typeface
 import androidx.annotation.ColorInt
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
+import androidx.compose.remote.creation.compose.shaders.RemoteSolidColor
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 
 /** Base type for [ColorFilter]s that are parameterized by expressions. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public interface RemoteColorFilter
@@ -76,6 +80,12 @@ public open class RemotePaint : Paint {
         }
     }
 
+    init {
+        if (typeface == null) {
+            typeface = Typeface.DEFAULT
+        }
+    }
+
     /**
      * The current [RemoteColorFilter] if any.
      *
@@ -88,7 +98,7 @@ public open class RemotePaint : Paint {
             field = remoteColorFilter
             when {
                 remoteColorFilter is RemoteBlendModeColorFilter -> {
-                    val constantValue = remoteColorFilter.color.constantValue
+                    val constantValue = remoteColorFilter.color.constantValueOrNull
                     if (constantValue != null) {
                         super.setColorFilter(
                             BlendModeColorFilter(
@@ -122,13 +132,13 @@ public open class RemotePaint : Paint {
         set(value) {
             field = value
             if (value != null) {
-                val constantValue = value.constantValue
+                val constantValue = value.constantValueOrNull
                 if (constantValue != null) {
                     super.setColor(constantValue.toArgb())
                 } else {
                     // If the remote color isn't a constant value then we don't have a way of
                     // accuratly its via setColor, so set it to a known value.
-                    super.setColor(Color.TRANSPARENT)
+                    super.setColor(android.graphics.Color.TRANSPARENT)
                 }
             }
         }
@@ -139,12 +149,21 @@ public open class RemotePaint : Paint {
         super.setColor(color)
     }
 
-    /** The [RemoteBrush] to paint with, if any. Currently only used from RemoteCanvas2. */
-    public var remoteBrush: RemoteBrush? = null
+    public fun RemoteStateScope.applyRemoteBrush(remoteBrush: RemoteBrush, size: RemoteSize) {
+        if (remoteBrush.hasShader) {
+            shader = with(remoteBrush) { createShader(size) }
+            remoteColor = null
+        } else if (remoteBrush is RemoteSolidColor) {
+            remoteColor = remoteBrush.color
+            shader = null
+        } else {
+            throw UnsupportedOperationException("Unsupported brush type: $remoteBrush")
+        }
+    }
 
     internal fun getColorLong(creationState: RemoteComposeCreationState): Long? {
         remoteColor?.let {
-            return it.constantValue?.let { it.pack() }
+            return it.constantValueOrNull?.pack()
                 ?: it.getIdForCreationState(creationState).toLong()
         }
         return null

@@ -38,6 +38,7 @@ import androidx.compose.ui.text.AnnotatedString
  * @param onCut - invoked in a handler of a platform Clipboard 'cut' event. The lambda returns a
  *   value to be cut (copied), it will set into the 'cut' event.
  * @param isEnabled - whether the events handling is active (e.g. when a TextField is focused).
+ * @return true when the implementation guarantees to handle the platform clipboard events.
  */
 @Suppress("ComposableNaming")
 @Composable
@@ -46,4 +47,4 @@ internal expect inline fun rememberClipboardEventsHandler(
     crossinline onCopy: () -> AnnotatedString? = { null },
     crossinline onCut: () -> AnnotatedString? = { null },
     isEnabled: Boolean,
-)
+): Boolean

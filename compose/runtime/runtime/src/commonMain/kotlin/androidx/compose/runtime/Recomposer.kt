@@ -51,6 +51,7 @@ import androidx.compose.runtime.snapshots.fastGroupBy
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastMapNotNull
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
+import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.compose.runtime.tooling.CompositionData
 import androidx.compose.runtime.tooling.CompositionObserverHandle
 import androidx.compose.runtime.tooling.CompositionRegistrationObserver
@@ -126,6 +127,14 @@ public interface RecomposerInfo {
     public val changeCount: Long
 
     /**
+     * Get flow of error states captured in composition. This flow is only available when recomposer
+     * is in hot reload mode.
+     *
+     * @return a flow of error states captured during composition
+     */
+    @ComposeToolingApi public val errorState: StateFlow<RecomposerErrorInformation?>
+
+    /**
      * Register an observer to be notified when a composition is added to or removed from the given
      * [Recomposer]. When this method is called, the observer will be notified of all currently
      * registered compositions per the documentation in
@@ -136,6 +145,23 @@ public interface RecomposerInfo {
 }
 
 /** Read only information about [Recomposer] error state. */
+@ComposeToolingApi
+public interface RecomposerErrorInformation {
+    /** Exception which forced recomposition to halt. */
+    public val cause: Throwable
+
+    /**
+     * Whether composition can recover from the error by itself. If the error is not recoverable,
+     * recomposer will not react to invalidate calls until state is reloaded.
+     */
+    public val isRecoverable: Boolean
+}
+
+/**
+ * Read only information about [Recomposer] error state. This is an internal API only kept for
+ * backward compatibility.
+ */
+// TODO(b/469471141): Remove when Live Edit no longer depends on this API.
 @InternalComposeApi
 internal interface RecomposerErrorInfo {
     /** Exception which forced recomposition to halt. */
@@ -236,7 +262,8 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
     private var workContinuation: CancellableContinuation<Unit>? = null
     private var concurrentCompositionsOutstanding = 0
     private var isClosed: Boolean = false
-    private var errorState: RecomposerErrorState? = null
+    private var errorState = MutableStateFlow<RecomposerErrorState?>(null)
+
     private var frameClockPaused: Boolean = false
     // End properties guarded by stateLock
 
@@ -325,13 +352,13 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             failedCompositions = null
             workContinuation?.cancel()
             workContinuation = null
-            errorState = null
+            errorState.value = null
             return null
         }
 
         val newState =
             when {
-                errorState != null -> {
+                errorState.value != null -> {
                     State.Inactive
                 }
                 runnerJob == null -> {
@@ -396,8 +423,13 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
         override val changeCount: Long
             get() = this@Recomposer.changeCount
 
-        val currentError: RecomposerErrorInfo?
-            get() = synchronized(stateLock) { this@Recomposer.errorState }
+        @ComposeToolingApi
+        override val errorState: StateFlow<RecomposerErrorInformation?>
+            get() = this@Recomposer.errorState
+
+        @ComposeToolingApi
+        val currentError: RecomposerErrorInformation?
+            get() = synchronized(stateLock) { this@Recomposer.errorState.value }
 
         @OptIn(ExperimentalComposeRuntimeApi::class)
         override fun observe(observer: CompositionRegistrationObserver): CompositionObserverHandle =
@@ -442,10 +474,14 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
         }
     }
 
+    @OptIn(ComposeToolingApi::class)
     private class RecomposerErrorState(
-        override val recoverable: Boolean,
         override val cause: Throwable,
-    ) : RecomposerErrorInfo
+        override val isRecoverable: Boolean,
+    ) : RecomposerErrorInfo, RecomposerErrorInformation {
+        override val recoverable: Boolean
+            get() = isRecoverable
+    }
 
     private val recomposerInfo = RecomposerInfoImpl()
 
@@ -767,7 +803,7 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                 movableContentRemoved.clear()
                 movableContentStatesAvailable.clear()
 
-                errorState = RecomposerErrorState(recoverable = recoverable, cause = e)
+                errorState.value = RecomposerErrorState(isRecoverable = recoverable, cause = e)
 
                 if (failedInitialComposition != null) {
                     recordFailedCompositionLocked(failedInitialComposition)
@@ -789,10 +825,10 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             // won't be recorded.
             synchronized(stateLock) {
                 logError("Error was captured in composition.", e)
-                val errorState = errorState
+                val errorState = errorState.value
                 if (errorState == null) {
                     // Record exception if current error state is empty.
-                    this.errorState = RecomposerErrorState(recoverable = false, e)
+                    this.errorState.value = RecomposerErrorState(isRecoverable = false, cause = e)
                 } else {
                     // Re-throw original cause if we recorded it previously.
                     throw errorState.cause
@@ -916,9 +952,9 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
     private fun resetErrorState(): RecomposerErrorState? {
         var error: RecomposerErrorState? = null
         synchronized(stateLock) {
-                error = errorState
+                error = errorState.value
                 if (error != null) {
-                    errorState = null
+                    errorState.value = null
                     deriveStateLocked()
                 } else {
                     null
@@ -940,7 +976,7 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                 composition.invalidateAll()
                 composition.setContent(composition.composable)
 
-                if (errorState != null) break
+                if (errorState.value != null) break
             }
         } finally {
             if (compositionsToRetry.isNotEmpty()) {
@@ -1592,7 +1628,7 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             movableContentStatesAvailable[reference] = data
             val extractions = movableContentNestedExtractionsPending[reference]
             if (extractions.isNotEmpty()) {
-                val states = data.extractNestedStates(applier, extractions)
+                val states = data.slotStorage.extractNestedStates(applier, extractions)
                 states.forEach { reference, state ->
                     movableContentStatesAvailable[reference] = state
                 }
@@ -1681,10 +1717,11 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             _runningRecomposers.value.forEach { it.retryFailedCompositions() }
         }
 
+        @OptIn(ComposeToolingApi::class)
         internal fun invalidateGroupsWithKey(key: Int) {
             _hotReloadEnabled.set(true)
             _runningRecomposers.value.forEach {
-                if (it.currentError?.recoverable == false) {
+                if (it.currentError?.isRecoverable == false) {
                     return@forEach
                 }
 
@@ -1696,7 +1733,13 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
             }
         }
 
+        /** This is an internal API only kept for backward compatibility. */
+        @OptIn(ComposeToolingApi::class)
         internal fun getCurrentErrors(): List<RecomposerErrorInfo> =
+            _runningRecomposers.value.mapNotNull { it.currentError as? RecomposerErrorInfo }
+
+        @OptIn(ComposeToolingApi::class)
+        internal fun getRecomposerErrors(): List<RecomposerErrorInformation> =
             _runningRecomposers.value.mapNotNull { it.currentError }
 
         internal fun clearErrors() {

@@ -166,7 +166,9 @@ class BackgroundModifierTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
-                            .background(RemoteBrush.verticalGradient(listOf(Color.Blue, Color.Red)))
+                            .background(
+                                RemoteBrush.verticalGradient(listOf(Color.Blue.rc, Color.Red.rc))
+                            )
                 )
             }
         }
@@ -183,7 +185,7 @@ class BackgroundModifierTest {
                     modifier =
                         RemoteModifier.fillMaxSize()
                             .background(
-                                RemoteBrush.horizontalGradient(listOf(Color.Blue, Color.Red))
+                                RemoteBrush.horizontalGradient(listOf(Color.Blue.rc, Color.Red.rc))
                             )
                 )
             }
@@ -200,7 +202,9 @@ class BackgroundModifierTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
-                            .background(RemoteBrush.radialGradient(listOf(Color.Blue, Color.Red)))
+                            .background(
+                                RemoteBrush.radialGradient(listOf(Color.Blue.rc, Color.Red.rc))
+                            )
                 )
             }
         }
@@ -216,7 +220,9 @@ class BackgroundModifierTest {
                 RemoteBox(
                     modifier =
                         RemoteModifier.fillMaxSize()
-                            .background(RemoteBrush.sweepGradient(listOf(Color.Blue, Color.Red)))
+                            .background(
+                                RemoteBrush.sweepGradient(listOf(Color.Blue.rc, Color.Red.rc))
+                            )
                 )
             }
         }

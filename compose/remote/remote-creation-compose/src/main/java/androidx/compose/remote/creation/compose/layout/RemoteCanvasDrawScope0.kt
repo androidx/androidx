@@ -32,10 +32,12 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.compose.capture.NoRemoteCompose
 import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.remote.creation.compose.capture.RemoteDrawScope0
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.CornerRadius
@@ -80,7 +82,13 @@ public open class RemoteCanvasDrawScope0(
     override val fontScale: Float = drawScope.fontScale,
     override val drawContext: DrawContext = drawScope.drawContext,
     override val layoutDirection: LayoutDirection = drawScope.layoutDirection,
-) : RemoteDrawScope0 {
+) : RemoteDrawScope0, RemoteStateScope {
+
+    override val creationState: RemoteComposeCreationState
+        get() = remoteComposeCreationState
+
+    override val remoteDensity: RemoteDensity
+        get() = creationState.remoteDensity
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class RemoteAccess(
@@ -246,8 +254,8 @@ public open class RemoteCanvasDrawScope0(
     ) {
         drawScope.drawLine(
             brush,
-            start.asOffset(),
-            end.asOffset(),
+            start.asOffset(this),
+            end.asOffset(this),
             strokeWidth,
             cap,
             pathEffect,
@@ -270,8 +278,8 @@ public open class RemoteCanvasDrawScope0(
     ) {
         drawScope.drawLine(
             color,
-            start.asOffset(),
-            end.asOffset(),
+            start.asOffset(this),
+            end.asOffset(this),
             strokeWidth,
             cap,
             pathEffect,
@@ -294,10 +302,10 @@ public open class RemoteCanvasDrawScope0(
         val bottom = ofAdd(topLeft.y, size.height)
         remoteDrawRect(
             RemoteBrush.fromComposeUi(brush),
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
             alpha,
             style,
             colorFilter,
@@ -319,11 +327,11 @@ public open class RemoteCanvasDrawScope0(
 
         remoteDrawRect(
             brush,
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
-            alpha.toFloat(),
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
+            alpha.floatId,
             style,
             colorFilter,
             blendMode,
@@ -353,10 +361,10 @@ public open class RemoteCanvasDrawScope0(
         val bottom = ofAdd(topLeft.y, size.height)
         remoteDrawRect(
             color,
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
             alpha,
             style,
             colorFilter,
@@ -385,16 +393,16 @@ public open class RemoteCanvasDrawScope0(
 
         remoteDrawScaledBitmap(
             image.asAndroidBitmap(),
-            srcOffset.x.id,
-            srcOffset.y.id,
-            srcR.id,
-            srcB.id,
-            dstOffset.x.id,
-            dstOffset.y.id,
-            dstR.id,
-            dstB.id,
+            srcOffset.x.floatId,
+            srcOffset.y.floatId,
+            srcR.floatId,
+            srcB.floatId,
+            dstOffset.x.floatId,
+            dstOffset.y.floatId,
+            dstR.floatId,
+            dstB.floatId,
             scaleType,
-            scaleFactor.id,
+            scaleFactor.floatId,
             description,
         )
     }
@@ -407,7 +415,7 @@ public open class RemoteCanvasDrawScope0(
         colorFilter: ColorFilter?,
         blendMode: BlendMode,
     ) {
-        drawScope.drawImage(image, topLeft.asOffset(), alpha, style, colorFilter, blendMode)
+        drawScope.drawImage(image, topLeft.asOffset(this), alpha, style, colorFilter, blendMode)
     }
 
     @Deprecated(
@@ -485,10 +493,10 @@ public open class RemoteCanvasDrawScope0(
 
         remoteDrawRoundRect(
             brush,
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
             cornerRadius,
             alpha,
             style,
@@ -513,12 +521,12 @@ public open class RemoteCanvasDrawScope0(
 
             remoteDrawRoundRect(
                 brush,
-                topLeft.x.id,
-                topLeft.y.id,
-                right.id,
-                bottom.id,
+                topLeft.x.floatId,
+                topLeft.y.floatId,
+                right.floatId,
+                bottom.floatId,
                 cornerRadius,
-                alpha.toFloat(),
+                alpha.floatId,
                 style,
                 colorFilter,
                 blendMode,
@@ -541,10 +549,10 @@ public open class RemoteCanvasDrawScope0(
 
         remoteDrawRoundRect(
             RemoteBrush.fromComposeUi(brush),
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
             cornerRadius,
             alpha,
             style,
@@ -566,7 +574,7 @@ public open class RemoteCanvasDrawScope0(
         drawScope.drawText(
             textLayoutResult = textLayoutResult,
             color = color,
-            topLeft = topLeft.asOffset(),
+            topLeft = topLeft.asOffset(this),
             alpha = alpha,
             shadow = shadow,
             textDecoration = textDecoration,
@@ -588,7 +596,7 @@ public open class RemoteCanvasDrawScope0(
         drawScope.drawText(
             textLayoutResult = textLayoutResult,
             brush = brush,
-            topLeft = topLeft.asOffset(),
+            topLeft = topLeft.asOffset(this),
             alpha = alpha,
             shadow = shadow,
             textDecoration = textDecoration,
@@ -611,7 +619,7 @@ public open class RemoteCanvasDrawScope0(
         drawScope.drawText(
             textMeasurer = textMeasurer,
             text = text,
-            topLeft = topLeft.asOffset(),
+            topLeft = topLeft.asOffset(this),
             style = style,
             overflow = overflow,
             softWrap = softWrap,
@@ -636,7 +644,7 @@ public open class RemoteCanvasDrawScope0(
         drawScope.drawText(
             textMeasurer = textMeasurer,
             text = text,
-            topLeft = topLeft.asOffset(),
+            topLeft = topLeft.asOffset(this),
             style = style,
             overflow = overflow,
             softWrap = softWrap,
@@ -662,10 +670,10 @@ public open class RemoteCanvasDrawScope0(
 
         remoteDrawRoundRect(
             color,
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
             cornerRadius,
             style,
             alpha,
@@ -684,10 +692,10 @@ public open class RemoteCanvasDrawScope0(
         blendMode: BlendMode,
     ) {
         canvas.drawCircle(
-            center.x.id,
-            center.y.id,
-            radius.id,
-            toPaint(color, style, alpha.id, colorFilter, blendMode).asFrameworkPaint(),
+            center.x.floatId,
+            center.y.floatId,
+            radius.floatId,
+            toPaint(color, style, alpha.floatId, colorFilter, blendMode).asFrameworkPaint(),
         )
     }
 
@@ -705,10 +713,10 @@ public open class RemoteCanvasDrawScope0(
 
         remoteDrawOval(
             RemoteBrush.fromComposeUi(brush),
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
             alpha,
             style,
             colorFilter,
@@ -730,10 +738,10 @@ public open class RemoteCanvasDrawScope0(
 
         remoteDrawOval(
             color,
-            topLeft.x.id,
-            topLeft.y.id,
-            right.id,
-            bottom.id,
+            topLeft.x.floatId,
+            topLeft.y.floatId,
+            right.floatId,
+            bottom.floatId,
             alpha,
             style,
             colorFilter,
@@ -758,8 +766,8 @@ public open class RemoteCanvasDrawScope0(
             startAngle,
             sweepAngle,
             useCenter,
-            topLeft.asOffset(),
-            size.asSize(),
+            topLeft.asOffset(this),
+            size.asSize(this),
             alpha,
             style,
             colorFilter,
@@ -784,8 +792,8 @@ public open class RemoteCanvasDrawScope0(
             startAngle,
             sweepAngle,
             useCenter,
-            topLeft.asOffset(),
-            size.asSize(),
+            topLeft.asOffset(this),
+            size.asSize(this),
             alpha,
             style,
             colorFilter,

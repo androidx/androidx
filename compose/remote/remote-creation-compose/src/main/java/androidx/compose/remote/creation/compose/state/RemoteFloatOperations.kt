@@ -102,7 +102,7 @@ public fun log(a: RemoteFloat): RemoteFloat =
 public fun ln(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.LN) { a -> ln(a) }
 
 public fun round(a: RemoteFloat): RemoteFloat =
-    a.unaryOp(AnimatedFloatExpression.ROUND) { a -> round(a) }
+    a.unaryOp(AnimatedFloatExpression.ROUND) { a -> Math.round(a).toFloat() }
 
 public fun sin(a: RemoteFloat): RemoteFloat = a.unaryOp(AnimatedFloatExpression.SIN) { a -> sin(a) }
 
@@ -147,13 +147,13 @@ public fun toRad(a: RemoteFloat): RemoteFloat =
  * @param tween The ratio between [from] and [to] that controls the result.
  */
 public fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteFloat {
-    val constFrom = from.constantValue
-    val constTo = to.constantValue
-    val constTween = tween.constantValue
+    val constFrom = from.constantValueOrNull
+    val constTo = to.constantValueOrNull
+    val constTween = tween.constantValueOrNull
     if (constFrom != null && constTo != null && constTween != null) {
         return RemoteFloat(constFrom + (constTo - constFrom) * constTween)
     }
-    return RemoteFloatExpression(constantValue = null) { creationState ->
+    return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         combineToFloatArray(creationState, arrayOf(from, to, tween), AnimatedFloatExpression.LERP)
     }
 }
@@ -168,12 +168,12 @@ public fun lerp(from: RemoteFloat, to: RemoteFloat, tween: RemoteFloat): RemoteF
  * @param tween The ratio between [from] and [to] that controls the result.
  */
 public fun lerp(from: Float, to: Float, tween: RemoteFloat): RemoteFloat {
-    tween.constantValue?.let {
+    tween.constantValueOrNull?.let {
         return RemoteFloat(from + (to - from) * it)
     }
 
     return RemoteFloatExpression(
-        constantValue = null,
+        constantValueOrNull = null,
         { creationState ->
             floatArrayOf(
                 from,
@@ -190,7 +190,7 @@ public fun lerp(from: Float, to: Float, tween: RemoteFloat): RemoteFloat {
  */
 public fun mad(a: RemoteFloat, b: RemoteFloat, c: RemoteFloat): RemoteFloat {
     return RemoteFloatExpression(
-        constantValue = null,
+        constantValueOrNull = null,
         { creationState ->
             floatArrayOf(
                 *(toArray(a, creationState)),
@@ -203,9 +203,9 @@ public fun mad(a: RemoteFloat, b: RemoteFloat, c: RemoteFloat): RemoteFloat {
 }
 
 public fun clamp(min: RemoteFloat, max: RemoteFloat, value: RemoteFloat): RemoteFloat {
-    val constMin = min.constantValue
-    val constMax = max.constantValue
-    val constValue = value.constantValue
+    val constMin = min.constantValueOrNull
+    val constMax = max.constantValueOrNull
+    val constValue = value.constantValueOrNull
     if (constMin != null && constMax != null && constValue != null) {
         return if (constValue < constMin) {
             min
@@ -215,13 +215,13 @@ public fun clamp(min: RemoteFloat, max: RemoteFloat, value: RemoteFloat): Remote
             value
         }
     }
-    return RemoteFloatExpression(constantValue = null) { creationState ->
+    return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         combineToFloatArray(creationState, arrayOf(min, max, value), AnimatedFloatExpression.CLAMP)
     }
 }
 
 public fun clamp(min: Float, max: Float, value: RemoteFloat): RemoteFloat {
-    value.constantValue?.let {
+    value.constantValueOrNull?.let {
         return if (it < min) {
             RemoteFloat(min)
         } else if (it > max) {
@@ -231,7 +231,7 @@ public fun clamp(min: Float, max: Float, value: RemoteFloat): RemoteFloat {
         }
     }
     return RemoteFloatExpression(
-        constantValue = null,
+        constantValueOrNull = null,
         { creationState ->
             floatArrayOf(
                 min,

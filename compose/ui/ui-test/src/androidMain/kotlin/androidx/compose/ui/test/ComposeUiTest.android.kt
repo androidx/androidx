@@ -624,7 +624,11 @@ internal constructor(
                 ) {
                     if (HasRobolectricFingerprint) {
                         idlingStrategy =
-                            RobolectricIdlingStrategy(composeRootRegistry, composeIdlingResource)
+                            RobolectricIdlingStrategy(
+                                composeRootRegistry,
+                                composeIdlingResource,
+                                idlingResourceRegistry,
+                            )
                     }
                     // Need to await quiescence before registering our ComposeIdlingResource because
                     // the

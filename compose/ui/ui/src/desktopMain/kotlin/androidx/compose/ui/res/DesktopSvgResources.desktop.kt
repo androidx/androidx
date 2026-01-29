@@ -23,9 +23,9 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageBitmapConfig
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.DrawCache
+import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import java.io.InputStream

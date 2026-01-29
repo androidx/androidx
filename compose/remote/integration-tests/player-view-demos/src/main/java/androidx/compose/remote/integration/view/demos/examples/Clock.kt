@@ -150,7 +150,10 @@ fun RcSimpleClock1(
 
             // hour hand
             withTransform({
-                translate(centerX - 64f, (centerY + top) / 2f)
+                translate(
+                    with(this@RemoteCanvas0) { (centerX - 64f).floatId },
+                    with(this@RemoteCanvas0) { ((centerY + top) / 2f).floatId },
+                )
                 scale(5f, 5f, Offset(0f, 0f))
             }) {
                 drawPath(androidPath.asComposePath(), Color(0xFFA4C639))
@@ -221,8 +224,8 @@ fun RcSimpleClock1(
                             path.close()
 
                             translate(
-                                (centerX).internalAsFloat(),
-                                (faceTop + bezel_thick / 2f - 20f).internalAsFloat(),
+                                (centerX).floatId,
+                                (faceTop + bezel_thick / 2f - 20f).floatId,
                             ) {
                                 drawPath(path = path, color = minHandColor)
                             }
@@ -293,9 +296,9 @@ fun RcSimpleClock1(
 
             val gmtPath = Path()
             gmtPath.moveTo(1f, 1f)
-            gmtPath.moveTo(centerX - 20f, top + (bezel_thick + 60f))
-            gmtPath.lineTo(centerX + 20f, top + (bezel_thick + 60f))
-            gmtPath.lineTo(centerX, top + (bezel_thick + 30f))
+            gmtPath.moveTo((centerX - 20f).floatId, (top + (bezel_thick + 60f)).floatId)
+            gmtPath.lineTo((centerX + 20f).floatId, (top + (bezel_thick + 60f)).floatId)
+            gmtPath.lineTo(centerX.floatId, (top + (bezel_thick + 30f)).floatId)
             gmtPath.close()
 
             rotate(gmtAngle, centerX, centerY) {

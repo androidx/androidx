@@ -18,15 +18,10 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RemoteContext
-import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
-import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.layout.RemoteFloatContext
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.remote.creation.compose.capture.RemoteDensity
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 /**
  * Represents a Density-independent pixel (Dp) value.
@@ -36,28 +31,19 @@ import androidx.compose.ui.unit.Dp
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteDp(public val value: RemoteFloat) : BaseRemoteState<Dp>() {
 
-    override val constantValue: Dp?
-        get() = null
-
-    override val hasConstantValue: Boolean
-        get() = false
+    override val constantValueOrNull: Dp?
+        get() = value.constantValueOrNull?.dp
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        return toPx().writeToDocument(creationState)
+        return toPx(creationState.remoteDensity).writeToDocument(creationState)
     }
 
     /**
      * Function to convert this [RemoteDp] to a density-independent pixel value. It multiplies the
      * current float value by the screen\'s density.
      */
-    public fun toPx(): RemoteFloat {
-        return RemoteFloatExpression(constantValue = null) { creationState ->
-            floatArrayOf(
-                *value.arrayForCreationState(creationState),
-                RemoteContext.FLOAT_DENSITY,
-                AnimatedFloatExpression.MUL,
-            )
-        }
+    public fun toPx(density: RemoteDensity): RemoteFloat {
+        return density.density * value
     }
 }
 
@@ -70,21 +56,4 @@ public val Int.rdp: RemoteDp
 /** Extension property to convert a [Dp] to a [RemoteDp]. */
 public fun Dp.asRdp(): RemoteDp {
     return RemoteDp(this.value.rf)
-}
-
-/**
- * A Composable function to remember and provide a [RemoteDp] value.
- *
- * @param content A lambda that takes a [RemoteFloatContext] (providing access to the remote
- *   creation state for float-related operations) and returns a [Dp] value.
- * @return A [RemoteDp] instance that will be remembered across recompositions.
- */
-@Composable
-@RemoteComposable
-public fun rememberRemoteDpValue(content: RemoteFloatContext.() -> Dp): RemoteDp {
-    val state = LocalRemoteComposeCreationState.current
-    val context = RemoteFloatContext(state)
-    val valueId = state.document.addFloatConstant(content(context).value)
-    val value = RemoteFloat(valueId)
-    return remember { value.asRemoteDp() }
 }

@@ -16,33 +16,57 @@
 
 package androidx.compose.ui.text.intl
 
+import androidx.compose.runtime.Immutable
 import platform.Foundation.*
 
-actual typealias PlatformLocale = NSLocale
-
-internal actual val PlatformLocale.language: String
-    get() = languageCode
-
-internal actual val PlatformLocale.script: String
-    get() = scriptCode.orEmpty()
-
-internal actual val PlatformLocale.region: String
-    get() = countryCode ?: "US"
-
-internal actual fun PlatformLocale.getLanguageTag(): String =  localeIdentifier
+@Deprecated(
+    message = "Use platform.Foundation.NSLocale directly instead",
+    replaceWith = ReplaceWith("platform.Foundation.NSLocale"),
+)
+typealias PlatformLocale = NSLocale
 
 internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
     object : PlatformLocaleDelegate {
         override val current: LocaleList
-            get() = LocaleList(NSLocale.preferredLanguages.map {
-                Locale(NSLocale(it as String))
-            })
-
-
-        override fun parseLanguageTag(languageTag: String): PlatformLocale {
-            return NSLocale(languageTag)
-        }
+            get() = LocaleList(NSLocale.preferredLanguages.map { Locale(NSLocale(it as String)) })
     }
 
-internal actual fun PlatformLocale.isRtl(): Boolean =
-    NSLocale.characterDirectionForLanguage(language) == NSLocaleLanguageDirectionRightToLeft
+internal fun NSLocale.isRtl(): Boolean =
+    NSLocale.characterDirectionForLanguage(languageCode) == NSLocaleLanguageDirectionRightToLeft
+
+
+// TODO: https://youtrack.jetbrains.com/issue/CMP-9697/Add-public-API-to-create-a-Compose-Locale-instance-via-NSLocale
+@Immutable
+actual class Locale internal constructor(internal val platformLocale: NSLocale) {
+    actual val language: String
+        get() = platformLocale.languageCode
+    actual val script: String
+        get() = platformLocale.scriptCode.orEmpty()
+    actual val region: String
+        get() = platformLocale.countryCode ?: "US"
+
+    actual fun toLanguageTag(): String =
+        platformLocale.languageIdentifier
+
+    actual override operator fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is Locale) return false
+        if (this === other) return true
+        return toLanguageTag() == other.toLanguageTag()
+    }
+
+    actual override fun hashCode(): Int = toLanguageTag().hashCode()
+
+    actual override fun toString(): String = toLanguageTag()
+
+    actual companion object {
+        actual val current: Locale
+            get() = platformLocaleDelegate.current[0]
+    }
+
+    actual constructor(languageTag: String): this(NSLocale(languageTag))
+}
+
+internal actual fun Locale.isRtl(): Boolean {
+    return platformLocale.isRtl()
+}

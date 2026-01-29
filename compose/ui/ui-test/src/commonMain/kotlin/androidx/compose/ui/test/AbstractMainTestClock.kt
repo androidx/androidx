@@ -26,7 +26,7 @@ internal abstract class AbstractMainTestClock(
      * The underlying scheduler which this clock controls. Only advance the time or run current
      * tasks from the scheduler on the UI thread, as any task could be a UI thread only task.
      */
-    private val scheduler: TestCoroutineScheduler,
+    override val scheduler: TestCoroutineScheduler,
     private val frameDelayMillis: Long,
     private val isStandardTestDispatcherSupportEnabled: Boolean,
     private val runOnUiThread: (action: () -> Unit) -> Unit,

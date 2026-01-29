@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.modifier
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.modifiers.UnsupportedModifier
@@ -35,7 +36,7 @@ public class ClipModifier(
     public val size: DpSize,
     public val density: Density,
 ) : RemoteModifier.Element {
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         val remoteShape = remoteShape()
 
         return if (remoteShape == null) {

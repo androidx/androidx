@@ -198,7 +198,7 @@ class TextFieldSelectionManagerTest {
         assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(fakeTextRange)
-        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.LongPress)
 
         verify(focusRequester, times(1)).requestFocus()
     }
@@ -217,7 +217,7 @@ class TextFieldSelectionManagerTest {
         assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(state.showFloatingToolbar).isFalse()
         assertThat(value.selection).isEqualTo(TextRange(fakeLineEnd))
-        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.LongPress)
 
         verify(focusRequester, times(1)).requestFocus()
     }
@@ -232,7 +232,8 @@ class TextFieldSelectionManagerTest {
         assertThat(state.handleState).isEqualTo(HandleState.None)
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
         assertThat(state.showFloatingToolbar).isFalse()
-        verify(hapticFeedback, times(2)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.LongPress)
+        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test
@@ -247,7 +248,8 @@ class TextFieldSelectionManagerTest {
         assertThat(state.handleState).isEqualTo(HandleState.Selection)
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
         assertThat(state.showFloatingToolbar).isTrue()
-        verify(hapticFeedback, times(2)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.LongPress)
+        verify(hapticFeedback, times(1)).performHapticFeedback(HapticFeedbackType.TextHandleMove)
     }
 
     @Test

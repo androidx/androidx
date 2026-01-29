@@ -23,6 +23,7 @@ import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableObjectIntMap
 import androidx.compose.remote.core.CoreDocument
 import androidx.compose.remote.core.RcPlatformServices
+import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
@@ -31,6 +32,7 @@ import androidx.compose.remote.creation.compose.state.AnimatedRemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteInt
 import androidx.compose.remote.creation.compose.state.RemoteState
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.MutableState
@@ -40,16 +42,20 @@ import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.ui.geometry.Size
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public open class RemoteComposeCreationState {
+public open class RemoteComposeCreationState : RemoteStateScope {
+
+    override val creationState: RemoteComposeCreationState
+        get() = this
 
     public val creationDisplayInfo: CreationDisplayInfo
     public val profile: Profile
+    public override lateinit var remoteDensity: RemoteDensity
 
     public val animCache: MutableIntObjectMap<AnimatedRemoteFloat> = MutableIntObjectMap()
     public val expressionCache: MutableIntObjectMap<RemoteFloat> = MutableIntObjectMap()
     public val intExpressionCache: MutableIntObjectMap<RemoteInt> = MutableIntObjectMap()
     public var ready: Boolean = true
-    public var document: RemoteComposeWriter
+    override lateinit var document: RemoteComposeWriter
     public val remoteVariableToId: MutableObjectIntMap<RemoteState<*>> = MutableObjectIntMap()
     public val floatArrayCache: HashMap<RemoteState<*>, FloatArray> = HashMap()
     public val longArrayCache: HashMap<RemoteState<*>, LongArray> = HashMap()
@@ -57,6 +63,7 @@ public open class RemoteComposeCreationState {
     public val namedState: HashMap<String, RemoteState<*>> = HashMap()
 
     public val time: MutableState<Long> = mutableLongStateOf(0L)
+    private val textFromFloatCache = MutableObjectIntMap<TextFromFloatParams>()
 
     public val platform: RcPlatformServices
         get() = profile.platform
@@ -69,16 +76,19 @@ public open class RemoteComposeCreationState {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
         document = profile.create(creationDisplayInfo, null) as RemoteComposeWriterAndroid
+        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
     }
 
     public constructor(
         creationDisplayInfo: CreationDisplayInfo,
         profile: Profile,
         writerEvents: WriterEvents?,
+        remoteDensity: RemoteDensity = RemoteDensity.from(creationDisplayInfo),
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
         document = profile.create(creationDisplayInfo, writerEvents) as RemoteComposeWriterAndroid
+        this.remoteDensity = remoteDensity
     }
 
     public constructor(platform: RcPlatformServices, size: Size) {
@@ -93,6 +103,7 @@ public open class RemoteComposeCreationState {
             )
         this.creationDisplayInfo = CreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
         document = RemoteComposeWriterAndroid(size.width.toInt(), size.height.toInt(), "", platform)
+        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
     }
 
     public constructor(platform: RcPlatformServices, size: Size, apiLevel: Int, profiles: Int) {
@@ -120,22 +131,25 @@ public open class RemoteComposeCreationState {
                     platform,
                 )
         }
+        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
     }
 
     public constructor(
         creationDisplayInfo: CreationDisplayInfo,
         profile: Profile,
-        document: RemoteComposeWriter,
+        writer: RemoteComposeWriter,
     ) {
         this.creationDisplayInfo = creationDisplayInfo
         this.profile = profile
-        this.document = document
+        this.document = writer
+        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
     }
 
     public constructor(size: Size, profile: Profile) {
         this.profile = profile
         this.creationDisplayInfo = CreationDisplayInfo(size.width.toInt(), size.height.toInt(), 160)
         this.document = profile.create(creationDisplayInfo, null)
+        this.remoteDensity = RemoteDensity.from(creationDisplayInfo)
     }
 
     public open fun <T : RemoteState<*>> getOrCreateNamedState(
@@ -146,6 +160,23 @@ public open class RemoteComposeCreationState {
     ): T {
         return type.cast(namedState.getOrPut("$domain:$name", function))!!
     }
+
+    internal data class TextFromFloatParams(
+        val id: Int,
+        val before: Int,
+        val after: Int,
+        val flags: Int,
+    )
+
+    internal fun createTextFromFloat(params: TextFromFloatParams): Int =
+        textFromFloatCache.getOrPut(params) {
+            document.createTextFromFloat(
+                Utils.asNan(params.id),
+                params.before,
+                params.after,
+                params.flags,
+            )
+        }
 }
 
 // Density and Size should be taken from Compose in this mode

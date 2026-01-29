@@ -31,6 +31,8 @@ import androidx.compose.remote.creation.compose.shaders.linearGradient
 import androidx.compose.remote.creation.compose.shaders.radialGradient
 import androidx.compose.remote.creation.compose.shaders.sweepGradient
 import androidx.compose.remote.creation.compose.shaders.verticalGradient
+import androidx.compose.remote.creation.compose.state.RemoteColor
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
@@ -62,10 +64,26 @@ class RemoteBrushTest {
         )
     }
 
-    private val colors = listOf(Color.Red, Color.Blue)
+    private val colors = listOf(Color.Red.rc, Color.Blue.rc)
+    private val dynamicColors =
+        listOf(
+            // Force non constant values with createReference()
+            RemoteColor(
+                alpha = 1f.rf.createReference(),
+                red = 1f.rf,
+                green = 0f.rf,
+                blue = 0f.rf,
+            ), // Red
+            RemoteColor(
+                alpha = 1f.rf.createReference(),
+                red = 0f.rf,
+                green = 0f.rf,
+                blue = 1f.rf,
+            ), // Blue
+        )
 
     private val tests =
-        listOf<Pair<String, @Composable () -> Unit>>(
+        listOf<Pair<String, @Composable @RemoteComposable () -> Unit>>(
             "LinearGradient_Infinite" to
                 {
                     RemoteBox(
@@ -74,7 +92,7 @@ class RemoteBrushTest {
                                 .background(
                                     RemoteBrush.linearGradient(
                                         colors = colors,
-                                        start = RemoteOffset(0f, 0f),
+                                        start = RemoteOffset(0f.rf, 0f.rf),
                                         end = RemoteOffset(Offset.Infinite),
                                     )
                                 )
@@ -135,6 +153,30 @@ class RemoteBrushTest {
                                 )
                     )
                 },
+            "LinearGradient_DynamicColors" to
+                {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxSize()
+                                .background(RemoteBrush.linearGradient(colors = dynamicColors))
+                    )
+                },
+            "RadialGradient_DynamicColors" to
+                {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxSize()
+                                .background(RemoteBrush.radialGradient(colors = dynamicColors))
+                    )
+                },
+            "SweepGradient_DynamicColors" to
+                {
+                    RemoteBox(
+                        modifier =
+                            RemoteModifier.fillMaxSize()
+                                .background(RemoteBrush.sweepGradient(colors = dynamicColors))
+                    )
+                },
         )
 
     @Test
@@ -172,6 +214,6 @@ class RemoteBrushTest {
     private companion object {
         val Padding = 24.rdp
         val ContainerSize = 100.rdp
-        val ContainerColor = Color(0xFFCFD8DC.toInt())
+        val ContainerColor = Color(0xFFCFD8DC.toInt()).rc
     }
 }

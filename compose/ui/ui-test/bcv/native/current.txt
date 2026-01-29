@@ -82,6 +82,8 @@ abstract interface androidx.compose.ui.test/KeyInjectionScope : androidx.compose
 abstract interface androidx.compose.ui.test/MainTestClock { // androidx.compose.ui.test/MainTestClock|null[0]
     abstract val currentTime // androidx.compose.ui.test/MainTestClock.currentTime|{}currentTime[0]
         abstract fun <get-currentTime>(): kotlin/Long // androidx.compose.ui.test/MainTestClock.currentTime.<get-currentTime>|<get-currentTime>(){}[0]
+    open val scheduler // androidx.compose.ui.test/MainTestClock.scheduler|{}scheduler[0]
+        open fun <get-scheduler>(): kotlinx.coroutines.test/TestCoroutineScheduler // androidx.compose.ui.test/MainTestClock.scheduler.<get-scheduler>|<get-scheduler>(){}[0]
 
     abstract var autoAdvance // androidx.compose.ui.test/MainTestClock.autoAdvance|{}autoAdvance[0]
         abstract fun <get-autoAdvance>(): kotlin/Boolean // androidx.compose.ui.test/MainTestClock.autoAdvance.<get-autoAdvance>|<get-autoAdvance>(){}[0]

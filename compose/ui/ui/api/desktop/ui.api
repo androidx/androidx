@@ -4468,8 +4468,10 @@ public abstract interface class androidx/compose/ui/window/PopupPositionProvider
 public final class androidx/compose/ui/window/PopupProperties {
 	public static final field $stable I
 	public fun <init> ()V
-	public fun <init> (ZZZZ)V
+	public synthetic fun <init> (ZZZZ)V
 	public synthetic fun <init> (ZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun <init> (ZZZZZ)V
+	public synthetic fun <init> (ZZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (ZZZZZZ)V
 	public synthetic fun <init> (ZZZZZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z

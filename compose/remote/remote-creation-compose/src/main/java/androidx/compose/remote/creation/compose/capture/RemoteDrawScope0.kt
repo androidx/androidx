@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.shaders.RemoteBrush
 import androidx.compose.remote.creation.compose.state.RemoteFloat
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.geometry.CornerRadius
@@ -130,7 +131,7 @@ public inline fun RemoteDrawScope0.rotate(
     degrees: Float,
     pivot: RemoteOffset = remoteCenter,
     block: RemoteDrawScope0.() -> Unit,
-): Unit = withTransform({ rotate(degrees, pivot.asOffset()) }, block)
+): Unit = withTransform({ rotate(degrees, pivot.asOffset(this@rotate)) }, block)
 
 /**
  * Add a rotation (in radians clockwise) to the current transform at the given pivot point. The
@@ -164,7 +165,7 @@ public inline fun RemoteDrawScope0.scale(
     scaleY: Float,
     pivot: RemoteOffset = remoteCenter,
     block: RemoteDrawScope0.() -> Unit,
-): Unit = withTransform({ scale(scaleX, scaleY, pivot.asOffset()) }, block)
+): Unit = withTransform({ scale(scaleX, scaleY, pivot.asOffset(this@scale)) }, block)
 
 /**
  * Add an axis-aligned scale to the current transform, scaling both the horizontal direction and the
@@ -180,7 +181,7 @@ public inline fun RemoteDrawScope0.scale(
     scale: Float,
     pivot: RemoteOffset = remoteCenter,
     block: RemoteDrawScope0.() -> Unit,
-): Unit = withTransform({ scale(scale, scale, pivot.asOffset()) }, block)
+): Unit = withTransform({ scale(scale, scale, pivot.asOffset(this@scale)) }, block)
 
 /**
  * Reduces the clip region to the intersection of the current clip and the given rectangle indicated
@@ -280,7 +281,7 @@ public inline fun RemoteDrawScope0.withTransform(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @DrawScopeMarker
 public // @JvmDefaultWithCompatibility
-interface RemoteDrawScope0 : Density {
+interface RemoteDrawScope0 : Density, RemoteStateScope {
     public val canvas: RecordingCanvas
         get() = drawContext.canvas.nativeCanvas as RecordingCanvas
 
@@ -308,6 +309,9 @@ interface RemoteDrawScope0 : Density {
 
     /** The layout direction of the layout being drawn in. */
     public val layoutDirection: LayoutDirection
+
+    override val remoteDensity: RemoteDensity
+        get() = canvas.remoteDensity
 
     public val remote: RemoteAccess
 

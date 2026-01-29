@@ -20,4 +20,5 @@ internal enum class AnchoredDraggableTestValue {
     A,
     B,
     C,
+    D,
 }

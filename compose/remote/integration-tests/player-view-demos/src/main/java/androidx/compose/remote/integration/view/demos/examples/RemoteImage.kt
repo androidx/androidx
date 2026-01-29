@@ -19,12 +19,11 @@ package androidx.compose.remote.integration.view.demos.examples
 import androidx.compose.foundation.layout.Box
 import androidx.compose.remote.core.operations.utilities.ImageScaling
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
-import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.drawIntoRemoteCanvas
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.modifier.toComposeUiLayout
-import androidx.compose.remote.creation.compose.state.RemoteBitmap
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.compose.state.rf
@@ -34,8 +33,6 @@ import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.layout.ContentScale
 
 @Suppress("RestrictedApiAndroidX")
@@ -60,17 +57,13 @@ internal class RemoteComposeImageModifier(
     val alpha: RemoteFloat,
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
-        drawIntoCanvas {
-            if (it.nativeCanvas is RecordingCanvas) {
-                (it.nativeCanvas as RecordingCanvas)
-                    .document
-                    .image(
-                        modifier.toRemoteCompose(),
-                        bitmapId,
-                        contentScale.toRemoteCompose(),
-                        alpha.internalAsFloat(),
-                    )
-            }
+        drawIntoRemoteCanvas {
+            it.document.image(
+                with(modifier) { it.toRecordingModifier() },
+                bitmapId,
+                contentScale.toRemoteCompose(),
+                with(it) { alpha.floatId },
+            )
         }
     }
 }
@@ -103,38 +96,6 @@ public fun RemoteImage(
     Box(
         modifier =
             RemoteComposeImageModifier(modifier, bitmapId, contentScale, alpha)
-                .then(
-                    modifier.semantics { contentDescription?.let { text = it } }.toComposeUiLayout()
-                )
-    )
-}
-
-/**
- * A composable that lays out and draws a given [RemoteBitmap]. This is the remote equivalent of
- * [androidx.compose.foundation.Image].
- *
- * @param remoteBitmap The [RemoteBitmap] to be drawn.
- * @param contentDescription Text used by accessibility services to describe what this image
- *   represents.
- * @param modifier The [RemoteModifier] to be applied to this layout node.
- * @param contentScale The rule to apply to scale the image when its size does not match the layout
- *   size. Defaults to [ContentScale.Fit].
- * @param alpha Optional opacity to be applied to the [remoteBitmap] when it is rendered.
- */
-@Suppress("RestrictedApiAndroidX")
-@Composable
-@RemoteComposable
-public fun RemoteImage(
-    remoteBitmap: RemoteBitmap,
-    contentDescription: RemoteString?,
-    modifier: RemoteModifier = RemoteModifier,
-    contentScale: ContentScale = ContentScale.Fit,
-    alpha: RemoteFloat = DefaultAlpha.rf,
-) {
-    @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-    Box(
-        modifier =
-            RemoteComposeImageModifier(modifier, remoteBitmap.id, contentScale, alpha)
                 .then(
                     modifier.semantics { contentDescription?.let { text = it } }.toComposeUiLayout()
                 )

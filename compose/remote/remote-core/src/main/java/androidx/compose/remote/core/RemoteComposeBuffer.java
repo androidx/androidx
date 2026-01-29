@@ -857,7 +857,8 @@ public class RemoteComposeBuffer {
      * @param operations the operations list to add to
      */
     public void inflateFromBuffer(@NonNull ArrayList<Operation> operations) {
-        mApiLevel = Header.readApiLevel(mBuffer);
+        mBuffer.setIndex(0);
+        mApiLevel = Header.peekApiLevel(mBuffer);
         int profiles = 0;
         if (mApiLevel >= 7) {
             try {

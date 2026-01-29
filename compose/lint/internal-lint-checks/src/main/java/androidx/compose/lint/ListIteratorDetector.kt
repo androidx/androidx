@@ -27,15 +27,15 @@ import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
-import com.intellij.psi.impl.compiled.ClsMethodImpl
-import kotlin.metadata.KmClassifier
-import org.jetbrains.kotlin.asJava.unwrapped
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
+import org.jetbrains.kotlin.analysis.api.symbols.receiverType
+import org.jetbrains.kotlin.name.StandardClassIds
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtForExpression
-import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UForEachExpression
-import org.jetbrains.uast.UTypeReferenceExpression
-import org.jetbrains.uast.toUElement
 
 /**
  * Lint [Detector] to prevent allocating Iterators when iterating on a [List]. Instead of using `for
@@ -75,49 +75,26 @@ class ListIteratorDetector : Detector(), SourceCodeScanner {
 
                 // We are calling a method on a `List` type
                 if (receiverType?.inheritsFrom(JavaList) == true) {
-                    when (val method = node.resolve()?.unwrapped) {
-                        // Parsing a class file
-                        is ClsMethodImpl -> {
-                            method.checkForIterableReceiver(node)
-                        }
-                        // Parsing Kotlin source
-                        is KtNamedFunction -> {
-                            method.checkForIterableReceiver(node)
+                    val source = node.sourcePsi as? KtCallExpression ?: return
+                    analyze(source) {
+                        val functionCallSymbol =
+                            source
+                                .resolveToCall()
+                                ?.singleFunctionCallOrNull()
+                                ?.partiallyAppliedSymbol
+                        val receiverType = functionCallSymbol?.symbol?.receiverType
+                        val hasIterableReceiver =
+                            receiverType?.expandedSymbol?.classId == StandardClassIds.Iterable
+                        if (hasIterableReceiver) {
+                            context.report(
+                                ISSUE,
+                                node,
+                                context.getNameLocation(node),
+                                "Creating an unnecessary Iterator to iterate through a List",
+                            )
                         }
                     }
                 }
-            }
-
-            private fun ClsMethodImpl.checkForIterableReceiver(node: UCallExpression) {
-                val kmFunction = this.toKmFunction()
-
-                kmFunction?.let {
-                    if (it.receiverParameterType?.classifier == KotlinIterableClassifier) {
-                        context.report(
-                            ISSUE,
-                            node,
-                            context.getNameLocation(node),
-                            "Creating an unnecessary Iterator to iterate through a List",
-                        )
-                    }
-                }
-            }
-
-            private fun KtNamedFunction.checkForIterableReceiver(node: UCallExpression) {
-                val receiver = receiverTypeReference
-                // If there is no receiver, or the receiver isn't an Iterable, ignore
-                if (
-                    (receiver.toUElement() as? UTypeReferenceExpression)?.getQualifiedName() !=
-                        JavaIterable.javaFqn
-                )
-                    return
-
-                context.report(
-                    ISSUE,
-                    node,
-                    context.getNameLocation(node),
-                    "Creating an unnecessary Iterator to iterate through a List",
-                )
             }
         }
 
@@ -140,12 +117,5 @@ class ListIteratorDetector : Detector(), SourceCodeScanner {
     }
 }
 
-// Kotlin collections on JVM are just the underlying Java collections
-private val JavaLangPackageName = Package("java.lang")
 private val JavaUtilPackageName = Package("java.util")
 private val JavaList = Name(JavaUtilPackageName, "List")
-private val JavaIterable = Name(JavaLangPackageName, "Iterable")
-
-private val KotlinCollectionsPackageName = Package("kotlin.collections")
-private val KotlinIterable = Name(KotlinCollectionsPackageName, "Iterable")
-private val KotlinIterableClassifier = KmClassifier.Class(KotlinIterable.kmClassName)

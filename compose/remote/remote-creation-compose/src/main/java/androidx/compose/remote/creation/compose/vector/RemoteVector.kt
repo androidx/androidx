@@ -24,6 +24,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteSize
 import androidx.compose.remote.creation.compose.state.RemoteColorFilter
 import androidx.compose.remote.creation.compose.state.RemotePaint
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -55,8 +56,11 @@ import androidx.compose.ui.util.fastForEach
 
 /** DSL for building a vector with [RemotePathBuilder]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public inline fun RemotePathData(block: RemotePathBuilder.() -> Unit): List<PathNode> =
-    with(RemotePathBuilder()) {
+public inline fun RemotePathData(
+    scope: RemoteStateScope,
+    block: RemotePathBuilder.() -> Unit,
+): List<PathNode> =
+    with(RemotePathBuilder(scope)) {
         block()
         nodes
     }

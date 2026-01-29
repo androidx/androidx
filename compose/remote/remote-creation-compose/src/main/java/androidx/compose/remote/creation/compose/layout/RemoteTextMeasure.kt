@@ -55,7 +55,7 @@ public fun measureTextWidth(
     val creationState = LocalRemoteComposeCreationState.current
     val doc = creationState.document
 
-    return RemoteFloatExpression(constantValue = null) { creationState ->
+    return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         doc.painter
             .setTextSize(textSize)
             .setTypeface(
@@ -85,7 +85,7 @@ public fun measureTextHeight(
     val creationState = LocalRemoteComposeCreationState.current
     val doc = creationState.document
 
-    return RemoteFloatExpression(constantValue = null) { creationState ->
+    return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         doc.painter
             .setTextSize(textSize)
             .setTypeface(
@@ -110,7 +110,7 @@ public fun measureTextLength(text: RemoteString): RemoteFloat {
     val creationState = LocalRemoteComposeCreationState.current
     val doc = creationState.document
 
-    return RemoteFloatExpression(constantValue = null) { creationState ->
+    return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
         floatArrayOf(
             doc.textAttribute(text.getIdForCreationState(creationState), TextAttribute.TEXT_LENGTH)
         )

@@ -17,6 +17,7 @@
 package androidx.compose.runtime
 
 import androidx.compose.material.Text
+import androidx.compose.runtime.tooling.ComposeToolingApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SmallTest
@@ -365,6 +366,55 @@ class LiveEditApiTests : BaseComposeTest() {
             errors = compositionErrors()
             assertThat(errors).hasSize(0)
         }
+    }
+
+    @OptIn(ComposeToolingApi::class)
+    @Test
+    @MediumTest
+    fun throwError_recompositionErrorsListener() {
+        val start = errorInvoked
+        val recompositionErrors =
+            mutableMapOf<RecomposerInfo, MutableList<RecomposerErrorInformation?>>()
+        val shouldThrow = mutableStateOf(false)
+        activity.show {
+            LaunchedEffect(Unit) {
+                Recomposer.runningRecomposers.collect { recomposerInfos ->
+                    recomposerInfos.forEach { info ->
+                        recompositionErrors[info] = mutableListOf()
+                        info.errorState.collect { error -> recompositionErrors[info]!!.add(error) }
+                    }
+                }
+            }
+            TestError { shouldThrow.value }
+        }
+
+        activity.waitForAFrame()
+
+        run {
+            shouldThrow.value = true
+            activity.waitForAFrame()
+
+            shouldThrow.value = false
+            invalidateGroup(errorKey)
+            activity.waitForAFrame()
+
+            assertTrue("TestError should be invoked!", errorInvoked > start)
+        }
+
+        assertThat(recompositionErrors).hasSize(1)
+        val errorsList = recompositionErrors.values.first()
+        assertThat(errorsList).hasSize(3)
+
+        // there are no errors at the start
+        assertThat(errorsList[0]).isNull()
+
+        // check the error
+        assertThat(errorsList[1]).isNotNull()
+        assertThat(errorsList[1]!!.cause.message).isEqualTo("Test crash!")
+        assertThat(errorsList[1]!!.isRecoverable).isEqualTo(true)
+
+        // there are no errors at the end
+        assertThat(errorsList[2]).isNull()
     }
 
     @Test

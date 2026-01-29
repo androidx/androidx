@@ -21,7 +21,6 @@ package androidx.compose.foundation.lint
 import androidx.compose.lint.Names
 import androidx.compose.lint.inheritsFrom
 import androidx.compose.lint.isInPackageName
-import androidx.compose.lint.toKmFunction
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation
@@ -33,7 +32,11 @@ import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.tryResolveUDeclaration
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
-import kotlin.metadata.KmClassifier
+import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.resolution.singleFunctionCallOrNull
+import org.jetbrains.kotlin.analysis.api.resolution.symbol
+import org.jetbrains.kotlin.analysis.api.symbols.receiverType
+import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtProperty
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UDeclaration
@@ -63,7 +66,7 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
         // Non Modifier Offset
         if (!method.isInPackageName(FoundationNames.Layout.PackageName)) return
 
-        if (method.isDesiredOffsetOverload() && hasStateBackedArguments(node)) {
+        if (node.isDesiredOffsetOverload() && hasStateBackedArguments(node)) {
             context.report(
                 UseOfNonLambdaOverload,
                 node,
@@ -78,23 +81,26 @@ class NonLambdaOffsetModifierDetector : Detector(), SourceCodeScanner {
      *
      * Note that method-name is already handled by [getApplicableMethodNames].
      */
-    private fun PsiMethod.isDesiredOffsetOverload(): Boolean {
-        val kmFunction = this.toKmFunction() ?: return false
-        val receiverClassifier = kmFunction.receiverParameterType?.classifier ?: return false
-        val returnTypeClassifier = kmFunction.returnType.classifier
-
-        if (receiverClassifier != ModifierClassifier) {
-            return false
+    private fun UCallExpression.isDesiredOffsetOverload(): Boolean {
+        val source = sourcePsi as? KtCallExpression ?: return false
+        analyze(source) {
+            val functionCallSymbol =
+                source.resolveToCall()?.singleFunctionCallOrNull()?.symbol ?: return false
+            if (
+                functionCallSymbol.receiverType?.expandedSymbol?.classId !=
+                    Names.Ui.Modifier.classId
+            )
+                return false
+            if (
+                functionCallSymbol.returnType.expandedSymbol?.classId != Names.Ui.Modifier.classId
+            ) {
+                return false
+            }
+            if (functionCallSymbol.valueParameters.size != 2) return false
+            return functionCallSymbol.valueParameters.all {
+                it.returnType.expandedSymbol?.classId == Names.Ui.Unit.Dp.classId
+            }
         }
-        if (returnTypeClassifier != ModifierClassifier) {
-            return false
-        }
-
-        val valueParameters = kmFunction.valueParameters
-        if (valueParameters.size != 2) {
-            return false
-        }
-        return valueParameters.all { it.type.classifier == DpClassifier }
     }
 
     private fun hasStateBackedArguments(node: UCallExpression): Boolean {
@@ -169,7 +175,3 @@ private fun UDeclaration.isDelegateOfState(): Boolean {
     val expressionType = delegateExpression.skipParenthesizedExprDown().getExpressionType()
     return expressionType?.inheritsFrom(Names.Runtime.State) ?: false
 }
-
-private val ModifierClassifier = KmClassifier.Class(Names.Ui.Modifier.kmClassName)
-
-private val DpClassifier = KmClassifier.Class(Names.Ui.Unit.Dp.kmClassName)

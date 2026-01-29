@@ -25,11 +25,12 @@ import androidx.compose.ui.util.fastMap
 
 /** Represents an array of floats. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteFloatArray(public override val constantValue: List<RemoteFloat>?) :
+public class RemoteFloatArray(public override val constantValueOrNull: List<RemoteFloat>?) :
     BaseRemoteState<List<RemoteFloat>>() {
 
     override fun writeToDocument(creationState: RemoteComposeCreationState): Int {
-        val asFloat = constantValue!!.fastMap { it.toFloat() }.toFloatArray()
+        val asFloat =
+            with(creationState) { constantValueOrNull!!.fastMap { it.floatId }.toFloatArray() }
         return Utils.idFromNan(creationState.document.addFloatArray(asFloat))
     }
 
@@ -38,10 +39,10 @@ public class RemoteFloatArray(public override val constantValue: List<RemoteFloa
      * dereference operation on a remote float array.
      */
     public operator fun get(v: RemoteFloat): RemoteFloat {
-        v.constantValue?.let {
-            return constantValue!![it.toInt()]
+        v.constantValueOrNull?.let {
+            return constantValueOrNull!![it.toInt()]
         }
-        return RemoteFloatExpression(constantValue = null) { creationState ->
+        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
             floatArrayOf(
                 *arrayForCreationState(creationState),
                 *v.arrayForCreationState(creationState),
@@ -54,17 +55,17 @@ public class RemoteFloatArray(public override val constantValue: List<RemoteFloa
      * Array access operator for [RemoteFloatArray] with an [Int] index. Performs a dereference
      * operation on a remote float array.
      */
-    public operator fun get(v: Int): RemoteFloat = constantValue!![v]
+    public operator fun get(v: Int): RemoteFloat = constantValueOrNull!![v]
 
     /**
      * Array access operator for [RemoteFloatArray] with a [RemoteInt] index. Performs a dereference
      * operation on a remote float array.
      */
     public operator fun get(v: RemoteInt): RemoteFloat {
-        v.constantValue?.let {
-            return constantValue!![it]
+        v.constantValueOrNull?.let {
+            return constantValueOrNull!![it]
         }
-        return RemoteFloatExpression(constantValue = null) { creationState ->
+        return RemoteFloatExpression(constantValueOrNull = null) { creationState ->
             floatArrayOf(
                 *arrayForCreationState(creationState),
                 v.getFloatIdForCreationState(creationState),

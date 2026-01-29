@@ -233,6 +233,7 @@ private fun TextFieldSelectionState.textManager(coroutineScope: CoroutineScope):
                     endOffset = index,
                     isStartHandle = false,
                     adjustment = SelectionAdjustment.Word,
+                    hapticFeedbackType = null,
                 )
                 textFieldState.selectCharsIn(selection)
             }

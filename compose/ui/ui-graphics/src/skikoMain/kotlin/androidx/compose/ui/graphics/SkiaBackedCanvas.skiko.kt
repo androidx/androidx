@@ -32,6 +32,10 @@ import org.jetbrains.skia.MipmapMode
 import org.jetbrains.skia.SamplingMode
 import org.jetbrains.skia.impl.use
 
+@Deprecated(
+    message = "Use direct reference to org.jetbrains.skia.Canvas instead of typealias",
+    replaceWith = ReplaceWith("Canvas", "org.jetbrains.skia.Canvas")
+)
 actual typealias NativeCanvas = org.jetbrains.skia.Canvas
 
 internal actual fun ActualCanvas(image: ImageBitmap): Canvas {
@@ -47,7 +51,8 @@ internal actual fun ActualCanvas(image: ImageBitmap): Canvas {
  */
 fun org.jetbrains.skia.Canvas.asComposeCanvas(): Canvas = SkiaBackedCanvas(this)
 
-actual val Canvas.nativeCanvas: NativeCanvas get() = (this as SkiaBackedCanvas).skia
+val Canvas.nativeCanvas: org.jetbrains.skia.Canvas
+    get() = (this as SkiaBackedCanvas).skia
 
 // This was added for internal usage from old render layers (another submodule),
 // but wasn't properly marked as internal. Keep it as deprecated for some time to be safe.

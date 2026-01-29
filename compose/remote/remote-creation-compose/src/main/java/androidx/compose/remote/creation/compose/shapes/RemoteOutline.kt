@@ -22,9 +22,6 @@ import androidx.compose.remote.creation.RemotePath
 import androidx.compose.remote.creation.compose.layout.RemoteDrawScope
 import androidx.compose.remote.creation.compose.layout.RemoteOffset
 import androidx.compose.remote.creation.compose.layout.RemoteSize
-import androidx.compose.remote.creation.compose.layout.conicTo
-import androidx.compose.remote.creation.compose.layout.lineTo
-import androidx.compose.remote.creation.compose.layout.moveTo
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemotePaint
 import androidx.compose.remote.creation.compose.state.rf
@@ -84,34 +81,46 @@ public sealed class RemoteOutline {
             val circularArcWeight = 0.7071f.rf // Weight for a 90-degree circular arc
 
             // 1. Move to top edge
-            path.moveTo(topLeft, 0f.rf)
+            path.moveTo(topLeft.floatId, 0f.rf.floatId)
 
             // 2. Top Line & Top-Right Corner
-            path.lineTo(w - topRight, 0f.rf)
-            path.conicTo(x1 = w, y1 = 0f.rf, x2 = w, y2 = topRight, weight = circularArcWeight)
+            path.lineTo((w - topRight).floatId, 0f.rf.floatId)
+            path.conicTo(
+                x1 = w.floatId,
+                y1 = 0f.rf.floatId,
+                x2 = w.floatId,
+                y2 = topRight.floatId,
+                weight = circularArcWeight.floatId,
+            )
 
             // 3. Right Line & Bottom-Right Corner
-            path.lineTo(w, h - bottomRight)
-            path.conicTo(x1 = w, y1 = h, x2 = w - bottomRight, y2 = h, weight = circularArcWeight)
+            path.lineTo(w.floatId, (h - bottomRight).floatId)
+            path.conicTo(
+                x1 = w.floatId,
+                y1 = h.floatId,
+                x2 = (w - bottomRight).floatId,
+                y2 = h.floatId,
+                weight = circularArcWeight.floatId,
+            )
 
             // 4. Bottom Line & Bottom-Left Corner
-            path.lineTo(bottomLeft, h)
+            path.lineTo(bottomLeft.floatId, h.floatId)
             path.conicTo(
-                x1 = 0f.rf,
-                y1 = h,
-                x2 = 0f.rf,
-                y2 = h - bottomLeft,
-                weight = circularArcWeight,
+                x1 = 0f.rf.floatId,
+                y1 = h.floatId,
+                x2 = 0f.rf.floatId,
+                y2 = (h - bottomLeft).floatId,
+                weight = circularArcWeight.floatId,
             )
 
             // 5. Start Line & Top-Left Corner
-            path.lineTo(0f.rf, topLeft)
+            path.lineTo(0f.rf.floatId, topLeft.floatId)
             path.conicTo(
-                x1 = 0f.rf,
-                y1 = 0f.rf,
-                x2 = topLeft,
-                y2 = 0f.rf,
-                weight = circularArcWeight,
+                x1 = 0f.rf.floatId,
+                y1 = 0f.rf.floatId,
+                x2 = topLeft.floatId,
+                y2 = 0f.rf.floatId,
+                weight = circularArcWeight.floatId,
             )
 
             // 6. Close the path

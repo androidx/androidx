@@ -18,8 +18,6 @@
 package androidx.compose.remote.creation.compose.layout
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.creation.compose.modifier.RemoteModifier
-import androidx.compose.runtime.Composable
 
 public val createIds: CreateIds = CreateIds()
 
@@ -58,72 +56,4 @@ public class CreateIds {
     public operator fun component8(): Int {
         return IdIndices++
     }
-}
-
-/**
- * Utility class to be able to call Remote layout functions with the same name as the foundation
- * ones, even if the current file has import of the foundation ones.
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteContext {
-
-    public val Modifier: RemoteModifier
-        get() = RemoteModifier
-
-    @RemoteComposable
-    @Composable
-    public fun Row(
-        modifier: RemoteModifier = RemoteModifier,
-        horizontalArrangement: RemoteArrangement.Horizontal = RemoteArrangement.Start,
-        verticalAlignment: RemoteAlignment.Vertical = RemoteAlignment.Top,
-        content: @Composable RemoteRowScope.() -> Unit,
-    ) {
-        RemoteRow(modifier, horizontalArrangement, verticalAlignment, content)
-    }
-
-    @RemoteComposable
-    @Composable
-    public fun Column(
-        modifier: RemoteModifier = RemoteModifier,
-        horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
-        verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
-        content: @Composable RemoteColumnScope.() -> Unit,
-    ) {
-        RemoteColumn(modifier, verticalArrangement, horizontalAlignment, content)
-    }
-
-    @RemoteComposable
-    @Composable
-    public fun Box(
-        modifier: RemoteModifier = RemoteModifier,
-        horizontalAlignment: RemoteAlignment.Horizontal = RemoteAlignment.Start,
-        verticalArrangement: RemoteArrangement.Vertical = RemoteArrangement.Top,
-        content: @Composable () -> Unit,
-    ) {
-        RemoteBox(modifier, horizontalAlignment, verticalArrangement, content)
-    }
-
-    @RemoteComposable
-    @Composable
-    public fun Box(modifier: RemoteModifier = RemoteModifier) {
-        RemoteBox(modifier)
-    }
-
-    @RemoteComposable
-    @Composable
-    public fun Canvas(
-        modifier: RemoteModifier = RemoteModifier,
-        content: RemoteCanvasDrawScope0.() -> Unit,
-    ) {
-        RemoteCanvas0(modifier, content)
-    }
-}
-
-/**
- * Utility function to create a RemoteContext scope within which you can call
- * Row/Column/Box/Canvas/etc.
- */
-@Composable
-public fun RemoteContext(content: @Composable RemoteContext.() -> Unit) {
-    RemoteContext().content()
 }

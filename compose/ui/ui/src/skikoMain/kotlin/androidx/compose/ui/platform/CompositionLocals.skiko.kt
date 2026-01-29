@@ -94,38 +94,3 @@ internal fun ProvidePlatformCompositionLocals(
         content = content,
     )
 }
-
-@Composable
-internal fun ProvideCommonCompositionLocals(
-    owner: Owner,
-    uriHandler: UriHandler,
-    content: @Composable () -> Unit,
-) {
-    CompositionLocalProvider(
-        LocalAccessibilityManager provides owner.accessibilityManager,
-        LocalAutofill provides owner.autofill,
-        LocalAutofillManager provides owner.autofillManager,
-        LocalAutofillTree provides owner.autofillTree,
-        LocalClipboardManager provides owner.clipboardManager,
-        LocalClipboard provides owner.clipboard,
-        LocalDensity provides owner.density,
-        LocalFocusManager provides owner.focusOwner,
-        @Suppress("DEPRECATION") LocalFontLoader providesDefault
-            @Suppress("DEPRECATION") owner.fontLoader,
-        LocalFontFamilyResolver providesDefault owner.fontFamilyResolver,
-        LocalHapticFeedback provides owner.hapticFeedBack,
-        LocalInputModeManager provides owner.inputModeManager,
-        LocalLayoutDirection provides owner.layoutDirection,
-        LocalTextInputService provides owner.textInputService,
-        LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
-        LocalTextToolbar provides owner.textToolbar,
-        LocalUriHandler provides uriHandler,
-        LocalViewConfiguration provides owner.viewConfiguration,
-        LocalWindowInfo provides owner.windowInfo,
-        LocalPointerIconService provides owner.pointerIconService,
-        LocalGraphicsContext provides owner.graphicsContext,
-        LocalRetainedValuesStore provides owner.retainedValuesStore,
-        LocalProvidableLocaleList provides owner.localeList,
-        content = content,
-    )
-}

@@ -301,7 +301,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                             )
 
                         enterSelectionMode(showFloatingToolbar = false)
-                        hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        hapticFeedBack?.performHapticFeedback(HapticFeedbackType.LongPress)
                         onValueChange(newValue)
                         latestSelection = newValue.selection
                     }
@@ -320,6 +320,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                             isStartHandle = false,
                             adjustment = selectionAdjustmentMode,
                             isTouchBasedSelection = true,
+                            hapticFeedbackType = HapticFeedbackType.LongPress,
                         )
                     // For touch, set the begin selection to the adjusted selection.
                     // When char based selection is used, we want to ensure we snap the
@@ -376,6 +377,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                                 isStartHandle = false,
                                 adjustment = adjustment,
                                 isTouchBasedSelection = true,
+                                hapticFeedbackType = HapticFeedbackType.TextHandleMove,
                             )
                         } else {
                             val startOffset =
@@ -403,6 +405,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                                 isStartHandle = false,
                                 adjustment = selectionAdjustmentMode,
                                 isTouchBasedSelection = true,
+                                hapticFeedbackType = HapticFeedbackType.TextHandleMove,
                             )
                         }
 
@@ -533,6 +536,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                         isStartHandle = false,
                         adjustment = adjustment,
                         isTouchBasedSelection = false,
+                        hapticFeedbackType = null,
                     )
                 if (newSelection != initialSelection) {
                     isDoubleOrTripleClickSelectionOnly = false
@@ -637,6 +641,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                     isStartHandle = isStartHandle,
                     adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
                     isTouchBasedSelection = true, // handle drag infers touch
+                    hapticFeedbackType = HapticFeedbackType.TextHandleMove,
                 )
                 updateFloatingToolbar(show = false)
             }
@@ -1157,6 +1162,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
                 isStartHandle = false,
                 adjustment = SelectionAdjustment.Word,
                 isTouchBasedSelection = false,
+                hapticFeedbackType = null,
             )
         }
     }
@@ -1232,6 +1238,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
      * @param isStartHandle whether the start handle is being updated
      * @param adjustment The selection adjustment to use
      * @param isTouchBasedSelection Whether this is a touch based selection
+     * @param hapticFeedbackType Which type of haptic feedback to perform if selection changes.
      */
     private fun updateSelection(
         value: TextFieldValue,
@@ -1240,6 +1247,7 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
         isStartHandle: Boolean,
         adjustment: SelectionAdjustment,
         isTouchBasedSelection: Boolean,
+        hapticFeedbackType: HapticFeedbackType?,
     ): TextRange {
         val layoutResult = state?.layoutResult ?: return TextRange.Zero
         val previousTransformedSelection =
@@ -1308,9 +1316,10 @@ internal class TextFieldSelectionManager(val undoManager: UndoManager? = null) {
             isTouchBasedSelection &&
                 value.text.isNotEmpty() &&
                 !onlyChangeIsReversed &&
-                !bothSelectionsCollapsed
+                !bothSelectionsCollapsed &&
+                hapticFeedbackType != null
         ) {
-            hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            hapticFeedBack?.performHapticFeedback(hapticFeedbackType)
         }
 
         val newValue =

@@ -24,7 +24,7 @@ import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.CLEAR_AND
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.MERGE
 import androidx.compose.remote.core.semantics.AccessibleComponent.Mode.SET
 import androidx.compose.remote.core.semantics.CoreSemantics
-import androidx.compose.remote.creation.compose.state.FallbackCreationState
+import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.remote.creation.compose.state.RemoteString
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.ui.semantics.Role
@@ -37,17 +37,13 @@ import androidx.compose.ui.semantics.text
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public data class SemanticsModifier(val mergeMode: Mode, val semantics: AccessibilitySemantics) :
     RemoteModifier.Element {
-    override fun toRemoteComposeElement(): RecordingModifier.Element {
+    override fun RemoteStateScope.toRecordingModifierElement(): RecordingModifier.Element {
         return androidx.compose.remote.creation.modifiers.SemanticsModifier(
             CoreSemantics().apply {
                 mMode = mergeMode
-                mTextId = semantics.text?.getIdForCreationState(FallbackCreationState.state) ?: 0
-                mContentDescriptionId =
-                    semantics.contentDescription?.getIdForCreationState(FallbackCreationState.state)
-                        ?: 0
-                mStateDescriptionId =
-                    semantics.stateDescription?.getIdForCreationState(FallbackCreationState.state)
-                        ?: 0
+                mTextId = semantics.text?.id ?: 0
+                mContentDescriptionId = semantics.contentDescription?.id ?: 0
+                mStateDescriptionId = semantics.stateDescription?.id ?: 0
                 mEnabled = semantics.enabled ?: true
                 mRole = fromRole(semantics.role)
             }

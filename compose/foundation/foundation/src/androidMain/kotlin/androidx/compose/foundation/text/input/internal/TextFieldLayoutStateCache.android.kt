@@ -18,12 +18,10 @@ package androidx.compose.foundation.text.input.internal
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.ui.text.intl.PlatformLocale
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextDirection
 
-internal actual fun resolveTextDirectionForKeyboardTypePhone(
-    locale: PlatformLocale
-): TextDirection {
+internal actual fun resolveTextDirectionForKeyboardTypePhone(locale: Locale): TextDirection {
     val digitDirection =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             DigitDirectionalityApi28.resolve(locale)
@@ -43,8 +41,8 @@ internal actual fun resolveTextDirectionForKeyboardTypePhone(
 }
 
 private object DigitDirectionalityApi21 {
-    fun resolve(locale: PlatformLocale): Byte {
-        val symbols = java.text.DecimalFormatSymbols.getInstance(locale)
+    fun resolve(locale: Locale): Byte {
+        val symbols = java.text.DecimalFormatSymbols.getInstance(locale.platformLocale)
         val zero = symbols.zeroDigit
         return Character.getDirectionality(zero)
     }
@@ -52,8 +50,8 @@ private object DigitDirectionalityApi21 {
 
 @RequiresApi(Build.VERSION_CODES.N)
 private object DigitDirectionalityApi24 {
-    fun resolve(locale: PlatformLocale): Byte {
-        val symbols = android.icu.text.DecimalFormatSymbols.getInstance(locale)
+    fun resolve(locale: Locale): Byte {
+        val symbols = android.icu.text.DecimalFormatSymbols.getInstance(locale.platformLocale)
         val zero = symbols.zeroDigit
         return Character.getDirectionality(zero)
     }
@@ -61,8 +59,8 @@ private object DigitDirectionalityApi24 {
 
 @RequiresApi(Build.VERSION_CODES.P)
 private object DigitDirectionalityApi28 {
-    fun resolve(locale: PlatformLocale): Byte {
-        val symbols = android.icu.text.DecimalFormatSymbols.getInstance(locale)
+    fun resolve(locale: Locale): Byte {
+        val symbols = android.icu.text.DecimalFormatSymbols.getInstance(locale.platformLocale)
         val zero = symbols.digitStrings[0].codePointAt(0)
         return Character.getDirectionality(zero)
     }

@@ -132,14 +132,14 @@ class Scrollable2DTest {
     @Test
     fun scrollable_horizontalScroll() {
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
                     it
                 }
             )
-        setScrollable2DContent { Modifier.scrollable2D(state = controller) }
+        setScrollable2DContent { Modifier.scrollable2D(state = scrollable2DState) }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -161,14 +161,14 @@ class Scrollable2DTest {
     @Test
     fun scrollable_verticalScroll() {
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
                     it
                 }
             )
-        setScrollable2DContent { Modifier.scrollable2D(state = controller) }
+        setScrollable2DContent { Modifier.scrollable2D(state = scrollable2DState) }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -190,14 +190,14 @@ class Scrollable2DTest {
     @Test
     fun scrollable_diagonalScroll() {
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
                     it
                 }
             )
-        setScrollable2DContent { Modifier.scrollable2D(state = controller) }
+        setScrollable2DContent { Modifier.scrollable2D(state = scrollable2DState) }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             this.swipe(
                 start = this.center,
@@ -221,7 +221,7 @@ class Scrollable2DTest {
     fun scrollable_disabledWontCallLambda() {
         val enabled = mutableStateOf(true)
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -229,7 +229,7 @@ class Scrollable2DTest {
                 }
             )
         setScrollable2DContent {
-            Modifier.scrollable2D(state = controller, enabled = enabled.value)
+            Modifier.scrollable2D(state = scrollable2DState, enabled = enabled.value)
         }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             this.swipe(
@@ -259,14 +259,14 @@ class Scrollable2DTest {
     fun scrollable_startWithoutSlop_ifFlinging() {
         rule.mainClock.autoAdvance = false
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
                     it
                 }
             )
-        setScrollable2DContent { Modifier.scrollable2D(state = controller) }
+        setScrollable2DContent { Modifier.scrollable2D(state = scrollable2DState) }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             swipeWithVelocity(
                 start = this.center,
@@ -298,7 +298,7 @@ class Scrollable2DTest {
     fun scrollable_blocksDownEvents_ifFlingingCaught() {
         rule.mainClock.autoAdvance = false
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -309,7 +309,7 @@ class Scrollable2DTest {
             Box {
                 Box(
                     contentAlignment = Alignment.Center,
-                    modifier = Modifier.size(300.dp).scrollable2D(state = controller),
+                    modifier = Modifier.size(300.dp).scrollable2D(state = scrollable2DState),
                 ) {
                     Box(
                         modifier =
@@ -349,23 +349,23 @@ class Scrollable2DTest {
     @Test
     fun scrollable_snappingScrolling() {
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
                     it
                 }
             )
-        setScrollable2DContent { Modifier.scrollable2D(state = controller) }
+        setScrollable2DContent { Modifier.scrollable2D(state = scrollable2DState) }
         rule.waitForIdle()
         assertThat(total).isEqualTo(Offset.Zero)
 
-        scope.launch { controller.animateScrollBy(Offset(1000f, 1000f)) }
+        scope.launch { scrollable2DState.animateScrollBy(Offset(1000f, 1000f)) }
         rule.waitForIdle()
         assertThat(total.x).isWithin(0.001f).of(1000f)
         assertThat(total.y).isWithin(0.001f).of(1000f)
 
-        scope.launch { controller.animateScrollBy(Offset(-200f, -200f)) }
+        scope.launch { scrollable2DState.animateScrollBy(Offset(-200f, -200f)) }
         rule.waitForIdle()
         assertThat(total.x).isWithin(0.001f).of(800f)
         assertThat(total.y).isWithin(0.001f).of(800f)
@@ -377,7 +377,7 @@ class Scrollable2DTest {
         val emit = mutableStateOf(true)
         val expectEmission = mutableStateOf(true)
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     assertWithMessage("Animating after dispose!")
@@ -389,7 +389,7 @@ class Scrollable2DTest {
             )
         setScrollable2DContent {
             if (emit.value) {
-                Modifier.scrollable2D(state = controller)
+                Modifier.scrollable2D(state = scrollable2DState)
             } else {
                 Modifier
             }
@@ -596,7 +596,7 @@ class Scrollable2DTest {
         var value = Offset.Zero
         var lastReceivedPreScrollAvailable = Offset.Zero
         val preConsumeFraction = 0.7f
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     val expected = lastReceivedPreScrollAvailable * (1 - preConsumeFraction)
@@ -629,7 +629,7 @@ class Scrollable2DTest {
                         modifier =
                             Modifier.size(300.dp)
                                 .testTag(scrollable2DBoxTag)
-                                .scrollable2D(state = controller)
+                                .scrollable2D(state = scrollable2DState)
                     )
                 }
             }
@@ -656,7 +656,7 @@ class Scrollable2DTest {
         var value = Offset.Zero
         var expectedLeft = Offset.Zero
         val velocityFlung = 5000f
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     val toConsume = it * 0.345f
@@ -672,7 +672,7 @@ class Scrollable2DTest {
                     available: Offset,
                     source: NestedScrollSource,
                 ): Offset {
-                    // we should get in post scroll as much as left in controller callback
+                    // we should get in post scroll as much as left in scrollable2DState callback
                     assertThat(available.x).isEqualTo(expectedLeft.x)
                     assertThat(available.y).isEqualTo(expectedLeft.y)
                     return if (source == NestedScrollSource.SideEffect) Offset.Zero else available
@@ -700,7 +700,7 @@ class Scrollable2DTest {
                         modifier =
                             Modifier.size(300.dp)
                                 .testTag(scrollable2DBoxTag)
-                                .scrollable2D(state = controller)
+                                .scrollable2D(state = scrollable2DState)
                     )
                 }
             }
@@ -723,7 +723,7 @@ class Scrollable2DTest {
     fun scrollable_nestedScrollBelow_listensDispatches() {
         var value = Offset.Zero
         var expectedConsumed = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     expectedConsumed = it * 0.3f
@@ -736,7 +736,7 @@ class Scrollable2DTest {
 
         rule.setContentAndGetScope {
             Box {
-                Box(modifier = Modifier.size(300.dp).scrollable2D(state = controller)) {
+                Box(modifier = Modifier.size(300.dp).scrollable2D(state = scrollable2DState)) {
                     Box(
                         Modifier.size(200.dp)
                             .testTag(scrollable2DBoxTag)
@@ -786,14 +786,14 @@ class Scrollable2DTest {
     fun scrollable_nestedScroll_allowParentWhenDisabled() {
         var childValue = Offset.Zero
         var parentValue = Offset.Zero
-        val childController =
+        val childScrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     childValue += it
                     it
                 }
             )
-        val parentController =
+        val parentScrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     parentValue += it
@@ -803,11 +803,13 @@ class Scrollable2DTest {
 
         rule.setContentAndGetScope {
             Box {
-                Box(modifier = Modifier.size(300.dp).scrollable2D(state = parentController)) {
+                Box(
+                    modifier = Modifier.size(300.dp).scrollable2D(state = parentScrollable2DState)
+                ) {
                     Box(
                         Modifier.size(200.dp)
                             .testTag(scrollable2DBoxTag)
-                            .scrollable2D(enabled = false, state = childController)
+                            .scrollable2D(enabled = false, state = childScrollable2DState)
                     )
                 }
             }
@@ -834,21 +836,21 @@ class Scrollable2DTest {
         var childValue = Offset.Zero
         var parentValue = Offset.Zero
         var selfValue = Offset.Zero
-        val childController =
+        val childScrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     childValue += it / 2f
                     it / 2f
                 }
             )
-        val middleController =
+        val middleScrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     selfValue += it / 2f
                     it / 2f
                 }
             )
-        val parentController =
+        val parentScrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     parentValue += it / 2f
@@ -858,15 +860,17 @@ class Scrollable2DTest {
 
         rule.setContentAndGetScope {
             Box {
-                Box(modifier = Modifier.size(300.dp).scrollable2D(state = parentController)) {
+                Box(
+                    modifier = Modifier.size(300.dp).scrollable2D(state = parentScrollable2DState)
+                ) {
                     Box(
                         Modifier.size(200.dp)
-                            .scrollable2D(enabled = false, state = middleController)
+                            .scrollable2D(enabled = false, state = middleScrollable2DState)
                     ) {
                         Box(
                             Modifier.size(200.dp)
                                 .testTag(scrollable2DBoxTag)
-                                .scrollable2D(state = childController)
+                                .scrollable2D(state = childScrollable2DState)
                         )
                     }
                 }
@@ -897,7 +901,7 @@ class Scrollable2DTest {
     @Test
     fun scrollable_nestedFlingCancellation_shouldPreventDeltasFromPropagating() {
         var childDeltas = Offset.Zero
-        val childController = Scrollable2DState {
+        val childScrollable2DState = Scrollable2DState {
             childDeltas += it
             it
         }
@@ -922,7 +926,7 @@ class Scrollable2DTest {
                         modifier =
                             Modifier.size(600.dp)
                                 .testTag("childScrollable")
-                                .scrollable2D(childController)
+                                .scrollable2D(childScrollable2DState)
                     )
                 }
             }
@@ -1155,7 +1159,7 @@ class Scrollable2DTest {
     fun scrollable_interactionSource() {
         val interactionSource = MutableInteractionSource()
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1164,7 +1168,7 @@ class Scrollable2DTest {
             )
 
         setScrollable2DContent {
-            Modifier.scrollable2D(interactionSource = interactionSource, state = controller)
+            Modifier.scrollable2D(interactionSource = interactionSource, state = scrollable2DState)
         }
 
         val interactions = mutableListOf<Interaction>()
@@ -1198,7 +1202,7 @@ class Scrollable2DTest {
         val interactionSource = MutableInteractionSource()
         var emitScrollableBox by mutableStateOf(true)
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1215,7 +1219,7 @@ class Scrollable2DTest {
                                 .size(100.dp)
                                 .scrollable2D(
                                     interactionSource = interactionSource,
-                                    state = controller,
+                                    state = scrollable2DState,
                                 )
                     )
                 }
@@ -1252,7 +1256,7 @@ class Scrollable2DTest {
     @Test
     fun scrollable_flingBehaviourCalled_whenVelocity0() {
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1270,7 +1274,7 @@ class Scrollable2DTest {
                 }
             }
         setScrollable2DContent {
-            Modifier.scrollable2D(state = controller, flingBehavior = flingBehaviour)
+            Modifier.scrollable2D(state = scrollable2DState, flingBehavior = flingBehaviour)
         }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             down(this.center)
@@ -1285,7 +1289,7 @@ class Scrollable2DTest {
     @Test
     fun scrollable_flingBehaviourCalled() {
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1303,7 +1307,7 @@ class Scrollable2DTest {
                 }
             }
         setScrollable2DContent {
-            Modifier.scrollable2D(state = controller, flingBehavior = flingBehaviour)
+            Modifier.scrollable2D(state = scrollable2DState, flingBehavior = flingBehaviour)
         }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             swipeWithVelocity(this.center, this.center + Offset(115f, 0f), endVelocity = 1000f)
@@ -1316,7 +1320,7 @@ class Scrollable2DTest {
     fun scrollable_flingBehaviourCalled_correctScope() {
         var total = Offset.Zero
         var returned = 0f
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1331,7 +1335,7 @@ class Scrollable2DTest {
                 }
             }
         setScrollable2DContent {
-            Modifier.scrollable2D(state = controller, flingBehavior = flingBehaviour)
+            Modifier.scrollable2D(state = scrollable2DState, flingBehavior = flingBehaviour)
         }
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput {
             down(center)
@@ -1359,7 +1363,7 @@ class Scrollable2DTest {
 
     @Test
     fun scrollable_setsModifierLocalScrollableContainer() {
-        val controller = Scrollable2DState { it }
+        val scrollable2DState = Scrollable2DState { it }
 
         var isOuterInScrollableContainer: Boolean? = null
         var isInnerInScrollableContainer: Boolean? = null
@@ -1374,7 +1378,7 @@ class Scrollable2DTest {
                                     isOuterInScrollableContainer = it
                                 }
                             )
-                            .scrollable2D(state = controller)
+                            .scrollable2D(state = scrollable2DState)
                             .then(
                                 ScrollableContainerReaderNodeElement {
                                     isInnerInScrollableContainer = it
@@ -1392,7 +1396,7 @@ class Scrollable2DTest {
 
     @Test
     fun scrollable_setsModifierLocalScrollableContainer_scrollDisabled() {
-        val controller = Scrollable2DState { it }
+        val scrollable2DState = Scrollable2DState { it }
 
         var isOuterInScrollableContainer: Boolean? = null
         var isInnerInScrollableContainer: Boolean? = null
@@ -1407,7 +1411,7 @@ class Scrollable2DTest {
                                     isOuterInScrollableContainer = it
                                 }
                             )
-                            .scrollable2D(state = controller, enabled = false)
+                            .scrollable2D(state = scrollable2DState, enabled = false)
                             .then(
                                 ScrollableContainerReaderNodeElement {
                                     isInnerInScrollableContainer = it
@@ -1425,7 +1429,7 @@ class Scrollable2DTest {
 
     @Test
     fun scrollable_setsModifierLocalScrollableContainer_scrollUpdates() {
-        val controller = Scrollable2DState { it }
+        val scrollable2DState = Scrollable2DState { it }
 
         var isInnerInScrollableContainer: Boolean? = null
         val enabled = mutableStateOf(true)
@@ -1435,7 +1439,7 @@ class Scrollable2DTest {
                     modifier =
                         Modifier.testTag(scrollable2DBoxTag)
                             .size(100.dp)
-                            .scrollable2D(state = controller, enabled = enabled.value)
+                            .scrollable2D(state = scrollable2DState, enabled = enabled.value)
                             .then(
                                 ScrollableContainerReaderNodeElement {
                                     isInnerInScrollableContainer = it
@@ -1457,7 +1461,7 @@ class Scrollable2DTest {
         rule.mainClock.autoAdvance = false
 
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1465,12 +1469,12 @@ class Scrollable2DTest {
                 }
             )
         rule.setContentAndGetScope {
-            Box(modifier = Modifier.size(100.dp).scrollable2D(state = controller))
+            Box(modifier = Modifier.size(100.dp).scrollable2D(state = scrollable2DState))
         }
 
         rule.runOnIdle {
             scope.launch {
-                controller.animateScrollBy(
+                scrollable2DState.animateScrollBy(
                     Offset(100f, 100f),
                     keyframes {
                         durationMillis = 2500
@@ -1538,7 +1542,7 @@ class Scrollable2DTest {
         rule.mainClock.autoAdvance = false
 
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1546,23 +1550,23 @@ class Scrollable2DTest {
                 }
             )
         rule.setContentAndGetScope {
-            Box(modifier = Modifier.size(100.dp).scrollable2D(state = controller))
+            Box(modifier = Modifier.size(100.dp).scrollable2D(state = scrollable2DState))
         }
 
         lateinit var animateJob: Job
 
         rule.runOnIdle {
             animateJob =
-                scope.launch { controller.animateScrollBy(Offset(100f, 100f), tween(1000)) }
+                scope.launch { scrollable2DState.animateScrollBy(Offset(100f, 100f), tween(1000)) }
         }
 
         rule.mainClock.advanceTimeBy(500)
-        rule.runOnIdle { assertThat(controller.isScrollInProgress).isTrue() }
+        rule.runOnIdle { assertThat(scrollable2DState.isScrollInProgress).isTrue() }
 
         // Stop halfway through the animation
         animateJob.cancel()
 
-        rule.runOnIdle { assertThat(controller.isScrollInProgress).isFalse() }
+        rule.runOnIdle { assertThat(scrollable2DState.isScrollInProgress).isFalse() }
     }
 
     @Test
@@ -1570,7 +1574,7 @@ class Scrollable2DTest {
         rule.mainClock.autoAdvance = false
 
         var total = Offset.Zero
-        val controller =
+        val scrollable2DState =
             Scrollable2DState(
                 consumeScrollDelta = {
                     total += it
@@ -1578,11 +1582,11 @@ class Scrollable2DTest {
                 }
             )
         rule.setContentAndGetScope {
-            Box(modifier = Modifier.size(100.dp).scrollable2D(state = controller))
+            Box(modifier = Modifier.size(100.dp).scrollable2D(state = scrollable2DState))
         }
 
         rule.runOnIdle {
-            scope.launch { controller.animateScrollBy(Offset(100f, 100f), tween(1000)) }
+            scope.launch { scrollable2DState.animateScrollBy(Offset(100f, 100f), tween(1000)) }
         }
 
         rule.mainClock.advanceTimeBy(500)
@@ -1591,11 +1595,11 @@ class Scrollable2DTest {
             assertThat(total.y).isGreaterThan(0f)
             assertThat(total.x).isLessThan(100f)
             assertThat(total.y).isLessThan(100f)
-            assertThat(controller.isScrollInProgress).isTrue()
-            scope.launch { controller.animateScrollBy(Offset(-100f, -100f), tween(1000)) }
+            assertThat(scrollable2DState.isScrollInProgress).isTrue()
+            scope.launch { scrollable2DState.animateScrollBy(Offset(-100f, -100f), tween(1000)) }
         }
 
-        rule.runOnIdle { assertThat(controller.isScrollInProgress).isTrue() }
+        rule.runOnIdle { assertThat(scrollable2DState.isScrollInProgress).isTrue() }
 
         rule.mainClock.advanceTimeBy(1000)
         rule.mainClock.advanceTimeByFrame()
@@ -1605,7 +1609,7 @@ class Scrollable2DTest {
             assertThat(total.y).isGreaterThan(-75f)
             assertThat(total.x).isLessThan(0f)
             assertThat(total.y).isLessThan(0f)
-            assertThat(controller.isScrollInProgress).isFalse()
+            assertThat(scrollable2DState.isScrollInProgress).isFalse()
         }
     }
 
@@ -1620,12 +1624,12 @@ class Scrollable2DTest {
         var consumedPostScroll = Offset.Zero
         var postScrollAvailable = Offset.Zero
 
-        val outerStateController = Scrollable2DState {
+        val outerScrollable2DState = Scrollable2DState {
             consumedOuter += it
             it
         }
 
-        val innerController = Scrollable2DState {
+        val innerScrollable2DState = Scrollable2DState {
             consumedInner += it / 2f
             it / 2f
         }
@@ -1655,13 +1659,13 @@ class Scrollable2DTest {
                         modifier =
                             Modifier.testTag("outerScrollable")
                                 .size(300.dp)
-                                .scrollable2D(outerStateController)
+                                .scrollable2D(outerScrollable2DState)
                     ) {
                         Box(
                             modifier =
                                 Modifier.testTag("innerScrollable")
                                     .size(300.dp)
-                                    .scrollable2D(innerController)
+                                    .scrollable2D(innerScrollable2DState)
                         )
                     }
                 }
@@ -1691,9 +1695,9 @@ class Scrollable2DTest {
 
     @Test
     fun testInspectorValue() {
-        val controller = Scrollable2DState(consumeScrollDelta = { it })
+        val scrollable2DState = Scrollable2DState(consumeScrollDelta = { it })
         rule.setContentAndGetScope {
-            val modifier = Modifier.scrollable2D(controller).first() as InspectableValue
+            val modifier = Modifier.scrollable2D(scrollable2DState).first() as InspectableValue
             assertThat(modifier.nameFallback).isEqualTo("scrollable2D")
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable())
@@ -1743,12 +1747,12 @@ class Scrollable2DTest {
                     return Velocity.Zero
                 }
             }
-        val controller = Scrollable2DState { _ -> Offset.Zero }
+        val scrollable2DState = Scrollable2DState { _ -> Offset.Zero }
 
         setScrollable2DContent {
             Modifier.pointerInput(Unit) { savePointerInputEvents(tracker, this) }
                 .nestedScroll(capturingScrollConnection)
-                .scrollable2D(controller)
+                .scrollable2D(scrollable2DState)
         }
 
         // act
@@ -1775,7 +1779,7 @@ class Scrollable2DTest {
     @Test
     fun disableSystemAnimations_defaultFlingBehaviorShouldContinueToWork() {
 
-        val controller = Scrollable2DState { Offset.Zero }
+        val scrollable2DState = Scrollable2DState { Offset.Zero }
         var defaultFlingBehavior: DefaultFlingBehavior? = null
         lateinit var scroll2DScope: Scroll2DScope
         val adaptingScope =
@@ -1786,11 +1790,11 @@ class Scrollable2DTest {
             }
         setScrollable2DContent {
             defaultFlingBehavior = ScrollableDefaults.flingBehavior() as? DefaultFlingBehavior
-            Modifier.scrollable2D(state = controller, flingBehavior = defaultFlingBehavior)
+            Modifier.scrollable2D(state = scrollable2DState, flingBehavior = defaultFlingBehavior)
         }
 
         scope.launch {
-            controller.scroll {
+            scrollable2DState.scroll {
                 scroll2DScope = this
                 defaultFlingBehavior?.let { with(it) { adaptingScope.performFling(1000f) } }
             }
@@ -1802,7 +1806,7 @@ class Scrollable2DTest {
 
         // Simulate turning of animation
         scope.launch {
-            controller.scroll {
+            scrollable2DState.scroll {
                 scroll2DScope = this
                 withContext(TestScrollMotionDurationScale(0f)) {
                     defaultFlingBehavior?.let { with(it) { adaptingScope.performFling(1000f) } }
@@ -1818,7 +1822,7 @@ class Scrollable2DTest {
     @Test
     fun defaultFlingBehavior_useScrollMotionDurationScale() {
 
-        val controller = Scrollable2DState { Offset.Zero }
+        val scrollable2DState = Scrollable2DState { Offset.Zero }
         var defaultFlingBehavior: DefaultFlingBehavior? = null
         var switchMotionDurationScale by mutableStateOf(true)
         lateinit var scroll2DScope: Scroll2DScope
@@ -1838,7 +1842,10 @@ class Scrollable2DTest {
                     modifier =
                         Modifier.testTag(scrollable2DBoxTag)
                             .size(100.dp)
-                            .scrollable2D(state = controller, flingBehavior = defaultFlingBehavior)
+                            .scrollable2D(
+                                state = scrollable2DState,
+                                flingBehavior = defaultFlingBehavior,
+                            )
                 )
             } else {
                 defaultFlingBehavior =
@@ -1847,13 +1854,16 @@ class Scrollable2DTest {
                     modifier =
                         Modifier.testTag(scrollable2DBoxTag)
                             .size(100.dp)
-                            .scrollable2D(state = controller, flingBehavior = defaultFlingBehavior)
+                            .scrollable2D(
+                                state = scrollable2DState,
+                                flingBehavior = defaultFlingBehavior,
+                            )
                 )
             }
         }
 
         scope.launch {
-            controller.scroll {
+            scrollable2DState.scroll {
                 scroll2DScope = this
                 defaultFlingBehavior?.let { with(it) { adaptingScope.performFling(1000f) } }
             }
@@ -1867,7 +1877,7 @@ class Scrollable2DTest {
         rule.waitForIdle()
 
         scope.launch {
-            controller.scroll {
+            scrollable2DState.scroll {
                 scroll2DScope = this
                 defaultFlingBehavior?.let { with(it) { adaptingScope.performFling(1000f) } }
             }
@@ -1914,7 +1924,7 @@ class Scrollable2DTest {
 
     @Test
     fun defaultScrollable2DState_scrollByWithNan_shouldFilterOutNan() {
-        val controller = Scrollable2DState {
+        val scrollable2DState = Scrollable2DState {
             assertThat(it.x).isNotNaN()
             assertThat(it.y).isNotNaN()
             Offset.Zero
@@ -1928,7 +1938,7 @@ class Scrollable2DTest {
             }
 
         setScrollable2DContent {
-            Modifier.scrollable2D(state = controller, flingBehavior = nanGenerator)
+            Modifier.scrollable2D(state = scrollable2DState, flingBehavior = nanGenerator)
         }
 
         rule.onNodeWithTag(scrollable2DBoxTag).performTouchInput { swipeLeft() }

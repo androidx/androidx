@@ -19,6 +19,7 @@ package androidx.compose.remote.integration.view.demos.examples
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -43,7 +44,6 @@ import androidx.compose.remote.creation.compose.modifier.width
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.abs
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.creation.compose.state.rememberRemoteDpValue
 import androidx.compose.remote.creation.compose.state.rememberRemoteFloat
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.tooling.preview.RemotePreview
@@ -208,8 +208,9 @@ fun ScrollViewDemo() {
         verticalArrangement = RemoteArrangement.Bottom,
         horizontalAlignment = RemoteAlignment.End,
     ) {
-        val height = rememberRemoteFloat { dimensionCard.toPx() }
-        val h2 = rememberRemoteDpValue { 280.dp }
+        val density = LocalRemoteComposeCreationState.current.remoteDensity
+        val height = dimensionCard.toPx(density)
+        val h2 = 280.rdp
         RemoteColumn(
             modifier =
                 RemoteModifier.fillMaxWidth()

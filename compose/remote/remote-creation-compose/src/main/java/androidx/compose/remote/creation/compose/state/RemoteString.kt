@@ -37,11 +37,11 @@ public abstract class RemoteString : BaseRemoteState<String>() {
 
     public val length: RemoteInt
         get() {
-            constantValue?.let {
+            constantValueOrNull?.let {
                 return RemoteInt(it.length)
             }
 
-            return RemoteIntExpression(constantValue = null) { creationState ->
+            return RemoteIntExpression(constantValueOrNull = null) { creationState ->
                 longArrayOf(
                     0x100000000L +
                         Utils.idFromNan(
@@ -56,12 +56,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
 
     public val isEmpty: RemoteBoolean
         get() {
-            constantValue?.let {
+            constantValueOrNull?.let {
                 return RemoteBoolean(it.isEmpty())
             }
 
             return RemoteBoolean(
-                RemoteIntExpression(constantValue = null) { creationState ->
+                RemoteIntExpression(constantValueOrNull = null) { creationState ->
                     longArrayOf(
                         1,
                         0,
@@ -80,12 +80,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
 
     public val isNotEmpty: RemoteBoolean
         get() {
-            constantValue?.let {
+            constantValueOrNull?.let {
                 return RemoteBoolean(it.isNotEmpty())
             }
 
             return RemoteBoolean(
-                RemoteIntExpression(constantValue = null) { creationState ->
+                RemoteIntExpression(constantValueOrNull = null) { creationState ->
                     longArrayOf(
                         0,
                         1,
@@ -109,12 +109,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the concatenated string.
      */
     public operator fun plus(v: RemoteString): RemoteString {
-        if (constantValue != null && v.constantValue != null) {
-            return RemoteString(constantValue + v.constantValue)
+        if (constantValueOrNull != null && v.constantValueOrNull != null) {
+            return RemoteString(constantValueOrNull!! + v.constantValueOrNull!!)
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textMerge(
@@ -150,12 +150,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the substring.
      */
     public fun substring(start: Int): RemoteString {
-        constantValue?.let {
+        constantValueOrNull?.let {
             return RemoteString(it.substring(start))
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textSubtext(
@@ -179,12 +179,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the upper case version of this string.
      */
     public fun uppercase(): RemoteString {
-        constantValue?.let {
+        constantValueOrNull?.let {
             return RemoteString(it.uppercase())
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textTransform(
@@ -212,12 +212,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the lower case version of this string.
      */
     public fun lowercase(): RemoteString {
-        constantValue?.let {
+        constantValueOrNull?.let {
             return RemoteString(it.lowercase())
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textTransform(
@@ -245,12 +245,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the trimmed version of this string.
      */
     public fun trim(): RemoteString {
-        constantValue?.let {
+        constantValueOrNull?.let {
             return RemoteString(it.trim())
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textTransform(
@@ -279,14 +279,14 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the substring.
      */
     public fun substring(start: RemoteInt): RemoteString {
-        val constV = constantValue
-        val constStart = start.constantValue
+        val constV = constantValueOrNull
+        val constStart = start.constantValueOrNull
         if (constV != null && constStart != null) {
             return RemoteString(constV.substring(constStart))
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textSubtext(
@@ -312,12 +312,12 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the substring.
      */
     public fun substring(start: Int, end: Int): RemoteString {
-        constantValue?.let {
+        constantValueOrNull?.let {
             return RemoteString(it.substring(start, end))
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textSubtext(
@@ -344,14 +344,14 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the substring.
      */
     public fun substring(start: Int, end: RemoteInt): RemoteString {
-        val constV = constantValue
-        val constEnd = end.constantValue
+        val constV = constantValueOrNull
+        val constEnd = end.constantValueOrNull
         if (constV != null && constEnd != null) {
             return RemoteString(constV.substring(start, constEnd))
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textSubtext(
@@ -379,15 +379,15 @@ public abstract class RemoteString : BaseRemoteState<String>() {
      * @return A new [MutableRemoteString] representing the substring.
      */
     public fun substring(start: RemoteInt, end: RemoteInt): RemoteString {
-        val constV = constantValue
-        val constStart = start.constantValue
-        val constEnd = end.constantValue
+        val constV = constantValueOrNull
+        val constStart = start.constantValueOrNull
+        val constEnd = end.constantValueOrNull
         if (constV != null && constStart != null && constEnd != null) {
             return RemoteString(constV.substring(constStart, constEnd))
         }
 
         return MutableRemoteString(
-            constantValue = null,
+            constantValueOrNull = null,
             object : LazyRemoteString {
                 override fun reserveTextId(creationState: RemoteComposeCreationState) =
                     creationState.document.textSubtext(
@@ -429,7 +429,7 @@ public abstract class RemoteString : BaseRemoteState<String>() {
          */
         public operator fun invoke(v: String): RemoteString {
             return MutableRemoteString(
-                constantValue = v,
+                constantValueOrNull = v,
                 object : LazyRemoteString {
                     override fun reserveTextId(creationState: RemoteComposeCreationState) =
                         creationState.document.textCreateId(v)
@@ -452,7 +452,7 @@ public abstract class RemoteString : BaseRemoteState<String>() {
         @JvmStatic
         public fun createNamedRemoteString(name: String, initialValue: String): RemoteString {
             return MutableRemoteString(
-                constantValue = null,
+                constantValueOrNull = null,
                 object : LazyRemoteString {
                     // TODO: check what happens if the initial value for this is the same as a
                     //  subsequent non-named variable.
@@ -477,7 +477,7 @@ private class SelectFloatImpl(
 ) : LazyRemoteString {
     override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
         val select =
-            RemoteFloatExpression(constantValue = null) { creationState2 ->
+            RemoteFloatExpression(constantValueOrNull = null) { creationState2 ->
                 floatArrayOf(
                     1f,
                     0f,
@@ -511,7 +511,7 @@ private class SelectIntImpl(
 ) : LazyRemoteString {
     override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
         val select =
-            RemoteIntExpression(constantValue = null) { creationState2 ->
+            RemoteIntExpression(constantValueOrNull = null) { creationState2 ->
                 longArrayOf(
                     1,
                     0,
@@ -553,8 +553,8 @@ public fun selectIfLT(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA < constB) {
             ifTrue
@@ -563,7 +563,7 @@ public fun selectIfLT(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectFloatImpl(b, a, ifFalse, ifTrue))
+    return MutableRemoteString(constantValueOrNull = null, SelectFloatImpl(b, a, ifFalse, ifTrue))
 }
 
 /**
@@ -582,8 +582,8 @@ public fun selectIfLT(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA < constB) {
             ifTrue
@@ -592,7 +592,7 @@ public fun selectIfLT(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectIntImpl(b, a, ifFalse, ifTrue))
+    return MutableRemoteString(constantValueOrNull = null, SelectIntImpl(b, a, ifFalse, ifTrue))
 }
 
 /**
@@ -611,8 +611,8 @@ public fun selectIfLE(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA <= constB) {
             ifTrue
@@ -621,7 +621,7 @@ public fun selectIfLE(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectFloatImpl(a, b, ifTrue, ifFalse))
+    return MutableRemoteString(constantValueOrNull = null, SelectFloatImpl(a, b, ifTrue, ifFalse))
 }
 
 /**
@@ -640,8 +640,8 @@ public fun selectIfLE(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA <= constB) {
             ifTrue
@@ -650,7 +650,7 @@ public fun selectIfLE(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectIntImpl(a, b, ifTrue, ifFalse))
+    return MutableRemoteString(constantValueOrNull = null, SelectIntImpl(a, b, ifTrue, ifFalse))
 }
 
 /**
@@ -669,8 +669,8 @@ public fun selectIfGT(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA > constB) {
             ifTrue
@@ -679,7 +679,7 @@ public fun selectIfGT(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectFloatImpl(a, b, ifFalse, ifTrue))
+    return MutableRemoteString(constantValueOrNull = null, SelectFloatImpl(a, b, ifFalse, ifTrue))
 }
 
 /**
@@ -698,8 +698,8 @@ public fun selectIfGT(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA > constB) {
             ifTrue
@@ -708,7 +708,7 @@ public fun selectIfGT(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectIntImpl(a, b, ifFalse, ifTrue))
+    return MutableRemoteString(constantValueOrNull = null, SelectIntImpl(a, b, ifFalse, ifTrue))
 }
 
 /**
@@ -727,8 +727,8 @@ public fun selectIfGE(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA >= constB) {
             ifTrue
@@ -737,7 +737,7 @@ public fun selectIfGE(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectFloatImpl(b, a, ifTrue, ifFalse))
+    return MutableRemoteString(constantValueOrNull = null, SelectFloatImpl(b, a, ifTrue, ifFalse))
 }
 
 /**
@@ -756,8 +756,8 @@ public fun selectIfGE(
     ifTrue: RemoteString,
     ifFalse: RemoteString,
 ): RemoteString {
-    val constA = a.constantValue
-    val constB = b.constantValue
+    val constA = a.constantValueOrNull
+    val constB = b.constantValueOrNull
     if (constA != null && constB != null) {
         return if (constA >= constB) {
             ifTrue
@@ -766,7 +766,7 @@ public fun selectIfGE(
         }
     }
 
-    return MutableRemoteString(constantValue = null, SelectIntImpl(b, a, ifTrue, ifFalse))
+    return MutableRemoteString(constantValueOrNull = null, SelectIntImpl(b, a, ifTrue, ifFalse))
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -807,16 +807,31 @@ internal fun mergeSets(a: Set<String>?, b: Set<String>?): Set<String>? {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteString
 internal constructor(
-    public override val constantValue: String?,
+    public override val constantValueOrNull: String?,
     private val lazyRemoteString: LazyRemoteString,
 ) : RemoteString(), MutableRemoteState<String> {
 
+    /** Create a MutableRemoteString from an existing id. */
     public constructor(
         id: Int
     ) : this(
-        constantValue = null,
+        constantValueOrNull = null,
         object : LazyRemoteString {
             override fun reserveTextId(creationState: RemoteComposeCreationState) = id
+
+            override fun computeRequiredCodePointSet(creationState: RemoteComposeCreationState) =
+                null
+        },
+    )
+
+    /** Create a MutableRemoteString for a default value. */
+    public constructor(
+        value: String
+    ) : this(
+        constantValueOrNull = null,
+        object : LazyRemoteString {
+            override fun reserveTextId(creationState: RemoteComposeCreationState) =
+                creationState.document.addText(value)
 
             override fun computeRequiredCodePointSet(creationState: RemoteComposeCreationState) =
                 null
@@ -849,8 +864,20 @@ public fun rememberRemoteString(
     val state = LocalRemoteComposeCreationState.current
     return rememberNamedState(name, domain) {
         val string = content()
-        val id = state.document.addNamedString("$domain:$name", string)
-        MutableRemoteString(id)
+        MutableRemoteString(
+            null,
+            object : LazyRemoteString {
+                override fun reserveTextId(creationState: RemoteComposeCreationState): Int {
+                    return state.document.addNamedString("$domain:$name", string)
+                }
+
+                override fun computeRequiredCodePointSet(
+                    creationState: RemoteComposeCreationState
+                ): Set<String>? {
+                    return null
+                }
+            },
+        )
     }
 }
 
@@ -862,11 +889,9 @@ public fun rememberRemoteString(
  */
 @Composable
 public fun rememberRemoteString(content: () -> String): MutableRemoteString {
-    val state = LocalRemoteComposeCreationState.current
     return remember {
         val string = content()
-        val id = state.document.textCreateId(string)
-        MutableRemoteString(id)
+        MutableRemoteString(string)
     }
 }
 

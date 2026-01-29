@@ -18,7 +18,6 @@
 package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
-import androidx.compose.remote.core.RcPlatformServices
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
@@ -28,8 +27,6 @@ import androidx.compose.runtime.Composable
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RemoteLong : BaseRemoteState<Long>() {
-
-    public abstract val id: Int
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
@@ -54,7 +51,7 @@ public abstract class RemoteLong : BaseRemoteState<Long>() {
          */
         @JvmStatic
         public fun createNamedRemoteLong(name: String, initialValue: Long): RemoteLong {
-            return MutableRemoteLong(constantValue = null) { creationState ->
+            return MutableRemoteLong(constantValueOrNull = null) { creationState ->
                 creationState.document.addNamedLong(name, initialValue)
             }
         }
@@ -71,7 +68,7 @@ public abstract class RemoteLong : BaseRemoteState<Long>() {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class MutableRemoteLong(
-    public override val constantValue: Long?,
+    public override val constantValueOrNull: Long?,
     private val idProvider: (creationState: RemoteComposeCreationState) -> Int,
 ) : RemoteLong(), MutableRemoteState<Long> {
 
@@ -81,23 +78,13 @@ public class MutableRemoteLong(
      *
      * @param id An optional explicit ID for this mutable long. If `null`, a new ID is reserved.
      */
-    public constructor(id: Int) : this(constantValue = null, { creationState -> id })
+    public constructor(id: Int) : this(constantValueOrNull = null, { creationState -> id })
 
     public override fun writeToDocument(creationState: RemoteComposeCreationState): Int =
         idProvider(creationState)
 
-    @Deprecated("Use getIdForCreationState directly")
-    public override val id: Int
-        get() {
-            FallbackCreationState.state.platform.log(
-                RcPlatformServices.LogCategory.TODO,
-                "Use RemoteLong.getIdForCreationState directly",
-            )
-            return getIdForCreationState(FallbackCreationState.state)
-        }
-
     public override fun toString(): String {
-        return "MutableRemoteLong@${this.hashCode()} =" + constantValue
+        return "MutableRemoteLong@${this.hashCode()} =" + constantValueOrNull
     }
 }
 
@@ -118,7 +105,7 @@ public fun rememberRemoteLongValue(
 ): MutableRemoteLong {
     return rememberNamedState(name, domain) {
         val initial = value()
-        MutableRemoteLong(constantValue = null) { creationState ->
+        MutableRemoteLong(constantValueOrNull = null) { creationState ->
             val id = creationState.document.addNamedLong(name, initial)
             creationState.document.setStringName(id, "$domain:$name")
             id

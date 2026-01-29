@@ -174,11 +174,12 @@ object ComposeUiFlags {
     var isTraversableDelegatesFixEnabled: Boolean = true
 
     /**
-     * This flag enables ComposeViewContext to be created automatically and used across ComposeViews
-     * within the same hierarchy. With the flag disabled, ComposeViewContext will only be created
-     * when explicitly provided to a ComposeView.
+     * This flag enables support for walking up nested scrolling in response to
+     * android.R.id.accessibilityActionShowOnScreen from Accessibility.
+     *
+     * Enabled is correct nested scrolling behavior and it should be enabled in all apps.
      */
     @field:Suppress("MutableBareField")
     @JvmField
-    var isSharedComposeViewContextEnabled: Boolean = true
+    var isAccessibilityShowOnScreenNestedScrollingEnabled: Boolean = true
 }

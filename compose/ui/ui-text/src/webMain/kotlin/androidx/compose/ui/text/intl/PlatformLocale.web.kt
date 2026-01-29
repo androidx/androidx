@@ -16,20 +16,40 @@
 
 package androidx.compose.ui.text.intl
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.util.fastMap
 import kotlin.js.JsName
 import kotlin.js.js
 
-internal actual val PlatformLocale.language: String
-    get() = _language
+@Immutable
+actual class Locale internal constructor(internal val platformLocale: IntlLocale) {
+    actual val language: String
+        get() = platformLocale._language
+    actual val script: String
+        get() = platformLocale._script.orEmpty()
+    actual val region: String
+        get() = platformLocale._region.orEmpty()
 
-internal actual val PlatformLocale.script: String
-    get() = _script ?: ""
+    actual fun toLanguageTag(): String = platformLocale._baseName
 
-internal actual val PlatformLocale.region: String
-    get() = _region ?: ""
+    actual override operator fun equals(other: Any?): Boolean {
+        if (other == null) return false
+        if (other !is Locale) return false
+        if (this === other) return true
+        return toLanguageTag() == other.toLanguageTag()
+    }
 
-internal actual fun PlatformLocale.getLanguageTag(): String = _baseName
+    actual override fun hashCode(): Int = toLanguageTag().hashCode()
+
+    actual override fun toString(): String = toLanguageTag()
+
+    actual companion object {
+        actual val current: Locale
+            get() = platformLocaleDelegate.current[0]
+    }
+
+    actual constructor(languageTag: String): this(languageTag.toIntlLocale())
+}
 
 internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
     object : PlatformLocaleDelegate {
@@ -39,10 +59,6 @@ internal actual fun createPlatformLocaleDelegate(): PlatformLocaleDelegate =
                     Locale(it.toIntlLocale())
                 }
             )
-
-        override fun parseLanguageTag(languageTag: String): PlatformLocale {
-            return languageTag.toIntlLocale()
-        }
     }
 
 // The list of RTL languages is taken from https://github.com/openjdk/jdk/blob/master/src/java.desktop/share/classes/java/awt/ComponentOrientation.java#L156
@@ -50,7 +66,7 @@ private val rtlLanguagesSet = setOf("ar", "fa", "he", "iw", "ji", "ur", "yi")
 
 // Implemented according to ComponentOrientation.getOrientation (AWT),
 // since there is no js API for this.
-internal actual fun PlatformLocale.isRtl(): Boolean = this.language in rtlLanguagesSet
+internal actual fun Locale.isRtl(): Boolean = this.language in rtlLanguagesSet
 
 // K/JS and K/Wasm stdlib doesn't have this type. Therefore, we declare it here.
 // Ideally it would not be necessary, or at least we would make it internal, but Compose common API
@@ -58,7 +74,7 @@ internal actual fun PlatformLocale.isRtl(): Boolean = this.language in rtlLangua
 // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/Locale
 // Note: Since Compose common code introduced PlatformLocale with extension properties with the same names,
 // we had to change the names of the properties in kotlin to avoid the name shadowing.
-actual external class PlatformLocale {
+internal external class IntlLocale {
     @JsName("language")
     internal val _language: String
     @JsName("script")
@@ -69,7 +85,7 @@ actual external class PlatformLocale {
     internal val _baseName: String
 }
 
-internal fun parseLanguageTagToIntlLocale(languageTag: String): PlatformLocale =
+internal fun parseLanguageTagToIntlLocale(languageTag: String): IntlLocale =
     js("new Intl.Locale(languageTag)")
 
-private fun String.toIntlLocale(): PlatformLocale = parseLanguageTagToIntlLocale(this)
+private fun String.toIntlLocale(): IntlLocale = parseLanguageTagToIntlLocale(this)

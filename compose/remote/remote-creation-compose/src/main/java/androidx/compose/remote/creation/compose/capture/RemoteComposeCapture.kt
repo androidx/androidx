@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.creation.compose.state.FallbackCreationState
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.Composable
@@ -265,7 +264,6 @@ public fun RemoteComposeExecution(
         )
     }
     CompositionLocalProvider(LocalRemoteComposeCreationState provides remoteComposeCreationState) {
-        FallbackCreationState.state = remoteComposeCreationState
         captureComposeView.setRemoteComposeState(remoteComposeCreationState)
         content.invoke()
     }
@@ -285,7 +283,6 @@ public fun RemoteComposeExecution(
         RemoteComposeCreationState(platform, size, apiLevel, profiles)
     }
     CompositionLocalProvider(LocalRemoteComposeCreationState provides remoteComposeCreationState) {
-        FallbackCreationState.state = remoteComposeCreationState
         captureComposeView.setRemoteComposeState(remoteComposeCreationState)
         content.invoke()
     }
@@ -300,7 +297,6 @@ public fun RemoteComposeExecution(
 ) {
     val remoteComposeCreationState = remember { RemoteComposeCreationState(size, profile) }
     CompositionLocalProvider(LocalRemoteComposeCreationState provides remoteComposeCreationState) {
-        FallbackCreationState.state = remoteComposeCreationState
         captureComposeView.setRemoteComposeState(remoteComposeCreationState)
         content.invoke()
     }

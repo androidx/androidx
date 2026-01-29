@@ -463,7 +463,7 @@ internal class MeasurePassDelegate(private val layoutNodeLayoutDelegate: LayoutN
         if (layoutNode.isOutMostLookaheadRoot) {
             lookaheadPassDelegate!!.run {
                 measuredByParent = LayoutNode.UsageByParent.NotUsed
-                measure(constraints)
+                traceMeasureLayout("Compose:lookaheadMeasure") { measure(constraints) }
             }
         }
         trackMeasurementByParent(layoutNode)

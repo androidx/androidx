@@ -43,7 +43,6 @@ import androidx.compose.ui.geometry.center
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.NativeCanvas
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
@@ -380,26 +379,26 @@ private class StretchOverscrollNode(
                 isRightNegationStretched()
         }
 
-    private fun drawLeftStretch(left: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun drawLeftStretch(left: EdgeEffect, canvas: android.graphics.Canvas): Boolean {
         return drawWithRotation(rotationDegrees = 270f, edgeEffect = left, canvas = canvas)
     }
 
-    private fun drawTopStretch(top: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun drawTopStretch(top: EdgeEffect, canvas: android.graphics.Canvas): Boolean {
         return drawWithRotation(rotationDegrees = 0f, edgeEffect = top, canvas = canvas)
     }
 
-    private fun drawRightStretch(right: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun drawRightStretch(right: EdgeEffect, canvas: android.graphics.Canvas): Boolean {
         return drawWithRotation(rotationDegrees = 90f, edgeEffect = right, canvas = canvas)
     }
 
-    private fun drawBottomStretch(bottom: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun drawBottomStretch(bottom: EdgeEffect, canvas: android.graphics.Canvas): Boolean {
         return drawWithRotation(rotationDegrees = 180f, edgeEffect = bottom, canvas = canvas)
     }
 
     private fun drawWithRotation(
         rotationDegrees: Float,
         edgeEffect: EdgeEffect,
-        canvas: NativeCanvas,
+        canvas: android.graphics.Canvas,
     ): Boolean {
         if (rotationDegrees == 0f) {
             val needsInvalidate = edgeEffect.draw(canvas)
@@ -456,7 +455,7 @@ private class GlowOverscrollNode(
         }
     }
 
-    private fun DrawScope.drawLeftGlow(left: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun DrawScope.drawLeftGlow(left: EdgeEffect, canvas: android.graphics.Canvas): Boolean {
         val offset =
             Offset(-size.height, glowDrawPadding.calculateLeftPadding(layoutDirection).toPx())
         return drawWithRotationAndOffset(
@@ -467,7 +466,7 @@ private class GlowOverscrollNode(
         )
     }
 
-    private fun DrawScope.drawTopGlow(top: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun DrawScope.drawTopGlow(top: EdgeEffect, canvas: android.graphics.Canvas): Boolean {
         val offset = Offset(0f, glowDrawPadding.calculateTopPadding().toPx())
         return drawWithRotationAndOffset(
             rotationDegrees = 0f,
@@ -477,7 +476,10 @@ private class GlowOverscrollNode(
         )
     }
 
-    private fun DrawScope.drawRightGlow(right: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun DrawScope.drawRightGlow(
+        right: EdgeEffect,
+        canvas: android.graphics.Canvas,
+    ): Boolean {
         val width = size.width.roundToInt()
         val rightPadding = glowDrawPadding.calculateRightPadding(layoutDirection)
         val offset = Offset(0f, -width.toFloat() + rightPadding.toPx())
@@ -489,7 +491,10 @@ private class GlowOverscrollNode(
         )
     }
 
-    private fun DrawScope.drawBottomGlow(bottom: EdgeEffect, canvas: NativeCanvas): Boolean {
+    private fun DrawScope.drawBottomGlow(
+        bottom: EdgeEffect,
+        canvas: android.graphics.Canvas,
+    ): Boolean {
         val bottomPadding = glowDrawPadding.calculateBottomPadding().toPx()
         val offset = Offset(-size.width, -size.height + bottomPadding)
         return drawWithRotationAndOffset(
@@ -504,7 +509,7 @@ private class GlowOverscrollNode(
         rotationDegrees: Float,
         offset: Offset,
         edgeEffect: EdgeEffect,
-        canvas: NativeCanvas,
+        canvas: android.graphics.Canvas,
     ): Boolean {
         val restore = canvas.save()
         canvas.rotate(rotationDegrees)

@@ -1282,7 +1282,7 @@ package androidx.compose.ui.graphics {
     property public androidx.compose.ui.graphics.VertexMode vertexMode;
   }
 
-  public typealias NativeCanvas = android.graphics.Canvas;
+  @Deprecated public typealias NativeCanvas = android.graphics.Canvas;
 
   public typealias NativePaint = android.graphics.Paint;
 
