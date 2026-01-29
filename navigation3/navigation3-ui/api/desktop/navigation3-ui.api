@@ -54,8 +54,8 @@ public final class androidx/navigation3/scene/SceneStateKt {
 }
 
 public abstract interface class androidx/navigation3/scene/SceneStrategy {
-	public fun calculateScene (Landroidx/navigation3/scene/SceneStrategyScope;Landroidx/navigation3/scene/Scene;)Landroidx/navigation3/scene/Scene;
 	public abstract fun calculateScene (Landroidx/navigation3/scene/SceneStrategyScope;Ljava/util/List;)Landroidx/navigation3/scene/Scene;
+	public fun decorateScene (Landroidx/navigation3/scene/SceneStrategyScope;Landroidx/navigation3/scene/Scene;)Landroidx/navigation3/scene/Scene;
 	public fun then (Landroidx/navigation3/scene/SceneStrategy;)Landroidx/navigation3/scene/SceneStrategy;
 }
 
