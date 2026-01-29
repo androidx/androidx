@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.Strings.Companion.BottomSheetDragHandleDescription
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.CompositionLocalProvider
@@ -66,7 +67,11 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.semantics.expand
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -99,6 +104,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase
@@ -1173,6 +1179,127 @@ class BottomSheetScaffoldTest {
                     )
                 )
                 .isTrue()
+        }
+    }
+
+    @Test
+    fun bottomSheetScaffold_withDragHandle_confirmValueChange_invokedForSemanticsAction() {
+        val dragHandleTag = "sheetDragHandle"
+        val dismissSemanticsActionLabel =
+            rule.activity.resources.getString(Strings.BottomSheetDismissDescription.value)
+        val partialExpandSemanticsActionLabel =
+            rule.activity.resources.getString(Strings.BottomSheetPartialExpandDescription.value)
+        val expandSemanticsActionLabel =
+            rule.activity.resources.getString(Strings.BottomSheetExpandDescription.value)
+        lateinit var bottomSheetState: SheetState
+        // confirmValueChange gets invoked multiple times during a drag/animation, so we only
+        // collect the distinct values and clear this set after each action
+        val confirmValueChangeInvocations = mutableSetOf<SheetValue>()
+
+        rule.setContent {
+            bottomSheetState =
+                rememberStandardBottomSheetState(
+                    initialValue = SheetValue.PartiallyExpanded,
+                    skipHiddenState = false,
+                    confirmValueChange = {
+                        confirmValueChangeInvocations.add(it)
+                        true
+                    },
+                )
+            BottomSheetScaffold(
+                sheetContent = { Box(Modifier.fillMaxWidth().requiredHeight(sheetHeight)) },
+                scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState),
+                sheetDragHandle = {
+                    BottomSheetDefaults.DragHandle(Modifier.testTag(dragHandleTag))
+                },
+            ) {
+                Text("Content")
+            }
+        }
+        rule.waitForIdle()
+        assertThat(bottomSheetState.currentValue).isEqualTo(SheetValue.PartiallyExpanded)
+        assertWithMessage("confirmValueChange should not have been invoked")
+            .that(confirmValueChangeInvocations)
+            .isEmpty()
+
+        rule
+            .onNode(
+                SemanticsMatcher.hasActionLabel(SemanticsActions.Expand, expandSemanticsActionLabel)
+            )
+            .performSemanticsAction(SemanticsActions.Expand)
+        rule.waitForIdle()
+        assertWithMessage("confirmValueChange should have been invoked for Expand action")
+            .that(confirmValueChangeInvocations)
+            .containsExactly(SheetValue.Expanded)
+
+        confirmValueChangeInvocations.clear()
+        // The label is called BottomSheetPartialExpandDescription despite describing the Collapse
+        // action - this is intentional.
+        rule
+            .onNode(
+                SemanticsMatcher.hasActionLabel(
+                    SemanticsActions.Collapse,
+                    partialExpandSemanticsActionLabel,
+                )
+            )
+            .performSemanticsAction(SemanticsActions.Collapse)
+        rule.waitForIdle()
+        assertWithMessage("confirmValueChange should have been invoked for Collapse action")
+            .that(confirmValueChangeInvocations)
+            .containsExactly(SheetValue.PartiallyExpanded)
+
+        confirmValueChangeInvocations.clear()
+        rule
+            .onNode(
+                SemanticsMatcher.hasActionLabel(
+                    SemanticsActions.Dismiss,
+                    dismissSemanticsActionLabel,
+                )
+            )
+            .performSemanticsAction(SemanticsActions.Dismiss)
+        rule.waitForIdle()
+        assertWithMessage("confirmValueChange should have been invoked for Dismiss action")
+            .that(confirmValueChangeInvocations)
+            .containsExactly(SheetValue.Hidden)
+    }
+
+    @Test
+    fun semanticsMatcher_hasActionLabel_findsNodeForAction() {
+        val expectedLabel = "label"
+        rule.setContent {
+            Box(Modifier.semantics { expand(expectedLabel) { true } }) {
+                Box(Modifier.semantics { expand("unexpectedLabel") { false } })
+            }
+        }
+
+        val semanticsConfiguration =
+            rule
+                .onNode(SemanticsMatcher.hasActionLabel(SemanticsActions.Expand, expectedLabel))
+                .fetchSemanticsNode()
+                .config
+        val expandAction = semanticsConfiguration.getOrNull(SemanticsActions.Expand)
+        assertThat(expandAction).isNotNull()
+        assertThat(expandAction!!.label).isEqualTo(expectedLabel)
+        assertThat(expandAction.action).isNotNull()
+        assertThat(expandAction.action!!()).isTrue()
+    }
+
+    /**
+     * Builds a predicate that tests whether the [key] is defined on the node and the
+     * [AccessibilityAction]'s label matches the [expectedLabel].
+     *
+     * @param key The semantics property key for the action
+     * @param expectedLabel The expected label for the action, or null if no label is expected
+     */
+    private fun SemanticsMatcher.Companion.hasActionLabel(
+        key: SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>,
+        expectedLabel: String?,
+    ): SemanticsMatcher {
+        return SemanticsMatcher("Action '${key.name}' has label '$expectedLabel'") { node ->
+            // Retrieve the action safely; if it doesn't exist, return null
+            val action = node.config.getOrNull(key)
+            // Check if the action exists AND matches the label
+            action?.label == expectedLabel
         }
     }
 }

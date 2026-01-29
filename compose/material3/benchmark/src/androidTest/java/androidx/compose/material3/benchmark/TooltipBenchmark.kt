@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.benchmark
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RichTooltip
@@ -74,7 +73,6 @@ class TooltipBenchmark {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private class TooltipTestCase(val tooltipType: TooltipType) :
     LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var state: TooltipState

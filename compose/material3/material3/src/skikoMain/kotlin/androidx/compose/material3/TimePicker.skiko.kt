@@ -35,3 +35,7 @@ internal actual val defaultTimePickerLayoutType
         }
     }
 
+@Composable
+internal actual fun rememberTimeInputErrorHandler(isTouchExplorationEnabled: Boolean): TimeInputErrorHandler {
+    TODO("Not yet implemented")
+}

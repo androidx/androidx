@@ -614,6 +614,7 @@ internal fun Modifier.carouselItem(
 
                     // Update carousel item info
                     carouselItemDrawInfo.sizeState = interpolatedKeyline.size
+                    @Suppress("ListIterator")
                     carouselItemDrawInfo.minSizeState = roundedKeylines.minBy { it.size }.size
                     carouselItemDrawInfo.maxSizeState = roundedKeylines.firstFocal.size
                     carouselItemDrawInfo.maskRectState = maskRect

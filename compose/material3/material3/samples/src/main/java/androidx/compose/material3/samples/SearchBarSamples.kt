@@ -19,6 +19,10 @@
 package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -46,6 +50,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme.motionScheme
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
@@ -56,6 +61,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberContainedSearchBarState
 import androidx.compose.material3.rememberSearchBarState
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
@@ -65,6 +71,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -107,7 +114,7 @@ fun SimpleSearchBarSample() {
 @Composable
 fun FullScreenSearchBarScaffoldSample() {
     val textFieldState = rememberTextFieldState()
-    val searchBarState = rememberSearchBarState()
+    val searchBarState = rememberContainedSearchBarState()
     val scope = rememberCoroutineScope()
     val scrollBehavior = SearchBarDefaults.enterAlwaysSearchBarScrollBehavior()
     val appBarWithSearchColors =
@@ -137,8 +144,8 @@ fun FullScreenSearchBarScaffoldSample() {
                 state = searchBarState,
                 colors = appBarWithSearchColors,
                 inputField = inputField,
-                navigationIcon = { SampleNavigationIcon() },
-                actions = { SampleActions() },
+                navigationIcon = { SampleNavigationIcon(searchBarState, isAnimated = true) },
+                actions = { SampleActions(searchBarState, isAnimated = true) },
             )
             ExpandedFullScreenContainedSearchBar(
                 state = searchBarState,
@@ -199,8 +206,8 @@ fun DockedSearchBarScaffoldSample() {
                 state = searchBarState,
                 colors = appBarWithSearchColors,
                 inputField = inputField,
-                navigationIcon = { SampleNavigationIcon() },
-                actions = { SampleActions() },
+                navigationIcon = { SampleNavigationIcon(searchBarState) },
+                actions = { SampleActions(searchBarState) },
             )
             ExpandedDockedSearchBarWithGap(state = searchBarState, inputField = inputField) {
                 SampleSearchResults(
@@ -273,28 +280,58 @@ private fun SampleTrailingIcon() =
         }
     }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun SampleNavigationIcon() =
-    TooltipBox(
-        positionProvider =
-            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = { PlainTooltip { Text("Menu") } },
-        state = rememberTooltipState(),
+private fun SampleNavigationIcon(state: SearchBarState, isAnimated: Boolean = false) =
+    AnimatedVisibility(
+        visible = !isAnimated || state.targetValue == SearchBarValue.Collapsed,
+        enter =
+            slideIn(
+                animationSpec = motionScheme.fastSpatialSpec(),
+                initialOffset = { IntOffset(-it.width, 0) },
+            ),
+        exit =
+            slideOut(
+                animationSpec = tween(durationMillis = 150, delayMillis = 0),
+                targetOffset = { IntOffset(-it.width, 0) },
+            ),
     ) {
-        IconButton(onClick = { /* doSomething() */ }) {
-            Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltip { Text("Menu") } },
+            state = rememberTooltipState(),
+        ) {
+            IconButton(onClick = { /* doSomething() */ }) {
+                Icon(imageVector = Icons.Default.Menu, contentDescription = "Menu")
+            }
         }
     }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun SampleActions() =
-    TooltipBox(
-        positionProvider =
-            TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
-        tooltip = { PlainTooltip { Text("Account") } },
-        state = rememberTooltipState(),
+private fun SampleActions(state: SearchBarState, isAnimated: Boolean = false) =
+    AnimatedVisibility(
+        visible = !isAnimated || state.targetValue == SearchBarValue.Collapsed,
+        enter =
+            slideIn(
+                animationSpec = motionScheme.fastSpatialSpec(),
+                initialOffset = { IntOffset(it.width, 0) },
+            ),
+        exit =
+            slideOut(
+                animationSpec = tween(durationMillis = 150, delayMillis = 0),
+                targetOffset = { IntOffset(it.width, 0) },
+            ),
     ) {
-        IconButton(onClick = { /* doSomething() */ }) {
-            Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Account")
+        TooltipBox(
+            positionProvider =
+                TooltipDefaults.rememberTooltipPositionProvider(TooltipAnchorPosition.Above),
+            tooltip = { PlainTooltip { Text("Account") } },
+            state = rememberTooltipState(),
+        ) {
+            IconButton(onClick = { /* doSomething() */ }) {
+                Icon(imageVector = Icons.Default.AccountCircle, contentDescription = "Account")
+            }
         }
     }

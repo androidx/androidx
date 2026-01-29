@@ -390,26 +390,26 @@ private fun StandardBottomSheet(
                                         anchoredDraggableState.anchors.size > 1 && sheetSwipeEnabled
                                     ) {
                                         if (currentValue == PartiallyExpanded) {
-                                            if (confirmValueChange(Expanded)) {
-                                                expand(expandActionLabel) {
+                                            expand(expandActionLabel) {
+                                                val canExpand = confirmValueChange(Expanded)
+                                                if (canExpand) {
                                                     scope.launch { expand() }
-                                                    true
                                                 }
+                                                return@expand canExpand
                                             }
                                         } else {
-                                            if (confirmValueChange(PartiallyExpanded)) {
-                                                collapse(partialExpandActionLabel) {
-                                                    scope.launch { partialExpand() }
-                                                    true
-                                                }
+                                            collapse(partialExpandActionLabel) {
+                                                val canPartiallyExpand =
+                                                    confirmValueChange(PartiallyExpanded)
+                                                scope.launch { partialExpand() }
+                                                return@collapse canPartiallyExpand
                                             }
                                         }
                                         if (!state.skipHiddenState) {
-                                            if (confirmValueChange(Hidden)) {
-                                                dismiss(dismissActionLabel) {
-                                                    scope.launch { hide() }
-                                                    true
-                                                }
+                                            dismiss(dismissActionLabel) {
+                                                val canHide = confirmValueChange(Hidden)
+                                                scope.launch { hide() }
+                                                return@dismiss canHide
                                             }
                                         }
                                     }
