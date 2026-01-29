@@ -54,8 +54,8 @@ package androidx.navigation3.scene {
   }
 
   @androidx.compose.runtime.Immutable public fun interface SceneStrategy<T> {
-    method public default androidx.navigation3.scene.Scene<T> calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, androidx.navigation3.scene.Scene<T> scene);
     method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
+    method public default androidx.navigation3.scene.Scene<T> decorateScene(androidx.navigation3.scene.SceneStrategyScope<T>, androidx.navigation3.scene.Scene<T> scene);
     method public default infix androidx.navigation3.scene.SceneStrategy<T> then(androidx.navigation3.scene.SceneStrategy<T> sceneStrategy);
   }
 

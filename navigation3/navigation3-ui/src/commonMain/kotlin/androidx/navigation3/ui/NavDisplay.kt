@@ -65,6 +65,7 @@ import androidx.navigationevent.NavigationEventTransitionState.InProgress
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.NavigationEventState
 import androidx.navigationevent.compose.rememberNavigationEventState
+import kotlin.collections.emptySet
 import kotlin.jvm.JvmMultifileClass
 import kotlin.jvm.JvmName
 import kotlin.reflect.KClass
@@ -618,6 +619,9 @@ public fun <T : Any> NavDisplay(
                 // Then we track which entries are already covered
                 val coveredEntryKeys = mutableSetOf<Any>()
 
+                // This determines whether this is a pop or not
+                val shouldSwapExcludedScenesFromTarget = transition.targetState != scenes.first()
+
                 // In scenesInZOrder's natural order, go through each scene, marking
                 // all of the entries not already covered as associated
                 // with that scene. This ensures that each unique contentKey will only be
@@ -628,8 +632,25 @@ public fun <T : Any> NavDisplay(
                             .map { it.contentKey }
                             .filterNot(coveredEntryKeys::contains)
                             .toSet()
-                    put(scene::class to scene.key, coveredEntryKeys.toMutableSet())
+                    // If our target scene is not the scene on top
+                    // we should exclude the entries in the target scene from all other scenes
+                    // this ensures we render the entry in the target scene when popping using
+                    // shared elements
+                    if (shouldSwapExcludedScenesFromTarget && transition.targetState != scene) {
+                        put(
+                            scene::class to scene.key,
+                            transition.targetState.entries.map { it.contentKey }.toSet(),
+                        )
+                    } else {
+                        put(scene::class to scene.key, coveredEntryKeys.toMutableSet())
+                    }
                     coveredEntryKeys.addAll(newlyCoveredEntryKeys)
+                }
+
+                // After we are done building the entire map, check if we should clear
+                // the target scene key
+                if (shouldSwapExcludedScenesFromTarget) {
+                    put(transition.targetState::class to transition.targetState.key, emptySet())
                 }
             }
         }

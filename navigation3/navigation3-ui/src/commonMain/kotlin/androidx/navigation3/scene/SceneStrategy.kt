@@ -20,9 +20,10 @@ import androidx.compose.runtime.Immutable
 import androidx.navigation3.runtime.NavEntry
 
 /**
- * Scope used to create a [Scene] from a list of [NavEntry]s.
+ * Scope used to create a [Scene] from a list of [NavEntry]s or another [Scene].
  *
- * This Scope should be provided to the [SceneStrategy.calculateScene] function to create Scenes.
+ * This Scope should be provided to the [SceneStrategy.calculateScene] and
+ * [SceneStrategy.decorateScene] functions to create Scenes.
  */
 @Immutable
 public class SceneStrategyScope<T : Any>
@@ -41,8 +42,7 @@ internal constructor(
     public val onBack: () -> Unit
 ) {
     /**
-     * Construct a [SceneStrategyScope] suitable for calling [SceneStrategy.calculateScene] in
-     * isolation.
+     * Construct a [SceneStrategyScope] suitable for calling [SceneStrategy] functions in isolation.
      *
      * For more complicated cases, such as ones where you want to test if [onBack] is called
      * correctly, use [rememberSceneState], which will construct its own internal
@@ -52,12 +52,7 @@ internal constructor(
     public constructor() : this(onBack = {})
 }
 
-/**
- * A strategy that tries to calculate a [Scene] given a list of [NavEntry].
- *
- * If the list of [NavEntry] does not result in a [Scene] for this strategy, `null` will be returned
- * instead to delegate to another strategy.
- */
+/** A strategy that tries to calculate a [Scene] given a list of [NavEntry]s or another [Scene]. */
 @Immutable
 public fun interface SceneStrategy<T : Any> {
     /**
@@ -74,21 +69,23 @@ public fun interface SceneStrategy<T : Any> {
     public fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>?
 
     /**
-     * Given a [SceneStrategyScope], calculate whether this [SceneStrategy] should take on the task
-     * of rendering along with the given [Scene] in the scope.
+     * Decorates the given [Scene].
      *
-     * This will always return a non-null [Scene] where if a [SceneStrategy] does not want to use
-     * the given scene it should just return it.
+     * The newly returned [Scene] may or may not include the content of the given [scene].
      *
-     * @param scene The scene that should be considered valid to render via a returned Scene.
+     * This will always return a non-null [Scene] because a [Scene] returned by [calculateScene]
+     * passes through every [SceneStrategy] linked by [then]. So if a [SceneStrategy] does not want
+     * to decorate the scene, it should just return the passed in scene.
+     *
+     * @param scene The scene to be decorated
      */
-    public fun SceneStrategyScope<T>.calculateScene(scene: Scene<T>): Scene<T> = scene
+    public fun SceneStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T> = scene
 
     /**
      * Chains this [SceneStrategy] with another [sceneStrategy] to return a combined
-     * [SceneStrategy]. For the returned [SceneStrategy], the [calculateScene] that takes entries
-     * will be use the first non-null result from the calculation, while the [calculateScene] that
-     * takes scenes will be called for every [SceneStrategy] in the chain.
+     * [SceneStrategy]. For the returned [SceneStrategy], [calculateScene] will use the first
+     * non-null result from the calculation, while the [decorateScene] will be called for every
+     * [SceneStrategy] in the chain.
      *
      * For [SceneStrategy]s that wish to be calculated with another scene, the calling
      * [SceneStrategy] is first and the given [SceneStrategy] receives the result of the
@@ -110,16 +107,16 @@ public fun interface SceneStrategy<T : Any> {
                         calculateScene(entries)
                     }
 
-            override fun SceneStrategyScope<T>.calculateScene(scene: Scene<T>): Scene<T> {
+            override fun SceneStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T> {
                 val newScene =
                     with(firstStrategy) {
                         // with original scene strategy
-                        calculateScene(scene)
+                        decorateScene(scene)
                     }
 
                 return with(sceneStrategy) {
                     // the chained scene strategy
-                    calculateScene(newScene)
+                    decorateScene(newScene)
                 }
             }
         }

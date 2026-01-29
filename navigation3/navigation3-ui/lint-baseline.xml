@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
+<issues format="6" by="lint 9.1.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (9.1.0-alpha02)" variant="all" version="9.1.0-alpha02">
 
     <issue
         id="UseSdkSuppress"
@@ -177,6 +177,24 @@
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="                            .toSet()"
         errorLine2="                             ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                            transition.targetState.entries.map { it.contentKey }.toSet(),"
+        errorLine2="                                                           ~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                            transition.targetState.entries.map { it.contentKey }.toSet(),"
+        errorLine2="                                                                                 ~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/navigation3/ui/NavDisplay.kt"/>
     </issue>

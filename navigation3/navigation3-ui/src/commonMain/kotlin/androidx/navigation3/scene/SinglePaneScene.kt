@@ -75,5 +75,5 @@ internal fun <T : Any> SceneStrategy<T>.calculateSceneWithSinglePaneFallback(
         scope.calculateScene(entries)
             ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }
 
-    return scope.calculateScene(scene)
+    return scope.decorateScene(scene)
 }
