@@ -73,8 +73,7 @@ androidXMultiplatform {
 
             implementation(libs.kotlinSerializationCore)
         }
-        //temporary while navigation-testing doesn't have all targets
-        androidTest.dependencies {
+        commonTest.dependencies {
             implementation(libs.kotlinTest)
             implementation(libs.kotlinCoroutinesTest)
             implementation(project(":kruth:kruth"))
