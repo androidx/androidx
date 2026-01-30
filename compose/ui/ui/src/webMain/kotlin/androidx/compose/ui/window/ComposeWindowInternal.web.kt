@@ -20,6 +20,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.draganddrop.WebDragAndDropManager
@@ -463,7 +464,7 @@ internal class ComposeWindow(
                         content()
                     }
 
-                    rememberCoroutineScope().launch {
+                    LaunchedEffect(Unit) {
                         state.sizeFlow().collect { size ->
                             // Convert to proper type: IntSize was exposed to public API with meaning of DPs.
                             val boxSize = DpSize(size.width.dp, size.height.dp)
