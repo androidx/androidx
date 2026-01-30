@@ -1044,12 +1044,14 @@ class SkiaGraphicsLayerTest {
                 }
             }
             surface.flushAndSubmit(true)
-            val area =
-                IRect.makeWH(
+            val imageBitmap = surface
+                .makeImageSnapshot(
+                    0,
+                    0,
                     if (entireScene) TEST_WIDTH * 2 else TEST_WIDTH,
                     if (entireScene) TEST_HEIGHT * 2 else TEST_HEIGHT
-                )
-            val imageBitmap = surface.makeImageSnapshot(area)!!.toComposeImageBitmap()
+                )!!
+                .toComposeImageBitmap()
             verify?.invoke(imageBitmap.toPixelMap())
         } finally {
             surface.close()

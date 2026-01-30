@@ -41,7 +41,6 @@ import java.awt.event.ComponentAdapter
 import java.awt.event.ComponentEvent
 import javax.swing.JDialog
 import org.jetbrains.skia.Canvas
-import org.jetbrains.skia.Rect as SkRect
 import org.jetbrains.skiko.DelicateSkikoApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.jetbrains.skiko.transparentWindowBackgroundHack
@@ -195,7 +194,7 @@ internal class WindowComposeSceneLayer(
             color = scrimColor
             blendMode = getDialogScrimBlendMode(transparent)
         }.asFrameworkPaint()
-        canvas.drawRect(SkRect.makeWH(width.toFloat(), height.toFloat()), paint)
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
     }
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
