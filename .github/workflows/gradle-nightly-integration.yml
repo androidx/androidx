@@ -1,0 +1,45 @@
+# This workflow builds :collection:collection with the latest nightly build of Gradle.
+# It applies the patch file .github/integration-patches/gradle-nightly.patch if it exists.
+name: Gradle Nightly Integration Test
+
+on:
+  # Run workflow daily. Gradle nightly builds typically publish before 02:00.
+  schedule:
+    - cron: "0 3 * * *"
+  # Allows running this workflow manually from the Actions tab.
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: "Checkout androidx repo"
+        uses: actions/checkout@v4
+
+      # Optionally apply a patch file needed to use the latest nightly version of Gradle.
+      - name: "Apply patch"
+        # If the file exists, hashFiles will return a non-empty string.
+        if: ${{ hashFiles('.github/integration-patches/gradle-nightly.patch') != '' }}
+        run: git apply .github/integration-patches/gradle-nightly.patch
+
+      - name: "Run build"
+        uses: ./.github/actions/build-single-project
+        with:
+          project: collection
+          project-root: playground-projects/collection-playground
+          gradle-enterprise-access-key: ${{ secrets.GRADLE_ENTERPRISE_ACCESS_KEY }}
+          # Gradle flags match those used in presubmit.yml, plus disabling validating integration
+          # patches as a patch file may already be applied.
+          gradle-flags: >
+            -Dorg.gradle.internal.http.connectionTimeout=60000
+            -Dorg.gradle.internal.http.socketTimeout=60000
+            -Dorg.gradle.internal.repository.max.retries=20
+            -Dorg.gradle.internal.repository.initial.backoff=500
+            --stacktrace
+            -x validateIntegrationPatches
+          gradle-version: nightly
+          # Disable the cache since this is the only build using the gradle nightly.
+          gradle-cache-disabled: true

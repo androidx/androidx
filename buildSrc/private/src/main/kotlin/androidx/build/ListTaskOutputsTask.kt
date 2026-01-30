@@ -16,60 +16,98 @@
 
 package androidx.build
 
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-/**
- * Finds the outputs of every task and saves this mapping into a file
- */
+/** Finds the outputs of every task and saves this mapping into a file */
 @CacheableTask
 abstract class ListTaskOutputsTask : DefaultTask() {
-    @OutputFile
-    val outputFile: Property<File> = project.objects.property(File::class.java)
-    @Input
-    val removePrefixes: MutableList<String> = mutableListOf()
-    @Input
-    val tasks: MutableList<Task> = mutableListOf()
-
-    @get:Input
-    val outputText by lazy { computeOutputText() }
+    @OutputFile val outputFile: RegularFileProperty = project.objects.fileProperty()
+    @Input val removePrefixes: MutableList<String> = mutableListOf()
+    @get:Nested abstract val producers: ListProperty<TaskOutputProducer>
 
     init {
         group = "Help"
-        // compute the output text when the taskgraph is ready so that the output text can be
-        // saved in the configuration cache and not generate a configuration cache violation
-        project.gradle.taskGraph.whenReady({ outputText.toString() })
-    }
-
-    fun setOutput(f: File) {
-        outputFile.set(f)
-        description = "Finds the outputs of every task and saves the resulting mapping into $f"
+        project.gradle.taskGraph.whenReady {
+            val taskOutputProducerList = mutableListOf<TaskOutputProducer>()
+            project.allprojects { otherProject ->
+                otherProject.tasks.forEach { task ->
+                    project.objects.newInstance(TaskOutputProducer::class.java).apply {
+                        taskPath.set(task.path)
+                        taskClass.set(task::class.qualifiedName ?: task::class.java.name)
+                        validate.set(shouldValidateTaskOutput(task))
+                        val fileElements = task.outputs.files.elements
+                        outputPaths.set(
+                            fileElements.map { set ->
+                                set.map { it.asFile.invariantSeparatorsPath }
+                            }
+                        )
+                        taskOutputProducerList.add(this)
+                    }
+                }
+            }
+            producers.set(taskOutputProducerList)
+        }
     }
 
     fun removePrefix(prefix: String) {
         removePrefixes.add("$prefix/")
     }
 
-    // Given a map from output file to Task, formats into a String
-    private fun formatTasks(tasksByOutput: Map<File, Task>): String {
+    @TaskAction
+    fun exec() {
+        val outputText = computeOutputText(producers.get())
+        val outputFile = outputFile.get()
+        outputFile.asFile.writeText(outputText)
+    }
+
+    private fun computeOutputText(producers: List<TaskOutputProducer>): String {
+        val tasksByOutput: MutableMap<String, TaskOutputProducer> = hashMapOf()
+        for (producer in producers) {
+            for (path in producer.outputPaths.get()) {
+                val existing = tasksByOutput[path]
+                if (existing != null) {
+                    if (existing.validate.get() && producer.validate.get()) {
+                        throw GradleException(
+                            "Output file $path was declared as an output of multiple tasks: " +
+                                "${producer.taskPath.get()} and ${existing.taskPath.get()}"
+                        )
+                    }
+                    if (existing.taskPath.get() > producer.taskPath.get()) continue
+                }
+                tasksByOutput[path] = producer
+            }
+        }
+        return formatTasks(tasksByOutput, removePrefixes)
+    }
+
+    // Given a map from output file path to Task, formats into a String
+    private fun formatTasks(
+        tasksByOutput: MutableMap<String, TaskOutputProducer>,
+        removePrefixes: List<String>,
+    ): String {
         val messages: MutableList<String> = mutableListOf()
-        for ((output, task) in tasksByOutput) {
-            var filePath = output.path
+        for ((path, task) in tasksByOutput) {
+            var filePath = path
             for (prefix in removePrefixes) {
                 filePath = filePath.removePrefix(prefix)
             }
 
             messages.add(
                 formatInColumns(
-                    listOf(filePath, " - " + task.path + " (" + task::class.qualifiedName + ")")
+                    listOf(
+                        filePath,
+                        " - " + task.taskPath.get() + " (" + task.taskClass.get() + ")",
+                    )
                 )
             )
         }
@@ -82,11 +120,12 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         val components = mutableListOf<String>()
         var textLength = 0
         for (column in columns) {
-            val roundedTextLength = if (textLength == 0) {
-                textLength
-            } else {
-                ((textLength / 32) + 1) * 32
-            }
+            val roundedTextLength =
+                if (textLength == 0) {
+                    textLength
+                } else {
+                    ((textLength / 32) + 1) * 32
+                }
             val extraSpaces = " ".repeat(roundedTextLength - textLength)
             components.add(extraSpaces)
             textLength = roundedTextLength
@@ -95,85 +134,114 @@ abstract class ListTaskOutputsTask : DefaultTask() {
         }
         return components.joinToString("")
     }
-
-    fun computeOutputText(): String {
-        val tasksByOutput = project.rootProject.findAllTasksByOutput()
-        return formatTasks(tasksByOutput)
-    }
-
-    @TaskAction
-    fun exec() {
-        val outputFile = outputFile.get()
-        outputFile.writeText(outputText)
-    }
 }
 
 // TODO(149103692): remove all elements of this set
-val taskNamesKnownToDuplicateOutputs = setOf(
-    "jarRelease",
-    "jarDebug",
-    "kotlinSourcesJar",
-    "releaseSourcesJar",
-    "sourceJarRelease",
-    "sourceJar",
-    // MPP plugin has issues with modules using withJava() clause, see b/158747039.
-    "processTestResources",
-    "jvmTestProcessResources",
-    "desktopTestProcessResources",
-    "processResources",
-    "jvmProcessResources",
-    "desktopProcessResources",
-    // https://github.com/square/wire/issues/1947
-    "generateDebugProtos",
-    "generateReleaseProtos",
-    // Release APKs
-    "copyReleaseApk",
-    // The following tests intentionally have the same output of golden images
-    "updateGoldenDesktopTest",
-    "updateGoldenDebugUnitTest"
-)
+private val taskNamesKnownToDuplicateOutputs =
+    setOf(
+        // Instead of adding new elements to this set, prefer to disable unused tasks when possible
 
-val taskTypesKnownToDuplicateOutputs = setOf(
-    // b/224564238
-    "com.android.build.gradle.internal.lint.AndroidLintTask_Decorated"
-)
+        // b/308798582
+        "transformNonJvmMainCInteropDependenciesMetadataForIde",
+        "transformAndroidNativeMainCInteropDependenciesMetadataForIde",
+        "transformAndroidNativeTestCInteropDependenciesMetadataForIde",
+        "transformAppleMainCInteropDependenciesMetadataForIde",
+        "transformAppleTestCInteropDependenciesMetadataForIde",
+        "transformDarwinTestCInteropDependenciesMetadataForIde",
+        "transformDarwinMainCInteropDependenciesMetadataForIde",
+        "transformCommonMainCInteropDependenciesMetadataForIde",
+        "transformCommonTestCInteropDependenciesMetadataForIde",
+        "transformIosMainCInteropDependenciesMetadataForIde",
+        "transformIosTestCInteropDependenciesMetadataForIde",
+        "transformMacosMainCInteropDependenciesMetadataForIde",
+        "transformMacosTestCInteropDependenciesMetadataForIde",
+        "transformNativeTestCInteropDependenciesMetadataForIde",
+        "transformNativeMainCInteropDependenciesMetadataForIde",
+        "transformTvosMainCInteropDependenciesMetadataForIde",
+        "transformTvosTestCInteropDependenciesMetadataForIde",
+        "transformWatchosMainCInteropDependenciesMetadataForIde",
+        "transformWatchosTestCInteropDependenciesMetadataForIde",
+        "transformUnixMainCInteropDependenciesMetadataForIde",
+        "transformUnixTestCInteropDependenciesMetadataForIde",
+        "transformLinuxMainCInteropDependenciesMetadataForIde",
+        "transformLinuxTestCInteropDependenciesMetadataForIde",
+        "transformNonIosNativeTestCInteropDependenciesMetadataForIde",
+        "transformNonJvmCommonMainCInteropDependenciesMetadataForIde",
+
+        // The following tests intentionally have the same output of golden images
+        "updateGoldenDesktopTest",
+        "updateGoldenDebugUnitTest",
+
+        // The following tasks have the same output file:
+        // ../../prebuilts/androidx/javascript-for-kotlin/yarn.lock
+        "kotlinRestoreYarnLock",
+        "kotlinWasmRestoreYarnLock",
+        "kotlinNpmInstall",
+        "kotlinWasmNpmInstall",
+        "kotlinUpgradePackageLock",
+        "kotlinWasmUpgradePackageLock",
+        "kotlinUpgradeYarnLock",
+        "kotlinWasmUpgradeYarnLock",
+        "kotlinStorePackageLock",
+        "kotlinWasmStorePackageLock",
+        "kotlinStoreYarnLock",
+        "kotlinWasmStoreYarnLock",
+
+        // The following tasks have the same output file:
+        // $OUT_DIR/androidx/build/wasm/yarn.lock
+        "wasmKotlinRestoreYarnLock",
+        "wasmKotlinNpmInstall",
+        "wasmKotlinUpgradePackageLock",
+        "wasmKotlinStorePackageLock",
+        "wasmKotlinUpgradeYarnLock",
+        "wasmKotlinStoreYarnLock",
+
+        // The following tasks have the same output configFile file:
+        // projectBuildDir/js/packages/projectName-wasm-js/webpack.config.js
+        // Remove when https://youtrack.jetbrains.com/issue/KT-70029 / b/361319689 is resolved
+        // and set configFile location for each task
+        "wasmJsBrowserDevelopmentWebpack",
+        "wasmJsBrowserDevelopmentRun",
+        "wasmJsBrowserProductionWebpack",
+        "wasmJsBrowserProductionRun",
+        "jsTestTestDevelopmentExecutableCompileSync",
+
+        // https://youtrack.jetbrains.com/issue/KT-79936
+        // $OUT_DIR/.gradle/nodejs/node-v22.13.0-darwin-arm64.hash
+        "kotlinNodeJsSetup",
+        "kotlinWasmNodeJsSetup",
+        // $OUT_DIR/.gradle/yarn/yarn-v1.22.17.hash
+        "wasmKotlinYarnSetup",
+        "kotlinYarnSetup",
+
+        // $OUT_DIR/.gradle/binaryen/binaryen-version_122.hash
+        "kotlinBinaryenSetup",
+        "kotlinWasmBinaryenSetup",
+    )
 
 fun shouldValidateTaskOutput(task: Task): Boolean {
     if (!task.enabled) {
         return false
     }
-    return !taskNamesKnownToDuplicateOutputs.contains(task.name) &&
-        !taskTypesKnownToDuplicateOutputs.contains(task::class.qualifiedName)
+    return !taskNamesKnownToDuplicateOutputs.contains(task.name)
 }
 
-// For this project and all subprojects, collects all tasks and creates a map keyed by their output files
-fun Project.findAllTasksByOutput(): Map<File, Task> {
-    // find list of all tasks
-    val allTasks = mutableListOf<Task>()
-    project.allprojects { otherProject ->
-        otherProject.tasks.all { task ->
-            allTasks.add(task)
-        }
-    }
+/** Nested input describing each projects tasks and its outputs */
+abstract class TaskOutputProducer {
 
-    // group tasks by their outputs
-    val tasksByOutput: MutableMap<File, Task> = hashMapOf()
-    for (otherTask in allTasks) {
-        for (otherTaskOutput in otherTask.outputs.files.files) {
-            val existingTask = tasksByOutput[otherTaskOutput]
-            if (existingTask != null) {
-                if (shouldValidateTaskOutput(existingTask) && shouldValidateTaskOutput(otherTask)) {
-                    throw GradleException(
-                        "Output file " + otherTaskOutput + " was declared as an output of " +
-                            "multiple tasks: " + otherTask + " and " + existingTask
-                    )
-                }
-                // if there is an exempt conflict, keep the alphabetically earlier task to ensure consistency
-                if (existingTask.path > otherTask.path)
-                  continue
-            }
-            tasksByOutput[otherTaskOutput] = otherTask
-        }
-    }
-    return tasksByOutput
+    @get:Input abstract val taskPath: Property<String>
+
+    @get:Input abstract val taskClass: Property<String>
+
+    @get:Input abstract val validate: Property<Boolean>
+
+    /**
+     * A collection of output paths from various tasks.
+     *
+     * This property intentionally avoids using a [org.gradle.api.file.FileCollection] to prevent
+     * creating a direct task dependency between the producer tasks and the [ListTaskOutputsTask].
+     * By storing the paths as strings, we can inspect the output locations without coupling the
+     * tasks in the execution graph.
+     */
+    @get:Input abstract val outputPaths: ListProperty<String>
 }

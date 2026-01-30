@@ -23,61 +23,33 @@ import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 
 abstract class ProjectParser : BuildService<BuildServiceParameters.None> {
-    @Transient
-    val cache: MutableMap<File, ParsedProject> = ConcurrentHashMap()
+    @Transient val cache: MutableMap<File, ParsedProject> = ConcurrentHashMap()
 
     fun get(buildFile: File): ParsedProject {
-        return cache.getOrPut(
-            key = buildFile
-        ) {
+        return cache.getOrPut(key = buildFile) {
             val text = buildFile.readLines()
             parseProject(text)
         }
     }
 
     private fun parseProject(fileLines: List<String>): ParsedProject {
-        var libraryType: String? = null
+        var softwareType: String? = null
         var publish: String? = null
-        var specifiesVersion: Boolean = false
+        var specifiesVersion = false
         fileLines.forEach { line ->
-            if (libraryType == null)
-                libraryType = line.extractVariableValue(" type = LibraryType.")
-            if (publish == null)
-                publish = line.extractVariableValue(" publish = Publish.")
-            if (line.contains("mavenVersion ="))
-                specifiesVersion = true
+            if (softwareType == null)
+                softwareType = line.extractVariableValue(" type = SoftwareType.")
+            if (publish == null) publish = line.extractVariableValue(" publish = Publish.")
+            if (line.contains("mavenVersion =")) specifiesVersion = true
         }
-        val libraryTypeEnum = libraryType?.let { LibraryType.valueOf(it) } ?: LibraryType.UNSET
-        val publishEnum = publish?.let { Publish.valueOf(it) } ?: Publish.UNSET
-        return ParsedProject(
-            libraryType = libraryTypeEnum,
-            publish = publishEnum,
-            specifiesVersion = specifiesVersion
-        )
+        val softwareTypeEnum = softwareType?.let { SoftwareType.valueOf(it) } ?: SoftwareType.UNSET
+        return ParsedProject(softwareType = softwareTypeEnum, specifiesVersion = specifiesVersion)
     }
 
-    data class ParsedProject(
-        val libraryType: LibraryType,
-        val publish: Publish,
-        val specifiesVersion: Boolean
-    ) {
-        fun shouldPublish(): Boolean =
-            if (publish != Publish.UNSET) {
-                publish.shouldPublish()
-            } else if (libraryType != LibraryType.UNSET) {
-                libraryType.publish.shouldPublish()
-            } else {
-                false
-            }
+    data class ParsedProject(val softwareType: SoftwareType, val specifiesVersion: Boolean) {
+        fun shouldPublish(): Boolean = softwareType.publish.shouldPublish()
 
-        fun shouldRelease(): Boolean =
-            if (publish != Publish.UNSET) {
-                publish.shouldRelease()
-            } else if (libraryType != LibraryType.UNSET) {
-                libraryType.publish.shouldRelease()
-            } else {
-                false
-            }
+        fun shouldRelease(): Boolean = softwareType.publish.shouldRelease()
     }
 }
 
@@ -86,8 +58,7 @@ private fun String.extractVariableValue(prefix: String): String? {
     if (declarationIndex >= 0) {
         val suffix = this.substring(declarationIndex + prefix.length)
         val spaceIndex = suffix.indexOf(" ")
-        if (spaceIndex > 0)
-            return suffix.substring(0, spaceIndex)
+        if (spaceIndex > 0) return suffix.substring(0, spaceIndex)
         return suffix
     }
     return null
@@ -98,17 +69,11 @@ fun Project.parse(): ProjectParser.ParsedProject {
 }
 
 fun Project.parseBuildFile(buildFile: File): ProjectParser.ParsedProject {
-    if (buildFile.path.contains("compose/material/material-icons-extended-")) {
-        // These projects all read from this Gradle script
-        return parseBuildFile(
-            File(buildFile.parentFile.parentFile, "material-icons-extended/generate.gradle")
-        )
-    }
-    val parserProvider = project.rootProject.gradle.sharedServices.registerIfAbsent(
-        "ProjectParser",
-        ProjectParser::class.java
-    ) {
-    }
+    val parserProvider =
+        project.gradle.sharedServices.registerIfAbsent(
+            "ProjectParser",
+            ProjectParser::class.java,
+        ) {}
     val parser = parserProvider.get()
     return parser.get(buildFile)
 }

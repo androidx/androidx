@@ -18,9 +18,7 @@
 
 package org.jetbrains.androidx.build
 
-import androidx.build.AndroidXComposeMultiplatformExtension
-import androidx.build.AndroidXExtension
-import androidx.build.AndroidXMultiplatformExtension
+import androidx.build.ProjectLayoutType.Companion.isJetBrainsFork
 import androidx.build.multiplatformExtension
 import javax.inject.Inject
 import kotlinx.validation.ApiValidationExtension
@@ -30,12 +28,14 @@ import org.gradle.api.Project
 import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
+import org.jetbrains.kotlin.gradle.ExternalKotlinTargetApi
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.mpp.AbstractKotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinSoftwareComponentWithCoordinatesAndPublication
+import org.jetbrains.kotlin.gradle.plugin.mpp.external.DecoratedExternalKotlinTarget
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
 open class JetBrainsExtensions(
@@ -140,19 +140,11 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
 
     @Suppress("UNREACHABLE_CODE", "UNUSED_VARIABLE")
     override fun apply(project: Project) {
-        check(project.plugins.hasPlugin("AndroidXPlugin")) {
-            "JetBrainsAndroidXPlugin should be applied after AndroidXPlugin"
-        }
+        if (!isJetBrainsFork(project)) return
 
-        val androidxExtension =
-            project.extensions.getByType(AndroidXExtension::class.java)
-        val androidxMultiplatformExtension =
-            project.extensions.getByType(AndroidXMultiplatformExtension::class.java)
-        project.changeMavenCoordinatesToJetBrains(androidxExtension)
-        project.configureMavenArtifactUpload(
-            androidxExtension, androidxMultiplatformExtension, componentFactory)
+        project.changeMavenCoordinatesToJetBrains()
+        project.configureMavenArtifactUpload(componentFactory)
         project.configureDependencyVerification()
-
         project.plugins.all { plugin ->
             if (plugin is KotlinMultiplatformPluginWrapper) {
                 onKotlinMultiplatformPluginApplied(project)
@@ -161,12 +153,6 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
     }
 
     private fun onKotlinMultiplatformPluginApplied(project: Project) {
-        project.extensions.create(
-            AndroidXComposeMultiplatformExtension::class.java,
-            "androidXComposeMultiplatform",
-            AndroidXComposeMultiplatformExtensionImpl::class.java
-        )
-
         enableArtifactRedirectionPublishing(project)
         enableBinaryCompatibilityValidator(project)
         val multiplatformExtension =
@@ -185,6 +171,7 @@ class JetBrainsAndroidXImplPlugin @Inject constructor(
     }
 }
 
+@OptIn(ExternalKotlinTargetApi::class)
 private fun enableArtifactRedirectionPublishing(project: Project) {
     val redirection = project.artifactRedirection() ?: return
 
@@ -202,16 +189,18 @@ private fun enableArtifactRedirectionPublishing(project: Project) {
                 configuration.name.startsWith(it, ignoreCase = true)
             }
             val targetVersion = redirection.versionForTargetOrDefault(targetName ?: "")
-            project.dependencies.create(
-                redirection.groupId, project.name, targetVersion
-            )
+            project.dependencies.create("${redirection.groupId}:${project.name}:${targetVersion}") as org.gradle.api.artifacts.ModuleDependency
         }
     }
 
     @OptIn(InternalKotlinGradlePluginApi::class)
     ext.targets.all { target ->
         if (target.name.lowercase() in redirection.targetNames) {
-            project.publishAndroidxReference(target as AbstractKotlinTarget, newRootComponent)
+            if (target is AbstractKotlinTarget) {
+                project.setupRedirection(target, newRootComponent)
+            } else if (target is DecoratedExternalKotlinTarget) {
+                project.setupRedirection(target, newRootComponent)
+            }
         }
     }
 }

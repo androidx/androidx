@@ -18,6 +18,11 @@
 
 package org.jetbrains.androidx.build
 
+import androidx.build.AndroidXExtension
+import androidx.build.ProjectLayoutType.Companion.isJetBrainsFork
+import androidx.build.Publish
+import androidx.build.RunApiTasks
+import androidx.build.SoftwareType.ConfigurableSoftwareType
 import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -29,15 +34,20 @@ class JetBrainsAndroidXRootImplPlugin @Inject constructor(
     val componentFactory: SoftwareComponentFactory
 ) : Plugin<Project> {
     override fun apply(project: Project) {
-        project.allprojects {
-            it.tasks.configureEach {
+        project.allprojects { subproject ->
+            subproject.tasks.configureEach {
                 if (it.name == "kotlinStoreYarnLock") it.enabled = false
                 if (it.name == "kotlinWasmStoreYarnLock") it.enabled = false
             }
 
             // Never cache test results
-            it.tasks.withType<AbstractTestTask>().configureEach {
+            subproject.tasks.withType<AbstractTestTask>().configureEach {
                 it.outputs.upToDateWhen { false }
+            }
+
+            if (isJetBrainsFork(project)) {
+                subproject.disableAndroidxPublication()
+                subproject.createMultiplatformSourceJarStub()
             }
         }
 
@@ -57,4 +67,33 @@ class JetBrainsAndroidXRootImplPlugin @Inject constructor(
             }
         }
     }
+}
+
+private fun Project.disableAndroidxPublication() {
+    // Disable Androidx publication, as the fork publication is configured
+    // by JetBrainsPublication.
+    //
+    // It disables Androidx checks for publishing libraries that are not needed or
+    // conflict with the fork publication
+    afterEvaluate {
+        val androidxExtension = extensions.findByType(AndroidXExtension::class.java)
+        androidxExtension?.type?.set(
+            androidxExtension.type.map { oldType ->
+                ConfigurableSoftwareType(
+                    name = "JetBrains Library",
+                    publish = Publish.NONE,
+                    compilationTarget = oldType.compilationTarget,
+                    checkApi = RunApiTasks.No("JetBrains Library"),
+                )
+            }
+        )
+    }
+}
+
+private fun Project.createMultiplatformSourceJarStub() {
+    // configureSourceJarForAndroid() that adds this function is commented in the fork
+    // We register stub task to:
+    // - be sure that it is not registered before by AndroidXPlugin
+    // - to not crash code "tasks.named("multiplatformSourceJar").configure"
+    tasks.register("multiplatformSourceJar")
 }

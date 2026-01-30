@@ -13,143 +13,112 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.build
 
+import androidx.build.checkapi.shouldConfigureApiTasks
+import com.android.build.api.dsl.KotlinMultiplatformAndroidLibraryTarget
 import com.android.build.api.dsl.Lint
-import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.internal.lint.AndroidLintAnalysisTask
-import com.android.build.gradle.internal.lint.AndroidLintTask
-import com.android.build.gradle.internal.lint.LintModelWriterTask
-import com.android.build.gradle.internal.lint.VariantInputs
+import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
+import com.android.build.api.variant.LintLifecycleExtension
+import com.android.build.gradle.AppPlugin
+import com.android.build.gradle.LibraryPlugin
+import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import java.io.File
-import java.util.Locale
 import org.gradle.api.GradleException
 import org.gradle.api.Project
-import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.kotlin.dsl.findByType
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.plugin.KotlinBasePlugin
 
-fun Project.configureNonAndroidProjectForLint(extension: AndroidXExtension) {
+/** Single entry point to Android Lint configuration. */
+fun Project.configureLint() {
+    project.plugins.configureEach { plugin ->
+        when (plugin) {
+            is AppPlugin -> configureAndroidProjectForLint(isLibrary = false)
+            is LibraryPlugin -> configureAndroidProjectForLint(isLibrary = true)
+            is KotlinMultiplatformAndroidPlugin ->
+                configureAndroidMultiplatformProjectForLint(
+                    extensions.getByType<AndroidXMultiplatformExtension>().agpKmpExtension,
+                    extensions.getByType<KotlinMultiplatformAndroidComponentsExtension>(),
+                )
+            // Only configure non-multiplatform Java projects via JavaPlugin. Multiplatform
+            // projects targeting Java (e.g. `jvm { withJava() }`) are configured via
+            // KotlinBasePlugin.
+            is JavaPlugin ->
+                if (project.multiplatformExtension == null) {
+                    configureNonAndroidProjectForLint()
+                }
+            // Only configure non-Android multiplatform projects via KotlinBasePlugin.
+            // Multiplatform projects targeting Android (e.g. `id("com.android.library")`) are
+            // configured via AppPlugin or LibraryPlugin.
+            is KotlinBasePlugin ->
+                if (
+                    project.multiplatformExtension != null &&
+                        !project.plugins.hasPlugin(AppPlugin::class.java) &&
+                        !project.plugins.hasPlugin(LibraryPlugin::class.java) &&
+                        !project.plugins.hasPlugin(KotlinMultiplatformAndroidPlugin::class.java)
+                ) {
+                    configureNonAndroidProjectForLint()
+                }
+        }
+    }
+}
+
+/** Android Lint configuration entry point for Android projects. */
+private fun Project.configureAndroidProjectForLint(isLibrary: Boolean) =
+    extensions.findByType(LintLifecycleExtension::class.java)!!.finalizeDsl { lint ->
+        // The lintAnalyze task is used by `androidx-studio-integration-lint.sh`.
+        tasks.register("lintAnalyze") { task -> task.enabled = false }
+
+        configureLint(lint, isLibrary)
+    }
+
+private fun Project.configureAndroidMultiplatformProjectForLint(
+    extension: KotlinMultiplatformAndroidLibraryTarget,
+    componentsExtension: KotlinMultiplatformAndroidComponentsExtension,
+) {
+    componentsExtension.finalizeDsl {
+        // The lintAnalyze task is used by `androidx-studio-integration-lint.sh`.
+        tasks.register("lintAnalyze") { task -> task.enabled = false }
+        configureLint(extension.lint, isLibrary = true)
+    }
+}
+
+/** Android Lint configuration entry point for non-Android projects. */
+private fun Project.configureNonAndroidProjectForLint() = afterEvaluate {
+    // For Android projects, the Android Gradle Plugin is responsible for applying the lint plugin;
+    // however, we need to apply it ourselves for non-Android projects.
     apply(mapOf("plugin" to "com.android.lint"))
 
-    // Create fake variant tasks since that is what is invoked by developers.
-    val lintTask = tasks.named("lint")
-    tasks.register("lintDebug") {
-        it.dependsOn(lintTask)
-        it.enabled = false
-    }
-    tasks.register("lintAnalyzeDebug") {
-        it.enabled = false
-    }
-    tasks.register("lintRelease") {
-        it.dependsOn(lintTask)
-        it.enabled = false
-    }
-    addToBuildOnServer(lintTask)
+    // The lintAnalyzeDebug task is used by `androidx-studio-integration-lint.sh`.
+    tasks.register("lintAnalyzeDebug") { it.enabled = false }
 
-    val lint = extensions.getByType<Lint>()
-    // Support the lint standalone plugin case which, as yet, lacks AndroidComponents finalizeDsl
-    afterEvaluate { configureLint(lint, extension, true) }
+    // For Android projects, we can run lint configuration last using `DslLifecycle.finalizeDsl`;
+    // however, we need to run it using `Project.afterEvaluate` for non-Android projects.
+    configureLint(project.extensions.getByType(), isLibrary = true)
 }
 
-fun Project.configureAndroidProjectForLint(
-    lint: Lint,
-    extension: AndroidXExtension,
-    isLibrary: Boolean
-) {
-    project.afterEvaluate {
-        // makes sure that the lintDebug task will exist, so we can find it by name
-        setUpLintDebugIfNeeded()
-    }
-    tasks.register("lintAnalyze") {
-        it.enabled = false
-    }
-    configureLint(lint, extension, isLibrary)
-    tasks.named("lint").configure { task ->
-        // We already run lintDebug, we don't need to run lint which lints the release variant
-        task.enabled = false
-    }
-}
-
-private fun Project.setUpLintDebugIfNeeded() {
-    val variants = project.agpVariants
-    val variantNames = variants.map { v -> v.name }
-    if (!variantNames.contains("debug")) {
-        tasks.register("lintDebug") {
-            for (variantName in variantNames) {
-                if (variantName.lowercase(Locale.US).contains("debug")) {
-                    it.dependsOn(
-                        tasks.named(
-                            "lint${variantName.replaceFirstChar {
-                                if (it.isLowerCase()) it.titlecase(Locale.US) else it.toString()
-                            }}"
-                        )
-                    )
-                }
-            }
-        }
-    }
-}
-
-/**
- * Installs AIDL source directories on lint tasks. Adapted from AndroidXComposeImplPlugin's
- * `configureLintForMultiplatformLibrary` extension function. See b/189250111 for feature request.
- *
- * The `UnstableAidlAnnotationDetector` check from `lint-checks` requires that _only_ unstable AIDL
- * files are passed to Lint, e.g. files in the AGP-defined `aidl` source set but not files in the
- * Stable AIDL plugin-defined `stableAidl` source set. If we decide to lint Stable AIDL files, we'll
- * need some other way to distinguish stable from unstable AIDL.
- */
-fun Project.configureLintForAidl() {
-    afterEvaluate {
-        val extension = project.extensions.findByType<BaseExtension>() ?: return@afterEvaluate
-        if (extension.buildFeatures.aidl != true) return@afterEvaluate
-
-        val mainAidl = extension.sourceSets.getByName("main").aidl.getSourceFiles()
-
-        /**
-         * Helper function to add the missing sourcesets to this [VariantInputs]
-         */
-        fun VariantInputs.addSourceSets() {
-            // Each variant has a source provider for the variant (such as debug) and the 'main'
-            // variant. The actual files that Lint will run on is both of these providers
-            // combined - so we can just add the dependencies to the first we see.
-            val variantAidl = extension.sourceSets.getByName(name.get()).aidl.getSourceFiles()
-            val sourceProvider = sourceProviders.get().firstOrNull() ?: return
-            sourceProvider.javaDirectories.withChangesAllowed {
-                from(mainAidl, variantAidl)
-            }
-        }
-
-        // Lint for libraries is split into two tasks - analysis, and reporting. We need to
-        // add the new sources to both, so all parts of the pipeline are aware.
-        project.tasks.withType<AndroidLintAnalysisTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
-
-        // Also configure the model writing task, so that we don't run into mismatches between
-        // analyzed sources in one module and a downstream module
-        project.tasks.withType<LintModelWriterTask>().configureEach {
-            it.variantInputs.addSourceSets()
-        }
-    }
-}
-
-fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: Boolean) {
-    val lintChecksProject = project.rootProject.findProject(":lint-checks")
+private fun Project.findLintProject(path: String): Project? {
+    return project.rootProject.findProject(path)
         ?: if (allowMissingLintProject()) {
-            return
+            null
         } else {
-            throw GradleException("Project :lint-checks does not exist")
+            throw GradleException("Project $path does not exist")
         }
+}
 
+private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
+    val extension = project.androidXExtension
+    val type = extension.type.get()
+    val lintChecksProject = findLintProject(":lint-checks") ?: return
     project.dependencies.add("lintChecks", lintChecksProject)
 
-    project.configureLintForAidl()
+    if (type in setOf(SoftwareType.GRADLE_PLUGIN, SoftwareType.INTERNAL_GRADLE_PLUGIN)) {
+        project.rootProject.findProject(":lint:lint-gradle")?.let {
+            project.dependencies.add("lintChecks", it)
+        }
+    }
 
     // The purpose of this specific project is to test that lint is running, so
     // it contains expected violations that we do not want to trigger a build failure
@@ -160,19 +129,6 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         checkReleaseBuilds = false
     }
 
-    tasks.withType(AndroidLintTask::class.java).configureEach { task ->
-        // Remove the lint and column attributes from generated lint baseline XML.
-        if (task.name.startsWith("updateLintBaseline")) {
-            task.doLast {
-                task.projectInputs.lintOptions.baseline.orNull?.asFile?.let { file ->
-                    if (file.exists()) {
-                        file.writeText(removeLineAndColumnAttributes(file.readText()))
-                    }
-                }
-            }
-        }
-    }
-
     // Lint is configured entirely in finalizeDsl so that individual projects cannot easily
     // disable individual checks in the DSL for any reason.
     lint.apply {
@@ -181,8 +137,10 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         }
         ignoreWarnings = true
 
-        // Run lint on tests. Uses top-level lint.xml to specify checks.
-        checkTestSources = true
+        // Run lint on tests. All checks defined with test scope will be run on test sources.
+        // Additional checks for tests can be specified in the top-level lint.xml.
+        ignoreTestSources = false
+        checkTestSources = false
 
         // Write output directly to the console (and nowhere else).
         textReport = true
@@ -196,15 +154,22 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         // We run lint on each library, so we don't want transitive checking of each dependency
         checkDependencies = false
 
-        if (extension.type.allowCallingVisibleForTestsApis) {
+        if (type.allowCallingVisibleForTestsApis) {
             // Test libraries are allowed to call @VisibleForTests code
             disable.add("VisibleForTests")
         } else {
             fatal.add("VisibleForTests")
         }
 
-        // Reenable after b/238892319 is resolved
-        disable.add("NotificationPermission")
+        if (type.isForTesting) {
+            // Disable this check as we do allow usage of junit as a dependency
+            disable.add("InvalidPackage")
+        } else {
+            fatal.add("InvalidPackage")
+        }
+
+        // Disable a check that's only relevant for apps that ship to Play Store. (b/299278101)
+        disable.add("ExpiredTargetSdkVersion")
 
         // Disable dependency checks that suggest to change them. We want libraries to be
         // intentional with their dependency version bumps.
@@ -221,14 +186,12 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         // Explicitly disable StopShip check (see b/244617216)
         disable.add("StopShip")
 
-        // Broken in 7.0.0-alpha15 due to b/180408990
+        // Swap the built-in RestrictedApi check for our "fixed" version (see b/297047524)
         disable.add("RestrictedApi")
-
-        // Disable until ag/19949626 goes in (b/261918265)
-        disable.add("MissingQuantity")
+        fatal.add("RestrictedApiAndroidX")
 
         // Provide stricter enforcement for project types intended to run on a device.
-        if (extension.type.compilationTarget == CompilationTarget.DEVICE) {
+        if (type.compilationTarget == CompilationTarget.DEVICE) {
             fatal.add("Assert")
             fatal.add("NewApi")
             fatal.add("ObsoleteSdkInt")
@@ -236,17 +199,15 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
             fatal.add("UnusedResources")
             fatal.add("KotlinPropertyAccess")
             fatal.add("LambdaLast")
-            fatal.add("UnknownNullness")
-
-            // Only override if not set explicitly.
-            // Some Kotlin projects may wish to disable this.
-            if (
-                isLibrary &&
-                !disable.contains("SyntheticAccessor") &&
-                extension.type != LibraryType.SAMPLES
-            ) {
-                fatal.add("SyntheticAccessor")
+            if (type != SoftwareType.PUBLISHED_PROTO_LIBRARY) {
+                // Enforce UnknownNullness for all device targeting projects except for proto
+                // projects that generate code without proper nullability annotations.
+                fatal.add("UnknownNullness")
             }
+
+            // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
+            // remove these accessors
+            disable.add("SyntheticAccessor")
 
             // Only check for missing translations in finalized (beta and later) modules.
             if (extension.mavenVersion?.isFinalApi() == true) {
@@ -256,17 +217,16 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
             }
         } else {
             disable.add("BanUncheckedReflection")
+            disable.add("BanConcurrentHashMap")
         }
+
+        // Only show ObsoleteCompatMethod in the IDE.
+        disable.add("ObsoleteCompatMethod")
 
         // Broken in 7.0.0-alpha15 due to b/187343720
         disable.add("UnusedResources")
 
-        // Disable NullAnnotationGroup check for :compose:ui:ui-text (b/233788571)
-        if (isLibrary && project.group == "androidx.compose.ui" && project.name == "ui-text") {
-            disable.add("NullAnnotationGroup")
-        }
-
-        if (extension.type == LibraryType.SAMPLES) {
+        if (type == SoftwareType.SAMPLES) {
             // TODO: b/190833328 remove if / when AGP will analyze dependencies by default
             //  This is needed because SampledAnnotationDetector uses partial analysis, and
             //  hence requires dependencies to be analyzed.
@@ -274,86 +234,80 @@ fun Project.configureLint(lint: Lint, extension: AndroidXExtension, isLibrary: B
         }
 
         // Only run certain checks where API tracking is important.
-        if (extension.type.checkApi is RunApiTasks.No) {
+        if (type.checkApi is RunApiTasks.No) {
             disable.add("IllegalExperimentalApiUsage")
         }
 
-        // If the project has not overridden the lint config, set the default one.
-        if (lintConfig == null) {
-            val lintXmlPath = if (extension.type == LibraryType.SAMPLES) {
-                "buildSrc/lint_samples.xml"
-            } else {
-                "buildSrc/lint.xml"
-            }
-            // suppress warnings more specifically than issue-wide severity (regexes)
-            // Currently suppresses warnings from baseline files working as intended
-            lintConfig = File(project.getSupportRootFolder(), lintXmlPath)
+        // Run the JSpecifyNullness check unless opted-out (for projects that haven't migrated yet).
+        if (extension.optOutJSpecify) {
+            disable.add("JSpecifyNullness")
+        } else {
+            fatal.add("JSpecifyNullness")
         }
 
+        fatal.add("UastImplementation") // go/hide-uast-impl
+        fatal.add("KotlincFE10") // b/239982263
+
+        disable.add("RequiresWindowSdk") // temporarily disable this check due to downstream diff
+
+        // Report errors for incompatible custom lint jars
+        fatal.add("ObsoleteLintCustomCheck")
+
+        // If a project targets only Kotlin consumers, it is allowed to define experimental
+        // properties because the Kotlin compiler warns users that the properties are experimental.
+        // If a project can have Java clients, enable the lint check banning experimental properties
+        // because the experimental detector lint which warns Java clients about experimental usage
+        // isn't able to handle experimental properties correctly.
+        // Projects that don't run API compatibility checks can define experimental properties (lint
+        // check disabled) since the entire API surface makes no compatibility guarantees.
+        if (type.targetsKotlinConsumersOnly || !extension.shouldConfigureApiTasks().get()) {
+            disable.add("ExperimentalPropertyAnnotation")
+        } else {
+            fatal.add("ExperimentalPropertyAnnotation")
+        }
+
+        if (!isLibrary) {
+            // These lint checks are specifically for libraries.
+            disable.add("MissingServiceExportedEqualsTrue")
+            disable.add("MetadataTagInsideApplicationTag")
+        }
+
+        fatal.add("CheckResult")
+        fatal.add("PrivateResource")
+
+        val lintXmlPath =
+            if (type == SoftwareType.SAMPLES) {
+                "buildSrc/lint/lint_samples.xml"
+            } else {
+                "buildSrc/lint/lint.xml"
+            }
+
+        // Prevent libraries from fully overriding the config from buildSrc. Projects can create a
+        // custom lint.xml that will also be picked up by lint (which searches for one starting from
+        // the project dir and then moving up directories). The order of precedence for config rules
+        // is here: https://googlesamples.github.io/android-custom-lint-rules/usage/lintxml.md.html
+        if (lintConfig != null) {
+            throw IllegalStateException(
+                "Project should not override the lint configuration from `$lintXmlPath`.\n" +
+                    "To add additional lint configuration for this project, create a `lint.xml` " +
+                    "file in the project directory but do not set it as the `lintConfig` in the " +
+                    "project's build file."
+            )
+        }
+
+        // suppress warnings more specifically than issue-wide severity (regexes)
+        // Currently suppresses warnings from baseline files working as intended
+        lintConfig = File(project.getSupportRootFolder(), lintXmlPath)
         baseline = lintBaseline.get().asFile
     }
+    project.buildOnServerDependsOnLint()
 }
 
-/**
- * Lint on multiplatform  projects is only applied to Java code and android source sets. To force it
- * to run on JVM code, we add the java source sets that lint looks for, but use the sources
- * directories of the JVM source sets if they exist.
- */
-fun Project.configureLintForMultiplatform(extension: AndroidXExtension) = afterEvaluate {
-    // if lint has been applied through some other mechanism, this step is unnecessary
-    runCatching { project.tasks.named("lint") }.onSuccess { return@afterEvaluate }
-    val jvmTarget = project.multiplatformExtension?.targets?.findByName("jvm")
-        ?: return@afterEvaluate
-    val runtimeConfiguration = project.configurations.findByName("jvmRuntimeElements")
-        ?: return@afterEvaluate
-    val apiConfiguration = project.configurations.findByName("jvmApiElements")
-        ?: return@afterEvaluate
-    val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)
-        ?: return@afterEvaluate
-    project.configurations.maybeCreate("runtimeElements").apply {
-        extendsFrom(runtimeConfiguration)
+private fun Project.buildOnServerDependsOnLint() {
+    if (!project.usingMaxDepVersions().get()) {
+        project.addToBuildOnServer("lint")
     }
-    project.configurations.maybeCreate("apiElements").apply {
-        extendsFrom(apiConfiguration)
-    }
-    val mainSourceSets = jvmTarget
-        .compilations
-        .getByName("main")
-        .kotlinSourceSets
-    val testSourceSets = jvmTarget
-        .compilations
-        .getByName("test")
-        .kotlinSourceSets
-    javaExtension.sourceSets.maybeCreate("main").apply {
-        java.setSrcDirs(mainSourceSets.flatMap { it.kotlin.srcDirs })
-        java.classesDirectory
-    }
-    javaExtension.sourceSets.maybeCreate("test").apply {
-        java.srcDirs.addAll(testSourceSets.flatMap { it.kotlin.srcDirs })
-    }
-    project.configureNonAndroidProjectForLint(extension)
-
-    // Disable classfile based checks because lint cannot find the classfiles for multiplatform
-    // projects, and SourceSet.java.classesDirectory is not configurable. This is not ideal, but
-    // better than having no lint checks at all.
-    extensions.getByType<Lint>().disable.add("LintError")
 }
 
-/**
- * Lint uses [ConfigurableFileCollection.disallowChanges] during initialization, which prevents
- * modifying the file collection separately (there is no time to configure it before AGP has
- * initialized and disallowed changes). This uses reflection to temporarily allow changes, and
- * apply [block].
- */
-private fun ConfigurableFileCollection.withChangesAllowed(
-    block: ConfigurableFileCollection.() -> Unit
-) {
-    val disallowChanges = this::class.java.getDeclaredField("disallowChanges")
-    disallowChanges.isAccessible = true
-    disallowChanges.set(this, false)
-    block()
-    disallowChanges.set(this, true)
-}
-
-val Project.lintBaseline: RegularFileProperty get() =
-    project.objects.fileProperty().fileValue(File(projectDir, "/lint-baseline.xml"))
+private val Project.lintBaseline: RegularFileProperty
+    get() = project.objects.fileProperty().fileValue(File(projectDir, "lint-baseline.xml"))
