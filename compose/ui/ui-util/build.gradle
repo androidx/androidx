@@ -85,6 +85,13 @@ androidXMultiplatform {
                 implementation(project(":compose:ui:ui-uikit"))
             }
         }
+
+        desktopTest {
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
     }
 }
 

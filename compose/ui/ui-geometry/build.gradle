@@ -60,6 +60,16 @@ androidXMultiplatform {
         androidDeviceTest.dependencies {
             implementation(libs.testRunner)
         }
+
+        skikoTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        nonJvmTest.dependsOn(skikoTest)
+        desktopTest.dependsOn(skikoTest)
     }
 }
 

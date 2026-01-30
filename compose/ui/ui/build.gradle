@@ -229,6 +229,7 @@ androidXMultiplatform {
                 // TODO: Move to commonTest?
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test"))
                 implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")
             }
         }
@@ -277,10 +278,13 @@ androidXMultiplatform {
             }
         }
 
-        uikitInstrumentedTest {
+        iosInstrumentedTest {
             dependencies {
                 implementation(project(":compose:material:material"))
+                implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":internal-testutils-xctest"))
             }
         }
 
@@ -450,6 +454,8 @@ tasks.findByName("desktopTest").configure {
 }
 
 tasks.register("desktopHeadlessTest", Test) {
+    group = "verification"
+    description = "Headless desktop tests"
     testClassesDirs = sourceSets.desktopTest.output.classesDirs
     classpath = sourceSets.desktopTest.runtimeClasspath
 

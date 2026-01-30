@@ -125,10 +125,8 @@ androidXMultiplatform {
             dependsOn(nonJvmTest)
         }
 
-        wasmJsMain {
-            dependencies {
-                implementation(libs.kotlinXw3c)
-            }
+        webMain.dependencies {
+            implementation(libs.kotlinXw3c)
         }
     }
 }

@@ -78,6 +78,9 @@ androidXMultiplatform {
 
         nonAndroidTest {
             dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+            }
         }
 
         desktopMain {

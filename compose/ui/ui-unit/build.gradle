@@ -95,6 +95,10 @@ androidXMultiplatform {
 
         desktopTest {
             dependsOn(nonAndroidTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
         }
 
         nonJvmMain {

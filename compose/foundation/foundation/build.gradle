@@ -124,7 +124,8 @@ androidXMultiplatform {
         skikoMain {
             dependsOn(commonMain)
             dependencies {
-                implementation(libs.skiko)
+                // TODO(https://youtrack.jetbrains.com/issue/CMP-219) Remove API
+                api(libs.skiko)
                 implementation(libs.atomicFu)
             }
         }

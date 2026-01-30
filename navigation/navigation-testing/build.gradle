@@ -64,8 +64,6 @@ androidXMultiplatform {
         }
 
         nonAndroidMain.dependsOn(commonMain)
-        jvmStubsMain.dependsOn(nonAndroidMain)
-        linuxx64StubsMain.dependsOn(nonAndroidMain)
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)

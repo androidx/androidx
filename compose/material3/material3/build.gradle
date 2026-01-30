@@ -105,6 +105,7 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 implementation(libs.datetime)
+                implementation(libs.atomicFu)
                 implementation(project(":compose:ui:ui-backhandler"))
             }
         }
@@ -119,6 +120,10 @@ androidXMultiplatform {
         skikoTest {
             dependsOn(commonTest)
             dependencies {
+                // Test against project dependencies
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:runtime:runtime"))
                 def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
                 implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
                 implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0")
