@@ -75,6 +75,11 @@ class ProjectDependencyGraph {
             return
         }
         allProjects[projectPath] = projectDir
+
+        // TODO remove it after https://youtrack.jetbrains.com/issue/CMP-9524/Support-the-same-setup-for-integration-and-jb-main-branches
+        // This code includes dependencies defined in comments and in "androidMain" that doesn't work in jb-main yet
+        return
+
         Set<String> parsedDependencies = extractReferencesFromBuildFile(projectPath, projectDir)
         projectReferences[projectPath] = parsedDependencies
         parsedDependencies.forEach { dependency ->
@@ -130,6 +135,10 @@ class ProjectDependencyGraph {
             return // already added
         }
         target.add(projectPath)
+
+        // TODO remove it after https://youtrack.jetbrains.com/issue/CMP-9524/Support-the-same-setup-for-integration-and-jb-main-branches
+        return
+
         Set<String> allReferences = getOutgoingReferences(projectPath)
         allReferences.forEach {
             addReferences(it, target)
