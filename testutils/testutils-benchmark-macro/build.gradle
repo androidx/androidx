@@ -21,28 +21,25 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
     implementation(project(":benchmark:benchmark-macro"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
-    implementation(androidxArtifact(":tracing:tracing-perfetto-binary"))
-    implementation(libs.kotlinStdlib)
+    implementation(project(":test:uiautomator:uiautomator"))
+    implementation(project(":test:uiautomator:uiautomator-shell"))
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-    }
-    namespace "androidx.testutils.macrobenchmark"
+    namespace = "androidx.testutils.macrobenchmark"
 }
 
 androidx {
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
 }

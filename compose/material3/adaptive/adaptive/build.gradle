@@ -22,137 +22,96 @@
  * modifying its settings.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.KotlinTarget
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.material3.adaptive"
+    }
     desktop()
-    darwin()
-    wasm()
+    mac()
+    ios()
     js()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":compose:foundation:foundation"))
-                api(project(":compose:ui:ui-geometry"))
-                api("org.jetbrains.androidx.window:window-core:1.5.0")
-            }
+        commonMain.dependencies {
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:ui:ui"))
+            api(project(":window:window-core"))
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api("androidx.annotation:annotation-experimental:1.5.1")
+            api("androidx.window:window:1.5.0")
         }
 
-        jvmMain {
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:material3:material3"))
+            implementation(project(":compose:test-utils"))
+            implementation(project(":window:window-testing"))
+            implementation(libs.junit)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+        }
+
+        nonAndroidMain {
             dependsOn(commonMain)
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api(project(":annotation:annotation"))
-                //dependencies are not available in JB fork
-                //api(project(":annotation:annotation-experimental"))
-                //api(project(":window:window"))
-            }
+        nonAndroidTest {
+            dependsOn(commonTest)
         }
 
         desktopMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
+            dependsOn(nonAndroidMain)
         }
 
         desktopTest {
-            dependsOn(jvmTest)
+            dependsOn(nonAndroidTest)
         }
 
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(project(":compose:material3:material3"))
-                implementation(project(":compose:test-utils"))
-                //dependency is not available in JB fork
-                //implementation(project(":window:window-testing"))
-                implementation(libs.junit)
-                implementation(libs.testRunner)
-                implementation(libs.truth)
-            }
+        nativeMain {
+            dependsOn(nonAndroidMain)
         }
 
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.testRunner)
-                implementation(libs.truth)
-            }
+        nativeTest {
+            dependsOn(nonAndroidTest)
         }
 
-        nonAndroidMain.dependsOn(commonMain)
-        desktopMain.dependsOn(nonAndroidMain)
-        nonJvmMain.dependsOn(nonAndroidMain)
-        webMain.dependsOn(nonJvmMain)
-        jsMain.dependsOn(webMain)
-        wasmJsMain.dependsOn(webMain)
-        nativeMain.dependsOn(nonJvmMain)
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
 
-        nonAndroidTest.dependsOn(commonTest)
-        desktopTest.dependsOn(nonAndroidTest)
-        nonJvmTest.dependsOn(nonAndroidTest)
-        webTest.dependsOn(nonJvmTest)
-        jsTest.dependsOn(webTest)
-        wasmJsTest.dependsOn(webTest)
-        nativeTest.dependsOn(nonJvmTest)
+        webTest {
+            dependsOn(nonAndroidTest)
+        }
     }
-}
-
-android {
-    namespace "androidx.compose.material3.adaptive"
 }
 
 androidx {
     name = "Material Adaptive"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
     legacyDisableKotlinStrictApiMode = true
-}
-
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
-}
-
-// Screenshot tests related setup
-android {
-    sourceSets.androidTest.assets.srcDirs +=
-            project.rootDir.absolutePath + "/../../golden/compose/material3/adaptive"
-    namespace "androidx.compose.material3.adaptive"
 }

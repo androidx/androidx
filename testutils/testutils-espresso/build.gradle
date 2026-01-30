@@ -21,29 +21,27 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 
-    implementation(libs.espressoCore, excludes.espresso)
-    implementation(libs.kotlinStdlib)
+    implementation(libs.espressoCore)
     implementation("androidx.core:core:1.2.0")
 }
 
 android {
-    lintOptions {
-        disable "InvalidPackage" // Lint is unhappy about junit package
-    }
-    namespace "androidx.testutils.espresso"
+    namespace = "androidx.testutils.espresso"
 }
 
 androidx {
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    // TODO: b/326456246
+    optOutJSpecify = true
 }

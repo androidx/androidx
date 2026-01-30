@@ -14,215 +14,199 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.ui.test"
+        androidResources.enable = true
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
 
-android {
-    if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        sourceSets {
-            test.java.srcDirs += "src/androidCommonTest/kotlin"
-            androidTest.java.srcDirs += "src/androidCommonTest/kotlin"
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain.dependencies {
+            api(project(":compose:ui:ui"))
+            api(project(":compose:ui:ui-text"))
+            api(project(":compose:ui:ui-unit"))
+            api(project(":compose:runtime:runtime"))
+            api(libs.kotlinCoroutinesCore)
+            api(libs.kotlinCoroutinesTest)
+            implementation(project(":compose:ui:ui-util"))
+            implementation("androidx.collection:collection:1.5.0")
         }
-    }
 
-    lintOptions {
-        disable("InvalidPackage")
-    }
-    namespace "androidx.compose.ui.test"
-}
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+        }
 
-dependencies {
+        androidMain.dependencies {
+            api(project(":compose:ui:ui-graphics"))
+            implementation("androidx.activity:activity-compose:1.3.0")
+            implementation("androidx.annotation:annotation:1.8.1")
+            implementation("androidx.core:core-ktx:1.12.0")
+            implementation("androidx.test.espresso:espresso-core:3.5.0")
+            implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
+            implementation("androidx.test:monitor:1.6.1")
+        }
 
-    if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        api("androidx.compose.runtime:runtime:1.2.1")
-        api(project(":compose:ui:ui"))
-        api(project(":compose:ui:ui-graphics"))
-        api(project(":compose:ui:ui-text"))
-        api(project(":compose:ui:ui-unit"))
-        api(libs.kotlinCoroutinesCore)
-        api(libs.kotlinCoroutinesTest)
-        api(libs.kotlinStdlib)
-        api(libs.kotlinStdlib)
-
-        implementation(project(":compose:ui:ui-util"))
-        implementation("androidx.annotation:annotation:1.1.0")
-        implementation("androidx.core:core-ktx:1.1.0")
-        implementation("androidx.test.espresso:espresso-core:3.5.0")
-        implementation("androidx.test:monitor:1.6.0")
-
-        testImplementation(project(":compose:test-utils"))
-        testImplementation(libs.truth)
-        testImplementation(libs.robolectric)
-        testImplementation(libs.mockitoCore4)
-        testImplementation(libs.mockitoKotlin4)
-
-        androidTestImplementation("androidx.activity:activity-compose:1.3.1")
-        androidTestImplementation(project(":compose:material:material"))
-        androidTestImplementation(project(":compose:test-utils"))
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(libs.truth)
-        androidTestImplementation(libs.mockitoCore)
-        androidTestImplementation(libs.dexmakerMockito)
-        androidTestImplementation(libs.mockitoKotlin)
-        androidTestImplementation(libs.kotlinTest)
-
-        samples(project(":compose:ui:ui-test:ui-test-samples"))
-    }
-}
-
-
-if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-        darwin()
-        js()
-        wasm()
-    }
-
-    kotlin {
-        sourceSets {
-            commonMain.dependencies {
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-text"))
-                api(project(":compose:ui:ui-unit"))
-                api(libs.kotlinCoroutinesCore)
-                api(libs.kotlinCoroutinesTest)
-                api(libs.kotlinStdlib)
-
-                implementation(project(":annotation:annotation"))
-                implementation(project(":collection:collection"))
-                implementation(project(":compose:ui:ui-util"))
-            }
-
-            jvmMain.dependencies {
-                api(project(":compose:runtime:runtime"))
-                api(libs.kotlinCoroutinesCore)
-                api(libs.kotlinCoroutinesTest)
-                api(libs.kotlinStdlib)
-            }
-
-            androidMain.dependencies {
-                api(project(":compose:ui:ui-graphics"))
-
-                implementation("androidx.annotation:annotation:1.1.0")
-                implementation("androidx.core:core-ktx:1.2.0")
-                implementation("androidx.test.espresso:espresso-core:3.3.0")
-                implementation(libs.testMonitor)
-            }
-
-            androidCommonTest.dependencies {
+        androidCommonTest {
+            dependsOn(commonTest)
+            dependencies {
                 implementation(project(":compose:test-utils"))
                 implementation(libs.truth)
             }
+        }
 
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
-            }
-
-            androidAndroidTest.dependencies {
+        androidDeviceTest {
+            dependsOn(androidCommonTest)
+            dependencies {
+                implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:material:material"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-//                implementation("androidx.activity:activity-compose:1.3.1") // removed because ui-test module doesn't sync in IDEA with it
+                implementation(project(":compose:animation:animation"))
+                implementation(project(":compose:ui:ui-test"))
+                implementation("androidx.activity:activity-compose:1.3.1")
+                implementation("androidx.fragment:fragment-testing:1.4.1")
+
                 implementation(libs.mockitoCore)
                 implementation(libs.mockitoKotlin)
                 implementation(libs.dexmakerMockito)
                 implementation(libs.kotlinTest)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.espressoCore)
+                implementation(libs.truth)
+
             }
+        }
 
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(libs.atomicFu)
+        androidHostTest {
+            dependsOn(androidCommonTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
+                implementation(libs.byteBuddy)
 
-                    // Required to properly resolve supertypes of DefaultArchitectureComponentsOwner
-                    // Keep in sync with :ui:ui module
-                    implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
-                    implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
-                    implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
-
-                    // Use direct dependency to AOSP's artifact instead of using project reference
-                    // because this module supports all KMP platforms from the beginning
-                    // Project dependency (commented out version) is required for `integration` branch setup
-                    // implementation(project(":navigationevent:navigationevent"))
-                    def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
-                    implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
-                }
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:animation:animation-core"))
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:test-utils"))
             }
+        }
 
-            desktopMain.dependsOn(skikoMain)
-            nonJvmMain.dependsOn(skikoMain)
-            jsMain.dependsOn(nonJvmMain)
-            wasmJsMain.dependsOn(nonJvmMain)
-            nativeMain.dependsOn(nonJvmMain)
+        // TODO: Align naming: nonAndroidMain
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.atomicFu)
 
-            iosMain {
-                dependsOn(nativeMain)
+                // Required to properly resolve supertypes of DefaultArchitectureComponentsOwner
+                // Keep in sync with :ui:ui module
+                implementation(project(":lifecycle:lifecycle-runtime-compose"))
+                implementation(project(":lifecycle:lifecycle-viewmodel"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                implementation(project(":navigationevent:navigationevent"))
             }
-            macosMain.dependsOn(nativeMain)
+        }
 
-            desktopMain.dependencies {
+        skikoTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
+                implementation(project(":kruth:kruth"))
+            }
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+            dependencies {
                 implementation(libs.junit)
                 implementation(libs.skiko)
             }
+        }
 
-            skikoTest.dependencies {
-                api(project(":compose:foundation:foundation"))
-                api(project(":compose:material:material"))
-                implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
-                implementation(libs.kotlinTest)
-                implementation(libs.atomicFu)
-                implementation(project(":kruth:kruth"))
-            }
-            skikoTest.dependsOn(commonTest)
-
-            desktopTest.dependencies {
+        desktopTest {
+            dependsOn(skikoTest)
+            dependencies {
                 implementation(libs.skikoCurrentOs)
             }
-            desktopTest.dependsOn(skikoTest)
-            desktopTest.dependsOn(jvmTest)
-
-            nativeTest.dependsOn(skikoTest)
-
-            webTest.dependsOn(skikoTest)
-            wasmJsTest.dependsOn(webTest)
-            jsTest.dependsOn(webTest)
-
-            androidCommonTest.dependsOn(commonTest)
-            androidTest.dependsOn(androidCommonTest)
-            androidAndroidTest.dependsOn(androidCommonTest)
         }
-    }
 
-    dependencies {
-        // Can't declare this in kotlin { sourceSets { androidTest.dependencies { .. } } } as that
-        // leaks into instrumented tests (b/214407011)
-        testImplementation(libs.robolectric)
+        nonJvmMain {
+            dependsOn(skikoMain)
+        }
 
-        samples(project(":compose:ui:ui-test:ui-test-samples"))
+        nonJvmTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        darwinMain {
+            dependsOn(nativeMain)
+        }
+
+        darwinTest {
+            dependsOn(nativeTest)
+        }
+
+        macosMain {
+            dependsOn(darwinMain)
+        }
+
+        macosTest {
+            dependsOn(darwinTest)
+        }
+
+        iosMain {
+            dependsOn(darwinMain)
+        }
+
+        iosTest {
+            dependsOn(darwinTest)
+        }
     }
 }
 
 androidx {
     name = "Compose Testing"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2019"
     description = "Compose testing library"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui-test:ui-test-samples"))
+    enableRobolectric()
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
 }

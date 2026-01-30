@@ -18,22 +18,26 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-
     debugImplementation(project(":compose:ui:ui-test-manifest"))
 
     implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation("androidx.tracing:tracing:1.1.0")
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.espressoCore)
+
+    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
+
+    androidTestImplementation(project(":savedstate:savedstate"))
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 21
-    }
-    namespace "androidx.compose.ui.test.manifest.integration.testapp"
+    compileSdk = 35
+    namespace = "androidx.compose.ui.test.manifest.integration.testapp"
 }

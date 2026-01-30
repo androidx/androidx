@@ -22,92 +22,54 @@
  * modifying its settings.
  */
 
-
 import androidx.build.PlatformIdentifier
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("JetBrainsAndroidXPlugin")
 }
 
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.lifecycle.testing"
+    }
     desktop()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
     js()
-    wasm()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(project(":lifecycle:lifecycle-runtime"))
-            }
+        commonMain.dependencies {
+            api(project(":lifecycle:lifecycle-runtime"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.truth)
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.kotlinCoroutinesTest)
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.truth)
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
-        jvmMain.dependsOn(commonMain)
-        jbMain.dependsOn(commonMain)
-        androidMain.dependsOn(jvmMain)
-        desktopMain.dependsOn(jvmMain)
-        desktopMain.dependsOn(jbMain)
-        nativeMain.dependsOn(jbMain)
-        webMain.dependsOn(jbMain)
-        jsMain.dependsOn(webMain)
-        wasmJsMain.dependsOn(webMain)
-
-        jvmTest.dependsOn(commonTest)
-        androidUnitTest.dependsOn(jvmTest)
-        jbTest.dependsOn(commonTest)
-        desktopTest.dependsOn(jvmTest)
-        desktopTest.dependsOn(jbTest)
-        nativeTest.dependsOn(jbTest)
-        webTest.dependsOn(jbTest)
-        jsTest.dependsOn(webTest)
-        wasmJsTest.dependsOn(webTest)
-
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-            }
+        webTest.dependencies {
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
         }
     }
-}
-
-kotlin {
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
 }
 
 dependencies {
@@ -116,12 +78,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle Runtime Testing"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
-    legacyDisableKotlinStrictApiMode = true
-}
-
-android {
-    namespace "androidx.lifecycle.testing"
 }

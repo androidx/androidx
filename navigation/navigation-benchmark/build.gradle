@@ -26,7 +26,8 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("AndroidXComposePlugin")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.benchmark")
 }
 
@@ -35,18 +36,16 @@ dependencies {
     androidTestImplementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":internal-testutils-navigation"))
     androidTestImplementation(project(":navigation:navigation-common"))
+    androidTestImplementation(project(":navigation:navigation-compose"))
     androidTestImplementation(project(":navigation:navigation-runtime"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:benchmark-utils"))
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:ui:ui"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.kotlinStdlib)
-
-    // TODO: Workaround for "R8: Type is defined multiple times" due to the ongoing migration of
-    //  Navigation libraries to KMP. `-ktx` are empty in ToT but old versions still have classes.
-    androidTestImplementation(project(":lifecycle:lifecycle-runtime-ktx"))
-    androidTestImplementation(project(":lifecycle:lifecycle-viewmodel-ktx"))
-    androidTestImplementation(project(":savedstate:savedstate-ktx"))
 }
 
 androidx {
@@ -57,5 +56,6 @@ androidx {
 }
 
 android {
+    compileSdk = 35
     namespace = "androidx.navigation.benchmark"
 }

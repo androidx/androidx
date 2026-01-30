@@ -20,7 +20,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.benchmark")
 }
 
@@ -37,6 +37,7 @@ dependencies {
     androidTestImplementation(project(":compose:foundation:foundation-layout"))
     androidTestImplementation(project(":compose:material:material"))
     androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:runtime:runtime-retain"))
     androidTestImplementation(project(":compose:runtime:runtime-saveable"))
     androidTestImplementation(project(":compose:ui:ui-text"))
     androidTestImplementation(project(":compose:ui:ui-util"))
@@ -48,7 +49,6 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))

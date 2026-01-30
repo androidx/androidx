@@ -17,13 +17,10 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    defaultConfig {
-        minSdk = 23
-    }
     namespace = "androidx.compose.integration.hero.jetsnack.macrobenchmark"
     targetProjectPath = ":compose:integration-tests:hero:jetsnack:jetsnack-macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true

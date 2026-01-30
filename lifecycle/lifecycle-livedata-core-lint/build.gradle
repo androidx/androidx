@@ -29,11 +29,11 @@ plugins {
 }
 
 dependencies {
-    compileOnly(libs.androidLintApi)
+    compileOnly(libs.androidLintApiStableAnalysis)
     compileOnly(libs.kotlinStdlib)
 
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintStableAnalysis)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
 }

@@ -34,48 +34,16 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.compose.ui.test.junit4.accessibility"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
-
         compileSdk = 35
-        aarMetadata.minCompileSdk = 35
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-            }
-        }
-
-        commonTest {
-            dependencies {
-            }
-        }
-
-        androidMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":compose:ui:ui-test-junit4"))
-                api("androidx.annotation:annotation:1.8.1")
-                api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
-            }
-        }
-
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+        androidMain.dependencies {
+            api(project(":compose:ui:ui-test-junit4"))
+            api("androidx.annotation:annotation:1.8.1")
+            api("com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:4.1.1")
         }
     }
 }
@@ -85,7 +53,6 @@ androidx {
     type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2025"
     description = "Compose testing library for accessibility checks in integration with JUnit4"
-    metalavaK2UastEnabled = false
     samples(project(":compose:ui:ui-test-junit4-accessibility:ui-test-junit4-accessibility-samples"))
 
 }

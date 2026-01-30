@@ -42,7 +42,7 @@ dependencies {
 
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLintApiStableAnalysis)
-    testImplementation(libs.androidLintTestsStableAnalysis)
+    testImplementation(libs.androidLintTests)
     testImplementation(libs.intellijCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)

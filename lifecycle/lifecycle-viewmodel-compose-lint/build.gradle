@@ -40,7 +40,6 @@ dependencies {
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinReflect)
-    testImplementation(libs.kotlinStdlibJdk8)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)

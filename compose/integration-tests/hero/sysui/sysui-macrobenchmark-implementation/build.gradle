@@ -1,0 +1,63 @@
+/*
+ * Copyright (C) 2025 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+plugins {
+    id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("com.android.library")
+}
+
+android {
+    namespace = "androidx.compose.integration.hero.sysui.macrobenchmark.implementation"
+    compileSdk = 36
+    defaultConfig {
+        minSdk = 31 // This benchmark does not run below API 31
+    }
+    lint {
+        baseline = file("lint-baseline.xml")
+    }
+}
+
+// Create a release build type and make sure it's the only one enabled.
+// This is needed because we benchmark the release build type only.
+android.buildTypes { release {} }
+androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
+
+dependencies {
+    // Compose
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-graphics"))
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation(project(":compose:material3:material3"))
+    implementation(project(":compose:material3:material3-window-size-class"))
+
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
+
+    // AndroidX
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.10.0")
+    implementation("androidx.activity:activity-compose:1.12.0")
+    implementation("androidx.window:window:1.5.1")
+
+}

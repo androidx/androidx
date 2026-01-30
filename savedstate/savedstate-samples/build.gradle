@@ -27,12 +27,11 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     alias(libs.plugins.kotlinSerialization)
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     implementation("androidx.activity:activity:1.10.1")
     implementation(project(":savedstate:savedstate"))
     compileOnly(project(":annotation:annotation-sampled"))
