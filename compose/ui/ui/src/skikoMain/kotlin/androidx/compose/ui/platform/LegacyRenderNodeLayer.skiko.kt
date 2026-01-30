@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.toSize
 import kotlin.math.abs
 import kotlin.math.max
@@ -245,7 +246,7 @@ internal class LegacyRenderNodeLayer(
 
         if (picture == null) {
             val measureDrawBounds = !clip || shadowElevation > 0
-            val bounds = size.toSize().toRect()
+            val bounds = size.toRect()
             val pictureCanvas = pictureRecorder.beginRecording(
                 left = if (measureDrawBounds) PICTURE_MIN_VALUE else bounds.left,
                 top = if (measureDrawBounds) PICTURE_MIN_VALUE else bounds.top,

@@ -29,9 +29,11 @@ import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.skiko.OverlayRenderDecorator
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.getDialogScrimBlendMode
 import androidx.compose.ui.window.layoutDirectionFor
@@ -113,8 +115,12 @@ internal class WindowComposeSceneLayer(
     override var scrimColor: Color? = null
 
     init {
-        val boundsInPx = windowContainer.sizeInPx.toRect()
-        drawBounds = boundsInPx.roundToIntRect()
+        drawBounds =  IntRect(
+            0,
+            0,
+            windowContainer.sizeInPx.width.fastRoundToInt(),
+            windowContainer.sizeInPx.height.fastRoundToInt()
+        )
         mediator = ComposeSceneMediator(
             container = container,
             isWindowLevel = true,
