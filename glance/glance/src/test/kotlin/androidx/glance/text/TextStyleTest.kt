@@ -29,14 +29,14 @@ class TextStyleTest {
                 TextStyle(
                     color = ColorProvider(Color.Red),
                     fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
             .isEqualTo(
                 TextStyle(
                     color = ColorProvider(Color.Red),
                     fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
 
@@ -44,14 +44,14 @@ class TextStyleTest {
                 TextStyle(
                     color = ColorProvider(Color.Red),
                     fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
             .isNotEqualTo(
                 TextStyle(
                     color = ColorProvider(Color.Red),
                     fontSize = 14.sp,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
 
@@ -59,14 +59,14 @@ class TextStyleTest {
                 TextStyle(
                     color = ColorProvider(Color.Red),
                     fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
             .isNotEqualTo(
                 TextStyle(
                     color = ColorProvider(Color.Magenta),
                     fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
 
@@ -74,14 +74,14 @@ class TextStyleTest {
                 TextStyle(
                     color = ColorProvider(Color.Red),
                     fontSize = 12.sp,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             )
             .isNotEqualTo(
                 TextStyle(
                     color = ColorProvider(Color.Red),
                     fontSize = 12.sp,
-                    fontStyle = FontStyle.Normal
+                    fontStyle = FontStyle.Normal,
                 )
             )
     }

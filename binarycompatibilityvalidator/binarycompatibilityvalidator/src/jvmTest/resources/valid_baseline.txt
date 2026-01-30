@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+[iosX64]: Removed declaration my.lib/MyClass from androidx:library
+[linuxX64]: Removed declaration my.lib/MyClass from androidx:library

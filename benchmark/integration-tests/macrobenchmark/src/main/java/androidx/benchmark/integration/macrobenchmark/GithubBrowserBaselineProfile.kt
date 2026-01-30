@@ -77,7 +77,7 @@ class GithubBrowserBaselineProfile {
                 }
                 device.pressBack()
                 device.waitForIdle()
-            }
+            },
         )
     }
 

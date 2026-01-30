@@ -96,7 +96,7 @@ class AppWidgetHostTestActivity : Activity() {
             appWidgetManager.bindAppWidgetIdIfAllowed(
                 appWidgetId,
                 componentName,
-                optionsBundleOf(listOf(portraitSize, landscapeSize))
+                optionsBundleOf(listOf(portraitSize, landscapeSize)),
             )
         if (!wasBound) {
             fail("Failed to bind the app widget")
@@ -141,7 +141,7 @@ class TestAppWidgetHost(context: Context, hostId: Int) : AppWidgetHost(context, 
     override fun onCreateView(
         context: Context,
         appWidgetId: Int,
-        appWidget: AppWidgetProviderInfo?
+        appWidget: AppWidgetProviderInfo?,
     ): AppWidgetHostView = TestAppWidgetHostView(context)
 }
 

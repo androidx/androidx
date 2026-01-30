@@ -17,4 +17,4 @@
 package androidx.glance
 
 /** Opaque object used to describe a glance view. */
-interface GlanceId
+public interface GlanceId

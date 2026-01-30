@@ -50,7 +50,7 @@ import kotlinx.coroutines.launch
 enum class OnErrorBehavior {
     Default,
     Custom,
-    Ignore
+    Ignore,
 }
 
 class ErrorUiAppWidgetConfigurationActivity : ComponentActivity() {
@@ -163,19 +163,19 @@ private fun ConfigurationUi(repo: ErrorUiAppWidgetConfigurationRepo, onSaveAndFi
                 "Default Behavior",
                 myBehavior = OnErrorBehavior.Default,
                 selectedBehavior = selected.value,
-                onClick = repo::update
+                onClick = repo::update,
             )
             LabeledRadioButton(
                 "Custom Error UI",
                 myBehavior = OnErrorBehavior.Custom,
                 selectedBehavior = selected.value,
-                onClick = repo::update
+                onClick = repo::update,
             )
             LabeledRadioButton(
                 "Ignore Error, No UI Change",
                 myBehavior = OnErrorBehavior.Ignore,
                 selectedBehavior = selected.value,
-                onClick = repo::update
+                onClick = repo::update,
             )
 
             Spacer(Modifier.size(32.dp))
@@ -189,7 +189,7 @@ private fun LabeledRadioButton(
     text: String,
     myBehavior: OnErrorBehavior,
     selectedBehavior: OnErrorBehavior,
-    onClick: (OnErrorBehavior) -> Unit
+    onClick: (OnErrorBehavior) -> Unit,
 ) {
     Row {
         RadioButton(selected = selectedBehavior == myBehavior, onClick = { onClick(myBehavior) })

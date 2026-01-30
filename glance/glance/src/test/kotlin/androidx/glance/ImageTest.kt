@@ -51,7 +51,7 @@ class ImageTest {
                     provider = ImageProvider(5),
                     contentDescription = "Hello World",
                     modifier = GlanceModifier.padding(5.dp),
-                    contentScale = ContentScale.FillBounds
+                    contentScale = ContentScale.FillBounds,
                 )
             }
 
@@ -79,7 +79,7 @@ class ImageTest {
                     provider = ImageProvider(5),
                     contentDescription = "Hello World",
                     modifier = GlanceModifier.padding(5.dp),
-                    colorFilter = ColorFilter.tint(colorProvider)
+                    colorFilter = ColorFilter.tint(colorProvider),
                 )
             }
 

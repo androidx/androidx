@@ -25,6 +25,7 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.widget.RemoteViews
 import androidx.annotation.RequiresApi
+import androidx.compose.ui.unit.DpSize
 import androidx.glance.appwidget.TranslationContext
 
 internal enum class ActionTrampolineType {
@@ -32,10 +33,10 @@ internal enum class ActionTrampolineType {
     BROADCAST,
     SERVICE,
     FOREGROUND_SERVICE,
-    CALLBACK
+    CALLBACK,
 }
 
-private const val ActionTrampolineScheme = "glance-action"
+internal const val ActionTrampolineScheme = "glance-action"
 
 /**
  * Wraps the "action intent" into an activity trampoline intent, where it will be invoked based on
@@ -63,28 +64,59 @@ internal fun Intent.applyTrampolineIntent(
     }
 }
 
+/** Called by the remote views backend. */
 internal fun createUniqueUri(
     translationContext: TranslationContext,
     viewId: Int,
     type: ActionTrampolineType,
     extraData: String = "",
+): Uri {
+    val lazyCollectionId: String?
+    val lazyCollectionItemId: String?
+
+    if (translationContext.isLazyCollectionDescendant) {
+        lazyCollectionId = translationContext.layoutCollectionViewId.toString()
+        lazyCollectionItemId = translationContext.layoutCollectionItemId.toString()
+    } else {
+        lazyCollectionId = null
+        lazyCollectionItemId = null
+    }
+
+    return createUniqueUri(
+        viewId = viewId,
+        type = type,
+        layoutSize = translationContext.layoutSize,
+        widgetId = translationContext.appWidgetId,
+        extraData = extraData,
+        lazyCollectionId = lazyCollectionId,
+        lazyCollectionItemId = lazyCollectionItemId,
+    )
+}
+
+/** Called by the remote compose backend. */
+internal fun createUniqueUri(
+    viewId: Int,
+    type: ActionTrampolineType,
+    layoutSize: DpSize,
+    widgetId: Int,
+    extraData: String = "",
+    lazyCollectionId: String? = null, // not for remote compose
+    lazyCollectionItemId: String? = null, // not for remote compose
 ): Uri =
     Uri.Builder()
         .apply {
             scheme(ActionTrampolineScheme)
             path(type.name)
-            appendQueryParameter("appWidgetId", translationContext.appWidgetId.toString())
+            appendQueryParameter("appWidgetId", widgetId.toString())
             appendQueryParameter("viewId", viewId.toString())
-            appendQueryParameter("viewSize", translationContext.layoutSize.toString())
+            appendQueryParameter("viewSize", layoutSize.toString())
             appendQueryParameter("extraData", extraData)
-            if (translationContext.isLazyCollectionDescendant) {
-                appendQueryParameter(
-                    "lazyCollection",
-                    translationContext.layoutCollectionViewId.toString()
-                )
+
+            if (lazyCollectionId != null && lazyCollectionItemId != null) {
+                appendQueryParameter("lazyCollection", lazyCollectionId)
                 appendQueryParameter(
                     "lazeViewItem",
-                    translationContext.layoutCollectionItemId.toString()
+                    lazyCollectionItemId, // the "laze" misspelling was released
                 )
             }
         }
@@ -104,7 +136,7 @@ internal fun Activity.launchTrampolineAction(intent: Intent) {
     if (intent.hasExtra(RemoteViews.EXTRA_CHECKED)) {
         actionIntent.putExtra(
             RemoteViews.EXTRA_CHECKED,
-            intent.getBooleanExtra(RemoteViews.EXTRA_CHECKED, false)
+            intent.getBooleanExtra(RemoteViews.EXTRA_CHECKED, false),
         )
     }
     val type =
@@ -122,7 +154,7 @@ internal fun Activity.launchTrampolineAction(intent: Intent) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     ListAdapterTrampolineApi26Impl.startForegroundService(
                         context = this,
-                        intent = actionIntent
+                        intent = actionIntent,
                     )
                 } else {
                     startService(actionIntent)

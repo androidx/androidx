@@ -21,19 +21,18 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
     implementation("androidx.core:core:1.5.0")
     implementation("androidx.work:work-runtime:2.8.1")
     implementation("androidx.work:work-runtime-ktx:2.8.1")
@@ -45,11 +44,12 @@ dependencies {
 
 androidx {
     name = "Glance AppWidget Classes Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2023"
     description = "Contains the sample code for the Glance AppWidget Classes Samples"
 }
 
 android {
-    namespace "androidx.glance.appwidget.samples"
+    namespace = "androidx.glance.appwidget.samples"
+    compileSdk = 35
 }

@@ -15,39 +15,24 @@
  */
 package androidx.glance.appwidget.components
 
-import android.os.Build
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.glance.Backend
 import androidx.glance.Button
 import androidx.glance.ButtonColors
 import androidx.glance.ButtonDefaults
-import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
-import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.LocalBackend
 import androidx.glance.action.Action
 import androidx.glance.action.NoRippleOverride
 import androidx.glance.action.action
-import androidx.glance.action.clickable
 import androidx.glance.appwidget.R
-import androidx.glance.appwidget.cornerRadius
-import androidx.glance.appwidget.enabled
-import androidx.glance.background
-import androidx.glance.layout.Alignment
-import androidx.glance.layout.Box
-import androidx.glance.layout.Row
-import androidx.glance.layout.Spacer
-import androidx.glance.layout.padding
-import androidx.glance.layout.size
-import androidx.glance.layout.width
-import androidx.glance.text.FontWeight
-import androidx.glance.text.Text
-import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 
 /**
@@ -68,7 +53,7 @@ import androidx.glance.unit.ColorProvider
  *   for every exact code location in the composition tree.
  */
 @Composable
-fun FilledButton(
+public fun FilledButton(
     text: String,
     onClick: () -> Unit,
     modifier: GlanceModifier = GlanceModifier,
@@ -76,8 +61,8 @@ fun FilledButton(
     icon: ImageProvider? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
-    key: String? = null
-) =
+    key: String? = null,
+): Unit =
     FilledButton(
         text = text,
         onClick = action(block = onClick, key = key),
@@ -102,7 +87,7 @@ fun FilledButton(
  *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-fun FilledButton(
+public fun FilledButton(
     text: String,
     onClick: Action,
     modifier: GlanceModifier = GlanceModifier,
@@ -110,7 +95,7 @@ fun FilledButton(
     icon: ImageProvider? = null,
     colors: ButtonColors = ButtonDefaults.buttonColors(),
     maxLines: Int = Int.MAX_VALUE,
-) =
+): Unit =
     M3TextButton(
         text = text,
         modifier = modifier,
@@ -141,7 +126,7 @@ fun FilledButton(
  *   for every exact code location in the composition tree.
  */
 @Composable
-fun OutlineButton(
+public fun OutlineButton(
     text: String,
     contentColor: ColorProvider,
     onClick: () -> Unit,
@@ -149,8 +134,8 @@ fun OutlineButton(
     enabled: Boolean = true,
     icon: ImageProvider? = null,
     maxLines: Int = Int.MAX_VALUE,
-    key: String? = null
-) =
+    key: String? = null,
+): Unit =
     OutlineButton(
         text = text,
         contentColor = contentColor,
@@ -175,7 +160,7 @@ fun OutlineButton(
  *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-fun OutlineButton(
+public fun OutlineButton(
     text: String,
     contentColor: ColorProvider,
     onClick: Action,
@@ -197,6 +182,7 @@ fun OutlineButton(
         backgroundResource = R.drawable.glance_component_btn_outline,
         backgroundTint = bg,
         maxLines = maxLines,
+        isOutlineButton = true,
     )
 }
 
@@ -218,7 +204,7 @@ fun OutlineButton(
  *   for every exact code location in the composition tree.
  */
 @Composable
-fun SquareIconButton(
+public fun SquareIconButton(
     imageProvider: ImageProvider,
     contentDescription: String?,
     onClick: () -> Unit,
@@ -226,8 +212,8 @@ fun SquareIconButton(
     enabled: Boolean = true,
     backgroundColor: ColorProvider = GlanceTheme.colors.primary,
     contentColor: ColorProvider = GlanceTheme.colors.onPrimary,
-    key: String? = null
-) =
+    key: String? = null,
+): Unit =
     SquareIconButton(
         imageProvider = imageProvider,
         contentDescription = contentDescription,
@@ -252,7 +238,7 @@ fun SquareIconButton(
  * @param contentColor The color to tint the button's icon.
  */
 @Composable
-fun SquareIconButton(
+public fun SquareIconButton(
     imageProvider: ImageProvider,
     contentDescription: String?,
     onClick: Action,
@@ -260,7 +246,7 @@ fun SquareIconButton(
     enabled: Boolean = true,
     backgroundColor: ColorProvider = GlanceTheme.colors.primary,
     contentColor: ColorProvider = GlanceTheme.colors.onPrimary,
-) =
+): Unit =
     M3IconButton(
         imageProvider = imageProvider,
         contentDescription = contentDescription,
@@ -292,7 +278,7 @@ fun SquareIconButton(
  *   for every exact code location in the composition tree.
  */
 @Composable
-fun CircleIconButton(
+public fun CircleIconButton(
     imageProvider: ImageProvider,
     contentDescription: String?,
     onClick: () -> Unit,
@@ -300,8 +286,8 @@ fun CircleIconButton(
     enabled: Boolean = true,
     backgroundColor: ColorProvider? = GlanceTheme.colors.background,
     contentColor: ColorProvider = GlanceTheme.colors.onSurface,
-    key: String? = null
-) =
+    key: String? = null,
+): Unit =
     CircleIconButton(
         imageProvider = imageProvider,
         contentDescription = contentDescription,
@@ -309,7 +295,7 @@ fun CircleIconButton(
         contentColor = contentColor,
         modifier = modifier,
         enabled = enabled,
-        onClick = action(block = onClick, key = key)
+        onClick = action(block = onClick, key = key),
     )
 
 /**
@@ -328,7 +314,7 @@ fun CircleIconButton(
  * @param contentColor The color to tint the button's icon.
  */
 @Composable
-fun CircleIconButton(
+public fun CircleIconButton(
     imageProvider: ImageProvider,
     contentDescription: String?,
     onClick: Action,
@@ -336,7 +322,7 @@ fun CircleIconButton(
     enabled: Boolean = true,
     backgroundColor: ColorProvider? = GlanceTheme.colors.background,
     contentColor: ColorProvider = GlanceTheme.colors.onSurface,
-) =
+): Unit =
     M3IconButton(
         imageProvider = imageProvider,
         contentDescription = contentDescription,
@@ -348,11 +334,12 @@ fun CircleIconButton(
         onClick = onClick,
     )
 
-private enum class IconButtonShape(
-    @DrawableRes val shape: Int,
-    @DimenRes val cornerRadius: Int,
-    @DrawableRes val ripple: Int,
-    val defaultSize: Dp
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public enum class IconButtonShape(
+    @DrawableRes public val shape: Int,
+    @DimenRes public val cornerRadius: Int,
+    @DrawableRes public val ripple: Int,
+    public val defaultSize: Dp,
 ) {
     Square(
         R.drawable.glance_component_btn_square,
@@ -360,7 +347,7 @@ private enum class IconButtonShape(
         ripple =
             if (isAtLeastApi31) NoRippleOverride
             else R.drawable.glance_component_square_button_ripple,
-        defaultSize = 60.dp
+        defaultSize = 60.dp,
     ),
     Circle(
         R.drawable.glance_component_btn_circle,
@@ -368,8 +355,8 @@ private enum class IconButtonShape(
         ripple =
             if (isAtLeastApi31) NoRippleOverride
             else R.drawable.glance_component_circle_button_ripple,
-        defaultSize = 48.dp
-    )
+        defaultSize = 48.dp,
+    ),
 }
 
 @Composable
@@ -383,37 +370,34 @@ private fun M3IconButton(
     modifier: GlanceModifier,
     enabled: Boolean,
 ) {
-
-    val backgroundModifier =
-        if (backgroundColor == null) GlanceModifier
-        else
-            GlanceModifier.background(
-                ImageProvider(shape.shape),
-                colorFilter = ColorFilter.tint(backgroundColor)
+    when (LocalBackend.current) {
+        Backend.RemoteCompose ->
+            RemoteComposeButtons.M3IconButtonElement(
+                imageProvider = imageProvider,
+                contentDescription = contentDescription,
+                backgroundColor = backgroundColor,
+                contentColor = contentColor,
+                shape = shape,
+                modifier = modifier,
+                enabled = enabled,
+                onClick = onClick,
             )
-
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier =
-            GlanceModifier.size(
-                    shape.defaultSize
-                ) // acts as a default if not overridden by [modifier]
-                .then(modifier)
-                .then(backgroundModifier)
-                .clickable(onClick = onClick, rippleOverride = shape.ripple)
-                .enabled(enabled)
-                .then(maybeRoundCorners(shape.cornerRadius))
-    ) {
-        Image(
-            provider = imageProvider,
-            contentDescription = contentDescription,
-            colorFilter = ColorFilter.tint(contentColor),
-            modifier = GlanceModifier.size(24.dp)
-        )
+        Backend.RemoteView ->
+            RemoteViewButtons.M3IconButton(
+                imageProvider = imageProvider,
+                contentDescription = contentDescription,
+                backgroundColor = backgroundColor,
+                contentColor = contentColor,
+                shape = shape,
+                modifier = modifier,
+                enabled = enabled,
+                onClick = onClick,
+            )
     }
 }
 
 @Composable
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 private fun M3TextButton(
     text: String,
     onClick: Action,
@@ -421,64 +405,36 @@ private fun M3TextButton(
     enabled: Boolean = true,
     icon: ImageProvider?,
     contentColor: ColorProvider,
-    @DrawableRes backgroundResource: Int,
+    backgroundResource: Int,
     backgroundTint: ColorProvider,
     maxLines: Int,
+    isOutlineButton: Boolean = false, // used for remote compose
 ) {
-    val iconSize = 18.dp
-    val totalHorizontalPadding = if (icon != null) 24.dp else 16.dp
-
-    val Text =
-        @Composable {
-            Text(
+    when (LocalBackend.current) {
+        Backend.RemoteCompose ->
+            RemoteComposeButtons.M3TextButtonElement(
                 text = text,
-                style = TextStyle(color = contentColor, fontSize = 14.sp, FontWeight.Medium),
-                maxLines = maxLines
+                onClick = onClick,
+                modifier = modifier,
+                enabled = enabled,
+                icon = icon,
+                contentColor = contentColor,
+                backgroundResource = backgroundResource,
+                backgroundTint = backgroundTint,
+                maxLines = maxLines,
+                isOutlineButton = isOutlineButton,
             )
-        }
-
-    Box(
-        modifier =
-            modifier
-                .padding(start = 16.dp, end = totalHorizontalPadding, top = 10.dp, bottom = 10.dp)
-                .background(
-                    imageProvider = ImageProvider(backgroundResource),
-                    colorFilter = ColorFilter.tint(backgroundTint)
-                )
-                .enabled(enabled)
-                .clickable(
-                    onClick = onClick,
-                    rippleOverride =
-                        if (isAtLeastApi31) NoRippleOverride
-                        else R.drawable.glance_component_m3_button_ripple
-                )
-                .then(maybeRoundCorners(R.dimen.glance_component_button_corners)),
-        contentAlignment = Alignment.Center
-    ) {
-        if (icon != null) {
-            Row(verticalAlignment = Alignment.Vertical.CenterVertically) {
-                Image(
-                    provider = icon,
-                    contentDescription = null,
-                    colorFilter = ColorFilter.tint(contentColor),
-                    modifier = GlanceModifier.size(iconSize)
-                ) // TODO: do we need a content description for a button icon?
-                Spacer(GlanceModifier.width(8.dp))
-                Text()
-            }
-        } else {
-            Box(GlanceModifier.size(iconSize)) {
-                // for accessibility only: force button to be the same min height as the icon
-                // version.
-                // remove once b/290677181 is addressed
-            }
-            Text()
-        }
+        Backend.RemoteView ->
+            RemoteViewButtons.M3TextButton(
+                text = text,
+                onClick = onClick,
+                modifier = modifier,
+                enabled = enabled,
+                icon = icon,
+                contentColor = contentColor,
+                backgroundResource = backgroundResource,
+                backgroundTint = backgroundTint,
+                maxLines = maxLines,
+            )
     }
 }
-
-private val isAtLeastApi31
-    get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-
-private fun maybeRoundCorners(@DimenRes radius: Int) =
-    if (isAtLeastApi31) GlanceModifier.cornerRadius(radius) else GlanceModifier

@@ -19,12 +19,14 @@ package androidx.glance.appwidget.multiprocess
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.LayoutRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.AppWidgetSession
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceComponents
+import androidx.glance.appwidget.R
 import androidx.glance.session.GlanceSessionManager
 import androidx.glance.session.SessionManager
 import androidx.work.multiprocess.RemoteWorkerService
@@ -34,31 +36,42 @@ import androidx.work.multiprocess.RemoteWorkerService
  * to support multiprocess use cases where different widget receivers run in different processes.
  * Note that the worker must still run in the same process as the receiver.
  */
-public abstract class MultiProcessGlanceAppWidget : GlanceAppWidget() {
+public abstract class MultiProcessGlanceAppWidget(
+    @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout
+) : GlanceAppWidget(errorUiLayout) {
     /**
-     * Override [multiProcessConfig] to provide a [androidx.work.multiprocess.RemoteWorkerService]
-     * that runs in the same process as the [androidx.glance.appwidget.GlanceAppWidgetReceiver] that
-     * this is attached to.
+     * Override [getMultiProcessConfig] to provide a
+     * [androidx.work.multiprocess.RemoteWorkerService] that runs in the same process as the
+     * [androidx.glance.appwidget.GlanceAppWidgetReceiver] that this is attached to.
      *
      * If null, then this widget will be run with normal WorkManager, i.e. the same behavior as
      * GlanceAppWidget.
+     *
+     * If running in a non-default process, you should also declare a subclass of
+     * [androidx.glance.appwidget.MyPackageReplacedReceiver] in AndroidManifest.xml for that
+     * process, in order to handle [android.content.Intent.ACTION_MY_PACKAGE_REPLACED] broadcasts.
      */
-    public open val multiProcessConfig: MultiProcessConfig? = null
-
-    @get:RestrictTo(Scope.LIBRARY_GROUP)
-    final override val components: GlanceComponents?
-        get() = multiProcessConfig?.toGlanceComponents()
-
-    @get:RestrictTo(Scope.LIBRARY_GROUP)
-    protected final override val sessionManager: SessionManager
-        get() = if (multiProcessConfig != null) RemoteSessionManager else GlanceSessionManager
+    public open fun getMultiProcessConfig(context: Context): MultiProcessConfig? = null
 
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected final override fun createAppWidgetSession(
+    final override fun getComponents(context: Context): GlanceComponents? =
+        getMultiProcessConfig(context)?.toGlanceComponents()
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    final override fun getSessionManager(context: Context): SessionManager =
+        if (getMultiProcessConfig(context) != null) {
+            RemoteSessionManager
+        } else {
+            GlanceSessionManager
+        }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    final override fun createAppWidgetSession(
+        context: Context,
         id: AppWidgetId,
-        options: Bundle?
+        options: Bundle?,
     ): AppWidgetSession {
-        return multiProcessConfig?.let { config ->
+        return getMultiProcessConfig(context)?.let { config ->
             RemoteAppWidgetSession(this, config.remoteWorkerService, id, options)
         } ?: AppWidgetSession(this, id, options)
     }
@@ -112,9 +125,9 @@ public class MultiProcessConfig(
 
     internal fun toGlanceComponents() =
         GlanceComponents(
-            actionTrampolineActivity,
-            invisibleActionTrampolineActivity,
-            actionTrampolineActivity,
-            remoteViewsService
+            actionTrampolineActivity = actionTrampolineActivity,
+            invisibleActionTrampolineActivity = invisibleActionTrampolineActivity,
+            actionCallbackBroadcastReceiver = actionCallbackBroadcastReceiver,
+            remoteViewsService = remoteViewsService,
         )
 }

@@ -34,6 +34,7 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SendBroadcastActionTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -62,7 +63,7 @@ class SendBroadcastActionTest {
         val componentName =
             ComponentName(
                 "androidx.glance.appwidget.action",
-                "androidx.glance.appwidget.action.TestBroadcastReceiver"
+                "androidx.glance.appwidget.action.TestBroadcastReceiver",
             )
         val modifiers =
             GlanceModifier.clickable(actionSendBroadcast(intentActionString, componentName))
@@ -89,7 +90,7 @@ class SendBroadcastActionTest {
         val componentName =
             ComponentName(
                 "androidx.glance.appwidget.action",
-                "androidx.glance.appwidget.action.TestBroadcastReceiver"
+                "androidx.glance.appwidget.action.TestBroadcastReceiver",
             )
         val modifiers = GlanceModifier.clickable(actionSendBroadcast(componentName))
         val modifier = checkNotNull(modifiers.findModifier<ActionModifier>())

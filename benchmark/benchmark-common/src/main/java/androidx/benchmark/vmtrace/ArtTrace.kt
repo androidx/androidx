@@ -45,7 +45,7 @@ internal class ArtTrace(
                 clockId = clockId,
                 uuidProvider = uuidProvider,
                 pid = pid,
-                flushEvents
+                flushEvents,
             )
         VmTraceParser(artTrace, parser).parse()
         parser.flushEndEvents()
@@ -66,7 +66,7 @@ internal class ArtTrace(
         private val clockId: Int,
         private val uuidProvider: UuidProvider,
         private val pid: Int,
-        private val flushEvents: (List<TracePacket>) -> Unit
+        private val flushEvents: (List<TracePacket>) -> Unit,
     ) : VmTraceHandler {
 
         private data class ThreadTrack(
@@ -74,21 +74,19 @@ internal class ArtTrace(
             val name: String,
             var created: Boolean,
             var depth: Int = 0,
-            var isDefault: Boolean = false
+            var isDefault: Boolean = false,
         )
 
         private val events = mutableListOf<TracePacket>()
         private val threads = mutableMapOf<Int, ThreadTrack>()
-        private val eventNames = mutableListOf<EventName>()
+        private val eventNames =
+            mutableListOf<EventName>(
+                EventName(internOffset - 1L, RUN_WITH_MEASUREMENT_DISABLED_FULLNAME)
+            )
         private var version: Int = -1
         private var startTimeUs: Long = 0L
         private var maxTimeNs: Long = 0L
 
-        /**
-         * Offset from methodId -> name_iid in perfetto trace, required to prevent methods from
-         * starting at 0.
-         */
-        val internOffset = 100
         var hasEmittedInternedData: Boolean = false
 
         fun getInternedData(): InternedData? {
@@ -113,9 +111,17 @@ internal class ArtTrace(
             // pid, runtime name, clock
         }
 
+        private var pauseMeasurementMethodId = -1L
+        private var resumeMeasurementMethodId = -1L
+
         override fun addMethod(id: Long, info: MethodInfo) {
             // store same format as interned data to reduce memory cost
             eventNames.add(EventName(id + internOffset, info.fullName))
+            if (info.fullName == PAUSE_MEASUREMENT_FULLNAME) {
+                pauseMeasurementMethodId = id
+            } else if (info.fullName == RESUME_MEASUREMENT_FULLNAME) {
+                resumeMeasurementMethodId = id
+            }
         }
 
         override fun setStartTimeUs(startTimeUs: Long) {
@@ -127,12 +133,66 @@ internal class ArtTrace(
             this.threads[id] = ThreadTrack(uuid = uuidProvider(), name = name, created = false)
         }
 
+        fun storeMethodEvent(
+            threadTrack: ThreadTrack,
+            isBegin: Boolean,
+            timestampNs: Long,
+            nameIid: Long,
+        ) {
+            val internedData = getInternedData()
+            if (internedData != null) {
+                // first thread with an event becomes default track for all events in trace
+                // this is simple, but works ideally for common case
+                threadTrack.isDefault = true
+            }
+            events.add(
+                TracePacket(
+                    timestamp = timestampNs,
+                    trusted_packet_sequence_id = trustedPacketSequenceId,
+                    track_event =
+                        TrackEvent(
+                            type =
+                                if (isBegin) {
+                                    threadTrack.depth++
+                                    TrackEvent.Type.TYPE_SLICE_BEGIN
+                                } else {
+                                    threadTrack.depth = (threadTrack.depth - 1).coerceAtLeast(0)
+                                    TrackEvent.Type.TYPE_SLICE_END
+                                },
+                            track_uuid = if (threadTrack.isDefault) null else threadTrack.uuid,
+                            name_iid = if (isBegin) nameIid else null,
+                        ),
+                    interned_data = internedData,
+                    sequence_flags =
+                        if (internedData != null) {
+                            SequenceDataInitial
+                        } else {
+                            SequenceDataSubsequent
+                        },
+                    trace_packet_defaults =
+                        if (internedData != null) {
+                            TracePacketDefaults(
+                                timestamp_clock_id = clockId,
+                                track_event_defaults = TrackEventDefaults(threadTrack.uuid),
+                            )
+                        } else {
+                            null
+                        },
+                )
+            )
+            if (internedData != null || events.size > eventsBetweenFlush) {
+                // flush if we have the method name list interned (to prune memory usage),
+                // or when many events haven't flushed yet
+                flushEventsInternal()
+            }
+        }
+
         override fun addMethodAction(
             threadId: Int,
             methodId: Long,
             methodAction: TraceAction,
             threadTime: Int,
-            globalTime: Int
+            globalTime: Int,
         ) {
             val threadTrack = threads[threadId]!!
             if (!threadTrack.created) {
@@ -154,7 +214,7 @@ internal class ArtTrace(
                                 // cases since a benchmark isn't likely to overlap atrace events,
                                 // this
                                 // is just done out of caution
-                                disallow_merging_with_system_tracks = true
+                                disallow_merging_with_system_tracks = true,
                             ),
                     )
                 )
@@ -165,51 +225,35 @@ internal class ArtTrace(
             maxTimeNs = maxTimeNs.coerceAtLeast(timestampNs)
             val isBegin = methodAction == TraceAction.METHOD_ENTER
             if (isBegin || threadTrack.depth > 0) { // avoid unpaired end events
-                val internedData = getInternedData()
-                if (internedData != null) {
-                    // first thread with an event becomes default track for all events in trace
-                    // this is simple, but works ideally for common case
-                    threadTrack.isDefault = true
-                }
-                events.add(
-                    TracePacket(
-                        timestamp = timestampNs,
-                        trusted_packet_sequence_id = trustedPacketSequenceId,
-                        track_event =
-                            TrackEvent(
-                                type =
-                                    if (isBegin) {
-                                        threadTrack.depth++
-                                        TrackEvent.Type.TYPE_SLICE_BEGIN
-                                    } else {
-                                        threadTrack.depth = (threadTrack.depth - 1).coerceAtLeast(0)
-                                        TrackEvent.Type.TYPE_SLICE_END
-                                    },
-                                track_uuid = if (threadTrack.isDefault) null else threadTrack.uuid,
-                                name_iid = if (isBegin) methodId + internOffset else null
-                            ),
-                        interned_data = internedData,
-                        sequence_flags =
-                            if (internedData != null) {
-                                SequenceDataInitial
-                            } else {
-                                SequenceDataSubsequent
-                            },
-                        trace_packet_defaults =
-                            if (internedData != null) {
-                                TracePacketDefaults(
-                                    timestamp_clock_id = clockId,
-                                    track_event_defaults = TrackEventDefaults(threadTrack.uuid)
-                                )
-                            } else {
-                                null
-                            }
+                if (methodId == pauseMeasurementMethodId && isBegin) {
+                    // we know the begin of pause is also (functionally) the begin of
+                    // runWithMeasurementDisabled, so we inject that into the trace since it's an
+                    // inline function that isn't present in the actual codebase, and thus hidden
+                    // from the method trace
+                    storeMethodEvent(
+                        threadTrack,
+                        true,
+                        timestampNs,
+                        RUN_WITH_MEASUREMENT_DISABLED_INTERNID,
                     )
+                }
+                storeMethodEvent(
+                    threadTrack,
+                    isBegin = methodAction == TraceAction.METHOD_ENTER,
+                    timestampNs,
+                    methodId + internOffset,
                 )
-                if (internedData != null || events.size > eventsBetweenFlush) {
-                    // flush if we have the method name list interned (to prune memory usage),
-                    // or when many events haven't flushed yet
-                    flushEventsInternal()
+                if (methodId == resumeMeasurementMethodId && !isBegin) {
+                    // we know the end of resume is (functionally) also the end of
+                    // runWithMeasurementDisabled, so we inject that into the trace since it's an
+                    // inline function that isn't present in the actual codebase, and thus hidden
+                    // from the method trace
+                    storeMethodEvent(
+                        threadTrack,
+                        false,
+                        timestampNs,
+                        RUN_WITH_MEASUREMENT_DISABLED_INTERNID,
+                    )
                 }
             }
         }
@@ -225,7 +269,7 @@ internal class ArtTrace(
                                 TrackEvent(
                                     type = TrackEvent.Type.TYPE_SLICE_END,
                                     track_uuid = threadTrack.uuid,
-                                )
+                                ),
                         )
                     )
                 }
@@ -243,6 +287,19 @@ internal class ArtTrace(
         private const val clockId = 3
         private const val trustedPacketSequenceId: Int = 1_234_565_432
         private const val eventsBetweenFlush = 10_000
+        /**
+         * Offset from methodId -> name_iid in perfetto trace, required to prevent methods from
+         * starting at 0.
+         */
+        private const val internOffset = 100L
+
+        private const val PAUSE_MEASUREMENT_FULLNAME =
+            "androidx.benchmark.MicrobenchmarkScope.pauseMeasurement: ()V"
+        private const val RESUME_MEASUREMENT_FULLNAME =
+            "androidx.benchmark.MicrobenchmarkScope.resumeMeasurement: ()V"
+        private const val RUN_WITH_MEASUREMENT_DISABLED_FULLNAME =
+            "androidx.benchmark.MicrobenchmarkScope.runWithMeasurementDisabled: (Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;"
+        private const val RUN_WITH_MEASUREMENT_DISABLED_INTERNID = internOffset - 1
 
         private val SequenceDataInitial =
             TracePacket.SequenceFlags.SEQ_INCREMENTAL_STATE_CLEARED.value.or(

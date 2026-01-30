@@ -52,7 +52,7 @@ abstract class StableAidlPackageApi : DefaultTask() {
             aarFile.get().asFile,
             updatedAarFile.get().asFile,
             packagedDir.get().asFileTree,
-            name
+            name,
         )
     }
 }

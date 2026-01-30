@@ -22,7 +22,6 @@ import com.android.build.gradle.internal.fixtures.FakeGradleWorkExecutor
 import com.android.build.gradle.internal.fixtures.FakeInjectableService
 import com.google.common.truth.Truth
 import kotlin.reflect.jvm.javaMethod
-import org.gradle.api.DefaultTask
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.workers.WorkerExecutor
 import org.junit.Before
@@ -39,7 +38,6 @@ class StableAidlCheckApiTest {
     private val execOperations = FakeGradleExecOperations()
 
     private lateinit var workers: WorkerExecutor
-    private lateinit var instantiatorTask: DefaultTask
 
     @Before
     fun setup() {
@@ -51,11 +49,10 @@ class StableAidlCheckApiTest {
                     listOf(
                         FakeInjectableService(
                             FakeNoOpWorkAction::execOperations.getter.javaMethod!!,
-                            execOperations
+                            execOperations,
                         )
-                    )
+                    ),
                 )
-            instantiatorTask = tasks.create("task", DefaultTask::class.java)
         }
     }
 
@@ -81,10 +78,10 @@ class StableAidlCheckApiTest {
                 "--structured",
                 "--checkapi=equal",
                 expectedApiDir.absolutePath,
-                actualApiDir.absolutePath
+                actualApiDir.absolutePath,
             ),
             listOf(),
-            listOf()
+            listOf(),
         )
 
         // Check that executable only runs once and arguments are intact.
@@ -99,7 +96,7 @@ class StableAidlCheckApiTest {
                     "--structured",
                     "--checkapi=equal",
                     expectedApiDir.absolutePath,
-                    actualApiDir.absolutePath
+                    actualApiDir.absolutePath,
                 )
         }
     }

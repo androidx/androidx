@@ -92,7 +92,7 @@ class CameraXQuirksClassDetector : Detector(), Detector.UastScanner {
                 severity = Severity.ERROR,
                 enabledByDefault = false,
                 implementation =
-                    Implementation(CameraXQuirksClassDetector::class.java, Scope.JAVA_FILE_SCOPE)
+                    Implementation(CameraXQuirksClassDetector::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

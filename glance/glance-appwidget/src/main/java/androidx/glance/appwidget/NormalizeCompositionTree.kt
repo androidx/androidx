@@ -44,16 +44,36 @@ import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.removeModifiersOfType
 import androidx.glance.text.EmittableText
 import androidx.glance.toEmittableText
 import androidx.glance.unit.Dimension
 
-internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
+internal fun normalizeCompositionTree(
+    root: RemoteViewsRoot,
+    isRemoteCompose: Boolean,
+    isPreviewComposition: Boolean = false,
+) {
     coerceToOneChild(root)
     root.normalizeSizes()
     root.transformTree { view ->
-        if (view is EmittableLazyItemWithChildren) normalizeLazyListItem(view)
-        view.transformBackgroundImageAndActionRipple()
+        if (isPreviewComposition) {
+            view.removeActionModifiers()
+        }
+        if (view is EmittableLazyItemWithChildren && !isRemoteCompose) normalizeLazyListItem(view)
+
+        if (!isRemoteCompose) {
+            view.transformBackgroundImageAndActionRipple()
+        } else {
+            view
+        }
+    }
+}
+
+/** Remove any action modifiers within the tree. */
+private fun Emittable.removeActionModifiers() {
+    if (this !is EmittableSizeBox && this.modifier.any { it is ActionModifier }) {
+        this.modifier = this.modifier.removeModifiersOfType<ActionModifier>()
     }
 }
 
@@ -207,7 +227,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
             Log.w(
                 GlanceAppWidgetTag,
                 "Glance Buttons should not have a background image modifier. " +
-                    "Consider an image with a clickable modifier."
+                    "Consider an image with a clickable modifier.",
             )
             target.modifier = modifiersMinusBgImage
         }
@@ -219,7 +239,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
             Log.w(
                 GlanceAppWidgetTag,
                 "Glance Buttons should not have a background color modifier. " +
-                    "Consider a tinted image with a clickable modifier"
+                    "Consider a tinted image with a clickable modifier",
             )
             target.modifier = modifiersMinusBgColor
         }
@@ -286,6 +306,7 @@ private fun Emittable.transformBackgroundImageAndActionRipple(): Emittable {
                             provider = bgModifier.imageProvider
                             contentScale = bgModifier.contentScale
                             colorFilterParams = bgModifier.colorFilter?.colorFilterParams
+                            alpha = bgModifier.alpha
                         }
                 }
                 is BackgroundModifier.Color -> {
@@ -397,7 +418,7 @@ private fun GlanceModifier.warnIfMultipleClickableActions() {
         Log.w(
             GlanceAppWidgetTag,
             "More than one clickable defined on the same GlanceModifier, " +
-                "only the last one will be used."
+                "only the last one will be used.",
         )
     }
 }

@@ -62,8 +62,8 @@ class MetadataTagInsideApplicationTagDetector : Detector(), Detector.XmlScanner 
                 Severity.ERROR,
                 Implementation(
                     MetadataTagInsideApplicationTagDetector::class.java,
-                    Scope.MANIFEST_SCOPE
-                )
+                    Scope.MANIFEST_SCOPE,
+                ),
             )
     }
 }

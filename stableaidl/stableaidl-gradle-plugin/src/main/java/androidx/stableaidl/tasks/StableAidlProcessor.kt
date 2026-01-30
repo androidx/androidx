@@ -32,8 +32,7 @@ import java.nio.file.Path
 @Throws(IOException::class)
 fun callStableAidlProcessor(
     aidlExecutable: String,
-    @Suppress("UNUSED_PARAMETER")
-    frameworkLocation: String, // TODO: Unused until the framework has been fully annotated.
+    frameworkLocation: String?,
     importFolders: Iterable<File>,
     extraArgs: List<String?>,
     processExecutor: GradleProcessExecutor,
@@ -42,7 +41,7 @@ fun callStableAidlProcessor(
     packagedOutputDir: File? = null,
     dependencyFileProcessor: DependencyFileProcessor? = null,
     startDir: Path? = null,
-    inputFilePath: Path? = null
+    inputFilePath: Path? = null,
 ) {
     val builder = ProcessInfoBuilder()
     builder.setExecutable(aidlExecutable)
@@ -52,9 +51,10 @@ fun callStableAidlProcessor(
         builder.addArgs("-o" + sourceOutputDir.absolutePath)
     }
 
-    // TODO: Remove when the framework has been fully annotated.
     // Specify the framework as a pre-processed file for use in import statements.
-    // builder.addArgs("-p$frameworkLocation")
+    if (frameworkLocation != null) {
+        builder.addArgs("-p$frameworkLocation")
+    }
 
     // Specify all library AIDL directories for use in import statements.
     for (f in importFolders) {

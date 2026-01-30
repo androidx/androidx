@@ -54,7 +54,7 @@ class RowTest {
                 Row(
                     modifier = GlanceModifier.padding(2.dp),
                     verticalAlignment = Alignment.Bottom,
-                    horizontalAlignment = Alignment.End
+                    horizontalAlignment = Alignment.End,
                 ) {}
             }
 

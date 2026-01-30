@@ -24,9 +24,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.InstrumentationResults
+import androidx.benchmark.Markdown
 import androidx.benchmark.Outputs
 import androidx.benchmark.Shell
 import androidx.benchmark.UserInfo
+import androidx.benchmark.VirtualFile
+import androidx.benchmark.macro.MacrobenchmarkScope.KillMode
 import androidx.tracing.trace
 import java.io.File
 
@@ -44,112 +47,118 @@ fun collect(
     strictStability: Boolean = false,
     includeInStartupProfile: Boolean,
     filterPredicate: ((String) -> Boolean),
-    profileBlock: MacrobenchmarkScope.() -> Unit
-) {
+    profileBlock: MacrobenchmarkScope.() -> Unit,
+): BaselineProfileResult {
     val scope = buildMacrobenchmarkScope(packageName)
     val uid = UserInfo.currentUserId
     val startTime = System.nanoTime()
     // Ensure the device is awake
     scope.device.wakeUp()
-    // always kill the process at beginning of a collection.
-    scope.killProcess()
-
-    try {
-        var stableCount = 1
-        var lastProfile: String? = null
-        var iteration = 1
-        val finalMaxIterations = if (Arguments.dryRunMode) 1 else maxIterations
-
-        while (iteration <= finalMaxIterations) {
-            trace("generate profile for $packageName ($iteration)") {
-                val mode =
-                    CompilationMode.Partial(
-                        baselineProfileMode = BaselineProfileMode.Disable,
-                        warmupIterations = 1
-                    )
-                if (iteration == 1) {
-                    Log.d(TAG, "Resetting compiled state for $packageName for stable profiles.")
-                    mode.resetAndCompile(
-                        scope,
-                        allowCompilationSkipping = false,
-                    ) {
-                        scope.iteration = iteration
-                        profileBlock(scope)
-                    }
-                } else {
-                    // Don't reset for subsequent iterations
-                    Log.d(TAG, "Killing package $packageName")
-                    scope.killProcess()
-                    mode.compileImpl(scope) {
-                        scope.iteration = iteration
-                        Log.d(TAG, "Compile iteration (${scope.iteration}) for $packageName")
-                        profileBlock(scope)
-                    }
-                }
-            }
-            val unfilteredProfile =
-                if (Build.VERSION.SDK_INT >= 33) {
-                    extractProfile(packageName)
-                } else {
-                    extractProfileRooted(uid, packageName)
-                }
-
-            // Check stability
-            val lastRuleSet = lastProfile?.lines()?.toSet() ?: emptySet()
-            val existingRuleSet = unfilteredProfile.lines().toSet()
-            if (lastRuleSet != existingRuleSet) {
-                if (iteration != 1) {
-                    Log.d(TAG, "Unstable profiles during iteration $iteration")
-                }
-                lastProfile = unfilteredProfile
-                stableCount = 1
-            } else {
-                Log.d(TAG, "Profiles stable in iteration $iteration (for $stableCount iterations)")
-                stableCount += 1
-                if (stableCount == stableIterations) {
-                    Log.d(TAG, "Baseline profile for $packageName is stable.")
-                    break
-                }
-            }
-            iteration += 1
-        }
-
-        if (strictStability && !Arguments.dryRunMode) {
-            check(stableCount == stableIterations) {
-                "Baseline profiles for $packageName are not stable after $maxIterations."
-            }
-        }
-
-        check(!lastProfile.isNullOrBlank()) {
-            "Generated Profile is empty, before filtering. Ensure your profileBlock" +
-                " invokes the target app, and runs a non-trivial amount of code"
-        }
-
-        val profile =
-            filterProfileRulesToTargetP(
-                profile = lastProfile,
-                sortRules = true,
-                filterPredicate = filterPredicate
-            )
-        reportResults(
-            profile = profile,
-            uniqueFilePrefix = uniqueName,
-            startTime = startTime,
-            includeInStartupProfile = includeInStartupProfile
-        )
-    } finally {
+    val killMode = KillMode(isKillSoftly = true)
+    scope.withKillMode(current = KillMode.None, override = killMode) {
+        // always kill the process at beginning of a collection.
         scope.killProcess()
+        try {
+            var stableCount = 1
+            var lastProfile: String? = null
+            var iteration = 1
+            val finalMaxIterations = if (Arguments.dryRunMode) 1 else maxIterations
+
+            while (iteration <= finalMaxIterations) {
+                trace("generate profile for $packageName ($iteration)") {
+                    val mode =
+                        CompilationMode.Partial(
+                            baselineProfileMode = BaselineProfileMode.Disable,
+                            warmupIterations = 1,
+                        )
+                    if (iteration == 1) {
+                        Log.d(TAG, "Resetting compiled state for $packageName for stable profiles.")
+                        mode.resetAndCompile(scope, allowCompilationSkipping = false) {
+                            scope.iteration = iteration
+                            profileBlock(scope)
+                        }
+                    } else {
+                        // Don't reset for subsequent iterations
+                        Log.d(TAG, "Killing package $packageName")
+                        // Always flush ART profiles before kill for subsequent iterations
+                        // so profiles are not dropped.
+                        scope.withKillMode(
+                            current = killMode,
+                            override = killMode.copy(flushArtProfiles = true),
+                        ) {
+                            scope.killProcess()
+                        }
+                        mode.compileImpl(scope) {
+                            scope.iteration = iteration
+                            Log.d(TAG, "Compile iteration (${scope.iteration}) for $packageName")
+                            profileBlock(scope)
+                        }
+                    }
+                }
+                val unfilteredProfile =
+                    if (Build.VERSION.SDK_INT >= 33) {
+                        extractProfile(packageName)
+                    } else {
+                        extractProfileRooted(uid, packageName)
+                    }
+
+                // Check stability
+                val lastRuleSet = lastProfile?.lines()?.toSet() ?: emptySet()
+                val existingRuleSet = unfilteredProfile.lines().toSet()
+                if (lastRuleSet != existingRuleSet) {
+                    if (iteration != 1) {
+                        Log.d(TAG, "Unstable profiles during iteration $iteration")
+                    }
+                    lastProfile = unfilteredProfile
+                    stableCount = 1
+                } else {
+                    Log.d(
+                        TAG,
+                        "Profiles stable in iteration $iteration (for $stableCount iterations)",
+                    )
+                    stableCount += 1
+                    if (stableCount == stableIterations) {
+                        Log.d(TAG, "Baseline profile for $packageName is stable.")
+                        break
+                    }
+                }
+                iteration += 1
+            }
+
+            if (strictStability && !Arguments.dryRunMode) {
+                check(stableCount == stableIterations) {
+                    "Baseline profiles for $packageName are not stable after $maxIterations."
+                }
+            }
+
+            check(!lastProfile.isNullOrBlank()) {
+                "Generated Profile is empty, before filtering. Ensure your profileBlock" +
+                    " invokes the target app, and runs a non-trivial amount of code"
+            }
+
+            val profile =
+                filterProfileRulesToTargetP(
+                    profile = lastProfile,
+                    sortRules = true,
+                    filterPredicate = filterPredicate,
+                )
+            return reportResults(
+                profile = profile,
+                uniqueFilePrefix = uniqueName,
+                startTime = startTime,
+                includeInStartupProfile = includeInStartupProfile,
+            )
+        } finally {
+            scope.killProcess()
+        }
     }
 }
 
 /** Builds a [MacrobenchmarkScope] instance after checking for the necessary pre-requisites. */
 private fun buildMacrobenchmarkScope(packageName: String): MacrobenchmarkScope {
     Arguments.throwIfError()
-    require(
-        Build.VERSION.SDK_INT >= 33 || (Build.VERSION.SDK_INT >= 28 && Shell.isSessionRooted())
-    ) {
-        "Baseline Profile collection requires API 33+, or a rooted" +
-            " device running API 28 or higher and rooted adb session (via `adb root`)."
+    require(DeviceInfo.supportsBaselineProfileCaptureError == null) {
+        DeviceInfo.supportsBaselineProfileCaptureError!!
     }
     getInstalledPackageInfo(packageName) // throws clearly if not installed
     return MacrobenchmarkScope(packageName, launchWithClearTask = true)
@@ -160,21 +169,18 @@ private fun reportResults(
     profile: String,
     uniqueFilePrefix: String,
     startTime: Long,
-    includeInStartupProfile: Boolean
-) {
-    // Write a file with a timestamp to be able to disambiguate between runs with the same
-    // unique name.
-
+    includeInStartupProfile: Boolean,
+): BaselineProfileResult {
     val (fileName, tsFileName) =
-        if (includeInStartupProfile && Arguments.enableStartupProfiles) {
+        if (includeInStartupProfile) {
             arrayOf(
                 "$uniqueFilePrefix-startup-prof.txt",
-                "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt"
+                "$uniqueFilePrefix-startup-prof-${Outputs.dateToFileName()}.txt",
             )
         } else {
             arrayOf(
                 "$uniqueFilePrefix-baseline-prof.txt",
-                "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt"
+                "$uniqueFilePrefix-baseline-prof-${Outputs.dateToFileName()}.txt",
             )
         }
 
@@ -185,22 +191,27 @@ private fun reportResults(
             it.writeText(profile)
         }
 
+    val resultsContainer =
+        if (includeInStartupProfile) {
+            BaselineProfileResult(startupProfiles = listOf(tsAbsolutePath))
+        } else {
+            BaselineProfileResult(baselineProfiles = listOf(tsAbsolutePath))
+        }
+
     val totalRunTime = System.nanoTime() - startTime
     val results =
         Summary(
             totalRunTime = totalRunTime,
             profilePath = absolutePath,
-            profileTsPath = tsAbsolutePath
+            profileTsPath = tsAbsolutePath,
         )
     InstrumentationResults.instrumentationReport {
         // Ideally would link trace as a profiler result for consistency with other codepaths,
         // but we don't to change BP's custom link appearance to the default simple one
-        reportSummaryToIde(
-            testName = uniqueFilePrefix,
-            message = summaryRecord(results),
-        )
+        reportSummaryToIde(testName = uniqueFilePrefix, message = summaryRecord(results))
         Log.d(TAG, "Total Run Time Ns: $totalRunTime")
     }
+    return resultsContainer
 }
 
 /**
@@ -216,8 +227,14 @@ private fun extractProfile(packageName: String): String {
     val expected = "Profile saved to '/data/misc/profman/$packageName-primary.prof.txt'"
 
     // Output of profman was empty in previous version and can be `expected` on newer versions.
-    check(stdout.isBlank() || stdout == expected) {
-        "Expected `pm dump-profiles` stdout to be either black or `$expected` but was $stdout"
+    // Note that it sometimes starts with e.g. :
+    // `Waiting for app processes to flush profiles...\nApp processes flushed profiles in 0ms`
+    check(stdout.isBlank() || stdout.endsWith(expected)) {
+        "Expected `pm dump-profiles` stdout to be either blank or end with `$expected` but was $stdout"
+    }
+
+    if (UserInfo.isAdditionalUser) {
+        return VirtualFile.fromPath("/data/misc/profman/$packageName-primary.prof.txt").readText()
     }
 
     val fileName = "$packageName-primary.prof.txt"
@@ -294,7 +311,7 @@ private fun profmanGetProfileRules(apkPath: String, pathOptions: List<String>): 
 internal fun filterProfileRulesToTargetP(
     profile: String,
     sortRules: Boolean = true,
-    filterPredicate: ((String) -> Boolean)
+    filterPredicate: ((String) -> Boolean),
 ): String {
     val rules = profile.lines()
     var filteredRules =
@@ -324,13 +341,12 @@ private fun summaryRecord(record: Summary): String {
     // Links
 
     // Link to a path with timestamp to prevent studio from caching the file
-    val relativePath =
-        Outputs.relativePathFor(record.profileTsPath).replace("(", "\\(").replace(")", "\\)")
+    val relativePath = Outputs.relativePathFor(record.profileTsPath)
 
     summary.append(
         """
             Total run time Ns: ${record.totalRunTime}.
-            Baseline profile [results](file://$relativePath)
+            Baseline profile ${Markdown.createFileLink("results", relativePath)}
         """
             .trimIndent()
     )
@@ -369,4 +385,12 @@ private data class Summary(
     val totalRunTime: Long,
     val profilePath: String,
     val profileTsPath: String,
+)
+
+/** A container for the results of collecting Baseline Profiles using the [collect] API. */
+public class BaselineProfileResult(
+    /** A list of absolute file paths to the generated baseline profiles. */
+    val baselineProfiles: List<String> = emptyList(),
+    /** A list of absolute file paths to the generated startup profiles. */
+    val startupProfiles: List<String> = emptyList(),
 )

@@ -35,7 +35,7 @@ class TimelineModeTest {
                     TimeInterval(),
                     TimeInterval(time1, time2),
                     TimeInterval(time2, time3),
-                    TimeInterval(time4)
+                    TimeInterval(time4),
                 )
             )
         val intervals = timeBoundEntries.timeIntervals

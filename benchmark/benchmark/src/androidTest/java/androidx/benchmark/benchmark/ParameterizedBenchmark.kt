@@ -29,7 +29,7 @@ import org.junit.runners.Parameterized.Parameters
 @RunWith(Parameterized::class)
 class ParameterizedBenchmark(
     @Suppress("unused") private val input: Int,
-    @Suppress("unused") private val stringInput: String
+    @Suppress("unused") private val stringInput: String,
 ) {
     companion object {
         @JvmStatic

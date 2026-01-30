@@ -26,16 +26,12 @@ import com.android.build.api.dsl.ManagedVirtualDevice
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.baselineprofile")
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 23
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-    testOptions.managedDevices.devices {
+    testOptions.managedDevices.allDevices {
         pixel6Api31(ManagedVirtualDevice) {
             device = "Pixel 6"
             apiLevel = 31
@@ -51,7 +47,7 @@ android {
         // not in this producer to test baseline profile matching fallback.
     }
     targetProjectPath = ":benchmark:integration-tests:baselineprofile-flavors-consumer"
-    namespace "androidx.benchmark.integration.baselineprofile.flavors.producer"
+    namespace = "androidx.benchmark.integration.baselineprofile.flavors.producer"
 }
 
 dependencies {
@@ -61,7 +57,8 @@ dependencies {
     implementation(libs.testExtJunit)
     implementation(libs.testCore)
     implementation(libs.testRunner)
-    implementation(libs.testUiautomator)
+    implementation(project(":test:uiautomator:uiautomator"))
+    implementation(project(":test:uiautomator:uiautomator-shell"))
     implementation(libs.testExtTruth)
 }
 

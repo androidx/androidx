@@ -1,0 +1,23 @@
+// Baseline format: 1.0
+GetterSetterNames: androidx.room3.ColumnInfo#index:
+    Invalid name for boolean property `index`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.room3.Database#exportSchema:
+    Invalid name for boolean property `exportSchema`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.room3.Entity#inheritSuperIndices:
+    Invalid name for boolean property `inheritSuperIndices`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.room3.ForeignKey#deferred:
+    Invalid name for boolean property `deferred`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.room3.Index#unique:
+    Invalid name for boolean property `unique`. Should start with one of `has`, `can`, `should`, `is`.
+GetterSetterNames: androidx.room3.PrimaryKey#autoGenerate:
+    Invalid name for boolean property `autoGenerate`. Should start with one of `has`, `can`, `should`, `is`.
+
+
+PublicTypedef: androidx.room3.ColumnInfo.Collate:
+    Don't expose @IntDef: Collate must be hidden.
+PublicTypedef: androidx.room3.ColumnInfo.SQLiteTypeAffinity:
+    Don't expose @IntDef: SQLiteTypeAffinity must be hidden.
+PublicTypedef: androidx.room3.ForeignKey.Action:
+    Don't expose @IntDef: Action must be hidden.
+PublicTypedef: androidx.room3.OnConflictStrategy:
+    Don't expose @IntDef: OnConflictStrategy must be hidden.

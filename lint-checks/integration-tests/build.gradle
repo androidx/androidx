@@ -22,15 +22,17 @@
  * modifying its settings.
  */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.Version
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.8.0")
+    implementation(project(":annotation:annotation"))
+    implementation(project(":core:core"))
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     implementation(libs.kotlinStdlib)
 }
@@ -42,13 +44,11 @@ androidx {
 
 android {
     lintOptions {
-        // lint is supposed to detect errors in this project
-        // We don't need to see the errors in stdout
-        textOutput("${buildDir}/lint-results-debug.txt") // Set to this value for b/189877657
         // We don't want errors to cause lint to fail
-        abortOnError false
+        abortOnError = false
     }
-    namespace "androidx.lint.integration.tests"
+    namespace = "androidx.lint.integration.tests"
+    compileSdk = 36
 }
 
 
@@ -74,15 +74,5 @@ class CompareFilesTask extends DefaultTask {
                 "Actual   output at: " + actualFile + "\n" +
                 "Expected output at: " + expectedFile + "\n")
         }
-    }
-}
-
-// workaround for b/189877657
-afterEvaluate {
-    tasks.findByName("copyDebugAndroidLintReports")?.configure {
-        enabled = false
-    }
-    tasks.findByName("copyDebugLintReports")?.configure {
-        enabled = false
     }
 }

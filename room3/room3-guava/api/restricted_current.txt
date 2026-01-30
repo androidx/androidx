@@ -1,0 +1,9 @@
+// Signature format: 4.0
+package androidx.room3.guava {
+
+  @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class GuavaRoom {
+    method public static <T> com.google.common.util.concurrent.ListenableFuture<T> createListenableFuture(androidx.room3.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T> block);
+  }
+
+}
+

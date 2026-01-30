@@ -72,7 +72,7 @@ class BanParcelableUsage : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanParcelableUsage::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanParcelableUsage::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

@@ -25,7 +25,7 @@ class BanNullMarkedTest :
     AbstractLintDetectorTest(
         useDetector = BanNullMarked(),
         useIssues = listOf(BanNullMarked.ISSUE),
-        stubs = arrayOf(nullMarkedStub)
+        stubs = arrayOf(nullMarkedStub),
     ) {
     @Test
     fun `Usage of NullMarked in a package-info file`() {

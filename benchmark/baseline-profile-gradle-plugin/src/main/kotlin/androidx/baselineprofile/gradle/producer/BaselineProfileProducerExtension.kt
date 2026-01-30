@@ -33,7 +33,7 @@ open class BaselineProfileProducerExtension {
             }
             return project.extensions.create(
                 EXTENSION_NAME,
-                BaselineProfileProducerExtension::class.java
+                BaselineProfileProducerExtension::class.java,
             )
         }
     }
@@ -44,7 +44,7 @@ open class BaselineProfileProducerExtension {
      * managed devices. For example, in the following configuration, the name is `pixel6Api31`.
      *
      * ```
-     *  testOptions.managedDevices.devices {
+     *  testOptions.managedDevices.allDevices {
      *      pixel6Api31(ManagedVirtualDevice) {
      *          device = "Pixel 6"
      *          apiLevel = 31

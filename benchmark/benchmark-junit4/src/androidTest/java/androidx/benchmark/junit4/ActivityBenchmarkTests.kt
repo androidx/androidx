@@ -17,8 +17,8 @@
 package androidx.benchmark.junit4
 
 import android.app.Activity
+import androidx.annotation.WorkerThread
 import androidx.benchmark.IsolationActivity
-import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -30,11 +30,17 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@WorkerThread
 fun BenchmarkRule.validateRunWithIsolationActivityHidden() {
-    // isolation activity *not* on top
-    assertFalse(IsolationActivity.resumed)
+    var first = true
 
-    measureRepeated {}
+    measureRepeatedOnMainThread {
+        if (first) {
+            // isolation activity *not* on top
+            assertFalse(IsolationActivity.resumed)
+            first = false
+        }
+    }
 }
 
 @LargeTest
@@ -51,7 +57,7 @@ class ActivityScenarioTest {
 
     @Test
     fun verifyActivityLaunched() {
-        activityScenario.onActivity { benchmarkRule.validateRunWithIsolationActivityHidden() }
+        benchmarkRule.validateRunWithIsolationActivityHidden()
     }
 }
 
@@ -63,7 +69,6 @@ class ActivityScenarioRuleTest {
     @get:Rule val activityRule = ActivityScenarioRule(Activity::class.java)
 
     @FlakyTest(bugId = 187106319)
-    @UiThreadTest
     @Test
     fun verifyActivityLaunched() {
         benchmarkRule.validateRunWithIsolationActivityHidden()
@@ -79,7 +84,6 @@ class ActivityTestRuleTest {
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule(Activity::class.java)
 
-    @UiThreadTest
     @Test
     fun verifyActivityLaunched() {
         benchmarkRule.validateRunWithIsolationActivityHidden()

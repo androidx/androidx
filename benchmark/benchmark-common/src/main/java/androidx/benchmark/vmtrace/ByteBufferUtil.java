@@ -15,7 +15,7 @@
  */
 package androidx.benchmark.vmtrace;
 
-import androidx.annotation.NonNull;
+import org.jspecify.annotations.NonNull;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,8 +30,8 @@ class ByteBufferUtil {
     private ByteBufferUtil() {
     }
 
-    @NonNull
-    public static ByteBuffer mapFile(@NonNull File f, long offset, @NonNull ByteOrder byteOrder)
+    public static @NonNull ByteBuffer mapFile(@NonNull File f, long offset,
+            @NonNull ByteOrder byteOrder)
             throws IOException {
         FileInputStream dataFile = new FileInputStream(f);
         try {

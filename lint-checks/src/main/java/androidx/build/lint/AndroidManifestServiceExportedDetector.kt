@@ -60,8 +60,8 @@ class AndroidManifestServiceExportedDetector : Detector(), XmlScanner {
                 implementation =
                     Implementation(
                         AndroidManifestServiceExportedDetector::class.java,
-                        Scope.MANIFEST_SCOPE
-                    )
+                        Scope.MANIFEST_SCOPE,
+                    ),
             )
     }
 }

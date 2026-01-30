@@ -21,17 +21,16 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     compileOnly(project(":annotation:annotation-sampled"))
 
     implementation(project(":glance:glance"))
@@ -46,14 +45,14 @@ dependencies {
 
 androidx {
     name = "Glance AppWidget Testing Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2023"
     description = "Contains the sample code for testing the Glance AppWidget Composables"
 }
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        compileSdk = 35
     }
-    namespace "androidx.glance.appwidget.testing.samples"
+    namespace = "androidx.glance.appwidget.testing.samples"
 }

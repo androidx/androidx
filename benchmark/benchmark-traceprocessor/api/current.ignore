@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedFromKotlin: androidx.benchmark.traceprocessor.TraceProcessor.Handle#getTraceProcessor():
+    Source breaking change: method androidx.benchmark.traceprocessor.TraceProcessor.Handle.getTraceProcessor() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.traceprocessor.TraceProcessor.Session.Handle#getSession():
+    Source breaking change: method androidx.benchmark.traceprocessor.TraceProcessor.Session.Handle.getSession() can no longer be resolved from Kotlin source

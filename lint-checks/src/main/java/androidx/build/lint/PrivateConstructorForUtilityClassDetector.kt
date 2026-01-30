@@ -107,8 +107,8 @@ class PrivateConstructorForUtilityClassDetector : Detector(), Detector.UastScann
                 Severity.ERROR,
                 Implementation(
                     PrivateConstructorForUtilityClassDetector::class.java,
-                    Scope.JAVA_FILE_SCOPE
-                )
+                    Scope.JAVA_FILE_SCOPE,
+                ),
             )
     }
 }

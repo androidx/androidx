@@ -49,7 +49,7 @@ class OutsideGroupExperimentalAnnotatedClass {
 
     @kotlin.OptIn(
         RequiresOptInSampleAnnotationJava::class,
-        RequiresOptInSampleAnnotationJavaDuplicate::class
+        RequiresOptInSampleAnnotationJavaDuplicate::class,
     )
     fun invalidMethodWithMultipleOptInsWithLineBreaks() {
         // Nothing to see here.
@@ -57,7 +57,7 @@ class OutsideGroupExperimentalAnnotatedClass {
 
     @kotlin.OptIn(
         RequiresOptInSampleAnnotationJava::class,
-        RequiresOptInSampleAnnotationJavaDuplicate::class
+        RequiresOptInSampleAnnotationJavaDuplicate::class,
     )
     fun invalidMethodWithMultipleOptInsWithoutLineBreaks() {
         // Nothing to see here.
@@ -70,7 +70,7 @@ class OutsideGroupExperimentalAnnotatedClass {
 
     @androidx.annotation.OptIn(
         RequiresAndroidXOptInSampleAnnotationJava::class,
-        RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class
+        RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class,
     )
     fun invalidMethodWithMultipleAndroidXOptInsWithLineBreaks() {
         // Nothing to see here.
@@ -78,7 +78,7 @@ class OutsideGroupExperimentalAnnotatedClass {
 
     @androidx.annotation.OptIn(
         RequiresAndroidXOptInSampleAnnotationJava::class,
-        RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class
+        RequiresAndroidXOptInSampleAnnotationJavaDuplicate::class,
     )
     fun invalidMethodWithMultipleAndroidXOptInsWithoutLineBreaks() {
         // Nothing to see here.

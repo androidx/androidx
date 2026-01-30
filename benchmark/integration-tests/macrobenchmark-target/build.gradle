@@ -17,34 +17,34 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+            )
         }
     }
-    namespace "androidx.benchmark.integration.macrobenchmark.target"
+    compileSdk = 35
+    namespace = "androidx.benchmark.integration.macrobenchmark.target"
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
-    implementation(androidxArtifact(":appcompat:appcompat"))
-    implementation(androidxArtifact(":activity:activity"))
-    // TODO: artifact is not found, so commented out
-    // implementation(androidxArtifact(":profileinstaller:profileinstaller"))
-    // TODO: artifact is not found, so commented out
-    // implementation(androidxArtifact(":recyclerview:recyclerview"))
-    implementation(androidxArtifact(":tracing:tracing-ktx"))
-    implementation(androidxArtifact(":tracing:tracing-perfetto"))
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.activity:activity:1.10.0")
+    implementation(project(":profileinstaller:profileinstaller"))
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation(project(":tracing:tracing-ktx"))
+    implementation(project(":tracing:tracing-perfetto"))
     implementation(libs.material)
 
-    implementation(androidxArtifact(":work:work-runtime"))
-    implementation(androidxArtifact(":work:work-runtime-ktx"))
-    implementation(androidxArtifact(":room:room-runtime"))
+    implementation("androidx.work:work-runtime:2.11.0")
+    implementation("androidx.work:work-runtime-ktx:2.11.0")
 }

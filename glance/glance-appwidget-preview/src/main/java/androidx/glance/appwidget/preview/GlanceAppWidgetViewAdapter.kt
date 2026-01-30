@@ -44,17 +44,13 @@ internal class GlanceAppWidgetViewAdapter : AppWidgetHostView {
     constructor(
         context: Context,
         attrs: AttributeSet,
-        @Suppress("UNUSED_PARAMETER") defStyleAttr: Int
+        @Suppress("UNUSED_PARAMETER") defStyleAttr: Int,
     ) : super(context) {
         init(attrs)
     }
 
     @OptIn(ExperimentalGlanceRemoteViewsApi::class)
-    internal fun init(
-        className: String,
-        methodName: String,
-        size: DpSize,
-    ) {
+    internal fun init(className: String, methodName: String, size: DpSize) {
         val content =
             @Composable {
                 val composer = currentComposer
