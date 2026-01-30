@@ -62,7 +62,8 @@ androidXMultiplatform {
         jbMain {
             dependsOn(commonMain)
             dependencies {
-                implementation(project(":navigationevent:navigationevent"))
+                def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+                implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
             }
         }
 
