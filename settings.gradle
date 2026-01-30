@@ -366,24 +366,6 @@ ext.projectDependencyGraph = createProjectDependencyGraph(
 @Field Set<String> filteredProjects = new HashSet<String>()
 filteredProjects.add(":lint-checks")
 
-static def shouldIncludeInJetBrainsFork(String name, filePath) {
-    if (filePath != null && filePath instanceof File) {
-        // This overload used only for projects outside of root directory
-        return false
-    }
-    if (name.contains(":hero") ||
-        name.startsWith(":emoji2") ||
-        name.startsWith(":hilt") ||
-        name.startsWith(":room") ||
-        name.startsWith(":sqlite") ||
-        name.startsWith(":tv") ||
-        name.startsWith(":wear") ||
-        name.startsWith(":xr")) {
-        return false
-    }
-    return true
-}
-
 // Calling includeProject(name, filePath) is shorthand for:
 //
 //   include(name)
@@ -394,8 +376,6 @@ static def shouldIncludeInJetBrainsFork(String name, filePath) {
 //   the Maven artifactId
 //
 def includeProject(String name, filePath, List<BuildType> filter = []) {
-    if (!shouldIncludeInJetBrainsFork(name, filePath)) { return }
-
     if (projectPrefixFilter.isConfigured) {
         if (projectPrefixFilter.matches(name)) {
             filteredProjects.add(name)
