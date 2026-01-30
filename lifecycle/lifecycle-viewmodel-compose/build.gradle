@@ -102,6 +102,11 @@ androidXMultiplatform {
             }
         }
 
+        jvmMain.dependsOn(nonAndroidMain)
+        jvmTest.dependsOn(nonAndroidTest)
+        desktopMain.dependsOn(jvmMain)
+        desktopTest.dependsOn(jvmTest)
+
         desktopMain {
             dependsOn(nonAndroidMain)
         }

@@ -83,6 +83,15 @@ androidXMultiplatform {
             }
         }
 
+        jbMain.dependsOn(nonAndroidMain)
+        jbTest.dependsOn(nonAndroidTest)
+        nativeMain.dependsOn(jbMain)
+        nativeTest.dependsOn(jbTest)
+        webMain.dependsOn(jbMain)
+        webTest.dependsOn(jbTest)
+        desktopMain.dependsOn(jbMain)
+        desktopTest.dependsOn(jbTest)
+
         desktopMain {
             dependsOn(nonAndroidMain)
         }

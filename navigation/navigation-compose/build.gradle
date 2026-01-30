@@ -84,6 +84,11 @@ androidXMultiplatform {
             }
         }
 
+        jvmMain.dependsOn(nonAndroidMain)
+        jvmTest.dependsOn(nonAndroidTest)
+        desktopMain.dependsOn(jvmMain)
+        desktopTest.dependsOn(jvmTest)
+
         androidMain.dependencies {
             api("androidx.activity:activity-compose:1.8.0")
             api("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.2")

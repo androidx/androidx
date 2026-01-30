@@ -78,6 +78,11 @@ androidXMultiplatform {
         nonAndroidMain.dependsOn(commonMain)
         nonAndroidTest.dependsOn(commonTest)
 
+        jvmMain.dependsOn(nonAndroidMain)
+        jvmTest.dependsOn(nonAndroidTest)
+        desktopMain.dependsOn(jvmMain)
+        desktopTest.dependsOn(jvmTest)
+
         desktopMain.dependsOn(nonAndroidMain)
         desktopTest.dependsOn(nonAndroidTest)
 

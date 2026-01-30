@@ -76,6 +76,20 @@ androidXMultiplatform {
             implementation(libs.junit)
         }
 
+        jbMain.dependsOn(nonAndroidMain)
+        jbTest.dependsOn(nonAndroidTest)
+        nativeMain.dependsOn(jbMain)
+        nativeTest.dependsOn(jbTest)
+        webMain.dependsOn(jbMain)
+        webTest.dependsOn(jbTest)
+        desktopMain.dependsOn(jbMain)
+        desktopTest.dependsOn(jbTest)
+
+        jvmCommonMain.dependsOn(jvmAndAndroidMain)
+        jvmCommonTest.dependsOn(jvmAndAndroidTest)
+        desktopMain.dependsOn(jvmCommonMain)
+        desktopTest.dependsOn(jvmCommonTest)
+
         androidMain.dependencies {
             api(project(":lifecycle:lifecycle-runtime"))
             api(project(":lifecycle:lifecycle-viewmodel"))
