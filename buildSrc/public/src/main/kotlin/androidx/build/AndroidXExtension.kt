@@ -205,7 +205,7 @@ abstract class AndroidXExtension(
     }
 
     private fun chooseProjectVersion() {
-        if (JetBrainsPublication.shouldPublish(project)) return
+        if (isJetBrainsFork(project) && JetBrainsPublication.shouldPublish(project)) return
         val version: Version
         val group: String? = mavenGroup?.group
         val groupVersion: Version? = mavenGroup?.atomicGroupVersion
