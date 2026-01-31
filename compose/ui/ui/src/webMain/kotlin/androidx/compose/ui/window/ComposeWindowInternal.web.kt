@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.draganddrop.WebDragAndDropManager
 import androidx.compose.ui.events.EventTargetListener
@@ -69,10 +68,9 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpRect
-import androidx.compose.ui.unit.toIntSize
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.InteropViewGroup
 import androidx.compose.ui.viewinterop.LocalInteropContainer
@@ -94,8 +92,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
-import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoRenderDelegate
 import org.jetbrains.skiko.hostOs
@@ -313,10 +309,8 @@ internal class ComposeWindow(
         }
 
     private val skiaLayer: SkiaLayer = SkiaLayer().apply {
-        renderDelegate = object : SkikoRenderDelegate {
-            override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
-                scene.render(canvas.asComposeCanvas(), nanoTime)
-            }
+        renderDelegate = SkikoRenderDelegate { canvas, _, _, nanoTime ->
+            scene.render(canvas.asComposeCanvas(), nanoTime)
         }
     }
 
@@ -324,7 +318,7 @@ internal class ComposeWindow(
         coroutineContext = Dispatchers.Main,
         platformContext = platformContext,
         density = density,
-        invalidate = skiaLayer::needRedraw,
+        invalidate = skiaLayer::needRender,
     )
 
     private val systemThemeObserver = getSystemThemeObserver()
@@ -484,7 +478,15 @@ internal class ComposeWindow(
     }
 
     private fun resize(boxSize: DpSize) {
-        val sizeInPx = boxSize.toSize(density).toIntSize()
+        val sizeInPx =
+            if (boxSize.isSpecified) {
+                IntSize(
+                    (boxSize.width.value * density.density).toInt(),
+                    (boxSize.height.value * density.density).toInt()
+                )
+            } else {
+                IntSize.Zero
+            }
 
         canvas.width = sizeInPx.width
         canvas.height = sizeInPx.height
@@ -558,9 +560,9 @@ internal class ComposeWindow(
             ComposeScenePointer(
                 id = PointerId(touch.identifier.toLong()),
                 position = Offset(
-                    x = touch.clientX - offset.x,
-                    y = touch.clientY - offset.y
-                ) * density.density,
+                    x = (touch.clientX - offset.x) * density.density,
+                    y = (touch.clientY - offset.y) * density.density
+                ),
                 pressed = pressed,
                 type = PointerType.Touch,
                 pressure = touchForce(touch).toFloat()
@@ -647,9 +649,9 @@ internal class ComposeWindow(
 
     private val MouseEvent.offset
         get() = Offset(
-            x = offsetX.toFloat(),
-            y = offsetY.toFloat()
-        ) * density.density
+            x = offsetX.toFloat() * density.density,
+            y = offsetY.toFloat() * density.density
+        )
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState
