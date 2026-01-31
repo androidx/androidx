@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.util.fastRoundToInt
 import java.awt.Component
 import java.awt.EventQueue
 import java.awt.Graphics
@@ -77,10 +78,10 @@ internal fun IntRect.toAwtRectangle(density: Density = Density(1f)) = toAwtRecta
  */
 internal fun Rect.toAwtRectangleRounded(density: Density): Rectangle {
     val densityValue = density.density
-    val left = (this.left / densityValue).roundToInt()
-    val top = (this.top / densityValue).roundToInt()
-    val right = (this.right / densityValue).roundToInt()
-    val bottom = (this.bottom / densityValue).roundToInt()
+    val left = (this.left / densityValue).fastRoundToInt()
+    val top = (this.top / densityValue).fastRoundToInt()
+    val right = (this.right / densityValue).fastRoundToInt()
+    val bottom = (this.bottom / densityValue).fastRoundToInt()
     return Rectangle(left, top, right - left, bottom - top)
 }
 

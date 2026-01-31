@@ -17,6 +17,8 @@
 package androidx.compose.ui.platform.a11y
 
 import androidx.compose.ui.scene.ComposeScene
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMap
 import java.awt.Color
 import java.awt.Component
 import java.awt.Cursor
@@ -33,6 +35,7 @@ import javax.accessibility.AccessibleContext
 import javax.accessibility.AccessibleRole
 import javax.accessibility.AccessibleState
 import javax.accessibility.AccessibleStateSet
+import kotlin.text.get
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 
@@ -80,7 +83,11 @@ internal class ComposeSceneAccessible(
     }
 
     fun indexOfChild(controller: AccessibilityController): Int {
-        return accessibilityControllersProvider().indexOf(controller)
+        val controllers = accessibilityControllersProvider()
+        for (i in controllers.indices) {
+            if (controllers[i] === controller) return i
+        }
+        return -1
     }
 
     /**
@@ -99,7 +106,7 @@ internal class ComposeSceneAccessible(
 
         // DFS over the Accessible hierarchy
         val queue = ArrayDeque<Accessible>()
-        queue.addAll(accessibilityControllersProvider().map { it.rootAccessible })
+        queue.addAll(accessibilityControllersProvider().fastMap { it.rootAccessible })
         while (queue.isNotEmpty()) {
             val accessible = queue.removeFirst()
             val context = accessible.accessibleContext ?: continue
@@ -137,10 +144,10 @@ internal class ComposeSceneAccessible(
          * [ComposeScene] and finds the best [Accessible] under the pointer.
          */
         override fun getAccessibleAt(p: Point): Accessible {
-            for (controller in accessibilityControllers) {
+            accessibilityControllers.fastForEach { controller ->
                 val rootAccessible = controller.rootAccessible
                 val context = rootAccessible.composeAccessibleContext
-                val accessibleOnPoint = context.getAccessibleAt(p) ?: continue
+                val accessibleOnPoint = context.getAccessibleAt(p) ?: return@fastForEach
                 if (accessibleOnPoint != rootAccessible) {
                     // TODO: ^ this check produce weird behavior
                     //  when there is a component under the popup,
