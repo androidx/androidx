@@ -502,7 +502,7 @@ internal class ComposeWindow(
         // TODO: Align with Container/Mediator architecture
         skiaLayer.attachTo(canvas)
         scene.size = sizeInPx
-        skiaLayer.needRedraw()
+        skiaLayer.needRender()
     }
 
     // TODO: need to call .dispose() on window close.
