@@ -419,6 +419,9 @@ w: file://\$SUPPORT/compose/runtime/runtime/.+\.kt:[0-9]+:[0-9]+ This declaratio
 # > Task :navigationevent:navigationevent:compileKotlinWasmJs
 w: file://\$SUPPORT/navigationevent/navigationevent/src/wasmJsMain/kotlin/androidx/navigationevent/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
 w: file://\$SUPPORT/navigationevent/navigationevent/src/wasmJsTest/kotlin/androidx/navigationevent/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
+# > Task :navigation:navigation-runtime:compileKotlinWasmJs
+w: file://\$SUPPORT/navigation/navigation-runtime/src/wasmJsMain/kotlin/androidx/navigation/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
+w: file://\$SUPPORT/navigation/navigation-runtime/src/wasmJsTest/kotlin/androidx/navigation/.+\.kt:[0-9]+:[0-9]+ This declaration needs opt\-in\. Its usage should be marked with '@kotlin\.js\.ExperimentalWasmJsInterop' or '@OptIn\(kotlin\.js\.ExperimentalWasmJsInterop::class\)'
 # b/446708297
 # > Task :kotlinWasmToolingSetup
 \(node:[0-9]+\) \[DEP[0-9]+\] DeprecationWarning: The `punycode` module is deprecated\. Please use a userland alternative instead\.

@@ -175,6 +175,8 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .experimental(true)
                 .description("Define a color that adapts to the current theme (light/dark)")
                 .field(DocumentedOperation.INT, "id", "The ID of the color")
                 .field(INT, "groupId", "The ID of the color group name string")

@@ -182,6 +182,11 @@ internal class Page(
 
     /** Puts this page into an "invisible" state, i.e. retaining only the minimum data required */
     fun setInvisible() {
+        if (bitmapFetcher != null) {
+            // Bitmaps are managed by BitmapFetcher; only signal clearing if it was active for this
+            // page.
+            onBitmapCleared(pageNum)
+        }
         bitmapFetcher?.close()
         bitmapFetcher = null
         pageText = null
@@ -190,7 +195,6 @@ internal class Page(
         links = null
         fetchLinksJob?.cancel()
         fetchLinksJob = null
-        onBitmapCleared(pageNum)
     }
 
     private fun maybeFetchPageText() {

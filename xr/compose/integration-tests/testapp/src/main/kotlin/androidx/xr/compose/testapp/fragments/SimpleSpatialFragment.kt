@@ -81,8 +81,6 @@ class SimpleSpatialFragment : Fragment() {
                                         verticalArrangement = Arrangement.spacedBy(8.dp),
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                     ) {
-                                        Text("Strategy 3 & 4 Tests")
-
                                         val context = LocalContext.current
                                         val lifecycleOwner = LocalLifecycleOwner.current
                                         Text(
@@ -108,6 +106,16 @@ class SimpleSpatialFragment : Fragment() {
                                             }
                                         ) {
                                             Text("Go to Video player fragment")
+                                        }
+
+                                        Button(
+                                            onClick = {
+                                                (requireActivity()
+                                                        as? FragmentCompatibilityActivity)
+                                                    ?.showMainPanelFragment()
+                                            }
+                                        ) {
+                                            Text("Go to MainPanel fragment")
                                         }
 
                                         TestDialog {

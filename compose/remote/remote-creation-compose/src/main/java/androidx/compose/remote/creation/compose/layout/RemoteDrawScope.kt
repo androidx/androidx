@@ -240,12 +240,12 @@ public open class RemoteDrawScope(public val remoteCanvas: RemoteCanvas) :
         text: RemoteString,
         anchorX: RemoteFloat,
         anchorY: RemoteFloat,
-        panx: RemoteFloat = 0f.rf,
-        pany: RemoteFloat = 0f.rf,
+        panX: RemoteFloat = 0f.rf,
+        panY: RemoteFloat = 0f.rf,
         flags: Int = 0,
         paint: RemotePaint,
     ) {
-        remoteCanvas.drawAnchoredText(text, anchorX, anchorY, panx, pany, flags, paint)
+        remoteCanvas.drawAnchoredText(text, anchorX, anchorY, panX, panY, flags, paint)
     }
 
     /** Draws text along a path. */
@@ -262,6 +262,15 @@ public open class RemoteDrawScope(public val remoteCanvas: RemoteCanvas) :
     /** Performs a rotation. */
     public fun rotate(degrees: RemoteFloat, block: RemoteDrawScope.() -> Unit) {
         withTransform({ rotate(degrees) }, block)
+    }
+
+    /** Performs a rotation. */
+    public fun rotate(
+        degrees: RemoteFloat,
+        pivot: RemoteOffset,
+        block: RemoteDrawScope.() -> Unit,
+    ) {
+        withTransform({ rotate(degrees, pivot) }, block)
     }
 
     /** Performs a translation. */

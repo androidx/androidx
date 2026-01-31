@@ -944,8 +944,12 @@ class CompositionLocalTests {
         try {
             compose {
                 CompositionLocalProvider(LocalHostDefaultProvider provides provider) {
-                    // This access should crash!
-                    @Suppress("UnusedVariable", "unused") val unused = local.current
+                    // Platform behavior varies for unprovided CompositionLocals.
+                    // On JS/Native, a null value might be successfully assigned to 'unused'
+                    // unless forced via !!. On JVM, unboxing null to a primitive (Int)
+                    // typically throws a NullPointerException or ClassCastException immediately.
+                    @Suppress("UnusedVariable", "unused", "UNNECESSARY_NOT_NULL_ASSERTION")
+                    val unused: Int = local.current!!
                 }
             }
         } catch (e: NullPointerException) {

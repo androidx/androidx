@@ -609,7 +609,8 @@ public class RowLayout extends LayoutManager {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("row")
                 .description(
                         "Row layout implementation, positioning components one"
                                 + " after the other horizontally.\n\n"

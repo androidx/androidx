@@ -355,11 +355,19 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_graphics_layer")
                 .description("Define transformations (scale, rotation, alpha) for a component")
                 .field(DocumentedOperation.INT, "length", "Number of attributes")
-                .field(DocumentedOperation.INT, "attributeId[0..n]", "The ID of the attribute")
-                .field(DocumentedOperation.FLOAT, "attributeValue[0..n]",
-                        "The value of the attribute");
+                .startSubsection("REPEATED DATA")
+                .field(DocumentedOperation.INT, "attributeId", "The ID and type of the attribute")
+                .field(DocumentedOperation.FLOAT, "attributeValue",
+                        "The value of the attribute")
+                .endSubsection()
+                .startSubsection("REPEATED DATA")
+                .field(DocumentedOperation.INT, "attributeId", "The ID and type of the attribute")
+                .field(DocumentedOperation.INT, "attributeValue",
+                        "The value of the attribute")
+                .endSubsection();
     }
 
     @Override

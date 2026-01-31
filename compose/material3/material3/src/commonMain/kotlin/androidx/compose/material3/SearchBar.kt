@@ -3506,7 +3506,9 @@ private fun BackEventProgress.InProgress?.transform(): Float =
 @OptIn(ExperimentalMaterial3Api::class)
 private val SearchBarState.collapsedBounds: IntRect
     get() =
-        collapsedCoords?.let { IntRect(offset = it.positionInWindow().round(), size = it.size) }
+        collapsedCoords
+            ?.takeIf { it.isAttached }
+            ?.let { IntRect(offset = it.positionInWindow().round(), size = it.size) }
             ?: IntRect.Zero
 
 @Composable

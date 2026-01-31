@@ -17,7 +17,6 @@
 package androidx.webkit;
 
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 
 import org.jspecify.annotations.NonNull;
 
@@ -38,9 +37,8 @@ import org.jspecify.annotations.NonNull;
 @WebNavigationClient.ExperimentalNavigationCallback
 public interface Page {
     /**
-     * @return the URL associated with this page instance.
+     * Returns the URL associated with this page instance.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.PAGE_GET_URL,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull

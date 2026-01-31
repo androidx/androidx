@@ -119,6 +119,7 @@ public class PaintData extends PaintOperation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("paint_data")
                 .description("Encode a Paint object with various properties")
                 .field(INT_ARRAY, "paintBundle", "The encoded paint properties");
     }

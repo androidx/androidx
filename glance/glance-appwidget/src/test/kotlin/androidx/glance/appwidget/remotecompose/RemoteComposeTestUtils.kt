@@ -47,6 +47,7 @@ import androidx.compose.remote.core.operations.utilities.IntMap
 import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
+import androidx.glance.Backend
 import androidx.glance.appwidget.GlanceComponents
 import androidx.glance.appwidget.RemoteViewsRoot
 import androidx.glance.appwidget.normalizeCompositionTree
@@ -105,7 +106,7 @@ object RemoteComposeTestUtils {
 
         val normalizedRoot: RemoteViewsRoot =
             (originalRoot.copy() as RemoteViewsRoot).also {
-                normalizeCompositionTree(isRemoteComposeAvailable = true, root = it)
+                normalizeCompositionTree(backendOverrideRequest = Backend.RemoteCompose, root = it)
             }
         // ... or here?
         val rcContext: RemoteComposeContext =
@@ -151,7 +152,7 @@ internal suspend fun Context.runAndTranslateMultiRoot(
     // TODO: could we put the size box stuff here?
     val normalizedRoot: RemoteViewsRoot =
         (originalRoot.copy() as RemoteViewsRoot).also {
-            normalizeCompositionTree(isRemoteComposeAvailable = true, root = it)
+            normalizeCompositionTree(backendOverrideRequest = Backend.RemoteCompose, root = it)
         }
     // ... or here?
     val result: GlanceToRemoteComposeTranslation.SizeMap =

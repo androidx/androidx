@@ -450,7 +450,7 @@ public actual open class NavController {
         @JvmStatic
         @NavDeepLinkSaveStateControl
         public actual fun enableDeepLinkSaveState(saveState: Boolean) {
-            implementedInJetBrainsFork()
+            deepLinkSaveState = saveState
         }
     }
 }

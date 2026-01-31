@@ -28,8 +28,10 @@ import androidx.pdf.PdfDocument
 import androidx.pdf.PdfPoint
 import androidx.pdf.models.FormWidgetInfo
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.launch
 
 /**
  * Manages a collection of [Page]s, each representing a single PDF page. Receives events to update
@@ -73,7 +75,20 @@ internal class PageManager(
     val pageTextReadyFlow: SharedFlow<Int>
         get() = _pageTextReadyFlow
 
-    private val _bitmapUpdatedFlow = MutableSharedFlow<PageBitmapState>(extraBufferCapacity = 1)
+    /**
+     * [REPLAY_COUNT_FOR_BITMAP_STATUS] is set to 1 to ensure that if [PdfView] starts collecting
+     * late, it immediately receives the status of the most recently processed page.
+     *
+     * [BUFFER_CAPACITY_FOR_BITMAP_STATUS] provides a cushion so that [MutableSharedFlow.emit] calls
+     * from background threads don't suspend immediately if the UI thread is busy with a layout
+     * pass.
+     */
+    private var _bitmapUpdatedFlow: MutableSharedFlow<PageBitmapState> =
+        MutableSharedFlow(
+            replay = REPLAY_COUNT_FOR_BITMAP_STATUS,
+            extraBufferCapacity = BUFFER_CAPACITY_FOR_BITMAP_STATUS,
+            onBufferOverflow = BufferOverflow.SUSPEND,
+        )
 
     /**
      * This [SharedFlow] signals [PdfView] that bitmaps are either ready or cleared for the page.
@@ -194,7 +209,9 @@ internal class PageManager(
                     backgroundScope,
                     maxBitmapSizePx,
                     onBitmapReady = {
-                        _bitmapUpdatedFlow.tryEmit(PageBitmapState.PageBitmapReady(pageNum))
+                        backgroundScope.launch {
+                            _bitmapUpdatedFlow.emit(PageBitmapState.PageBitmapReady(pageNum))
+                        }
                         _invalidationSignalFlow.tryEmit(Unit)
                     },
                     onFormWidgetReady = { _invalidationSignalFlow.tryEmit(Unit) },
@@ -204,7 +221,9 @@ internal class PageManager(
                     pdfFormFillingConfig = pdfFormFillingConfig,
                     formWidgetInfos = formWidgetInfos,
                     onBitmapCleared = {
-                        _bitmapUpdatedFlow.tryEmit(PageBitmapState.PageBitmapCleared(pageNum))
+                        backgroundScope.launch {
+                            _bitmapUpdatedFlow.emit(PageBitmapState.PageBitmapCleared(pageNum))
+                        }
                     },
                 )
                 .apply {
@@ -276,6 +295,11 @@ internal class PageManager(
             unionRect.union(rect)
         }
         return unionRect
+    }
+
+    companion object {
+        private const val BUFFER_CAPACITY_FOR_BITMAP_STATUS = 64
+        private const val REPLAY_COUNT_FOR_BITMAP_STATUS = 1
     }
 }
 

@@ -34,12 +34,12 @@ androidXMultiplatform {
         namespace = "androidx.navigation.testing"
         experimentalProperties["android.experimental.kmp.enableAndroidResources"] = true
     }
-    jvmStubs()
-    linuxX64Stubs()
-//    desktop()
-//    linux()
-//    mac()
-//    ios()
+    desktop()
+    linux()
+    mac()
+    ios()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -60,11 +60,9 @@ androidXMultiplatform {
             implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
         }
 
-        nonAndroidMain.dependsOn(commonMain)
-        jvmStubsMain.dependsOn(nonAndroidMain)
-        linuxx64StubsMain.dependsOn(nonAndroidMain)
-
         commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
             implementation(project(":kruth:kruth"))
         }
 
@@ -100,6 +98,16 @@ androidXMultiplatform {
             implementation(libs.junit)
             implementation(libs.testRunner)
         }
+
+        nonAndroidMain.dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        webMain.dependsOn(nonAndroidMain)
+
+        nonAndroidTest.dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
     }
 }
 

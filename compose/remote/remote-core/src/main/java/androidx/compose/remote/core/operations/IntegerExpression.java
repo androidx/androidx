@@ -43,7 +43,8 @@ import java.util.List;
  * animation floats. The floats represent a RPN style calculator
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class IntegerExpression extends Operation implements VariableSupport, Serializable {
+public class IntegerExpression extends Operation implements VariableSupport, ComponentData,
+        Serializable {
     private static final int OP_CODE = Operations.INTEGER_EXPRESSION;
     private static final String CLASS_NAME = "IntegerExpression";
     public int mId;

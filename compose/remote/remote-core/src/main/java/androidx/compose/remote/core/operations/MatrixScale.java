@@ -76,6 +76,7 @@ public class MatrixScale extends DrawBase4 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("matrix_scale")
                 .description("Scale the following draw commands")
                 .field(DocumentedOperation.FLOAT, "scaleX", "The amount to scale in X")
                 .field(DocumentedOperation.FLOAT, "scaleY", "The amount to scale in Y")

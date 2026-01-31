@@ -149,6 +149,7 @@ public class PathCombine extends PaintOperation implements VariableSupport, Seri
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("path_combine")
                 .description("Combine two paths using a boolean operation (Union, Intersect, etc.)")
                 .field(DocumentedOperation.INT, "outId", "The ID of the resulting path")
                 .field(INT, "pathId1", "The ID of the first source path")

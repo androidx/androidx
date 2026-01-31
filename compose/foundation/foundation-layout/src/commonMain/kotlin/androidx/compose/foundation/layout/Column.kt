@@ -176,10 +176,16 @@ internal data class ColumnMeasurePolicy(
         val childCrossAlignment = parentData?.crossAxisAlignment
         return childCrossAlignment?.align(
             size = crossAxisLayoutSize,
+            itemCrossAxisSize = placeable.crossAxisSize(),
             layoutDirection = layoutDirection,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,
-        ) ?: horizontalAlignment.align(placeable.width, crossAxisLayoutSize, layoutDirection)
+        )
+            ?: horizontalAlignment.align(
+                placeable.crossAxisSize(),
+                crossAxisLayoutSize,
+                layoutDirection,
+            )
     }
 
     override fun createConstraints(

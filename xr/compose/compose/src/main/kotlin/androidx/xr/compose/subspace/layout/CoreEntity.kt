@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.Density
 import androidx.xr.compose.subspace.ActionQueue
 import androidx.xr.compose.subspace.SceneCoreEntitySizeAdapter
 import androidx.xr.compose.subspace.SpatialPanelDefaults
+import androidx.xr.compose.subspace.draw.SpatialFeatheringEffect
+import androidx.xr.compose.subspace.draw.SpatialSmoothFeatheringEffect
 import androidx.xr.compose.subspace.node.SubspaceLayoutNode
 import androidx.xr.compose.subspace.node.SubspaceOwner
 import androidx.xr.compose.unit.IntVolumeSize
@@ -353,7 +355,7 @@ internal class CoreSurfaceEntity(
             }
         }
 
-    private var currentFeatheringEffect: SpatialFeatheringEffect = ZeroFeatheringEffect
+    private var currentFeatheringEffect: SpatialFeatheringEffect? = null
 
     override var size: IntVolumeSize
         get() = super.size
@@ -381,18 +383,21 @@ internal class CoreSurfaceEntity(
         pendingOnSurfaceDestroyed = onSurfaceDestroyed
     }
 
-    internal fun setFeatheringEffect(featheringEffect: SpatialFeatheringEffect) {
+    internal fun setFeatheringEffect(featheringEffect: SpatialFeatheringEffect?) {
         currentFeatheringEffect = featheringEffect
         updateFeathering()
     }
 
     private fun updateFeathering() {
-        (currentFeatheringEffect as? SpatialSmoothFeatheringEffect)?.let {
+        val featheringEffect = currentFeatheringEffect as? SpatialSmoothFeatheringEffect
+        if (featheringEffect != null) {
             surfaceEntity.edgeFeatheringParams =
                 SurfaceEntity.EdgeFeatheringParams.RectangleFeather(
-                    it.size.toWidthPercent(size.width.toFloat(), localDensity),
-                    it.size.toHeightPercent(size.height.toFloat(), localDensity),
+                    featheringEffect.size.toWidthPercent(size.width.toFloat(), localDensity),
+                    featheringEffect.size.toHeightPercent(size.height.toFloat(), localDensity),
                 )
+        } else {
+            surfaceEntity.edgeFeatheringParams = SurfaceEntity.EdgeFeatheringParams.NoFeathering()
         }
     }
 }
@@ -453,7 +458,7 @@ internal class CoreSphereSurfaceEntity(
             }
         }
 
-    private var currentFeatheringEffect: SpatialFeatheringEffect = ZeroFeatheringEffect
+    private var currentFeatheringEffect: SpatialFeatheringEffect? = null
 
     // Layout's density is automatically updated during a configuration change, and may differ from
     // initialDensity.
@@ -484,7 +489,7 @@ internal class CoreSphereSurfaceEntity(
         throw IllegalStateException("Shape must be spherical")
     }
 
-    internal fun setFeatheringEffect(featheringEffect: SpatialFeatheringEffect) {
+    internal fun setFeatheringEffect(featheringEffect: SpatialFeatheringEffect?) {
         currentFeatheringEffect = featheringEffect
         updateFeathering()
     }
@@ -506,18 +511,22 @@ internal class CoreSphereSurfaceEntity(
                 SurfaceEntity.EdgeFeatheringParams.RectangleFeather(radius, radius)
             } else {
                 val semicircleArcLength = Meter((radius * PI).toFloat()).toPx(localDensity)
-                (currentFeatheringEffect as? SpatialSmoothFeatheringEffect)?.let {
+                val featheringEffect = currentFeatheringEffect as? SpatialSmoothFeatheringEffect
+                if (featheringEffect != null) {
                     val radiusX =
-                        it.size.toWidthPercent(
+                        featheringEffect.size.toWidthPercent(
                             if (surfaceEntity.shape is SurfaceEntity.Shape.Hemisphere)
                                 semicircleArcLength / 2
                             else semicircleArcLength,
                             localDensity,
                         )
-                    val radiusY = it.size.toHeightPercent(semicircleArcLength, localDensity)
+                    val radiusY =
+                        featheringEffect.size.toHeightPercent(semicircleArcLength, localDensity)
                     SurfaceEntity.EdgeFeatheringParams.RectangleFeather(radiusX, radiusY)
+                } else {
+                    SurfaceEntity.EdgeFeatheringParams.NoFeathering()
                 }
-            } ?: surfaceEntity.edgeFeatheringParams
+            }
     }
 
     private val isHemisphere

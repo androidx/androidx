@@ -34,21 +34,20 @@ dependencies {
 
     api("androidx.annotation:annotation:1.9.1")
 
-    def composeVersion = "1.8.2"
-    api("androidx.compose.animation:animation:$composeVersion")
-    api("androidx.compose.foundation:foundation:$composeVersion")
-    api("androidx.compose.foundation:foundation-layout:$composeVersion")
-    api("androidx.compose.runtime:runtime:$composeVersion")
+    api(project(":compose:animation:animation"))
+    api(project(":compose:foundation:foundation"))
+    api(project(":compose:foundation:foundation-layout"))
+    api(project(":compose:runtime:runtime"))
     api("androidx.compose.material:material-icons-core:1.7.6")
-    api("androidx.compose.ui:ui-util:$composeVersion")
-    api("androidx.compose.ui:ui:$composeVersion")
-    api("androidx.compose.ui:ui-graphics:$composeVersion")
-    api("androidx.compose.ui:ui-text:$composeVersion")
+    api(project(":compose:ui:ui-util"))
+    api(project(":compose:ui:ui"))
+    api(project(":compose:ui:ui-graphics"))
+    api(project(":compose:ui:ui-text"))
 
     implementation("androidx.profileinstaller:profileinstaller:1.4.1")
 
     androidTestImplementation(libs.truth)
-    androidTestImplementation("androidx.compose.runtime:runtime:$composeVersion")
+    androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))

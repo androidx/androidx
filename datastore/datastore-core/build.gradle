@@ -112,6 +112,13 @@ androidXMultiplatform {
             implementation(project(":internal-testutils-datastore"))
         }
 
+        androidMain {
+            dependencies {
+                api(project(":tracing:tracing"))
+                api(project(":tracing:tracing-wire"))
+            }
+        }
+
         nonWebCommonTest.dependsOn(commonTest)
 
         jvmAndAndroidTest {

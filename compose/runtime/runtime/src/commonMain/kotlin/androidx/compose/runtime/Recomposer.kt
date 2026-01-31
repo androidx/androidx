@@ -1339,12 +1339,10 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                             .let { pairs ->
                                 // Check for any nested states
                                 if (
-                                    ComposeRuntimeFlags.isMovingNestedMovableContentEnabled &&
-                                        pairs.fastAny {
-                                            it.second == null &&
-                                                it.first.content in
-                                                    movableContentNestedStatesAvailable
-                                        }
+                                    pairs.fastAny {
+                                        it.second == null &&
+                                            it.first.content in movableContentNestedStatesAvailable
+                                    }
                                 ) {
                                     // We have at least one nested state we could use, if a state
                                     // is available for the container then schedule the state to be

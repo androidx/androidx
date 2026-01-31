@@ -147,8 +147,7 @@ constructor(
             _lowLightBoostState.setLiveDataValue(LowLightBoostState.OFF)
             return signal.createFailureResult(
                 IllegalStateException(
-                    "Low Light Boost is disabled" +
-                        " when expected frame rate range exceeds 30 or HDR 10-bit is on."
+                    "Low Light Boost is disabled when expected frame rate range exceeds 30."
                 )
             )
         }

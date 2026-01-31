@@ -71,6 +71,7 @@ public class DrawRect extends DrawBase4 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_rect")
                 .description("Draw the specified rectangle")
                 .field(DocumentedOperation.FLOAT, "left", "The left side of the rectangle")
                 .field(DocumentedOperation.FLOAT, "top", "The top of the rectangle")

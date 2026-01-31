@@ -46,11 +46,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.viewinterop.AndroidView
 import java.io.ByteArrayInputStream
 
@@ -190,13 +189,10 @@ public fun rememberVirtualDisplay(creationDisplayInfo: CreationDisplayInfo): Vir
 
 @Composable
 public fun displaySize(): Size {
-    return with(LocalDensity.current) {
-        DpSize(
-                LocalConfiguration.current.screenWidthDp.dp,
-                LocalConfiguration.current.screenHeightDp.dp,
-            )
-            .toSize()
-    }
+    // Note: Usage of LocalConfiguration.current.screenWidthDp was replaced due to
+    // `ConfigurationScreenWidthHeight` lint rule
+    // TODO: Consider to remove this function at all
+    return LocalWindowInfo.current.containerSize.toSize()
 }
 
 /**

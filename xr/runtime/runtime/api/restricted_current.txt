@@ -408,6 +408,10 @@ package androidx.xr.runtime {
     property public abstract int value;
   }
 
+  public final class ServiceLoaderExtKt {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <S> java.util.List<S> loadProviders(Class<S> service, java.util.List<java.lang.String> providersClassNames);
+  }
+
   public final class Session {
     ctor @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity activity);
     ctor @BytecodeOnly @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public Session(android.app.Activity!, java.util.List!, java.util.List!, java.util.List!, kotlinx.coroutines.CoroutineScope!, int, kotlin.jvm.internal.DefaultConstructorMarker!);

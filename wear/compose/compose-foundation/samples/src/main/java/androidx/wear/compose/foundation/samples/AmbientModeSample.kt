@@ -16,9 +16,6 @@
 
 package androidx.wear.compose.foundation.samples
 
-import android.app.Activity
-import android.content.Context
-import android.content.ContextWrapper
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -33,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.wear.compose.foundation.AmbientMode
 import androidx.wear.compose.foundation.AmbientTickEffect
 import androidx.wear.compose.foundation.LocalAmbientModeManager
@@ -50,8 +46,7 @@ fun AmbientModeBasicSample() {
     // proper lifecycle management and broad accessibility.
 
     // For this self-contained demo, AmbientModeManager is created and provided locally:
-    val activityAmbientModeManager =
-        rememberAmbientModeManager(LocalContext.current.findActivityOrNull()!!)
+    val activityAmbientModeManager = rememberAmbientModeManager()
     CompositionLocalProvider(LocalAmbientModeManager provides activityAmbientModeManager) {
         val ambientModeManager = LocalAmbientModeManager.current
         val ambientMode = ambientModeManager?.currentAmbientMode
@@ -61,12 +56,11 @@ fun AmbientModeBasicSample() {
             modifier = Modifier.fillMaxSize(),
         ) {
             val ambientModeName =
-                ambientMode?.let {
-                    when (it) {
-                        is AmbientMode.Interactive -> "Interactive"
-                        is AmbientMode.Ambient -> "Ambient"
-                    }
-                } ?: "Unknown"
+                when (ambientMode) {
+                    is AmbientMode.Interactive -> "Interactive"
+                    is AmbientMode.Ambient -> "Ambient"
+                    else -> "Unknown"
+                }
 
             val color = if (ambientMode is AmbientMode.Ambient) Color.Gray else Color.Yellow
             Text(text = "$ambientModeName Mode", color = color)
@@ -83,8 +77,7 @@ fun AmbientModeWithAmbientTickSample() {
     // proper lifecycle management and broad accessibility.
 
     // For this self-contained demo, AmbientModeManager is created and provided locally:
-    val activityAmbientModeManager =
-        rememberAmbientModeManager(LocalContext.current.findActivityOrNull()!!)
+    val activityAmbientModeManager = rememberAmbientModeManager()
     CompositionLocalProvider(LocalAmbientModeManager provides activityAmbientModeManager) {
         var counter by remember { mutableIntStateOf(0) }
 
@@ -111,12 +104,11 @@ fun AmbientModeWithAmbientTickSample() {
             modifier = Modifier.fillMaxSize(),
         ) {
             val ambientModeName =
-                ambientMode?.let {
-                    when (it) {
-                        is AmbientMode.Interactive -> "Interactive"
-                        is AmbientMode.Ambient -> "Ambient"
-                    }
-                } ?: "Unknown"
+                when (ambientMode) {
+                    is AmbientMode.Interactive -> "Interactive"
+                    is AmbientMode.Ambient -> "Ambient"
+                    else -> "Unknown"
+                }
 
             val updateInterval = if (ambientMode is AmbientMode.Ambient) "minute" else "second"
             val color = if (ambientMode is AmbientMode.Ambient) Color.Gray else Color.Yellow
@@ -126,13 +118,4 @@ fun AmbientModeWithAmbientTickSample() {
             Text(text = "$counter")
         }
     }
-}
-
-private fun Context.findActivityOrNull(): Activity? {
-    var context = this
-    while (context is ContextWrapper) {
-        if (context is Activity) return context
-        context = context.baseContext
-    }
-    return null
 }

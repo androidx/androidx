@@ -239,6 +239,7 @@ public class DrawBitmapTextAnchored extends PaintOperation implements VariableSu
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Text Operations", id(), CLASS_NAME)
+                .addedVersion(7)
                 .description("Draw bitmap font text anchored to a point with alignment (pan)")
                 .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(DocumentedOperation.INT, "bitmapFontId", "The ID of the bitmap font")

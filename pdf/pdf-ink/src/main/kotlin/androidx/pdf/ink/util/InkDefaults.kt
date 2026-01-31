@@ -28,6 +28,9 @@ internal object InkDefaults {
     /** Default ink [Brush] size for drawing. */
     const val DEFAULT_BRUSH_SIZE = 5f
 
+    /** Default ink [Brush] size for drawing. */
+    const val HIGHLIGHTER_ALPHA = 0x66
+
     /**
      * Default ink [Brush] epsilon for drawing.
      *

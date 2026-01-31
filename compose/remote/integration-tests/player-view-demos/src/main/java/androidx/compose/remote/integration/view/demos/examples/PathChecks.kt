@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -67,7 +68,7 @@ fun SimplePath() {
                         color = Color.Red
                         style = PaintingStyle.Fill
                     }
-                    .asFrameworkPaint()
+                    .nativePaint
                     .apply {
                         textSize = 32f
                         typeface = Typeface.DEFAULT

@@ -734,6 +734,11 @@ public class UiDevice implements Searchable {
 
     /**
      * Waits for the current application to idle.
+     * <p>
+     * <b>Note:</b> Usage of this API in tests will result in non-deterministic tests. So this
+     * API should only be used as a last resort and <b>only</b> when there are no other
+     * alternatives available.
+     * <p>
      * Default wait timeout is 10 seconds
      */
     public void waitForIdle() {
@@ -744,6 +749,11 @@ public class UiDevice implements Searchable {
 
     /**
      * Waits for the current application to idle.
+     * <p>
+     * <b>Note:</b> Usage of this API in tests will result in non-deterministic tests. So this
+     * API should only be used as a last resort and <b>only</b> when there are no other
+     * alternatives available.
+     * <p>
      * @param timeout in milliseconds
      */
     public void waitForIdle(long timeout) {

@@ -51,6 +51,14 @@ class FragmentCompatibilityActivity : FragmentActivity() {
             .commit()
     }
 
+    fun showMainPanelFragment() {
+        supportFragmentManager
+            .beginTransaction()
+            .replace(android.R.id.content, MainPanelFragment())
+            .addToBackStack(null)
+            .commit()
+    }
+
     override fun finish() {
         // Workaround for session - fragment lifecycle issue. Need further investigation b/463762377
         val fragment = supportFragmentManager.findFragmentById(android.R.id.content)

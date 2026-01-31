@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.LayoutDirection
 
@@ -1291,7 +1292,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        usePaint(paint.asFrameworkPaint())
+        usePaint(paint.nativePaint)
         if (path1 is RemoteComposePath && path2 is RemoteComposePath) {
             document.drawTweenPath(
                 path1.remote,
@@ -1331,7 +1332,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        usePaint(paint.asFrameworkPaint())
+        usePaint(paint.nativePaint)
         document.drawTweenPath(
             path1,
             path2,

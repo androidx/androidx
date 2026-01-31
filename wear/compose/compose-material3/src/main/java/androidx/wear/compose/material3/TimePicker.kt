@@ -96,6 +96,9 @@ import java.util.Locale
  *
  * This component is designed to take most/all of the screen and utilizes large fonts.
  *
+ * For custom backgrounds like gradients or images wrap the TimePicker in a MaterialTheme with the
+ * colorScheme background set to [Color.Unspecified].
+ *
  * Example of a [TimePicker]:
  *
  * @sample androidx.wear.compose.material3.samples.TimePickerSample

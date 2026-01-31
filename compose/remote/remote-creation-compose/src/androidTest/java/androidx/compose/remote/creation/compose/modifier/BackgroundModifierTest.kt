@@ -38,7 +38,6 @@ import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rememberRemoteColor
 import androidx.compose.remote.creation.compose.state.ri
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.creation.compose.state.withGlobalScope
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
@@ -133,8 +132,7 @@ class BackgroundModifierTest {
             backgroundColor = Color.Black,
         ) {
             val blue = rememberRemoteColor("ABC") { Color.Blue }
-            // TODO(b/479134245): Fix the screenshot for named colors.
-            val title = ("background(".rs + blue.toHexString() + ".rc named)").withGlobalScope()
+            val title = ("background(".rs + blue.toHexString() + ".rc named)")
             DemoBox(title) { RemoteBox(modifier = RemoteModifier.fillMaxSize().background(blue)) }
         }
     }

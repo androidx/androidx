@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+RemovedMethod: androidx.test.shell.command.RecorderCommands#start(java.io.File):
+    Binary breaking change: Removed method androidx.test.shell.command.RecorderCommands.start(java.io.File)
+RemovedMethod: androidx.test.shell.command.RecorderCommands#start(java.io.File, int):
+    Binary breaking change: Removed method androidx.test.shell.command.RecorderCommands.start(java.io.File,int)
+RemovedMethod: androidx.test.shell.command.RecorderCommands#start(java.io.File, int, int):
+    Binary breaking change: Removed method androidx.test.shell.command.RecorderCommands.start(java.io.File,int,int)

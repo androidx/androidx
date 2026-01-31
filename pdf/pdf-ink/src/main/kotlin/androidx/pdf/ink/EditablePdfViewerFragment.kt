@@ -59,12 +59,16 @@ import androidx.pdf.featureflag.PdfFeatureFlags
 import androidx.pdf.ink.model.ApplyEditsState
 import androidx.pdf.ink.model.ApplyInProgressException
 import androidx.pdf.ink.state.AnnotationDrawingMode
+import androidx.pdf.ink.state.PdfEditMode
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_ANNOTATIONS
+import androidx.pdf.ink.state.PdfEditMode.Companion.EDITING_JOURNEY_FORM_FILLING
 import androidx.pdf.ink.util.PageTransformCalculator
 import androidx.pdf.ink.util.toHighlighterConfig
 import androidx.pdf.ink.util.toInkBrush
 import androidx.pdf.ink.view.AnnotationToolbar
 import androidx.pdf.ink.view.draganddrop.ToolbarCoordinator
 import androidx.pdf.ink.view.tool.AnnotationToolInfo
+import androidx.pdf.models.FormEditInfo
 import androidx.pdf.view.PdfContentLayout
 import androidx.pdf.view.PdfView
 import androidx.pdf.viewer.fragment.PdfStylingOptions
@@ -109,10 +113,12 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
      * complete.
      */
     public var isEditModeEnabled: Boolean
-        get() = documentViewModel.isEditModeEnabled
+        get() {
+            return documentViewModel.pdfEditMode is PdfEditMode.Enabled
+        }
         set(value) {
-            documentViewModel.isEditModeEnabled = value
-            if (value) onEnterEditMode() else onExitEditMode()
+            documentViewModel.pdfEditMode =
+                if (value) PdfEditMode.Enabled() else PdfEditMode.Disabled
         }
 
     /**
@@ -200,6 +206,7 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
     private lateinit var onViewportChangedListener: PdfView.OnViewportChangedListener
     private lateinit var gestureStateChangedListener: PdfView.OnGestureStateChangedListener
     private lateinit var wetStrokesOnFinishedListener: WetStrokesOnFinishedListener
+    private lateinit var onFormWidgetInfoUpdatedListener: PdfView.OnFormWidgetInfoUpdatedListener
     private lateinit var annotationsTouchEventDispatcher: AnnotationsTouchEventDispatcher
 
     private lateinit var wetStrokesViewTouchHandler: WetStrokesViewTouchHandler
@@ -379,8 +386,9 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
 
     private fun setupUiStateCollectors() {
         collectFlowOnLifecycleScope {
-            documentViewModel.isEditModeEnabledFlow.collect { isEnabled ->
-                updateUiForEditMode(isEnabled)
+            documentViewModel.pdfEditModeFlow.collect { editMode ->
+                if (editMode is PdfEditMode.Enabled) onEnterEditMode() else onExitEditMode()
+                updateUiForEditMode(editMode)
             }
         }
 
@@ -412,7 +420,9 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         super.onDestroyView()
         pdfView.removeOnViewportChangedListener(onViewportChangedListener)
         pdfView.removeOnGestureStateChangedListener(gestureStateChangedListener)
+        pdfView.setOnBitmapUpdatedListener(null)
         annotationView.removeInProgressTextHighlightsListener(inProgressTextHighlightsListener)
+        pdfView.removeOnFormWidgetInfoUpdatedListener(onFormWidgetInfoUpdatedListener)
         wetStrokesView.removeFinishedStrokesListener(wetStrokesOnFinishedListener)
         annotationToolbar.setAnnotationToolbarListener(null)
         pdfContainer.setOnTouchListener(null)
@@ -421,10 +431,32 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
         }
     }
 
-    private fun updateUiForEditMode(isEnabled: Boolean) {
+    private fun updateUiForEditMode(editMode: PdfEditMode) {
+        toolboxView.visibility = if (editMode is PdfEditMode.Enabled) GONE else VISIBLE
+
+        when (editMode) {
+            is PdfEditMode.Enabled -> {
+                if (editMode.journey == EDITING_JOURNEY_ANNOTATIONS) {
+                    documentViewModel.initialFormFillingEnabledState = pdfView.isFormFillingEnabled
+                    // Disable form filling when in annotations mode
+                    pdfView.isFormFillingEnabled = false
+                    updateUiForAnnotationsEditMode(true)
+                }
+            }
+            is PdfEditMode.Disabled -> {
+                // Restore form filling state when exiting edit mode
+                documentViewModel.initialFormFillingEnabledState?.let {
+                    pdfView.isFormFillingEnabled = it
+                    documentViewModel.initialFormFillingEnabledState = null
+                }
+                updateUiForAnnotationsEditMode(false)
+            }
+        }
+    }
+
+    private fun updateUiForAnnotationsEditMode(isEnabled: Boolean) {
         PdfFeatureFlags.isMultiTouchScrollEnabled = isEnabled
 
-        toolboxView.visibility = if (isEnabled) GONE else VISIBLE
         annotationToolbar.visibility = if (isEnabled) VISIBLE else GONE
 
         if (isEnabled) {
@@ -546,8 +578,32 @@ public open class EditablePdfViewerFragment : PdfViewerFragment {
                     pageInfoProvider.pageLocations = pageLocations
                 }
             }
+
+        onFormWidgetInfoUpdatedListener =
+            object : PdfView.OnFormWidgetInfoUpdatedListener {
+                override fun onFormWidgetInfoUpdated(formEditInfo: FormEditInfo) {
+                    if (!isEditModeEnabled) {
+                        documentViewModel.pdfEditMode =
+                            PdfEditMode.Enabled(EDITING_JOURNEY_FORM_FILLING)
+                    }
+                }
+            }
+
         pdfView.addOnGestureStateChangedListener(gestureStateChangedListener)
         pdfView.addOnViewportChangedListener(onViewportChangedListener)
+        pdfView.addOnFormWidgetInfoUpdatedListener(onFormWidgetInfoUpdatedListener)
+
+        pdfView.setOnBitmapUpdatedListener(
+            object : PdfView.OnBitmapUpdatedListener {
+                override fun onBitmapFetched(pageNum: Int) {
+                    documentViewModel.onBitmapFetched(pageNum)
+                }
+
+                override fun onBitmapCleared(pageNum: Int) {
+                    documentViewModel.onBitmapCleared(pageNum)
+                }
+            }
+        )
     }
 
     private fun updateAnnotationDisplayState(

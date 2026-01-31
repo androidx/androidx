@@ -43,7 +43,7 @@ dependencies {
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
     testImplementation(project(":kruth:kruth"))
-    testImplementation(project(":xr:scenecore:scenecore-testing"))
+    testImplementation(project(":xr:arcore:arcore-testing"))
     testImplementation(project(":xr:runtime:runtime-testing"))
     testImplementation("androidx.appcompat:appcompat:1.2.0")
     testImplementation(libs.testRules)

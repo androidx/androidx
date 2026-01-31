@@ -323,6 +323,7 @@ public class PathExpression extends Operation implements VariableSupport, Serial
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("Generate a path from dynamic expressions (X, Y over a range)")
                 .field(DocumentedOperation.INT, "id", "The ID of the resulting path")
                 .field(INT, "flags", "Configuration flags (LOOP, POLAR, etc.)")

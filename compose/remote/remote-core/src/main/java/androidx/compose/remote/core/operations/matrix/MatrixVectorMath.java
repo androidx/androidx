@@ -183,6 +183,7 @@ public class MatrixVectorMath extends Operation implements VariableSupport, Seri
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("Evaluates a matrix * vector and outputs a vector")
                 .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
                 .field(DocumentedOperation.SHORT, "opType", "The type of operation (0=multiply)")

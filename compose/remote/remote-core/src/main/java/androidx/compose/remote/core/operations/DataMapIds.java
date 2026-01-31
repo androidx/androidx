@@ -151,9 +151,12 @@ public class DataMapIds extends Operation {
                 .description("Encode a collection of named variable IDs")
                 .field(INT, "id", "The ID of the map")
                 .field(INT, "length", "Number of entries")
-                .field(UTF8, "name[0..n]", "The name of the entry")
-                .field(INT, "type[0..n]", "The type of the entry")
-                .field(INT, "id[0..n]", "The ID of the variable");
+                .startSubsection("REPEATED DATA")
+                .field(UTF8, "name", "The name of the entry")
+                .field(INT, "type", "The type of the entry")
+                .field(INT, "id", "The ID of the variable")
+                .endSubsection()
+        ;
     }
 
     @NonNull

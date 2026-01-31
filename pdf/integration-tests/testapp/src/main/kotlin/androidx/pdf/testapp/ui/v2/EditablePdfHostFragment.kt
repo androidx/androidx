@@ -119,6 +119,7 @@ class EditablePdfHostFragment : EditablePdfViewerFragment() {
         }
 
         pdfView.isImageSelectionEnabled = true
+        pdfView.isFormFillingEnabled = true
         setupPdfViewListeners()
     }
 

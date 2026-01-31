@@ -117,6 +117,7 @@ public class ComponentVisibilityOperation extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_visibility")
                 .description("Set component visibility from a provided integer variable")
                 .field(INT, "visibilityId",
                         "The ID of the integer variable representing visibility");

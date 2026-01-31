@@ -25,7 +25,9 @@ import androidx.annotation.StringDef
 import androidx.annotation.WorkerThread
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_KERNEL_VERSION
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_SYSTEM_SPL
+import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_SYSTEM_SUPPLEMENTAL_PATCHES
 import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_VENDOR_SPL
+import androidx.security.state.SecurityStateManagerCompat.Companion.KEY_VENDOR_SUPPLEMENTAL_PATCHES
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -824,6 +826,25 @@ constructor(
     }
 
     /**
+     * Retrieves a list of additional CVEs that have been patched by the OEM supplemental to the
+     * declared Security Patch Level (SPL).
+     *
+     * @return A List of CVE identifier strings (e.g., "CVE-2023-12345"). Returns an empty list if
+     *   no supplemental patches are declared or found.
+     */
+    private fun getSupplementalPatchedCves(): List<String> {
+        val globalSecurityState =
+            securityStateManagerCompat.getGlobalSecurityState(getSystemModules()[0])
+
+        val systemSupplementalCves =
+            globalSecurityState.getStringArray(KEY_SYSTEM_SUPPLEMENTAL_PATCHES) ?: emptyArray()
+        val vendorSupplementalCves =
+            globalSecurityState.getStringArray(KEY_VENDOR_SUPPLEMENTAL_PATCHES) ?: emptyArray()
+
+        return (systemSupplementalCves + vendorSupplementalCves).toList()
+    }
+
+    /**
      * Verifies if all specified CVEs have been patched in the system. This method aggregates the
      * CVEs patched across specified system components and checks if the list includes all CVEs
      * provided.
@@ -847,6 +868,9 @@ constructor(
             val fixes = getPatchedCves(component, spl)
             allPatchedCves.addAll(fixes.values.flatten())
         }
+
+        // Add supplemental CVEs
+        allPatchedCves.addAll(getSupplementalPatchedCves())
 
         // Check if all provided CVEs are in the patched CVEs list
         return cveList.all { allPatchedCves.contains(it) }

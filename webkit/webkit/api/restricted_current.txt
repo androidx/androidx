@@ -81,6 +81,7 @@ package androidx.webkit {
   }
 
   @SuppressCompatibility @androidx.webkit.WebNavigationClient.ExperimentalNavigationCallback public interface Page {
+    method @RequiresFeature(name=androidx.webkit.WebViewFeature.PAGE_GET_URL, enforcement="androidx.webkit.WebViewFeature#isFeatureSupported") public String getUrl();
   }
 
   @SuppressCompatibility @androidx.webkit.Profile.ExperimentalUrlPrefetch public class PrefetchException extends java.lang.Exception {
@@ -653,6 +654,7 @@ package androidx.webkit {
     field @SuppressCompatibility @androidx.webkit.WebNavigationClient.ExperimentalNavigationCallback public static final String NAVIGATION_LISTENER_V1 = "NAVIGATION_LISTENER_V1";
     field public static final String OFF_SCREEN_PRERASTER = "OFF_SCREEN_PRERASTER";
     field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalOriginMatchedHeader public static final String ORIGIN_MATCHED_HEADERS = "ORIGIN_MATCHED_HEADERS";
+    field public static final String PAGE_GET_URL = "PAGE_GET_URL";
     field public static final String PAYMENT_REQUEST = "PAYMENT_REQUEST";
     field public static final String POST_WEB_MESSAGE = "POST_WEB_MESSAGE";
     field @SuppressCompatibility @androidx.webkit.Profile.ExperimentalPreconnect public static final String PRECONNECT = "PRECONNECT";

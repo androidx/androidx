@@ -193,6 +193,7 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_text_anchored")
                 .description("Draw text centered about an anchor point")
                 .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(DocumentedOperation.FLOAT, "x", "The x-position of the anchor point")

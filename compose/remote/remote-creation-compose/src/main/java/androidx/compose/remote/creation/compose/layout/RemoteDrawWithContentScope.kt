@@ -24,11 +24,15 @@ import androidx.annotation.RestrictTo
  * component being drawn.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class RemoteDrawWithContentScope(remoteCanvas: RemoteCanvas) :
-    RemoteDrawScope(remoteCanvas) {
+public class RemoteDrawWithContentScope(
+    remoteCanvas: RemoteCanvas,
+    private val content: RemoteDrawScope.() -> Unit = {
+        remoteCanvas.internalCanvas.document.drawComponentContent()
+    },
+) : RemoteDrawScope(remoteCanvas) {
 
     /** Draws the content of the component. */
     public fun drawContent() {
-        remoteCanvas.internalCanvas.document.drawComponentContent()
+        content()
     }
 }

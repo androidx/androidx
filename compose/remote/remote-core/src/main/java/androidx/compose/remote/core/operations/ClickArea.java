@@ -225,6 +225,7 @@ public class ClickArea extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Protocol Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("click_area")
                 .description("Define a region you can click on")
                 .field(DocumentedOperation.INT, "id", "The id of the click area")
                 .field(

@@ -14,6 +14,7 @@ package androidx.navigation3.scene {
 
   public interface OverlayScene<T> extends androidx.navigation3.scene.Scene<T> {
     method @InaccessibleFromKotlin public java.util.List<androidx.navigation3.runtime.NavEntry<T>> getOverlaidEntries();
+    method public default suspend Object? onRemove(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public abstract java.util.List<androidx.navigation3.runtime.NavEntry<T>> overlaidEntries;
   }
 

@@ -34,7 +34,6 @@ import androidx.xr.compose.subspace.draw.alpha
 import androidx.xr.compose.subspace.layout.SubspaceModifier
 import androidx.xr.compose.subspace.layout.fillMaxSize
 import androidx.xr.compose.subspace.layout.offset
-import androidx.xr.compose.subspace.layout.onPointSourceParamsAvailable
 import androidx.xr.compose.subspace.layout.size
 import androidx.xr.compose.subspace.layout.sizeIn
 import androidx.xr.compose.subspace.semantics.testTag
@@ -52,7 +51,6 @@ import androidx.xr.runtime.math.FloatSize3d
 import androidx.xr.runtime.math.Pose
 import androidx.xr.runtime.math.Vector3
 import androidx.xr.scenecore.GltfModelEntity
-import androidx.xr.scenecore.PointSourceParams
 import androidx.xr.scenecore.runtime.Entity
 import androidx.xr.scenecore.runtime.GltfEntity
 import androidx.xr.scenecore.runtime.GltfModelResource
@@ -1242,100 +1240,5 @@ class SpatialGltfModelTest {
                     ?.getAlpha()
             )
             .isEqualTo(0.5f)
-    }
-
-    @Test
-    fun spatialModel_withOnPointSourceParamsAvailableModifier_providesPointSourceParams() {
-        // Apply `SubspaceModifier.onPointSourceParamsAvailable()` and verify that the
-        // PointSourceParams is not created until the entity is attached.
-
-        val settableFuture = SettableFuture.create<GltfModelResource>()
-        var pointSourceParams: PointSourceParams? = null
-
-        composeTestRule.configureFakeSession(
-            renderingRuntime = {
-                object : RenderingRuntime by it {
-                    override suspend fun loadGltfByAssetName(assetName: String): GltfModelResource =
-                        settableFuture.await()
-                }
-            }
-        )
-
-        composeTestRule.setContent {
-            Subspace {
-                SpatialGltfModel(
-                    state =
-                        rememberSpatialGltfModelState(
-                            source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
-                        ),
-                    modifier =
-                        SubspaceModifier.testTag("model").onPointSourceParamsAvailable {
-                            pointSourceParams = it
-                        },
-                )
-            }
-        }
-
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNull()
-
-        settableFuture.set(object : GltfModelResource {})
-
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
-    }
-
-    @Test
-    fun spatialModel_withOnPointSourceParamsAvailableModifier_changesWithEntity() {
-        // Apply `SubspaceModifier.onPointSourceParamsAvailable()` and verify that the
-        // PointSourceParams is updated each time the entity changes.
-
-        var pointSourceParams: PointSourceParams? = null
-        var state by
-            mutableStateOf(
-                SpatialGltfModelState(
-                    source = SpatialGltfModelSource.fromPath(Paths.get("asset.glb"))
-                )
-            )
-
-        composeTestRule.setContent {
-            Subspace {
-                SpatialGltfModel(
-                    state = state,
-                    modifier =
-                        SubspaceModifier.testTag("model").onPointSourceParamsAvailable {
-                            pointSourceParams = it
-                        },
-                )
-            }
-        }
-
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
-        val firstPointSourceParams = pointSourceParams
-
-        state =
-            SpatialGltfModelState(
-                source = SpatialGltfModelSource.fromUri(Uri.parse("next_asset.glb"))
-            )
-
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
-        assertThat(pointSourceParams).isNotSameInstanceAs(firstPointSourceParams)
-        val secondPointSourceParams = pointSourceParams
-
-        state =
-            SpatialGltfModelState(
-                source =
-                    SpatialGltfModelSource.fromData(
-                        assetData = ByteArray(0),
-                        assetKey = "last_asset",
-                    )
-            )
-
-        composeTestRule.onSubspaceNodeWithTag("model").assertExists()
-        assertThat(pointSourceParams).isNotNull()
-        assertThat(pointSourceParams).isNotSameInstanceAs(firstPointSourceParams)
-        assertThat(pointSourceParams).isNotSameInstanceAs(secondPointSourceParams)
     }
 }

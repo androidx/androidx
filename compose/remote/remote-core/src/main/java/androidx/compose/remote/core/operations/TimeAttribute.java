@@ -16,7 +16,7 @@
 package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
-import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.REPEATED_INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
 import androidx.annotation.RestrictTo;
@@ -224,7 +224,7 @@ public class TimeAttribute extends PaintOperation {
                 .field(INT, "timeId", "The ID of the time variable to extract from")
                 .field(SHORT, "type", "The type of time information to extract")
                 .field(SHORT, "argsLength", "The number of additional arguments")
-                .field(INT_ARRAY, "args", "The additional arguments");
+                .field(REPEATED_INT, "args", "The additional arguments");
     }
 
     @NonNull

@@ -17,7 +17,6 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.foundation.layout.LayoutOrientation.Horizontal
-import androidx.compose.foundation.layout.LayoutOrientation.Vertical
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +50,7 @@ internal sealed class CrossAxisAlignment {
      * [LayoutDirection.Ltr].
      *
      * @param size The total size of the container.
+     * @param itemCrossAxisSize The size of the item being aligned.
      * @param layoutDirection The layout direction of the content if horizontal or
      *   [LayoutDirection.Ltr] if vertical.
      * @param placeable The item being aligned.
@@ -59,6 +59,7 @@ internal sealed class CrossAxisAlignment {
      */
     internal abstract fun align(
         size: Int,
+        itemCrossAxisSize: Int,
         layoutDirection: LayoutDirection,
         placeable: Placeable,
         beforeCrossAxisAlignmentLine: Int,
@@ -108,6 +109,7 @@ internal sealed class CrossAxisAlignment {
 
         override fun align(
             size: Int,
+            itemCrossAxisSize: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
             beforeCrossAxisAlignmentLine: Int,
@@ -117,7 +119,7 @@ internal sealed class CrossAxisAlignment {
             return if (alignmentLinePosition != AlignmentLine.Unspecified) {
                 val line = beforeCrossAxisAlignmentLine - alignmentLinePosition
                 if (layoutDirection == LayoutDirection.Rtl) {
-                    size - placeable.width - line
+                    size - itemCrossAxisSize - line
                 } else {
                     line
                 }
@@ -131,11 +133,12 @@ internal sealed class CrossAxisAlignment {
         CrossAxisAlignment() {
         override fun align(
             size: Int,
+            itemCrossAxisSize: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
             beforeCrossAxisAlignmentLine: Int,
         ): Int {
-            return vertical.align(placeable.height, size)
+            return vertical.align(itemCrossAxisSize, size)
         }
     }
 
@@ -143,11 +146,12 @@ internal sealed class CrossAxisAlignment {
         CrossAxisAlignment() {
         override fun align(
             size: Int,
+            itemCrossAxisSize: Int,
             layoutDirection: LayoutDirection,
             placeable: Placeable,
             beforeCrossAxisAlignmentLine: Int,
         ): Int {
-            return horizontal.align(placeable.width, size, layoutDirection)
+            return horizontal.align(itemCrossAxisSize, size, layoutDirection)
         }
     }
 }

@@ -111,6 +111,7 @@ public class UpdateDynamicFloatList extends Operation implements VariableSupport
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Data Operations", OP_CODE, "UpdateDynamicFloatList")
+                .addedVersion(7)
                 .description("Update a value in a dynamic float list")
                 .field(INT,
                         "arrayId", "The ID of the array")

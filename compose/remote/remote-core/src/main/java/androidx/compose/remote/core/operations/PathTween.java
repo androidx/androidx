@@ -144,6 +144,7 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("path_tween")
                 .description("Interpolate between two paths and store the result in a new path ID")
                 .field(DocumentedOperation.INT, "outId",
                         "The ID of the resulting interpolated path")

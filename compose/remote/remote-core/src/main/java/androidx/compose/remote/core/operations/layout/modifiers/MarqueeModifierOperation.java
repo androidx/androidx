@@ -268,6 +268,7 @@ public class MarqueeModifierOperation extends DecoratorModifierOperation impleme
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_marquee")
                 .description("Define a scrolling marquee effect for a component")
                 .field(INT, "iterations", "Number of iterations")
                 .field(INT, "animationMode", "Animation mode")

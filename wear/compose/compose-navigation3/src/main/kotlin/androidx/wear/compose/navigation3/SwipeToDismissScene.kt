@@ -40,7 +40,6 @@ import androidx.compose.ui.util.lerp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.Scene
 import androidx.wear.compose.foundation.LocalReduceMotion
-import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.material3.SwipeToDismissBox
 
@@ -52,7 +51,6 @@ internal class SwipeToDismissScene<T : Any>(
     // a list of entries that users can back into
     override val previousEntries: List<NavEntry<T>>,
     currentBackStack: List<NavEntry<T>>,
-    swipeToDismissBoxState: SwipeToDismissBoxState,
     backEnabled: Boolean,
 ) : Scene<T> {
     // A Unit scene key disables animations in NavDisplay, so that this scene
@@ -96,7 +94,6 @@ internal class SwipeToDismissScene<T : Any>(
                 onBack()
             },
             modifier = Modifier,
-            state = swipeToDismissBoxState,
             backgroundKey = background?.contentKey ?: SwipeToDismissKeys.Background,
             userSwipeEnabled = backEnabled,
             contentKey = currentEntry.contentKey,

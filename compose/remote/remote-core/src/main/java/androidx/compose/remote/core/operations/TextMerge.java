@@ -34,7 +34,7 @@ import java.util.List;
 
 /** Operation to deal with Text data */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TextMerge extends Operation implements VariableSupport, Serializable {
+public class TextMerge extends Operation implements VariableSupport, ComponentData, Serializable {
     private static final int OP_CODE = Operations.TEXT_MERGE;
     private static final String CLASS_NAME = "TextMerge";
     public int mTextId;

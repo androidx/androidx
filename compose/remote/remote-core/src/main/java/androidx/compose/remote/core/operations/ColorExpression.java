@@ -338,7 +338,6 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
                     + Utils.floatToString(mValue)
                     + ")";
         }
-        Utils.log(" ColorExpression toString" + mId + " " + mMode);
         if (mMode == ARGB_MODE) {
             return "ColorExpression["
                     + mId

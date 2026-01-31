@@ -52,7 +52,7 @@ class SimpleTextFragment : Fragment() {
                     val displayText = arguments?.getString("text") ?: "Simple Text Fragment"
                     SpatialPanel(
                         modifier =
-                            SubspaceModifier.width(300.dp).height(200.dp).offset(x = xOffset.dp)
+                            SubspaceModifier.width(400.dp).height(200.dp).offset(x = xOffset.dp)
                     ) {
                         Surface(color = Color.LightGray, modifier = Modifier.fillMaxSize()) {
                             Column(modifier = Modifier.padding(16.dp)) { Text(displayText) }

@@ -40,6 +40,10 @@ import org.jspecify.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Flow layout implementation. Positions components one after the other horizontally and wraps to
+ * the next line if space is exhausted.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class FlowLayout extends RowLayout {
 
@@ -290,7 +294,10 @@ public class FlowLayout extends RowLayout {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), "FlowLayout")
+        doc.operation("Layout Managers", id(), "FlowLayout")
+                .addedVersion(7)
+                .experimental(true)
+                .additionalDocumentation("flow")
                 .description("Flow layout implementation. Positions components one after the"
                         + " other horizontally and wraps to the next line if space is exhausted.")
                 .field(DocumentedOperation.INT, "componentId", "Unique ID for this component")

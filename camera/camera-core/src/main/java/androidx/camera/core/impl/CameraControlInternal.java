@@ -106,11 +106,7 @@ public interface CameraControlInternal extends CameraControl {
     /**
      * Sets the flag if low-light boost needs to be disabled by use case session config.
      *
-     * <p> Low-light boost will be disabled when any of the following conditions:
-     * <ul>
-     *     <li> Expected frame rate range exceeds 30
-     *     <li> HDR 10-bit is ON
-     * </ul>
+     * <p> Low-light boost will be disabled when the expected frame rate range exceeds 30.
      *
      * @param disabled True if low-light boost should be disabled. Otherwise returns false.
      */

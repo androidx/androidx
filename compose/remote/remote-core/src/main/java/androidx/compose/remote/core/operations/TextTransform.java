@@ -140,6 +140,8 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .experimental(true)
                 .description("Transform a string (case conversion, trimming, etc.)")
                 .field(DocumentedOperation.INT, "textId",
                         "The ID of the resulting transformed text")

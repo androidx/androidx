@@ -87,7 +87,8 @@ public class CollapsibleRowLayout extends RowLayout {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), "CollapsibleRow")
+        doc.operation("Layout Managers", id(), "CollapsibleRow")
+                .additionalDocumentation("collapsible_row")
                 .description("A row layout that can hide children if space is insufficient")
                 .field(INT, "componentId", "Unique ID for this component")
                 .field(INT, "animationId", "ID for animation purposes")

@@ -37,7 +37,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DataListIds extends Operation implements VariableSupport, ArrayAccess, Serializable {
+public class DataListIds extends Operation implements VariableSupport, ArrayAccess, ComponentData,
+        Serializable {
     private static final int OP_CODE = Operations.ID_LIST;
     private static final String CLASS_NAME = "IdListData";
     private final int mId;

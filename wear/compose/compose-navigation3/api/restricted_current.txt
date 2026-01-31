@@ -2,24 +2,17 @@
 package androidx.wear.compose.navigation3 {
 
   public final class SwipeDismissableSceneStrategy<T> implements androidx.navigation3.scene.SceneStrategy<T> {
-    ctor public SwipeDismissableSceneStrategy(androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState state, optional boolean isUserSwipeEnabled);
-    ctor @BytecodeOnly public SwipeDismissableSceneStrategy(androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState!, boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
+    ctor public SwipeDismissableSceneStrategy();
+    ctor public SwipeDismissableSceneStrategy(optional boolean isUserSwipeEnabled);
+    ctor @BytecodeOnly public SwipeDismissableSceneStrategy(boolean, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     method public androidx.navigation3.scene.Scene<T>? calculateScene(androidx.navigation3.scene.SceneStrategyScope<T>, java.util.List<androidx.navigation3.runtime.NavEntry<T>> entries);
-    method @InaccessibleFromKotlin public androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState getState();
     method @InaccessibleFromKotlin public boolean isUserSwipeEnabled();
     property public boolean isUserSwipeEnabled;
-    property public androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState state;
   }
 
   public final class SwipeDismissableSceneStrategyKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.wear.compose.navigation3.SwipeDismissableSceneStrategy<T> rememberSwipeDismissableSceneStrategy(optional androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState swipeDismissableSceneStrategyState, optional boolean isUserSwipeEnabled);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.wear.compose.navigation3.SwipeDismissableSceneStrategy<T!> rememberSwipeDismissableSceneStrategy(androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState?, boolean, androidx.compose.runtime.Composer?, int, int);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState rememberSwipeDismissableSceneStrategyState(optional androidx.wear.compose.foundation.SwipeToDismissBoxState? swipeToDismissBoxState);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.navigation3.SwipeDismissableSceneStrategyState rememberSwipeDismissableSceneStrategyState(androidx.wear.compose.foundation.SwipeToDismissBoxState?, androidx.compose.runtime.Composer?, int, int);
-  }
-
-  public final class SwipeDismissableSceneStrategyState {
-    ctor public SwipeDismissableSceneStrategyState(androidx.wear.compose.foundation.SwipeToDismissBoxState? swipeToDismissBoxState);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static <T> androidx.wear.compose.navigation3.SwipeDismissableSceneStrategy<T> rememberSwipeDismissableSceneStrategy(optional boolean isUserSwipeEnabled);
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static <T> androidx.wear.compose.navigation3.SwipeDismissableSceneStrategy<T!> rememberSwipeDismissableSceneStrategy(boolean, androidx.compose.runtime.Composer?, int, int);
   }
 
 }

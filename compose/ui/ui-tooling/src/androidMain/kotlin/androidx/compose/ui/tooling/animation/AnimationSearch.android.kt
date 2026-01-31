@@ -25,6 +25,11 @@ import androidx.compose.animation.core.TargetBasedAnimation
 import androidx.compose.animation.core.Transition
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.ui.tooling.animation.search.AnimateXAsStateSearchInfo
+import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
+import androidx.compose.ui.tooling.animation.search.AnimatedVisibilitySearchInfo
+import androidx.compose.ui.tooling.animation.search.InfiniteTransitionSearchInfo
+import androidx.compose.ui.tooling.animation.search.TransitionSearchInfo
 import androidx.compose.ui.tooling.data.CallGroup
 import androidx.compose.ui.tooling.data.Group
 import androidx.compose.ui.tooling.data.UiToolingDataApi
@@ -144,13 +149,14 @@ internal class AnimationSearch(
         slotTrees.forEach { tree ->
             val groups = tree.findAll { true }
             setToSearch.forEach { it.addAnimations(groups) }
-            // Remove all AnimatedVisibility parent transitions from the transitions list,
+            // Remove all AnimatedContent, AnimatedVisibility and parent transitions from the
+            // transitions list,
             // otherwise we'd duplicate them in the Android Studio Animation Preview because we
             // will track them separately.
-            transitionSearch.animations.removeAll(animatedVisibilitySearch.animations)
-            // Remove all AnimatedContent parent transitions from the transitions list, so we can
-            // ignore these animations while support is not added to Animation Preview.
-            transitionSearch.animations.removeAll(animatedContentSearch.animations)
+            val transitionsToExclude =
+                animatedVisibilitySearch.animations.map { it.transition }.toSet() +
+                    animatedContentSearch.animations.map { it.transition }.toSet()
+            transitionSearch.animations.removeAll { transitionsToExclude.contains(it.transition) }
         }
         // Make the clock track all the animations found.
         setToTrack.forEach { it.track() }
@@ -211,11 +217,6 @@ internal class AnimationSearch(
     class DecaySearch(trackAnimation: (DecayAnimation<*, *>) -> Unit) :
         RememberSearch<DecayAnimation<*, *>>(DecayAnimation::class, trackAnimation)
 
-    data class InfiniteTransitionSearchInfo(
-        val infiniteTransition: InfiniteTransition,
-        val toolingState: ToolingState<Long>,
-    )
-
     class InfiniteTransitionSearch(trackAnimation: (InfiniteTransitionSearchInfo) -> Unit) :
         Search<InfiniteTransitionSearchInfo>(trackAnimation) {
 
@@ -263,12 +264,6 @@ internal class AnimationSearch(
         private fun findToolingOverride(group: Group) =
             group.findData<MutableState<State<Long>?>>(true)
     }
-
-    data class AnimateXAsStateSearchInfo<T, V : AnimationVector>(
-        val animatable: Animatable<T, V>,
-        val animationSpec: AnimationSpec<T>,
-        val toolingState: ToolingState<T>,
-    )
 
     /** Search for animateXAsState() and animateValueAsState() animations. */
     class AnimateXAsStateSearch(trackAnimation: (AnimateXAsStateSearchInfo<*, *>) -> Unit) :
@@ -381,15 +376,20 @@ internal class AnimationSearch(
     }
 
     /** Search for updateTransition() animations. */
-    class TransitionSearch(trackAnimation: (Transition<*>) -> Unit) :
-        Search<Transition<*>>(trackAnimation) {
+    class TransitionSearch(trackAnimation: (TransitionSearchInfo) -> Unit) :
+        Search<TransitionSearchInfo>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group) != null
         }
 
         override fun addAnimations(groups: Collection<Group>) {
-            animations.addAll(groups.mapNotNull { toAnimationGroup(it) }.findRememberedData())
+            animations.addAll(
+                groups
+                    .mapNotNull { toAnimationGroup(it) }
+                    .findRememberedData<Transition<*>>()
+                    .map { TransitionSearchInfo(it) }
+            )
         }
 
         /** Find the [Group] containing animation. */
@@ -400,15 +400,20 @@ internal class AnimationSearch(
     }
 
     /** Search for AnimatedVisibility animations. */
-    class AnimatedVisibilitySearch(trackAnimation: (Transition<*>) -> Unit) :
-        Search<Transition<*>>(trackAnimation) {
+    class AnimatedVisibilitySearch(trackAnimation: (AnimatedVisibilitySearchInfo) -> Unit) :
+        Search<AnimatedVisibilitySearchInfo>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group) != null
         }
 
         override fun addAnimations(groups: Collection<Group>) {
-            animations.addAll(groups.mapNotNull { toAnimationGroup(it) }.findRememberedData())
+            animations.addAll(
+                groups
+                    .mapNotNull { toAnimationGroup(it) }
+                    .findRememberedData<Transition<*>>()
+                    .map { AnimatedVisibilitySearchInfo(it) }
+            )
         }
 
         /** Find the [Group] containing animation. */
@@ -426,15 +431,20 @@ internal class AnimationSearch(
     }
 
     /** Search for AnimatedContent animations. */
-    class AnimatedContentSearch(trackAnimation: (Transition<*>) -> Unit) :
-        Search<Transition<*>>(trackAnimation) {
+    class AnimatedContentSearch(trackAnimation: (AnimatedContentSearchInfo) -> Unit) :
+        Search<AnimatedContentSearchInfo>(trackAnimation) {
 
         override fun hasAnimation(group: Group): Boolean {
             return toAnimationGroup(group) != null
         }
 
         override fun addAnimations(groups: Collection<Group>) {
-            animations.addAll(groups.mapNotNull { toAnimationGroup(it) }.findRememberedData())
+            animations.addAll(
+                groups
+                    .mapNotNull { toAnimationGroup(it) }
+                    .findRememberedData<Transition<*>>()
+                    .map { AnimatedContentSearchInfo(it) }
+            )
         }
 
         /** Find the [Group] containing animation. */

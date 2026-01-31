@@ -121,12 +121,6 @@ object ComposeUiFlags {
     @JvmField
     var isRequestFocusOnNonFocusableFocusTargetEnabled: Boolean = true
 
-    /**
-     * With this flag on, the adaptive refresh rate (ARR) feature will be enabled. A preferred frame
-     * rate can be set on a Composable through frame rate modifier: [Modifier.preferredFrameRate]
-     */
-    @field:Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
-
     /** Flag for enabling indirect pointer event navigation gestures in Compose. */
     @field:Suppress("MutableBareField")
     @JvmField

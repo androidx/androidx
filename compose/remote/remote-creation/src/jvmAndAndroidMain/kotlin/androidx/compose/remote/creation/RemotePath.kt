@@ -25,7 +25,7 @@ public expect class RectF
 public expect class Path
 
 @Suppress("KmpVisibilityMismatch") // actuals are internal
-public expect class Matrix
+public expect class MatrixTransform
 
 internal expect val RectF.left: Float
 internal expect val RectF.top: Float
@@ -74,7 +74,7 @@ public expect class RemotePath {
 
     public val path: Path
 
-    public fun transform(matrix: Matrix)
+    public fun transform(matrix: MatrixTransform)
 
     public fun addArc(oval: RectF, startAngle: Float, sweepAngle: Float)
 

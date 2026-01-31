@@ -84,6 +84,7 @@ public class RoundedClipRectModifierOperation extends DrawBase4
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", id(), CLASS_NAME)
+                .additionalDocumentation("modifier_rounded_clip_rect")
                 .description("Clip the component's content to its rounded rectangular bounds")
                 .field(
                         FLOAT,

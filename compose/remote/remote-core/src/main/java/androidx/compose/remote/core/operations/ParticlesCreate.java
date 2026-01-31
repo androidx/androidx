@@ -199,6 +199,7 @@ public class ParticlesCreate extends PaintOperation implements VariableSupport {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("particles_create")
                 .description("Create a particle system")
                 .field(DocumentedOperation.INT, "id", "The ID of the particle system")
                 .field(INT, "particleCount", "Number of particles to create")

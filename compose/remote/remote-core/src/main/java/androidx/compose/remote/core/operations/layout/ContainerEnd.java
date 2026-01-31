@@ -37,7 +37,7 @@ public class ContainerEnd extends Operation {
     @NonNull
     @Override
     public String toString() {
-        return "LIST_END";
+        return "CONTAINER_END";
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ContainerEnd extends Operation {
      */
     @NonNull
     public static String name() {
-        return "ListEnd";
+        return "ContainerEnd";
     }
 
     /**
@@ -95,7 +95,7 @@ public class ContainerEnd extends Operation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Document Protocol Operations", id(), name())
                 .description("End tag for a container component (Row, Column, etc.)");
     }
 }

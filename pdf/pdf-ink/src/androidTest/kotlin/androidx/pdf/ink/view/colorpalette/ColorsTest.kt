@@ -101,42 +101,48 @@ class ColorsTest {
 
         val expectedColors =
             mapOf(
-                0x66000000 to
+                0xFF000000.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_dark_gray),
-                0x66FFFFFF to context.getString(R.string.pdf_highlighter_color_palette_item_white),
-                0x66FF0000 to
+                0xFFFFFFFF.toInt() to
+                    context.getString(R.string.pdf_highlighter_color_palette_item_white),
+                0xFFFF0000.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_coral_red),
-                0x6600FF00 to
+                0xFF00FF00.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_lime_green),
-                0x660000FF to
+                0xFF0000FF.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_periwinkle_blue),
-                0x66FFA500 to context.getString(R.string.pdf_highlighter_color_palette_item_orange),
-                0x66FFFF00 to context.getString(R.string.pdf_highlighter_color_palette_item_yellow),
-                0x66FFC0CB to
+                0xFFFFA500.toInt() to
+                    context.getString(R.string.pdf_highlighter_color_palette_item_orange),
+                0xFFFFFF00.toInt() to
+                    context.getString(R.string.pdf_highlighter_color_palette_item_yellow),
+                0xFFFFC0CB.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_pale_pink),
-                0x66ADD8E6 to
+                0xFFADD8E6.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_light_blue),
-                0x6690EE90 to
+                0xFF90EE90.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_pale_green),
-                0x66FFED45 to
+                0xFFFFED45.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_bright_yellow),
-                0x66FF8279 to context.getString(R.string.pdf_highlighter_color_palette_item_peach),
-                0x66A52A2A to
+                0xFFFF8279.toInt() to
+                    context.getString(R.string.pdf_highlighter_color_palette_item_peach),
+                0xFFA52A2A.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_dusty_rose),
-                0x66808000 to
+                0xFF808000.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_olive_green),
-                0x66800080 to
+                0xFF800080.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_medium_purple),
-                0x66008000 to
+                0xFF008000.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_medium_green),
-                0x66DC143C to
+                0xFFDC143C.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_rose_pink),
-                0x664682B4 to
+                0xFF4682B4.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_steel_blue),
-                0x666A5ACD to context.getString(R.string.pdf_highlighter_color_palette_item_lilac),
-                0x66556B2F to
+                0xFF6A5ACD.toInt() to
+                    context.getString(R.string.pdf_highlighter_color_palette_item_lilac),
+                0xFF556B2F.toInt() to
                     context.getString(R.string.pdf_highlighter_color_palette_item_sage_green),
-                0x66DEB887 to context.getString(R.string.pdf_highlighter_color_palette_item_beige),
+                0xFFDEB887.toInt() to
+                    context.getString(R.string.pdf_highlighter_color_palette_item_beige),
             )
 
         val actualColors =

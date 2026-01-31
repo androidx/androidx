@@ -46,6 +46,12 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField") @JvmField var isCheckboxStylingFixEnabled: Boolean = false
 
     /**
+     * When this flag is `true`, the [Snackbar] component will use an updated layout implementation
+     * that correctly handles vertical alignment for multi-line text.
+     */
+    @field:Suppress("MutableBareField") @JvmField var isSnackbarStylingFixEnabled: Boolean = false
+
+    /**
      * When this flag is true and a precision pointer is present, components are resized accordingly
      */
     @field:Suppress("MutableBareField")
@@ -70,4 +76,17 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isAnchoredDraggableComponentsStrictOffsetCheckEnabled: Boolean = true
+
+    /**
+     * This flag affects Material3 components that use
+     * [androidx.compose.ui.Modifier.anchoredDraggable]. Those are: [BottomSheetScaffold],
+     * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
+     *
+     * When this flag is set to true, these components will recalculate their anchor points when the
+     * instance of their respective state changes and remeasure. When this flag is set to false, no
+     * additional remeasure is performed when the state instance changes.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAnchoredDraggableComponentsInvalidationFixEnabled: Boolean = true
 }

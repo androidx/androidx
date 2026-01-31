@@ -41,12 +41,12 @@ androidXMultiplatform {
             }
         }
     }
-    jvmStubs()
-    linuxX64Stubs()
-//    desktop()
-//    mac()
-//    linux()
-//    ios()
+    desktop()
+    linux()
+    mac()
+    ios()
+    js()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -54,35 +54,30 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(libs.kotlinCoroutinesCore)
             api(project(":navigation:navigation-common"))
-            api("androidx.lifecycle:lifecycle-common:2.8.7")
-            api("androidx.lifecycle:lifecycle-runtime:2.8.7")
-            api("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
+            api("androidx.lifecycle:lifecycle-common:2.9.4")
+            api("androidx.lifecycle:lifecycle-runtime:2.9.4")
+            api("androidx.lifecycle:lifecycle-viewmodel:2.9.4")
 
             implementation(libs.kotlinSerializationCore)
-            implementation("androidx.collection:collection:1.4.2")
+            implementation("androidx.collection:collection:1.5.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlinTest)
         }
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest.dependsOn(commonTest)
-
-        jvmStubsMain.dependsOn(nonAndroidMain)
-        jvmStubsTest.dependsOn(nonAndroidTest)
 
         androidMain.dependencies {
-            api("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-            api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+            api("androidx.lifecycle:lifecycle-runtime-ktx:2.9.4")
+            api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.4")
             api("androidx.activity:activity-ktx:1.7.1")
             api("androidx.core:core-ktx:1.8.0")
             api("androidx.annotation:annotation-experimental:1.4.1")
         }
         androidDeviceTest.dependencies {
-            implementation("androidx.annotation:annotation:1.8.0")
-            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7")
-            implementation("androidx.lifecycle:lifecycle-common:2.8.7")
-            implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
-            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.7")
+            implementation("androidx.annotation:annotation:1.9.1")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.4")
+            implementation("androidx.lifecycle:lifecycle-common:2.9.4")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.9.4")
+            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.9.4")
             implementation(project(":internal-testutils-navigation"))
             implementation(project(":internal-testutils-runtime"))
             implementation(libs.hamcrestCore)
@@ -99,8 +94,31 @@ androidXMultiplatform {
             implementation(libs.dexmakerMockito)
             implementation(libs.mockitoCore)
         }
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
+
+        nonJvmMain.dependencies {
+            implementation(libs.atomicFu)
+        }
+        webTest.dependencies {
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":internal-testutils-navigation"))
+        }
+        wasmJsMain.dependencies {
+            implementation(libs.kotlinXw3c)
+        }
+        wasmJsTest {
+            kotlin.srcDirs("src/jsTest/kotlin")
+        }
+
+        nonAndroidMain.dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        webMain.dependsOn(nonAndroidMain)
+
+        nonAndroidTest.dependsOn(commonTest)
+        desktopTest.dependsOn(nonAndroidTest)
+        nativeTest.dependsOn(nonAndroidTest)
+        webTest.dependsOn(nonAndroidTest)
     }
 }
 

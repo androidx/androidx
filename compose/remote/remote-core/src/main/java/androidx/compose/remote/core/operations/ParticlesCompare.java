@@ -362,6 +362,7 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("Compare particles and execute conditional logic")
                 .field(DocumentedOperation.INT, "id", "The ID of the particle system")
                 .field(DocumentedOperation.SHORT, "flags", "Configuration flags")

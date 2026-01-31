@@ -112,6 +112,7 @@ public class Rem extends Operation implements SerializableToString, Serializable
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Document Protocol Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("Embed a remark or comment string in the document")
                 .field(UTF8, "text", "The comment string");
     }

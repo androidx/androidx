@@ -35,6 +35,6 @@ public val LocalNavAnimatedContentScope: ProvidableCompositionLocal<AnimatedCont
         throw IllegalStateException(
             "Unexpected access to LocalNavAnimatedContentScope. You should only " +
                 "access LocalNavAnimatedContentScope inside a NavEntry passed " +
-                "to NavDisplay."
+                "to NavDisplay that is not in a OverlayScene."
         )
     }

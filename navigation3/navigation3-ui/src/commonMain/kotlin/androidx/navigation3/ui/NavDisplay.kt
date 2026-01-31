@@ -34,7 +34,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEach
@@ -50,7 +52,9 @@ import androidx.navigation3.runtime.get
 import androidx.navigation3.runtime.metadata
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.LocalCurrentScene
 import androidx.navigation3.scene.LocalEntriesToExcludeFromCurrentScene
+import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneInfo
 import androidx.navigation3.scene.SceneState
@@ -654,13 +658,22 @@ public fun <T : Any> NavDisplay(
     sceneMap[targetKey] = transition.targetState
     zIndices[targetKey] = targetZIndex
 
+    // overlay scenes that are still on the backStack
     val overlayScenes = sceneState.overlayScenes
+    // includes overlay scenes that are already popped off backStack but still animating out
+    val currentOverlayScenes = remember { SnapshotStateList<OverlayScene<T>>() }
+    LaunchedEffect(overlayScenes) {
+        // we want a unique set of overlay scenes, but it needs to be ordered to preserve z-order
+        overlayScenes.fastForEach {
+            if (!currentOverlayScenes.contains(it)) currentOverlayScenes.add(it)
+        }
+    }
 
     // Determine which entries should be rendered within each currently rendered scene,
     // using the z-index of each screen to always show the entry on the topmost screen
     // The map is AnimatedSceneKey to a Set of NavEntry.key values
     val sceneToExcludedEntryMap =
-        remember(sceneMap.entries.toList(), overlayScenes.toList(), zIndices.toString()) {
+        remember(sceneMap.entries.toList(), currentOverlayScenes.toList(), zIndices.toString()) {
             buildMap {
                 val scenes = mutableListOf<Scene<T>>()
                 // First sort the non-overlay scenes by z-order in descending order.
@@ -676,7 +689,7 @@ public fun <T : Any> NavDisplay(
                 // z-order
                 // overlayScenes is already in order of [top most overlay ---> lowest overlay],
                 // so we put overlayScenes in front, and then add the scenes after.
-                val scenesInZOrder = overlayScenes + scenes
+                val scenesInZOrder = currentOverlayScenes + scenes
                 // At this point we have a list of all scenes in this order
                 // [top most overlay ---> lowest overlay, other scenes zIndex larger --> zIndex
                 // smaller]
@@ -823,6 +836,7 @@ public fun <T : Any> NavDisplay(
         CompositionLocalProvider(
             LocalLifecycleOwner provides sceneLifecycleOwner,
             LocalNavAnimatedContentScope provides this,
+            LocalCurrentScene provides targetScene,
             LocalEntriesToExcludeFromCurrentScene provides
                 sceneToExcludedEntryMap.getValue(AnimatedSceneKey(targetScene)),
         ) {
@@ -849,12 +863,22 @@ public fun <T : Any> NavDisplay(
     }
 
     // Show all OverlayScene instances above the AnimatedContent
-    overlayScenes.fastForEachReversed { overlayScene ->
+    currentOverlayScenes.fastForEachReversed { overlayScene ->
+        val scope = rememberCoroutineScope()
         CompositionLocalProvider(
             LocalEntriesToExcludeFromCurrentScene provides
-                sceneToExcludedEntryMap.getValue(AnimatedSceneKey(overlayScene))
+                sceneToExcludedEntryMap.getValue(AnimatedSceneKey(overlayScene)),
+            LocalCurrentScene provides overlayScene,
         ) {
             overlayScene.content.invoke()
+        }
+        // if the overlay scene is popped, let onRemoved finish before
+        // removing from composition to ensure animations can complete
+        if (overlayScene !in overlayScenes) {
+            scope.launch {
+                overlayScene.onRemove()
+                currentOverlayScenes.remove(overlayScene)
+            }
         }
     }
 }

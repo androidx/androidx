@@ -27,4 +27,10 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Action {
     public fun RemoteStateScope.toRemoteAction(): androidx.compose.remote.creation.actions.Action
+
+    public companion object {
+        /** A placeholder empty action. */
+        @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public val Empty: CombinedAction = CombinedAction()
+    }
 }

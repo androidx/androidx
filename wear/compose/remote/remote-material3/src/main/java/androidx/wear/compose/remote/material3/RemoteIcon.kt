@@ -35,6 +35,7 @@ import androidx.compose.remote.creation.compose.vector.painterRemoteVector
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.vector.ImageVector
 
 /**
@@ -64,7 +65,7 @@ public fun RemoteIcon(
         RemoteCanvas(modifier = RemoteModifier.fillMaxSize()) {
             with(painter) { onDraw() }
             // TODO(b/474687917): Temporary fix to reset tinted paint
-            remoteCanvas.internalCanvas.usePaint(Paint().asFrameworkPaint())
+            remoteCanvas.internalCanvas.usePaint(Paint().nativePaint)
         }
     }
 }

@@ -51,7 +51,7 @@ class AnimatedContentComposeAnimationTest {
             }
         }
         assertEquals(1, search.animations.size)
-        val composeAnimation = search.animations.first().parseAnimatedContent()!!
+        val composeAnimation = search.animations.first().transition.parseAnimatedContent()!!
         composeAnimation.animationObject.let {
             assertNotNull(it)
             assertEquals(1.dp, it.currentState)
@@ -72,7 +72,7 @@ class AnimatedContentComposeAnimationTest {
             }
         }
         assertEquals(1, search.animations.size)
-        assertNull(search.animations.first().parseAnimatedContent())
+        assertNull(search.animations.first().transition.parseAnimatedContent())
         AnimatedContentComposeAnimation.testOverrideAvailability(true)
     }
 
@@ -85,6 +85,6 @@ class AnimatedContentComposeAnimationTest {
             }
         }
         assertEquals(1, search.animations.size)
-        assertNull(search.animations.first().parseAnimatedContent())
+        assertNull(search.animations.first().transition.parseAnimatedContent())
     }
 }

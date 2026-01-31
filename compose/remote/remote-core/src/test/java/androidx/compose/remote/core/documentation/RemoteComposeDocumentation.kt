@@ -75,6 +75,10 @@ import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.ParticlesCompare
 import androidx.compose.remote.core.operations.ParticlesCreate
 import androidx.compose.remote.core.operations.ParticlesLoop
+import androidx.compose.remote.core.operations.PathAppend
+import androidx.compose.remote.core.operations.PathCombine
+import androidx.compose.remote.core.operations.PathCreate
+import androidx.compose.remote.core.operations.PathTween
 import androidx.compose.remote.core.operations.Rem
 import androidx.compose.remote.core.operations.RootContentBehavior
 import androidx.compose.remote.core.operations.RootContentDescription
@@ -213,6 +217,18 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
 		      top: 20px;
               overflow-y: auto;
 	        }
+
+            .md table {
+                margin-left: 0 !important;
+                margin-right: auto !important;
+            }
+            
+            .md canvas {
+                display: block !important;
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding-bottom: 20px; /* Optional: adds some breathing room */
+            }
 }
             </style>
         """
@@ -404,6 +420,10 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
         operationsMap.put(Operations.DRAW_LINE, DrawLine::documentation)
         operationsMap.put(Operations.DRAW_PATH, DrawPath::documentation)
         operationsMap.put(Operations.DRAW_TWEEN_PATH, DrawTweenPath::documentation)
+        operationsMap.put(Operations.PATH_CREATE, PathCreate::documentation)
+        operationsMap.put(Operations.PATH_ADD, PathAppend::documentation)
+        operationsMap.put(Operations.PATH_COMBINE, PathCombine::documentation)
+        operationsMap.put(Operations.PATH_TWEEN, PathTween::documentation)
         operationsMap.put(Operations.DRAW_BITMAP, DrawBitmap::documentation)
         operationsMap.put(Operations.DRAW_BITMAP_INT, DrawBitmapInt::documentation)
         operationsMap.put(Operations.DRAW_BITMAP_SCALED, DrawBitmapScaled::documentation)
@@ -592,9 +612,10 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
         //      m.documentation(this)
         //    }
 
-        val layoutPart = File("compose/remote/Documentation/parts/rc_layout.md")
-        val fullPath = layoutPart.absolutePath
-        buffer.append(layoutPart.readText())
+        val layoutPart = readPart("rc_layout.md")
+        if (layoutPart != null) {
+            buffer.append(layoutPart)
+        }
 
         val categories =
             ////            arrayListOf(
@@ -613,6 +634,7 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
                 "Canvas Operations",
                 "Text Operations",
                 "Layout Operations",
+                "Layout Managers",
                 "Modifier Operations",
                 "Actions & Events Operations",
                 "Animation & Particles Operations",
@@ -646,6 +668,8 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
                     "Management of paint properties, shaders, and complex color definitions (themes, expressions).",
                 "Matrix Operations" to
                     "Coordinate system transformations, including translation, scaling, rotation, skewing, and matrix math.",
+                "Layout Managers" to
+                    "Higher-level components that manage the positioning and sizing of their children according to specific algorithms (Row, Column, Box, etc.).",
                 "Layout Operations" to
                     "High-level structural components (Box, Row, Column, etc.) used to build the UI hierarchy.",
                 "Modifier Operations" to
@@ -690,8 +714,8 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
                 buffer.append(description + "\n\n")
             }
             buffer.append("Operations in this category:\n")
-            buffer.append("    | ID | Name | Size (bytes) \n")
-            buffer.append("    | ---- | ---- | ---- |\n")
+            buffer.append("    | ID | Name | Version | Size (bytes) \n")
+            buffer.append("    | ---- | ---- | ---- | ---- |\n")
             for (op in ops!!) {
                 val size =
                     if (op.isWIP) {
@@ -699,10 +723,21 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
                     } else {
                         "${op.sizeFields + 1}${op.varSize}"
                     }
-                buffer.append("    | ${op.id} | ${op.name} | $size \n")
+                buffer.append("    | ${op.id} | ${op.name} | v${op.addedVersion} | $size \n")
             }
             for (op in ops!!) {
-                buffer.append("## ${op.name}\n")
+                var title = "## ${op.name}"
+                if (op.isExperimental) {
+                    title += " [EXPERIMENTAL]"
+                }
+                if (op.addedVersion > 6) {
+                    buffer.append("\n$title (added in v${op.addedVersion})\n")
+                } else {
+                    buffer.append("\n$title\n")
+                }
+                if (op.isExperimental) {
+                    buffer.append("!!! WARNING\n    Experimental operation\n\n")
+                }
                 if (op.isWIP) {
                     buffer.append("!!! WARNING\n    Undocumented operation\n\n")
                     continue
@@ -712,27 +747,37 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
                 val sizeFields = op.sizeFields + 1
                 val varSet = op.varSize
                 buffer.append("$numFields Fields, total size $sizeFields$varSet bytes\n")
-                buffer.append("    | Type | Name | Description |\n")
-                buffer.append("    | ---- | ---- | ---- |\n")
+
+                buffer.append("<br>")
+                buffer.append("<table>")
+                buffer.append("<tr><th>Type</th><th>Name</th><th>Description</th></tr>\n")
                 buffer.append(
-                    "    | ${
-                        DocumentedOperation.getType(
-                            DocumentedOperation.BYTE) } | ${op.name} | Value: ${op.id} \n"
+                    "<tr><td>${DocumentedOperation.getType(
+                    DocumentedOperation.BYTE)}</td><td>${op.name}</td><td>Value: ${op.id}</td></tr>\n"
                 )
-                for (field in op.fields) {
-                    buffer.append(
-                        "    | ${DocumentedOperation.getType(field.type)} | ${field.name} | ${field.description} \n"
-                    )
-                }
 
                 for (field in op.fields) {
-                    if (field.hasEnumeratedValues()) {
+                    buffer.append(field.toDoc())
+                }
+                buffer.append("</table>\n\n")
+
+                for (field in op.fields) {
+                    if (field is OperationField && field.hasEnumeratedValues()) {
                         buffer.append("### ${field.name}\n")
                         buffer.append("    | Name | Value |\n")
                         buffer.append("    | ---- | ---- |\n")
                         for (v in field.possibleValues) {
                             buffer.append("    | ${v.name} | ${v.value} \n")
                         }
+                    }
+                }
+
+                val addDoc = op.additionalDocumentation
+                if (addDoc != null) {
+                    val content = readPart("$addDoc.md")
+                    if (content != null) {
+                        buffer.append(content)
+                        buffer.append("\n\n")
                     }
                 }
 
@@ -785,8 +830,21 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
                 }
             }
         }
+        versionSummary(buffer, 6)
+        versionSummary(buffer, 7)
+        experimentalSummary(buffer)
         appendix1(buffer)
         appendix2(buffer)
+        buffer.append(
+            """
+            <script>
+            window.markdeepOptions = {
+                tocDepth: 2,
+                detectMath: true
+            };
+            </script>
+        """
+        )
         buffer.append(postamble())
 
         val content = buffer.toString()
@@ -794,8 +852,68 @@ class RemoteComposeDocumentation(val title: String, val intro: String) : Documen
         return content
     }
 
+    fun versionSummary(buffer: StringBuilder, version: Int) {
+        val versionOps = listOps.values.filter { it.addedVersion == version }.sortedBy { it.id }
+        if (versionOps.isNotEmpty()) {
+            buffer.append("\n# List of Version $version Operations\n\n")
+            buffer.append(
+                "The following ${versionOps.size} operations were added in version $version of the format.\n\n"
+            )
+            buffer.append("    | ID | Name | Category | Description |\n")
+            buffer.append("    | ---- | ---- | ---- | ---- |\n")
+            for (op in versionOps) {
+                buffer.append(
+                    "    | ${op.id} | ${op.name} | ${op.category} | ${stripLineBreaks(op.description)} |\n"
+                )
+            }
+            buffer.append("\n")
+        }
+    }
+
+    fun experimentalSummary(buffer: StringBuilder) {
+        val experimentalOps = listOps.values.filter { it.isExperimental }.sortedBy { it.id }
+        if (experimentalOps.isNotEmpty()) {
+            buffer.append("\n# Experimental Operations\n\n")
+            buffer.append(
+                "The following ${experimentalOps.size} operations are considered experimental and may change in future versions.\n\n"
+            )
+            buffer.append("    | ID | Name | Version | Category | Description |\n")
+            buffer.append("    | ---- | ---- | ---- | ---- | ---- |\n")
+            for (op in experimentalOps) {
+                buffer.append(
+                    "    | ${op.id} | ${op.name} | v${op.addedVersion} | ${op.category} | ${
+                    stripLineBreaks(
+                        op.description
+                    )
+                } |\n"
+                )
+            }
+            buffer.append("\n")
+        }
+    }
+
     fun stripName(name: String): String {
         return name.replace("\\s".toRegex(), "")
+    }
+
+    fun stripLineBreaks(text: String?): String {
+        return text?.replace("\n", " ")?.replace("\r", " ") ?: ""
+    }
+
+    fun readPart(name: String): String? {
+        val paths =
+            arrayOf(
+                "compose/remote/Documentation/parts/",
+                "Documentation/parts/",
+                "../Documentation/parts/",
+            )
+        for (path in paths) {
+            val file = File(path + name)
+            if (file.exists()) {
+                return file.readText()
+            }
+        }
+        return null
     }
 
     override fun add(value: String) {

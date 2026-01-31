@@ -184,6 +184,7 @@ public class PathAppend extends PaintOperation implements VariableSupport, Seria
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("path_append")
                 .description("Append segments to an existing dynamic path")
                 .field(DocumentedOperation.INT, "id", "The ID of the path to append to")
                 .field(INT, "length", "The number of elements in the path data")

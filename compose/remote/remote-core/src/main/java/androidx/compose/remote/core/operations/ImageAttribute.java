@@ -16,7 +16,7 @@
 package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
-import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.REPEATED_INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
 import androidx.annotation.RestrictTo;
@@ -145,7 +145,7 @@ public class ImageAttribute extends PaintOperation {
                 .field(INT, "imageId", "The ID of the image variable to extract from")
                 .field(SHORT, "type", "The type of property to extract (0=WIDTH, 1=HEIGHT)")
                 .field(SHORT, "argsLength", "The number of additional arguments")
-                .field(INT_ARRAY, "args", "The additional arguments");
+                .field(REPEATED_INT, "args", "The additional arguments");
     }
 
     @NonNull

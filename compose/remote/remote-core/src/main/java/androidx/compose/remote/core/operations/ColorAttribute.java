@@ -34,7 +34,8 @@ import java.util.List;
 
 /** Operation to perform Color related calculation TODO support color update */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorAttribute extends PaintOperation implements VariableSupport, Serializable {
+public class ColorAttribute extends PaintOperation implements VariableSupport, Serializable,
+        ComponentData {
     private static final int OP_CODE = Operations.ATTRIBUTE_COLOR;
     private static final String CLASS_NAME = "ColorAttribute";
     public int mId;

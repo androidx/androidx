@@ -134,7 +134,7 @@ public open class PdfDocumentViewModel(
     internal val isImmersiveModeDesired: Boolean
         get() = state[IMMERSIVE_MODE_STATE_KEY] ?: false
 
-    private val formEditInfos: ArrayList<FormEditInfo> = ArrayList()
+    protected val formEditInfos: ArrayList<FormEditInfo> = ArrayList()
 
     /** Holds business logic for search feature. */
     private lateinit var searchRepository: SearchRepository

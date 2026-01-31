@@ -12,7 +12,7 @@ serialized in a binary format (see next sections for a detailed description of e
 
 !!! WARNING
     This wire format is intended to be used for fast generation and transport. For display purposes,
-    a more runtime-appropriate document should be created and used instead.
+    a more runtime-appropriate representation (i.e. a tree of operations and containers) should be created and used instead.
 
 Each list of operations contains as first element a Header (see section [Header]).
 

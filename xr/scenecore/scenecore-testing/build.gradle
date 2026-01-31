@@ -43,6 +43,7 @@ dependencies {
 
     testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testRunner)
+    testImplementation(libs.testExtJunit)
 
     testImplementation(files(new File(AndroidXConfig.getPrebuiltsRoot(project), "androidx/xr/extensions/com.android.extensions.xr.host.test.jar")))
 }

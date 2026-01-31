@@ -630,6 +630,29 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
     private val onFirstContentLoadListeners = mutableListOf<OnFirstContentLoadListener>()
 
+    /** Listener interface to receive update when page bitmaps are either fetched or cleared. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface OnBitmapUpdatedListener {
+        /** Called when the bitmap has been fetched and is available */
+        @MainThread public fun onBitmapFetched(pageNum: Int)
+
+        /** Called when the bitmap has been cleared and is no longer available */
+        @MainThread public fun onBitmapCleared(pageNum: Int)
+    }
+
+    private var onBitmapUpdatedListener: OnBitmapUpdatedListener? = null
+
+    /**
+     * Sets the listener that is notified when the bitmap is updated to the ready state or when the
+     * bitmap is cleared for a specified page. Passing null will remove the listener.
+     *
+     * @param listener The listener to set, or null to clear the listener.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun setOnBitmapUpdatedListener(listener: OnBitmapUpdatedListener?) {
+        this.onBitmapUpdatedListener = listener
+    }
+
     /**
      * The [CoroutineScope] used to make suspending calls to [PdfDocument]. The size of the fixed
      * thread pool is arbitrary and subject to tuning.
@@ -1701,8 +1724,18 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
 
                     launch {
                         manager.bitmapUpdatedFlow.collect { pageBitmapState ->
-                            if (pageBitmapState is PageBitmapState.PageBitmapReady) {
-                                isAnyBitmapAvailable = true
+                            when (pageBitmapState) {
+                                is PageBitmapState.PageBitmapReady -> {
+                                    onBitmapUpdatedListener?.onBitmapFetched(
+                                        pageBitmapState.pageNum
+                                    )
+                                    isAnyBitmapAvailable = true
+                                }
+                                is PageBitmapState.PageBitmapCleared -> {
+                                    onBitmapUpdatedListener?.onBitmapCleared(
+                                        pageBitmapState.pageNum
+                                    )
+                                }
                             }
                         }
                     }

@@ -15,6 +15,8 @@ abstract fun interface <#A: kotlin/Any> androidx.navigation3.scene/SceneStrategy
 abstract interface <#A: kotlin/Any> androidx.navigation3.scene/OverlayScene : androidx.navigation3.scene/Scene<#A> { // androidx.navigation3.scene/OverlayScene|null[0]
     abstract val overlaidEntries // androidx.navigation3.scene/OverlayScene.overlaidEntries|{}overlaidEntries[0]
         abstract fun <get-overlaidEntries>(): kotlin.collections/List<androidx.navigation3.runtime/NavEntry<#A>> // androidx.navigation3.scene/OverlayScene.overlaidEntries.<get-overlaidEntries>|<get-overlaidEntries>(){}[0]
+
+    open suspend fun onRemove() // androidx.navigation3.scene/OverlayScene.onRemove|onRemove(){}[0]
 }
 
 abstract interface <#A: kotlin/Any> androidx.navigation3.scene/Scene { // androidx.navigation3.scene/Scene|null[0]

@@ -21,22 +21,6 @@ import kotlin.jvm.JvmField
 @ExperimentalComposeApi
 public object ComposeRuntimeFlags {
     /**
-     * A feature flag that can be used to disable detecting nested movable content.
-     *
-     * The way movable is detected was changed to ensure that movable content that is no longer
-     * used, but was nested in other unused movable content, is made a candidate for moving to avoid
-     * state being lost. However, this is a change in behavior may have indirectly been relied on by
-     * an application. This flags allows detecting if any regressions are caused by this change in
-     * behavior and provides a temporary work-around.
-     *
-     * This feature flag will eventually be depreciated and removed. All applications should be
-     * updated to ensure they are compatible with the new behavior.
-     */
-    @JvmField
-    @field:Suppress("MutableBareField")
-    public var isMovingNestedMovableContentEnabled: Boolean = true
-
-    /**
      * A feature flag than can be used to enable the link-list based slot table implementation
      * instead of the gap buffer based slot table. The linked-list implementation is designed to
      * improve performance primarily when deleting, moving, and reordering composable content by

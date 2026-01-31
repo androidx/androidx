@@ -31,8 +31,6 @@ import androidx.xr.runtime.internal.PerceptionRuntimeFactory
 import androidx.xr.runtime.internal.Service
 import androidx.xr.runtime.manifest.FEATURE_XR_API_OPENXR
 import androidx.xr.runtime.manifest.FEATURE_XR_API_SPATIAL
-import androidx.xr.scenecore.testing.FakeRenderingRuntimeFactory
-import androidx.xr.scenecore.testing.FakeSceneRuntimeFactory
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,7 +43,7 @@ import org.robolectric.shadows.ShadowBuild
 class ServiceLoaderExtTest {
 
     @Test
-    // TODO(b/440615454) - Move this test to scenecore-testing/arcore-testing.
+    // TODO(b/440615454) - Move this test to arcore-testing.
     fun loadProviders_loadsProviders() {
         assertThat(
                 loadProviders(
@@ -55,22 +53,6 @@ class ServiceLoaderExtTest {
                     .single()
             )
             .isInstanceOf(FakePerceptionRuntimeFactory::class.java)
-        assertThat(
-                loadProviders(
-                        FakeSceneRuntimeFactory::class.java,
-                        listOf(FakeSceneRuntimeFactory::class.java.name),
-                    )
-                    .single()
-            )
-            .isInstanceOf(FakeSceneRuntimeFactory::class.java)
-        assertThat(
-                loadProviders(
-                        FakeRenderingRuntimeFactory::class.java,
-                        listOf(FakeRenderingRuntimeFactory::class.java.name),
-                    )
-                    .single()
-            )
-            .isInstanceOf(FakeRenderingRuntimeFactory::class.java)
         assertThat(
                 loadProviders(StateExtender::class.java, listOf(FakeStateExtender::class.java.name))
                     .iterator()

@@ -235,99 +235,99 @@ internal fun getHighlightPaletteItems(context: Context): List<PaletteItem> {
     return listOf(
         // Row#1 Colors
         Color(
-            0x66000000,
+            0xFF000000.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_dark_gray),
         ),
         Color(
-            0x66FFFFFF,
+            0xFFFFFFFF.toInt(),
             outlineColor = outlineColor,
-            tickColor = getTickColor(context, inverse = true),
+            tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_white),
         ),
         Color(
-            0x66FF0000,
+            0xFFFF0000.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_coral_red),
         ),
         Color(
-            0x6600FF00,
+            0xFF00FF00.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_lime_green),
         ),
         Color(
-            0x660000FF,
+            0xFF0000FF.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_periwinkle_blue),
         ),
         Color(
-            0x66FFA500,
+            0xFFFFA500.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context, inverse = true),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_orange),
         ),
         Color(
-            0x66FFFF00,
+            0xFFFFFF00.toInt(),
             outlineColor = outlineColor,
-            tickColor = getTickColor(context, inverse = true),
+            tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_yellow),
         ),
         // Row#2 Colors
         Color(
-            0x66FFC0CB,
+            0xFFFFC0CB.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_pale_pink),
         ),
         Color(
-            0x66ADD8E6,
+            0xFFADD8E6.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_light_blue),
         ),
         Color(
-            0x6690EE90,
+            0xFF90EE90.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_pale_green),
         ),
         Color(
-            0x66FFED45,
+            0xFFFFED45.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_bright_yellow),
         ),
         Color(
-            0x66FF8279,
+            0xFFFF8279.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_peach),
         ),
         Color(
-            0x66A52A2A,
+            0xFFA52A2A.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_dusty_rose),
         ),
         Color(
-            0x66808000,
+            0xFF808000.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
@@ -335,49 +335,49 @@ internal fun getHighlightPaletteItems(context: Context): List<PaletteItem> {
         ),
         // Row#3 Colors
         Color(
-            0x66800080,
+            0xFF800080.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_medium_purple),
         ),
         Color(
-            0x66008000,
+            0xFF008000.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_medium_green),
         ),
         Color(
-            0x66DC143C,
+            0xFFDC143C.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_rose_pink),
         ),
         Color(
-            0x664682B4,
+            0xFF4682B4.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_steel_blue),
         ),
         Color(
-            0x666A5ACD,
+            0xFF6A5ACD.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_lilac),
         ),
         Color(
-            0x66556B2F,
+            0xFF556B2F.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =
                 context.getString(R.string.pdf_highlighter_color_palette_item_sage_green),
         ),
         Color(
-            0x66DEB887,
+            0xFFDEB887.toInt(),
             outlineColor = outlineColor,
             tickColor = getTickColor(context),
             contentDescription =

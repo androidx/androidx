@@ -18,9 +18,13 @@ package androidx.navigation.testing
 
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
-import androidx.navigation.implementedInJetBrainsFork
 
 public actual class TestNavHostController : NavHostController() {
+
     public actual val backStack: List<NavBackStackEntry>
-        get() = implementedInJetBrainsFork()
+        get() = currentBackStack.value
+
+    init {
+        navigatorProvider = TestNavigatorProvider()
+    }
 }

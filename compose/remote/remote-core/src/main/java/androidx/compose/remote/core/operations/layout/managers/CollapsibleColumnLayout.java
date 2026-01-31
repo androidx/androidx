@@ -87,7 +87,8 @@ public class CollapsibleColumnLayout extends ColumnLayout {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), "CollapsibleColumn")
+        doc.operation("Layout Managers", id(), "CollapsibleColumn")
+                .additionalDocumentation("collapsible_column")
                 .description("A column layout that can hide children if space is insufficient")
                 .field(INT, "componentId", "Unique ID for this component")
                 .field(INT, "animationId", "ID for animation purposes")

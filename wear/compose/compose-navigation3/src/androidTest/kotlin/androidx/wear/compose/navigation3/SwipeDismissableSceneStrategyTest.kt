@@ -561,8 +561,7 @@ class SwipeDismissableSceneStrategyTest {
                     slideInHorizontally(tween(testDuration)) { -it / 2 } togetherWith
                         slideOutHorizontally(tween(testDuration)) { it / 2 }
                 },
-                sceneStrategy =
-                    SwipeDismissableSceneStrategy(rememberSwipeDismissableSceneStrategyState()),
+                sceneStrategy = rememberSwipeDismissableSceneStrategy(),
                 entryProvider =
                     entryProvider {
                         entry(FIRST_KEY) {

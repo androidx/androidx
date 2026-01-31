@@ -94,17 +94,10 @@ public interface CameraControl {
      * <li>When low-light boost is on, the flash or torch functionality may be unavailable.
      * <li>When frame rate configuration results in an FPS exceeding 30, low-light boost will be
      * disabled and the state will always be ({@link LowLightBoostState#OFF}).
-     * <li>Low-light boost is not currently supported for HDR 10-bit capture sessions. If the
-     * dynamic range configuration results in a 10-bit capture session, low-light boost will be
-     * disabled and the state will always be ({@link LowLightBoostState#OFF}).
      * </ul>
      *
      * <p>Therefore, to use flash or torch functionality, low-light boost mode must be disabled.
-     * To ensure low-light boost mode functions correctly, the following conditions must be met:
-     * <ul>
-     * <li> The frame rate must not exceed 30 FPS.
-     * <li> The dynamic range setting must not be 10-bit.
-     * </ul>
+     * To ensure low-light boost mode functions correctly, the frame rate must not exceed 30 FPS.
      *
      * @param lowLightBoost true to turn on the low-light boost mode, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the low-light boost mode was

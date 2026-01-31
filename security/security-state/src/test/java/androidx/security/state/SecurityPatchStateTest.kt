@@ -998,6 +998,18 @@ class SecurityPatchStateTest {
                         "asb_identifiers": ["ASB-A-2023022"],
                         "severity": "moderate",
                         "components": ["vendor"]
+                    }],
+                    "2025-12-01": [{
+                        "cve_identifiers": ["CVE-2025-0001"],
+                        "asb_identifiers": ["ASB-A-2025011"],
+                        "severity": "moderate",
+                        "components": ["system"]
+                    }],
+                    "2025-12-15": [{
+                        "cve_identifiers": ["CVE-2025-0002"],
+                        "asb_identifiers": ["ASB-A-2025022"],
+                        "severity": "moderate",
+                        "components": ["vendor"]
                     }]
                 },
                 "kernel_lts_versions": {}
@@ -1011,6 +1023,8 @@ class SecurityPatchStateTest {
         bundle.putString("system_spl", systemSpl)
         bundle.putString("vendor_spl", systemSpl)
         bundle.putString("com.google.android.modulemetadata", systemSpl)
+        bundle.putStringArray("system_supplemental_security_patches", arrayOf("CVE-2025-0001"))
+        bundle.putStringArray("vendor_supplemental_security_patches", arrayOf("CVE-2025-0002"))
 
         `when`(mockSecurityStateManagerCompat.getGlobalSecurityState(anyString()))
             .thenReturn(bundle)
@@ -1018,7 +1032,11 @@ class SecurityPatchStateTest {
             .`when`(mockSecurityStateManagerCompat)
             .getPackageVersion(Mockito.anyString())
 
-        assertTrue(securityState.areCvesPatched(listOf("CVE-2023-0001", "CVE-2023-0002")))
+        assertTrue(
+            securityState.areCvesPatched(
+                listOf("CVE-2023-0001", "CVE-2023-0002", "CVE-2025-0001", "CVE-2025-0002")
+            )
+        )
     }
 
     @Test

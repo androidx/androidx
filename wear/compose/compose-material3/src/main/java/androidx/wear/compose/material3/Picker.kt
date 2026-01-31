@@ -55,6 +55,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
@@ -125,7 +126,8 @@ import kotlinx.coroutines.launch
  *   take. These gradients blur the picker content on the top and bottom. The default is 0.33, so
  *   the top 1/3 and the bottom 1/3 of the picker are taken by gradients. Should be between 0.0 and
  *   0.5. Use 0.0 to disable the gradient.
- * @param gradientColor Should be the color outside of the Picker, so there is continuity.
+ * @param gradientColor Should be the color outside of the Picker, so there is continuity. If using
+ *   custom background (gradients, images), gradientColor must be set to [Color.Unspecified]
  * @param userScrollEnabled Determines whether the picker should be scrollable or not. When
  *   userScrollEnabled = true, picker is scrollable. This is different from [readOnly] as it changes
  *   the scrolling behaviour.
@@ -177,6 +179,18 @@ public fun Picker(
         }
     }
 
+    // Cache the base gradient brush to avoid recreating it on every frame.
+    // This gradientBrush is used to provide gradient masking for picker
+    val baseGradientBrush =
+        remember(gradientRatio) {
+            Brush.verticalGradient(
+                0f to Color.Transparent,
+                gradientRatio to Color.White,
+                1f - gradientRatio to Color.White,
+                1f to Color.Transparent,
+            )
+        }
+
     Box(modifier = modifier.semantics(mergeDescendants = true) {}) {
         ScalingLazyColumn(
             modifier =
@@ -199,36 +213,44 @@ public fun Picker(
                         focused = !readOnly
                     }
                     .then(
-                        Modifier.drawWithContent {
-                                drawContent()
-                                val visibleItems =
-                                    state.scalingLazyListState.layoutInfo.visibleItemsInfo
-                                if (
-                                    visibleItems.isNotEmpty() && animatedShimColorAlpha.value > 0f
-                                ) {
-                                    val centerItem =
-                                        visibleItems.fastFirstOrNull { info ->
-                                            info.index == state.scalingLazyListState.centerItemIndex
-                                        } ?: visibleItems[visibleItems.size / 2]
-                                    val shimHeight =
-                                        (size.height -
-                                            centerItem.unadjustedSize.toFloat() -
-                                            verticalSpacing.toPx()) / 2.0f
-                                    drawShim(
-                                        gradientColor,
-                                        shimHeight,
-                                        animatedShimColorAlpha.value,
-                                    )
-                                }
-                                if (gradientRatio > 0.0f) {
-                                    drawGradient(gradientColor, gradientRatio)
-                                }
+                        if (gradientColor == Color.Unspecified) {
+                            Modifier.graphicsLayer {
+                                compositingStrategy = CompositingStrategy.Offscreen
                             }
-                            // b/223386180 - add padding when drawing rectangles to
-                            // prevent jitter on screen.
-                            .padding(vertical = 1.dp)
-                            .align(Alignment.Center)
-                    ),
+                        } else {
+                            Modifier
+                        }
+                    )
+                    .drawWithContent {
+                        drawContent()
+                        val visibleItems = state.scalingLazyListState.layoutInfo.visibleItemsInfo
+                        if (visibleItems.isNotEmpty() && animatedShimColorAlpha.value > 0f) {
+                            val centerItem =
+                                visibleItems.fastFirstOrNull { info ->
+                                    info.index == state.scalingLazyListState.centerItemIndex
+                                } ?: visibleItems[visibleItems.size / 2]
+                            val shimHeight =
+                                (size.height -
+                                    centerItem.unadjustedSize.toFloat() -
+                                    verticalSpacing.toPx()) / 2.0f
+                            if (gradientColor == Color.Unspecified) {
+                                drawShimMask(shimHeight, animatedShimColorAlpha.value)
+                            } else {
+                                drawShim(gradientColor, shimHeight, animatedShimColorAlpha.value)
+                            }
+                        }
+                        if (gradientRatio > 0.0f) {
+                            if (gradientColor == Color.Unspecified) {
+                                drawGradientMask(baseGradientBrush)
+                            } else {
+                                drawGradient(gradientColor, gradientRatio)
+                            }
+                        }
+                    }
+                    // b/223386180 - add padding when drawing rectangles to
+                    // prevent jitter on screen.
+                    .padding(vertical = 1.dp)
+                    .align(Alignment.Center),
             state = state.scalingLazyListState,
             content = {
                 items(state.numberOfItems()) { ix ->
@@ -568,6 +590,36 @@ private fun ContentDrawScope.drawGradient(gradientColor: Color, gradientRatio: F
             end = Offset(size.width / 2, size.height),
         )
     )
+}
+
+private fun ContentDrawScope.drawShimMask(shimHeight: Float, shimAlpha: Float) {
+    val centreItemStart = (shimHeight / size.height).coerceIn(0f, 0.5f)
+    val centreItemEnd = 1f - centreItemStart
+
+    // Layer 1: An animated shim mask
+    // As shimAlpha approaches 1 (unselected), the top and bottom of this layer
+    // become more transparent, eventually fully masking the content in the shim areas.
+    // Logically parallel to ContentDrawScope.drawShim()
+    val animatedColor = Color.White.copy(alpha = 1f - shimAlpha)
+
+    drawRect(
+        Brush.verticalGradient(
+            0f to animatedColor,
+            centreItemStart to animatedColor,
+            centreItemStart to Color.White,
+            centreItemEnd to Color.White,
+            centreItemEnd to animatedColor,
+            1f to animatedColor,
+        ),
+        blendMode = BlendMode.Modulate,
+    )
+}
+
+private fun ContentDrawScope.drawGradientMask(brush: Brush) {
+    // Layer 2
+    // Masking logic parallel to ContentDrawScope.drawGradient()
+    // Applies fade-out gradient, soft foggy edge on the top and bottom of the Picker.
+    drawRect(brush = brush, blendMode = BlendMode.Modulate)
 }
 
 @Stable

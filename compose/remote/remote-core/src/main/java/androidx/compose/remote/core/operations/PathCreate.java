@@ -176,6 +176,7 @@ public class PathCreate extends PaintOperation implements VariableSupport, Seria
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("path_create")
                 .description("Start the creation of a dynamic path")
                 .field(DocumentedOperation.INT, "id", "The ID of the path to create")
                 .field(FLOAT, "startX", "The X coordinate of the starting point")

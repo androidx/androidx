@@ -16,8 +16,8 @@
 package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
-import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.REPEATED_FLOAT;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
@@ -724,12 +724,12 @@ public class TouchExpression extends Operation
                 .field(FLOAT, "velocityId", "Reserved for velocity ID")
                 .field(INT, "touchEffects", "Haptic feedback and touch behavior flags")
                 .field(INT, "expression_length", "The length of the touch mapping expression")
-                .field(FLOAT_ARRAY, "expression",
+                .field(REPEATED_FLOAT, "expression",
                         "Sequence of floats representing touch mapping (RPN)")
                 .field(INT, "stopModeAndLen", "Encoded stop mode and length of stop spec")
-                .field(FLOAT_ARRAY, "stopSpec", "Parameters for stop behavior (e.g., notches)")
+                .field(REPEATED_FLOAT, "stopSpec", "Parameters for stop behavior (e.g., notches)")
                 .field(INT, "easingLen", "The length of the easing spec")
-                .field(FLOAT_ARRAY, "easingSpec", "Parameters for deceleration easing");
+                .field(REPEATED_FLOAT, "easingSpec", "Parameters for deceleration easing");
     }
 
     @NonNull

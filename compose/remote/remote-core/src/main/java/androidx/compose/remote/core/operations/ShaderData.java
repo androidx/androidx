@@ -372,6 +372,7 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("shader_data")
                 .description("Define a shader with associated uniforms")
                 .field(DocumentedOperation.INT, "shaderID", "The ID of the shader")
                 .field(DocumentedOperation.INT, "shaderTextId", "The ID of the shader source text")

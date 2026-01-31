@@ -39,7 +39,6 @@ import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.util.fastCoerceIn
 import androidx.xr.glimmer.list.ListState.Companion.Saver
 import kotlin.math.abs
 
@@ -104,21 +103,39 @@ public class ListState(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOff
     internal val internalInteractionSource: MutableInteractionSource = MutableInteractionSource()
 
     /**
-     * The amount of scroll to be consumed in the next layout pass. Scrolling forward is negative
-     * - that is, it is the amount that the items are offset in y
+     * The scroll amount was provided in `onScroll` to be consumed during the current measure pass.
+     *
+     * Scrolling forward is negative.
      */
-    internal var scrollToBeConsumed = 0f
+    internal var incomingScroll: Float = 0f
         private set
 
     /**
-     * The scroll value saved from the previous pass to be added to the dispatched scroll value in
-     * the next pass.
+     * This value retains the scroll amount that we want to carry over between measure passes. It
+     * represents the amount of scroll from previous passes that wasn't consumed back then but is
+     * awaiting to be consumed later. Together with [incomingScroll], this represents the total
+     * scroll available to the list during the current measure pass.
+     *
+     * This variable exists because the layout uses integer pixels while [onScroll] operates with
+     * fractional floats. Consequently, the list might receive tiny fractions of scroll input which,
+     * when aggregated, should equate to a few pixels of scrolling. However, because these small
+     * fractions are spread across many [onScroll] invocations, the list ignores them, making it
+     * feel unresponsive during slow, gentle touches. To avoid this, instead of ignoring these tiny
+     * scroll increments, the list accumulates them so they can be added to the next scroll part and
+     * actually consumed in a subsequent pass.
+     *
+     * Note that this value can sometimes be opposite to the scroll direction. This occurs because
+     * the [Float] -> [Int] rounding causes us to consume more than was provided. To compensate, we
+     * add a negative value to [incomingScroll] the next time.
+     *
+     * Scrolling forward is negative.
      */
-    private var accumulatedScroll: Float = 0f
+    internal var carryOverScroll: Float = 0f
+        private set
 
     /**
      * This value is updated after the measure pass inside [applyMeasureResult] and defines how much
-     * of the [scrollToBeConsumed] was actually used.
+     * of the [incomingScroll] was actually used.
      */
     private var consumedScroll: Float = 0f
 
@@ -207,25 +224,24 @@ public class ListState(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOff
     ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     /**
-     * * It's called during the measurement pass once the dispatched [scrollToBeConsumed] has been
-     *   handled and the new item positions are known.
+     * Called during the measurement pass once the dispatched [incomingScroll] has been handled and
+     * the new item positions are known.
      *
      * @param result lazy list measuring results.
      * @param consumedScroll defines how much scroll was consumed during the measure pass.
-     * @param accumulatedScroll tracks the amount of scrolling that the internal logic has reported
-     *   as consumed, but wants to save for later measurement. Also if the list consumes more scroll
-     *   than it was given (for example, due to rounding errors), this value can be set to a
-     *   negative amount to balance it out in the next pass. This amount will be added to the next
-     *   dispatched scroll distance, and they will be passed together as [scrollToBeConsumed]. This
-     *   value should never be larger than [consumedScroll].
+     * @param scrollToCarryOver tracks the amount of scrolling that the internal logic has reported
+     *   as consumed, but wants to save for later measurement. Also, if the list consumes more
+     *   scroll than it was given (for example, due to rounding errors), this value can be set to a
+     *   negative amount to balance it out in the next pass. This value should never be larger than
+     *   [consumedScroll].
      */
     internal fun applyMeasureResult(
         result: GlimmerListMeasureResult,
         consumedScroll: Float,
-        accumulatedScroll: Float,
+        scrollToCarryOver: Float,
     ) {
         this.consumedScroll = consumedScroll
-        this.accumulatedScroll = accumulatedScroll
+        this.carryOverScroll = scrollToCarryOver
 
         canScrollBackward = result.canScrollBackward
         canScrollForward = result.canScrollForward
@@ -239,40 +255,24 @@ public class ListState(firstVisibleItemIndex: Int = 0, firstVisibleItemScrollOff
             return 0f
         }
 
-        // Skip measure pass.
-        if (abs(distance + accumulatedScroll) <= 0.5f) {
+        // Fast path. Skip measure pass.
+        if (abs(distance + carryOverScroll) <= 0.5f) {
             // Inside measuring we do `scrollToBeConsumed.roundToInt()` so there will be no scroll
             // if we have less than 0.5 pixels. So just accumulate it for the next pass.
-            accumulatedScroll += distance
+            carryOverScroll += distance
             return distance
         }
 
-        scrollToBeConsumed = distance + accumulatedScroll
-        // The `forceRemeasure()` invocation triggers the measure pass where `scrollToBeConsumed`
-        // will be used to update `consumedScroll` and `accumulatedScroll` values.
+        incomingScroll = distance
+        // The `forceRemeasure()` invocation triggers the measure pass where [incomingScroll]
+        // will be used to update [consumedScroll] and [carryOverScroll] values.
         remeasurement?.forceRemeasure()
-
-        // Calculate consumed value excluding the accumulated part's effect, since it's internal.
-        val consumedDistance =
-            if (consumedScroll == scrollToBeConsumed) {
-                // This branch is needed, because `consumedScroll = distance + accumulatedScroll`.
-                // There is no need to report `accumulatedScroll` as consumed.
-                distance
-            } else {
-                // If, due to accumulated value, we consumed more than what was provided.
-                if (distance >= 0f) {
-                    consumedScroll.fastCoerceIn(0f, distance)
-                } else {
-                    consumedScroll.fastCoerceIn(distance, 0f)
-                }
-            }
-
         // It's important to reset this value because there are measure passes
         // triggered from outside scrolling. They read this value as well.
         // So, after we used it, we need to reset it to zero.
-        scrollToBeConsumed = 0f
+        incomingScroll = 0f
 
-        return consumedDistance
+        return consumedScroll
     }
 
     override suspend fun scroll(

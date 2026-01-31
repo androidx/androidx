@@ -103,7 +103,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class VectorTest {
 
-    @get:Rule val rule = createAndroidComposeRule<ComponentActivity>(StandardTestDispatcher())
+    @get:Rule val rule = createAndroidComposeRule<RotationActivity>(StandardTestDispatcher())
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
@@ -1239,11 +1239,9 @@ class VectorTest {
     @Test
     fun testImageVectorCacheCleared() {
         var vectorInCache = false
-        var application: Application? = null
         var theme: Resources.Theme? = null
         var vectorCache: ImageVectorCache? = null
         rule.setContent {
-            application = LocalContext.current.applicationContext as Application
             theme = LocalContext.current.theme
             val imageVectorCache = LocalImageVectorCache.current
             imageVectorCache.clear()
@@ -1255,7 +1253,10 @@ class VectorTest {
             vectorCache = imageVectorCache
         }
 
-        application?.onTrimMemory(0)
+        rule.runOnUiThread {
+            (rule.activity.applicationContext as Application).onTrimMemory(0)
+            rule.activity.onTrimMemory(0)
+        }
 
         val cacheCleared =
             vectorCache?.let { it[ImageVectorCache.Key(theme!!, R.drawable.ic_triangle)] == null }
@@ -1271,22 +1272,25 @@ class VectorTest {
         var vectorCache: ImageVectorCache? = null
         var vectorInCache = false
         var theme: Resources.Theme? = null
+        var refillCache = true
         try {
             rule.setContent {
                 val imageVectorCache = LocalImageVectorCache.current
                 theme = LocalContext.current.theme
-                Image(
-                    painter = painterResource(R.drawable.ic_triangle_config),
-                    contentDescription = null,
-                    modifier = Modifier.testTag(tag),
-                )
+                if (refillCache) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_triangle_config),
+                        contentDescription = null,
+                        modifier = Modifier.testTag(tag),
+                    )
 
-                vectorInCache =
-                    imageVectorCache[
-                        ImageVectorCache.Key(theme!!, R.drawable.ic_triangle_config)] != null
-                vectorCache = imageVectorCache
+                    vectorInCache =
+                        imageVectorCache[
+                            ImageVectorCache.Key(theme!!, R.drawable.ic_triangle_config)] != null
+                    vectorCache = imageVectorCache
+                }
             }
-
+            rule.runOnIdle { refillCache = false }
             if (!rule.activity.rotate(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE)) {
                 Log.w(TAG, "device rotation unsuccessful")
                 return
@@ -1642,3 +1646,5 @@ class VectorTest {
 
     private val TAG = "VectorTest"
 }
+
+class RotationActivity() : ComponentActivity()

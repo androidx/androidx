@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.core.view.children
 import androidx.glance.Applier
+import androidx.glance.Backend
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
 import androidx.glance.session.GlobalSnapshotManager
@@ -172,7 +173,7 @@ private class TestAppWidgetHostView(context: Context) : AppWidgetHostView(contex
 
 internal suspend fun Context.runAndTranslate(
     appWidgetId: Int = 0,
-    isRemoteComposeAvailable: Boolean = false,
+    backendOverride: Backend? = null,
     content: @Composable () -> Unit,
 ): RemoteViews {
     val originalRoot = runTestingComposition(content)
@@ -180,7 +181,7 @@ internal suspend fun Context.runAndTranslate(
     // Copy makes a deep copy of the emittable tree, so will exercise the copy methods
     // of all of the emmitables the test checks too.
     val root = originalRoot.copy() as RemoteViewsRoot
-    normalizeCompositionTree(root, isRemoteComposeAvailable = isRemoteComposeAvailable)
+    normalizeCompositionTree(root, backendOverrideRequest = backendOverride)
     return translateComposition(
         this,
         appWidgetId,

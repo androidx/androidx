@@ -143,10 +143,8 @@ package androidx.compose.runtime {
 
   @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final class ComposeRuntimeFlags {
     property public boolean isLinkBufferComposerEnabled;
-    property public boolean isMovingNestedMovableContentEnabled;
     field public static final androidx.compose.runtime.ComposeRuntimeFlags INSTANCE;
     field public static boolean isLinkBufferComposerEnabled;
-    field public static boolean isMovingNestedMovableContentEnabled;
   }
 
   public sealed nonexhaustive interface Composer {

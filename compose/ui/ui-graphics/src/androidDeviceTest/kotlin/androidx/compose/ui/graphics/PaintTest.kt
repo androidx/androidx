@@ -55,12 +55,12 @@ class PaintTest {
 
     @Test
     fun testDitheringEnabledByDefault() {
-        assertTrue(Paint().asFrameworkPaint().isDither)
+        assertTrue(Paint().nativePaint.isDither)
     }
 
     @Test
     fun testFilterBitmapEnabledByDefault() {
-        assertTrue(Paint().asFrameworkPaint().isFilterBitmap)
+        assertTrue(Paint().nativePaint.isFilterBitmap)
     }
 
     @Test

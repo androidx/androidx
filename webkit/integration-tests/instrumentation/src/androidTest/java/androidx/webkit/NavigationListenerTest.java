@@ -32,7 +32,6 @@ import org.jspecify.annotations.NonNull;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -359,13 +358,13 @@ public class NavigationListenerTest {
     }
 
     @Test
-    @Ignore("http://b/473998983")
     public void isSamePageObject_listenerV2() throws Exception {
         WebkitUtils.checkFeature(
                 WebViewFeature.WEB_VIEW_NAVIGATION_LISTENER_EXPERIMENTAL_V2);
         // Success URL is obtained outside of the activity scope in order to avoid a
         // StrictModeViolation for attempting to resolve the hostname on the main thread.
         final String successUrl = getSuccessUrl();
+        Page loadedPage;
         try (ActivityScenario<WebViewTestActivity> scenario = ActivityScenario.launch(
                 WebViewTestActivity.class)) {
             // The onFirstContentfulPaint event is only triggered if the WebView is attached to
@@ -382,6 +381,13 @@ public class NavigationListenerTest {
 
             Page navigationCompletePage = completedNavigation.getPage();
             Assert.assertNotNull(navigationCompletePage);
+
+            loadedPage = waitForNextQueueElement(mListener.mOnPageLoadEventFiredQueue);
+            Assert.assertEquals(navigationCompletePage, loadedPage);
+
+            Page domContentLoadedPage = waitForNextQueueElement(
+                    mListener.mOnPageDomContentLoadedEventFiredQueue);
+            Assert.assertEquals(navigationCompletePage, domContentLoadedPage);
 
             Pair<Page, Long> firstContentfulPaint = waitForNextQueueElement(
                     mListener.mOnFirstContentfulPaintQueue);
@@ -401,6 +407,10 @@ public class NavigationListenerTest {
             Assert.assertTrue(performanceMark.markName.equals("testMark"));
             Assert.assertTrue(performanceMark.markTimeMs > 0);
         }
+
+        // Tearing down the activity and WebView will delete the page.
+        Page deletedPage = waitForNextQueueElement(mListener.mOnPageDeletedQueue);
+        Assert.assertEquals(loadedPage, deletedPage);
     }
 
     @Test

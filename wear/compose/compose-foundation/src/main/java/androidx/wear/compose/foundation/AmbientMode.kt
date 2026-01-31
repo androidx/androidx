@@ -16,8 +16,6 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.runtime.Immutable
-
 /**
  * Represents the current ambient mode of the device.
  *
@@ -25,10 +23,9 @@ import androidx.compose.runtime.Immutable
  *
  * @sample androidx.wear.compose.foundation.samples.AmbientModeBasicSample
  */
-@Immutable
-public sealed interface AmbientMode {
+public abstract class AmbientMode private constructor() {
     /** Represents the mode when the user is actively interacting with the device. */
-    public object Interactive : AmbientMode
+    public object Interactive : AmbientMode()
 
     /**
      * Represents that device is in the ambient mode. In this mode, the app is typically updated at
@@ -47,7 +44,7 @@ public sealed interface AmbientMode {
     public class Ambient(
         public val isBurnInProtectionRequired: Boolean,
         public val isLowBitAmbientSupported: Boolean,
-    ) : AmbientMode {
+    ) : AmbientMode() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

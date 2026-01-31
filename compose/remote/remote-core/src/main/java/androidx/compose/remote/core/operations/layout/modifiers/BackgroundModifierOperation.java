@@ -289,6 +289,7 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation impl
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_background")
                 .description("Define a background color or shape for a component")
                 .field(INT, "flags", "Behavior flags")
                 .field(INT, "colorId", "The ID of the color if flags include COLOR_REF")

@@ -258,7 +258,8 @@ public class BoxLayout extends LayoutManager {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("box")
                 .description(
                         "Box layout implementation.\n\n"
                                 + "Child components are laid out independently from one another,\n"

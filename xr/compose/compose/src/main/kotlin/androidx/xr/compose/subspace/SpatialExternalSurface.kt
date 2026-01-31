@@ -25,18 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.xr.compose.platform.LocalSession
+import androidx.xr.compose.subspace.draw.SpatialFeatheringEffect
 import androidx.xr.compose.subspace.layout.CoreSphereSurfaceEntity
 import androidx.xr.compose.subspace.layout.CoreSurfaceEntity
 import androidx.xr.compose.subspace.layout.InteractionPolicy
 import androidx.xr.compose.subspace.layout.SpatialAlignment
-import androidx.xr.compose.subspace.layout.SpatialFeatheringEffect
 import androidx.xr.compose.subspace.layout.SubspaceLayout
 import androidx.xr.compose.subspace.layout.SubspaceMeasurable
 import androidx.xr.compose.subspace.layout.SubspaceMeasurePolicy
 import androidx.xr.compose.subspace.layout.SubspaceMeasureResult
 import androidx.xr.compose.subspace.layout.SubspaceMeasureScope
 import androidx.xr.compose.subspace.layout.SubspaceModifier
-import androidx.xr.compose.subspace.layout.ZeroFeatheringEffect
 import androidx.xr.compose.unit.Meter
 import androidx.xr.compose.unit.VolumeConstraints
 import androidx.xr.compose.unit.toMeter
@@ -205,7 +204,7 @@ private constructor(internal val value: SurfaceEntity.SurfaceProtection) {
 public fun SpatialExternalSurface(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
-    featheringEffect: SpatialFeatheringEffect = ZeroFeatheringEffect,
+    featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SurfaceProtection = SurfaceProtection.None,
     dragPolicy: DragPolicy? = null,
     resizePolicy: ResizePolicy? = null,
@@ -293,7 +292,7 @@ public fun SpatialExternalSurface180Hemisphere(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
     radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
-    featheringEffect: SpatialFeatheringEffect = ZeroFeatheringEffect,
+    featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SurfaceProtection = SurfaceProtection.None,
     interactionPolicy: InteractionPolicy? = null,
     superSamplingPattern: SuperSamplingPattern = SuperSamplingPattern.Pentagon,
@@ -354,7 +353,7 @@ public fun SpatialExternalSurface360Sphere(
     stereoMode: StereoMode,
     modifier: SubspaceModifier = SubspaceModifier,
     radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
-    featheringEffect: SpatialFeatheringEffect = ZeroFeatheringEffect,
+    featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SurfaceProtection = SurfaceProtection.None,
     interactionPolicy: InteractionPolicy? = null,
     superSamplingPattern: SuperSamplingPattern = SuperSamplingPattern.Pentagon,
@@ -380,7 +379,7 @@ private fun SpatialExternalSurfaceSphere(
     isHemisphere: Boolean,
     modifier: SubspaceModifier = SubspaceModifier,
     radius: Dp = SpatialExternalSurfaceDefaults.sphereRadius,
-    featheringEffect: SpatialFeatheringEffect = ZeroFeatheringEffect,
+    featheringEffect: SpatialFeatheringEffect? = null,
     surfaceProtection: SurfaceProtection = SurfaceProtection.None,
     interactionPolicy: InteractionPolicy?,
     superSamplingPattern: SuperSamplingPattern,

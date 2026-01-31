@@ -241,6 +241,7 @@ public class ScrollModifierOperation extends ListActionsOperation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_scroll")
                 .description("Define a scrolling behavior for a component")
                 .field(INT, "direction", "Direction of the scroll (0=VERTICAL, 1=HORIZONTAL)")
                 .field(FLOAT, "position", "The current scroll position (expression)")

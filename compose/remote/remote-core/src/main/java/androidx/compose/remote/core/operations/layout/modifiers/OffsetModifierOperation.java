@@ -152,6 +152,7 @@ public class OffsetModifierOperation extends DecoratorModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_offset")
                 .description("Shift the component's position")
                 .field(FLOAT, "x", "X offset")
                 .field(FLOAT, "y", "Y offset");

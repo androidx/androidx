@@ -312,6 +312,7 @@ public class AnimationSpec extends Operation implements ModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("animation_spec")
                 .description("Define the animation specifications for a component")
                 .field(INT, "animationId", "The ID of the animation")
                 .field(FLOAT, "motionDuration", "Duration of the motion animation in ms")

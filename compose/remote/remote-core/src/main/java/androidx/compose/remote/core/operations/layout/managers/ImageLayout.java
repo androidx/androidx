@@ -300,7 +300,8 @@ public class ImageLayout extends LayoutManager implements VariableSupport {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("image_layout")
                 .description("Image layout implementation")
                 .field(INT, "componentId", "Unique ID for this component")
                 .field(

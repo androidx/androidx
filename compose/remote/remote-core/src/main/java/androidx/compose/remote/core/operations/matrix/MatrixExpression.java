@@ -170,6 +170,7 @@ public class MatrixExpression extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("A matrix defined by an expression")
                 .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
                 .field(DocumentedOperation.INT, "type", "The type of matrix")

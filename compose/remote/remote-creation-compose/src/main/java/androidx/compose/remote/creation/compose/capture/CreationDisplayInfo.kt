@@ -24,7 +24,7 @@ import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -41,8 +41,8 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 public fun createCreationDisplayInfo(
-    width: Int = LocalContext.current.resources.displayMetrics.widthPixels,
-    height: Int = LocalContext.current.resources.displayMetrics.heightPixels,
+    width: Int = LocalResources.current.displayMetrics.widthPixels,
+    height: Int = LocalResources.current.displayMetrics.heightPixels,
     densityDpi: Int = LocalConfiguration.current.densityDpi,
 ): CreationDisplayInfo {
     return CreationDisplayInfo(width, height, densityDpi)

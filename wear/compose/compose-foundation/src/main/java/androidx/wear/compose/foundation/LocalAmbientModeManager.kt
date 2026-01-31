@@ -19,6 +19,7 @@ package androidx.wear.compose.foundation
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import androidx.activity.compose.LocalActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -60,8 +61,8 @@ public val LocalAmbientModeManager: ProvidableCompositionLocal<AmbientModeManage
 /**
  * Creates, remembers, and manages the lifecycle of the default [AmbientModeManager] implementation.
  *
- * **Crucially, calling this function automatically enables Always-On mode for the host
- * [activity].** This ensures the [activity] remains visible in the low-power ambient state.
+ * **This function requires a [LocalActivity] be present and automatically enables Always-On mode
+ * for that activity, ensuring it remains visible in the low-power ambient state.**
  *
  * The resulting [AmbientModeManager] is retained across recompositions via [remember] and its
  * system listeners are automatically registered and unregistered using [DisposableEffect], tying
@@ -70,13 +71,18 @@ public val LocalAmbientModeManager: ProvidableCompositionLocal<AmbientModeManage
  * See the Android documentation for more details on enabling Always-On mode:
  * [https://developer.android.com/training/wearables/views/always-on]
  *
- * @param activity The host Android [Activity] instance for which ambient mode events (enter, exit,
- *   tick) are tracked.
- * @return A new or remembered [AmbientModeManager] instance.
+ * Example of a simple screen switching between Interactive and Ambient modes:
+ *
  * @sample androidx.wear.compose.foundation.samples.AmbientModeBasicSample
+ * @return A new or remembered [AmbientModeManager] instance.
  */
 @Composable
-public fun rememberAmbientModeManager(activity: Activity): AmbientModeManager {
+public fun rememberAmbientModeManager(): AmbientModeManager {
+    val activity = LocalActivity.current
+    requireNotNull(activity) {
+        "rememberAmbientModeManager requires non-null LocalActivity.current, because it turns on" +
+            "always-on mode for that activity"
+    }
     val ambientManager = remember(activity) { AmbientModeManagerImpl(activity) }
     DisposableEffect(ambientManager) {
         ambientManager.startListening()
@@ -130,8 +136,10 @@ public interface AmbientModeManager {
  * [androidx.compose.runtime.State] required to prevent excessive recomposition and maximize battery
  * life.
  *
- * @param block The state update logic to execute once per ambient tick.
+ * Example of using AmbientTickEffect:
+ *
  * @sample androidx.wear.compose.foundation.samples.AmbientModeWithAmbientTickSample
+ * @param block The state update logic to execute once per ambient tick.
  */
 @Composable
 public fun AmbientModeManager.AmbientTickEffect(block: () -> Unit) {

@@ -255,7 +255,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("checkBoxAnim", search.animations.first().label)
+        assertEquals("checkBoxAnim", search.animations.first().transition.label)
     }
 
     @Test
@@ -314,8 +314,8 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("A", search.animations.first().targetState)
-        assertEquals("Crossfade", search.animations.first().label)
+        assertEquals("A", search.animations.first().transition.targetState)
+        assertEquals("Crossfade", search.animations.first().transition.label)
     }
 
     @Test
@@ -339,8 +339,8 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("A", search.animations.first().targetState)
-        assertEquals("CrossfadeWithLabel", search.animations.first().label)
+        assertEquals("A", search.animations.first().transition.targetState)
+        assertEquals("CrossfadeWithLabel", search.animations.first().transition.label)
     }
 
     @Test
@@ -359,7 +359,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("My Animated Visibility", search.animations.first().label)
+        assertEquals("My Animated Visibility", search.animations.first().transition.label)
     }
 
     @Test
@@ -385,7 +385,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals(0, search.animations.first().targetState)
+        assertEquals(0, search.animations.first().transition.targetState)
     }
 
     @Test

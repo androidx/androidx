@@ -180,5 +180,4 @@ afterEvaluate {
     // testAndroidHostTest will attempt to run as it has sources, but there will be no tests to run.
     // Starting Gradle 9.0.0 this is an error, hence we disable this task here.
     tasks.named("testAndroidHostTest") { it.enabled = false }
-    tasks.named("jsBrowserTest") { it.enabled = false }
 }

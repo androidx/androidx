@@ -118,6 +118,7 @@ public class DataDynamicListFloat extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Data Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("A dynamic list of floats")
                 .field(DocumentedOperation.INT, "id", "The ID of the list")
                 .field(DocumentedOperation.FLOAT, "length", "The length of the list");

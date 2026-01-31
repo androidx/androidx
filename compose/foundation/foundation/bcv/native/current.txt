@@ -205,7 +205,7 @@ abstract interface androidx.compose.foundation.gestures/TargetedFlingBehavior : 
 
 abstract interface androidx.compose.foundation.gestures/TransformScope { // androidx.compose.foundation.gestures/TransformScope|null[0]
     abstract fun transformBy(kotlin/Float = ..., androidx.compose.ui.geometry/Offset = ..., kotlin/Float = ...) // androidx.compose.foundation.gestures/TransformScope.transformBy|transformBy(kotlin.Float;androidx.compose.ui.geometry.Offset;kotlin.Float){}[0]
-    open fun transformBy(androidx.compose.ui.geometry/Offset, kotlin/Float = ..., androidx.compose.ui.geometry/Offset = ..., kotlin/Float = ...) // androidx.compose.foundation.gestures/TransformScope.transformBy|transformBy(androidx.compose.ui.geometry.Offset;kotlin.Float;androidx.compose.ui.geometry.Offset;kotlin.Float){}[0]
+    open fun transformByWithCentroid(androidx.compose.ui.geometry/Offset = ..., kotlin/Float = ..., androidx.compose.ui.geometry/Offset = ..., kotlin/Float = ...) // androidx.compose.foundation.gestures/TransformScope.transformByWithCentroid|transformByWithCentroid(androidx.compose.ui.geometry.Offset;kotlin.Float;androidx.compose.ui.geometry.Offset;kotlin.Float){}[0]
 }
 
 abstract interface androidx.compose.foundation.gestures/TransformableState { // androidx.compose.foundation.gestures/TransformableState|null[0]

@@ -150,6 +150,8 @@ public class MatrixFromPath extends PaintOperation implements VariableSupport, S
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .additionalDocumentation("matrix_from_path")
                 .description("Set the matrix relative to a path position and tangent")
                 .field(DocumentedOperation.INT, "pathId", "The ID of the path")
                 .field(DocumentedOperation.FLOAT, "percent", "The position on the path [0..1]")

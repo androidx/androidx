@@ -138,6 +138,7 @@ public class ZIndexModifierOperation extends DecoratorModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_zindex")
                 .description("Define the Z-Index of a component")
                 .field(FLOAT, "value", "The Z-Index value");
     }

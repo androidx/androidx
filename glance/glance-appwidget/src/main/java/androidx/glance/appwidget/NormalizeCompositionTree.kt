@@ -70,10 +70,12 @@ import androidx.glance.unit.Dimension
 /** @return what backend to emit: RemoteViews vs RemoteCompose */
 internal fun normalizeCompositionTree(
     root: RemoteViewsRoot,
-    isRemoteComposeAvailable: Boolean,
+    backendOverrideRequest: Backend?,
     isPreviewComposition: Boolean = false,
 ): Backend {
-    val isRemoteCompose: Boolean = root.requiresRemoteCompose() && isRemoteComposeAvailable
+    val isRemoteCompose: Boolean =
+        (root.requiresRemoteCompose() || backendOverrideRequest == Backend.RemoteCompose) &&
+            backendOverrideRequest != Backend.RemoteView
     coerceToOneChild(root)
     root.normalizeSizes()
 
@@ -477,8 +479,8 @@ private fun EmittableM3TextButton.normalizeForRemoteViews(): Emittable {
     val totalHorizontalPadding = if (icon != null) 24.dp else 16.dp
 
     val mainBox =
-        EmittableBox().also {
-            it.modifier =
+        EmittableBox().also { mainBox ->
+            mainBox.modifier =
                 this.modifier
                     .padding(
                         start = 16.dp,
@@ -498,6 +500,7 @@ private fun EmittableM3TextButton.normalizeForRemoteViews(): Emittable {
                             else R.drawable.glance_component_m3_button_ripple,
                     )
                     .then(maybeRoundCorners(R.dimen.glance_component_button_corners))
+            mainBox.contentAlignment = Alignment.Center
         }
 
     val emittableText =
@@ -519,6 +522,7 @@ private fun EmittableM3TextButton.normalizeForRemoteViews(): Emittable {
         )
         mainBox.children.add(emittableText)
     } else {
+        // TODO b/479573471 if no text is provided, the icon will be off center
         val row = EmittableRow()
         row.verticalAlignment = Alignment.Vertical.CenterVertically
         row.children.add(

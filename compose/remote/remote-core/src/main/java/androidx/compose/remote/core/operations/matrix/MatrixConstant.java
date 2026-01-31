@@ -131,6 +131,8 @@ public class MatrixConstant extends Operation implements Serializable, MatrixAcc
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Matrix Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .additionalDocumentation("matrix_constant")
                 .description("A constant matrix and its associated ID")
                 .field(DocumentedOperation.INT, "matrixId", "The ID of the matrix")
                 .field(DocumentedOperation.INT, "type", "The type of matrix")

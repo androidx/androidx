@@ -16,7 +16,6 @@
 
 package androidx.xr.compose.subspace.layout
 
-import androidx.annotation.RestrictTo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.xr.compose.subspace.node.SubspaceLayoutModifierNode
@@ -50,7 +49,6 @@ public fun SubspaceModifier.offset(x: Dp = 0.dp, y: Dp = 0.dp, z: Dp = 0.dp): Su
  *
  * @see offset
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun SubspaceModifier.absoluteOffset(
     x: Dp = 0.dp,
     y: Dp = 0.dp,

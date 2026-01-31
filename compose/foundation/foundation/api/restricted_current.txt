@@ -870,12 +870,12 @@ package androidx.compose.foundation.gestures {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface TransformScope {
-    method @KotlinOnly public default void transformBy(androidx.compose.ui.geometry.Offset centroid, optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
-    method @KotlinOnly @Deprecated public void transformBy(optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
-    method @BytecodeOnly public default void transformBy-IEwrmTk(long, float, long, float);
-    method @BytecodeOnly public static void transformBy-IEwrmTk$default(androidx.compose.foundation.gestures.TransformScope!, long, float, long, float, int, Object!);
-    method @BytecodeOnly @Deprecated public void transformBy-d-4ec7I(float, long, float);
-    method @BytecodeOnly @Deprecated public static void transformBy-d-4ec7I$default(androidx.compose.foundation.gestures.TransformScope!, float, long, float, int, Object!);
+    method @KotlinOnly public void transformBy(optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
+    method @BytecodeOnly public void transformBy-d-4ec7I(float, long, float);
+    method @BytecodeOnly public static void transformBy-d-4ec7I$default(androidx.compose.foundation.gestures.TransformScope!, float, long, float, int, Object!);
+    method @KotlinOnly public default void transformByWithCentroid(optional androidx.compose.ui.geometry.Offset centroid, optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
+    method @BytecodeOnly public default void transformByWithCentroid-IEwrmTk(long, float, long, float);
+    method @BytecodeOnly public static void transformByWithCentroid-IEwrmTk$default(androidx.compose.foundation.gestures.TransformScope!, long, float, long, float, int, Object!);
   }
 
   public final class TransformableKt {

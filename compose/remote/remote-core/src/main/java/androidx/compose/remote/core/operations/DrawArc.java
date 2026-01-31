@@ -100,7 +100,8 @@ public class DrawArc extends DrawBase6 {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Canvas Operations", id(), CLASS_NAME)
+                .additionalDocumentation("draw_arc")
                 .description(
                         "Draw the specified arc"
                                 + "which will be scaled to fit inside the specified oval")

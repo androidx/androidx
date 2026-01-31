@@ -555,7 +555,8 @@ public class ColumnLayout extends LayoutManager {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("column")
                 .description(
                         "Column layout implementation, positioning components one"
                                 + " after the other vertically.\n\n"

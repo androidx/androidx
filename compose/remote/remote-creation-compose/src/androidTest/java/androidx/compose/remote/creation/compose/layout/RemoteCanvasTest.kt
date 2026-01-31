@@ -19,6 +19,7 @@ package androidx.compose.remote.creation.compose.layout
 import androidx.compose.remote.creation.compose.SCREENSHOT_GOLDEN_DIRECTORY
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
+import androidx.compose.remote.creation.compose.modifier.drawWithContent
 import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.size
@@ -65,6 +66,7 @@ class RemoteCanvasTest {
             ::TestClipRect_intersect,
             ::TestClipRect_difference,
             ::TestDrawPrimitives,
+            ::TestRotate,
         )
 
     @Test
@@ -152,6 +154,37 @@ class RemoteCanvasTest {
                 start = RemoteOffset(0f.rf, 0f.rf),
                 end = RemoteOffset(100f.rf, 100f.rf),
             )
+        }
+    }
+
+    @RemoteComposable
+    @Composable
+    fun TestRotate() {
+        RemoteCanvas(
+            modifier =
+                RemoteModifier.size(100.rdp).drawWithContent {
+                    rotate(45.rf, pivot = RemoteOffset(remoteWidth / 2f, remoteHeight / 2f)) {
+                        drawContent()
+                    }
+                }
+        ) {
+            val w = remoteWidth
+            drawAnchoredText(
+                text = "Rotated by Canvas 45°".rs,
+                anchorX = 150f.rf,
+                anchorY = 80f.rf,
+                panX = 1f.rf,
+                paint = RemotePaint(),
+            )
+            rotate((-45).rf) {
+                drawAnchoredText(
+                    text = "Rotated -45° then by canvas".rs,
+                    anchorX = 10f.rf,
+                    anchorY = 100f.rf,
+                    panX = 1f.rf,
+                    paint = RemotePaint(),
+                )
+            }
         }
     }
 

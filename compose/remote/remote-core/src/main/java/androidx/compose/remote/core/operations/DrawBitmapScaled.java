@@ -316,6 +316,7 @@ public class DrawBitmapScaled extends PaintOperation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_bitmap_scaled")
                 .description("Draw a bitmap with scaling and alignment options")
                 .field(DocumentedOperation.INT, "imageId", "The ID of the bitmap")
                 .field(DocumentedOperation.FLOAT, "srcLeft", "The left side of the source image")

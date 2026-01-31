@@ -73,16 +73,25 @@ internal abstract class RemoteComposeNodeV2 {
 }
 
 internal class RemoteCanvasNodeV2 : RemoteComposeNodeV2() {
-    var onDraw: (RemoteDrawScope.() -> Unit)? = null
+    var onDraw: (RemoteDrawScope.() -> Unit) = {}
 
     override fun render(creationState: RemoteComposeCreationState, remoteCanvas: RemoteCanvas) {
 
         val recordingModifier = creationState.toRecordingModifier(modifier)
         creationState.document.startCanvas(recordingModifier)
-        onDraw?.let { drawLambda ->
-            val remoteDrawScope = RemoteDrawScope(remoteCanvas = remoteCanvas)
-            remoteDrawScope.drawLambda()
+
+        val drawWithContent = modifier.find<DrawWithContentModifier>()
+
+        if (drawWithContent != null) {
+            val drawWithContentScope = RemoteDrawWithContentScope(remoteCanvas, onDraw)
+
+            // Draw any drawWithContentModifier, around canvas onDraw
+            drawWithContent.onDraw(drawWithContentScope)
+        } else {
+            val drawScope = RemoteDrawScope(remoteCanvas)
+            drawScope.onDraw()
         }
+
         creationState.document.endCanvas()
     }
 }

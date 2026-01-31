@@ -74,14 +74,6 @@ import androidx.glance.text.EmittableText
 
 internal const val TAG = "GlanceRemoteCompose"
 
-/**
- * Pass in the appWidgetOptions bundle to force glance to use either remote views or remote compose.
- * This is intended for debugging, eg, to see if a widget displays the same using both options.
- *
- * Set to true to force remote views.
- */
-internal const val GLANCE_OPTION_APPWIDGET_FORCE_REMOTE_VIEWS = "glanceAppWidgetForceRemoteViews"
-
 internal object GlanceRemoteComposeTranslator {
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     internal fun translateCompositionUsingRemoteCompose(

@@ -179,7 +179,7 @@ private class TransformableNode(
                                 state.transform(MutatePriority.UserInput) {
                                     while (event !is TransformStopped) {
                                         (event as? TransformDelta)?.let {
-                                            transformBy(
+                                            transformByWithCentroid(
                                                 centroid = it.centroid,
                                                 zoomChange = it.zoomChange,
                                                 panChange = it.panChange,

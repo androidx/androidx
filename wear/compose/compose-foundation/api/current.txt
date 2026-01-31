@@ -1,10 +1,10 @@
 // Signature format: 4.0
 package androidx.wear.compose.foundation {
 
-  @androidx.compose.runtime.Immutable public sealed exhaustive interface AmbientMode {
+  public abstract class AmbientMode {
   }
 
-  public static final class AmbientMode.Ambient implements androidx.wear.compose.foundation.AmbientMode {
+  public static final class AmbientMode.Ambient extends androidx.wear.compose.foundation.AmbientMode {
     ctor public AmbientMode.Ambient(boolean isBurnInProtectionRequired, boolean isLowBitAmbientSupported);
     method @InaccessibleFromKotlin public boolean isBurnInProtectionRequired();
     method @InaccessibleFromKotlin public boolean isLowBitAmbientSupported();
@@ -12,7 +12,7 @@ package androidx.wear.compose.foundation {
     property public boolean isLowBitAmbientSupported;
   }
 
-  public static final class AmbientMode.Interactive implements androidx.wear.compose.foundation.AmbientMode {
+  public static final class AmbientMode.Interactive extends androidx.wear.compose.foundation.AmbientMode {
     field public static final androidx.wear.compose.foundation.AmbientMode.Interactive INSTANCE;
   }
 
@@ -412,8 +412,8 @@ package androidx.wear.compose.foundation {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void AmbientTickEffect(androidx.wear.compose.foundation.AmbientModeManager, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @BytecodeOnly @androidx.compose.runtime.Composable public static void AmbientTickEffect(androidx.wear.compose.foundation.AmbientModeManager, kotlin.jvm.functions.Function0<kotlin.Unit!>, androidx.compose.runtime.Composer?, int);
     method @InaccessibleFromKotlin public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.AmbientModeManager?> getLocalAmbientModeManager();
-    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.AmbientModeManager rememberAmbientModeManager(android.app.Activity activity);
-    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.AmbientModeManager rememberAmbientModeManager(android.app.Activity, androidx.compose.runtime.Composer?, int);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.AmbientModeManager rememberAmbientModeManager();
+    method @BytecodeOnly @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.AmbientModeManager rememberAmbientModeManager(androidx.compose.runtime.Composer?, int);
     property public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.foundation.AmbientModeManager?> LocalAmbientModeManager;
   }
 

@@ -50,7 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,7 +69,7 @@ fun WeatherDemo() {
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
         ) {
             FitBox(RemoteModifier.fillMaxSize(), verticalArrangement = RemoteArrangement.Top) {
-                val res = LocalContext.current.resources
+                val res = LocalResources.current
                 val image = remember {
                     BitmapFactory.decodeResource(
                             res,
@@ -120,7 +120,7 @@ fun WeatherDemo() {
 @RemoteComposable
 @Composable
 fun WeatherHeader() {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, R.drawable.mostly_cloudy, BitmapFactory.Options())
             .asImageBitmap()
@@ -163,7 +163,7 @@ fun WeatherBox() {
 @RemoteComposable
 @Composable
 fun WeatherBox2() {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, R.drawable.mostly_cloudy, BitmapFactory.Options())
             .asImageBitmap()
@@ -207,7 +207,7 @@ fun WeatherRow() {
 @RemoteComposable
 @Composable
 fun Weather(temperature: String, hour: String, resource: Int) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, resource, BitmapFactory.Options()).asImageBitmap()
     }
@@ -250,7 +250,7 @@ fun WeatherDays() {
 @RemoteComposable
 @Composable
 fun WeatherDay(day: String, precipitation: String, image: Int, temperature: String) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, image, BitmapFactory.Options()).asImageBitmap()
     }

@@ -21,6 +21,7 @@ import androidx.compose.animation.tooling.ComposeAnimationType
 import androidx.compose.runtime.remember
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.tooling.animation.InfiniteTransitionComposeAnimation.Companion.parse
+import androidx.compose.ui.tooling.animation.search.InfiniteTransitionSearchInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -44,7 +45,7 @@ class InfiniteTransitionComposeAnimationTest {
         assertTrue(InfiniteTransitionComposeAnimation.apiAvailable)
         rule.setContent {
             val composeAnimation =
-                AnimationSearch.InfiniteTransitionSearchInfo(
+                InfiniteTransitionSearchInfo(
                         rememberInfiniteTransition(),
                         remember { ToolingState(0L) },
                     )
@@ -64,7 +65,7 @@ class InfiniteTransitionComposeAnimationTest {
         assertFalse(InfiniteTransitionComposeAnimation.apiAvailable)
         rule.setContent {
             val composeAnimation =
-                AnimationSearch.InfiniteTransitionSearchInfo(
+                InfiniteTransitionSearchInfo(
                         rememberInfiniteTransition(),
                         remember { ToolingState(0L) },
                     )

@@ -83,44 +83,47 @@ private fun ListLayoutProperties.applyMeasureResultWithoutAutoFocus(
     density: Density,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): GlimmerListMeasureResult {
+    val incomingScroll = state.incomingScroll
+    val scrollToBeConsumed = incomingScroll + state.carryOverScroll
+
     val measureResult =
         measureGlimmerList(
             itemsCount = itemsCount,
             measuredItemProvider = measuredItemProvider,
             firstVisibleItemIndex = firstVisibleItemIndex,
             firstVisibleItemScrollOffset = firstVisibleItemScrollOffset,
-            scrollToBeConsumed = state.scrollToBeConsumed,
+            scrollToBeConsumed = scrollToBeConsumed,
             pinnedIndices = pinnedIndices,
             reverseLayout = reverseLayout,
             density = density,
             layout = layout,
         )
 
-    val unconsumedScroll = state.scrollToBeConsumed - measureResult.consumedScroll
+    val unconsumedScroll = scrollToBeConsumed - measureResult.consumedScroll
     val consumedScroll =
         when {
-            // Reports that we consume all because we accumulated it for the next pass.
-            abs(state.scrollToBeConsumed) <= 0.5f -> state.scrollToBeConsumed
+            // Reports that we consume all because we carry it over to the next pass.
+            abs(scrollToBeConsumed) <= 0.5f -> incomingScroll
             // Reports that we consumed all, since we actually did — except for rounding errors.
-            abs(unconsumedScroll) <= 0.5f -> state.scrollToBeConsumed
+            abs(unconsumedScroll) <= 0.5f -> incomingScroll
             // Content didn't consume all, so return a real consumed part.
             else -> measureResult.consumedScroll
         }
 
-    val accumulatedScroll =
+    val scrollToCarryOver =
         when {
             // We pretend that we consume all, but we will actually use it in the next pass.
-            abs(state.scrollToBeConsumed) <= 0.5f -> state.scrollToBeConsumed
-            // We consume all, but let's accumulate errors after roundings.
+            abs(scrollToBeConsumed) <= 0.5f -> scrollToBeConsumed
+            // We consume all, but let's save errors after roundings for successor passes.
             abs(unconsumedScroll) <= 0.5f -> unconsumedScroll
-            // There was more scroll than we could even consume, so no accumulation remained.
+            // There was more scroll than we could even consume, so no need to carry over.
             else -> 0f
         }
 
     state.applyMeasureResult(
         result = measureResult,
         consumedScroll = consumedScroll,
-        accumulatedScroll = accumulatedScroll,
+        scrollToCarryOver = scrollToCarryOver,
     )
 
     return measureResult
@@ -138,13 +141,16 @@ private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
     density: Density,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult,
 ): GlimmerListMeasureResult {
+    val incomingScroll = state.incomingScroll
+    val scrollToBeConsumed = incomingScroll + state.carryOverScroll
+
     // The user-dispatched scroll (ΔSu) is shared between the scroll of the content (ΔSc)
     // and the moving focus line (ΔSf). The proportion is not constant and depends on the
     // state of the list. This method calculates a proper share of `ΔSu = ΔSc + ΔSf`.
     val expectedContentScrollDelta =
         convertUserScrollDeltaToContentScrollDelta(
             properties = state.autoFocusState.properties,
-            userScrollToBeConsumed = state.scrollToBeConsumed,
+            userScrollToBeConsumed = scrollToBeConsumed,
         )
 
     // Here's the original logic, with a modified input - the content scroll (ΔSc) is passed instead
@@ -163,7 +169,7 @@ private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
         )
 
     val prevAutoFocusProperties = state.autoFocusState.properties
-    val expectedFocusScrollDelta = state.scrollToBeConsumed - expectedContentScrollDelta
+    val expectedFocusScrollDelta = scrollToBeConsumed - expectedContentScrollDelta
 
     val consumedContentScrollDelta = measureResult.consumedScroll
     val consumedFocusScrollDelta =
@@ -174,28 +180,28 @@ private fun ListLayoutProperties.applyMeasureResultWithAutoFocus(
 
     val consumedScroll =
         when {
-            // Reports that we consume all because we accumulated it for the next pass.
-            abs(expectedContentScrollDelta) <= 0.5f -> state.scrollToBeConsumed
+            // Reports that we consume all because we carry it over to the next pass.
+            abs(expectedContentScrollDelta) <= 0.5f -> incomingScroll
             // Reports that we consumed all, since we actually did — except for rounding errors.
-            abs(unconsumedContentDelta) <= 0.5f -> state.scrollToBeConsumed
+            abs(unconsumedContentDelta) <= 0.5f -> incomingScroll
             // Content didn't consume all, so return a real consumed part.
             else -> consumedContentScrollDelta + consumedFocusScrollDelta
         }
 
-    val accumulatedScroll =
+    val scrollToCarryOver =
         when {
             // We pretend that we consume all, but we will actually use it in the next pass.
-            abs(expectedContentScrollDelta) <= 0.5f -> state.scrollToBeConsumed
-            // We consume all, but let's accumulate errors after roundings.
+            abs(expectedContentScrollDelta) <= 0.5f -> scrollToBeConsumed
+            // We consume all, but let's save errors after roundings for successor passes.
             abs(unconsumedContentDelta) <= 0.5f -> unconsumedContentDelta + unconsumedFocusDelta
-            // There was more scroll than we could even consume, so no accumulation remained.
+            // There was more scroll than we could even consume, so no need to carry over.
             else -> 0f
         }
 
     state.applyMeasureResult(
         result = measureResult,
         consumedScroll = consumedScroll,
-        accumulatedScroll = accumulatedScroll,
+        scrollToCarryOver = scrollToCarryOver,
     )
 
     return measureResult

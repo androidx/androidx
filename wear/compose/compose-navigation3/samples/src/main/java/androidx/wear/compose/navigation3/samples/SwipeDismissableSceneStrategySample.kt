@@ -17,14 +17,22 @@
 package androidx.wear.compose.navigation3.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -152,7 +160,7 @@ fun ListDetailNavDisplaySample(onExit: () -> Unit = {}) {
 
 @Sampled
 @Composable
-fun NavDisplayWithOnBackBehaviorSample(logger: (String) -> Unit = {}) {
+fun NavDisplayWithOnBackBehaviorSample() {
     // Example of using a NavDisplay with SwipeDismissableSceneStrategy and on back behavior.
 
     // Strongly-typed, serializable navigation destinations are defined at global scope as follows:
@@ -160,18 +168,29 @@ fun NavDisplayWithOnBackBehaviorSample(logger: (String) -> Unit = {}) {
     // @Serializable object Second: NavKey
     val backStack = rememberNavBackStack(First)
 
+    var swipedBackCount by remember { mutableIntStateOf(0) }
+
     NavDisplay(
         backStack = backStack,
         onBack = {
-            logger("Back Action is triggered.")
+            swipedBackCount++
             backStack.removeLastOrNull()
         },
         sceneStrategy = rememberSwipeDismissableSceneStrategy(),
         entryProvider =
             entryProvider {
                 entry<First> {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Button(onClick = { backStack.add(Second) }) { Text("Next") }
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                    ) {
+                        Text("First")
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(onClick = { backStack.add(Second) }) { Text("Second") }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Swiped back $swipedBackCount times")
                     }
                 }
                 entry<Second> {

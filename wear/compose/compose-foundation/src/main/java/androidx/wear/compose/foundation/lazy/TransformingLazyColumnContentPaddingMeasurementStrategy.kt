@@ -314,7 +314,8 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
             this.itemsCount = itemsCount
             this.itemSpacing = itemSpacing
             this.maxHeight = containerConstraints.maxHeight
-
+            this.beforeContentPadding = initialBeforeContentPadding
+            this.afterContentPadding = initialAfterContentPadding
             this.visibleItems.clear()
 
             fun TransformingLazyColumnMeasuredItem.isVisible(): Boolean =
@@ -346,7 +347,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                                 calculateBottomPadding(containerHeightDp).roundToPx()
                             }
                         }
-                    } ?: 0
+                    } ?: initialBeforeContentPadding
 
             val responsiveAfterContentPadding =
                 visibleItems
@@ -361,7 +362,7 @@ internal class TransformingLazyColumnContentPaddingMeasurementStrategy(
                                 calculateTopPadding(containerHeightDp).roundToPx()
                             }
                         }
-                    } ?: 0
+                    } ?: initialAfterContentPadding
 
             this.beforeContentPadding =
                 max(initialBeforeContentPadding, responsiveBeforeContentPadding)

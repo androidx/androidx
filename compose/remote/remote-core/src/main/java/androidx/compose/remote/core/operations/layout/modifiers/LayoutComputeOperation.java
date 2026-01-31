@@ -187,6 +187,8 @@ public class LayoutComputeOperation extends Operation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, "LayoutCompute")
+                .addedVersion(7)
+                .experimental(true)
                 .description("Compute component position and measure via dynamic expressions")
                 .field(INT, "type", "Type of computation (0=MEASURE, 1=POSITION)")
                 .field(INT, "boundsId", "The ID of the float list variable to store the bounds")

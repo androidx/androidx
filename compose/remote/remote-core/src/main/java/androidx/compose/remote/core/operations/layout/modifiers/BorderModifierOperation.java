@@ -303,6 +303,7 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("modifier_border")
                 .description("Define a border for a component")
                 .field(INT, "flags", "Behavior flags")
                 .field(INT, "colorId", "The ID of the color if flags include COLOR_REF")

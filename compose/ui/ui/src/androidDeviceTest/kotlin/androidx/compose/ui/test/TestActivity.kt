@@ -17,11 +17,11 @@ package androidx.compose.ui.test
 
 import android.os.Build
 import android.view.KeyEvent
-import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.ViewLayer
+import androidx.fragment.app.FragmentActivity
 import java.util.concurrent.CountDownLatch
 
-open class TestActivity : ComponentActivity() {
+open class TestActivity : FragmentActivity() {
     var receivedKeyEvent: KeyEvent? = null
 
     var hasFocusLatch = CountDownLatch(1)
