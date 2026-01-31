@@ -358,26 +358,28 @@ internal class ComposeWindow(
     }
 
     private fun initEvents(canvas: HTMLCanvasElement) {
-        var offset = Offset.Zero
+        var offsetX = 0f
+        var offsetY = 0f
 
         addTypedEvent<TouchEvent>("touchstart") { event ->
             canvas.getBoundingClientRect().apply {
-                offset = Offset(x = left.toFloat(), y = top.toFloat())
+                offsetX = left.toFloat()
+                offsetY = top.toFloat()
             }
 
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<TouchEvent>("touchmove") { event ->
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<TouchEvent>("touchend") { event ->
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<TouchEvent>("touchcancel") { event ->
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<MouseEvent>("mousedown") { event ->
@@ -526,7 +528,8 @@ internal class ComposeWindow(
 
     private fun onTouchEvent(
         event: TouchEvent,
-        offset: Offset,
+        offsetX: Float,
+        offsetY: Float
     ) {
         // iOS Safari doesn't request focus when the page is shown,
         // and the lifecycle doesn't trigger ON_RESUME.
@@ -560,8 +563,8 @@ internal class ComposeWindow(
             ComposeScenePointer(
                 id = PointerId(touch.identifier.toLong()),
                 position = Offset(
-                    x = (touch.clientX - offset.x) * density.density,
-                    y = (touch.clientY - offset.y) * density.density
+                    x = (touch.clientX - offsetX) * density.density,
+                    y = (touch.clientY - offsetY) * density.density
                 ),
                 pressed = pressed,
                 type = PointerType.Touch,
@@ -666,7 +669,7 @@ internal fun onSkikoReady(block: () -> Unit) {
 
 internal fun onDomReady(block: () -> Unit) {
     // https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event
-    if (document.readyState == DocumentReadyState.Companion.LOADING) {
+    if (document.readyState == DocumentReadyState.LOADING) {
         document.addEventListener("DOMContentLoaded", {
             block()
         })

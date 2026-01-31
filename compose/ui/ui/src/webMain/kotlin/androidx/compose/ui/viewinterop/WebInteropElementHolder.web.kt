@@ -131,7 +131,7 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
         val bottomClip = maxOf(unclippedRect.bottom - clippedRect.bottom, 0)
         val rightClip = maxOf(unclippedRect.right - clippedRect.right, 0)
 
-        val newHiddenState = topClip >= interopOffsetHeight.toFloat() || leftClip >= interopOffsetWidth.toFloat()
+        val newHiddenState = topClip >= interopOffsetHeight || leftClip >= interopOffsetWidth
 
         if (newHiddenState != isHidden) {
              toggleVisibility(interopWrapper, newHiddenState)
