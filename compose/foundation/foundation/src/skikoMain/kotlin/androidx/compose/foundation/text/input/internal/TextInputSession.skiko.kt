@@ -145,7 +145,6 @@ private inline fun (() -> TextFieldCharSequence).asTextEditorState() = object : 
 
 @OptIn(ExperimentalComposeUiApi::class)
 private fun TextEditingScope(buffer: TextFieldBuffer) = object : TextEditingScope {
-
     private var TextFieldBuffer.cursor: Int
         get() = if (selection.collapsed) selection.end else -1
         set(value) {

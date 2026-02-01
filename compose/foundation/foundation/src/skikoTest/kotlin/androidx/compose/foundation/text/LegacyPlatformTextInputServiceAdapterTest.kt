@@ -62,7 +62,7 @@ class LegacyPlatformTextInputServiceAdapterTest {
         var textClippingRectInRoot: Rect? = null
 
         setContent {
-            InterceptPlatformTextInput({ request, nextHandler ->
+            InterceptPlatformTextInput({ request, _ ->
                 coroutineScope {
                     launch {
                         snapshotFlow { request.value() }.collect { value = it }

@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -214,7 +215,7 @@ open class BaseWindowTextFieldTest {
             object : TextField1Scope(windowTestScope, window) {
                 @Composable
                 override fun TextField() {
-                    val focusRequester = FocusRequester()
+                    val focusRequester = remember { FocusRequester() }
                     BasicTextField(
                         value = textFieldValue,
                         onValueChange = {
@@ -243,7 +244,7 @@ open class BaseWindowTextFieldTest {
             object : TextField2Scope(windowTestScope, window) {
                 @Composable
                 override fun TextField() {
-                    val focusRequester = FocusRequester()
+                    val focusRequester = remember { FocusRequester() }
                     BasicTextField(
                         state = textFieldState,
                         inputTransformation = inputTransformation,
@@ -270,7 +271,7 @@ open class BaseWindowTextFieldTest {
             object : SecureTextFieldScope(windowTestScope, window, TextObfuscationMode.Hidden) {
                 @Composable
                 override fun TextField() {
-                    val focusRequester = FocusRequester()
+                    val focusRequester = remember { FocusRequester() }
 
                     BasicSecureTextField(
                         state = textFieldState,
