@@ -83,11 +83,7 @@ internal class ComposeSceneAccessible(
     }
 
     fun indexOfChild(controller: AccessibilityController): Int {
-        val controllers = accessibilityControllersProvider()
-        for (i in controllers.indices) {
-            if (controllers[i] === controller) return i
-        }
-        return -1
+        return accessibilityControllersProvider().indexOf(controller)
     }
 
     /**
