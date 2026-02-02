@@ -58,9 +58,7 @@ import androidx.compose.ui.platform.PlatformTextInputMethodRequest
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.platform.a11y.AccessibilityController
-import androidx.compose.ui.platform.a11y.AccessibleFocusHelper
-import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
+import androidx.compose.ui.platform.a11y.ComposeSceneAccessibility
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.unit.Density
@@ -107,13 +105,14 @@ import org.jetbrains.skiko.hostOs
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
 /**
- * Provides a mediator for integrating a Compose scene with AWT/Swing component.
+ * Provides a mediator for integrating a Compose scene with an AWT/Swing Component.
  * It allows setting Compose content by [setContent], this content should be drawn on [contentComponent].
  *
- * This mediator contain 2 components that should be added to the view hierarchy:
- * [contentComponent] the main visible Swing component with skia canvas, on which Compose will be shown
- * [invisibleComponent] service component used to bypass Swing issues:
- * - for forcing refocus on input methods change
+ * The mediator contains two Components that should be added to the view hierarchy:
+ * [contentComponent]: the main visible Swing Component with skia canvas, on which Compose content
+ * will be rendered.
+ * [invisibleComponent]: a service component used to work around an AWT problem with refocusing
+ * on input method change.
  */
 internal class ComposeSceneMediator(
     private val container: JComponent,
@@ -148,24 +147,19 @@ internal class ComposeSceneMediator(
     private val _platformContext = DesktopPlatformContext()
     val platformContext: PlatformContext get() = _platformContext
 
+    val accessibility = ComposeSceneAccessibility(
+        platformComponent = platformComponent,
+        coroutineContext = coroutineContext,
+        isWindowLevel = isWindowLevel,
+        sceneRoot = { skiaLayerComponent.contentRoot },
+    )
+
     private val skiaLayerComponent: SkiaLayerComponent by lazy { skiaLayerComponentFactory(this) }
     val contentComponent by skiaLayerComponent::hierarchyRoot
     var fullscreen by skiaLayerComponent::fullscreen
     val windowHandle by skiaLayerComponent::windowHandle
     val renderApi by skiaLayerComponent::renderApi
     val semanticsOwners: Collection<SemanticsOwner> by semanticsOwnerManager::semanticsOwners
-
-    val accessible: ComposeSceneAccessible = ComposeSceneAccessible(
-        isWindowLevel = isWindowLevel,
-        sceneRoot = { skiaLayerComponent.contentRoot },
-        accessibilityControllersProvider = { semanticsOwnerManager.accessibilityControllers }
-    )
-
-    private val accessibleFocusHelper by lazy {
-        AccessibleFocusHelper(skiaLayerComponent.contentRoot, accessible)
-    }
-
-    fun getAccessibleContext() = accessibleFocusHelper.accessibleContext
 
     /**
      * @see ComposeFeatureFlags.useInteropBlending
@@ -278,11 +272,11 @@ internal class ComposeSceneMediator(
                 }
             }
 
-            semanticsOwnerManager.onContentComponentGainedFocus()
+            accessibility.onContentComponentGainedFocus()
         }
 
         override fun focusLost(e: FocusEvent) {
-            semanticsOwnerManager.onContentComponentLostFocus()
+            accessibility.onContentComponentLostFocus()
 
             // We don't reset focus for Compose when the component loses focus temporarily.
             // Partially because we don't support restoring focus after clearing it.
@@ -769,63 +763,24 @@ internal class ComposeSceneMediator(
     }
 
     private inner class DesktopSemanticsOwnerManager : PlatformContext.SemanticsOwnerListener {
-        /**
-         * A new [SemanticsOwner] is always created above existing ones. So, usage of [LinkedHashMap]
-         * is required here to keep insertion-order (that equal to [SemanticsOwner]s order).
-         */
-        private val _accessibilityControllers = linkedMapOf<SemanticsOwner, AccessibilityController>()
-        val accessibilityControllers get() = _accessibilityControllers.values.reversed()
-
         val semanticsOwners = mutableStateSetOf<SemanticsOwner>()
 
-        private var requestingFocus = false
-
         override fun onSemanticsOwnerAppended(semanticsOwner: SemanticsOwner) {
-            check(semanticsOwner !in _accessibilityControllers)
-            _accessibilityControllers[semanticsOwner] = AccessibilityController(
-                owner = semanticsOwner,
-                desktopComponent = platformComponent,
-                parentAccessible = accessible,
-                onFocusReceived = {
-                    // requestFocusOnAccessible fires focusGained events, which in turn
-                    // can call this method themselves, so we need to prevent infinite recursion
-                    if (requestingFocus) return@AccessibilityController
-                    requestingFocus = true
-
-                    val target = it ?: accessible.defaultAccessibilityFocusTarget()
-                    if (target != null) {
-                        try {
-                            accessibleFocusHelper.requestFocusOnAccessible(target)
-                        } finally {
-                            requestingFocus = false
-                        }
-                    }
-                },
-            ).also {
-                it.launchSyncLoop(coroutineContext)
-            }
+            accessibility.onSemanticsOwnerAppended(semanticsOwner)
             semanticsOwners.add(semanticsOwner)
         }
 
         override fun onSemanticsOwnerRemoved(semanticsOwner: SemanticsOwner) {
-            _accessibilityControllers.remove(semanticsOwner)?.dispose()
+            accessibility.onSemanticsOwnerRemoved(semanticsOwner)
             semanticsOwners.remove(semanticsOwner)
         }
 
         override fun onSemanticsChange(semanticsOwner: SemanticsOwner) {
-            _accessibilityControllers[semanticsOwner]?.onSemanticsChange()
+            accessibility.onSemanticsChange(semanticsOwner)
         }
 
         override fun onLayoutChange(semanticsOwner: SemanticsOwner, semanticsNodeId: Int) {
-            _accessibilityControllers[semanticsOwner]?.onLayoutChanged(nodeId = semanticsNodeId)
-        }
-
-        fun onContentComponentGainedFocus() {
-            _accessibilityControllers.values.lastOrNull()?.onFocusGained()
-        }
-
-        fun onContentComponentLostFocus() {
-            _accessibilityControllers.values.lastOrNull()?.onFocusLost()
+            accessibility.onLayoutChange(semanticsOwner, semanticsNodeId)
         }
     }
 

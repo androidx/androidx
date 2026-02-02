@@ -168,7 +168,6 @@ internal class ComposeContainer(
 
     val contentComponent by mediator::contentComponent
     val focusManager by mediator::focusManager
-    val accessible by mediator::accessible
     var rootForTestListener by mediator::rootForTestListener
     // TODO: Changing fullscreen probably will require recreate our layers
     //  It will require add this flag as remember parameters in rememberComposeSceneLayer

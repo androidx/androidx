@@ -17,13 +17,13 @@ import org.jetbrains.skiko.initializeCAccessible
  */
 internal class AccessibleFocusHelper(
     private val component: Component,
-    private val regularAccessible: Accessible,
+    private val sceneAccessibleContext: AccessibleContext,
 ) {
 
     private var focusedAccessible: Accessible? = null
 
     val accessibleContext: AccessibleContext
-        get() = (focusedAccessible ?: regularAccessible).accessibleContext
+        get() = focusedAccessible?.accessibleContext ?: sceneAccessibleContext
 
     private var resetFocusAccessibleJob: Job? = null
 
@@ -44,9 +44,24 @@ internal class AccessibleFocusHelper(
         // and its accessibility context. This timeout is used to deal with concurrency
         // TODO Find more reliable procedure
         resetFocusAccessibleJob?.cancel()
-        resetFocusAccessibleJob = GlobalScope.launch(MainUIDispatcher) {
-            delay(100)
-            focusedAccessible = null
+        if (focusedAccessible != null) {
+            resetFocusAccessibleJob = GlobalScope.launch(MainUIDispatcher) {
+                delay(100)
+                focusedAccessible = null
+            }
+        }
+    }
+
+    /**
+     * When [focusedAccessible] is set, for the accessible hierarchy to be correct, its parent must
+     * be reported as the scene's accessible context. This function returns it if [accessible] is
+     * [focusedAccessible].
+     */
+    fun accessibleParentOverride(accessible: Accessible): Accessible? {
+        return if (accessible == focusedAccessible) {
+            sceneAccessibleContext.accessibleParent as Accessible
+        } else {
+            null
         }
     }
 

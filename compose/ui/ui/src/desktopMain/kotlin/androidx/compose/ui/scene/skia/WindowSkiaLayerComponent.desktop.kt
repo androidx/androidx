@@ -52,7 +52,7 @@ internal class WindowSkiaLayerComponent(
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
      */
     override val hierarchyRoot: SkiaLayer = object : SkiaLayer(
-        accessibleContextProvider = { mediator.getAccessibleContext() },
+        accessibleContextProvider = mediator.accessibility.accessibleContextProvider,
         properties = run {
             val defaultProperties = SkiaLayerProperties()
 

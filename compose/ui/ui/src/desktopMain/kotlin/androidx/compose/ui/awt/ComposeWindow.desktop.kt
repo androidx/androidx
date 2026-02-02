@@ -36,7 +36,6 @@ import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
 import java.util.Locale
-import javax.accessibility.Accessible
 import javax.swing.JFrame
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
@@ -78,10 +77,6 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
 
     internal val windowContext by composePanel::windowContext
     internal var rootForTestListener by composePanel::rootForTestListener
-
-    // Don't override the accessible context of JFrame, since accessibility work through HardwareLayer
-    internal val windowAccessible: Accessible
-        get() = composePanel.windowAccessible
 
     /**
      * Returns the [SemanticsOwner]s corresponding to the roots of the semantics trees in this

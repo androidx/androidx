@@ -43,20 +43,22 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 /**
- * This class provides a mapping from compose tree of [owner] to tree of [ComposeAccessible],
- * so that each [SemanticsNode] has [ComposeAccessible].
+ * Manages the accessibility aspects of a [SemanticsOwner].
+ *
+ * Creates a [ComposeAccessible] for each [SemanticsNode] in the semantics tree, and keeps them
+ * up to date with the semantics tree.
  *
  * @param onFocusReceived a callback that will be called with [ComposeAccessible]
  * when a [SemanticsNode] from [owner] received a focus. `null` is passed when no nodes in the scene
  * are focused.
  *
- * @see ComposeSceneAccessible
+ * @see ComposeSceneAccessibility
  * @see ComposeAccessible
  */
-internal class AccessibilityController(
-    val owner: SemanticsOwner,
+internal class SemanticsOwnerAccessibility(
+    private val owner: SemanticsOwner,
     val desktopComponent: PlatformComponent,
-    val parentAccessible: ComposeSceneAccessible,
+    private val sceneAccessibility: ComposeSceneAccessibility,
     private val onFocusReceived: (ComposeAccessible?) -> Unit,
 ) {
 
@@ -89,10 +91,20 @@ internal class AccessibilityController(
     }
 
     /**
-     * Returns the index of this [AccessibilityController]'s root node in the scene.
+     * Returns the index of this [SemanticsOwnerAccessibility]'s root node in the scene.
      */
     fun indexInScene(): Int {
-        return parentAccessible.indexOfChild(this)
+        return sceneAccessibility.indexOfChild(this)
+    }
+
+    /**
+     * Returns the [Accessible] parent of the given [ComposeAccessible].
+     */
+    fun accessibleParentOf(accessible: ComposeAccessible): Accessible? {
+        sceneAccessibility.accessibleParentOverride(accessible)?.let { return it }
+
+        val parentNode = accessible.semanticsNode.parent ?: return sceneAccessibility.accessible()
+        return accessibleByNodeId(parentNode.id)!!
     }
 
     /**
@@ -306,13 +318,13 @@ internal class AccessibilityController(
     private var syncingJob: Job? = null
 
     /**
-     * Whether this [AccessibilityController] has been disposed.
+     * Whether this [SemanticsOwnerAccessibility] has been disposed.
      */
     @Volatile
     private var disposed = false
 
     /**
-     * Disposes of this [AccessibilityController], releasing any resources associated with it.
+     * Disposes of this [SemanticsOwnerAccessibility], releasing any resources associated with it.
      */
     fun dispose() {
         syncingJob?.cancel()
@@ -327,7 +339,7 @@ internal class AccessibilityController(
             throw IllegalStateException("Sync loop already running")
 
         syncingJob = CoroutineScope(context).launch {
-            AccessibilityUsage.runActiveController(this@AccessibilityController) {
+            AccessibilityUsage.runActiveInstance(this@SemanticsOwnerAccessibility) {
                 while (true) {
                     nodeSyncChannel.receive()
                     syncNodes()
@@ -470,8 +482,8 @@ internal class AccessibilityController(
 
     /**
      * Holds how recently the system has queried the program's accessibility state and manages
-     * enabling/disabling the syncing of [AccessibilityController]s with the semantic tree when the
-     * system has not queried the program's accessibility state for a while.
+     * enabling/disabling the syncing of [SemanticsOwnerAccessibility]s with the semantic tree when
+     * the system has not queried the program's accessibility state for a while.
      */
     object AccessibilityUsage {
 
@@ -482,9 +494,9 @@ internal class AccessibilityController(
         private val MaxIdleTimeNanos = 5.minutes.inWholeNanoseconds
 
         /**
-         * The set of "live" [AccessibilityController]s.
+         * The set of "live" [SemanticsOwnerAccessibility]s.
          */
-        private val activeControllers = mutableSetOf<AccessibilityController>()
+        private val activeInstances = mutableSetOf<SemanticsOwnerAccessibility>()
 
         /**
          * The time of the latest accessibility call from the system.
@@ -496,7 +508,7 @@ internal class AccessibilityController(
          * Resets this object to its initial state. This is needed for tests.
          */
         internal fun reset() {
-            assert(activeControllers.isEmpty())
+            assert(activeInstances.isEmpty())
             lastUseTimeNanos = System.nanoTime() - (MaxIdleTimeNanos + 1)
         }
 
@@ -508,8 +520,8 @@ internal class AccessibilityController(
          */
         fun notifyInUse() {
             lastUseTimeNanos = System.nanoTime()
-            for (controller in activeControllers) {
-                controller.scheduleNodeSyncIfNeeded()
+            for (instance in activeInstances) {
+                instance.scheduleNodeSyncIfNeeded()
             }
         }
 
@@ -524,17 +536,17 @@ internal class AccessibilityController(
 
 
         /**
-         * Registers the given controller as an active one until [block] returns.
+         * Registers the given [SemanticsOwnerAccessibility] as an active one until [block] returns.
          */
-        suspend fun runActiveController(
-            controller: AccessibilityController,
+        suspend fun runActiveInstance(
+            ownerAccessibility: SemanticsOwnerAccessibility,
             block: suspend () -> Unit
         ) {
             try {
-                activeControllers.add(controller)
+                activeInstances.add(ownerAccessibility)
                 block()
             } finally {
-                activeControllers.remove(controller)
+                activeInstances.remove(ownerAccessibility)
             }
         }
     }
