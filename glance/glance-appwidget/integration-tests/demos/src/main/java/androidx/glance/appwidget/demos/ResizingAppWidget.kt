@@ -18,6 +18,7 @@ package androidx.glance.appwidget.demos
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -46,6 +47,15 @@ class ResizingAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Single
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(
@@ -54,7 +64,7 @@ class ResizingAppWidget : GlanceAppWidget() {
                         GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)).clickable {
                             Log.i("GlanceAppWidget", "first clicked")
                         },
-                    style = TextStyle(textAlign = TextAlign.Start)
+                    style = TextStyle(textAlign = TextAlign.Start),
                 )
                 Text(
                     "second",
@@ -74,7 +84,7 @@ class ResizingAppWidget : GlanceAppWidget() {
                         GlanceModifier.width(50.dp).background(Color(0xFFBBBBBB)).clickable {
                             Log.i("GlanceAppWidget", "third clicked")
                         },
-                    style = TextStyle(textAlign = TextAlign.End)
+                    style = TextStyle(textAlign = TextAlign.End),
                 )
             }
             Text(
@@ -84,28 +94,28 @@ class ResizingAppWidget : GlanceAppWidget() {
                         .fillMaxWidth()
                         .clickable { Log.i("GlanceAppWidget", "middle clicked") }
                         .background(ImageProvider(R.drawable.compose)),
-                style = TextStyle(textAlign = TextAlign.Center)
+                style = TextStyle(textAlign = TextAlign.Center),
             )
             Column(modifier = GlanceModifier.fillMaxWidth().background(Color.LightGray)) {
                 Text(
                     "left",
                     style = TextStyle(textAlign = TextAlign.Left),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
                 Text(
                     "right",
                     style = TextStyle(textAlign = TextAlign.Right),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
                 Text(
                     "start",
                     style = TextStyle(textAlign = TextAlign.Start),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
                 Text(
                     "end",
                     style = TextStyle(textAlign = TextAlign.End),
-                    modifier = GlanceModifier.fillMaxWidth()
+                    modifier = GlanceModifier.fillMaxWidth(),
                 )
             }
             Row(modifier = GlanceModifier.fillMaxWidth()) {

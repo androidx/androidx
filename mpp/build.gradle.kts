@@ -1,6 +1,7 @@
 import org.jetbrains.androidx.build.ComposePublishingTask
 import org.jetbrains.androidx.build.ArtifactRedirection
 import org.jetbrains.androidx.build.ComposePlatforms
+import org.jetbrains.androidx.build.ComposeProperties
 import org.jetbrains.androidx.build.JetBrainsPublication
 import org.jetbrains.androidx.build.artifactRedirection
 import org.jetbrains.androidx.build.hasRedirection
@@ -15,21 +16,25 @@ val libraryToComponents = JetBrainsPublication.libraryToComponents
 val pathToComposeComponent = libraryToComponents.values.flatten().associateBy { it.path }
 val Project.composeComponent get() = pathToComposeComponent[path]
 
+val parsedComposeProperties = ComposeProperties(project)
+
 tasks.register("publishComposeJb", ComposePublishingTask::class) {
     group = "Compose Multiplatform"
     repository = "MavenRepository"
+    composeProperties = parsedComposeProperties
 
     libraries.forEach {
-        libraryToComponents[it]?.forEach(::publish)
+        libraryToComponents[it]?.forEach { publish(rootProject, it) }
     }
 }
 
 tasks.register("publishComposeJbToMavenLocal", ComposePublishingTask::class) {
     group = "Compose Multiplatform"
     repository = "MavenLocal"
+    composeProperties = parsedComposeProperties
 
     libraries.forEach {
-        libraryToComponents[it]?.forEach(::publish)
+        libraryToComponents[it]?.forEach { publish(rootProject, it) }
     }
 }
 
@@ -40,8 +45,8 @@ val libraries = project.findProperty("jetbrains.publication.libraries")
 
 tasks.register("testDesktop") {
     group = "Compose Multiplatform"
-    dependsOn(allTasksWith(name = "desktopTest"))
-    dependsOn(allTasksWith(name = "desktopHeadlessTest"))
+    dependsOn(allTasksForPublishingProjectsWith(name = "desktopTest"))
+    dependsOn(allTasksForPublishingProjectsWith(name = "desktopHeadlessTest"))
     dependsOn(":collection:collection:jvmTest")
 }
 
@@ -52,10 +57,8 @@ tasks.register("testWeb") {
 }
 
 val testWebJs = tasks.register("testWebJs") {
-    dependsOn(":collection:collection:compileTestKotlinJs")
     dependsOn(":compose:foundation:foundation:jsTest")
     dependsOn(":compose:material3:material3:jsTest")
-    dependsOn(":compose:runtime:runtime:jsTest")
     dependsOn(":compose:ui:ui-text:jsTest")
     dependsOn(":compose:ui:ui:jsTest")
     dependsOn(":compose:ui:ui-test:jsTest")
@@ -64,10 +67,8 @@ val testWebJs = tasks.register("testWebJs") {
 
 val testWebWasm = tasks.register("testWebWasm") {
     // TODO: ideally we want to run all wasm tests that are possible but now we deal only with modules that have skikoTests
-    dependsOn(":collection:collection:wasmJsTest")
     dependsOn(":compose:foundation:foundation:wasmJsTest")
     dependsOn(":compose:material3:material3:wasmJsTest")
-    dependsOn(":compose:runtime:runtime:wasmJsTest")
     dependsOn(":compose:ui:ui-text:wasmJsTest")
     dependsOn(":compose:ui:ui:wasmJsTest")
     dependsOn(":compose:ui:ui-test:wasmJsTest")
@@ -141,10 +142,10 @@ fun apiValidationTasks(suffix: String) = buildSet<Task> {
     fun Iterable<Task>.filterComposePlatforms(platforms: Set<ComposePlatforms>) =
         filterComposePlatforms(*platforms.toTypedArray())
 
-    this += allTasksWith(name = "desktop$suffix")
+    this += allTasksForPublishingProjectsWith(name = "desktop$suffix")
         .filterComposePlatforms(ComposePlatforms.Desktop)
 
-    this += allTasksWith(name = "android$suffix")
+    this += allTasksForPublishingProjectsWith(name = "android$suffix")
         .filterComposePlatforms(ComposePlatforms.ANDROID)
 
     val klibPlatforms = if (System.getProperty("os.name") == "Mac OS X") {
@@ -152,13 +153,17 @@ fun apiValidationTasks(suffix: String) = buildSet<Task> {
     } else {
         ComposePlatforms.GENERATE_KLIB - ComposePlatforms.DARWIN
     }
-    this += allTasksWith(name = "klib$suffix")
+    this += allTasksForPublishingProjectsWith(name = "klib$suffix")
         .filterComposePlatforms(klibPlatforms)
 }
 
-fun allTasksWith(name: String): List<Task> =
+fun allTasksForPublishingProjectsWith(name: String): List<Task> =
     rootProject.subprojects.mapNotNull { project ->
-        project.tasks.findByName(name)
+         if (JetBrainsPublication.shouldPublish(project)) {
+             project.tasks.findByName(name)
+         } else {
+             null
+         }
     }
 
 // ./gradlew printAllArtifactRedirectionVersions -PfilterProjectPath=lifecycle

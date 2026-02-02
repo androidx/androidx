@@ -25,6 +25,7 @@ import androidx.glance.ColorFilter
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
 import androidx.glance.Image
+import androidx.glance.ImageProvider
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
 import androidx.glance.layout.Column
@@ -49,7 +50,7 @@ class ImageTest {
             val shouldTint by shouldTintImageFlow.collectAsState()
             Column(modifier = GlanceModifier.size(100.dp).background(Color.DarkGray)) {
                 Image(
-                    provider = androidx.glance.ImageProvider(R.drawable.oval),
+                    provider = ImageProvider(R.drawable.oval),
                     contentDescription = null,
                     modifier = GlanceModifier.size(24.dp),
                     colorFilter =
@@ -57,7 +58,7 @@ class ImageTest {
                             ColorFilter.tint(GlanceTheme.colors.onSurface)
                         } else {
                             null
-                        }
+                        },
                 )
             }
         }
@@ -77,6 +78,47 @@ class ImageTest {
         ) { hostView ->
             val child = hostView.findChildByType<ImageView>()
             child != null && child.colorFilter == null
+        }
+    }
+
+    @Test
+    fun alpha_toggle() = runBlocking {
+        val shouldSetAlpha = MutableStateFlow(true)
+        TestGlanceAppWidget.uiDefinition = {
+            val setAlpha by shouldSetAlpha.collectAsState()
+            Column(modifier = GlanceModifier.size(100.dp).background(Color.DarkGray)) {
+                if (setAlpha) {
+                    Image(
+                        provider = ImageProvider(R.drawable.oval),
+                        contentDescription = null,
+                        modifier = GlanceModifier.size(24.dp),
+                        alpha = 0.5f,
+                    )
+                } else {
+                    Image(
+                        provider = ImageProvider(R.drawable.oval),
+                        contentDescription = null,
+                        modifier = GlanceModifier.size(24.dp),
+                    )
+                }
+            }
+        }
+        mHostRule.startHost()
+
+        mHostRule.waitAndTestForCondition(
+            errorMessage = "No ImageView with colorFilter == 128 was found"
+        ) { hostView ->
+            val child = hostView.findChildByType<ImageView>()
+            child != null && child.imageAlpha == 128
+        }
+
+        shouldSetAlpha.emit(false)
+
+        mHostRule.waitAndTestForCondition(
+            errorMessage = "No ImageView with alpha == 255 was found"
+        ) { hostView ->
+            val child = hostView.findChildByType<ImageView>()
+            child != null && child.imageAlpha == 255
         }
     }
 }

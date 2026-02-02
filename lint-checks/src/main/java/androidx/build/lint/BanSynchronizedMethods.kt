@@ -62,7 +62,7 @@ class BanSynchronizedMethods : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanSynchronizedMethods::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanSynchronizedMethods::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

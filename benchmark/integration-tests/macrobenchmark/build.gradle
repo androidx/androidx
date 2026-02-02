@@ -27,18 +27,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] = "EMULATOR"
 
-        // The package name is passed to the app as an instrumentation runner argument.
-        // Set default target package at runtime. This could also be set by baseline profile
-        // gradle plugin, but that's not used here.
-        testInstrumentationRunnerArguments["androidx.benchmark.targetPackageName"] =
-                "androidx.benchmark.integration.macrobenchmark.target"
     }
     sourceSets {
         main.assets.srcDirs += new File(
@@ -46,7 +41,7 @@ android {
                 "androidx/traceprocessor/testdata"
         )
     }
-    namespace "androidx.benchmark.integration.macrobenchmark"
+    namespace = "androidx.benchmark.integration.macrobenchmark"
     targetProjectPath = ":benchmark:integration-tests:macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true
 }
@@ -59,8 +54,10 @@ androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'r
 dependencies {
     implementation(project(":benchmark:benchmark-common"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
-    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":internal-testutils-benchmark-macro"))
     implementation(project(":tracing:tracing-ktx"))
+    implementation(project(":test:uiautomator:uiautomator"))
+    implementation(project(":test:uiautomator:uiautomator-shell"))
     implementation(libs.kotlinTest)
     implementation(libs.testRules)
     implementation(libs.testExtJunit)

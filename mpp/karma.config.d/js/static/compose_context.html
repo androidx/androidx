@@ -39,7 +39,7 @@ Reloaded before every execution run.
   <!-- Dynamically replaced with <script> tags -->
   %SCRIPTS%
   <script type="module">
-    import {api} from "./js-reexport-symbols.mjs"
+    import {api} from "/base/kotlin/js-reexport-symbols.mjs"
 
     // Load the wasm module and start Karma after it's loaded
     api.awaitSkiko.then(() => {

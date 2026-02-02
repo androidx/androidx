@@ -29,9 +29,6 @@ def findGradleKotlinDsl() {
             : project.gradle.getGradleVersion().substring(0, dashIndex)
     def kotlinDsl = "" + project.gradle.getGradleHomeDir() + "/lib/gradle-kotlin-dsl-" +
                     kotlinDslVersion + ".jar"
-    if (!project.file(kotlinDsl).exists()) {
-        throw new GradleException("Kotlin dsl jar does not exist: " + kotlinDsl)
-    }
     return project.files(kotlinDsl)
 }
 

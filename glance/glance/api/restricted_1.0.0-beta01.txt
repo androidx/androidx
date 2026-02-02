@@ -104,8 +104,6 @@ package androidx.glance {
   }
 
   public enum Visibility {
-    method public static androidx.glance.Visibility valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
-    method public static androidx.glance.Visibility[] values();
     enum_constant public static final androidx.glance.Visibility Gone;
     enum_constant public static final androidx.glance.Visibility Invisible;
     enum_constant public static final androidx.glance.Visibility Visible;

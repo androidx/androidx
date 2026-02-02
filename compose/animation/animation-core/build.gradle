@@ -14,168 +14,129 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
-    id("kotlinx-atomicfu")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.animation.core"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+    }
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
 
-dependencies {
-    if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
-        api("androidx.annotation:annotation:1.1.0")
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":annotation:annotation"))
+            implementation(project(":collection:collection"))
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui"))
+            implementation(project(":compose:ui:ui-unit"))
+            implementation(project(":compose:ui:ui-util"))
+            api(libs.kotlinCoroutinesCore)
+        }
 
-        implementation("androidx.compose.runtime:runtime:1.2.1")
-        implementation("androidx.compose.ui:ui:1.2.1")
-        implementation("androidx.compose.ui:ui-unit:1.2.1")
-        implementation("androidx.compose.ui:ui-util:1.2.1")
-        implementation(libs.kotlinStdlib)
-        api(libs.kotlinCoroutinesCore)
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
+        }
 
-        testImplementation(libs.testRules)
-        testImplementation(libs.testRunner)
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-        testImplementation(libs.kotlinCoroutinesCore)
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+        }
 
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.testCore)
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(project(":compose:animation:animation"))
-        androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.2.1")
-        androidTestImplementation(project(":compose:test-utils"))
+        androidDeviceTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.testCore)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(project(":compose:animation:animation"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.compose.material3:material3:1.2.1")
+            implementation(libs.leakcanary)
+            implementation(libs.leakcanaryInstrumentation)
+        }
 
-        lintPublish project(":compose:animation:animation-core-lint")
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.kotlinCoroutinesCore)
+        }
 
-        samples(project(":compose:animation:animation-core:animation-core-samples"))
+        // TODO: Align naming: nonAndroidMain
+        jbMain {
+            dependsOn(commonMain)
+        }
+
+        jbTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(jbMain)
+        }
+
+        desktopTest {
+            dependsOn(jbTest)
+        }
+
+        nonJvmMain {
+            dependsOn(jbMain)
+        }
+
+        nonJvmTest {
+            dependsOn(jbTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
     }
 }
 
-if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-        darwin()
-        js()
-        wasm()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-
-            jvmMain {
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    api(libs.kotlinCoroutinesCore)
-                }
-            }
-
-            commonMain.dependencies {
-                implementation(project(":annotation:annotation"))
-                implementation(project(":collection:collection"))
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui"))
-                implementation(project(":compose:ui:ui-unit"))
-                implementation(project(":compose:ui:ui-util"))
-                implementation(libs.kotlinStdlib)
-                api(libs.kotlinCoroutinesCore)
-            }
-
-            commonTest {
-                dependencies {
-                    implementation(kotlin("test"))
-                    implementation(libs.kotlinCoroutinesTest)
-                    implementation(project(":kruth:kruth"))
-                }
-            }
-
-            androidMain {
-                dependencies {
-                    api("androidx.annotation:annotation:1.1.0")
-                    implementation(libs.kotlinStdlib)
-                }
-            }
-            desktopMain {
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                }
-            }
-            nonJvmMain.dependsOn(commonMain)
-            nativeMain.dependsOn(nonJvmMain)
-            webMain.dependsOn(nonJvmMain)
-
-            jsMain {
-                dependsOn(webMain)
-            }
-
-            jbMain {
-                dependsOn(commonMain)
-                dependencies {
-                    implementation(libs.atomicFu)
-                }
-            }
-            desktopMain.dependsOn(jbMain)
-            nonJvmMain.dependsOn(jbMain)
-
-            wasmJsMain {
-                dependsOn(webMain)
-            }
-
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.kotlinCoroutinesCore)
-            }
-
-            androidAndroidTest.dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-                implementation(libs.junit)
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-            }
-        }
-    }
-    dependencies {
-        samples(project(":compose:animation:animation-core:animation-core-samples"))
-    }
+dependencies {
+    lintPublish(project(":compose:animation:animation-core-lint"))
 }
 
 androidx {
     name = "Compose Animation Core"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Animation engine and animation primitives that are the building blocks of the Compose animation library"
-    legacyDisableKotlinStrictApiMode = true
-}
-
-android {
-    namespace "androidx.compose.animation.core"
+    samples(project(":compose:animation:animation-core:animation-core-samples"))
 }

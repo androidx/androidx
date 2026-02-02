@@ -1,0 +1,172 @@
+/*
+ * Copyright 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3.processor
+
+import androidx.room3.DeleteColumn
+import androidx.room3.DeleteTable
+import androidx.room3.ProvidedAutoMigrationSpec
+import androidx.room3.RenameColumn
+import androidx.room3.RenameTable
+import androidx.room3.compiler.codegen.asClassName
+import androidx.room3.compiler.processing.XType
+import androidx.room3.compiler.processing.get
+import androidx.room3.ext.RoomTypeNames
+import androidx.room3.migration.bundle.DatabaseBundle
+import androidx.room3.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MUST_BE_CLASS
+import androidx.room3.processor.ProcessorErrors.INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
+import androidx.room3.processor.ProcessorErrors.autoMigrationElementMustImplementSpec
+import androidx.room3.processor.ProcessorErrors.autoMigrationToVersionMustBeGreaterThanFrom
+import androidx.room3.util.DiffException
+import androidx.room3.util.SchemaDiffer
+import androidx.room3.vo.AutoMigration
+
+// TODO: (b/183435544) Support downgrades in AutoMigrations.
+class AutoMigrationProcessor(
+    val context: Context,
+    val spec: XType?,
+    val fromSchemaBundle: DatabaseBundle,
+    val toSchemaBundle: DatabaseBundle,
+) {
+    /**
+     * Retrieves two schemas of the same database provided in the @AutoMigration annotation, detects
+     * the schema changes that occurred between the two versions.
+     *
+     * @return the AutoMigrationResult containing the schema changes detected
+     */
+    fun process(): AutoMigration? {
+
+        val (specElement, isSpecProvided) =
+            if (spec != null && !spec.isTypeOf(Any::class)) {
+                val typeElement = spec.typeElement
+                if (typeElement == null) {
+                    context.logger.e(AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+                    return null
+                }
+                if (typeElement.isInterface() || typeElement.isAbstract()) {
+                    context.logger.e(typeElement, AUTOMIGRATION_SPEC_MUST_BE_CLASS)
+                    return null
+                }
+
+                val isSpecProvided = typeElement.hasAnnotation(ProvidedAutoMigrationSpec::class)
+                if (!isSpecProvided) {
+                    val constructors = typeElement.getConstructors()
+                    context.checker.check(
+                        constructors.isEmpty() || constructors.any { it.parameters.isEmpty() },
+                        typeElement,
+                        ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR,
+                    )
+                }
+
+                context.checker.check(
+                    typeElement.enclosingTypeElement == null || typeElement.isStatic(),
+                    typeElement,
+                    INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC,
+                )
+
+                val implementsMigrationSpec =
+                    context.processingEnv
+                        .requireType(RoomTypeNames.AUTO_MIGRATION_SPEC)
+                        .isAssignableFrom(spec)
+                if (!implementsMigrationSpec) {
+                    context.logger.e(
+                        typeElement,
+                        autoMigrationElementMustImplementSpec(
+                            typeElement.asClassName().canonicalName
+                        ),
+                    )
+                    return null
+                }
+                typeElement to isSpecProvided
+            } else {
+                null to false
+            }
+
+        if (toSchemaBundle.version <= fromSchemaBundle.version) {
+            context.logger.e(
+                autoMigrationToVersionMustBeGreaterThanFrom(
+                    toSchemaBundle.version,
+                    fromSchemaBundle.version,
+                )
+            )
+            return null
+        }
+
+        val specClassName = specElement?.asClassName()?.simpleNames?.first()
+        val deleteColumnEntries =
+            specElement?.let { element ->
+                element.getAnnotations(DeleteColumn::class).map {
+                    AutoMigration.DeletedColumn(
+                        tableName = it.getAsString("tableName"),
+                        columnName = it.getAsString("columnName"),
+                    )
+                }
+            } ?: emptyList()
+
+        val deleteTableEntries =
+            specElement?.let { element ->
+                element.getAnnotations(DeleteTable::class).map {
+                    AutoMigration.DeletedTable(deletedTableName = it.getAsString("tableName"))
+                }
+            } ?: emptyList()
+
+        val renameTableEntries =
+            specElement?.let { element ->
+                element.getAnnotations(RenameTable::class).map {
+                    AutoMigration.RenamedTable(
+                        originalTableName = it.getAsString("fromTableName"),
+                        newTableName = it.getAsString("toTableName"),
+                    )
+                }
+            } ?: emptyList()
+
+        val renameColumnEntries =
+            specElement?.let { element ->
+                element.getAnnotations(RenameColumn::class).map {
+                    AutoMigration.RenamedColumn(
+                        tableName = it.getAsString("tableName"),
+                        originalColumnName = it.getAsString("fromColumnName"),
+                        newColumnName = it.getAsString("toColumnName"),
+                    )
+                }
+            } ?: emptyList()
+
+        val schemaDiff =
+            try {
+                SchemaDiffer(
+                        fromSchemaBundle = fromSchemaBundle,
+                        toSchemaBundle = toSchemaBundle,
+                        className = specClassName,
+                        deleteColumnEntries = deleteColumnEntries,
+                        deleteTableEntries = deleteTableEntries,
+                        renameTableEntries = renameTableEntries,
+                        renameColumnEntries = renameColumnEntries,
+                    )
+                    .diffSchemas()
+            } catch (ex: DiffException) {
+                context.logger.e(ex.errorMessage)
+                return null
+            }
+
+        return AutoMigration(
+            from = fromSchemaBundle.version,
+            to = toSchemaBundle.version,
+            schemaDiff = schemaDiff,
+            specElement = specElement,
+            isSpecProvided = isSpecProvided,
+        )
+    }
+}

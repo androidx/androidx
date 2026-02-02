@@ -32,11 +32,12 @@ import androidx.glance.wear.tiles.WearTileId
  * @param glanceId the glance id of this particular tile service
  * @param updateState the block defines how the state to be updated
  */
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public suspend fun <T> updateWearTileState(
     context: Context,
     definition: GlanceStateDefinition<T>,
     glanceId: GlanceId,
-    updateState: suspend (T) -> T
+    updateState: suspend (T) -> T,
 ): T {
     require(glanceId is WearTileId) { "The glance ID is not the one of a Wear Tile" }
     return GlanceState.updateValue(context, definition, glanceId.tileServiceClass.name, updateState)
@@ -51,6 +52,7 @@ public suspend fun <T> updateWearTileState(
  * @param definition the configuration that defines this state
  * @param glanceId the glance id of this particular tile service
  */
+@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public suspend fun <T> getWearTileState(
     context: Context,
     definition: GlanceStateDefinition<T>,

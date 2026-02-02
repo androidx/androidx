@@ -22,48 +22,47 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.SoftwareType
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("JetBrainsAndroidXPlugin")
 }
 
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.testutils.navigation"
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
+    }
     desktop()
     mac()
     linux()
     ios()
     js()
-    wasm()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
             dependencies {
-                api project(":annotation:annotation")
-                api project(":navigation:navigation-common")
+                api(project(":navigation:navigation-common"))
             }
         }
 
         commonTest {
             dependencies {
                 implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":navigation:navigation-testing"))
                 implementation(project(":kruth:kruth"))
+                implementation(project(":navigation:navigation-testing"))
             }
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest {
             dependencies {
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
@@ -73,33 +72,52 @@ androidXMultiplatform {
             }
         }
 
-        jbMain.dependsOn(commonMain)
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
 
-        targets.all { target ->
-            if (target.platformType !in [
-                    KotlinPlatformType.androidJvm,
-                    KotlinPlatformType.common
-            ]) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(jbMain)
-                }
+        nonAndroidTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
             }
+        }
+
+        jbMain.dependsOn(nonAndroidMain)
+        jbTest.dependsOn(nonAndroidTest)
+        nativeMain.dependsOn(jbMain)
+        nativeTest.dependsOn(jbTest)
+        webMain.dependsOn(jbMain)
+        webTest.dependsOn(jbTest)
+        desktopMain.dependsOn(jbMain)
+        desktopTest.dependsOn(jbTest)
+
+        desktopMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
         }
     }
 }
 
-kotlin {
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
-}
-
 androidx {
-    type = LibraryType.INTERNAL_TEST_LIBRARY
-}
-
-android {
-    namespace "androidx.testutils.navigation"
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
 }

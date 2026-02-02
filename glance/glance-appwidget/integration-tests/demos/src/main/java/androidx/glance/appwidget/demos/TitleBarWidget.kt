@@ -32,6 +32,7 @@ import androidx.glance.appwidget.components.Scaffold
 import androidx.glance.appwidget.components.TitleBar
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.layout.Box
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -48,62 +49,69 @@ class TitleBarWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode
         get() = SizeMode.Exact // one callback each time widget resized
 
-    override suspend fun provideGlance(context: Context, id: GlanceId) {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
 
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         // assets
         val icStart = ImageProvider(R.drawable.shape_circle)
         val icAdd = ImageProvider(R.drawable.baseline_add_24)
         val icPhone = ImageProvider(R.drawable.baseline_local_phone_24)
+        val contentColor = ColorProvider(Color.White)
 
-        provideContent {
-            val contentColor = ColorProvider(Color.White)
+        // for demo purposes, check if widget is displaying in a relatively narrow form
+        // factor and if so, don't show title text. This check is relatively arbitrary, and
+        // individual apps should find a size cutoff that works.
+        val isNarrow = LocalSize.current.width < 250.dp
 
-            // for demo purposes, check if widget is displaying in a relatively narrow form
-            // factor and if so, don't show title text. This check is relatively arbitrary, and
-            // individual apps should find a size cutoff that works.
-            val isNarrow = LocalSize.current.width < 250.dp
-
-            @Composable
-            fun WidgetTitleBar(modifier: GlanceModifier = GlanceModifier) {
-                TitleBar(
-                    startIcon = icStart,
-                    title = if (isNarrow) "" else "Top Bar", // Leaves room for the buttons
-                    iconColor = contentColor,
-                    textColor = contentColor,
-                    modifier = modifier
-                ) {
-                    // Action block should contain icon buttons with a null `backgroundColor`
-                    CircleIconButton(
-                        imageProvider = icAdd,
-                        contentDescription = "Add",
-                        backgroundColor = null,
-                        contentColor = contentColor,
-                        onClick = {}
-                    )
-                    CircleIconButton(
-                        imageProvider = icPhone,
-                        contentDescription = "Call",
-                        backgroundColor = null,
-                        contentColor = contentColor,
-                        onClick = {}
-                    )
-                }
-            }
-
-            @Composable
-            fun MainContent(modifier: GlanceModifier = GlanceModifier) {
-                Text(
-                    "This is the content() of the scaffold.\nWidget content goes here...",
-                    style = TextStyle(color = ColorProvider(Color.DarkGray)),
-                    modifier = modifier
+        @Composable
+        fun WidgetTitleBar(modifier: GlanceModifier = GlanceModifier) {
+            TitleBar(
+                startIcon = icStart,
+                title = if (isNarrow) "" else "Top Bar", // Leaves room for the buttons
+                iconColor = contentColor,
+                textColor = contentColor,
+                modifier = modifier,
+            ) {
+                // Action block should contain icon buttons with a null `backgroundColor`
+                CircleIconButton(
+                    imageProvider = icAdd,
+                    contentDescription = "Add",
+                    backgroundColor = null,
+                    contentColor = contentColor,
+                    onClick = {},
+                )
+                CircleIconButton(
+                    imageProvider = icPhone,
+                    contentDescription = "Call",
+                    backgroundColor = null,
+                    contentColor = contentColor,
+                    onClick = {},
                 )
             }
-
-            Scaffold(
-                backgroundColor = ColorProvider(Color.Yellow),
-                titleBar = { WidgetTitleBar(GlanceModifier.background(Color.Magenta)) },
-                content = { MainContent(GlanceModifier.background(Color.Cyan).fillMaxSize()) }
-            )
         }
+
+        @Composable
+        fun MainContent(modifier: GlanceModifier = GlanceModifier) {
+            Box(GlanceModifier.fillMaxSize()) {
+                Text(
+                    "This is the content() of the scaffold.[Newline] \nWidget content goes here...",
+                    style = TextStyle(color = ColorProvider(Color.DarkGray)),
+                    modifier = modifier.fillMaxSize(),
+                )
+            }
+        }
+
+        Scaffold(
+            backgroundColor = ColorProvider(Color.Yellow),
+            titleBar = { WidgetTitleBar(GlanceModifier.background(Color.Magenta)) },
+            content = { MainContent(GlanceModifier.background(Color.Cyan)) },
+        )
     }
 }

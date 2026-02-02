@@ -29,13 +29,4 @@ class JetBrainsAndroidXPlugin : Plugin<Project> {
             )
         )
     }
-
-    companion object {
-
-        @Suppress("UNUSED_PARAMETER")
-        @JvmStatic
-        fun applyAndConfigure(
-            project: Project
-        ) {}
-    }
 }

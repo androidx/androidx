@@ -20,12 +20,13 @@ import android.annotation.SuppressLint
 import android.os.Build
 import androidx.benchmark.macro.FileLinkingRule
 import androidx.benchmark.macro.Packages
+import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
-import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.tracing.Trace
@@ -59,7 +60,7 @@ class PerfettoCaptureSweepTest(
     @Before
     @After
     fun cleanup() {
-        PerfettoHelper.stopAllPerfettoProcesses()
+        PerfettoHelper.cleanupPerfettoState()
     }
 
     @Ignore("b/258216025")
@@ -94,13 +95,13 @@ class PerfettoCaptureSweepTest(
         perfettoCapture.start(
             PerfettoConfig.Benchmark(
                 appTagPackages = listOf(Packages.TEST),
-                useStackSamplingConfig = false
+                useStackSamplingConfig = false,
             )
         )
 
         assertTrue(
             "In-process tracing should be enabled immediately after trace capture is started",
-            Trace.isEnabled()
+            Trace.isEnabled(),
         )
 
         /**
@@ -116,10 +117,10 @@ class PerfettoCaptureSweepTest(
                 "PerfettoCaptureTest_$it".also { label -> trace(label) { Thread.sleep(50) } }
             }
 
-        perfettoCapture.stop(traceFilePath)
+        perfettoCapture.stop(traceFilePath, null)
 
         val matchingSlices =
-            PerfettoTraceProcessor.runSingleSessionServer(traceFilePath) {
+            TraceProcessor.runSingleSessionServer(traceFilePath) {
                 querySlices("PerfettoCaptureTest_%", packageName = null)
             }
 

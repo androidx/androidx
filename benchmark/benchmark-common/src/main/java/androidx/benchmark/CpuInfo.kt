@@ -16,12 +16,10 @@
 
 package androidx.benchmark
 
-import android.annotation.SuppressLint
 import android.util.Log
 import java.io.File
 import java.io.IOException
 
-@SuppressLint("ClassVerificationFailure")
 internal object CpuInfo {
     private const val TAG = "Benchmark"
 
@@ -43,7 +41,7 @@ internal object CpuInfo {
         val setSpeedKhz: Long,
 
         // cpuinfo_max_freq, or -1 if can't access
-        val maxFreqKhz: Long
+        val maxFreqKhz: Long,
     )
 
     init {
@@ -78,7 +76,7 @@ internal object CpuInfo {
                                 ?: readFileTextOrNull("$path/cpufreq/scaling_min_freq")?.toLong()
                                 ?: -1,
                         maxFreqKhz =
-                            readFileTextOrNull("$path/cpufreq/cpuinfo_max_freq")?.toLong() ?: -1L
+                            readFileTextOrNull("$path/cpufreq/cpuinfo_max_freq")?.toLong() ?: -1L,
                     )
                 } ?: emptyList()
 
@@ -103,7 +101,7 @@ internal object CpuInfo {
                     Log.d(
                         TAG,
                         "Clocks not locked: cores with same available frequencies " +
-                            "running with different current min freq"
+                            "running with different current min freq",
                     )
                     return false
                 }

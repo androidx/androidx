@@ -19,10 +19,12 @@
 package androidx.build.lint
 
 import com.android.SdkConstants.ATTR_VALUE
+import com.android.sdklib.SdkVersionInfo
 import com.android.tools.lint.checks.ApiLookup
 import com.android.tools.lint.checks.ApiLookup.equivalentName
 import com.android.tools.lint.checks.DesugaredMethodLookup
 import com.android.tools.lint.client.api.UElementHandler
+import com.android.tools.lint.detector.api.BooleanOption
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Context
 import com.android.tools.lint.detector.api.Desugaring
@@ -37,18 +39,19 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.UastLintUtils.Companion.getLongAttribute
-import com.android.tools.lint.detector.api.VersionChecks
 import com.android.tools.lint.detector.api.VersionChecks.Companion.REQUIRES_API_ANNOTATION
 import com.android.tools.lint.detector.api.getInternalMethodName
 import com.android.tools.lint.detector.api.isKotlin
 import com.android.tools.lint.detector.api.minSdkLessThan
 import com.intellij.psi.PsiAnonymousClass
+import com.intellij.psi.PsiArrayType
 import com.intellij.psi.PsiClass
 import com.intellij.psi.PsiClassType
 import com.intellij.psi.PsiCompiledElement
 import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiEllipsisType
 import com.intellij.psi.PsiExpressionList
+import com.intellij.psi.PsiLiteralValue
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.PsiMethodCallExpression
 import com.intellij.psi.PsiModifierListOwner
@@ -58,19 +61,24 @@ import com.intellij.psi.PsiType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.util.PsiTypesUtil
 import com.intellij.psi.util.PsiUtil
-import kotlin.math.min
+import com.intellij.psi.util.childrenOfType
+import com.intellij.psi.util.findParentInFile
 import org.jetbrains.kotlin.analysis.utils.printer.parentOfType
 import org.jetbrains.kotlin.psi.KtBinaryExpression
 import org.jetbrains.kotlin.psi.KtCallExpression
+import org.jetbrains.kotlin.psi.KtClassBody
+import org.jetbrains.kotlin.psi.KtClassOrObject
+import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.jetbrains.kotlin.psi.KtReturnExpression
 import org.jetbrains.kotlin.psi.KtValueArgument
+import org.jetbrains.kotlin.psi.psiUtil.getChildOfType
+import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UClass
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UExpression
-import org.jetbrains.uast.UInstanceExpression
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UParenthesizedExpression
 import org.jetbrains.uast.UReturnExpression
@@ -81,6 +89,7 @@ import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.getParentOfType
 import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.toUElementOfType
 import org.jetbrains.uast.util.isConstructorCall
 import org.jetbrains.uast.util.isMethodCall
 
@@ -101,6 +110,103 @@ import org.jetbrains.uast.util.isMethodCall
  */
 class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
     private var apiDatabase: ApiLookup? = null
+
+    /**
+     * Finds the first `@FlaggedApi` annotation within the element's PSI hierarchy and returns the
+     * flag string, or returns `null` if none is found.
+     */
+    private fun findFlagStringForElement(element: PsiModifierListOwner): String? =
+        ((element.findParentInFile(true) {
+                    (it as? PsiModifierListOwner)?.hasAnnotation(FLAGGED_API_ANNOTATION) == true
+                } as? PsiModifierListOwner)
+                ?.getAnnotation(FLAGGED_API_ANNOTATION)
+                ?.findAttributeValue(ATTR_VALUE) as? PsiLiteralValue)
+            ?.value as? String
+
+    private fun getMethodVersion(
+        method: PsiMethod,
+        owner: String,
+        name: String,
+        desc: String,
+    ): ApiRequirement {
+        val apiDatabase = apiDatabase ?: return NO_API_REQUIREMENT
+        val apiLevel = apiDatabase.getMethodVersions(owner, name, desc).min()
+        // Reduce false positives on flagged APIs by only looking at flags for platform APIs that
+        // were either definitely added in a preview SDK or don't have enough information to know
+        // for certain.
+        if (apiLevel == API_LEVEL_PREVIEW || apiLevel == API_LEVEL_UNKNOWN_OR_1) {
+            val flagString = findFlagStringForElement(method)
+            if (flagString != null) return ApiFlagRequirement(flagString)
+        }
+        return if (apiLevel == API_LEVEL_UNKNOWN_OR_1) NO_API_REQUIREMENT
+        else ApiLevelRequirement(apiLevel)
+    }
+
+    private fun findFlagStringForClass(context: JavaContext, className: String): String? =
+        context.evaluator.findClass(className)?.let { findFlagStringForElement(it) }
+
+    private fun getClassVersion(context: JavaContext, className: String): ApiRequirement {
+        val apiDatabase = apiDatabase ?: return NO_API_REQUIREMENT
+        val flagString = findFlagStringForClass(context, className)
+        if (flagString != null) return ApiFlagRequirement(flagString)
+
+        val apiLevel = apiDatabase.getClassVersions(className).min()
+        return if (apiLevel == API_LEVEL_UNKNOWN_OR_1) NO_API_REQUIREMENT
+        else ApiLevelRequirement(apiLevel)
+    }
+
+    private fun isPlatformClass(className: String): Boolean =
+        PLATFORM_PACKAGES.any { className.startsWith(it) }
+
+    private sealed interface ApiRequirement {
+        val wrapperClassName: String
+        val wrapperClassAnnotations: List<String>
+        val stringForMessage: String
+
+        operator fun compareTo(other: Int): Int
+
+        operator fun compareTo(other: ApiRequirement): Int
+    }
+
+    @Suppress("MemberExtensionConflict") // Lint bug when using String.compareTo()
+    private class ApiFlagRequirement(val flagString: String) : ApiRequirement {
+        override val wrapperClassName by lazy {
+            "Flag${flagString.substringAfterLast('.').capitalizeAsciiOnly()}Impl"
+        }
+        override val wrapperClassAnnotations by lazy {
+            listOf(
+                "@RequiresApi(10000) // Required when calling pre-release APIs",
+                "@$REQUIRES_FLAG_ANNOTATION(\"$flagString\")",
+            )
+        }
+        override val stringForMessage by lazy { "guarded by Trunk Stable flag \"$flagString\"" }
+
+        override fun compareTo(other: Int): Int = 1
+
+        override fun compareTo(other: ApiRequirement): Int =
+            when {
+                other is ApiFlagRequirement -> flagString.compareTo(other.flagString)
+                else -> 1
+            }
+    }
+
+    private class ApiLevelRequirement(val apiLevel: Int) : ApiRequirement {
+        override val wrapperClassName by lazy { "Api${apiLevel}Impl" }
+        override val wrapperClassAnnotations by lazy {
+            listOf("@${REQUIRES_API_ANNOTATION.newName()}($apiLevel)")
+        }
+        override val stringForMessage by lazy { "added in API level $apiLevel" }
+
+        override fun compareTo(other: Int): Int = apiLevel - other
+
+        override fun compareTo(other: ApiRequirement): Int =
+            when {
+                other is ApiLevelRequirement -> apiLevel - other.apiLevel
+                else -> -1
+            }
+    }
+
+    private fun min(a: ApiRequirement, b: ApiRequirement) = if (a <= b) a else b
 
     /** Copied from ApiDetector.kt */
     override fun beforeCheckRootProject(context: Context) {
@@ -167,12 +273,21 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val actualTypeStr = actualType.canonicalText
             val actualTypeApi = getMinApiOfClass(actualTypeStr) ?: return
 
-            // Not an issue if this is contained within a class annotated with @RequiresApi
-            if (node.containedInRequiresApiClass(actualTypeApi)) return
+            // Not an issue if this is contained within a class annotated with the same requirement
+            if (node.containedInClassWithApiRequirement(actualTypeApi)) return
 
             val expectedType = getExpectedTypeByParent(node) ?: return
             val expectedTypeStr = expectedType.canonicalText
             val expectedTypeApi = getMinApiOfClass(expectedTypeStr) ?: return
+
+            // Change: Unless we've been told to check all usages, only check flagged APIs.
+            if (
+                !IMPLICIT_CAST_ALLUSAGES_OPTION.getValue(context) &&
+                    actualTypeApi !is ApiFlagRequirement &&
+                    expectedTypeApi !is ApiFlagRequirement
+            ) {
+                return
+            }
 
             if (!isInvalidCast(actualTypeStr, expectedTypeStr, actualTypeApi, expectedTypeApi)) {
                 return
@@ -192,10 +307,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     .fix(fix)
                     .location(context.getLocation(node))
                     .message(
-                        "This expression has type $actualTypeStr (introduced in API level " +
-                            "$actualTypeApi) but it used as type $expectedTypeStr (introduced in API " +
-                            "level $expectedTypeApi). Run-time class verification will not be able to " +
-                            "validate this implicit cast on devices between these API levels."
+                        "This expression has type $actualTypeStr " +
+                            "(${actualTypeApi.stringForMessage}) but it used as type " +
+                            "$expectedTypeStr (${expectedTypeApi.stringForMessage}). Run-time " +
+                            "class verification will not be able to validate this implicit cast " +
+                            "on devices between these API levels."
                     )
                     .scope(node)
 
@@ -203,7 +319,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // incident, conditional on minSdk being lower than the actual type API.
             // (This needs to be reported provisionally with a constraint instead of manually
             // looking up the minSdk and comparing because of partial analysis mode.)
-            context.report(incident, minSdkLessThan(actualTypeApi))
+            if (actualTypeApi is ApiLevelRequirement) {
+                context.report(incident, minSdkLessThan(actualTypeApi.apiLevel))
+            } else {
+                context.report(incident)
+            }
         }
 
         /**
@@ -215,7 +335,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         override fun visitCallExpression(node: UCallExpression) {
             val method = node.resolve() ?: return
 
-            visitCall(method, node, node)
+            try {
+                visitCall(method, node, node)
+            } catch (e: Exception) {
+                throw e
+            }
         }
 
         /**
@@ -245,24 +369,24 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // Change: Removed special-casing of Support library
 
-            if (!apiDatabase.containsClass(owner)) {
-                return
-            }
+            // Change: Added check for !isPlatformClass(). The API database does not contain
+            // platform classes that were part of API 1, but we need to look at every platform class
+            // because even API 1 classes may contain flagged members.
+            if (!apiDatabase.containsClass(owner) && !isPlatformClass(owner)) return
 
             val name = getInternalMethodName(method)
             val desc =
                 evaluator.getMethodDescription(
                     method,
                     includeName = false,
-                    includeReturn = false
+                    includeReturn = false,
                 ) // Couldn't compute description of method for some reason; probably
                     // failure to resolve parameter types
                     ?: return
 
             // Change: Removed SimpleDateFormat and Animator checks
-            @Suppress("DEPRECATION") // b/262915628
-            var api = apiDatabase.getMethodVersion(owner, name, desc)
-            if (api == -1) {
+            var api = getMethodVersion(method, owner, name, desc)
+            if (api == NO_API_REQUIREMENT) {
                 return
             }
             val minSdk = getMinSdk(context)
@@ -276,6 +400,17 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 } else {
                     null
                 }
+
+            // Change: R8 automatically outlines most calls to new APIs, but we still need to warn
+            // for all references to flagged APIs and super call references to new APIs.
+            if (
+                !METHOD_CALL_ALLUSAGES_OPTION.getValue(context) &&
+                    api is ApiLevelRequirement &&
+                    receiver !is USuperExpression
+            ) {
+                // Don't warn for non-super call references to new APIs.
+                return
+            }
 
             // The lint API database contains two optimizations:
             // First, all members that were available in API 1 are omitted from the database,
@@ -319,10 +454,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                             for (type in inheritanceChain) {
                                 val expressionOwner = evaluator.getQualifiedName(type)
                                 if (expressionOwner != null && expressionOwner != owner) {
-                                    @Suppress("DEPRECATION") // b/262915628
                                     val specificApi =
-                                        apiDatabase.getMethodVersion(expressionOwner, name, desc)
-                                    if (specificApi == -1) {
+                                        getMethodVersion(method, expressionOwner, name, desc)
+                                    if (specificApi == NO_API_REQUIREMENT) {
                                         if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                             return
                                         }
@@ -330,13 +464,10 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                         return
                                     } else {
                                         // For example, for Bundle#getString(String,String) the API
-                                        // level
-                                        // is 12, whereas for BaseBundle#getString(String,String)
-                                        // the API
-                                        // level is 21. If the code specified a Bundle instead of
-                                        // a BaseBundle, reported the Bundle level in the error
-                                        // message
-                                        // instead.
+                                        // level is 12, whereas for
+                                        // BaseBundle#getString(String,String) the API level is 21.
+                                        // If the code specified a Bundle instead of a BaseBundle,
+                                        // reported the Bundle level in the error message instead.
                                         if (specificApi < api) {
                                             api = specificApi
                                         }
@@ -355,7 +486,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     }
 
                     if (receiver is UThisExpression || receiver is USuperExpression) {
-                        val pte = receiver as UInstanceExpression
+                        val pte = receiver
                         val resolved = pte.resolve()
                         if (resolved is PsiClass) {
                             cls = resolved
@@ -398,9 +529,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         ) {
                             break
                         }
-                        @Suppress("DEPRECATION") // b/262915628
-                        val specificApi = apiDatabase.getMethodVersion(expressionOwner, name, desc)
-                        if (specificApi == -1) {
+                        val specificApi = getMethodVersion(method, expressionOwner, name, desc)
+                        if (specificApi == NO_API_REQUIREMENT) {
                             if (apiDatabase.isRelevantOwner(expressionOwner)) {
                                 break
                             }
@@ -444,10 +574,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                 if (provider != null) {
                                     val methodOwner = evaluator.getQualifiedName(provider)
                                     if (methodOwner != null) {
-                                        @Suppress("DEPRECATION") // b/262915628
                                         val methodApi =
-                                            apiDatabase.getMethodVersion(methodOwner, name, desc)
-                                        if (methodApi == -1 || methodApi <= minSdk) {
+                                            getMethodVersion(method, methodOwner, name, desc)
+                                        if (
+                                            methodApi == NO_API_REQUIREMENT || methodApi <= minSdk
+                                        ) {
                                             // Yes, we found another call that doesn't have an API
                                             // requirement
                                             return
@@ -487,7 +618,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         owner,
                         name,
                         desc,
-                        context.sourceSetType
+                        context.sourceSetType,
                     )
             ) {
                 return
@@ -496,7 +627,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // These methods are not included in the R8 backported list so handle them manually
             // the way R8 seems to
             if (
-                api == 19 &&
+                api is ApiLevelRequirement &&
+                    api.apiLevel == 19 &&
                     owner == "java.lang.Throwable" &&
                     (name == "addSuppressed" && desc == "(Ljava.lang.Throwable;)" ||
                         name == "getSuppressed" && desc == "()")
@@ -523,18 +655,30 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         }
 
         /**
-         * Walks up the class hierarchy from the element to find if there is any RequiresApi
-         * annotation for [minApi] or higher.
+         * Walks up the class hierarchy from the element to find if there is any `@RequiresApi` or
+         * `@RequiresFlag` annotation applicable to [requiredApi] API requirement.
          */
-        fun UElement.containedInRequiresApiClass(minApi: Int): Boolean {
+        fun UElement.containedInClassWithApiRequirement(requiredApi: ApiRequirement): Boolean {
             var classUnderInspection: UClass? = this.getContainingUClass() ?: return false
 
             while (classUnderInspection != null) {
-                val potentialRequiresApiVersion =
-                    getRequiresApiFromAnnotations(classUnderInspection.javaPsi)
+                if (requiredApi is ApiFlagRequirement) {
+                    val potentialRequiresFlag =
+                        ((classUnderInspection
+                                .getAnnotation(REQUIRES_FLAG_ANNOTATION)
+                                ?.findAttributeValue(ATTR_VALUE) as? PsiLiteralValue)
+                            ?.value as? String)
+                    if (requiredApi.flagString == potentialRequiresFlag) {
+                        return true
+                    }
+                }
 
-                if (potentialRequiresApiVersion >= minApi) {
-                    return true
+                if (requiredApi is ApiLevelRequirement) {
+                    val potentialRequiresApiVersion =
+                        getRequiresApiFromAnnotations(classUnderInspection.javaPsi)
+                    if (requiredApi.apiLevel <= potentialRequiresApiVersion) {
+                        return true
+                    }
                 }
 
                 classUnderInspection = classUnderInspection.getContainingUClass()
@@ -545,11 +689,11 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         fun visitNewApiCall(
             call: UCallExpression,
             method: PsiMethod,
-            api: Int,
+            api: ApiRequirement,
             reference: UElement,
-            location: Location
+            location: Location,
         ) {
-            if (call.containedInRequiresApiClass(api)) return
+            if (call.containedInClassWithApiRequirement(api)) return
 
             // call.getContainingUClass()!! refers to the direct parent class of this method
             val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
@@ -560,7 +704,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     .issue(METHOD_CALL_ISSUE)
                     .location(location)
                     .message(
-                        "This call references a method added in API level $api; however, the " +
+                        "This call references a method ${api.stringForMessage}; however, the " +
                             "containing class $containingClassName is reachable from earlier API " +
                             "levels and will fail run-time class verification."
                     )
@@ -574,10 +718,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          *
          * @return a lint fix, or `null` if no fix could be created
          */
-        private fun createCallFix(method: PsiMethod, call: UCallExpression, api: Int): LintFix? {
+        private fun createCallFix(
+            method: PsiMethod,
+            call: UCallExpression,
+            api: ApiRequirement,
+        ): LintFix? {
             val callPsi = call.sourcePsi ?: return null
-            if (isKotlin(callPsi.language)) {
-                // We only support Java right now.
+            val isKotlin = isKotlin(callPsi.language)
+            if (call.receiver is USuperExpression) {
+                // We can't outline super calls.
                 return null
             }
 
@@ -589,7 +738,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     method,
                     // Find what type the result of this call is used as
                     getExpectedTypeByParent(call),
-                    call.valueArguments.map { it.getExpressionType() }
+                    call.valueArguments.map { it.getExpressionType() },
+                    isKotlin,
                 ) ?: return null
 
             val (wrapperClassName, insertionPoint, insertionSource) =
@@ -598,8 +748,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     callContainingClass,
                     wrapperMethodName,
                     wrapperMethodParams,
-                    methodForInsertion
-                )
+                    methodForInsertion,
+                    isKotlin,
+                ) ?: return null
 
             val replacementCall =
                 generateWrapperCall(
@@ -607,7 +758,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     call.receiver,
                     call.valueArguments,
                     wrapperClassName,
-                    wrapperMethodName
+                    wrapperMethodName,
                 )
 
             return createCompositeFix(call, replacementCall, insertionPoint, insertionSource)
@@ -621,7 +772,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             node: UExpression,
             actualType: PsiType,
             expectedType: PsiType,
-            actualTypeApi: Int
+            actualTypeApi: ApiRequirement,
         ): LintFix? {
             val (wrapperMethodName, wrapperMethod) = generateCastingMethod(actualType, expectedType)
             val containingClass = node.getContainingUClass() ?: return null
@@ -631,8 +782,9 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     containingClass,
                     wrapperMethodName,
                     listOf(actualType),
-                    wrapperMethod
-                )
+                    wrapperMethod,
+                    isKotlin = false,
+                ) ?: return null
             val wrapperCall = "$wrapperClassName.$wrapperMethodName(${node.asSourceString()})"
 
             return createCompositeFix(node, wrapperCall, insertionPoint, insertionSource)
@@ -646,7 +798,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             node: UElement,
             replacementCall: String,
             insertionPoint: Location?,
-            insertionSource: String?
+            insertionSource: String?,
         ): LintFix {
             val fix = fix().name("Extract to static inner class").composite()
 
@@ -658,6 +810,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         .beginning()
                         .with(insertionSource)
                         .shortenNames()
+                        .reformat(true)
                         .build()
                 )
             }
@@ -668,6 +821,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     .range(context.getLocation(node))
                     .with(replacementCall)
                     .shortenNames()
+                    .reformat(true)
                     .build()
             )
 
@@ -692,7 +846,12 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
             // PsiTypesUtil didn't know the expected type, but it doesn't handle all cases in Java
             // and doesn't handle Kotlin. Test for a few known gaps.
-            val (parent, childOfParent) = getParentSkipParens(psi)
+            val childOfParent =
+                element.sourcePsi?.findParent(true) {
+                    it?.parent !is PsiParenthesizedExpression &&
+                        it?.parent !is KtDotQualifiedExpression
+                }
+            val parent = childOfParent?.parent
             if (parent is PsiExpressionList) {
                 // Handles the case when the element is an argument in a Java method call.
                 val grandparent = PsiUtil.skipParenthesizedExprUp(parent.parent)
@@ -739,19 +898,6 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         }
 
         /**
-         * Return the first parent of the element which isn't a PsiParenthesizedExpression, and also
-         * return the direct child element of that parent.
-         */
-        private fun getParentSkipParens(element: PsiElement): Pair<PsiElement, PsiElement> {
-            val parent = element.parent
-            return if (parent is PsiParenthesizedExpression) {
-                getParentSkipParens(parent)
-            } else {
-                Pair(parent, element)
-            }
-        }
-
-        /**
          * Generates source code for a wrapper method and class (where applicable) and calculates
          * the insertion point. If the wrapper class already exists, returns source code for the
          * method body only with an insertion point at the end of the existing wrapper class body.
@@ -780,35 +926,69 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
          *   if necessary (or null if the wrapper method already exists)
          */
         private fun generateInsertionSource(
-            api: Int,
+            api: ApiRequirement,
             callContainingClass: UClass,
             wrapperMethodName: String,
             wrapperMethodParams: List<PsiType>,
             wrapperMethodBody: String,
-        ): Triple<String, Location?, String?> {
-            val wrapperClassName = "Api${api}Impl"
+            isKotlin: Boolean,
+        ): Triple<String, Location?, String?>? {
+            val wrapperClassName = api.wrapperClassName
             val implInsertionPoint: Location?
             val implForInsertion: String?
 
+            val callContainingSourcePsi = callContainingClass.sourcePsi
             val existingWrapperClass =
-                callContainingClass.innerClasses.find { innerClass ->
-                    innerClass.name == wrapperClassName
+                when (callContainingSourcePsi) {
+                    // The call container is a file facade class.
+                    null ->
+                        callContainingClass.containingFile
+                            .childrenOfType<KtClassOrObject>()
+                            .find { innerClass -> innerClass.name == wrapperClassName }
+                            .toUElementOfType<UClass>()
+                    // The call container is a real class or object.
+                    else ->
+                        callContainingClass.innerClasses.find { innerClass ->
+                            innerClass.name == wrapperClassName
+                        }
                 }
 
             if (existingWrapperClass == null) {
-                implInsertionPoint = context.getLocation(callContainingClass.lastChild)
+                val insertionContainer =
+                    when (callContainingSourcePsi) {
+                        // The call container is a file facade class.
+                        null -> callContainingClass.containingFile
+                        // The call container is a real Kotlin class or object.
+                        is KtClassOrObject -> callContainingSourcePsi.getChildOfType<KtClassBody>()
+                        // The call container is a real Java class.
+                        else -> callContainingClass
+                    } ?: return null
+                implInsertionPoint = context.getLocation(insertionContainer.lastChild)
                 implForInsertion =
-                    """
-                @androidx.annotation.RequiresApi($api)
-                static class $wrapperClassName {
-                    private $wrapperClassName() {
-                        // This class is not instantiable.
-                    }
-                    $wrapperMethodBody
-                }
+                    if (isKotlin) {
+                        """
 
-                """
-                        .trimIndent()
+${api.wrapperClassAnnotations.joinToString("\n").prependIndent("                        ")}
+                        internal object $wrapperClassName {
+${wrapperMethodBody.prependIndent("                            ")}
+                        }
+
+                    """
+                            .trimIndent()
+                    } else {
+                        """
+
+${api.wrapperClassAnnotations.joinToString("\n").prependIndent("                        ")}
+                        static class $wrapperClassName {
+                            private $wrapperClassName() {
+                                // This class is not instantiable.
+                            }
+${wrapperMethodBody.prependIndent("                            ")}
+                        }
+
+                    """
+                            .trimIndent()
+                    }
             } else {
                 val existingWrapperMethod =
                     existingWrapperClass.methods.find { method ->
@@ -816,9 +996,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                             wrapperMethodParams == getParameterTypes(method)
                     }
                 if (existingWrapperMethod == null) {
-                    implInsertionPoint = context.getLocation(existingWrapperClass.lastChild)
-                    // Add a newline to force the `}`s for the class and method onto different lines
-                    implForInsertion = wrapperMethodBody.trimIndent() + "\n"
+                    val existingWrapperSourcePsi = existingWrapperClass.sourcePsi
+                    val implInsertionElement =
+                        when (existingWrapperSourcePsi) {
+                            is KtClassOrObject ->
+                                existingWrapperSourcePsi.getChildOfType<KtClassBody>()
+                            else -> existingWrapperClass
+                        } ?: return null
+                    implInsertionPoint = context.getLocation(implInsertionElement.lastChild)
+                    implForInsertion = "$wrapperMethodBody\n"
                 } else {
                     implInsertionPoint = null
                     implForInsertion = null
@@ -848,7 +1034,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             callReceiver: UExpression?,
             callValueArguments: List<UExpression>,
             wrapperClassName: String,
-            wrapperMethodName: String
+            wrapperMethodName: String,
         ): String {
             val callReceiverStr =
                 when {
@@ -909,7 +1095,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         private fun generateWrapperMethod(
             method: PsiMethod,
             expectedReturnType: PsiType?,
-            expectedParamTypes: List<PsiType?>
+            expectedParamTypes: List<PsiType?>,
+            isKotlin: Boolean,
         ): Triple<String, List<PsiType>, String>? {
             val evaluator = context.evaluator
             val isStatic = evaluator.isStatic(method)
@@ -926,6 +1113,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             val hostParam =
                 if (isStatic || isConstructor) {
                     null
+                } else if (isKotlin) {
+                    "$hostVar: $hostType"
                 } else {
                     "$hostType $hostVar"
                 }
@@ -943,14 +1132,16 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     val expectedType = expectedParamTypes.getOrNull(i)
                     val actualType = (param.type as? PsiType) ?: return null
                     // If the actual type isn't a PsiEllipsisType (the method is varargs) and
-                    // casting
-                    // from the expected to the actual type would be an invalid implicit cast, use
-                    // the expected type. Otherwise, use the actual type.
+                    // casting from the expected to the actual type would be an invalid implicit
+                    // cast, use the expected type. Otherwise, use the actual type.
                     val typeToUse =
                         if (
                             expectedType != null &&
                                 actualType !is PsiEllipsisType &&
-                                isInvalidCast(expectedType.canonicalText, actualType.canonicalText)
+                                isInvalidCast(
+                                    expectedType.canonicalTextForLanguage(isKotlin),
+                                    actualType.canonicalTextForLanguage(isKotlin),
+                                )
                         ) {
                             expectedType
                         } else {
@@ -958,7 +1149,19 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                         }
                     Pair(typeToUse, param.name)
                 }
-            val paramStrings = paramsWithTypes.map { (type, name) -> "${type.canonicalText} $name" }
+            val paramStrings =
+                paramsWithTypes.map { (type, name) ->
+                    val typeText = type.canonicalTextForLanguage(isKotlin)
+                    if (isKotlin) {
+                        if (type is PsiEllipsisType) {
+                            "vararg $name: ${type.componentType.canonicalTextForLanguage(isKotlin)}"
+                        } else {
+                            "$name: $typeText"
+                        }
+                    } else {
+                        "$typeText $name"
+                    }
+                }
             val typedParamsStr = (listOfNotNull(hostParam) + paramStrings).joinToString(", ")
 
             val paramTypes =
@@ -977,13 +1180,13 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 methodName = hostType
                 wrapperMethodName = "create$hostClassName"
                 returnTypeStr = hostType
-                receiverStr = "new "
+                receiverStr = if (isKotlin) "" else "new "
             } else {
                 methodName = method.name
                 wrapperMethodName = methodName
                 // PsiMethod.returnType is only supposed to be null if the method is a constructor,
                 // so something has gone wrong if it's null here.
-                returnTypeStr = method.returnType?.canonicalText ?: return null
+                returnTypeStr = method.returnType?.canonicalTextForLanguage(isKotlin) ?: return null
                 receiverStr = if (isStatic) "$hostType." else "$hostVar."
             }
 
@@ -993,12 +1196,15 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             // The real return type should be the same or a subtype of what the parent is expecting.
             // Also changes the method name to avoid conflicts if the same method with a different
             // expected return type is needed elsewhere.
-            if (expectedReturnType != null && expectedReturnType.canonicalText != returnTypeStr) {
-                returnTypeStr = expectedReturnType.canonicalText
+            if (
+                expectedReturnType != null &&
+                    expectedReturnType.canonicalTextForLanguage(isKotlin) != returnTypeStr
+            ) {
+                returnTypeStr = expectedReturnType.canonicalTextForLanguage(isKotlin)
                 wrapperMethodName += "Returns${expectedReturnType.presentableText}"
             } else if (
                 expectedReturnType == null &&
-                    returnTypeStr != "void" &&
+                    isVoidType(returnTypeStr) &&
                     !classAvailableAtMinSdk(returnTypeStr)
             ) {
                 // This method returns a value of a type that isn't available at the min SDK.
@@ -1009,24 +1215,34 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                 return null
             }
 
-            val returnStmtStr = if ("void" == returnTypeStr) "" else "return "
-
-            return Triple(
-                wrapperMethodName,
-                paramTypes,
+            val returnStmtStr = if (isVoidType(returnTypeStr)) "" else "return "
+            val methodBlock =
+                if (isKotlin) {
+                    """
+                    @androidx.annotation.DoNotInline
+                    @JvmStatic
+                    fun $typeParamsStr$wrapperMethodName($typedParamsStr): $returnTypeStr {
+                        $returnStmtStr$receiverStr$methodName($namedParamsStr)
+                    }
                 """
+                        .trimIndent()
+                } else {
+                    """
                     @androidx.annotation.DoNotInline
                     static $typeParamsStr$returnTypeStr $wrapperMethodName($typedParamsStr) {
                         $returnStmtStr$receiverStr$methodName($namedParamsStr);
                     }
                 """
-            )
+                        .trimIndent()
+                }
+
+            return Triple(wrapperMethodName, paramTypes, methodBlock)
         }
 
         /** Creates a method to cast from [fromType] to [toType]. */
         private fun generateCastingMethod(
             fromType: PsiType,
-            toType: PsiType
+            toType: PsiType,
         ): Pair<String, String> {
             val fromTypeStr = fromType.presentableText
             val toTypeStr = toType.presentableText
@@ -1035,11 +1251,14 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             return Pair(
                 methodName,
                 """
+
                     @androidx.annotation.DoNotInline
                     static ${toType.canonicalText} $methodName(${fromType.canonicalText} $varName) {
                         return $varName;
                     }
+
                 """
+                    .trimIndent(),
             )
         }
 
@@ -1054,8 +1273,8 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
         private fun isInvalidCast(
             fromType: String,
             toType: String,
-            knownFromTypeApi: Int? = null,
-            knownToTypeApi: Int? = null
+            knownFromTypeApi: ApiRequirement? = null,
+            knownToTypeApi: ApiRequirement? = null,
         ): Boolean {
             // Casting to object is always safe
             if (toType == "java.lang.Object") return false
@@ -1076,23 +1295,21 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
 
         /** Check if the specified class is available at the min SDK. */
         private fun classAvailableAtMinSdk(className: String): Boolean {
-            val apiDatabase = apiDatabase ?: return false
+            if (apiDatabase == null) return false
             val minSdk = getMinSdk(context)
-            @Suppress("DEPRECATION") // b/262915628
-            val version = apiDatabase.getClassVersion(className)
+            val version = getClassVersion(context, className)
             return version <= minSdk
         }
 
         /** Returns the API level this class was introduced at, or null if unknown. */
-        private fun getMinApiOfClass(className: String): Int? {
-            val apiDatabase = apiDatabase ?: return null
-            if (!apiDatabase.containsClass(className)) return null
-            return apiDatabase.getClassVersions(className).min()
+        private fun getMinApiOfClass(className: String): ApiRequirement? {
+            if (apiDatabase == null) return null
+            return getClassVersion(context, className)
         }
 
         private fun getInheritanceChain(
             derivedClass: PsiClassType,
-            baseClass: PsiClassType?
+            baseClass: PsiClassType?,
         ): List<PsiClassType>? {
             if (derivedClass == baseClass) {
                 return emptyList()
@@ -1106,7 +1323,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
             derivedClass: PsiClassType,
             baseClass: PsiClassType?,
             visited: HashSet<PsiType>,
-            depth: Int
+            depth: Int,
         ): MutableList<PsiClassType>? {
             if (derivedClass == baseClass) {
                 return ArrayList(depth)
@@ -1132,7 +1349,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                 context,
                                 annotation,
                                 ATTR_VALUE,
-                                NO_API_REQUIREMENT.toLong()
+                                API_LEVEL_UNKNOWN_OR_1.toLong(),
                             )
                             .toInt()
                     if (api <= 1) {
@@ -1142,7 +1359,7 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                     context,
                                     annotation,
                                     "api",
-                                    NO_API_REQUIREMENT.toLong()
+                                    API_LEVEL_UNKNOWN_OR_1.toLong(),
                                 )
                                 .toInt()
                     }
@@ -1178,34 +1395,106 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                                         return api
                                     }
                                 } else {
-                                    return VersionChecks.codeNameToApi(name)
+                                    return codeNameToApi(name)
                                 }
                             }
                         }
                     }
                 }
             }
-            return NO_API_REQUIREMENT
+            return API_LEVEL_UNKNOWN_OR_1
         }
     }
 
+    private fun codeNameToApi(text: String): Int {
+        val dotIndex = text.lastIndexOf('.')
+        val buildCode =
+            if (dotIndex != -1) {
+                text.substring(dotIndex + 1)
+            } else {
+                text
+            }
+        return SdkVersionInfo.getApiByBuildCode(buildCode, true)
+    }
+
+    private fun isVoidType(type: String): Boolean = type == "void" || type == "Unit"
+
+    /**
+     * Returns the first parent element -- or the element itself when [withSelf] if `true` -- that
+     * matches the [predicate].
+     */
+    private fun PsiElement.findParent(
+        withSelf: Boolean,
+        predicate: (PsiElement?) -> Boolean,
+    ): PsiElement? {
+        var current = if (withSelf) this else this.parent
+        while (current != null && !predicate(current)) {
+            current = current.parent
+        }
+        return current
+    }
+
     companion object {
-        const val NO_API_REQUIREMENT = -1
+        const val API_LEVEL_UNKNOWN_OR_1 = -1
+        const val API_LEVEL_PREVIEW = 10000
+
+        const val FLAGGED_API_ANNOTATION = "android.annotation.FlaggedApi"
+        const val REQUIRES_FLAG_ANNOTATION = "androidx.annotation.RequiresFlag"
+
+        private val NO_API_REQUIREMENT = ApiLevelRequirement(API_LEVEL_UNKNOWN_OR_1)
+
+        /** List of Java packages that are part of the platform SDK. */
+        val PLATFORM_PACKAGES =
+            arrayOf(
+                "android.",
+                "dalvik.",
+                "java.",
+                "javax.",
+                "org.apache.http.",
+                "org.json.",
+                "org.w3c.dom.",
+                "org.xml.sax.",
+                "org.xmlpull.v1.",
+            )
+
+        val METHOD_CALL_ALLUSAGES_OPTION =
+            BooleanOption(
+                name = "allusages",
+                description =
+                    "Whether to check all usages, including all types of references to both new " +
+                        "and flagged APIs. By default, only references to flagged APIs and super " +
+                        "calls to new APIs are checked",
+                defaultValue = false,
+            )
+
+        // Must be separate because `Option`s have a backreference to their registered `Issue`.
+        val IMPLICIT_CAST_ALLUSAGES_OPTION =
+            BooleanOption(
+                name = "allusages",
+                description =
+                    "Whether to check all usages, including all types of references to both new and" +
+                        "flagged APIs. By default, only references to flagged APIs are checked",
+                defaultValue = false,
+            )
+
         val METHOD_CALL_ISSUE =
             Issue.create(
                     "ClassVerificationFailure",
                     "Even in cases where references to new APIs are gated on SDK_INT " +
-                        "checks, run-time class verification will still fail on references to APIs that " +
-                        "may not be available at run time, including platform APIs introduced after a " +
-                        "library's minSdkVersion.",
+                        "or Trunk Stable flag checks, run-time class verification will still " +
+                        "fail on references to APIs that may not be available at run time, " +
+                        "including platform APIs introduced after a library's minSdkVersion or " +
+                        "guarded by Trunk Stable flags.",
                     """
-                References to APIs added after a library's minSdkVersion -- regardless of
-                any surrounding version checks -- will fail run-time class verification if
-                the API does not exist on the device, leading to reduced run-time performance.
+                References to APIs added after a library's minSdkVersion or guarded by a Trunk
+                Stable flag-- regardless of any surrounding checks -- will fail run-time class
+                verification if the API does not exist on the device, leading to reduced run-time
+                performance.
 
                 To prevent class verification failures, references to new APIs must be moved to
                 methods within inner classes that are only initialized inside of an appropriate
-                SDK check. These methods must be paired with the @DoNotInline annotation.
+                SDK or Trunk Stable flag check. These methods must be paired with the @DoNotInline
+                annotation.
 
                 For more details and an example, see go/androidx-api-guidelines#compat-sdk.
             """,
@@ -1214,9 +1503,10 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     Severity.ERROR,
                     Implementation(
                         ClassVerificationFailureDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        Scope.JAVA_FILE_SCOPE,
+                    ),
                 )
+                .setOptions(listOf(METHOD_CALL_ALLUSAGES_OPTION))
                 .setAndroidSpecific(true)
 
         val IMPLICIT_CAST_ISSUE =
@@ -1241,9 +1531,48 @@ class ClassVerificationFailureDetector : Detector(), SourceCodeScanner {
                     Severity.ERROR,
                     Implementation(
                         ClassVerificationFailureDetector::class.java,
-                        Scope.JAVA_FILE_SCOPE
-                    )
+                        Scope.JAVA_FILE_SCOPE,
+                    ),
                 )
+                .setOptions(listOf(IMPLICIT_CAST_ALLUSAGES_OPTION))
                 .setAndroidSpecific(true)
     }
 }
+
+private fun PsiType.canonicalTextForLanguage(isKotlin: Boolean): String =
+    if (isKotlin) {
+        when (this) {
+            is PsiArrayType -> {
+                // If it's a multi-dimensional array, the `componentType` is still an array and we
+                // should not use `arrayDimensions` as a shortcut to unwrap all dimensions.
+                val typeString = componentType.canonicalTextForLanguage(true)
+                "Array<$typeString>"
+            }
+            is PsiClassType -> {
+                val typeArguments =
+                    typeArguments().map { typeArgument ->
+                        (typeArgument as PsiType).canonicalTextForLanguage(true)
+                    }
+                if (typeArguments.isNotEmpty()) {
+                    className + "<" + typeArguments.joinToString(", ") + ">"
+                } else {
+                    canonicalText
+                }
+            }
+            else ->
+                when (canonicalText) {
+                    "boolean" -> "Boolean"
+                    "char" -> "Char"
+                    "byte" -> "Byte"
+                    "short" -> "Short"
+                    "int" -> "Int"
+                    "long" -> "Long"
+                    "float" -> "Float"
+                    "double" -> "Double"
+                    "void" -> "Unit"
+                    else -> canonicalText
+                }
+        }
+    } else {
+        canonicalText
+    }

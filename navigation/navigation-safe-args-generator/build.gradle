@@ -42,7 +42,6 @@ tasks.register("strippedAndroidJar", Jar).configure {
 dependencies {
     implementation(libs.xpp3)
     implementation(libs.xmlpull)
-    implementation(libs.kotlinStdlib)
 
     implementation(libs.javapoet)
     implementation("com.squareup:kotlinpoet:2.0.0")
@@ -54,7 +53,8 @@ dependencies {
     testImplementation(libs.hamcrestCore)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(project(":room:room-compiler-processing-testing"))
+    // TODO(b/438455972): Use ToT of compiler-processing-testing
+    testImplementation("androidx.room:room-compiler-processing-testing:2.8.0")
     testImplementationAarAsJar(project(":navigation:navigation-common"))
     testImplementationAarAsJar(project(":lifecycle:lifecycle-viewmodel-savedstate"))
     testImplementation(tasks.named("strippedAndroidJar").map { it.outputs.files })

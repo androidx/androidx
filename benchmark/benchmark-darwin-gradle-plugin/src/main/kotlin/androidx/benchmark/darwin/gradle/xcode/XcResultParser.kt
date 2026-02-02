@@ -26,7 +26,7 @@ import java.io.File
  */
 class XcResultParser(
     private val xcResultFile: File,
-    private val commandExecutor: (args: List<String>) -> String
+    private val commandExecutor: (args: List<String>) -> String,
 ) {
     fun parseResults(): Pair<ActionsInvocationRecord, List<ActionTestSummary>> {
         val json = commandExecutor(xcRunCommand())
@@ -59,7 +59,7 @@ class XcResultParser(
                 "--path",
                 xcResultFile.absolutePath,
                 "--format",
-                "json"
+                "json",
             )
 
         if (!id.isNullOrEmpty()) {

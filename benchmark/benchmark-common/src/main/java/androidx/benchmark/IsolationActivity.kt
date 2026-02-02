@@ -132,7 +132,7 @@ public class IsolationActivity : android.app.Activity() {
                     Log.d(TAG, "launching Benchmark IsolationActivity")
                     setClassName(
                         InstrumentationRegistry.getInstrumentation().targetContext.packageName,
-                        IsolationActivity::class.java.name
+                        IsolationActivity::class.java.name,
                     )
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)

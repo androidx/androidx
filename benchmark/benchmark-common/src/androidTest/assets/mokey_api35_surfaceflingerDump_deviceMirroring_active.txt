@@ -1,0 +1,21 @@
+Display 0
+    connectionType=Internal
+    colorModes=
+        ColorMode::NATIVE
+    deviceProductInfo=nullopt
+    name="Primary display"
+    powerMode=On
+    activeMode=60.00 Hz (60.00 Hz)
+    displayModes=
+        {id=0, hwcId=0, resolution=1080x2460, refreshRate=60.00 Hz, dpi=386.61x386.61, group=0}
+        {id=1, hwcId=1, resolution=1080x2460, refreshRate=90.00 Hz, dpi=386.61x386.61, group=0}
+    displayManagerPolicy={defaultModeId=1, allowGroupSwitching=false, primaryRanges={physical=[0.00 Hz, inf Hz], render=[0.00 Hz, 61.00 Hz]}, appRequestRanges={physical=[0.00 Hz, inf Hz], render=[0.00 Hz, 61.00 Hz]}}
+    frameRateOverrideConfig=Enabled
+    idleTimer=
+        interval=nullopt
+        controller=Platform
+
+Virtual Display 11529215046194676754
+    name="studio.screen.sharing:0"
+    powerMode=On
+

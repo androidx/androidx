@@ -27,7 +27,7 @@ import androidx.test.runner.AndroidJUnitRunner
  * interference.
  *
  * To use this runner, put the following in your module level `build.gradle`:
- * ```
+ * ```groovy
  * android {
  *     defaultConfig {
  *         testInstrumentationRunner "androidx.benchmark.junit4.AndroidBenchmarkRunner"

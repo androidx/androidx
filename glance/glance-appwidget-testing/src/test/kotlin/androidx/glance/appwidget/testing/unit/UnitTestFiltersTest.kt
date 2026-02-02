@@ -31,7 +31,7 @@ class UnitTestFiltersTest {
             getGlanceNodeAssertionFor(
                 emittable =
                     EmittableColumn().apply { children += EmittableCircularProgressIndicator() },
-                onNodeMatcher = isIndeterminateCircularProgressIndicator()
+                onNodeMatcher = isIndeterminateCircularProgressIndicator(),
             )
 
         nodeAssertion.assertExists()
@@ -44,7 +44,7 @@ class UnitTestFiltersTest {
             getGlanceNodeAssertionFor(
                 emittable =
                     EmittableColumn().apply { children += EmittableLinearProgressIndicator() },
-                onNodeMatcher = isIndeterminateCircularProgressIndicator()
+                onNodeMatcher = isIndeterminateCircularProgressIndicator(),
             )
 
         val assertionError =
@@ -68,7 +68,7 @@ class UnitTestFiltersTest {
                         children +=
                             EmittableLinearProgressIndicator().apply { indeterminate = true }
                     },
-                onNodeMatcher = isIndeterminateLinearProgressIndicator()
+                onNodeMatcher = isIndeterminateLinearProgressIndicator(),
             )
 
         nodeAssertion.assertExists()
@@ -81,7 +81,7 @@ class UnitTestFiltersTest {
             getGlanceNodeAssertionFor(
                 emittable =
                     EmittableColumn().apply { children += EmittableCircularProgressIndicator() },
-                onNodeMatcher = isIndeterminateLinearProgressIndicator()
+                onNodeMatcher = isIndeterminateLinearProgressIndicator(),
             )
 
         val assertionError =
@@ -104,7 +104,7 @@ class UnitTestFiltersTest {
                     EmittableColumn().apply {
                         children += EmittableLinearProgressIndicator().apply { progress = 10.0f }
                     },
-                onNodeMatcher = isLinearProgressIndicator(10.0f)
+                onNodeMatcher = isLinearProgressIndicator(10.0f),
             )
 
         nodeAssertion.assertExists()
@@ -123,7 +123,7 @@ class UnitTestFiltersTest {
                                 progress = 10.0f
                             }
                     },
-                onNodeMatcher = isLinearProgressIndicator(11.0f)
+                onNodeMatcher = isLinearProgressIndicator(11.0f),
             )
 
         val assertionError =

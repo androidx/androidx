@@ -26,15 +26,17 @@ import androidx.annotation.RestrictTo.Scope
  *   performed
  * @param value an object of the representation of the Glance composable node
  */
-abstract class GlanceNode<T> @RestrictTo(Scope.LIBRARY_GROUP) constructor(val value: T) {
+public abstract class GlanceNode<T>
+@RestrictTo(Scope.LIBRARY_GROUP)
+constructor(public val value: T) {
     /** Returns children of current glance node. */
-    abstract fun children(): List<GlanceNode<T>>
+    public abstract fun children(): List<GlanceNode<T>>
 
     /**
      * Returns the Glance node as string that can be presented in error messages helping developer
      * debug the assertion error.
      */
-    abstract fun toDebugString(): String
+    public abstract fun toDebugString(): String
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

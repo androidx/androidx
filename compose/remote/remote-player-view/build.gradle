@@ -19,7 +19,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 androidx {
@@ -34,21 +34,22 @@ android {
     namespace = "androidx.compose.remote.player.view"
     compileSdk = 35
     defaultConfig {
-        minSdk = 26
+        minSdk = 29
     }
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.8.1")
+    api("androidx.annotation:annotation:1.9.1")
     api(libs.jspecify)
     implementation(project(":compose:remote:remote-player-core"))
     implementation(project(":compose:remote:remote-core"))
-    implementation(project(":customview:customview"))
+    implementation("androidx.customview:customview:1.2.0")
     implementation(libs.androidx.core)
     testImplementation(libs.junit)
 
     androidTestImplementation(project(":compose:remote:remote-creation"))
-    androidTestImplementation(project(":compose:remote:test-utils"))
+    androidTestImplementation(project(":compose:remote:remote-core-testutils"))
+    androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation("androidx.activity:activity:1.7.2")
     androidTestImplementation(libs.testExtJunit)

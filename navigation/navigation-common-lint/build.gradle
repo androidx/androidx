@@ -41,8 +41,8 @@ dependencies {
 
     bundleInside(project(":navigation:lint:common"))
 
-    testImplementation(libs.androidLintApiStableAnalysis)
-    testImplementation(libs.androidLintTestsStableAnalysis)
+    testImplementation(libs.androidLintStableAnalysis)
+    testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(project(":navigation:lint:common-test"))

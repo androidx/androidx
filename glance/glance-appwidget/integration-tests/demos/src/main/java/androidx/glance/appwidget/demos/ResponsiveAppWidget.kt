@@ -67,6 +67,18 @@ class ResponsiveAppWidget : GlanceAppWidget() {
         SizeMode.Responsive(setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override val previewSizeMode =
+        SizeMode.Responsive(setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN))
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         // Content will be called for each of the provided sizes
         when (LocalSize.current) {
             COLUMN -> ResponsiveColumn(numItems = 3)
@@ -127,7 +139,7 @@ private fun ResponsiveBox(numItems: Int) {
                 "$index",
                 color,
                 GlanceModifier.size(boxSize),
-                textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 }
+                textStyle = TextStyle(textAlign = TextAlign.End).takeIf { numItems != 1 },
             )
         }
     }
@@ -138,7 +150,7 @@ private fun ContentItem(
     text: String,
     color: Color,
     modifier: GlanceModifier,
-    textStyle: TextStyle? = null
+    textStyle: TextStyle? = null,
 ) {
     Box(modifier = modifier) {
         val context = LocalContext.current
@@ -148,14 +160,14 @@ private fun ContentItem(
             colors =
                 ButtonDefaults.buttonColors(
                     backgroundColor = ColorProvider(color),
-                    contentColor = ColorProvider(Color.White)
+                    contentColor = ColorProvider(Color.White),
                 ),
             style = textStyle ?: TextStyle(textAlign = TextAlign.Center),
             onClick = {
                 Handler(context.mainLooper).post {
                     Toast.makeText(context, "Item clicked: $text", Toast.LENGTH_SHORT).show()
                 }
-            }
+            },
         )
     }
 }

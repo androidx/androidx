@@ -33,12 +33,12 @@ internal object ThrottleDetector {
         repeat(10) { System.arraycopy(a, 0, b, 0, a.size) }
     }
 
-    internal fun measureWorkNs(): Double {
+    internal fun measureWorkNs1(): Double {
         // Access a non-trivial amount of data to try and 'reset' any cache state.
         // Have observed this to give more consistent performance when clocks are unlocked.
         copySomeData()
 
-        val state = BenchmarkState(simplifiedTimingOnlyMode = true)
+        val state = BenchmarkStateLegacy(simplifiedTimingOnlyMode = true)
         val sourceMatrix = FloatArray(16) { System.nanoTime().toFloat() }
         val resultMatrix = FloatArray(16)
 
@@ -49,6 +49,20 @@ internal object ThrottleDetector {
 
         return state.getMinTimeNanos()
     }
+
+    internal fun measureWorkNs(): Double =
+        inMemoryTrace("measureWorkNs") {
+            // Access a non-trivial amount of data to try and 'reset' any cache state.
+            // Have observed this to give more consistent performance when clocks are unlocked.
+            copySomeData()
+            val sourceMatrix = FloatArray(16) { System.nanoTime().toFloat() }
+            val resultMatrix = FloatArray(16)
+
+            return measureRepeatedCheckNanosReentrant {
+                // Benchmark a trivial consistent task
+                Matrix.translateM(resultMatrix, 0, sourceMatrix, 0, 1F, 2F, 3F)
+            }
+        }
 
     /**
      * Called to calculate throttling baseline, will be ignored after first call until reset.

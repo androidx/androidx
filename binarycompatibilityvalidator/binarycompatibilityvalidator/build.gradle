@@ -22,26 +22,80 @@
  * modifying its settings.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+}
+
+// TODO(b/410631668): remove when "kotlin-compiler" is no longer added to "friendPaths"
+// Workaround for Windows to solve
+// "this and base files have different roots: C:\Users\User\.gradle\caches\modules-2\...\kotlin-compiler-2.2.10.jar and D:\compose-multiplatform-core\out\buildSrc\imports\binary-compatibility-validator\build"
+//
+// This happens because "friendPaths" is set and it doesn't support different roots (C: and D:)
+// kotlin-compiler was added to "friendsPath" in
+// https://android-review.googlesource.com/c/platform/frameworks/support/+/3636427
+//
+// This moves the build directory to the Gradle cache directory for this module,
+// which is an anti-pattern but solves the issue
+if (System.properties['os.name']?.toString()?.toLowerCase()?.contains('windows') == true) {
+    layout.buildDirectory = file("${gradle.gradleUserHomeDir}/compose-multipltform-core-build/binarycompatibilityvalidator")
+}
+
+configurations {
+    // TODO(b/410631668): Migrate away from using internal API in binary compatibility validator
+    // Until we migrate, use the configuration below. It removes need for suppressing
+    // INVISIBLE_REFERENCE and INVISIBLE_MEMBER in the
+    // :binarycompatibilityvalidator:binarycompatibilityvalidator module.
+    // IDE does not support this configuration yet, so you will still see references to internal
+    // members marked as an error
+    friends {
+        canBeResolved = true
+        canBeConsumed = false
+        transitive = false
+        attributes {
+            attribute(
+                    Attribute.of("artifactType", String), "jar"
+            )
+        }
+    }
+    compileOnly.extendsFrom(friends)
+
+}
+
+androidXMultiplatform {
+    jvm()
+    sourceSets {
+        jvmMain.dependencies {
+            implementation(libs.kotlinAbiTools)
+        }
+        jvmTest.dependencies {
+            implementation(libs.truth)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCompiler)
+        }
+    }
+    provideKlibStdLibForTests()
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    implementation(libs.kotlinCompiler)
-    implementation(libs.binaryCompatibilityValidator)
-    testImplementation(libs.truth)
-    testImplementation(libs.junit)
-    testImplementation(libs.kotlinTest)
+    friends(libs.kotlinCompiler)
 }
+
+configurations.getByName("jvmMainImplementation").extendsFrom(configurations.getByName("friends"))
 
 androidx {
     name = "AndroidX Binary Compatibility Validator"
-    type = LibraryType.INTERNAL_HOST_TEST_LIBRARY
+    type = SoftwareType.INTERNAL_HOST_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Enforce binary compatibility for klibs"
+}
+
+tasks.withType(KotlinCompile).configureEach { task ->
+    task.compilerOptions {
+        friendPaths.from(configurations.friends.incoming.files)
+    }
 }

@@ -19,6 +19,7 @@ import java.io.File
 import java.io.IOException
 import java.nio.file.Files
 import java.util.*
+import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.collections.iterator
 import kotlin.concurrent.thread
@@ -152,6 +153,8 @@ abstract class UpdateTranslationsTask : DefaultTask() {
         // Actually download them
         execCommand(repoDir, gitCommand, "checkout")
 
+        val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+
         // Write the per-language translation files
         val localesGroupedByLanguage = valuesDirsByLocale.keys.groupBy { it.language }
         for ((language, locales) in localesGroupedByLanguage) {
@@ -160,18 +163,14 @@ abstract class UpdateTranslationsTask : DefaultTask() {
                 locales = locales,
                 stringByResourceName = stringByResourceName.get(),
                 repoDir = repoDir,
-                valuesDirsByLocale = valuesDirsByLocale
+                valuesDirsByLocale = valuesDirsByLocale,
+                docBuilder = docBuilder,
             )
         }
 
         // Write the Translations.kt file
         writeTranslationsFile(localesGroupedByLanguage.values.flatten())
     }
-
-    /**
-     * An XML document builder we use (and reuse).
-     */
-    private val docBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 
     /**
      * Writes the file with translations for the given language and locales.
@@ -191,6 +190,7 @@ abstract class UpdateTranslationsTask : DefaultTask() {
         stringByResourceName: Map<String, String>,
         repoDir: File,
         valuesDirsByLocale: Map<Locale, List<String>>,
+        docBuilder: DocumentBuilder,
     ) {
         val kotlinFileName = language.replaceFirstChar { it.uppercase() } + ".kt"
         println("Writing $kotlinFileName for locales ${locales.joinToString()}")

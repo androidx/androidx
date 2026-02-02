@@ -18,6 +18,7 @@ package androidx.benchmark
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.Environment
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.FileMover.moveTo
@@ -73,7 +74,10 @@ object Outputs {
                     // Additionally, Benchmarks append user space traces to the ones produced
                     // by the Macro Benchmark run; and that is a lot simpler to do if we use the
                     // Media directory. (b/216588251)
-                    context.getFirstMountedMediaDir()
+                    @Suppress("DEPRECATION")
+                    context.externalMediaDirs.firstOrNull {
+                        Environment.getExternalStorageState(it) == Environment.MEDIA_MOUNTED
+                    }
                 }
                 Build.VERSION.SDK_INT <= 22 -> {
                     // prior to API 23, shell didn't have access to externalCacheDir
@@ -147,7 +151,7 @@ object Outputs {
         InstrumentationResults.reportAdditionalFileToCopy(
             key = sanitizedName,
             absoluteFilePath = destination.absolutePath,
-            reportOnRunEndOnly = reportOnRunEndOnly
+            reportOnRunEndOnly = reportOnRunEndOnly,
         )
         return destination.absolutePath
     }

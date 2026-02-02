@@ -33,11 +33,11 @@ internal val checkableColorProviderFallbackColor = Color.Black
 
 private fun CheckedUncheckedColorProvider.toColorStateList(
     context: Context,
-    isNightMode: Boolean
+    isNightMode: Boolean,
 ): ColorStateList {
     return createCheckedColorStateList(
         checked = getColor(context, isNightMode, isChecked = true),
-        unchecked = getColor(context, isNightMode, isChecked = false)
+        unchecked = getColor(context, isNightMode, isChecked = false),
     )
 }
 
@@ -46,7 +46,7 @@ internal fun CheckedUncheckedColorProvider.toDayNightColorStateList(
 ): DayNightColorStateList {
     return DayNightColorStateList(
         day = toColorStateList(context, isNightMode = false),
-        night = toColorStateList(context, isNightMode = true)
+        night = toColorStateList(context, isNightMode = true),
     )
 }
 
@@ -57,7 +57,7 @@ internal fun CheckedUncheckedColorProvider.toDayNightColorStateList(
 private fun createCheckedColorStateList(checked: Color, unchecked: Color): ColorStateList {
     return ColorStateList(
         arrayOf(CheckedStateSet, intArrayOf()),
-        intArrayOf(checked.toArgb(), unchecked.toArgb())
+        intArrayOf(checked.toArgb(), unchecked.toArgb()),
     )
 }
 

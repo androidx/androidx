@@ -1,0 +1,116 @@
+/*
+ * Copyright (C) 2017 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3.integration.kotlintestapp.test
+
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.room3.integration.kotlintestapp.vo.Address
+import androidx.room3.integration.kotlintestapp.vo.Author
+import androidx.room3.integration.kotlintestapp.vo.Book
+import androidx.room3.integration.kotlintestapp.vo.BookAuthor
+import androidx.room3.integration.kotlintestapp.vo.Coordinates
+import androidx.room3.integration.kotlintestapp.vo.Email
+import androidx.room3.integration.kotlintestapp.vo.Lang
+import androidx.room3.integration.kotlintestapp.vo.Mail
+import androidx.room3.integration.kotlintestapp.vo.Pet
+import androidx.room3.integration.kotlintestapp.vo.Publisher
+import androidx.room3.integration.kotlintestapp.vo.School
+import androidx.room3.integration.kotlintestapp.vo.User
+import java.util.Date
+import java.util.UUID
+import java.util.concurrent.FutureTask
+import kotlin.random.Random
+
+class TestUtil {
+
+    companion object {
+        fun <T> observeOnMainThread(
+            liveData: LiveData<T>,
+            provider: LifecycleOwner,
+            observer: Observer<T>,
+        ) {
+            val futureTask = FutureTask { liveData.observe(provider, observer) }
+            ArchTaskExecutor.getInstance().executeOnMainThread(futureTask)
+            futureTask.get()
+        }
+
+        val PUBLISHER = Publisher("ph1", "publisher 1")
+        val PUBLISHER2 = Publisher("ph2", "publisher 2")
+        val PUBLISHER3 = Publisher("ph3", "publisher 3")
+
+        val AUTHOR_1 = Author("a1", "author 1")
+        val AUTHOR_2 = Author("a2", "author 2")
+
+        val BOOK_1 = Book("b1", "book title 1", "ph1", setOf(Lang.EN), 3)
+        val BOOK_2 = Book("b2", "book title 2", "ph1", setOf(Lang.TR), 5)
+        val BOOK_3 = Book("b3", "book title 2", "ph1", setOf(Lang.ES), 7)
+
+        val BOOK_AUTHOR_1_1 = BookAuthor(BOOK_1.bookId, AUTHOR_1.authorId)
+        val BOOK_AUTHOR_1_2 = BookAuthor(BOOK_1.bookId, AUTHOR_2.authorId)
+        val BOOK_AUTHOR_2_2 = BookAuthor(BOOK_2.bookId, AUTHOR_2.authorId)
+
+        fun createPet(id: Int): Pet {
+            return Pet(
+                petId = id,
+                userId = id,
+                name = UUID.randomUUID().toString(),
+                adoptionDate = Date(),
+            )
+        }
+
+        fun createUser(id: Int): User {
+            return User(
+                uId = id,
+                email = Email(id = "e$id", address = "e$id@test.com"),
+                secondaryEmail = null,
+            )
+        }
+
+        fun createSchool(id: Int, managerId: Int): School {
+            return School(
+                id = id,
+                name = UUID.randomUUID().toString(),
+                address = createAddress(),
+                manager = createUser(managerId),
+            )
+        }
+
+        private fun createAddress(): Address {
+            return Address(
+                street = UUID.randomUUID().toString(),
+                state = UUID.randomUUID().toString().substring(0, 2),
+                postCode = Random.Default.nextInt(from = 0, until = 99999),
+                coordinates = createCoordinates(),
+            )
+        }
+
+        private fun createCoordinates(): Coordinates {
+            return Coordinates(Random.Default.nextDouble(), Random.Default.nextDouble())
+        }
+
+        fun createMail(id: Long, subject: String, body: String): Mail {
+            return Mail(
+                rowId = id,
+                subject = subject,
+                body = body,
+                datetime = System.currentTimeMillis(),
+            )
+        }
+    }
+}

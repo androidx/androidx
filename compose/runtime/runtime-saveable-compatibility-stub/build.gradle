@@ -14,40 +14,30 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("com.android.library")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "org.jetbrains.compose.runtime.saveable"
+    }
     desktop()
-    darwin()
-    js()
-    wasm()
-    linux()
-}
-
-kotlin {
-    // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
-    // We can support the kotlin-native targets supported by kotlin coroutines:
-    // https://github.com/Kotlin/kotlinx.coroutines/blob/master/buildSrc/src/main/kotlin/kotlin-multiplatform-conventions.gradle.kts
-    // NOTE: Keep this list in sync with runtime's targets.
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
     mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
@@ -67,12 +57,7 @@ kotlin {
 
 androidx {
     name = "Compose Saveable"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose components that allow saving and restoring the local ui state"
-    legacyDisableKotlinStrictApiMode = true
-}
-
-android {
-    namespace "androidx.compose.runtime.saveable"
 }

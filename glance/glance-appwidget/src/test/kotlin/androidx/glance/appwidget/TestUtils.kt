@@ -16,9 +16,15 @@
 
 package androidx.glance.appwidget
 
+import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
+import android.content.ComponentName
 import android.content.Context
+import android.content.pm.ActivityInfo
+import android.content.pm.ApplicationInfo
+import android.content.pm.LauncherApps
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Parcel
 import android.text.TextUtils
 import android.util.DisplayMetrics
@@ -44,25 +50,35 @@ import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.test.assertIs
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
+import org.mockito.kotlin.doReturn
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.spy
+import org.robolectric.shadow.api.Shadow
+import org.robolectric.util.ReflectionHelpers.ClassParameter
 
 internal suspend fun runTestingComposition(
-    content: @Composable @GlanceComposable () -> Unit,
+    content: @Composable @GlanceComposable () -> Unit
 ): RemoteViewsRoot =
     runCompositionUntil(
         stopWhen = { state: Recomposer.State, root: RemoteViewsRoot ->
             state == Recomposer.State.Idle && !root.shouldIgnoreResult()
         },
-        content
+        content,
     )
 
 internal suspend fun runCompositionUntil(
     stopWhen: (Recomposer.State, RemoteViewsRoot) -> Boolean,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): RemoteViewsRoot = coroutineScope {
     GlobalSnapshotManager.ensureStarted()
     val root = RemoteViewsRoot(10)
@@ -86,34 +102,85 @@ class TestFrameClock : MonotonicFrameClock {
         onFrame(System.currentTimeMillis())
 }
 
-/** Create the view out of a RemoteViews. */
-internal fun Context.applyRemoteViews(rv: RemoteViews): View {
-    val p = Parcel.obtain()
-    return try {
-        rv.writeToParcel(p, 0)
-        p.setDataPosition(0)
-        val parceled = RemoteViews(p)
-        val parent = FrameLayout(this)
-        parent.layoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT)
-        val view = parceled.apply(this, parent)
-        assertIs<FrameLayout>(view)
-        assertThat(view.childCount).isEqualTo(1)
-        view.getChildAt(0)
-    } finally {
-        p.recycle()
+/**
+ * Create the view out of a RemoteViews. You can provide a LayoutParams to set exact size of the
+ * parent AppWidgetHostView in order to test size-mapped RemoteViews.
+ */
+internal fun Context.applyRemoteViews(
+    rv: RemoteViews,
+    params: LayoutParams = LayoutParams(WRAP_CONTENT, WRAP_CONTENT),
+): View {
+    val remoteViews =
+        with(Parcel.obtain()) {
+            try {
+                rv.writeToParcel(this, 0)
+                setDataPosition(0)
+                RemoteViews(this)
+            } finally {
+                recycle()
+            }
+        }
+
+    val hostView =
+        TestAppWidgetHostView(createMockedContext()).apply {
+            layoutParams = params
+            if (params.height >= 0 || params.width >= 0) {
+                layout(0, 0, params.width, params.height)
+            }
+            updateAppWidget(remoteViews)
+        }
+
+    val view = hostView.getChildAt(0) as FrameLayout
+    assertThat(view.childCount).isEqualTo(1)
+    return view.getChildAt(0)
+}
+
+// This is necessary to make AppWidgetHostView work without a real bound widget on API 24 and 25
+private fun Context.createMockedContext() =
+    spy(this) {
+        if (Build.VERSION.SDK_INT == 24 || Build.VERSION.SDK_INT == 25) {
+            on { getSystemService(LauncherApps::class.java) } doReturn mock()
+        }
+    }
+
+private class TestAppWidgetHostView(context: Context) : AppWidgetHostView(context) {
+    override fun updateAppWidget(remoteViews: RemoteViews?) {
+        // Set fake provider info for API versions where null AppWidgetHostView.mInfo causes NPE
+        val fakeProviderInfo = appWidgetProviderInfo {
+            provider = ComponentName("", "")
+            val prop =
+                this::class.memberProperties.single { it.name == "providerInfo" }
+                    as KMutableProperty<*>
+            prop.setter.call(this, ActivityInfo().apply { applicationInfo = ApplicationInfo() })
+        }
+        val mInfo =
+            AppWidgetHostView::class.memberProperties.single { it.name == "mInfo" }
+                as KMutableProperty<*>
+        mInfo.isAccessible = true
+        mInfo.setter.call(this, fakeProviderInfo)
+
+        // Call the real implementation of AppWidgetHostView.updateAppWidget instead of
+        // ShadowAppWidgetHostView.updateAppWidget. The shadow version always uses reapply.
+        Shadow.directlyOn<Void, AppWidgetHostView>(
+            this,
+            AppWidgetHostView::class.java,
+            "updateAppWidget",
+            ClassParameter(RemoteViews::class.java, remoteViews),
+        )
     }
 }
 
 internal suspend fun Context.runAndTranslate(
     appWidgetId: Int = 0,
-    content: @Composable () -> Unit
+    isRemoteCompose: Boolean = false,
+    content: @Composable () -> Unit,
 ): RemoteViews {
     val originalRoot = runTestingComposition(content)
 
     // Copy makes a deep copy of the emittable tree, so will exercise the copy methods
     // of all of the emmitables the test checks too.
     val root = originalRoot.copy() as RemoteViewsRoot
-    normalizeCompositionTree(root)
+    normalizeCompositionTree(root, isRemoteCompose = isRemoteCompose)
     return translateComposition(
         this,
         appWidgetId,
@@ -126,7 +193,7 @@ internal suspend fun Context.runAndTranslate(
 
 internal suspend fun Context.runAndTranslateInRtl(
     appWidgetId: Int = 0,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): RemoteViews {
     val rtlLocale =
         Locale.getAvailableLocales().first {
@@ -166,7 +233,7 @@ fun <T : View> View.findView(predicate: (T) -> Boolean, klass: Class<T>): T? {
     return children.mapNotNull { it.findView(predicate, klass) }.firstOrNull()
 }
 
-internal class TestWidget(
+internal open class TestWidget(
     override val sizeMode: SizeMode = SizeMode.Single,
     val ui: @Composable () -> Unit,
 ) : GlanceAppWidget(errorUiLayout = 0) {
@@ -188,6 +255,21 @@ internal class TestWidget(
             errorUiLayout = previousErrorLayout
         }
     }
+
+    companion object {
+        fun forPreview(
+            sizeMode: PreviewSizeMode = SizeMode.Single,
+            ui: @Composable (Int) -> Unit,
+        ): TestWidget {
+            return object : TestWidget(SizeMode.Single, {}) {
+                override val previewSizeMode = sizeMode
+
+                override suspend fun providePreview(context: Context, widgetCategory: Int) {
+                    provideContent { ui(widgetCategory) }
+                }
+            }
+        }
+    }
 }
 
 /** Count the number of children that are not gone. */
@@ -204,3 +286,11 @@ fun configurationContext(modifier: Configuration.() -> Unit): Context {
     return ApplicationProvider.getApplicationContext<Context>()
         .createConfigurationContext(configuration)
 }
+
+/** JVM tests in a [TestScope] that can't finish under 10s. */
+internal fun TestScope.runMediumTest(testBody: suspend TestScope.() -> Unit) =
+    this.runTest(timeout = 30.seconds, testBody = testBody)
+
+/** JVM tests that can't finish under 10s. */
+internal fun runMediumTest(testBody: suspend TestScope.() -> Unit) =
+    runTest(timeout = 30.seconds, testBody = testBody)

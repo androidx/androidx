@@ -42,4 +42,8 @@
     <string name="tint_widget">Tint widget</string>
     <string name="title_bar_widget">Title Bar Widget</string>
     <string name="content_description_widget_name">Content Description Widget</string>
+    <string name="remote_compose_widget_name">Remote Compose Demo</string>
+    <string name="remote_compose_tint_widget_name">RC Tint Demo</string>
+    <string name="snap_scrolling_widget_name">Snap Scrolling Demo</string>
+
 </resources>

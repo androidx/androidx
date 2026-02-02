@@ -22,5 +22,5 @@ internal data class StackSamplingConfig(
     /** The sampling frequency in Hertz. */
     val frequency: Long,
     /** The sampling duration. */
-    val duration: Long
+    val duration: Long,
 )

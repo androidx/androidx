@@ -14,113 +14,68 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
-import androidx.build.Publish
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
-def desktopEnabled = false // b/276387374 TODO: KmpPlatformsKt.enableDesktop(project)
-
 androidXMultiplatform {
-    android()
-    if (desktopEnabled) desktop()
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.testutils"
+        androidResources.enable = true
+    }
+    desktop()
 
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(projectOrArtifact(":compose:runtime:runtime"))
-                implementation(projectOrArtifact(":compose:ui:ui-unit"))
-                implementation(projectOrArtifact(":compose:ui:ui-graphics"))
-                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:ui:ui-graphics"))
+                implementation(project(":compose:ui:ui-test-junit4"))
             }
         }
         androidMain.dependencies {
-            api("androidx.activity:activity:1.2.0")
+            api("androidx.activity:activity:1.7.1")
+            // workaround for https://github.com/gradle/gradle/issues/8489
+            implementation("androidx.lifecycle:lifecycle-common:2.6.1")
             implementation "androidx.activity:activity-compose:1.3.1"
-            api(projectOrArtifact(":compose:ui:ui-test-junit4"))
-            api(androidxArtifact(":test:screenshot:screenshot"))
+            api(project(":compose:ui:ui-test-junit4"))
+            api(project(":test:screenshot:screenshot"))
             // This has stub APIs for access to legacy Android APIs, so we don't want
             // any dependency on this module.
-            compileOnly(projectOrArtifact(":compose:ui:ui-android-stubs"))
+            compileOnly(project(":compose:ui:ui-android-stubs"))
             implementation(libs.testCore)
             implementation(libs.testRules)
+            implementation(libs.espressoCore)
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidDeviceTest.dependencies {
+            implementation(libs.truth)
+            implementation(project(":compose:material:material"))
         }
 
-        jvmMain {
-            dependsOn(commonMain)
-            dependencies {
-            }
-        }
-
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        if (desktopEnabled) {
-            desktopMain {
-                dependsOn(jvmMain)
-                dependencies {
-                }
-            }
-        }
-
-        jvmTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        androidAndroidTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-                implementation(projectOrArtifact(":compose:material:material"))
-            }
-        }
-
-        // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-        //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-        //  level dependencies block instead:
-        //  `dependencies { testImplementation(libs.robolectric) }`
-        androidTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.truth)
-            }
-        }
-
-        if (desktopEnabled) {
-            desktopTest {
-                dependsOn(jvmTest)
-                dependsOn(desktopMain)
-                dependencies {
-                }
-            }
+        androidHostTest.dependencies {
+            implementation(libs.truth)
         }
     }
 }
 
 androidx {
     name = "Compose Internal Test Utils"
-    type = LibraryType.INTERNAL_TEST_LIBRARY
-    publish = Publish.NONE
+    type = SoftwareType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2020"
     description = "Compose internal test utils."
-}
-
-android {
-    namespace "androidx.compose.testutils"
 }

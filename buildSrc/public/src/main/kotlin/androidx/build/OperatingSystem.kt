@@ -22,7 +22,7 @@ import org.gradle.api.GradleException
 enum class OperatingSystem {
     LINUX,
     WINDOWS,
-    MAC
+    MAC,
 }
 
 fun getOperatingSystem(): OperatingSystem {

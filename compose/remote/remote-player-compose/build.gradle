@@ -19,7 +19,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
@@ -50,8 +50,8 @@ dependencies {
 
     androidTestImplementation(project(":compose:remote:remote-creation"))
     androidTestImplementation(project(":compose:remote:remote-creation-compose"))
+    androidTestImplementation(project(":compose:remote:remote-player-compose-testutils"))
     androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation(project(":compose:remote:test-utils"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
@@ -60,4 +60,5 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.testParameterInjector)
 }

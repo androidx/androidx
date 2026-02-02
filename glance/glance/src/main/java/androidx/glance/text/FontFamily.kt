@@ -21,19 +21,19 @@ package androidx.glance.text
  * custom family. If this is found on the system it will be used, otherwise it will fallback to a
  * system default.
  */
-class FontFamily constructor(val family: String) {
-    companion object {
+public class FontFamily(public val family: String) {
+    public companion object {
         /** The formal text style for scripts. */
-        val Serif = FontFamily("serif")
+        public val Serif: FontFamily = FontFamily("serif")
 
         /** Font family with low contrast and plain stroke endings. */
-        val SansSerif = FontFamily("sans-serif")
+        public val SansSerif: FontFamily = FontFamily("sans-serif")
 
         /** Font family where glyphs have the same fixed width. */
-        val Monospace = FontFamily("monospace")
+        public val Monospace: FontFamily = FontFamily("monospace")
 
         /** Cursive, hand-written like font family. */
-        val Cursive = FontFamily("cursive")
+        public val Cursive: FontFamily = FontFamily("cursive")
     }
 
     override fun toString(): String {
