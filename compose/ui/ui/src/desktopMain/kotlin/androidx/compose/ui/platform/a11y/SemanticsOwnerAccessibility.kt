@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastForEachReversed
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleComponent
 import javax.accessibility.AccessibleContext.ACCESSIBLE_CARET_PROPERTY
@@ -386,7 +387,7 @@ internal class SemanticsOwnerAccessibility(
                 newAccessible
             }
 
-            for (child in node.replacedChildren.asReversed()) {
+            node.replacedChildren.fastForEachReversed { child ->
                 if (child.isValid()) {
                     bfsDeque.add(child)
                 }

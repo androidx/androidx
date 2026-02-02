@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.util.fastForEachReversed
 import java.awt.Color
 import java.awt.Component
 import java.awt.Cursor
@@ -184,10 +185,10 @@ internal class ComposeSceneAccessibility(
          * [ComposeScene] and finds the best [Accessible] under the pointer.
          */
         override fun getAccessibleAt(p: Point): Accessible {
-            for (controller in ownerAccessibilityList.reversed()) {
+            ownerAccessibilityList.fastForEachReversed { controller ->
                 val rootAccessible = controller.rootAccessible
                 val context = rootAccessible.composeAccessibleContext
-                val accessibleOnPoint = context.getAccessibleAt(p) ?: continue
+                val accessibleOnPoint = context.getAccessibleAt(p) ?: return@fastForEachReversed
                 if (accessibleOnPoint != rootAccessible) {
                     // TODO: ^ this check produce weird behavior
                     //  when there is a component under the popup,

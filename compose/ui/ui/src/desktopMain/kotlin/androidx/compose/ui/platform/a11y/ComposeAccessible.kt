@@ -39,6 +39,9 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastJoinToString
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.window.asDpOffset
 import java.awt.Color
 import java.awt.Cursor
@@ -230,7 +233,7 @@ internal class ComposeAccessible(
             asDpOffset().toOffset(density)
 
         private fun Dp.toAwtPx() =
-            if (value.isInfinite()) Constraints.Infinity else value.roundToInt()
+            if (value.isInfinite()) Constraints.Infinity else value.fastRoundToInt()
 
         private fun Rect.toAwtRectangle() = with(density) {
             Rectangle(
@@ -271,7 +274,11 @@ internal class ComposeAccessible(
 
         override fun getAccessibleIndexInParent(): Int {
             val parent = semanticsNode.parent ?: return ownerAccessibility.indexInScene()
-            return parent.traversalOrderedChildren().indexOfFirst { it.id == semanticsNode.id }
+            val orderedChildren = parent.traversalOrderedChildren()
+            for (i in orderedChildren.indices) {
+                if (orderedChildren[i].id == semanticsNode.id) return i
+            }
+            return -1
         }
 
         override fun getAccessibleComponent(): AccessibleComponent? {
@@ -381,17 +388,17 @@ internal class ComposeAccessible(
 
         override fun getAccessibleAt(p: Point): Accessible? {
             val accessibleChildren = semanticsNode.traversalOrderedChildren()
-            for (child in accessibleChildren) {
-                val accessible = ownerAccessibility.accessibleByNodeId(child.id) as? Accessible ?: continue
-                val accessibleComponent = (accessible.accessibleContext as? AccessibleComponent) ?: continue
+            accessibleChildren.fastForEach { child ->
+                val accessible = ownerAccessibility.accessibleByNodeId(child.id) as? Accessible ?: return@fastForEach
+                val accessibleComponent = (accessible.accessibleContext as? AccessibleComponent) ?: return@fastForEach
                 accessibleComponent.getAccessibleAt(p)?.let {
                     return it
                 }
             }
 
-            for (accessibleChild in auxiliaryChildren) {
+            auxiliaryChildren.fastForEach { accessibleChild ->
                 val accessibleComponent =
-                    accessibleChild.accessibleContext as? AccessibleComponent ?: continue
+                    accessibleChild.accessibleContext as? AccessibleComponent ?: return@fastForEach
                 accessibleComponent.getAccessibleAt(p)?.let {
                     return it
                 }
@@ -806,11 +813,7 @@ internal class ComposeAccessible(
 
         override fun getAccessibleEditableText(): AccessibleEditableText? {
             val accessibleText = accessibleText
-            return if (accessibleText is AccessibleEditableText) {
-                accessibleText
-            } else {
-                null
-            }
+            return accessibleText as? AccessibleEditableText
         }
 
         // -----------------------------------
@@ -885,7 +888,7 @@ internal class ComposeAccessible(
             TODO("Not yet implemented")
         }
 
-        private fun List<CharSequence>.mergeText() = joinToString(", ")
+        private fun List<CharSequence>.mergeText() = fastJoinToString(", ")
     }
 }
 
