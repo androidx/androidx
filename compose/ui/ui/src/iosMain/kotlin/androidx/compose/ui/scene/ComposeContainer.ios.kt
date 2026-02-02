@@ -170,7 +170,6 @@ internal class ComposeContainer(
 
         window ?: return
 
-        userInterfaceStyleDidChange()
         updateInterfaceOrientationState()
 
         layersHolder?.layersViewController?.referenceWindow = view.window
@@ -199,9 +198,8 @@ internal class ComposeContainer(
         navigationEventInput.onDidMoveToWindow(null, view)
     }
 
-    fun userInterfaceStyleDidChange() {
-        systemThemeState.value = view.traitCollection.userInterfaceStyle
-            .asComposeSystemTheme()
+    fun updateUserInterfaceStyle(style: UIUserInterfaceStyle) {
+        systemThemeState.value = style.asComposeSystemTheme()
     }
 
     fun initializeComposeScene() {

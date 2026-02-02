@@ -22,110 +22,102 @@
  * modifying its settings.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.Publish
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 36
+        namespace = "androidx.lifecycle.viewmodel.navigation3"
+    }
     desktop()
-    darwin()
+    mac()
+    ios()
     js()
-    wasm()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
-        commonMain {
-            dependencies {
-                api(project(":lifecycle:lifecycle-viewmodel"))
-                api(project(":lifecycle:lifecycle-viewmodel-compose"))
-                def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
-                api("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
-                api("org.jetbrains.compose.runtime:runtime:1.9.3")
-                api("org.jetbrains.compose.runtime:runtime-saveable:1.9.3")
-                def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
-                api("androidx.navigation3:navigation3-runtime:$navigation3Version")
-                def savedstateVersion = project.findProperty('artifactRedirection.version.androidx.savedstate')
-                api("androidx.savedstate:savedstate:$savedstateVersion")
-                api("androidx.savedstate:savedstate-compose:$savedstateVersion")
-                implementation(libs.kotlinStdlib)
-                implementation("androidx.collection:collection:1.5.0")
-            }
+        commonMain.dependencies {
+            api(project(":lifecycle:lifecycle-viewmodel"))
+            api(project(":lifecycle:lifecycle-viewmodel-compose"))
+            def lifecycleVersion = project.findProperty('artifactRedirection.version.androidx.lifecycle')
+            api("androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycleVersion")
+            api("org.jetbrains.compose.runtime:runtime:1.9.3")
+            api("org.jetbrains.compose.runtime:runtime-saveable:1.9.3")
+            def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
+            api("androidx.navigation3:navigation3-runtime:$navigation3Version")
+            def savedstateVersion = project.findProperty('artifactRedirection.version.androidx.savedstate')
+            api("androidx.savedstate:savedstate:$savedstateVersion")
+            api("androidx.savedstate:savedstate-compose:$savedstateVersion")
+            implementation("androidx.collection:collection:1.5.0")
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-                implementation(project(":compose:runtime:runtime-test-utils"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":compose:runtime:runtime-test-utils"))
         }
 
-        jvmMain.dependsOn(commonMain)
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.activity:activity-compose:1.12.0-alpha06")
-            }
+        androidMain.dependencies {
+            api("androidx.activity:activity-compose:1.12.0")
         }
 
-        androidInstrumentedTest {
+        androidDeviceTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.testExtJunitKtx)
+            implementation(libs.truth)
+            implementation(project(":navigation3:navigation3-ui"))
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.compose.animation:animation:1.9.0")
+            implementation(project(":compose:ui:ui-test"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+        }
+
+        nonAndroidMain.dependsOn(commonMain)
+        nonAndroidTest {
             dependsOn(commonTest)
-            dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.testExtJunitKtx)
-                implementation(libs.truth)
-                implementation(project(":navigation3:navigation3-ui"))
-                implementation(project(":compose:test-utils"))
-                implementation("androidx.compose.animation:animation:1.9.0")
-                implementation("androidx.compose.ui:ui-test:1.9.0")
-                implementation("androidx.compose.ui:ui-test-junit4:1.9.0")
-            }
-        }
-
-        nonAndroidMain {
-            dependsOn(commonMain)
         }
 
         desktopMain {
-            dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nativeMain.dependsOn(nonJvmMain)
-        webMain.dependsOn(nonJvmMain)
 
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-            }
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
         }
     }
 }
 
-android {
-    namespace = "androidx.lifecycle.viewmodel.navigation3"
-}
-
 androidx {
     name = "Androidx Lifecycle Navigation3 ViewModel"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2024"
     description = "Provides the ViewModel wrapper for nav3."
 }

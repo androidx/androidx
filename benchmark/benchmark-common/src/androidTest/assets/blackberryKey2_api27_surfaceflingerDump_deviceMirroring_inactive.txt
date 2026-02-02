@@ -1,0 +1,328 @@
+Build configuration: [sf HAS_CONTEXT_PRIORITY=0 DISABLE_TRIPLE_BUFFERING PRESENT_TIME_OFFSET=0 FORCE_HWC_FOR_RBG_TO_YUV=1 MAX_VIRT_DISPLAY_DIM=4096 RUNNING_WITHOUT_SYNC_FRAMEWORK=0 NUM_FRAMEBUFFER_SURFACE_BUFFERS=3] [libui] [libgui]
+
+Wide-Color information:
+hasWideColorDisplay: 1
+forceNativeColorMode: 0
+Display 0 color modes:
+    HAL_COLOR_MODE_SRGB (7)
+    HAL_COLOR_MODE_DISPLAY_P3 (9)
+    Current color mode: HAL_COLOR_MODE_SRGB (7)
+
+Sync configuration: [using: EGL_ANDROID_native_fence_sync EGL_KHR_wait_sync]
+DispSync configuration: app phase 1000000 ns, sf phase 1000000 ns, present offset 0 ns (refresh 16666666 ns)
+
+Static screen stats:
+  < 1 frames: 73.283 s (12.0%)
+  < 2 frames: 77.841 s (12.8%)
+  < 3 frames: 7.194 s (1.2%)
+  < 4 frames: 6.176 s (1.0%)
+  < 5 frames: 9.457 s (1.6%)
+  < 6 frames: 24.742 s (4.1%)
+  < 7 frames: 5.229 s (0.9%)
+  7+ frames: 405.241 s (66.5%)
+
+Buffering stats:
+  [Layer name] <Active time> <Two buffer> <Double buffered> <Triple buffered>
+  [StatusBar#0] 62.13 0.516 0.869 0.131
+  [com.google.android.setupwizard/com.google.android.setupwizard.user.WelcomeActivity#0] 23.09 0.627 0.689 0.311
+  [BootAnimation#0] 13.94 0.000 1.000 0.000
+  [com.android.settings/com.android.settings.SubSettings#0] 12.24 0.628 0.628 0.372
+  [com.blackberry.oobe/com.blackberry.oobe.activities.OOBEFotaCheckActivity#0] 10.55 1.000 1.000 0.000
+  [#2] 8.57 0.000 0.343 0.657
+  [com.blackberry.blackberrylauncher/com.blackberry.blackberrylauncher.MainActivity#0] 7.86 0.131 0.131 0.869
+  [com.google.android.setupwizard/com.google.android.setupwizard.network.NetworkActivity#0] 4.66 0.485 0.485 0.515
+  [com.android.settings/com.android.settings.Settings$SystemDashboardActivity#0] 3.70 0.922 1.000 0.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.network.CaptivePortal#0] 3.44 0.000 0.000 1.000
+  [#3] 3.06 0.000 0.000 1.000
+  [com.google.android.gms/com.google.android.gms.auth.uiflows.minutemaid.MinuteMaidActivity#0] 2.80 0.000 0.901 0.099
+  [com.google.android.setupwizard/com.google.android.setupwizard.account.FinalHold#0] 2.28 1.000 1.000 0.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.account.LoadAddAccountIntent#0] 2.16 1.000 1.000 0.000
+  [VolumeDialogImpl#0] 1.87 0.493 0.493 0.507
+  [com.google.android.setupwizard/com.google.android.setupwizard.update.EarlyUpdate#0] 1.82 0.000 0.000 1.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.time.DateTimeCheck#0] 1.59 1.000 1.000 0.000
+  [com.google.android.gms/com.google.android.gms.auth.uiflows.addaccount.PreAddAccountActivity#0] 1.57 0.000 0.000 1.000
+  [com.android.settings/com.android.settings.Settings#0] 1.42 0.063 0.302 0.698
+  [ColorFade#0] 1.36 0.000 0.000 1.000
+  [com.android.settings/com.android.settings.password.SetupChooseLockPassword#0] 1.24 0.254 0.254 0.746
+  [com.blackberry.oobe/com.blackberry.oobe.activities.OOBEAgreementActivity#0] 1.09 0.238 0.238 0.762
+  [com.google.android.gms/com.google.android.gms.setupservices.GoogleServicesActivity#0] 1.06 0.000 0.000 1.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.user.NameActivity#0] 1.00 1.000 1.000 0.000
+  [com.blackberry.oobe/com.blackberry.oobe.activities.OOBECCLActivity#0] 0.91 1.000 1.000 0.000
+  [com.blackberry.oobe/com.blackberry.oobe.activities.OOBEInsiderActivity#0] 0.78 0.000 0.000 1.000
+  [com.android.systemui/com.android.systemui.usb.UsbDebuggingActivity#0] 0.78 1.000 1.000 0.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.account.AccountSetupWrapper#0] 0.77 0.266 0.266 0.734
+  [com.google.android.setupwizard/com.google.android.setupwizard.user.FlowChoiceActivity#0] 0.64 1.000 1.000 0.000
+  [com.blackberry.oobe/com.blackberry.oobe.activities.OOBEAllSetActivity#0] 0.41 1.000 1.000 0.000
+  [com.android.settings/com.android.settings.fingerprint.SetupFingerprintEnrollIntroduction#0] 0.38 0.000 0.000 1.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.user.LockScreenWrapper#0] 0.37 1.000 1.000 0.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.user.SuggestedActionsActivity#0] 0.31 1.000 1.000 0.000
+  [com.android.settings/com.android.settings.deviceinfo.UsbModeChooserActivity#0] 0.28 1.000 1.000 0.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.user.FingerprintWrapper#0] 0.25 1.000 1.000 0.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.carrier.SimMissingActivity#0] 0.25 1.000 1.000 0.000
+  [com.google.android.setupwizard/com.google.android.setupwizard.user.GoogleServicesWrapper#0] 0.16 1.000 1.000 0.000
+  [com.google.android.gms/com.google.android.gms.auth.uiflows.addaccount.WrapperControlledActivity#0] 0.15 1.000 1.000 0.000
+  [com.blackberry.oobe/com.blackberry.oobe.activities.OOBETCTLegalActivity#0] 0.13 1.000 1.000 0.000
+
+Visible layers (count = 8)
++ Layer 0x5a313c5000 (com.android.systemui.ImageWallpaper#0)
+      layerStack=   0, z=    11000, pos=(0,0), size=(1080,1620), crop=(   0,   0,  -1,  -1), finalCrop=(   0,   0,  -1,  -1), isOpaque=1, invalidate=0, dataspace=Default (0), pixelformat=RGBx_8888 alpha=1.000, flags=0x00000003, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a313adc80
+      format= 2, activeBuffer=[1080x1620:1088,  2], queued-frames=0, mRefreshPending=0
+            mTexName=5 mCurrentTexture=0
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[1080x1620] default-format=2 transform-hint=00 frame-counter=1
+            FIFO(0):
+            Slots:
+              [00:0x0] state=FREE    
+              [01:0x0] state=FREE    
+              [02:0x0] state=FREE    
++ LayerDim 0x5a308f5000 (animation background stackId=1#0)
+      layerStack=   0, z=    21004, pos=(-270,-405), size=(1620,2430), crop=(   0,   0,  -1,  -1), finalCrop=(   0,   0,  -1,  -1), isOpaque=0, invalidate=0, dataspace=Default (0), pixelformat=Unknown/None alpha=0.000, flags=0x00000001, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a313acf00
+      format= 0, activeBuffer=[   0x   0:   0,  0], queued-frames=0, mRefreshPending=0
+            mTexName=52 mCurrentTexture=-1
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[1620x2430] default-format=1 transform-hint=00 frame-counter=0
+            FIFO(0):
+            Slots:
+              [00:0x0] state=FREE    
+              [01:0x0] state=FREE    
+              [02:0x0] state=FREE    
++ Layer 0x5a30908000 (com.android.settings/com.android.settings.Settings$SystemDashboardActivity#0)
+      layerStack=   0, z=    21010, pos=(0,0), size=(1080,1620), crop=(   0,   0,1080,1620), finalCrop=(   0,   0,   0,   0), isOpaque=1, invalidate=0, dataspace=(deprecated) sRGB Linear Full range, pixelformat=RGBA_8888 alpha=1.000, flags=0x00000002, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a313ae280
+      format= 1, activeBuffer=[1080x1620:1088,  1], queued-frames=0, mRefreshPending=0
+            mTexName=65 mCurrentTexture=1
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[1080x1620] default-format=1 transform-hint=00 frame-counter=122
+            FIFO(0):
+            Slots:
+             >[01:0x5a33a5a8a0] state=ACQUIRED 0x5a30aa4600 frame=122 [1080x1620:1088,  1]
+              [00:0x5a33a5b780] state=FREE     0x5a33434100 frame=120 [1080x1620:1088,  1]
+              [02:0x5a33a5ac20] state=FREE     0x5a30aa4700 frame=121 [1080x1620:1088,  1]
++ LayerDim 0x5a30a28000 (DimLayerController/Stack=0#0)
+      layerStack=   0, z=    22019, pos=(-270,-405), size=(1620,2430), crop=(   0,   0,  -1,  -1), finalCrop=(   0,   0,  -1,  -1), isOpaque=0, invalidate=0, dataspace=Default (0), pixelformat=Unknown/None alpha=0.000, flags=0x00000001, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a313acf00
+      format= 0, activeBuffer=[   0x   0:   0,  0], queued-frames=0, mRefreshPending=0
+            mTexName=31 mCurrentTexture=-1
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[1620x2430] default-format=1 transform-hint=00 frame-counter=0
+            FIFO(0):
+            Slots:
+              [00:0x0] state=FREE    
+              [01:0x0] state=FREE    
+              [02:0x0] state=FREE    
++ Layer 0x5a30905000 (#0)
+      layerStack=   0, z=   101000, pos=(1059,511), size=(  21, 323), crop=(   0,   0,  21, 323), finalCrop=(   0,   0,  -1,  -1), isOpaque=0, invalidate=0, dataspace=(deprecated) sRGB Linear Full range, pixelformat=RGBA_8888 alpha=1.000, flags=0x00000000, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a33446300
+      format= 1, activeBuffer=[  21x 323:  64,  1], queued-frames=0, mRefreshPending=0
+            mTexName=62 mCurrentTexture=2
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[21x323] default-format=1 transform-hint=00 frame-counter=2
+            FIFO(0):
+            Slots:
+             >[02:0x5a33429340] state=ACQUIRED 0x5a33434480 frame=2 [  21x 323:  64,  1]
+              [01:0x5a33429260] state=FREE     0x5a33434180 frame=0 [  21x 323:  64,  1]
+              [00:0x5a33429180] state=FREE     0x5a33434080 frame=0 [  21x 323:  64,  1]
++ Layer 0x5a308ce000 (#0)
+      layerStack=   0, z=   101005, pos=(1028,511), size=(  52, 323), crop=(   0,   0,  52, 323), finalCrop=(   0,   0,  -1,  -1), isOpaque=0, invalidate=0, dataspace=(deprecated) sRGB Linear Full range, pixelformat=RGBA_8888 alpha=1.000, flags=0x00000000, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a33446300
+      format= 1, activeBuffer=[  52x 323:  64,  1], queued-frames=0, mRefreshPending=0
+            mTexName=63 mCurrentTexture=0
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[52x323] default-format=1 transform-hint=00 frame-counter=3
+            FIFO(0):
+            Slots:
+             >[00:0x5a33a5b5c0] state=ACQUIRED 0x5a30b85780 frame=3 [  52x 323:  64,  1]
+              [01:0x0] state=FREE    
+              [02:0x0] state=FREE    
++ Layer 0x5a3085c000 (StatusBar#0)
+      layerStack=   0, z=   181000, pos=(0,0), size=(1080,  63), crop=(   0,   0,1080,  63), finalCrop=(   0,   0,  -1,  -1), isOpaque=0, invalidate=0, dataspace=(deprecated) sRGB Linear Full range, pixelformat=RGBA_8888 alpha=1.000, flags=0x00000000, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a313adc80
+      format= 1, activeBuffer=[1080x  63:1088,  1], queued-frames=0, mRefreshPending=0
+            mTexName=3 mCurrentTexture=1
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[1080x63] default-format=1 transform-hint=00 frame-counter=3704
+            FIFO(0):
+            Slots:
+             >[01:0x5a33a5a980] state=ACQUIRED 0x5a30aa4c80 frame=3704 [1080x  63:1088,  1]
+              [02:0x5a33a59720] state=FREE     0x5a30aa4780 frame=3702 [1080x  63:1088,  1]
+              [00:0x5a33a5a7c0] state=FREE     0x5a30aa4000 frame=3703 [1080x  63:1088,  1]
++ Layer 0x5a3090b000 (#2)
+      layerStack=   0, z=   331000, pos=(0,0), size=(1080,1620), crop=(   0,   0,1080,1620), finalCrop=(   0,   0,  -1,  -1), isOpaque=0, invalidate=0, dataspace=(deprecated) sRGB Linear Full range, pixelformat=RGBA_8888 alpha=1.000, flags=0x00000001, tr=[1.00, 0.00][0.00, 1.00]
+      client=0x5a313adc80
+      format= 1, activeBuffer=[1080x1620:1088,  1], queued-frames=0, mRefreshPending=0
+            mTexName=47 mCurrentTexture=-1
+            mCurrentCrop=[0,0,0,0] mCurrentTransform=0
+            mAbandoned=0
+            - BufferQueue mMaxAcquiredBufferCount=1 mMaxDequeuedBufferCount=2
+              mDequeueBufferCannotBlock=0 mAsyncMode=0
+              default-size=[1080x1620] default-format=1 transform-hint=00 frame-counter=519
+            FIFO(0):
+            Slots:
+              [00:0x0] state=FREE    
+              [01:0x0] state=FREE    
+              [02:0x0] state=FREE    
+Displays (1 entries)
++ DisplayDevice: Built-in Screen
+   type=0, hwcId=0, layerStack=0, (1080x1620), ANativeWindow=0x5a33a25010 (8:8:8:8), orient= 0 (type=00000000), flips=10131, isSecure=1, powerMode=2, activeConfig=0, numLayers=4
+   v:[0,0,1080,1620], f:[0,0,1080,1620], s:[0,0,1080,1620],transform:[[1.000,0.000,-0.000][0.000,1.000,-0.000][0.000,0.000,1.000]]
+mAbandoned=0
+- BufferQueue mMaxAcquiredBufferCount=2 mMaxDequeuedBufferCount=1
+  mDequeueBufferCannotBlock=0 mAsyncMode=0
+  default-size=[1080x1620] default-format=1 transform-hint=00 frame-counter=458
+FIFO(0):
+Slots:
+ >[01:0x5a33a56b60] state=ACQUIRED 0x5a31369880 frame=458 [1080x1620:1088,  1]
+  [00:0x5a33a56a80] state=FREE     0x5a31369680 frame=456 [1080x1620:1088,  1]
+  [02:0x5a33a56d20] state=FREE     0x5a31369980 frame=457 [1080x1620:1088,  1]
+SurfaceFlinger global state:
+EGL implementation : 1.4
+EGL_KHR_image EGL_KHR_image_base EGL_QCOM_create_image EGL_KHR_lock_surface EGL_KHR_lock_surface2 EGL_KHR_lock_surface3 EGL_KHR_gl_texture_2D_image EGL_KHR_gl_texture_cubemap_image EGL_KHR_gl_texture_3D_image EGL_KHR_gl_renderbuffer_image EGL_ANDROID_blob_cache EGL_KHR_create_context EGL_KHR_surfaceless_context EGL_KHR_create_context_no_error EGL_KHR_get_all_proc_addresses EGL_QCOM_lock_image2 EGL_EXT_protected_content EGL_KHR_no_config_context EGL_ANDROID_recordable EGL_ANDROID_native_fence_sync EGL_ANDROID_image_native_buffer EGL_ANDROID_framebuffer_target EGL_EXT_create_context_robustness EGL_EXT_pixel_format_float EGL_EXT_yuv_surface EGL_IMG_context_priority EGL_IMG_image_plane_attribs EGL_KHR_cl_event EGL_KHR_cl_event2 EGL_KHR_fence_sync EGL_KHR_gl_colorspace EGL_KHR_mutable_render_buffer EGL_KHR_partial_update EGL_KHR_reusable_sync EGL_KHR_wait_sync EGL_QCOM_gpu_perf 
+GLES: Qualcomm, Adreno (TM) 512, OpenGL ES 3.2 V@269.0 (GIT@d7c51ed, I7d2ff5562f) (Date:05/16/18)
+GL_OES_EGL_image GL_OES_EGL_image_external GL_OES_EGL_sync GL_OES_vertex_half_float GL_OES_framebuffer_object GL_OES_rgb8_rgba8 GL_OES_compressed_ETC1_RGB8_texture GL_AMD_compressed_ATC_texture GL_KHR_texture_compression_astc_ldr GL_KHR_texture_compression_astc_hdr GL_OES_texture_compression_astc GL_OES_texture_npot GL_EXT_texture_filter_anisotropic GL_EXT_texture_format_BGRA8888 GL_OES_texture_3D GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_QCOM_alpha_test GL_OES_depth24 GL_OES_packed_depth_stencil GL_OES_depth_texture GL_OES_depth_texture_cube_map GL_EXT_sRGB GL_OES_texture_float GL_OES_texture_float_linear GL_OES_texture_half_float GL_OES_texture_half_float_linear GL_EXT_texture_type_2_10_10_10_REV GL_EXT_texture_sRGB_decode GL_OES_element_index_uint GL_EXT_copy_image GL_EXT_geometry_shader GL_EXT_tessellation_shader GL_OES_texture_stencil8 GL_EXT_shader_io_blocks GL_OES_shader_image_atomic GL_OES_sample_variables GL_EXT_texture_border_clamp GL_EXT_multisampled_render_to_texture GL_EXT_multisampled_render_to_texture2 GL_OES_shader_multisample_interpolation GL_EXT_texture_cube_map_array GL_EXT_draw_buffers_indexed GL_EXT_gpu_shader5 GL_EXT_robustness GL_EXT_texture_buffer GL_EXT_shader_framebuffer_fetch GL_ARM_shader_framebuffer_fetch_depth_stencil GL_OES_texture_storage_multisample_2d_array GL_OES_sample_shading GL_OES_get_program_binary GL_EXT_debug_label GL_KHR_blend_equation_advanced GL_KHR_blend_equation_advanced_coherent GL_QCOM_tiled_rendering GL_ANDROID_extension_pack_es31a GL_EXT_primitive_bounding_box GL_OES_standard_derivatives GL_OES_vertex_array_object GL_EXT_disjoint_timer_query GL_KHR_debug GL_EXT_YUV_target GL_EXT_sRGB_write_control GL_EXT_texture_norm16 GL_EXT_discard_framebuffer GL_OES_surfaceless_context GL_OVR_multiview GL_OVR_multiview2 GL_EXT_texture_sRGB_R8 GL_KHR_no_error GL_EXT_debug_marker GL_OES_EGL_image_external_essl3 GL_OVR_multiview_multisampled_render_to_texture GL_EXT_buffer_storage GL_EXT_external_buffer GL_EXT_blit_framebuffer_params GL_EXT_clip_cull_distance GL_EXT_protected_textures GL_EXT_shader_non_constant_global_initializers GL_QCOM_texture_foveated GL_QCOM_shader_framebuffer_fetch_noncoherent GL_EXT_memory_object GL_EXT_memory_object_fd GL_EXT_EGL_image_array GL_NV_shader_noperspective_interpolation 
+Wide-color: Off
+  Region undefinedRegion (this=0x5a33a4e758, count=1)
+    [  0,   0,   0,   0]
+  orientation=0, isDisplayOn=1
+  last eglSwapBuffers() time: 929.479000 us
+  last transaction time     : 20.886000 us
+  transaction-flags         : 00000000
+  refresh-rate              : 60.000002 fps
+  x-dpi                     : 435.428009
+  y-dpi                     : 433.135986
+  gpu_to_cpu_unsupported    : 0
+  eglSwapBuffers time: 0.000000 us
+  transaction time: 0.000000 us
+VSYNC state: disabled
+  soft-vsync: disabled
+  numListeners=36,
+  events-delivered: 11546
+    0x5a30814f00: count=-1
+    0x5a30815260: count=-1
+    0x5a308155c0: count=-1
+    0x5a308159e0: count=-1
+    0x5a30815da0: count=-1
+    0x5a308181a0: count=-1
+    0x5a30818500: count=-1
+    0x5a308186e0: count=-1
+    0x5a30818740: count=-1
+    0x5a30818da0: count=-1
+    0x5a308197c0: count=-1
+    0x5a30a78120: count=-1
+    0x5a30a781e0: count=-1
+    0x5a30a78360: count=-1
+    0x5a30a78480: count=-1
+    0x5a30a79e00: count=-1
+    0x5a30a7a1c0: count=-1
+    0x5a30a7a6a0: count=-1
+    0x5a30a7a8e0: count=-1
+    0x5a30a7ad60: count=-1
+    0x5a30bc8b40: count=-1
+    0x5a30bc8fc0: count=-1
+    0x5a30bc9440: count=-1
+    0x5a30bc98c0: count=-1
+    0x5a30bca4c0: count=-1
+    0x5a30bddcc0: count=-1
+    0x5a30bde740: count=-1
+    0x5a30bded40: count=-1
+    0x5a30bdf520: count=-1
+    0x5a33424420: count=-1
+    0x5a33424480: count=-1
+    0x5a33424c00: count=-1
+    0x5a33424e40: count=-1
+    0x5a33425860: count=-1
+    0x5a33426f40: count=-1
+    0x5a33a32c40: count=-1
+
+Display 0 HWC layers:
+-------------------------------------------------------------------------------
+ Layer name
+           Z |  Comp Type |   Disp Frame (LTRB) |          Source Crop (LTRB)
+-------------------------------------------------------------------------------
+ com.android.settings/com.android.settings.Settings$SystemDashboardActivity#0
+       21010 |     Client |    0    0 1080 1620 |    0.0    0.0 1080.0 1620.0
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ #0
+      101000 |     Client | 1059  511 1080  834 |    0.0    0.0   21.0  323.0
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ #0
+      101005 |     Client | 1028  511 1080  834 |    0.0    0.0   52.0  323.0
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ StatusBar#0
+      181000 |     Client |    0    0 1080   63 |    0.0    0.0 1080.0   63.0
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+h/w composer state:
+  h/w composer enabled
+-------------------------------
+HWC2 display_id: 0
+layer:   84 z: 0 compositon: Client/Client alpha: 255 format:         RGBA_8888_UBWC dataspace:0x08410000 transform: 0/0/0 buffer_id: 0x4509442c00
+layer:   81 z: 1 compositon: Client/Client alpha: 255 format:         RGBA_8888_UBWC dataspace:0x08410000 transform: 0/0/0 buffer_id: 0x4509442b80
+layer:   82 z: 2 compositon: Client/Client alpha: 255 format:         RGBA_8888_UBWC dataspace:0x08410000 transform: 0/0/0 buffer_id: 0x4509442a80
+layer:   76 z: 3 compositon: Client/Client alpha: 255 format:         RGBA_8888_UBWC dataspace:0x08410000 transform: 0/0/0 buffer_id: 0x4509442680
+color modes supported: 7 9 current mode: 7
+current transform: 
+  1.00   0.00   0.00   0.00 
+  0.00   1.00   0.00   0.00 
+  0.00   0.00   1.00   0.00 
+  0.00   0.00   0.00   1.00 
+-------------------------------
+
+-------- Snapdragon Display Manager --------
+-----------------------
+device type: 0
+state: 1, vsync on: 0, max. mixer stages: 7
+num configs: 1, active config index: 0
+res:1080 x 1620, dpi:435.43 x 433.14, fps:60,vsync period: 16666666
+
+ROI0(L T R B) : LEFT(0 0 1080 1620)
+
+|-----|-------------|--------|----|--------|-------------|--------------------------|---------------------|---------------------|----|------------|-----------|----|-----|
+| Idx |  Comp Type  |  Split | WB |  Pipe  |    W x H    |          Format          |  Src Rect (L T R B) |  Dst Rect (L T R B) |  Z |    Flags   | Deci(HxV) | CS | Rng |
+|-----|-------------|--------|----|--------|-------------|--------------------------|---------------------|---------------------|----|------------|-----------|----|-----|
+|   4 |  GPU_TARGET | Comp-1 |  - | 0x1000 | 1088 x 1632 |           RGBA_8888_UBWC |    0    0 1080 1620 |    0    0 1080 1620 |  0 | 0x00000000 |   0 x   0 |  0 |   0 |
+|-----|-------------|--------|----|--------|-------------|--------------------------|---------------------|---------------------|----|------------|-----------|----|-----|
+
+Allocated buffers:
+0x5a30aa4000:  267.75 KiB | 1080 (1088) x   63 |    1 |        1 | 0x10000900 | StatusBar#0
+0x5a30aa4380: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        1 | 0x10000900 | #2
+0x5a30aa4600: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        1 | 0x10000900 | com.android.settings/com.android.settings.Settings$SystemDashboardActivity#0
+0x5a30aa4700: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        1 | 0x10000900 | com.android.settings/com.android.settings.Settings$SystemDashboardActivity#0
+0x5a30aa4780:  267.75 KiB | 1080 (1088) x   63 |    1 |        1 | 0x10000900 | StatusBar#0
+0x5a30aa4c80:  267.75 KiB | 1080 (1088) x   63 |    1 |        1 | 0x10000900 | StatusBar#0
+0x5a30b85780:   80.75 KiB |   52 (  64) x  323 |    1 |        1 | 0x10000900 | #0
+0x5a31369680: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        1 | 0x10001a00 | FramebufferSurface
+0x5a31369880: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        1 | 0x10001a00 | FramebufferSurface
+0x5a31369980: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        1 | 0x10001a00 | FramebufferSurface
+0x5a33434080:   80.75 KiB |   21 (  64) x  323 |    1 |        1 | 0x900 | #0
+0x5a33434100: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        1 | 0x10000900 | com.android.settings/com.android.settings.Settings$SystemDashboardActivity#0
+0x5a33434180:   80.75 KiB |   21 (  64) x  323 |    1 |        1 | 0x900 | #0
+0x5a33434480:   80.75 KiB |   21 (  64) x  323 |    1 |        1 | 0x10000900 | #0
+0x5a33434600: 6885.00 KiB | 1080 (1088) x 1620 |    1 |        2 | 0x10000900 | com.android.systemui.ImageWallpaper#0
+Total allocated (estimate): 56206.25 KB
+-------------------------------
+QTI gralloc dump:
+-------------------------------
+-------------------------------

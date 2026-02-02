@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -47,7 +47,7 @@ dependencies {
 
 androidx {
     name = "Compose UI Graphics Lint Checks"
-    type = LibraryType.LINT
+    type = SoftwareType.STANDALONE_PUBLISHED_LINT
     inceptionYear = "2021"
     description = "Compose UI Graphics Lint Checks"
 }

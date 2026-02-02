@@ -14,44 +14,28 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.AndroidXComposePlugin
-import androidx.build.Publish
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
-
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "org.jetbrains.savedstate.compose"
+    }
     desktop()
-    darwin()
-    js()
-    wasm()
-    linux()
-}
-
-kotlin {
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
     mingwX64()
+    linux()
+    mac()
+    ios()
+    tvos()
+    watchos()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
         commonMain {
@@ -68,14 +52,9 @@ kotlin {
     }
 }
 
-android {
-    namespace = "androidx.savedstate.compose"
-}
-
 androidx {
     name = "Saved State Compose"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Compose integration with Saved State"
-    metalavaK2UastEnabled = false
 }

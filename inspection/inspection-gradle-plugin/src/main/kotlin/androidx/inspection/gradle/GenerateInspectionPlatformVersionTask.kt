@@ -101,7 +101,7 @@ fun Project.registerGenerateInspectionPlatformVersionTask(
                     artifact.attributes {
                         it.attribute(
                             Attribute.of("artifactType", String::class.java),
-                            "android-classes"
+                            "android-classes",
                         )
                     }
                 }

@@ -55,6 +55,7 @@ public final class androidx/compose/ui/graphics/BlendMode$Companion {
 }
 
 public final class androidx/compose/ui/graphics/BlendModeColorFilter : androidx/compose/ui/graphics/ColorFilter {
+	public static final field $stable I
 	public synthetic fun <init> (JILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getBlendMode-0nO6VwU ()I
@@ -64,6 +65,7 @@ public final class androidx/compose/ui/graphics/BlendModeColorFilter : androidx/
 }
 
 public final class androidx/compose/ui/graphics/BlurEffect : androidx/compose/ui/graphics/RenderEffect {
+	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/graphics/BlurEffect$Companion;
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/RenderEffect;FFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/RenderEffect;FFILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -78,6 +80,7 @@ public final class androidx/compose/ui/graphics/BlurEffect$Companion {
 }
 
 public abstract class androidx/compose/ui/graphics/Brush {
+	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/graphics/Brush$Companion;
 	public abstract fun applyTo-Pq9zytI (JLandroidx/compose/ui/graphics/Paint;F)V
 	public fun getIntrinsicSize-NH-jbRc ()J
@@ -241,6 +244,7 @@ public final class androidx/compose/ui/graphics/Color$Companion {
 }
 
 public class androidx/compose/ui/graphics/ColorFilter {
+	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/graphics/ColorFilter$Companion;
 }
 
@@ -296,6 +300,7 @@ public final class androidx/compose/ui/graphics/ColorMatrix {
 }
 
 public final class androidx/compose/ui/graphics/ColorMatrixColorFilter : androidx/compose/ui/graphics/ColorFilter {
+	public static final field $stable I
 	public synthetic fun <init> ([FLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun copyColorMatrix-gBh15pI ([F)[F
 	public static synthetic fun copyColorMatrix-gBh15pI$default (Landroidx/compose/ui/graphics/ColorMatrixColorFilter;[FILjava/lang/Object;)[F
@@ -433,6 +438,7 @@ public final class androidx/compose/ui/graphics/Interpolatable$Companion {
 }
 
 public class androidx/compose/ui/graphics/Interval {
+	public static final field $stable I
 	public fun <init> (FFLjava/lang/Object;)V
 	public synthetic fun <init> (FFLjava/lang/Object;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun contains (F)Z
@@ -447,6 +453,7 @@ public class androidx/compose/ui/graphics/Interval {
 }
 
 public final class androidx/compose/ui/graphics/IntervalTree {
+	public static final field $stable I
 	public fun <init> ()V
 	public final fun addInterval (FFLjava/lang/Object;)V
 	public final fun clear ()V
@@ -464,6 +471,7 @@ public final class androidx/compose/ui/graphics/IntervalTree {
 }
 
 public final class androidx/compose/ui/graphics/LightingColorFilter : androidx/compose/ui/graphics/ColorFilter {
+	public static final field $stable I
 	public synthetic fun <init> (JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getAdd-0d7_KjU ()J
@@ -473,6 +481,7 @@ public final class androidx/compose/ui/graphics/LightingColorFilter : androidx/c
 }
 
 public final class androidx/compose/ui/graphics/LinearGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
+	public static final field $stable I
 	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;JJIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
 	public fun equals (Ljava/lang/Object;)Z
@@ -535,6 +544,7 @@ public final class androidx/compose/ui/graphics/MatrixKt {
 }
 
 public final class androidx/compose/ui/graphics/OffsetEffect : androidx/compose/ui/graphics/RenderEffect {
+	public static final field $stable I
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/RenderEffect;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun hashCode ()I
@@ -542,16 +552,19 @@ public final class androidx/compose/ui/graphics/OffsetEffect : androidx/compose/
 }
 
 public abstract class androidx/compose/ui/graphics/Outline {
+	public static final field $stable I
 	public abstract fun getBounds ()Landroidx/compose/ui/geometry/Rect;
 }
 
 public final class androidx/compose/ui/graphics/Outline$Generic : androidx/compose/ui/graphics/Outline {
+	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/graphics/Path;)V
 	public fun getBounds ()Landroidx/compose/ui/geometry/Rect;
 	public final fun getPath ()Landroidx/compose/ui/graphics/Path;
 }
 
 public final class androidx/compose/ui/graphics/Outline$Rectangle : androidx/compose/ui/graphics/Outline {
+	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/geometry/Rect;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getBounds ()Landroidx/compose/ui/geometry/Rect;
@@ -560,6 +573,7 @@ public final class androidx/compose/ui/graphics/Outline$Rectangle : androidx/com
 }
 
 public final class androidx/compose/ui/graphics/Outline$Rounded : androidx/compose/ui/graphics/Outline {
+	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/geometry/RoundRect;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public fun getBounds ()Landroidx/compose/ui/geometry/Rect;
@@ -747,6 +761,7 @@ public final class androidx/compose/ui/graphics/PathGeometryKt {
 }
 
 public final class androidx/compose/ui/graphics/PathHitTester {
+	public static final field $stable I
 	public fun <init> ()V
 	public final fun contains-k-4lQ0M (J)Z
 	public final fun updatePath (Landroidx/compose/ui/graphics/Path;F)V
@@ -825,6 +840,7 @@ public final class androidx/compose/ui/graphics/PathOperationKt {
 }
 
 public final class androidx/compose/ui/graphics/PathSegment {
+	public static final field $stable I
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getPoints ()[F
 	public final fun getType ()Landroidx/compose/ui/graphics/PathSegment$Type;
@@ -858,6 +874,7 @@ public final class androidx/compose/ui/graphics/PathSvgKt {
 }
 
 public final class androidx/compose/ui/graphics/PixelMap {
+	public static final field $stable I
 	public fun <init> ([IIIII)V
 	public final fun get-WaAFU9c (II)J
 	public final fun getBuffer ()[I
@@ -887,6 +904,7 @@ public final class androidx/compose/ui/graphics/PointMode$Companion {
 }
 
 public final class androidx/compose/ui/graphics/RadialGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
+	public static final field $stable I
 	public synthetic fun <init> (Ljava/util/List;Ljava/util/List;JFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
 	public fun equals (Ljava/lang/Object;)Z
@@ -907,6 +925,7 @@ public final class androidx/compose/ui/graphics/Rects_skikoKt {
 }
 
 public abstract class androidx/compose/ui/graphics/RenderEffect {
+	public static final field $stable I
 	public final fun asSkiaImageFilter ()Lorg/jetbrains/skia/ImageFilter;
 	protected abstract fun createImageFilter ()Lorg/jetbrains/skia/ImageFilter;
 	public fun isSupported ()Z
@@ -923,6 +942,7 @@ public final class androidx/compose/ui/graphics/RenderEffect_desktopKt {
 }
 
 public abstract class androidx/compose/ui/graphics/ShaderBrush : androidx/compose/ui/graphics/Brush {
+	public static final field $stable I
 	public fun <init> ()V
 	public final fun applyTo-Pq9zytI (JLandroidx/compose/ui/graphics/Paint;F)V
 	public abstract fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
@@ -943,6 +963,7 @@ public final class androidx/compose/ui/graphics/ShaderKt {
 }
 
 public final class androidx/compose/ui/graphics/Shadow {
+	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/graphics/Shadow$Companion;
 	public synthetic fun <init> (JJFILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJFLkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1021,6 +1042,7 @@ public final class androidx/compose/ui/graphics/SkiaTileMode_skikoKt {
 }
 
 public final class androidx/compose/ui/graphics/SolidColor : androidx/compose/ui/graphics/Brush, androidx/compose/ui/graphics/Interpolatable {
+	public static final field $stable I
 	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun applyTo-Pq9zytI (JLandroidx/compose/ui/graphics/Paint;F)V
 	public fun equals (Ljava/lang/Object;)Z
@@ -1088,6 +1110,7 @@ public final class androidx/compose/ui/graphics/StrokeJoin$Companion {
 }
 
 public final class androidx/compose/ui/graphics/SweepGradient : androidx/compose/ui/graphics/ShaderBrush, androidx/compose/ui/graphics/Interpolatable {
+	public static final field $stable I
 	public synthetic fun <init> (JLjava/util/List;Ljava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun createShader-uvyYCjk (J)Lorg/jetbrains/skia/Shader;
 	public fun equals (Ljava/lang/Object;)Z
@@ -1136,6 +1159,7 @@ public final class androidx/compose/ui/graphics/VertexMode$Companion {
 }
 
 public final class androidx/compose/ui/graphics/Vertices {
+	public static final field $stable I
 	public synthetic fun <init> (ILjava/util/List;Ljava/util/List;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun getColors ()[I
 	public final fun getIndices ()[S
@@ -1145,6 +1169,7 @@ public final class androidx/compose/ui/graphics/Vertices {
 }
 
 public abstract class androidx/compose/ui/graphics/colorspace/Adaptation {
+	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/graphics/colorspace/Adaptation$Companion;
 	public synthetic fun <init> ([FLkotlin/jvm/internal/DefaultConstructorMarker;)V
 }
@@ -1177,6 +1202,7 @@ public final class androidx/compose/ui/graphics/colorspace/ColorModel$Companion 
 }
 
 public abstract class androidx/compose/ui/graphics/colorspace/ColorSpace {
+	public static final field $stable I
 	public synthetic fun <init> (Ljava/lang/String;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun fromXyz (FFF)[F
@@ -1203,6 +1229,7 @@ public final class androidx/compose/ui/graphics/colorspace/ColorSpaceKt {
 }
 
 public final class androidx/compose/ui/graphics/colorspace/ColorSpaces {
+	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/ui/graphics/colorspace/ColorSpaces;
 	public final fun getAces ()Landroidx/compose/ui/graphics/colorspace/Rgb;
 	public final fun getAcescg ()Landroidx/compose/ui/graphics/colorspace/Rgb;
@@ -1227,6 +1254,7 @@ public final class androidx/compose/ui/graphics/colorspace/ColorSpaces {
 }
 
 public class androidx/compose/ui/graphics/colorspace/Connector {
+	public static final field $stable I
 	public final fun getDestination ()Landroidx/compose/ui/graphics/colorspace/ColorSpace;
 	public final fun getRenderIntent-uksYyKA ()I
 	public final fun getSource ()Landroidx/compose/ui/graphics/colorspace/ColorSpace;
@@ -1235,6 +1263,7 @@ public class androidx/compose/ui/graphics/colorspace/Connector {
 }
 
 public final class androidx/compose/ui/graphics/colorspace/Illuminant {
+	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/ui/graphics/colorspace/Illuminant;
 	public final fun getA ()Landroidx/compose/ui/graphics/colorspace/WhitePoint;
 	public final fun getB ()Landroidx/compose/ui/graphics/colorspace/WhitePoint;
@@ -1268,6 +1297,7 @@ public final class androidx/compose/ui/graphics/colorspace/RenderIntent$Companio
 }
 
 public final class androidx/compose/ui/graphics/colorspace/Rgb : androidx/compose/ui/graphics/colorspace/ColorSpace {
+	public static final field $stable I
 	public fun <init> (Ljava/lang/String;[FD)V
 	public fun <init> (Ljava/lang/String;[FLandroidx/compose/ui/graphics/colorspace/TransferParameters;)V
 	public fun <init> (Ljava/lang/String;[FLandroidx/compose/ui/graphics/colorspace/WhitePoint;D)V
@@ -1299,6 +1329,7 @@ public final class androidx/compose/ui/graphics/colorspace/Rgb : androidx/compos
 }
 
 public final class androidx/compose/ui/graphics/colorspace/TransferParameters {
+	public static final field $stable I
 	public fun <init> (DDDDDDD)V
 	public synthetic fun <init> (DDDDDDDILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()D
@@ -1323,6 +1354,7 @@ public final class androidx/compose/ui/graphics/colorspace/TransferParameters {
 }
 
 public final class androidx/compose/ui/graphics/colorspace/WhitePoint {
+	public static final field $stable I
 	public fun <init> (FF)V
 	public fun <init> (FFF)V
 	public final fun component1 ()F
@@ -1337,6 +1369,7 @@ public final class androidx/compose/ui/graphics/colorspace/WhitePoint {
 }
 
 public final class androidx/compose/ui/graphics/drawscope/CanvasDrawScope : androidx/compose/ui/graphics/drawscope/DrawScope {
+	public static final field $stable I
 	public fun <init> ()V
 	public final fun draw-yzxVdVo (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/graphics/Canvas;JLkotlin/jvm/functions/Function1;)V
 	public fun drawArc-illE91I (Landroidx/compose/ui/graphics/Brush;FFZJJFLandroidx/compose/ui/graphics/drawscope/DrawStyle;Landroidx/compose/ui/graphics/ColorFilter;I)V
@@ -1366,6 +1399,7 @@ public final class androidx/compose/ui/graphics/drawscope/CanvasDrawScope : andr
 }
 
 public final class androidx/compose/ui/graphics/drawscope/CanvasDrawScope$DrawParams {
+	public static final field $stable I
 	public synthetic fun <init> (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/graphics/Canvas;JILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Landroidx/compose/ui/graphics/Canvas;JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun component1 ()Landroidx/compose/ui/unit/Density;
@@ -1548,6 +1582,7 @@ public abstract interface annotation class androidx/compose/ui/graphics/drawscop
 }
 
 public abstract class androidx/compose/ui/graphics/drawscope/DrawStyle {
+	public static final field $stable I
 }
 
 public abstract interface class androidx/compose/ui/graphics/drawscope/DrawTransform {
@@ -1587,10 +1622,12 @@ public final class androidx/compose/ui/graphics/drawscope/DrawTransformKt {
 }
 
 public final class androidx/compose/ui/graphics/drawscope/Fill : androidx/compose/ui/graphics/drawscope/DrawStyle {
+	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/ui/graphics/drawscope/Fill;
 }
 
 public final class androidx/compose/ui/graphics/drawscope/Stroke : androidx/compose/ui/graphics/drawscope/DrawStyle {
+	public static final field $stable I
 	public static final field Companion Landroidx/compose/ui/graphics/drawscope/Stroke$Companion;
 	public static final field DefaultMiter F
 	public static final field HairlineWidth F
@@ -1631,6 +1668,7 @@ public final class androidx/compose/ui/graphics/layer/CompositingStrategy$Compan
 }
 
 public final class androidx/compose/ui/graphics/layer/GraphicsLayer {
+	public static final field $stable I
 	public final fun getAlpha ()F
 	public final fun getAmbientShadowColor-0d7_KjU ()J
 	public final fun getBlendMode-0nO6VwU ()I
@@ -1688,6 +1726,7 @@ public final class androidx/compose/ui/graphics/layer/GraphicsLayerKt {
 }
 
 public final class androidx/compose/ui/graphics/painter/BitmapPainter : androidx/compose/ui/graphics/painter/Painter {
+	public static final field $stable I
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/ImageBitmap;JJILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (Landroidx/compose/ui/graphics/ImageBitmap;JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
@@ -1702,6 +1741,7 @@ public final class androidx/compose/ui/graphics/painter/BitmapPainterKt {
 }
 
 public final class androidx/compose/ui/graphics/painter/BrushPainter : androidx/compose/ui/graphics/painter/Painter {
+	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/graphics/Brush;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getBrush ()Landroidx/compose/ui/graphics/Brush;
@@ -1711,6 +1751,7 @@ public final class androidx/compose/ui/graphics/painter/BrushPainter : androidx/
 }
 
 public final class androidx/compose/ui/graphics/painter/ColorPainter : androidx/compose/ui/graphics/painter/Painter {
+	public static final field $stable I
 	public synthetic fun <init> (JLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun equals (Ljava/lang/Object;)Z
 	public final fun getColor-0d7_KjU ()J
@@ -1720,6 +1761,7 @@ public final class androidx/compose/ui/graphics/painter/ColorPainter : androidx/
 }
 
 public abstract class androidx/compose/ui/graphics/painter/Painter {
+	public static final field $stable I
 	public fun <init> ()V
 	protected fun applyAlpha (F)Z
 	protected fun applyColorFilter (Landroidx/compose/ui/graphics/ColorFilter;)Z
@@ -1731,16 +1773,19 @@ public abstract class androidx/compose/ui/graphics/painter/Painter {
 }
 
 public final class androidx/compose/ui/graphics/shadow/DropShadowPainter : androidx/compose/ui/graphics/painter/Painter {
+	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/shadow/Shadow;)V
 	public fun getIntrinsicSize-NH-jbRc ()J
 }
 
 public final class androidx/compose/ui/graphics/shadow/InnerShadowPainter : androidx/compose/ui/graphics/painter/Painter {
+	public static final field $stable I
 	public fun <init> (Landroidx/compose/ui/graphics/Shape;Landroidx/compose/ui/graphics/shadow/Shadow;)V
 	public fun getIntrinsicSize-NH-jbRc ()J
 }
 
 public final class androidx/compose/ui/graphics/shadow/Shadow {
+	public static final field $stable I
 	public synthetic fun <init> (FJFJFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (FJFJFILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (FLandroidx/compose/ui/graphics/Brush;FJFIILkotlin/jvm/internal/DefaultConstructorMarker;)V
@@ -1768,6 +1813,7 @@ public final class androidx/compose/ui/graphics/shadow/ShadowKt {
 }
 
 public final class androidx/compose/ui/graphics/vector/PathBuilder {
+	public static final field $stable I
 	public fun <init> ()V
 	public final fun arcTo (FFFZZFF)Landroidx/compose/ui/graphics/vector/PathBuilder;
 	public final fun arcToRelative (FFFZZFF)Landroidx/compose/ui/graphics/vector/PathBuilder;
@@ -1792,6 +1838,7 @@ public final class androidx/compose/ui/graphics/vector/PathBuilder {
 }
 
 public abstract class androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public synthetic fun <init> (ZZILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (ZZLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun isCurve ()Z
@@ -1799,6 +1846,7 @@ public abstract class androidx/compose/ui/graphics/vector/PathNode {
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$ArcTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFZZFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1822,10 +1870,12 @@ public final class androidx/compose/ui/graphics/vector/PathNode$ArcTo : androidx
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$Close : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public static final field INSTANCE Landroidx/compose/ui/graphics/vector/PathNode$Close;
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$CurveTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFFFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1847,6 +1897,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$CurveTo : androi
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$HorizontalTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (F)V
 	public final fun component1 ()F
 	public final fun copy (F)Landroidx/compose/ui/graphics/vector/PathNode$HorizontalTo;
@@ -1858,6 +1909,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$HorizontalTo : a
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$LineTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1871,6 +1923,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$LineTo : android
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$MoveTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1884,6 +1937,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$MoveTo : android
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$QuadTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1901,6 +1955,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$QuadTo : android
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$ReflectiveCurveTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1918,6 +1973,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$ReflectiveCurveT
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$ReflectiveQuadTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1931,6 +1987,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$ReflectiveQuadTo
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeArcTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFZZFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1954,6 +2011,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeArcTo : 
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeCurveTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFFFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1975,6 +2033,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeCurveTo 
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeHorizontalTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (F)V
 	public final fun component1 ()F
 	public final fun copy (F)Landroidx/compose/ui/graphics/vector/PathNode$RelativeHorizontalTo;
@@ -1986,6 +2045,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeHorizont
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeLineTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -1999,6 +2059,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeLineTo :
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeMoveTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -2012,6 +2073,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeMoveTo :
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeQuadTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -2029,6 +2091,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeQuadTo :
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeReflectiveCurveTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FFFF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -2046,6 +2109,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeReflecti
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeReflectiveQuadTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (FF)V
 	public final fun component1 ()F
 	public final fun component2 ()F
@@ -2059,6 +2123,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeReflecti
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$RelativeVerticalTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (F)V
 	public final fun component1 ()F
 	public final fun copy (F)Landroidx/compose/ui/graphics/vector/PathNode$RelativeVerticalTo;
@@ -2070,6 +2135,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$RelativeVertical
 }
 
 public final class androidx/compose/ui/graphics/vector/PathNode$VerticalTo : androidx/compose/ui/graphics/vector/PathNode {
+	public static final field $stable I
 	public fun <init> (F)V
 	public final fun component1 ()F
 	public final fun copy (F)Landroidx/compose/ui/graphics/vector/PathNode$VerticalTo;
@@ -2081,6 +2147,7 @@ public final class androidx/compose/ui/graphics/vector/PathNode$VerticalTo : and
 }
 
 public final class androidx/compose/ui/graphics/vector/PathParser {
+	public static final field $stable I
 	public fun <init> ()V
 	public final fun addPathNodes (Ljava/util/List;)Landroidx/compose/ui/graphics/vector/PathParser;
 	public final fun clear ()V

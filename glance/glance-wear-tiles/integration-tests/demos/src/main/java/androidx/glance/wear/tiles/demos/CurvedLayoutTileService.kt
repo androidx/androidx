@@ -50,7 +50,7 @@ class CurvedLayoutTileService : GlanceTileService() {
             }
             curvedLine(
                 color = ColorProvider(Color.Cyan),
-                curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp)
+                curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(30f).thickness(10.dp),
             )
             curvedSpacer(curvedModifier = GlanceCurvedModifier.sweepAngleDegrees(10f))
             curvedText(
@@ -60,14 +60,14 @@ class CurvedLayoutTileService : GlanceTileService() {
                     GlanceCurvedModifier.clickable(
                             actionStartActivity(CalendarActivity::class.java)
                         )
-                        .semantics({ contentDescription = "click to open activity" })
+                        .semantics({ contentDescription = "click to open activity" }),
             )
             curvedComposable(false) {
                 Image(
                     provider = ImageProvider(R.mipmap.ic_launcher),
                     modifier = GlanceModifier.size(30.dp, 30.dp),
                     contentScale = ContentScale.FillBounds,
-                    contentDescription = "Hello tile icon"
+                    contentDescription = "Hello tile icon",
                 )
                 Text(text = "tiles")
             }

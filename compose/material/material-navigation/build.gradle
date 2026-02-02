@@ -14,51 +14,56 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
+    id("com.android.experimental.built-in-kotlin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 35
+        namespace = "androidx.compose.material.navigation"
+    }
     desktop()
-    darwin()
+    mac()
+    ios()
     js()
-    wasm()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         commonMain {
             dependencies {
                 implementation("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
                 implementation(project(":compose:material:material"))
-                implementation(libs.kotlinStdlib)
             }
         }
 
-        androidInstrumentedTest {
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
+
+        androidDeviceTest {
             dependencies {
                 implementation(project(":compose:test-utils"))
-                implementation(project(":navigation:navigation-testing"))
+                implementation("androidx.navigation:navigation-testing:2.7.7")
                 implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:ui:ui-test-manifest"))
                 implementation(libs.testRunner)
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(libs.testRules)
             }
-       }
+        }
 
         nonAndroidMain {
             dependsOn(commonMain)
@@ -67,35 +72,42 @@ kotlin {
             }
         }
 
-        desktopMain.dependsOn(nonAndroidMain)
-        nativeMain.dependsOn(nonAndroidMain)
-        webMain.dependsOn(nonAndroidMain)
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
 
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            } else if (target.platformType in [
-                    KotlinPlatformType.js,
-                    KotlinPlatformType.wasm
-            ]) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(webMain)
-                }
-            }
+        desktopMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
         }
     }
 }
 
 androidx {
     name = "Compose Material Navigation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Compose Material integration with Navigation"
     legacyDisableKotlinStrictApiMode = true
-}
-
-android {
-    namespace "androidx.compose.material.navigation"
+    samples(project(":compose:material:material-navigation-samples"))
 }

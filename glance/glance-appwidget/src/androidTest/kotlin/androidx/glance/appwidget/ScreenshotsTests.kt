@@ -28,13 +28,13 @@ fun screenshotRule() = AndroidXScreenshotTestRule("glance/glance-appwidget")
 fun AndroidXScreenshotTestRule.checkScreenshot(
     rootView: View,
     expectedGolden: String,
-    @FloatRange(from = 0.0, to = 1.0) threshold: Double = 0.98
+    @FloatRange(from = 0.0, to = 1.0) threshold: Double = 0.98,
 ) {
     val bmp =
         Bitmap.createBitmap(
             rootView.measuredWidth,
             rootView.measuredHeight,
-            Bitmap.Config.ARGB_8888
+            Bitmap.Config.ARGB_8888,
         )
     val canvas = Canvas(bmp)
     rootView.draw(canvas)

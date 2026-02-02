@@ -43,11 +43,11 @@ import androidx.glance.layout.wrapContentHeight
  *   wrapped in a Box.
  */
 @Composable
-fun LazyVerticalGrid(
+public fun LazyVerticalGrid(
     gridCells: GridCells,
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: LazyVerticalGridScope.() -> Unit
+    content: LazyVerticalGridScope.() -> Unit,
 ) {
     GlanceNode(
         factory = ::EmittableLazyVerticalGrid,
@@ -59,8 +59,8 @@ fun LazyVerticalGrid(
         content =
             applyVerticalGridScope(
                 Alignment(horizontalAlignment, Alignment.Vertical.CenterVertically),
-                content
-            )
+                content,
+            ),
     )
 }
 
@@ -79,12 +79,12 @@ fun LazyVerticalGrid(
  */
 @ExperimentalGlanceApi
 @Composable
-fun LazyVerticalGrid(
+public fun LazyVerticalGrid(
     gridCells: GridCells,
     activityOptions: Bundle,
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: LazyVerticalGridScope.() -> Unit
+    content: LazyVerticalGridScope.() -> Unit,
 ) {
     GlanceNode(
         factory = ::EmittableLazyVerticalGrid,
@@ -97,14 +97,14 @@ fun LazyVerticalGrid(
         content =
             applyVerticalGridScope(
                 Alignment(horizontalAlignment, Alignment.Vertical.CenterVertically),
-                content
-            )
+                content,
+            ),
     )
 }
 
 internal fun applyVerticalGridScope(
     alignment: Alignment,
-    content: LazyVerticalGridScope.() -> Unit
+    content: LazyVerticalGridScope.() -> Unit,
 ): @Composable () -> Unit {
     val itemList = mutableListOf<Pair<Long?, @Composable LazyItemScope.() -> Unit>>()
     val listScopeImpl =
@@ -126,7 +126,7 @@ internal fun applyVerticalGridScope(
             override fun items(
                 count: Int,
                 itemId: ((index: Int) -> Long),
-                itemContent: @Composable LazyItemScope.(index: Int) -> Unit
+                itemContent: @Composable LazyItemScope.(index: Int) -> Unit,
             ) {
                 repeat(count) { index -> item(itemId(index)) { itemContent(index) } }
             }
@@ -149,7 +149,7 @@ internal fun applyVerticalGridScope(
 private fun LazyVerticalGridItem(
     itemId: Long,
     alignment: Alignment,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     // We wrap LazyVerticalGridItem in the key composable to ensure that lambda actions declared
     // within each item's scope will get a unique ID based on the currentCompositeKeyHash.
@@ -160,7 +160,7 @@ private fun LazyVerticalGridItem(
                 this.set(itemId) { this.itemId = it }
                 this.set(alignment) { this.alignment = it }
             },
-            content = content
+            content = content,
         )
     }
 }
@@ -168,7 +168,7 @@ private fun LazyVerticalGridItem(
 @JvmDefaultWithCompatibility
 /** Receiver scope which is used by [LazyColumn]. */
 @LazyScopeMarker
-interface LazyVerticalGridScope {
+public interface LazyVerticalGridScope {
     /**
      * Adds a single item.
      *
@@ -178,7 +178,7 @@ interface LazyVerticalGridScope {
      *   devices.
      * @param content the content of the item
      */
-    fun item(itemId: Long = UnspecifiedItemId, content: @Composable LazyItemScope.() -> Unit)
+    public fun item(itemId: Long = UnspecifiedItemId, content: @Composable LazyItemScope.() -> Unit)
 
     /**
      * Adds a [count] of items.
@@ -190,14 +190,14 @@ interface LazyVerticalGridScope {
      *   higher devices.
      * @param itemContent the content displayed by a single item
      */
-    fun items(
+    public fun items(
         count: Int,
         itemId: ((index: Int) -> Long) = { UnspecifiedItemId },
-        itemContent: @Composable LazyItemScope.(index: Int) -> Unit
+        itemContent: @Composable LazyItemScope.(index: Int) -> Unit,
     )
 
-    companion object {
-        const val UnspecifiedItemId = Long.MIN_VALUE
+    public companion object {
+        public const val UnspecifiedItemId: Long = Long.MIN_VALUE
     }
 }
 
@@ -211,11 +211,11 @@ interface LazyVerticalGridScope {
  *   devices.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyVerticalGridScope.items(
+public inline fun <T> LazyVerticalGridScope.items(
     items: List<T>,
     crossinline itemId: ((item: T) -> Long) = { LazyVerticalGridScope.UnspecifiedItemId },
-    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
-) = items(items.size, { index: Int -> itemId(items[index]) }) { itemContent(items[it]) }
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit,
+): Unit = items(items.size, { index: Int -> itemId(items[index]) }) { itemContent(items[it]) }
 
 /**
  * Adds a list of items where the content of an item is aware of its index.
@@ -227,13 +227,14 @@ inline fun <T> LazyVerticalGridScope.items(
  *   devices.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyVerticalGridScope.itemsIndexed(
+public inline fun <T> LazyVerticalGridScope.itemsIndexed(
     items: List<T>,
     crossinline itemId: ((index: Int, item: T) -> Long) = { _, _ ->
         LazyVerticalGridScope.UnspecifiedItemId
     },
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
-) = items(items.size, { index: Int -> itemId(index, items[index]) }) { itemContent(it, items[it]) }
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
+): Unit =
+    items(items.size, { index: Int -> itemId(index, items[index]) }) { itemContent(it, items[it]) }
 
 /**
  * Adds an array of items.
@@ -245,11 +246,11 @@ inline fun <T> LazyVerticalGridScope.itemsIndexed(
  *   item the item with the given itemId will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyVerticalGridScope.items(
+public inline fun <T> LazyVerticalGridScope.items(
     items: Array<T>,
     noinline itemId: ((item: T) -> Long) = { LazyVerticalGridScope.UnspecifiedItemId },
-    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit
-) = items(items.size, { index: Int -> itemId(items[index]) }) { itemContent(items[it]) }
+    crossinline itemContent: @Composable LazyItemScope.(item: T) -> Unit,
+): Unit = items(items.size, { index: Int -> itemId(items[index]) }) { itemContent(items[it]) }
 
 /**
  * Adds a array of items where the content of an item is aware of its index.
@@ -261,13 +262,14 @@ inline fun <T> LazyVerticalGridScope.items(
  *   item the item with the given itemId will be kept as the first visible one.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyVerticalGridScope.itemsIndexed(
+public inline fun <T> LazyVerticalGridScope.itemsIndexed(
     items: Array<T>,
     noinline itemId: ((index: Int, item: T) -> Long) = { _, _ ->
         LazyVerticalGridScope.UnspecifiedItemId
     },
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
-) = items(items.size, { index: Int -> itemId(index, items[index]) }) { itemContent(it, items[it]) }
+    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit,
+): Unit =
+    items(items.size, { index: Int -> itemId(index, items[index]) }) { itemContent(it, items[it]) }
 
 internal abstract class EmittableLazyVerticalGridList :
     EmittableWithChildren(resetsDepthForChildren = true) {
@@ -316,7 +318,7 @@ internal class EmittableLazyVerticalGrid : EmittableLazyVerticalGridList() {
 }
 
 /** Defines the number of columns of the GridView. */
-sealed class GridCells {
+public sealed class GridCells {
     /**
      * Defines a fixed number of columns, limited to 1 through 5.
      *
@@ -325,7 +327,7 @@ sealed class GridCells {
      *
      * @param count number of columns in LazyVerticalGrid
      */
-    class Fixed(val count: Int) : GridCells() {
+    public class Fixed(public val count: Int) : GridCells() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -353,7 +355,7 @@ sealed class GridCells {
      * @param minSize fixed width of each column in LazyVerticalGrid
      */
     @RequiresApi(31)
-    class Adaptive(val minSize: Dp) : GridCells() {
+    public class Adaptive(public val minSize: Dp) : GridCells() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

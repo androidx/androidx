@@ -18,11 +18,12 @@ package androidx.inspection;
 
 import android.annotation.SuppressLint;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.inspection.ArtTooling.EntryHook;
 import androidx.inspection.ArtTooling.ExitHook;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -46,8 +47,7 @@ public class ArtToolingImpl {
      * We don't have a way to undo bytecode manipulations, so to avoid duplicating doing the same
      * transformations multiple times, this object lives forever.
      */
-    @NonNull
-    public static ArtToolingImpl instance() {
+    public static @NonNull ArtToolingImpl instance() {
         if (sInstance == null) {
             System.loadLibrary("art_tooling");
             sInstance = new ArtToolingImpl(createNativeArtTooling());
@@ -84,8 +84,7 @@ public class ArtToolingImpl {
     /**
      * Called from DefaultArtTooling
      */
-    @NonNull
-    public static <T> List<T> findInstances(@NonNull Class<T> clazz) {
+    public static <T> @NonNull List<T> findInstances(@NonNull Class<T> clazz) {
         return Arrays.asList(nativeFindInstances(instance().mNativePtr, clazz));
     }
 
@@ -150,8 +149,8 @@ public class ArtToolingImpl {
     }
 
     /** Callback from native */
-    @Nullable
-    public static Object onExit(@NonNull String methodSignature, @Nullable Object returnObject) {
+    public static @Nullable Object onExit(@NonNull String methodSignature,
+            @Nullable Object returnObject) {
         return onExitInternal(methodSignature, returnObject);
     }
 
@@ -213,7 +212,7 @@ public class ArtToolingImpl {
      * receive the array: ["(Lcom/example/Receiver;Ljava/lang/String;)Lcom/example/Client;", this,
      * r, message]
      */
-    public static void onEntry(@NonNull Object[] signatureThisParams) {
+    public static void onEntry(Object @NonNull [] signatureThisParams) {
         // Should always at least contain signature and "this"
         assert (signatureThisParams.length >= 2);
         String signature = (String) signatureThisParams[0];

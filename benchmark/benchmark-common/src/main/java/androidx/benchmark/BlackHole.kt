@@ -25,7 +25,6 @@ import dalvik.annotation.optimization.FastNative
  * Both the Kotlin compiler and R8 can remove code you intend to benchmark. To prevent this, pass
  * the result to [BlackHole.consume].
  */
-@ExperimentalBlackHoleApi
 object BlackHole {
     init {
         System.loadLibrary("benchmarkNative")

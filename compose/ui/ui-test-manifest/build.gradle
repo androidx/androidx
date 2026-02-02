@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -30,11 +37,12 @@ dependencies {
 
 androidx {
     name = "Compose Testing manifest dependency"
-    type = LibraryType.PUBLISHED_TEST_LIBRARY
+    type = SoftwareType.PUBLISHED_KOTLIN_ONLY_TEST_LIBRARY
     inceptionYear = "2021"
     description = "Compose testing library that should be added as a debugImplementation dependency to add properties to the debug manifest necessary for testing an application"
+    doNotDocumentReason = "No public API"
 }
 
 android {
-    namespace "androidx.compose.ui.test.manifest"
+    namespace = "androidx.compose.ui.test.manifest"
 }

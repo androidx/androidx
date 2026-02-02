@@ -22,20 +22,12 @@ import org.gradle.api.tasks.TaskProvider
 
 const val BUILD_ON_SERVER_TASK = "buildOnServer"
 
-/**
- * Configures the root project's buildOnServer task to run the specified task.
- */
+/** Configures the project's buildOnServer task to run the specified task. */
 fun <T : Task> Project.addToBuildOnServer(taskProvider: TaskProvider<T>) {
-    tasks.named(BUILD_ON_SERVER_TASK).configure {
-        it.dependsOn(taskProvider)
-    }
+    tasks.named(BUILD_ON_SERVER_TASK).configure { it.dependsOn(taskProvider) }
 }
 
-/**
- * Configures the root project's buildOnServer task to run the specified task.
- */
-fun <T : Task> Project.addToBuildOnServer(taskPath: String) {
-    tasks.named(BUILD_ON_SERVER_TASK).configure {
-        it.dependsOn(taskPath)
-    }
+/** Configures the project's buildOnServer task to run the specified task. */
+fun Project.addToBuildOnServer(taskPath: String) {
+    tasks.named(BUILD_ON_SERVER_TASK).configure { it.dependsOn(taskPath) }
 }

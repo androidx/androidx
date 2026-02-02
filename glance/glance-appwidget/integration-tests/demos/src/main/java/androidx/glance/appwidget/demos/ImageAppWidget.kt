@@ -25,7 +25,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.drawable.Icon
 import android.net.Uri
-import android.os.Build
 import android.os.ParcelFileDescriptor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,6 +78,14 @@ class ImageAppWidget : GlanceAppWidget() {
         val imageUri: Uri = getShareableImageUri(context)
 
         provideContent {
+            Scaffold(titleBar = { Header() }, content = { /*BodyContent(imageUri = imageUri) */ })
+        }
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        val imageUri: Uri = getShareableImageUri(context)
+
+        provideContent {
             Scaffold(titleBar = { Header() }, content = { BodyContent(imageUri = imageUri) })
         }
     }
@@ -87,24 +94,27 @@ class ImageAppWidget : GlanceAppWidget() {
 @Composable
 private fun Header() {
     val context = LocalContext.current
-    var shouldTintHeaderIcon by remember { mutableStateOf(true) }
+    var shouldChangeHeaderIconTint by remember { mutableStateOf(true) }
 
     Row(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = GlanceModifier.fillMaxWidth().background(Color.White)
+        modifier = GlanceModifier.fillMaxWidth().background(Color.White),
     ) {
         // Demonstrates toggling application of color filter on an image
         Image(
             provider = ImageProvider(R.drawable.ic_android),
             contentDescription = null,
             colorFilter =
-                if (shouldTintHeaderIcon) {
+                if (shouldChangeHeaderIconTint) {
                     ColorFilter.tint(ColorProvider(day = Color.Green, night = Color.Blue))
                 } else {
-                    null
+                    ColorFilter.tint(ColorProvider(day = Color.Cyan, night = Color.Magenta))
                 },
-            modifier = GlanceModifier.clickable { shouldTintHeaderIcon = !shouldTintHeaderIcon }
+            modifier =
+                GlanceModifier.size(64.dp).clickable {
+                    shouldChangeHeaderIconTint = !shouldChangeHeaderIconTint
+                },
         )
         Text(
             text = context.getString(R.string.image_widget_name),
@@ -128,7 +138,7 @@ private fun BodyContent(imageUri: Uri) {
                         ContentScale.FillBounds -> ContentScale.Fit
                         else -> ContentScale.Crop
                     }
-            }
+            },
         )
         Spacer(GlanceModifier.size(4.dp))
 
@@ -178,7 +188,7 @@ private fun ResourceImage(contentScale: ContentScale, modifier: GlanceModifier =
         provider = ImageProvider(R.drawable.compose),
         contentDescription = "Content Scale image sample (value: ${contentScale.asString()})",
         contentScale = contentScale,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -198,13 +208,13 @@ private fun ResourceImage(contentScale: ContentScale, modifier: GlanceModifier =
 private fun UriImage(
     contentScale: ContentScale,
     modifier: GlanceModifier = GlanceModifier,
-    uri: Uri
+    uri: Uri,
 ) {
     Image(
         provider = ImageProvider(uri),
         contentDescription = "Content Scale image sample (value: ${contentScale.asString()})",
         contentScale = contentScale,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -234,7 +244,7 @@ private fun BitmapImage(contentScale: ContentScale, modifier: GlanceModifier = G
         provider = ImageProvider(makeBitmap()),
         contentDescription = "An image with an in-memory bitmap provider",
         contentScale = contentScale,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -244,11 +254,6 @@ private fun BitmapImage(contentScale: ContentScale, modifier: GlanceModifier = G
  */
 @Composable
 private fun IconImage(contentScale: ContentScale, modifier: GlanceModifier) {
-    if (Build.VERSION.SDK_INT < 23) {
-        Text("The Icon api requires api >= 23")
-        return
-    }
-
     val bitmap = canvasBitmap(200, circleColor = Color.Red)
 
     Box {
@@ -256,7 +261,7 @@ private fun IconImage(contentScale: ContentScale, modifier: GlanceModifier) {
             provider = ImageProvider(bitmap),
             contentDescription = "An image with an in-memory bitmap provider",
             contentScale = contentScale,
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }
@@ -356,7 +361,7 @@ class ImageAppWidgetImageContentProvider : ContentProvider() {
         projection: Array<out String>?,
         selection: String?,
         selectionArgs: Array<out String>?,
-        sortOrder: String?
+        sortOrder: String?,
     ): Cursor? {
         return null // unused
     }
@@ -377,7 +382,7 @@ class ImageAppWidgetImageContentProvider : ContentProvider() {
         uri: Uri,
         values: ContentValues?,
         selection: String?,
-        selectionArgs: Array<out String>?
+        selectionArgs: Array<out String>?,
     ): Int {
         return 0 // unused
     }

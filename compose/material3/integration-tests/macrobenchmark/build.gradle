@@ -1,13 +1,10 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    defaultConfig {
-        minSdk = 23
-    }
     testOptions {
         animationsDisabled = false
     }

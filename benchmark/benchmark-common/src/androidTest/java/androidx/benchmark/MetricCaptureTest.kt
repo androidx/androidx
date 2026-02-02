@@ -16,9 +16,11 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import kotlin.test.assertEquals
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,15 +52,17 @@ class MetricCaptureTest {
                 listOf("instructions", "cpuCycles"),
                 CpuEventCounterCapture(
                         it,
-                        listOf(CpuEventCounter.Event.Instructions, CpuEventCounter.Event.CpuCycles)
+                        listOf(CpuEventCounter.Event.Instructions, CpuEventCounter.Event.CpuCycles),
                     )
-                    .names
+                    .names,
             )
         }
     }
 
     @Test
     fun cpuEventCounterCapture_multi() {
+        assumeFalse(DeviceInfo.isEmulator && Build.VERSION.SDK_INT == 28) // see b/357101113
+
         try {
             // skip test if need root, or event fails to enable
             CpuEventCounter.forceEnable()?.let { errorMessage -> assumeTrue(errorMessage, false) }

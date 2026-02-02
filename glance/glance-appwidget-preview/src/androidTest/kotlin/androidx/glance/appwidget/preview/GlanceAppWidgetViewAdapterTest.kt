@@ -71,11 +71,7 @@ class GlanceAppWidgetViewAdapterTest {
         return null
     }
 
-    private fun initAndInflate(
-        className: String,
-        methodName: String,
-        size: DpSize,
-    ) {
+    private fun initAndInflate(className: String, methodName: String, size: DpSize) {
         activityTestRule.runOnUiThread {
             glanceAppWidgetViewAdapter.init(className, methodName, size)
             glanceAppWidgetViewAdapter.requestLayout()
@@ -104,7 +100,7 @@ class GlanceAppWidgetViewAdapterTest {
         initAndInflate(
             className = "androidx.glance.appwidget.preview.GlanceAppWidgetPreviewsKt",
             methodName = "FirstGlancePreview",
-            size = DpSize.Unspecified
+            size = DpSize.Unspecified,
         )
 
         activityTestRule.runOnUiThread {
@@ -139,7 +135,7 @@ class GlanceAppWidgetViewAdapterTest {
         initAndInflate(
             className = "androidx.glance.appwidget.preview.GlanceAppWidgetPreviewsKt",
             methodName = "FirstGlancePreview",
-            size = DpSize(Dp(123.0f), Dp(456.0f))
+            size = DpSize(Dp(123.0f), Dp(456.0f)),
         )
 
         activityTestRule.runOnUiThread {

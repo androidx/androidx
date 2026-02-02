@@ -7,40 +7,49 @@ clarabayarri@google.com
 danysantiago@google.com
 fsladkey@google.com
 ilake@google.com
-ivychen@google.com
-jeffrygaston@google.com
 jellefresen@google.com
-jsproch@google.com
 juliamcclellan@google.com
 lpf@google.com
 mount@google.com
-natnaelbelay@google.com
 omarismail@google.com
-owengray@google.com
+prajakt@google.com
 radhanakade@google.com
-romainguy@android.com
-sergeyv@google.com
-siyamed@google.com
-sumir@google.com
-tiem@google.com
-yboyar@google.com
+seanmcq@google.com
+sindhujasubr@google.com
 
+# docs
+per-file docs-tip-of-tree/build.gradle = set noparent
+per-file docs-tip-of-tree/build.gradle = asfalcone@google.com, juliamcclellan@google.com, aurimas@google.com, alanv@google.com, omarismail@google.com
+
+# settings.gradle
 per-file *settings.gradle = set noparent
-per-file *settings.gradle = alanv@google.com, aurimas@google.com
+per-file *settings.gradle = alanv@google.com, aurimas@google.com, omarismail@google.com
 # Core-Telecom
 per-file *libraryversions.toml = breadley@google.com, tgunn@google.com, tjstuart@google.com
 # Wear
-per-file *libraryversions.toml = jnichol@google.com, flerda@google.com, ashleyingram@google.com
+per-file *libraryversions.toml = ashleyingram@google.com, flerda@google.com, gregbullock@google.com
 per-file *libraryversions.toml = diegovela@google.com, akulian@google.com, kchyn@google.com
 # WebKit
 per-file *libraryversions.toml = pbirk@google.com, elabadysayed@google.com
 per-file *docs-public/build.gradle = juanrdz@google.com, diegovela@google.com
 # Compose *
 per-file *libraryversions.toml = juanrdz@google.com
+# Credentials *
+per-file *libraryversions.toml = helenqin@google.com, leecam@google.com, reemabajwa@google.com
 # Glance
 per-file *libraryversions.toml = zakcohen@google.com
 # AppSearch
 per-file *libraryversions.toml = adorokhine@google.com, tjbarron@google.com, xyj@google.com
+# AppFunctions
+per-file *libraryversions.toml = tonymak@google.com, shikhamalhotra@google.com, utkarshnigam@google.com, mingweiliao@google.com
+# XR *
+per-file *libraryversions.toml = rafiahmad@google.com, leoferrer@google.com, mrw@google.com
+# MediaRouter *
+per-file *libraryversions.toml = aquilescanta@google.com, asapperstein@google.com, shenqiuz@google.com
+# PDF *
+per-file *libraryversions.toml = anuragadarsh@google.com, bhavyajain@google.com, rahulkanojia@google.com
+# Camera *
+per-file *libraryversions.toml = wujulie@google.com, scottnien@google.com, trevormcguire@google.com
 
 # Copybara can self-approve CLs within synced docs.
 per-file docs/** = copybara-worker-blackhole@google.com

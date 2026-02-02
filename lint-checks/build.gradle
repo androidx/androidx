@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.ExportAtomicLibraryGroupsToTextTask
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -31,10 +31,7 @@ plugins {
 
 sourceSets {
     // Pull integration test source code in for use by lint testing framework.
-    test.resources.srcDirs(
-            project(":lint-checks:integration-tests")
-                    .projectDir.absolutePath + "/src/main"
-    )
+    test.resources.srcDirs(layout.projectDirectory.dir("integration-tests/src/main"))
 }
 
 dependencies {
@@ -56,7 +53,7 @@ dependencies {
 
 androidx {
     name = "Lint checks"
-    type = LibraryType.LINT
+    type = SoftwareType.LINT
     inceptionYear = "2018"
     description = "Internal lint checks"
 }
@@ -66,9 +63,7 @@ def exportTaskProvider = tasks.register(
         ExportAtomicLibraryGroupsToTextTask
 ) { task ->
     task.libraryGroups = androidx.AllLibraryGroups
-
-    def generatedDirectory = new File(project.buildDir, "generated/resources")
-    task.outputDir.set(generatedDirectory)
+    task.outputDir.set(layout.buildDirectory.dir("generated/resources"))
 }
 
 def extension = project.extensions.getByType(JavaPluginExtension.class)

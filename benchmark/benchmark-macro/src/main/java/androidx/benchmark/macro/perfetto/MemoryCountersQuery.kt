@@ -16,13 +16,11 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.benchmark.perfetto.PerfettoTraceProcessor
-import androidx.benchmark.perfetto.processNameLikePkg
-import org.intellij.lang.annotations.Language
+import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.traceprocessor.processNameLikePkg
 
 internal object MemoryCountersQuery {
     // https://perfetto.dev/docs/data-sources/memory-counters
-    @Language("sql")
     internal fun getQuery(targetPackageName: String) =
         """
         SELECT
@@ -57,13 +55,10 @@ internal object MemoryCountersQuery {
         // Memory Compaction Events
         val memoryCompactionEvents: Double,
         // Memory Reclaim Events
-        val memoryReclaimEvents: Double
+        val memoryReclaimEvents: Double,
     )
 
-    fun getMemoryCounters(
-        session: PerfettoTraceProcessor.Session,
-        targetPackageName: String
-    ): SubMetrics? {
+    fun getMemoryCounters(session: TraceProcessor.Session, targetPackageName: String): SubMetrics? {
         val queryResultIterator =
             session.query(query = getQuery(targetPackageName = targetPackageName))
 
@@ -80,7 +75,7 @@ internal object MemoryCountersQuery {
                     summations[PAGE_FAULTS_BACKED_BY_SWAP_CACHE_COUNT] ?: 0.0,
                 pageFaultsBackedByReadIO = summations[PAGE_FAULTS_BACKED_BY_READ_IO_COUNT] ?: 0.0,
                 memoryCompactionEvents = summations[MEMORY_COMPACTION_EVENTS_COUNT] ?: 0.0,
-                memoryReclaimEvents = summations[MEMORY_RECLAIM_EVENTS_COUNT] ?: 0.0
+                memoryReclaimEvents = summations[MEMORY_RECLAIM_EVENTS_COUNT] ?: 0.0,
             )
         }
     }

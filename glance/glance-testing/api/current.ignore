@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+AddedMethod: androidx.glance.testing.unit.UnitTestAssertionExtensionsKt#assertHasStartActivityClickAction$default(androidx.glance.testing.GlanceNodeAssertion, androidx.glance.action.ActionParameters, android.os.Bundle, int, Object):
+    Added method androidx.glance.testing.unit.UnitTestAssertionExtensionsKt.assertHasStartActivityClickAction$default(androidx.glance.testing.GlanceNodeAssertion,androidx.glance.action.ActionParameters,android.os.Bundle,int,Object)
+AddedMethod: androidx.glance.testing.unit.UnitTestFiltersKt#hasStartActivityClickAction$default(androidx.glance.action.ActionParameters, android.os.Bundle, int, Object):
+    Added method androidx.glance.testing.unit.UnitTestFiltersKt.hasStartActivityClickAction$default(androidx.glance.action.ActionParameters,android.os.Bundle,int,Object)

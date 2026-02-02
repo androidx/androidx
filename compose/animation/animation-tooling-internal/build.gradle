@@ -14,9 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.Publish
-import androidx.build.RunApiTasks
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -24,12 +29,11 @@ plugins {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
 }
 
 androidx {
     name = "Compose Animation Tooling"
     description = "Compose Animation APIs for tooling support. Internal use only."
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    runApiTasks = new RunApiTasks.Yes()
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    doNotDocumentReason = "Only used externally by Android Studio"
 }

@@ -19,9 +19,9 @@ package androidx.benchmark
 import androidx.benchmark.json.BenchmarkData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import com.google.common.truth.Truth.assertThat
 import java.io.File
 import kotlin.test.assertFailsWith
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -37,8 +37,8 @@ class InstrumentationResultsTest {
             measurements =
                 Measurements(
                     singleMetrics = listOf(MetricResult("Metric", listOf(0.0))),
-                    sampledMetrics = emptyList()
-                )
+                    sampledMetrics = emptyList(),
+                ),
         )
     }
 
@@ -49,14 +49,14 @@ class InstrumentationResultsTest {
                 benchmarkName = "foo",
                 nanos = 1000.0,
                 allocations = 100.0,
-                profilerResults = emptyList()
+                profilerResults = emptyList(),
             )
         val summary2 =
             InstrumentationResults.ideSummaryBasicMicro(
                 benchmarkName = "fooBarLongerKey",
                 nanos = 10000.0,
                 allocations = 0.0,
-                profilerResults = emptyList()
+                profilerResults = emptyList(),
             )
         assertEquals(summary1.indexOf("foo"), summary2.indexOf("foo"))
     }
@@ -65,11 +65,11 @@ class InstrumentationResultsTest {
     fun ideSummaryBasicMicro_allocs() {
         assertEquals(
             "        1,000   ns    foo",
-            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, null, emptyList())
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, null, emptyList()),
         )
         assertEquals(
             "        1,000   ns          10 allocs    foo",
-            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, 10.0, emptyList())
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, 10.0, emptyList()),
         )
     }
 
@@ -77,19 +77,19 @@ class InstrumentationResultsTest {
     fun ideSummaryBasicMicro_decimal() {
         assertEquals(
             "        1,000   ns    foo",
-            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, null, emptyList())
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1000.0, null, emptyList()),
         )
         assertEquals(
             "          100   ns    foo", // 10ths not shown ...
-            InstrumentationResults.ideSummaryBasicMicro("foo", 100.4, null, emptyList())
+            InstrumentationResults.ideSummaryBasicMicro("foo", 100.4, null, emptyList()),
         )
         assertEquals(
             "           99.9 ns    foo", // ... until value is < 100
-            InstrumentationResults.ideSummaryBasicMicro("foo", 99.9, null, emptyList())
+            InstrumentationResults.ideSummaryBasicMicro("foo", 99.9, null, emptyList()),
         )
         assertEquals(
             "            1.0 ns    foo",
-            InstrumentationResults.ideSummaryBasicMicro("foo", 1.0, null, emptyList())
+            InstrumentationResults.ideSummaryBasicMicro("foo", 1.0, null, emptyList()),
         )
     }
 
@@ -106,10 +106,10 @@ class InstrumentationResultsTest {
                         label = "Trace Label",
                         outputRelativePath = "tracePath.trace",
                         type = BenchmarkData.TestResult.ProfilerOutput.Type.MethodTrace,
-                        source = MethodTracing
+                        source = MethodTracing,
                     )
-                )
-            )
+                ),
+            ),
         )
     }
 
@@ -130,19 +130,10 @@ class InstrumentationResultsTest {
                 measurements =
                     Measurements(
                         singleMetrics = listOf(metricResult),
-                        sampledMetrics = emptyList()
+                        sampledMetrics = emptyList(),
                     ),
-                iterationTracePaths = absoluteTracePaths
+                iterationTracePaths = absoluteTracePaths,
             )
-        assertEquals(
-            """
-                |foo
-                |  Metric   min 0.0,   median 1.1,   max 2.2
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
         assertEquals(
             """
                 |foo
@@ -151,8 +142,10 @@ class InstrumentationResultsTest {
                 |
             """
                 .trimMargin(),
-            summary.summaryV2
+            summary.summaryV2,
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -165,20 +158,10 @@ class InstrumentationResultsTest {
                 measurements =
                     Measurements(
                         singleMetrics = listOf(metric1, metric2),
-                        sampledMetrics = emptyList()
+                        sampledMetrics = emptyList(),
                     ),
-                iterationTracePaths = createAbsoluteTracePaths(3)
+                iterationTracePaths = createAbsoluteTracePaths(3),
             )
-        assertEquals(
-            """
-                |foo
-                |  Metric1   min   0.0,   median   1.0,   max   2.0
-                |  Metric2   min   0.0,   median 111.0,   max 222.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
         assertEquals(
             """
                 |foo
@@ -188,8 +171,10 @@ class InstrumentationResultsTest {
                 |
             """
                 .trimMargin(),
-            summary.summaryV2
+            summary.summaryV2,
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -201,19 +186,10 @@ class InstrumentationResultsTest {
                 measurements =
                     Measurements(
                         singleMetrics = emptyList(),
-                        sampledMetrics = listOf(metricResult)
+                        sampledMetrics = listOf(metricResult),
                     ),
-                iterationTracePaths = createAbsoluteTracePaths(3)
+                iterationTracePaths = createAbsoluteTracePaths(3),
             )
-        assertEquals(
-            """
-                |foo
-                |  Metric1   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
         assertEquals(
             """
                 |foo
@@ -222,8 +198,10 @@ class InstrumentationResultsTest {
                 |
             """
                 .trimMargin(),
-            summary.summaryV2
+            summary.summaryV2,
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -236,18 +214,8 @@ class InstrumentationResultsTest {
                 testName = "foo",
                 measurements =
                     Measurements(singleMetrics = listOf(single), sampledMetrics = listOf(sampled)),
-                iterationTracePaths = absoluteTracePaths
+                iterationTracePaths = absoluteTracePaths,
             )
-        assertEquals(
-            """
-                |foo
-                |  Metric1   min   0.0,   median   1.0,   max   2.0
-                |  Metric2   P50   50.0,   P90   90.0,   P95   95.0,   P99   99.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
         assertEquals(
             """
                 |foo
@@ -257,8 +225,10 @@ class InstrumentationResultsTest {
                 |
             """
                 .trimMargin(),
-            summary.summaryV2
+            summary.summaryV2,
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -270,10 +240,7 @@ class InstrumentationResultsTest {
             InstrumentationResults.ideSummary(
                 testName = "foo",
                 measurements =
-                    Measurements(
-                        singleMetrics = listOf(metricResult),
-                        sampledMetrics = emptyList()
-                    ),
+                    Measurements(singleMetrics = listOf(metricResult), sampledMetrics = emptyList()),
             )
         assertEquals(
             """
@@ -282,9 +249,9 @@ class InstrumentationResultsTest {
                 |            0.0 ns    foo
             """
                 .trimMargin(),
-            summary.summaryV1
+            summary.summaryV2,
         )
-        // no links so both versions are equivalent
+        // v1 is deprecated and should be the same as v2
         assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
@@ -300,21 +267,10 @@ class InstrumentationResultsTest {
                 measurements =
                     Measurements(
                         singleMetrics = listOf(metricResult),
-                        sampledMetrics = emptyList()
+                        sampledMetrics = emptyList(),
                     ),
-                iterationTracePaths = absoluteTracePaths
+                iterationTracePaths = absoluteTracePaths,
             )
-        assertEquals(
-            """
-                |warning
-                |string
-                |foo
-                |  Metric   min 0.0,   median 1.0,   max 2.0
-                |
-            """
-                .trimMargin(),
-            summary.summaryV1
-        )
         assertEquals(
             """
                 |warning
@@ -325,8 +281,10 @@ class InstrumentationResultsTest {
                 |
             """
                 .trimMargin(),
-            summary.summaryV2
+            summary.summaryV2,
         )
+        // v1 is deprecated and should be the same as v2
+        assertEquals(summary.summaryV1, summary.summaryV2)
     }
 
     @Test
@@ -334,8 +292,10 @@ class InstrumentationResultsTest {
         assertFailsWith<IllegalArgumentException> {
             InstrumentationResults.ideSummary(
                 measurements =
-                    Measurements(singleMetrics = emptyList(), sampledMetrics = emptyList()),
+                    Measurements(singleMetrics = emptyList(), sampledMetrics = emptyList())
             )
         }
     }
 }
+
+private fun <T> assertEquals(expected: T, actual: T) = assertThat(actual).isEqualTo(expected)

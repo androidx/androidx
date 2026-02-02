@@ -34,6 +34,7 @@ import org.robolectric.annotation.Config
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class SizeBoxTest {
     private val minAppWidgetSize = DpSize(50.dp, 100.dp)
 
@@ -57,11 +58,7 @@ class SizeBoxTest {
     @Test
     fun sizeModeExact_onlyMinMaxSizes_usesOrientationSizesDerivedFromMinMax() = runTest {
         val displaySizes =
-            listOf(
-                DpSize(100.dp, 50.dp),
-                DpSize(50.dp, 100.dp),
-                DpSize(75.dp, 75.dp),
-            )
+            listOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp), DpSize(75.dp, 75.dp))
         // Following utility function populates only
         // AppWidgetManager.OPTION_APPWIDGET_{MIN,MAX}_{HEIGHT,WIDTH} to mimic Pre-S behavior, so
         // actual possible sizes aren't available.
@@ -160,17 +157,9 @@ class SizeBoxTest {
     fun sizeModeResponsive_onlyMinMaxSizes_usesBestFitsFromInputResponsiveSizes() {
         runTest {
             val displaySizes =
-                listOf(
-                    DpSize(100.dp, 50.dp),
-                    DpSize(50.dp, 100.dp),
-                    DpSize(75.dp, 75.dp),
-                )
+                listOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp), DpSize(75.dp, 75.dp))
             val responsiveSizes =
-                setOf(
-                    DpSize(99.dp, 49.dp),
-                    DpSize(49.dp, 99.dp),
-                    DpSize(75.dp, 75.dp),
-                )
+                setOf(DpSize(99.dp, 49.dp), DpSize(49.dp, 99.dp), DpSize(75.dp, 75.dp))
             // Following utility function populates only
             // AppWidgetManager.OPTION_APPWIDGET_{MIN,MAX}_{HEIGHT,WIDTH} to mimic Pre-S behavior,
             // so actual possible sizes aren't available.
@@ -209,17 +198,9 @@ class SizeBoxTest {
     @Config(maxSdk = 30)
     @Test
     fun responsive_onlyMinMaxSizesAndNoFit_usesMinFromInputResponsiveSizes() = runTest {
-        val displaySizes =
-            listOf(
-                DpSize(100.dp, 50.dp),
-                DpSize(50.dp, 100.dp),
-            )
+        val displaySizes = listOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp))
         val responsiveSizes =
-            setOf(
-                DpSize(200.dp, 200.dp),
-                DpSize(300.dp, 300.dp),
-                DpSize(75.dp, 75.dp),
-            )
+            setOf(DpSize(200.dp, 200.dp), DpSize(300.dp, 300.dp), DpSize(75.dp, 75.dp))
         // Following utility function populates only
         // AppWidgetManager.OPTION_APPWIDGET_{MIN,MAX}_{HEIGHT,WIDTH} to mimic Pre-S behavior,
         // so actual possible sizes aren't available.
@@ -254,11 +235,7 @@ class SizeBoxTest {
     fun sizeModeResponsive_usesEachResponsiveInputSize() {
         runTest {
             val responsiveSizes =
-                setOf(
-                    DpSize(100.dp, 50.dp),
-                    DpSize(50.dp, 100.dp),
-                    DpSize(75.dp, 75.dp),
-                )
+                setOf(DpSize(100.dp, 50.dp), DpSize(50.dp, 100.dp), DpSize(75.dp, 75.dp))
             val sizeMode = SizeMode.Responsive(responsiveSizes)
 
             val root = runTestingComposition {

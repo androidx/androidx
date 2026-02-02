@@ -40,7 +40,7 @@ public class ConfigurationErrorTest {
             ConfigurationError(
                 id = "idCanNotHaveLowercase", // invalid, IDs always uppercase
                 summary = "summary",
-                message = "message"
+                message = "message",
             )
         }
 
@@ -48,14 +48,14 @@ public class ConfigurationErrorTest {
             ConfigurationError(
                 id = "i_d", // invalid, IDs can't have underscores
                 summary = "summary",
-                message = "message"
+                message = "message",
             )
         }
         assertFailsWith<IllegalArgumentException> {
             ConfigurationError(
                 id = "ID",
                 summary = "summary\nsummary", // invalid, summary is single line
-                message = "message"
+                message = "message",
             )
         }
     }
@@ -72,7 +72,7 @@ public class ConfigurationErrorTest {
         val suppression =
             listOf(
                     ConfigurationError(id = "ID1", summary = "summary1", message = "message1"),
-                    ConfigurationError(id = "ID2", summary = "summary2", message = "message2")
+                    ConfigurationError(id = "ID2", summary = "summary2", message = "message2"),
                 )
                 .checkAndGetSuppressionState(setOf("ID1", "ID2"))
 
@@ -88,7 +88,7 @@ public class ConfigurationErrorTest {
 
             """
                 .trimMargin(),
-            suppression.warningMessage
+            suppression.warningMessage,
         )
     }
 
@@ -99,7 +99,7 @@ public class ConfigurationErrorTest {
             assertFailsWith<AssertionError> {
                 listOf(
                         ConfigurationError(id = "ID1", summary = "summary1", message = "message1"),
-                        ConfigurationError(id = "ID2", summary = "summary2", message = "message2")
+                        ConfigurationError(id = "ID2", summary = "summary2", message = "message2"),
                     )
                     .checkAndGetSuppressionState(setOf("ID1"))
             }

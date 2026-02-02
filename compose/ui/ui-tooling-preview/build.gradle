@@ -14,111 +14,85 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("com.android.library")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.ui.tooling.preview"
+    }
     desktop()
-    darwin()
+    mac()
+    ios()
     js()
-    wasm()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.9.1")
-                api(project(":compose:runtime:runtime"))
-            }
+        commonMain.dependencies {
+            api("androidx.annotation:annotation:1.9.1")
+            api(project(":compose:runtime:runtime"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-            }
+        androidHostTest.dependencies {
+            implementation(libs.junit)
         }
 
-        jvmMain {
+        nonAndroidMain {
             dependsOn(commonMain)
         }
 
-        skikoMain {
-            dependsOn(commonMain)
-        }
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.2.0")
-            }
-        }
-
-        nonJvmMain {
-            dependsOn(skikoMain)
-        }
-
-        jsMain {
-            dependsOn(nonJvmMain)
-        }
-
-        wasmJsMain {
-            dependsOn(nonJvmMain)
-        }
-
-        darwinMain {
-            dependsOn(nonJvmMain)
-        }
-
-        jvmTest {
+        nonAndroidTest {
             dependsOn(commonTest)
         }
 
-        androidAndroidTest {
-            dependsOn(jvmTest)
-        }
-
-        androidTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation(libs.junit)
-            }
-        }
-
         desktopMain {
-            dependsOn(skikoMain)
-            dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
         }
 
         desktopTest {
-            dependsOn(jvmTest)
-            dependsOn(desktopMain)
+            dependsOn(nonAndroidTest)
+        }
+
+        nonJvmMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        nonJvmTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
         }
     }
 }
 
 androidx {
     name = "Compose UI Preview Tooling"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose tooling library API. This library provides the API required to declare" +
             " @Preview composables in user apps."
     legacyDisableKotlinStrictApiMode = true
 }
 
-android {
-    namespace "androidx.compose.ui.tooling.preview"
-}

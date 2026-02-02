@@ -21,14 +21,15 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+
+import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.squareup.wire")
     id("com.google.devtools.ksp")
 }
@@ -44,7 +45,7 @@ android {
                 "androidx/traceprocessor/testdata"
         )
     }
-    namespace "androidx.benchmark"
+    namespace = "androidx.benchmark"
     defaultConfig {
         externalNativeBuild {
             cmake {
@@ -55,7 +56,7 @@ android {
     externalNativeBuild {
         cmake {
             path file('src/main/cpp/CMakeLists.txt')
-            version libs.versions.cmake.get()
+            version = libs.versions.cmake.get()
         }
     }
 }
@@ -73,28 +74,34 @@ wire {
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.7.0")
+    api(libs.jspecify)
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.annotation:annotation-experimental:1.4.1")
+    api(project(":benchmark:benchmark-traceprocessor"))
     implementation("androidx.tracing:tracing-ktx:1.0.0")
     implementation("androidx.tracing:tracing-perfetto-handshake:1.0.0")
     implementation("androidx.test:monitor:1.6.1")
     implementation(libs.wireRuntime)
     implementation(libs.moshi)
+    implementation(libs.kotlinCoroutinesAndroid)
     ksp(libs.moshiCodeGen)
 
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
 }
 
 androidx {
     name = "Benchmark - Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Benchmark - Common"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
+    samples(project(":benchmark:benchmark-samples"))
 }
 
 tasks.withType(KotlinCompile).configureEach {
@@ -103,6 +110,8 @@ tasks.withType(KotlinCompile).configureEach {
         freeCompilerArgs += [
                 "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
         ]
     }
 }
+

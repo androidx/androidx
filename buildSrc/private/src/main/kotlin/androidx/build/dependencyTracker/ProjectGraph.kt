@@ -22,9 +22,7 @@ import java.io.Serializable
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 
-/**
- * Creates a project graph for fast lookup by file path
- */
+/** Creates a project graph for fast lookup by file path */
 class ProjectGraph(project: Project, logger: Logger? = null) : Serializable {
     private val rootNode: Node
 
@@ -33,28 +31,27 @@ class ProjectGraph(project: Project, logger: Logger? = null) : Serializable {
         logger?.info("initializing ProjectGraph")
         rootNode = Node()
         val rootProjectDir = project.getSupportRootFolder().canonicalFile
-        val projects = if (rootProjectDir == project.rootDir.canonicalFile) {
-            project.subprojects
-        } else {
-            // include root project if it is not the main AndroidX project.
-            project.subprojects + project
-        }
+        val projects =
+            if (rootProjectDir == project.rootDir.canonicalFile) {
+                project.subprojects
+            } else {
+                // include root project if it is not the main AndroidX project.
+                project.subprojects + project
+            }
         projects.forEach {
             logger?.info("creating node for ${it.path}")
             val relativePath = it.projectDir.canonicalFile.toRelativeString(rootProjectDir)
             val sections = relativePath.split(File.separatorChar)
             logger?.info("relative path: $relativePath , sections: $sections")
-            val leaf = sections.fold(rootNode) { left, right ->
-                left.getOrCreateNode(right)
-            }
+            val leaf = sections.fold(rootNode) { left, right -> left.getOrCreateNode(right) }
             leaf.projectPath = it.path
         }
         logger?.info("finished creating ProjectGraph")
     }
 
     /**
-     * Finds the project that contains the given file.
-     * The file's path prefix should match the project's path.
+     * Finds the project that contains the given file. The file's path prefix should match the
+     * project's path.
      */
     fun findContainingProject(filePath: String, logger: Logger? = null): String? {
         val sections = filePath.split(File.separatorChar)
@@ -91,9 +88,7 @@ class ProjectGraph(project: Project, logger: Logger? = null) : Serializable {
         }
 
         fun addAllProjectPaths(collection: MutableSet<String>) {
-            projectPath?.let { path ->
-                collection.add(path)
-            }
+            projectPath?.let { path -> collection.add(path) }
             for (child in children.values) {
                 child.addAllProjectPaths(collection)
             }

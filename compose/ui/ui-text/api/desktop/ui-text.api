@@ -884,10 +884,6 @@ public final class androidx/compose/ui/text/font/FontListFontFamily : androidx/c
 	public synthetic fun add (Ljava/lang/Object;)Z
 	public fun addAll (ILjava/util/Collection;)Z
 	public fun addAll (Ljava/util/Collection;)Z
-	public fun addFirst (Landroidx/compose/ui/text/font/Font;)V
-	public synthetic fun addFirst (Ljava/lang/Object;)V
-	public fun addLast (Landroidx/compose/ui/text/font/Font;)V
-	public synthetic fun addLast (Ljava/lang/Object;)V
 	public fun clear ()V
 	public fun contains (Landroidx/compose/ui/text/font/Font;)Z
 	public final fun contains (Ljava/lang/Object;)Z
@@ -910,10 +906,6 @@ public final class androidx/compose/ui/text/font/FontListFontFamily : androidx/c
 	public synthetic fun remove (I)Ljava/lang/Object;
 	public fun remove (Ljava/lang/Object;)Z
 	public fun removeAll (Ljava/util/Collection;)Z
-	public fun removeFirst ()Landroidx/compose/ui/text/font/Font;
-	public synthetic fun removeFirst ()Ljava/lang/Object;
-	public fun removeLast ()Landroidx/compose/ui/text/font/Font;
-	public synthetic fun removeLast ()Ljava/lang/Object;
 	public fun replaceAll (Ljava/util/function/UnaryOperator;)V
 	public fun retainAll (Ljava/util/Collection;)Z
 	public fun set (ILandroidx/compose/ui/text/font/Font;)Landroidx/compose/ui/text/font/Font;

@@ -25,7 +25,7 @@ internal data class FrameStatsResult(
     val uniqueName: String,
 
     /** Most recent clock monotonic (e.g. System.nanoTime()) timestamp of a frame's vsync. */
-    val lastFrameNs: Long?
+    val lastFrameNs: Long?,
 ) {
     companion object {
         private val NAME_REGEX = Regex("(\\S+) \\(visibility=\\d+\\)")
@@ -52,7 +52,7 @@ internal data class FrameStatsResult(
                     val profileData = it[1]
                     FrameStatsResult(
                         uniqueName = uniqueName,
-                        lastFrameNs = profileDataLatestActivityLaunchNs(profileData)
+                        lastFrameNs = profileDataLatestActivityLaunchNs(profileData),
                     )
                 }
         }

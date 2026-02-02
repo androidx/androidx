@@ -27,9 +27,12 @@ import platform.UIKit.UIPressPhase.UIPressPhaseBegan
 import platform.UIKit.UIPressPhase.UIPressPhaseEnded
 import platform.UIKit.UIPressTypeDownArrow
 import platform.UIKit.UIPressTypeLeftArrow
+import platform.UIKit.UIPressTypeMenu
 import platform.UIKit.UIPressTypePageDown
 import platform.UIKit.UIPressTypePageUp
+import platform.UIKit.UIPressTypePlayPause
 import platform.UIKit.UIPressTypeRightArrow
+import platform.UIKit.UIPressTypeSelect
 import platform.UIKit.UIPressTypeUpArrow
 
 internal fun UIPress.toComposeEvent(): KeyEvent {
@@ -39,13 +42,17 @@ internal fun UIPress.toComposeEvent(): KeyEvent {
         else -> KeyEventType.Unknown
     }
 
-    // UIPress has special types for arrow keys and page up/down and has null `key`
-    // In other cases the `type` returns an int value that doesn't match any UIPressType.
+    // UIPress has special types for arrow keys, page up/down, game controller buttons,
+    // Siri remote buttons, and has null `key`. In other cases the `type` returns
+    // an int value that doesn't match any UIPressType.
     val specialTypeKey = when (type) {
         UIPressTypeUpArrow -> Key.DirectionUp
         UIPressTypeDownArrow -> Key.DirectionDown
         UIPressTypeLeftArrow -> Key.DirectionLeft
         UIPressTypeRightArrow -> Key.DirectionRight
+        UIPressTypeSelect -> Key.DirectionCenter
+        UIPressTypeMenu -> Key.Menu
+        UIPressTypePlayPause -> Key.MediaPlayPause
         UIPressTypePageDown -> Key.PageDown
         UIPressTypePageUp -> Key.PageUp
         else -> null

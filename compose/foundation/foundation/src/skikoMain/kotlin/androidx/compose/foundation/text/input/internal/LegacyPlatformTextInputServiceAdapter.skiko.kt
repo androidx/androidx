@@ -114,44 +114,11 @@ internal actual fun createLegacyPlatformTextInputServiceAdapter():
             }
 
             val editBlock: (block: TextEditingScope.() -> Unit) -> Unit = { block ->
-                object : TextEditingScope {
-                    fun runOnEditCommand(command: EditCommand) {
-                        onEditCommand(listOf(command))
-                    }
-
-                    override fun deleteSurroundingTextInCodePoints(
-                        lengthBeforeCursor: Int,
-                        lengthAfterCursor: Int
-                    ) {
-                        runOnEditCommand(
-                            DeleteSurroundingTextCommand(lengthBeforeCursor, lengthAfterCursor)
-                        )
-                    }
-
-                    override fun commitText(
-                        text: CharSequence,
-                        newCursorPosition: Int
-                    ) {
-                        runOnEditCommand(
-                            CommitTextCommand(text.toString(), newCursorPosition)
-                        )
-                    }
-
-                    override fun setComposingText(
-                        text: CharSequence,
-                        newCursorPosition: Int
-                    ) {
-                        runOnEditCommand(
-                            SetComposingTextCommand(text.toString(), newCursorPosition)
-                        )
-                    }
-
-                    override fun finishComposingText() {
-                        runOnEditCommand(
-                            FinishComposingTextCommand()
-                        )
-                    }
-                }.block()
+                val commands = mutableListOf<EditCommand>()
+                with(TextEditingScope(commands)) {
+                    block()
+                    onEditCommand(commands)
+                }
             }
 
             return SkikoPlatformTextInputMethodRequest(
@@ -167,5 +134,41 @@ internal actual fun createLegacyPlatformTextInputServiceAdapter():
                 editText = editBlock
             )
         }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun TextEditingScope(commands: MutableList<EditCommand>) = object : TextEditingScope {
+    override fun deleteSurroundingTextInCodePoints(
+        lengthBeforeCursor: Int,
+        lengthAfterCursor: Int
+    ) {
+        commands.add(
+            DeleteSurroundingTextCommand(lengthBeforeCursor, lengthAfterCursor)
+        )
+    }
+
+    override fun commitText(
+        text: CharSequence,
+        newCursorPosition: Int
+    ) {
+        commands.add(
+            CommitTextCommand(text.toString(), newCursorPosition)
+        )
+    }
+
+    override fun setComposingText(
+        text: CharSequence,
+        newCursorPosition: Int
+    ) {
+        commands.add(
+            SetComposingTextCommand(text.toString(), newCursorPosition)
+        )
+    }
+
+    override fun finishComposingText() {
+        commands.add(
+            FinishComposingTextCommand()
+        )
     }
 }

@@ -27,7 +27,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     alias(libs.plugins.kotlinSerialization)
 }
 
@@ -36,7 +36,6 @@ dependencies {
     api("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     api(project(":navigation:navigation-common"))
     api(project(":navigation:navigation-runtime"))
-    api(libs.kotlinStdlib)
 
     implementation(libs.kotlinSerializationCore)
     implementation(libs.kotlinCoroutinesCore)
@@ -59,12 +58,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":internal-testutils-runtime"), {
-        exclude group: "androidx.fragment", module: "fragment"
-    })
-    androidTestImplementation(project(":internal-testutils-navigation"), {
-        exclude group: "androidx.navigation", module: "navigation-common"
-    })
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":internal-testutils-navigation"))
 }
 
 androidx {

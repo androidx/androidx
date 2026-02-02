@@ -22,126 +22,101 @@
  * modifying its settings.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.Publish
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 36
+        namespace = "androidx.navigationevent.compose"
+    }
     desktop()
-    darwin()
+    mac()
+    ios()
     js()
-    wasm()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
-        commonMain {
-            dependencies {
-                api("androidx.navigationevent:navigationevent:$navigationEventVersion")
-                api(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui"))
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinCoroutinesCore)
+        commonMain.dependencies {
+            api("androidx.navigationevent:navigationevent:$navigationEventVersion")
+            api(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui"))
+            implementation(libs.kotlinCoroutinesCore)
+        }
+
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            api("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
+            implementation(project(":kruth:kruth"))
+        }
+
+        androidMain.dependencies {
+            implementation("androidx.compose.ui:ui:1.9.2") {
+                because("LocalView")
             }
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                api("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
-                implementation(project(":kruth:kruth"))
-            }
+        androidDeviceTest.dependencies {
+            implementation("androidx.compose.material:material:1.9.2")
+            implementation(project(":compose:ui:ui-test"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":compose:ui:ui-test-manifest"))
+            implementation(libs.testExtJunit)
+            implementation(libs.testCore)
+            implementation(libs.testRunner)
+            implementation(libs.testRules)
+            implementation(libs.espressoCore)
         }
 
-        jvmMain {
+        nonAndroidMain {
             dependsOn(commonMain)
-            dependencies {
-            }
         }
 
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-            }
-        }
-
-        jvmTest {
+        nonAndroidTest {
             dependsOn(commonTest)
-            dependencies {
-            }
         }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation("androidx.compose.material:material:1.9.0-rc01")
-                implementation("androidx.compose.ui:ui-test:1.9.0-rc01")
-                implementation("androidx.compose.ui:ui-test-junit4:1.9.0-rc01")
-                implementation("androidx.compose.ui:ui-test-manifest:1.9.0-rc01")
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.testRules)
-            }
-        }
-
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest.dependsOn(commonTest)
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
 
         desktopMain {
-            dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
 
         desktopTest {
-            dependsOn(jvmTest)
             dependsOn(nonAndroidTest)
         }
 
-        nativeMain.dependsOn(nonJvmMain)
-        nativeTest.dependsOn(nonJvmTest)
+        nativeMain {
+            dependsOn(nonAndroidMain)
+        }
 
-        webMain.dependsOn(nonJvmMain)
-        webTest.dependsOn(nonJvmTest)
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
 
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
         }
     }
 }
 
 androidx {
     name = "NavigationEvent Compose"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    samples(project(":navigationevent:navigationevent-samples"))
     inceptionYear = "2025"
     description = "Compose integration with NavigationEvent"
-}
-
-android {
-    namespace = "androidx.navigationevent.compose"
 }

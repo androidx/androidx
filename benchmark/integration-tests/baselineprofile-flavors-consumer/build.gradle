@@ -17,15 +17,15 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.baselineprofile")
 }
 
 android {
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt")
         }
     }
@@ -51,16 +51,14 @@ android {
             matchingFallbacks += "red"
         }
     }
-    namespace "androidx.benchmark.integration.baselineprofile.flavors.consumer"
+    namespace = "androidx.benchmark.integration.baselineprofile.flavors.consumer"
 }
 
 dependencies {
 
     // Specifying build type dependencies is part of the test
-    debugImplementation(libs.kotlinStdlib)
     debugImplementation(libs.constraintLayout)
 
-    releaseImplementation(libs.kotlinStdlib)
     releaseImplementation(libs.constraintLayout)
 }
 

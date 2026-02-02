@@ -22,96 +22,90 @@
  * modifying its settings.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.Publish
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        compileSdk = 36
+        namespace = "androidx.compose.material3.adaptive.navigation3"
+        androidResources.enable = true
+    }
     desktop()
-    darwin()
+    mac()
+    ios()
     js()
-    wasm()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":compose:material3:adaptive:adaptive-navigation"))
-                api(project(":navigation3:navigation3-ui"))
-                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0")
-                implementation("androidx.collection:collection:1.5.0")
-            }
+        commonMain.dependencies {
+            api(project(":compose:material3:adaptive:adaptive-navigation"))
+            api(project(":navigation3:navigation3-ui"))
+            implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")
+            implementation("androidx.collection:collection:1.5.0")
         }
 
-        commonTest {
-            dependencies {
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+            implementation("androidx.activity:activity-compose:1.12.2")
         }
 
-        jvmMain.dependsOn(commonMain)
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.8.1")
-                implementation("androidx.activity:activity-compose:1.10.1")
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:material3:material3"))
-                implementation(project(":compose:test-utils"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:material3:material3"))
+            implementation(project(":compose:test-utils"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
         }
 
         nonAndroidMain {
             dependsOn(commonMain)
         }
 
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
         desktopMain {
-            dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nativeMain.dependsOn(nonJvmMain)
-        webMain.dependsOn(nonJvmMain)
 
-        targets.configureEach { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-            }
+        desktopTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(nonAndroidTest)
+        }
+
+        webMain {
+            dependsOn(nonAndroidMain)
+        }
+
+        webTest {
+            dependsOn(nonAndroidTest)
         }
     }
 }
 
-android {
-    namespace = "androidx.compose.material3.adaptive.navigation3"
-}
-
 androidx {
     name = "Material Adaptive"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
     description = "Compose Material Design Adaptive Library"
+    addGoldenImageAssets()
 }

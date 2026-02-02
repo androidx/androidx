@@ -1,14 +1,10 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 buildscript {
     project.ext.supportRootFolder = project.projectDir.getParentFile()
     apply from: "repos.gradle"
     repos.addMavenRepositories(repositories)
 
     dependencies {
-        classpath(libs.kotlinGradlePluginz)
+        classpath(libs.kotlinGradlePlugin)
     }
 
     configurations.classpath.resolutionStrategy {
@@ -20,49 +16,17 @@ buildscript {
     }
 }
 
-apply from: "out.gradle"
-init.chooseOutDir()
-
 ext.supportRootFolder = project.projectDir.getParentFile()
 apply from: "repos.gradle"
 apply plugin: "kotlin"
 
-allprojects {
-    repos.addMavenRepositories(repositories)
+repos.addMavenRepositories(repositories)
 
-    tasks.withType(KotlinCompile).configureEach { task ->
-        task.compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_17)
-            freeCompilerArgs.addAll(
-                    // A lot of deprecation warnings due to Gradle/Java update.
-                    // TODO: Uncomment back once it's fixed (after AOSP sync)
-                    // "-Werror",
-                    "-Xskip-metadata-version-check",
-                    // Issue where sam conversion in gradle's kts file causes task-out-of-date
-                    // Details: KT-46445 and https://github.com/gradle/gradle/issues/17052
-                    "-Xsam-conversions=class",
-                    "-opt-in=kotlin.RequiresOptIn", // for JB-fork only - don't upstream
-            )
-            languageVersion.set(KotlinVersion.KOTLIN_2_0)
-            apiVersion.set(KotlinVersion.KOTLIN_2_0)
-        }
-    }
-
-    java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
+project.tasks.withType(Jar).configureEach { task ->
+    task.reproducibleFileOrder = true
+    task.preserveFileTimestamps = false
 }
 
 dependencies {
     api(project("plugins"))
-}
-
-// use jvmTarget 17 for buildSrc .kts scripts. Keep during merge
-tasks.withType(KotlinCompile).configureEach {task ->
-    task.compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
-        languageVersion.set(KotlinVersion.KOTLIN_2_0)
-        apiVersion.set(KotlinVersion.KOTLIN_2_0)
-    }
 }

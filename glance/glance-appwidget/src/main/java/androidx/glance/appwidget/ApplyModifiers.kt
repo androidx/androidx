@@ -73,7 +73,7 @@ internal fun applyModifiers(
                     Log.w(
                         GlanceAppWidgetTag,
                         "More than one clickable defined on the same GlanceModifier, " +
-                            "only the last one will be used."
+                            "only the last one will be used.",
                     )
                 }
                 actionModifier = modifier
@@ -119,7 +119,7 @@ internal fun applyModifiers(
             absolutePadding.left.toPixels(displayMetrics),
             absolutePadding.top.toPixels(displayMetrics),
             absolutePadding.right.toPixels(displayMetrics),
-            absolutePadding.bottom.toPixels(displayMetrics)
+            absolutePadding.bottom.toPixels(displayMetrics),
         )
     }
     clipToOutline?.let { clipModifier ->
@@ -150,7 +150,7 @@ private fun applySizeModifiers(
     rv: RemoteViews,
     widthModifier: WidthModifier?,
     heightModifier: HeightModifier?,
-    viewDef: InsertedViewInfo
+    viewDef: InsertedViewInfo,
 ) {
     val context = translationContext.context
     if (viewDef.isSimple) {
@@ -258,7 +258,7 @@ private fun applyBackgroundModifier(
     context: Context,
     rv: RemoteViews,
     modifier: BackgroundModifier,
-    viewDef: InsertedViewInfo
+    viewDef: InsertedViewInfo,
 ) {
     val viewId = viewDef.mainViewId
 
@@ -282,7 +282,7 @@ private fun applyBackgroundModifier(
                     rv.setViewBackgroundColor(
                         viewId,
                         colorProvider.day.toArgb(),
-                        colorProvider.night.toArgb()
+                        colorProvider.night.toArgb(),
                     )
                 } else {
                     rv.setViewBackgroundColor(viewId, colorProvider.getColor(context).toArgb())

@@ -1,0 +1,25 @@
+Display 4630947118961383299
+    connectionType=Internal
+    colorModes=
+        ColorMode::NATIVE
+        ColorMode::SRGB
+        ColorMode::DISPLAY_P3
+    deviceProductInfo={name="", manufacturerPnpId=QCM, productId=1, manufactureWeek=27, manufactureYear=2006, relativeAddress=[]}
+    name=""
+    powerMode=ON
+    HFR Mode=1
+    activeMode=24.00 Hz (24.00 Hz)
+    displayModes=
+        {id=0, hwcId=0, resolution=1080x2340, refreshRate=120.00 Hz, dpi=391.89x393.61, group=1080}
+        {id=1, hwcId=1, resolution=1080x2340, refreshRate=96.00 Hz, dpi=391.89x393.61, group=1080}
+        {id=2, hwcId=2, resolution=1080x2340, refreshRate=60.00 Hz, dpi=391.89x393.61, group=1080}
+        {id=3, hwcId=4, resolution=1080x2340, refreshRate=48.00 Hz, dpi=391.89x393.61, group=1080}
+        {id=4, hwcId=6, resolution=1080x2340, refreshRate=30.00 Hz, dpi=391.89x393.61, group=1080}
+        {id=5, hwcId=8, resolution=1080x2340, refreshRate=24.00 Hz, dpi=391.89x393.61, group=1080}
+        {id=6, hwcId=10, resolution=1080x2340, refreshRate=10.00 Hz, dpi=391.89x393.61, group=1080}
+    displayManagerPolicy={defaultModeId=0, allowGroupSwitching=false, primaryRanges={physical=[10.00 Hz, 120.00 Hz], render=[0.00 Hz, 120.00 Hz]}, appRequestRanges={physical=[10.00 Hz, 120.00 Hz], render=[0.00 Hz, 120.00 Hz]}}
+    frameRateOverrideConfig=Disabled
+    idleTimer=
+        interval=250.000 ms
+        controller=Platform
+

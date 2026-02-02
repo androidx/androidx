@@ -16,13 +16,16 @@
 
 package androidx.benchmark.benchmark
 
+import android.os.Build
+import androidx.benchmark.Arguments
 import androidx.benchmark.CpuEventCounter
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -31,7 +34,6 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 21)
 class CpuEventCounterBenchmark {
     @get:Rule val benchmarkRule = BenchmarkRule()
     private val values = CpuEventCounter.Values()
@@ -40,6 +42,13 @@ class CpuEventCounterBenchmark {
     fun before() {
         // skip test if need root, or event fails to enable
         CpuEventCounter.forceEnable()?.let { errorMessage -> assumeTrue(errorMessage, false) }
+
+        assumeFalse(DeviceInfo.isEmulator && Build.VERSION.SDK_INT == 28) // see b/357101113
+
+        assumeFalse(
+            "cpu events enabled for all benchmarks, disabling this test",
+            Arguments.cpuEventCounterEnable,
+        )
     }
 
     @After
@@ -63,7 +72,7 @@ class CpuEventCounterBenchmark {
                 )
             )
             benchmarkRule.measureRepeated {
-                runWithTimingDisabled { counter.reset() }
+                runWithMeasurementDisabled { counter.reset() }
                 counter.start()
                 counter.stop()
             }

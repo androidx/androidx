@@ -21,6 +21,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import kotlin.test.assertContains
+import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import org.junit.Assert.assertNotNull
 import org.junit.Test
@@ -72,7 +73,7 @@ class ProfileInstallBroadcastTest {
     fun saveProfile_missing() {
         val errorString = ProfileInstallBroadcast.saveProfile(Packages.MISSING)
         assertNotNull(errorString)
-        assertContains(errorString!!, "The save profile broadcast event was not received")
+        assertContains(errorString!!, "The save profile broadcast was not received")
     }
 
     @Test
@@ -89,7 +90,49 @@ class ProfileInstallBroadcastTest {
         // validate extra instructions
         assertContains(
             errorString,
-            "verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears unobfuscated"
+            "verify: 1) androidx.profileinstaller.ProfileInstallReceiver appears unobfuscated",
         )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses_target() {
+        // first command just used to wake target - otherwise we'd get 0
+        ProfileInstallBroadcast.dropShaderCache(Packages.TARGET)
+
+        assertEquals(
+            ProfileInstallBroadcast.SaveProfileResult(1, null),
+            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TARGET),
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses_self() {
+        val result = ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TEST)
+        // only one process, but we don't care if succeeds
+        // (since this test may not depend on profileinstaller)
+        assertEquals(1, result.processCount)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses_missing() {
+        assertEquals(
+            ProfileInstallBroadcast.SaveProfileResult(0, null),
+            ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.MISSING),
+        )
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun saveProfilesForAllProcesses_this() {
+        // we remove the receiver in the test to enable testing against a running app without it,
+        // but this doesn't test the BENCHMARK_OPERATION code path since the test is the
+        // main process, so uses the legacy broadcast for compatibility
+        val result = ProfileInstallBroadcast.saveProfilesForAllProcesses(Packages.TEST)
+        assertEquals(1, result.processCount)
+        assertNotNull(result.error)
+        assertContains(result.error!!, "The save profile broadcast was not received.")
     }
 }

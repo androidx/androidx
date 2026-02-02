@@ -1,8 +1,17 @@
+import androidx.build.ApkCopyHelperKt
+
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
@@ -10,22 +19,23 @@ dependencies {
     implementation(project(":compose:animation:animation:integration-tests:animation-demos"))
     implementation(project(":compose:foundation:foundation-layout:integration-tests:foundation-layout-demos"))
     implementation(project(":compose:foundation:foundation:integration-tests:foundation-demos"))
-//    implementation(project(":compose:material:material:integration-tests:material-demos"))
-//    implementation(project(":compose:material3:material3:integration-tests:material3-demos"))
-    // TODO: this library is not published so commented out
-    // implementation(androidxArtifact(":navigation:navigation-compose:integration-tests:navigation-demos"))
-    // TODO: this library is not published so commented out
-    // implementation(androidxArtifact(":paging:paging-compose:integration-tests:paging-demos"))
+    implementation(project(":compose:material:material:integration-tests:material-demos"))
+    implementation(project(":compose:material3:material3:integration-tests:material3-demos"))
+    implementation(project(":navigation:navigation-compose:integration-tests:navigation-demos"))
+    implementation(project(":navigation3:navigation3-ui:integration-tests:navigation3-demos"))
+    implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
     implementation(project(":compose:ui:ui:integration-tests:ui-demos"))
 
     implementation(libs.kotlinReflect)
-    implementation(libs.kotlinStdlib)
 
-    implementation(androidxArtifact(":core:core-ktx"))
+    implementation(project(":activity:activity"))
+    implementation(project(":activity:activity-compose"))
+    implementation("androidx.core:core-ktx:1.15.0")
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation(project(":compose:material3:material3"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
@@ -33,12 +43,18 @@ dependencies {
     implementation("androidx.preference:preference-ktx:1.1.1")
 }
 
+// Publish an APK so demo app is available in ab/ for devs, PMs, QA to use.
+// Can also be used to bisect escaped defects in functionality.
+ApkCopyHelperKt.setupAppApkCopy(project, "release")
+
 android {
-    defaultConfig {
-        minSdkVersion 21
-        // Change the APK name to match the *testapp regex we use to pick up APKs for testing as
-        // part of CI.
-        archivesBaseName = "compose-demos-testapp"
+    compileSdk = 36
+    namespace = "androidx.compose.integration.demos"
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
-    namespace "androidx.compose.integration.demos"
 }

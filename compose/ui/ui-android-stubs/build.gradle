@@ -14,7 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -22,16 +29,19 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 }
 
 androidx {
     name = "Compose Android Stubs"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Stubs for classes in older Android APIs"
+    doNotDocumentReason = "Not published to maven"
+    // TODO: b/326456246
+    optOutJSpecify = true
 }
 
 android {
-    namespace "androidx.compose.ui.androidstubs"
+    namespace = "androidx.compose.ui.androidstubs"
 }

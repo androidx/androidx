@@ -26,16 +26,15 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
     api("androidx.arch.core:core-common:2.2.0")
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-runtime"))
-    api("androidx.annotation:annotation:1.8.1")
+    api("androidx.annotation:annotation:1.9.1")
     api(libs.reactiveStreams)
 
     annotationProcessor(libs.nullaway)

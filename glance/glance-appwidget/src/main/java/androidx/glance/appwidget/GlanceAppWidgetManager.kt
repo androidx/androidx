@@ -20,13 +20,23 @@ import android.app.Application
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.widget.RemoteViews
+import androidx.annotation.CheckResult
+import androidx.annotation.DoNotInline
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.collection.IntSet
+import androidx.collection.intSetOf
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -36,6 +46,7 @@ import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.glance.GlanceId
+import kotlin.reflect.KClass
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 
@@ -45,7 +56,7 @@ import kotlinx.coroutines.flow.firstOrNull
  * This is used to query the app widgets currently installed on the system, and some of their
  * properties.
  */
-class GlanceAppWidgetManager(private val context: Context) {
+public class GlanceAppWidgetManager(private val context: Context) {
 
     private data class State(
         val receiverToProviderName: Map<ComponentName, String> = emptyMap(),
@@ -124,7 +135,7 @@ class GlanceAppWidgetManager(private val context: Context) {
     }
 
     /** Returns the [GlanceId] of the App Widgets installed for a particular provider. */
-    suspend fun <T : GlanceAppWidget> getGlanceIds(provider: Class<T>): List<GlanceId> {
+    public suspend fun <T : GlanceAppWidget> getGlanceIds(provider: Class<T>): List<GlanceId> {
         val state = getState()
         val providerName = requireNotNull(provider.canonicalName) { "no canonical provider name" }
         val receivers = state.providerNameToReceivers[providerName] ?: return emptyList()
@@ -142,7 +153,7 @@ class GlanceAppWidgetManager(private val context: Context) {
      * portrait sizes will be estimated from those and returned. Otherwise, the list will contain
      * [DpSize.Zero] only.
      */
-    suspend fun getAppWidgetSizes(glanceId: GlanceId): List<DpSize> {
+    public suspend fun getAppWidgetSizes(glanceId: GlanceId): List<DpSize> {
         require(glanceId is AppWidgetId) { "This method only accepts App Widget Glance Id" }
         val bundle = appWidgetManager.getAppWidgetOptions(glanceId.appWidgetId)
         return bundle.extractAllSizes { DpSize.Zero }
@@ -155,7 +166,7 @@ class GlanceAppWidgetManager(private val context: Context) {
      * the GlanceStateDefinition. This method should only be used for compatibility or IPC
      * communication reasons in conjunction with [getGlanceIdBy]
      */
-    fun getAppWidgetId(glanceId: GlanceId): Int {
+    public fun getAppWidgetId(glanceId: GlanceId): Int {
         require(glanceId is AppWidgetId) { "This method only accepts App Widget Glance Id" }
         return glanceId.appWidgetId
     }
@@ -166,17 +177,17 @@ class GlanceAppWidgetManager(private val context: Context) {
      * @throws IllegalArgumentException if the provided id is not associated with an existing
      *   GlanceId
      */
-    fun getGlanceIdBy(appWidgetId: Int): GlanceId {
+    public fun getGlanceIdBy(appWidgetId: Int): GlanceId {
         requireNotNull(appWidgetManager.getAppWidgetInfo(appWidgetId)) { "Invalid AppWidget ID." }
         return AppWidgetId(appWidgetId)
     }
 
     /** Retrieve the GlanceId from the configuration activity intent or null if not valid */
-    fun getGlanceIdBy(configurationIntent: Intent): GlanceId? {
+    public fun getGlanceIdBy(configurationIntent: Intent): GlanceId? {
         val appWidgetId =
             configurationIntent.extras?.getInt(
                 AppWidgetManager.EXTRA_APPWIDGET_ID,
-                AppWidgetManager.INVALID_APPWIDGET_ID
+                AppWidgetManager.INVALID_APPWIDGET_ID,
             ) ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
         if (appWidgetId == AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -204,7 +215,7 @@ class GlanceAppWidgetManager(private val context: Context) {
      * @return true if the request was successfully sent to the system, false otherwise
      * @see AppWidgetManager.requestPinAppWidget for more information and limitations
      */
-    suspend fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
+    public suspend fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
         receiver: Class<T>,
         preview: GlanceAppWidget? = null,
         previewState: Any? = null,
@@ -239,7 +250,7 @@ class GlanceAppWidgetManager(private val context: Context) {
      * @return true if the request was successfully sent to the system, false otherwise
      * @see AppWidgetManager.requestPinAppWidget for more information and limitations
      */
-    suspend fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
+    public suspend fun <T : GlanceAppWidgetReceiver> requestPinGlanceAppWidget(
         receiver: Class<T>,
         preview: GlanceAppWidget? = null,
         previewSize: DpSize? = null,
@@ -263,8 +274,7 @@ class GlanceAppWidgetManager(private val context: Context) {
                                 state = previewState,
                                 options = Bundle.EMPTY,
                                 size =
-                                    previewSize
-                                        ?: info.getMinSize(context.resources.displayMetrics),
+                                    previewSize ?: info.getMinSize(context.resources.displayMetrics),
                             )
                         putParcelable(AppWidgetManager.EXTRA_APPWIDGET_PREVIEW, snapshot)
                     }
@@ -273,10 +283,92 @@ class GlanceAppWidgetManager(private val context: Context) {
                 appWidgetManager,
                 target,
                 previewBundle,
-                successCallback
+                successCallback,
             )
         }
         return false
+    }
+
+    /**
+     * Generate and publish the widget previews for [receiver] for the given set of
+     * [widgetCategories]. Previews are generated from the layout provided by
+     * [GlanceAppWidget.providePreview] on the widget connected to the given [receiver].
+     *
+     * Previews should be published during the initial setup phase or launch of your app. To avoid
+     * running this unnecessarily, you can see what previews are currently published for your
+     * provider by checking [AppWidgetProviderInfo.generatedPreviewCategories].
+     *
+     * The preview composition is run for each value in the [widgetCategories] array. By default, a
+     * single preview is generated for all widget categories, i.e. `widgetsCategories =
+     * intSetOf(WIDGET_CATEGORY_HOME_SCREEN or WIDGET_CATEGORY_KEYGUARD or
+     * WIDGET_CATEGORY_SEARCHBOX)`. To generate a separate preview for each widget category, pass
+     * each category as a separate item in the int set, e.g. `intSetOf(WIDGET_CATEGORY_HOME_SCREEN,
+     * WIDGET_CATEGORY_KEYGUARD)`. This is only necessary if you want to generate different layouts
+     * for the different categories.
+     *
+     * Note that this API is only available on [Build.VERSION_CODES.VANILLA_ICE_CREAM] and above, so
+     * you will likely want to set [AppWidgetProviderInfo.previewLayout] and
+     * [AppWidgetProviderInfo.previewImage] as well to have the most coverage across versions.
+     *
+     * See also [AppWidgetProviderInfo.generatedPreviewCategories],
+     * [AppWidgetManager.setWidgetPreview], [AppWidgetManager.getWidgetPreview], and
+     * [AppWidgetManager.removeWidgetPreview].
+     *
+     * @param receiver the [GlanceAppWidgetReceiver] which holds the [GlanceAppWidget] to run. This
+     *   receiver must be registered as an app widget provider in the application manifest.
+     * @param widgetCategories the widget categories for which to set previews. Each element of this
+     *   set must be a combination of [WIDGET_CATEGORY_HOME_SCREEN], [WIDGET_CATEGORY_KEYGUARD], or
+     *   [WIDGET_CATEGORY_SEARCHBOX].
+     * @return [SET_WIDGET_PREVIEWS_RESULT_SUCCESS] if the preview was successfully updated. Returns
+     *   [SET_WIDGET_PREVIEWS_RESULT_RATE_LIMITED] when the caller has hit a system-defined rate
+     *   limit on setting previews for a particular provider. In this case, you may opt to schedule
+     *   a task in the future to try again, if necessary.
+     * @sample androidx.glance.appwidget.samples.setWidgetPreviews
+     */
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    @CheckResult
+    public suspend fun setWidgetPreviews(
+        receiver: KClass<out GlanceAppWidgetReceiver>,
+        widgetCategories: IntSet =
+            intSetOf(
+                WIDGET_CATEGORY_HOME_SCREEN or WIDGET_CATEGORY_KEYGUARD or WIDGET_CATEGORY_SEARCHBOX
+            ),
+    ): @SetWidgetPreviewsResult Int {
+        val glanceAppWidget =
+            (receiver.java.constructors.first { it.parameters.isEmpty() }.newInstance()
+                    as GlanceAppWidgetReceiver)
+                .glanceAppWidget
+        val componentName = ComponentName(context, receiver.java)
+        val providerInfo =
+            if (glanceAppWidget.previewSizeMode == SizeMode.Single) {
+                appWidgetManager.installedProviders.firstOrNull { it.provider == componentName }
+            } else {
+                null
+            }
+        val success =
+            widgetCategories.all { category ->
+                val preview = glanceAppWidget.composeForPreview(context, category, providerInfo)
+                val result =
+                    AppWidgetManagerApi35Impl.setWidgetPreview(
+                        appWidgetManager,
+                        componentName,
+                        category,
+                        preview,
+                    )
+                if (!result) {
+                    Log.w(
+                        TAG,
+                        "setWidgetPreview call for $componentName with categories $category was " +
+                            "rate-limited",
+                    )
+                }
+                result
+            }
+        return if (success) {
+            SET_WIDGET_PREVIEWS_RESULT_SUCCESS
+        } else {
+            SET_WIDGET_PREVIEWS_RESULT_RATE_LIMITED
+        }
     }
 
     /** Check which receivers still exist, and clean the data store to only keep those. */
@@ -295,6 +387,7 @@ class GlanceAppWidgetManager(private val context: Context) {
                 .toMutablePreferences()
                 .apply {
                     this[providersKey] = knownReceivers - toRemove
+                    @Suppress("ListIterator")
                     toRemove.forEach { receiver -> remove(providerKey(receiver)) }
                 }
                 .toPreferences()
@@ -352,7 +445,24 @@ class GlanceAppWidgetManager(private val context: Context) {
         dataStore.edit { it.clear() }
     }
 
-    private companion object {
+    /** Annotation that describes which values can be returned from [setWidgetPreviews] */
+    @IntDef(SET_WIDGET_PREVIEWS_RESULT_SUCCESS, SET_WIDGET_PREVIEWS_RESULT_RATE_LIMITED)
+    @Retention(AnnotationRetention.SOURCE)
+    @Target(AnnotationTarget.TYPE)
+    internal annotation class SetWidgetPreviewsResult
+
+    public companion object {
+        /**
+         * Returned from [setWidgetPreviews] to indicate that the previews were set successfully.
+         */
+        public const val SET_WIDGET_PREVIEWS_RESULT_SUCCESS: Int = 0
+
+        /**
+         * Return from [setWidgetPreviews] to indicate that the operation was not successful due to
+         * a rate limit.
+         */
+        public const val SET_WIDGET_PREVIEWS_RESULT_RATE_LIMITED: Int = 1
+
         private val Context.appManagerDataStore by
             preferencesDataStore(name = "GlanceAppWidgetManager-$processName")
 
@@ -385,6 +495,8 @@ class GlanceAppWidgetManager(private val context: Context) {
             }
             return null
         }
+
+        private const val TAG = "GlanceAppWidgetManager"
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -400,6 +512,63 @@ class GlanceAppWidgetManager(private val context: Context) {
             successCallback: PendingIntent?,
         ) = manager.requestPinAppWidget(target, extras, successCallback)
     }
+
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    private object AppWidgetManagerApi35Impl {
+        @DoNotInline
+        fun setWidgetPreview(
+            manager: AppWidgetManager,
+            provider: ComponentName,
+            category: Int,
+            preview: RemoteViews,
+        ): Boolean {
+            return manager.setWidgetPreview(provider, category, preview)
+        }
+    }
+}
+
+/**
+ * Generate and publish the widget previews for a [GlanceAppWidgetReceiver] for the given set of
+ * [widgetCategories]. Previews are generated from the layout provided by
+ * [GlanceAppWidget.providePreview] on the widget connected to the given [GlanceAppWidgetReceiver]
+ * class. This receiver must be registered as an app widget provider in the application manifest.
+ *
+ * Previews should be published during the initial setup phase or launch of your app. To avoid
+ * running this unnecessarily, you can see what previews are currently published for your provider
+ * by checking [AppWidgetProviderInfo.generatedPreviewCategories].
+ *
+ * The preview composition is run for each value in the [widgetCategories] array. If your widget has
+ * the same layout across categories, you can combine all of the categories in a single value, e.g.
+ * `WIDGET_CATEGORY_HOME_SCREEN or WIDGET_CATEGORY_KEYGUARD or WIDGET_CATEGORY_SEARCHBOX`, which
+ * will call [composeForPreview] once and set the previews for all of the categories.
+ *
+ * Note that this API is only available on [Build.VERSION_CODES.VANILLA_ICE_CREAM] and above, so you
+ * will likely want to set [AppWidgetProviderInfo.previewLayout] and
+ * [AppWidgetProviderInfo.previewImage] as well to have the most coverage across versions.
+ *
+ * See also [AppWidgetProviderInfo.generatedPreviewCategories], [AppWidgetManager.setWidgetPreview],
+ * [AppWidgetManager.getWidgetPreview], and [AppWidgetManager.removeWidgetPreview].
+ *
+ * @param widgetCategories the widget categories for which to set previews. Each element of this set
+ *   must be a combination of [WIDGET_CATEGORY_HOME_SCREEN], [WIDGET_CATEGORY_KEYGUARD], or
+ *   [WIDGET_CATEGORY_SEARCHBOX].
+ * @return [GlanceAppWidgetManager.SET_WIDGET_PREVIEWS_RESULT_SUCCESS] if the preview was
+ *   successfully updated. Returns [GlanceAppWidgetManager.SET_WIDGET_PREVIEWS_RESULT_RATE_LIMITED]
+ *   when the caller has hit a system-defined rate limit on setting previews for a particular
+ *   provider. In this case, you may opt to schedule a task in the future to try again, if
+ *   necessary.
+ * @sample androidx.glance.appwidget.samples.setWidgetPreviews
+ */
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+@CheckResult
+public suspend inline fun <reified T : GlanceAppWidgetReceiver> GlanceAppWidgetManager
+    .setWidgetPreviews(
+    widgetCategories: IntSet =
+        intSetOf(
+            WIDGET_CATEGORY_HOME_SCREEN or WIDGET_CATEGORY_KEYGUARD or WIDGET_CATEGORY_SEARCHBOX
+        )
+): @GlanceAppWidgetManager.SetWidgetPreviewsResult Int {
+    return setWidgetPreviews(T::class, widgetCategories)
 }
 
 private fun Map<ComponentName, String>.reverseMapping(): Map<String, List<ComponentName>> =

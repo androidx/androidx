@@ -14,347 +14,234 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import androidx.build.ProjectLayoutType
 import org.jetbrains.androidx.build.UpdateTranslationsTask
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.konan.target.Family
+
+import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
-    id("kotlinx-atomicfu")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
+androidXMultiplatform {
+    androidLibrary {
+        withJava()
+        compileSdk = 35
+        androidResources.enable = true
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+        namespace = "androidx.compose.ui"
+        // namespace has to be unique, but default androidx.compose.ui.test package is taken by
+        // the androidx.compose.ui:ui-test library
+        testNamespace = "androidx.compose.ui.tests"
 
-dependencies {
-
-    constraints {
-        // In 1.4.0-alpha02 there was a change made in :compose:ui:ui which fixed an issue where
-        // we were over-invalidating layout. This change caused a corresponding regression in
-        // foundation's CoreText, where it was expecting a layout to happen but with this change
-        // it would not. A corresponding fix for this was added in 1.4.0-alpha02 of
-        // :compose:foundation:foundation. By adding this constraint, we are ensuring that the
-        // if an app has this ui module _and_ the foundation module as a dependency, then the
-        // version of foundation will be at least this version. This will prevent the bug in
-        // foundation from occurring. This does _NOT_ require that the app have foundation as
-        // a dependency.
-        implementation(project(":compose:foundation:foundation")) {
-            because 'prevents a critical bug in Text'
+        packaging {
+            it.resources {
+                it.pickFirsts.add("mockito-extensions/org.mockito.plugins.MockMaker")
+                it.pickFirsts.add("mockito-extensions/org.mockito.plugins.StackTraceCleanerProvider")
+            }
         }
     }
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
-        implementation(libs.kotlinStdlib)
-        implementation(libs.kotlinCoroutinesCore)
-        implementation(libs.atomicFu)
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
 
-        // when updating the runtime version please also update the runtime-saveable version
-        implementation(project(":compose:runtime:runtime"))
-        api(project(":compose:runtime:runtime-saveable"))
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
-        api(project(":compose:ui:ui-geometry"))
-        api(project(":compose:ui:ui-graphics"))
-        api(project(":compose:ui:ui-text"))
-        api(project(":compose:ui:ui-unit"))
-        api("androidx.annotation:annotation:1.5.0")
+    iosInstrumentedTest()
+    configureDarwinFlags()
 
-        // This has stub APIs for access to legacy Android APIs, so we don't want
-        // any dependency on this module.
-        compileOnly(project(":compose:ui:ui-android-stubs"))
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":annotation:annotation"))
+            implementation(project(":collection:collection"))
+            implementation(libs.kotlinCoroutinesCore)
 
-        implementation(project(":compose:ui:ui-util"))
-        implementation(libs.kotlinStdlib)
-        implementation("androidx.autofill:autofill:1.0.0")
-        implementation(libs.kotlinCoroutinesAndroid)
+            // when updating the runtime version please also update the runtime-saveable version
+            implementation(project(":compose:runtime:runtime"))
+            // We do not publish runtime-retain from the fork (it's KMP-compatible from the start)
+            // api(project(":compose:runtime:runtime-retain"))
+            def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
+            api("androidx.compose.runtime:runtime-retain:$composeVersion")
+            api(project(":compose:runtime:runtime-saveable"))
 
-        // Used to generate debug information in the layout inspector. If not present,
-        // we may fall back to more limited data.
-        compileOnly(libs.kotlinReflect)
-        testImplementation(libs.kotlinReflect)
+            api project(":compose:ui:ui-geometry")
+            api project(":compose:ui:ui-graphics")
+            api project(":compose:ui:ui-text")
+            api project(":compose:ui:ui-unit")
+            api project(":compose:ui:ui-util")
+            api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.6")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
+        }
 
-        implementation("androidx.activity:activity-ktx:1.7.0-rc01")
-        implementation("androidx.core:core:1.9.0")
-        implementation('androidx.collection:collection:1.0.0')
-        implementation("androidx.customview:customview-poolingcontainer:1.0.0")
-        implementation("androidx.savedstate:savedstate-ktx:1.2.0")
-        implementation("androidx.lifecycle:lifecycle-runtime:2.6.0")
-        implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
-        implementation("androidx.profileinstaller:profileinstaller:1.2.1")
-        implementation("androidx.emoji2:emoji2:1.2.0")
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinReflect)
+            api(project(":compose:ui:ui-util"))
+            implementation(project(":compose:ui:ui-test"))
+        }
 
-        testImplementation(libs.testRules)
-        testImplementation(libs.testRunner)
-        testImplementation(libs.kotlinCoroutinesTest)
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-        testImplementation(libs.mockitoCore4)
-        testImplementation(libs.mockitoKotlin4)
-        testImplementation(libs.robolectric)
-        testImplementation(project(":compose:ui:ui-test-junit4"))
-        testImplementation(project(":compose:test-utils"))
+        jvmAndAndroidMain.dependencies {
+        }
 
-        androidTestImplementation(libs.testCore)
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.testExtJunitKtx)
-        androidTestImplementation(libs.testUiautomator)
-        androidTestImplementation(libs.kotlinCoroutinesTest)
-        androidTestImplementation(libs.kotlinTest)
-        androidTestImplementation(libs.espressoCore)
-        androidTestImplementation(libs.bundles.espressoContrib)
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(libs.dexmakerMockito)
-        androidTestImplementation(libs.mockitoCore)
-        androidTestImplementation(libs.truth)
-        androidTestImplementation(libs.mockitoKotlin)
-        androidTestImplementation(libs.material)
-        androidTestImplementation(project(":compose:animation:animation-core"))
-        androidTestImplementation(project(":compose:foundation:foundation"))
-        androidTestImplementation(project(":compose:foundation:foundation-layout"))
-        androidTestImplementation(project(":compose:material:material"))
-        androidTestImplementation(project(":compose:test-utils"))
-        androidTestImplementation(project(":internal-testutils-fonts"))
-        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-        androidTestImplementation(project(":internal-testutils-runtime"))
-        androidTestImplementation(androidxArtifact(":test:screenshot:screenshot"))
-        androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.0")
-        androidTestImplementation("androidx.recyclerview:recyclerview:1.3.0-alpha02")
-        androidTestImplementation("androidx.core:core-ktx:1.9.0")
-        androidTestImplementation("androidx.activity:activity-compose:1.7.0-rc01")
-        androidTestImplementation("androidx.appcompat:appcompat:1.3.0")
-        androidTestImplementation("androidx.fragment:fragment:1.3.0")
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            // This has stub APIs for access to legacy Android APIs, so we don't want
+            // any dependency on this module.
+            compileOnly(project(":compose:ui:ui-android-stubs"))
+            implementation("androidx.autofill:autofill:1.0.0")
+            implementation(libs.kotlinCoroutinesAndroid)
+            api(libs.jspecify)
 
-        lintChecks(project(":compose:ui:ui-lint"))
-        lintPublish(project(":compose:ui:ui-lint"))
+            implementation("androidx.activity:activity-ktx:1.7.0")
+            implementation("androidx.core:core:1.16.0")
+            implementation("androidx.collection:collection:1.4.2")
+            implementation("androidx.customview:customview-poolingcontainer:1.0.0")
+            implementation("androidx.savedstate:savedstate-ktx:1.3.1")
+            implementation("androidx.lifecycle:lifecycle-viewmodel:2.9.2")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.9.2")
+            implementation("androidx.transition:transition:1.6.0")
+            implementation("androidx.emoji2:emoji2:1.2.0")
+            implementation("androidx.window:window:1.5.0")
 
-        samples(project(":compose:ui:ui:ui-samples"))
-    }
-}
+            implementation("androidx.profileinstaller:profileinstaller:1.4.0")
 
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-        darwin()
-        js()
-        wasm()
-        iosInstrumentedTest()
+            // `compose-ui` has a transitive dependency on `lifecycle-livedata-core`, and
+            // converting `lifecycle-runtime-compose` to KMP triggered a Gradle bug. Adding
+            // the `livedata` dependency directly works around the issue.
+            // See https://github.com/gradle/gradle/issues/14220 for details.
+            compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.8.7")
 
-        configureDarwinFlags()
-    }
+            // `compose-ui` has a transitive dependency on `lifecycle-viewmodel-savedstate`, and
+            // converting `lifecycle-runtime-compose` to KMP triggered a Gradle bug. Adding
+            // the `lifecycle-viewmodel-savedstate` dependency directly works around the issue.
+            // See https://github.com/gradle/gradle/issues/14220 for details.
+            compileOnly("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.2")
+        }
 
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
-                implementation(project(":annotation:annotation"))
-                implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinCoroutinesCore)
 
-                // when updating the runtime version please also update the runtime-saveable version
-                implementation(project(":compose:runtime:runtime"))
-                // We do not publish runtime-retain from the fork (it's KMP-compatible from the start)
-                // api(project(":compose:runtime:runtime-retain"))
-                def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
-                api("androidx.compose.runtime:runtime-retain:$composeVersion")
-                api(project(":compose:runtime:runtime-saveable"))
+        androidDeviceTest.dependencies {
+            implementation("androidx.fragment:fragment:1.3.0")
+            implementation("androidx.appcompat:appcompat:1.7.1")
+            implementation("androidx.activity:activity:1.9.1")
+            implementation("androidx.core:core:1.16.0-beta01")
+            implementation(libs.testUiautomator)
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.testExtJunitKtx)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.kotlinTest)
+            implementation(libs.espressoCore)
+            implementation(libs.bundles.espressoContrib)
+            implementation(libs.junit)
 
-                api project(":compose:ui:ui-geometry")
-                api project(":compose:ui:ui-graphics")
-                api project(":compose:ui:ui-text")
-                api project(":compose:ui:ui-unit")
-                api project(":compose:ui:ui-util")
-                api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.6")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
-                implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
+            // Includes both dexmakers allows support for all API levels plus final mocking
+            // support on API 28+. The implementation is swapped based on the finality of the
+            // mock type. This delegation is handled manually inside
+            // androidx.compose.ui.util.mockito.CustomMockMaker.
+            implementation(libs.dexmakerMockito)
+            implementation(libs.dexmakerMockitoInline)
+
+            implementation(libs.mockitoCore)
+            implementation(libs.truth)
+            implementation(libs.mockitoKotlin)
+            implementation(libs.material)
+            implementation(project(":compose:animation:animation-core"))
+            implementation(project(":compose:foundation:foundation"))
+            implementation(project(":compose:foundation:foundation-layout"))
+            implementation(project(":compose:material:material"))
+            implementation("androidx.compose.material:material-icons-core:1.6.7")
+            implementation(project(":compose:test-utils"))
+            implementation(project(":internal-testutils-fonts"))
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":internal-testutils-runtime"))
+            implementation(project(":test:screenshot:screenshot"))
+            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.7")
+            implementation("androidx.recyclerview:recyclerview:1.3.0")
+            implementation("androidx.core:core-ktx:1.2.0")
+            implementation("androidx.activity:activity-compose:1.7.0")
+            implementation("androidx.fragment:fragment-testing:1.4.1")
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(libs.junit)
+            implementation(libs.truth)
+            implementation(libs.kotlinTest)
+            implementation(libs.mockitoCore4)
+            implementation(libs.mockitoKotlin4)
+            implementation(libs.byteBuddy)
+            implementation(project(":compose:ui:ui-test-junit4"))
+            implementation(project(":internal-testutils-fonts"))
+            implementation(project(":compose:test-utils"))
+        }
+
+        // TODO: Align naming: nonAndroidMain
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-text"))
+                api(libs.skiko)
+                implementation(libs.atomicFu)
+
+                // Keep this dependency for compatibility due to https://youtrack.jetbrains.com/issue/KT-60874
+                implementation(project(":compose:ui:ui-backhandler"))
+
+                // Use direct dependency to AOSP's artifact instead of using project reference
+                // because this module supports all KMP platforms from the beginning.
+                // Project dependency (commented out version) is required for `integration` branch setup
+                // implementation(project(":navigationevent:navigationevent"))
+                def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+                implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
             }
+        }
 
-            androidMain.dependencies {
-                implementation(libs.kotlinStdlib)
-                // This has stub APIs for access to legacy Android APIs, so we don't want
-                // any dependency on this module.
-                compileOnly(project(":compose:ui:ui-android-stubs"))
-                api("androidx.annotation:annotation:1.5.0")
-                implementation("androidx.autofill:autofill:1.0.0")
-                implementation(libs.kotlinCoroutinesAndroid)
-
-                implementation("androidx.activity:activity-ktx:1.7.0-rc01")
-                implementation("androidx.core:core:1.9.0")
-                implementation('androidx.collection:collection:1.0.0')
-                implementation("androidx.customview:customview-poolingcontainer:1.0.0")
-                implementation("androidx.savedstate:savedstate-ktx:1.2.0")
-                implementation("androidx.lifecycle:lifecycle-runtime:2.6.0")
-                implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.0")
-                implementation("androidx.emoji2:emoji2:1.2.0")
-            }
-
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-            skikoMain {
-                dependsOn(commonMain)
-                dependencies {
-                    api(project(":compose:ui:ui-graphics"))
-                    api(project(":compose:ui:ui-text"))
-                    api(libs.skikoCommon)
-                    implementation(libs.atomicFu)
-
-                    // Keep this dependency for compatibility due to https://youtrack.jetbrains.com/issue/KT-60874
-                    implementation(project(":compose:ui:ui-backhandler"))
-
-                    // Use direct dependency to AOSP's artifact instead of using project reference
-                    // because this module supports all KMP platforms from the beginning.
-                    // Project dependency (commented out version) is required for `integration` branch setup
-                    // implementation(project(":navigationevent:navigationevent"))
-                    def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
-                    implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
-                }
-            }
-            iosMain {
-                dependencies {
-                    implementation(project(":compose:ui:ui-uikit"))
-                }
-            }
-            desktopMain {
-                dependsOn(skikoMain)
-                dependencies {
-                    implementation(libs.kotlinStdlibJdk8)
-                }
-            }
-
-            nonJvmMain.dependsOn(skikoMain)
-            nativeMain.dependsOn(nonJvmMain)
-            macosMain.dependsOn(skikoMain)
-
-            webMain {
-                dependsOn(nonJvmMain)
-                dependsOn(skikoMain)
-
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    implementation(libs.skikoCommon)
-                    api(libs.kotlinXw3c)
-                }
-            }
-
-            jsMain {
-                dependsOn(webMain)
-            }
-
-            wasmJsMain {
-                dependsOn(webMain)
-                dependencies {
-                    implementation(libs.create("skikoWasm"))
-                    implementation(libs.create("skikoWasmWasm"))
-                }
-            }
-
-            commonTest.dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinReflect)
-            }
-
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.mockitoCore4)
-                implementation(libs.mockitoKotlin4)
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":internal-testutils-fonts"))
-                implementation(project(":compose:test-utils"))
-            }
-
-            androidAndroidTest.dependencies {
-                implementation("androidx.fragment:fragment:1.3.0")
-                implementation("androidx.appcompat:appcompat:1.3.0")
-                implementation(libs.testUiautomator)
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.testExtJunitKtx)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(libs.espressoCore)
-                implementation(libs.bundles.espressoContrib)
-                implementation(libs.junit)
-                implementation(libs.dexmakerMockito)
-                implementation(libs.mockitoCore)
-                implementation(libs.truth)
-                implementation(libs.mockitoKotlin)
-                implementation(libs.material)
-                implementation(project(":compose:animation:animation-core"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:foundation:foundation-layout"))
+        skikoTest {
+            dependsOn(commonTest)
+            dependencies {
+                // TODO: Move to commonTest?
                 implementation(project(":compose:material:material"))
-                implementation(project(":compose:test-utils"))
-                implementation(project(":internal-testutils-fonts"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":internal-testutils-runtime"))
-                implementation(androidxArtifact(":test:screenshot:screenshot"))
-                implementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.0")
-                implementation("androidx.recyclerview:recyclerview:1.3.0-alpha02")
-                implementation("androidx.core:core-ktx:1.2.0")
-                implementation("androidx.activity:activity-compose:1.7.0-rc01")
-            }
-
-            skikoTest {
-                dependsOn(commonTest)
-                dependencies {
-                    implementation(project(":compose:material:material"))
-                    implementation(project(":compose:foundation:foundation"))
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0")
-                }
-            }
-
-            desktopTest {
-                dependsOn(skikoTest)
-            }
-            nativeTest {
-                dependsOn(skikoTest)
-            }
-            webTest {
-                dependsOn(skikoTest)
-            }
-            jsTest {
-                dependsOn(webTest)
-                dependsOn(skikoTest)
-            }
-            wasmJsTest {
-                dependsOn(webTest)
-                dependsOn(skikoTest)
-            }
-            iosInstrumentedTest.dependencies {
-                implementation(project(":compose:material:material"))
-                implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:foundation:foundation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":internal-testutils-xctest"))
+                implementation(project(":compose:ui:ui-test"))
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")
             }
+        }
 
-            desktopTest.dependencies {
+        desktopMain {
+            dependsOn(skikoMain)
+        }
+
+        desktopTest {
+            dependsOn(skikoTest)
+            dependencies {
+                // TODO: Move to jvmTest?
                 implementation(libs.truth)
-                implementation(libs.kotlinTest)
                 implementation(libs.mockitoCore)
                 implementation(libs.mockitoCore4)
                 implementation(libs.mockitoKotlin)
@@ -366,19 +253,79 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:ui:ui-test-junit4"))
             }
+        }
 
-            configureEach {
-                languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
-                languageSettings.optIn("androidx.compose.ui.InternalComposeUiApi")
+        nonJvmMain {
+            dependsOn(skikoMain)
+        }
+
+        nonJvmTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
+
+        iosMain {
+            dependencies {
+                implementation(project(":compose:ui:ui-uikit"))
             }
         }
-    }
-    dependencies {
-        samples(project(":compose:ui:ui:ui-samples"))
 
-        // Can't declare this in kotlin { sourceSets { androidTest.dependencies { .. } } } as that
-        // leaks into instrumented tests (b/214407011)
-        testImplementation(libs.robolectric)
+        iosInstrumentedTest {
+            dependencies {
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:material3:material3"))
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":internal-testutils-xctest"))
+            }
+        }
+
+        webMain.dependencies {
+            api(libs.kotlinXw3c)
+        }
+
+        wasmJsMain.dependencies {
+            implementation(libs.skikoWasmJs)
+            implementation(libs.skikoJsWasmRuntime)
+        }
+
+        // TODO: Align it with AOSP or make explicit
+        configureEach {
+            languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
+            languageSettings.optIn("androidx.compose.ui.InternalComposeUiApi")
+        }
+    }
+}
+
+dependencies {
+    lintChecks(project(":compose:ui:ui-lint"))
+    lintPublish(project(":compose:ui:ui-lint"))
+}
+
+androidx {
+    name = "Compose UI"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    inceptionYear = "2019"
+    description = "Compose UI primitives. This library contains the primitives that form the Compose UI Toolkit, such as drawing, measurement and layout."
+    legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:ui:ui:ui-samples"))
+    addGoldenImageAssets()
+    enableRobolectric()
+    deviceTests.minSdkForFtlOverride = 24 // b/437944630
+}
+
+if (!ProjectLayoutType.isPlayground(project)) {
+    androidComponents {
+        onVariants(selector().all(), { variant ->
+            packageInspector(variant, project, project(":compose:ui:ui-inspection"))
+        })
     }
 }
 
@@ -501,18 +448,8 @@ tasks.register("updateTranslationsIos", UpdateTranslationsTask.class) {
     ]
 }
 
-androidx {
-    name = "Compose UI primitives"
-    type = LibraryType.PUBLISHED_LIBRARY
-    inceptionYear = "2019"
-    description = "Compose UI primitives. This library contains the primitives that form the Compose UI Toolkit, such as drawing, measurement and layout."
-    legacyDisableKotlinStrictApiMode = true
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    tasks.findByName("desktopTest").configure {
-        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
-    }
+tasks.findByName("desktopTest").configure {
+    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
 }
 
 tasks.register("desktopHeadlessTest", Test) {
@@ -531,42 +468,5 @@ tasks.desktopTest {
     useJUnit {
         excludeCategories("androidx.compose.ui.HeadlessTest")
     }
-}
-
-android {
-    testOptions.unitTests.includeAndroidResources = true
-    buildTypes.all {
-        consumerProguardFiles("proguard-rules.pro")
-    }
-}
-
-// Screenshot tests related setup
-android {
-    sourceSets.androidTest.assets.srcDirs +=
-            project.rootDir.absolutePath + "/golden/compose/ui/ui"
-    namespace "androidx.compose.ui"
-    // namespace has to be unique, but default androidx.compose.ui.test package is taken by
-    // the androidx.compose.ui:ui-test library
-    testNamespace "androidx.compose.ui.tests"
-}
-
-// Diagnostics for b/188565660
-def verifyKotlinModule(String variant) {
-    project.afterEvaluate {
-        def capitalVariant = variant.capitalize()
-        def moduleFile = new File("${buildDir}/tmp/kotlin-classes/${variant}/META-INF/ui_${variant}.kotlin_module")
-        tasks.named("compile${capitalVariant}Kotlin").configure { t ->
-            t.doLast {
-                // This file should be large, about 3.2K. If this file is short then many symbols will fail to resolve
-                if (moduleFile.length() < 250) {
-                    throw new GradleException("kotlin_module file ($moduleFile) too short! See b/188565660 for more information. File text: ${moduleFile.text}")
-                }
-            }
-        }
-    }
-}
-if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    for (variant in ["debug", "release"]) {
-        verifyKotlinModule(variant)
-    }
+    finalizedBy("desktopHeadlessTest")
 }

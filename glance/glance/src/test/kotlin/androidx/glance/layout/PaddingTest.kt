@@ -91,12 +91,7 @@ class PaddingTest {
     @Test
     fun buildAbsolutePadding() {
         val modifiers =
-            GlanceModifier.absolutePadding(
-                left = 1.dp,
-                top = 2.dp,
-                right = 3.dp,
-                bottom = 4.dp,
-            )
+            GlanceModifier.absolutePadding(left = 1.dp, top = 2.dp, right = 3.dp, bottom = 4.dp)
 
         val paddingModifier = checkNotNull(modifiers.findModifier<PaddingModifier>())
 
@@ -264,24 +259,10 @@ class PaddingTest {
             )
 
         assertThat(paddingInDp.toRelative(isRtl = true))
-            .isEqualTo(
-                PaddingInDp(
-                    start = 12.dp,
-                    end = 21.dp,
-                    top = 50.dp,
-                    bottom = 100.dp,
-                )
-            )
+            .isEqualTo(PaddingInDp(start = 12.dp, end = 21.dp, top = 50.dp, bottom = 100.dp))
 
         assertThat(paddingInDp.toRelative(isRtl = false))
-            .isEqualTo(
-                PaddingInDp(
-                    start = 11.dp,
-                    end = 22.dp,
-                    top = 50.dp,
-                    bottom = 100.dp,
-                )
-            )
+            .isEqualTo(PaddingInDp(start = 11.dp, end = 22.dp, top = 50.dp, bottom = 100.dp))
     }
 
     @Test
@@ -297,24 +278,10 @@ class PaddingTest {
             )
 
         assertThat(paddingInDp.toAbsolute(isRtl = true))
-            .isEqualTo(
-                PaddingInDp(
-                    left = 21.dp,
-                    right = 12.dp,
-                    top = 50.dp,
-                    bottom = 100.dp,
-                )
-            )
+            .isEqualTo(PaddingInDp(left = 21.dp, right = 12.dp, top = 50.dp, bottom = 100.dp))
 
         assertThat(paddingInDp.toAbsolute(isRtl = false))
-            .isEqualTo(
-                PaddingInDp(
-                    left = 11.dp,
-                    right = 22.dp,
-                    top = 50.dp,
-                    bottom = 100.dp,
-                )
-            )
+            .isEqualTo(PaddingInDp(left = 11.dp, right = 22.dp, top = 50.dp, bottom = 100.dp))
     }
 
     private companion object {

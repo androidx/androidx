@@ -28,20 +28,20 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
+    defaultConfig.consumerProguardFiles("proguard-rules.pro")
     sourceSets {
         String testUtilDir = 'src/testUtil/java'
         test {
             java.srcDir testUtilDir
+            kotlin.directories.add(testUtilDir)
         }
         androidTest {
             java.srcDir testUtilDir
+            kotlin.directories.add(testUtilDir)
         }
     }
     namespace = "androidx.window"
@@ -49,7 +49,6 @@ android {
 
 dependencies {
     api(libs.jspecify)
-    api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.collection:collection:1.4.2")
@@ -57,7 +56,8 @@ dependencies {
     implementation(project(":window:window-core"))
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
-    def extensions_version = "androidx.window.extensions:extensions:1.5.0"
+    def extensions_version = project(":window:extensions:extensions")
+    def sidecar_version = project(":window:sidecar:sidecar")
     // A compile only dependency on extensions.core so that other libraries do not expose it
     // transitively.
     compileOnly(extensions_core_version)
@@ -68,7 +68,7 @@ dependencies {
     // transitively. The androidTestCompile is added because tests are not getting the dependency
     // transitively.
     androidTestCompileOnly(extensions_core_version)
-    compileOnly(project(":window:sidecar:sidecar"))
+    compileOnly(sidecar_version)
     compileOnly(extensions_version)
 
     testImplementation(libs.testCore)
@@ -79,7 +79,7 @@ dependencies {
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(extensions_version)
-    testImplementation(compileOnly(project(":window:sidecar:sidecar")))
+    testImplementation(compileOnly(sidecar_version))
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.kotlinTestJunit)
@@ -94,7 +94,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit) // Needed for Assert.assertThrows
     androidTestImplementation(extensions_core_version)
-    androidTestImplementation(compileOnly(project(":window:sidecar:sidecar")))
+    androidTestImplementation(compileOnly(sidecar_version))
     androidTestImplementation(compileOnly(extensions_version))
 }
 

@@ -48,7 +48,7 @@ public object ResultWriter {
 
             Outputs.writeFile(
                 fileName = "$packageName-benchmarkData.json",
-                reportOnRunEndOnly = true
+                reportOnRunEndOnly = true,
             ) {
                 Log.d(BenchmarkState.TAG, "writing results to ${it.absolutePath}")
                 writeReport(it, reports)
@@ -56,7 +56,7 @@ public object ResultWriter {
         } else {
             Log.d(
                 BenchmarkState.TAG,
-                "androidx.benchmark.output.enable not set, not writing results json"
+                "androidx.benchmark.output.enable not set, not writing results json",
             )
         }
     }
@@ -79,7 +79,7 @@ public object ResultWriter {
                             application attribute: android:requestLegacyExternalStorage="true"
                         """
                         .trimIndent(),
-                    exception
+                    exception,
                 )
             }
         }

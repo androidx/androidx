@@ -14,9 +14,8 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("AndroidXPlugin")
@@ -28,12 +27,11 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
+    mingwX64()
     js()
-    wasm()
-
-    kotlin {
-        explicitApi = ExplicitApiMode.Strict
-    }
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -49,23 +47,9 @@ androidXMultiplatform {
     }
 }
 
-kotlin {
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
-    mingwX64()
-}
-
 androidx {
     name = "Lifecycle-Common"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
 }

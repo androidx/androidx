@@ -31,7 +31,7 @@ class EntryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
 class EntryAdapter(
     private val entries: List<Entry>,
-    @LayoutRes val itemResId: Int = R.layout.recycler_row
+    @LayoutRes val itemResId: Int = R.layout.recycler_row,
 ) : RecyclerView.Adapter<EntryViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EntryViewHolder {
         val inflater = LayoutInflater.from(parent.context)

@@ -99,8 +99,8 @@ class PrereleaseSdkCoreDependencyDetector : Detector(), Detector.UastScanner {
                 Severity.ERROR,
                 Implementation(
                     PrereleaseSdkCoreDependencyDetector::class.java,
-                    Scope.JAVA_FILE_SCOPE
-                )
+                    Scope.JAVA_FILE_SCOPE,
+                ),
             )
 
         private const val BUILD_COMPAT = "androidx.core.os.BuildCompat"

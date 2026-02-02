@@ -84,6 +84,14 @@ actual interface PlatformTextInputMethodRequest {
 
     /**
      * Allows the text input service to edit the text.
+     *
+     * Note that changes requested in the [TextEditingScope] are buffered and applied, together, to
+     * the [TextEditorState] only after `block` returns. It is therefore wrong to assume inside
+     * `block` that the [TextEditorState] has changed following an invocation of a method on
+     * [TextEditingScope].
+     *
+     * If, in the future, the editing `block` requires access to the intermediate state, this state
+     * should be exposed via [TextEditingScope] itself.
      */
     @ExperimentalComposeUiApi
     val editText: (block: TextEditingScope.() -> Unit) -> Unit

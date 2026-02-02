@@ -105,7 +105,7 @@ class BanRestrictToTestsScope : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanRestrictToTestsScope::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanRestrictToTestsScope::class.java, Scope.JAVA_FILE_SCOPE),
             )
     }
 }

@@ -69,24 +69,24 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
         window.sendKeyTypedEvent(Char(8))
         window.sendKeyEvent(8, Char(8), KEY_RELEASED)
         assertStateEquals("qw", selection = TextRange(2), composition = null)
-//
-//        // backspace
-//        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
-//        window.sendKeyTypedEvent(Char(8))
-//        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
-//        assertStateEquals("q", selection = TextRange(1), composition = null)
-//
-//        // backspace
-//        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
-//        window.sendKeyTypedEvent(Char(8))
-//        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
-//        assertStateEquals("", selection = TextRange(0), composition = null)
-//
-//        // backspace
-//        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
-//        window.sendKeyTypedEvent(Char(8))
-//        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
-//        assertStateEquals("", selection = TextRange(0), composition = null)
+
+        // backspace
+        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
+        window.sendKeyTypedEvent(Char(8))
+        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
+        assertStateEquals("q", selection = TextRange(1), composition = null)
+
+        // backspace
+        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
+        window.sendKeyTypedEvent(Char(8))
+        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
+        assertStateEquals("", selection = TextRange(0), composition = null)
+
+        // backspace
+        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
+        window.sendKeyTypedEvent(Char(8))
+        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
+        assertStateEquals("", selection = TextRange(0), composition = null)
     }
 
     @Theory
@@ -770,6 +770,35 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
         window.sendInputMethodEvent("ㅌ", 1)
         assertStateEquals("ㅌvㅌ", selection = TextRange(3), composition = null)
     }
+
+    @Theory
+    internal fun `q, w, space (Chinese Wubi, macOS)`(
+        textFieldKind: TextFieldKind<*>
+    ) = runTextFieldTest(textFieldKind, "Chinese Wubi, macOS") {
+        // Wubi input method sends each composing InputMethodEvent twice for some reason
+        suspend fun sendInputMethodEventTwice(text: String?, committedCharacterCount: Int = 0) {
+            repeat(2) {
+                window.sendInputMethodEvent(text, committedCharacterCount)
+                awaitIdle()  // Wait for recomposition
+            }
+        }
+
+        // q
+        sendInputMethodEventTwice("q", 0)
+        window.sendKeyEvent(81, 'q', KEY_RELEASED)
+        assertStateEquals("q", selection = TextRange(1), composition = TextRange(0, 1))
+
+        // w
+        sendInputMethodEventTwice("qw", 0)
+        window.sendKeyEvent(87, 'w', KEY_RELEASED)
+        assertStateEquals("qw", selection = TextRange(2), composition = TextRange(0, 2))
+
+        // space
+        window.sendInputMethodEvent("欠", 1)
+        window.sendKeyEvent(32, ' ', KEY_RELEASED)
+        assertStateEquals("欠", selection = TextRange(1), composition = null)
+    }
+
 
     // Verifies that each typed character and character replaced by the input service is reported
     // (to `inputTransformation`) as a change in the last character only.

@@ -16,32 +16,36 @@
 
 package androidx.build
 
+import androidx.build.gradle.extraPropertyOrNull
 import org.gradle.api.Project
 
 enum class ProjectLayoutType {
     ANDROIDX,
-    PLAYGROUND;
+    PLAYGROUND,
+    JETBRAINS_FORK;
 
     companion object {
-        /**
-         * Returns the project layout type for the project (PLAYGROUND or ANDROIDX)
-         */
+        /** Returns the project layout type for the project (PLAYGROUND or ANDROIDX) */
         @JvmStatic
         fun from(project: Project): ProjectLayoutType {
-            val value = project.findProperty(STUDIO_TYPE)?.toString()
+            val value = project.extraPropertyOrNull(STUDIO_TYPE)
             return when (value) {
-                "playground" -> ProjectLayoutType.PLAYGROUND
-                null, "androidx" -> ProjectLayoutType.ANDROIDX
+                "playground" -> PLAYGROUND
+                null,
+                "androidx" -> ANDROIDX
+                "jetbrains-fork" -> JETBRAINS_FORK
                 else -> error("Invalid project type $value")
             }
         }
 
-        /**
-         * @return `true` if running in a Playground (Github) setup, `false` otherwise.
-         */
+        /** @return `true` if running in a Playground (Github) setup, `false` otherwise. */
+        @Suppress("unused")
         @JvmStatic
         fun isPlayground(project: Project): Boolean {
-            return ProjectLayoutType.from(project) == ProjectLayoutType.PLAYGROUND
+            return true
         }
+
+        @JvmStatic
+        fun isJetBrainsFork(project: Project) = ProjectLayoutType.from(project) == JETBRAINS_FORK
     }
 }

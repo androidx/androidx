@@ -65,7 +65,7 @@ class GlanceAppWidgetUnitTestEnvironmentRobolectricTest {
         Column {
             Text(
                 text = "Test string: ${context.getString(R.string.glance_test_string)}",
-                modifier = GlanceModifier.semantics { testTag = "test-tag" }
+                modifier = GlanceModifier.semantics { testTag = "test-tag" },
             )
         }
     }

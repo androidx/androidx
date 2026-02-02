@@ -57,16 +57,13 @@ import org.jetbrains.uast.USimpleNameReferenceExpression
 class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
     override fun applicableAnnotations(): List<String> =
-        listOf(
-            JAVA_REPLACE_WITH_ANNOTATION,
-            KOTLIN_DEPRECATED_ANNOTATION,
-        )
+        listOf(JAVA_REPLACE_WITH_ANNOTATION, KOTLIN_DEPRECATED_ANNOTATION)
 
     override fun visitAnnotationUsage(
         context: JavaContext,
         element: UElement,
         annotationInfo: AnnotationInfo,
-        usageInfo: AnnotationUsageInfo
+        usageInfo: AnnotationUsageInfo,
     ) {
         val qualifiedName = annotationInfo.qualifiedName
         val annotation = annotationInfo.annotation
@@ -90,9 +87,10 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                         annotation.findAttributeValue("replaceWith")?.unwrap() as? UCallExpression
                             ?: return
                     val expression =
-                        replaceWith.valueArguments.getOrNull(0)?.parseLiteral() ?: return
+                        replaceWith.valueArguments.getOrNull(0)?.parseLiteral(context) ?: return
                     val imports =
-                        replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral() ?: emptyList()
+                        replaceWith.valueArguments.getOrNull(1)?.parseVarargLiteral(context)
+                            ?: emptyList()
                     Pair(expression, imports)
                 }
                 JAVA_REPLACE_WITH_ANNOTATION -> {
@@ -100,15 +98,17 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                         annotation.findAttributeValue("expression")?.let { expr ->
                             ConstantEvaluator.evaluate(context, expr)
                         } as? String ?: return
-                    val imports = annotation.getAttributeValueVarargLiteral("imports")
+                    val imports = annotation.getAttributeValueVarargLiteral(context, "imports")
                     Pair(expression, imports)
                 }
                 else -> return
             }
 
         var location = context.getLocation(usage)
-        val includeReceiver = Regex("^\\w+\\.\\w+.*\$").matches(expression)
-        val includeArguments = Regex("^.*\\w+\\(.*\\)$").matches(expression)
+        val includeReceiver = expressionWithReceiverRegex.matches(expression)
+        val includeArguments =
+            expressionWithArgumentRegex.matches(expression) ||
+                expressionWithAssignmentRegex.matches(expression)
 
         if (referenced is PsiMethod && usage is UCallExpression) {
             // Per Kotlin documentation for ReplaceWith: For function calls, the replacement
@@ -146,7 +146,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
                             usage,
                             sourcePsi,
                             includeReceiver,
-                            includeArguments
+                            includeArguments,
                         )
                     }
                     else -> {
@@ -182,7 +182,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
             usage,
             location,
             "Replacement available",
-            createLintFix(context, location, expression, imports)
+            createLintFix(context, location, expression, imports),
         )
     }
 
@@ -190,7 +190,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
         context: JavaContext,
         location: Location,
         expression: String,
-        imports: List<String>
+        imports: List<String>,
     ): LintFix {
         val name = "Replace with `$expression`"
         val lintFixBuilder = fix().composite().name(name)
@@ -208,7 +208,7 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
      */
     fun LintFix.Builder.import(
         context: JavaContext,
-        add: List<String>
+        add: List<String>,
     ): LintFix.ReplaceStringBuilder {
         val isKotlin = isKotlin(context.uastFile!!.lang)
         val lastImport = context.uastFile?.imports?.lastOrNull()
@@ -237,19 +237,21 @@ class ReplaceWithDetector : Detector(), SourceCodeScanner {
 
         // Append after any existing imports, after the package declaration, or at the beginning of
         // the file if there are no imports and no package declaration.
-        val appendLocation =
-            (lastImport ?: packageElem)?.let { context.getLocation(it) }
+        val location =
+            (lastImport ?: packageElem)
+                ?.let { context.getLocation(it).end }
+                ?.let { Location.create(context.file, it, it) }
                 ?: Location.create(context.file, context.getContents(), 0, 0)
-        val replaceBuilder = replace().range(appendLocation).end().with(importsText)
-        return replaceBuilder.autoFix()
+        return replace().range(location).with(importsText).autoFix()
     }
 
     companion object {
         private val IMPLEMENTATION =
-            Implementation(
-                ReplaceWithDetector::class.java,
-                Scope.JAVA_FILE_SCOPE,
-            )
+            Implementation(ReplaceWithDetector::class.java, Scope.JAVA_FILE_SCOPE)
+
+        private val expressionWithReceiverRegex = Regex("^\\w+\\.\\w+.*$")
+        private val expressionWithArgumentRegex = Regex("^.*\\w+\\(.*\\)$")
+        private val expressionWithAssignmentRegex = Regex("^.*\\w+\\s*=\\s*.*$")
 
         const val KOTLIN_DEPRECATED_ANNOTATION = "kotlin.Deprecated"
         const val JAVA_REPLACE_WITH_ANNOTATION = "androidx.annotation.ReplaceWith"
@@ -275,7 +277,7 @@ fun JavaContext.getConstructorLocation(
     call: UCallExpression,
     newExpression: PsiNewExpression,
     includeNew: Boolean,
-    includeArguments: Boolean
+    includeArguments: Boolean,
 ): Location {
     if (includeArguments) {
         call.valueArguments.lastOrNull()?.let { lastArgument ->
@@ -339,21 +341,18 @@ fun JavaContext.getConstructorLocation(
  * @return the value of the specified vararg attribute as a list of String literals, or an empty
  *   list if not specified
  */
-fun UAnnotation.getAttributeValueVarargLiteral(name: String): List<String> =
-    findDeclaredAttributeValue(name)?.parseVarargLiteral() ?: emptyList()
+fun UAnnotation.getAttributeValueVarargLiteral(context: JavaContext, name: String): List<String> =
+    findDeclaredAttributeValue(name)?.parseVarargLiteral(context) ?: emptyList()
 
-fun UExpression.parseVarargLiteral(): List<String> =
+fun UExpression.parseVarargLiteral(context: JavaContext): List<String> =
     when (val expr = this.unwrap()) {
-        is ULiteralExpression -> listOfNotNull(expr.parseLiteral())
-        is UCallExpression -> expr.valueArguments.mapNotNull { it.parseLiteral() }
+        is ULiteralExpression -> listOfNotNull(expr.parseLiteral(context))
+        is UCallExpression -> expr.valueArguments.mapNotNull { it.parseLiteral(context) }
         else -> emptyList()
     }
 
-fun UExpression.parseLiteral(): String? =
-    when (val expr = this.unwrap()) {
-        is ULiteralExpression -> expr.value.toString()
-        else -> null
-    }
+fun UExpression.parseLiteral(context: JavaContext?): String? =
+    ConstantEvaluator.evaluateString(context, this, false)
 
 fun UExpression.unwrap(): UExpression =
     when (this) {

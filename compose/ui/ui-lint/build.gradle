@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,22 +32,22 @@ plugins {
 BundleInsideHelper.forInsideLintJar(project)
 
 dependencies {
-    compileOnly libs.androidLintMinApi
+    compileOnly(libs.androidLintApiStableAnalysis)
     compileOnly(libs.kotlinStdlib)
 
     bundleInside(project(":compose:lint:common"))
 
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.androidLint)
+    testImplementation(libs.androidLintStableAnalysis)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }
 
 androidx {
-    name = "Compose UI Graphics Lint Checks"
-    type = LibraryType.LINT
-    inceptionYear = "2021"
-    description = "Compose UI Graphics Lint Checks"
+    name = "Compose UI Lint Checks"
+    type = SoftwareType.STANDALONE_PUBLISHED_LINT
+    inceptionYear = "2020"
+    description = "Compose UI Lint Checks"
 }

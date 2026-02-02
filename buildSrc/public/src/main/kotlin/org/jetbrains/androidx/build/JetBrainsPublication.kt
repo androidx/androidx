@@ -131,7 +131,7 @@ object JetBrainsPublication {
         ),
     )
 
-    fun mavenGroupFor(projectPath: String, androidxGroup: String?): String? {
+    fun mavenGroupFor(projectPath: String, androidxGroup: String?): String {
         return when {
             projectPath == ":annotation:annotation" ->
                 "org.jetbrains.compose.annotation-internal"
@@ -143,7 +143,8 @@ object JetBrainsPublication {
                 androidxGroup.replace("androidx.compose", "org.jetbrains.compose")
             androidxGroup?.startsWith("androidx") == true ->
                 androidxGroup.replace("androidx", "org.jetbrains.androidx")
-            else -> null
+            else -> error("Unknown group replacement for " +
+                "(projectPath=$projectPath, androidxGroup=$androidxGroup)")
         }
     }
 
@@ -184,10 +185,6 @@ class JetBrainsVersions(val libraryToVersion: Map<String, String>) : Serializabl
 
     fun versionOf(libraryName: String): String {
         return libraryToVersion[libraryName] ?: "9999.0.0-SNAPSHOT"
-    }
-
-    companion object {
-
     }
 }
 

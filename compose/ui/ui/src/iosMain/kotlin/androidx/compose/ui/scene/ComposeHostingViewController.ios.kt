@@ -83,11 +83,11 @@ internal class ComposeHostingViewController(
         super.viewDidLoad()
 
         configuration.delegate.viewDidLoad()
-        container.userInterfaceStyleDidChange()
+        container.updateUserInterfaceStyle(traitCollection.userInterfaceStyle)
     }
 
     override fun userInterfaceStyleDidChange() {
-        container.userInterfaceStyleDidChange()
+        container.updateUserInterfaceStyle(traitCollection.userInterfaceStyle)
     }
 
     override fun viewWillTransitionToSize(

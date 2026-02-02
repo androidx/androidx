@@ -21,8 +21,6 @@ import androidx.baselineprofile.gradle.utils.BaselineProfilePluginLogger
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.Warnings
 import androidx.baselineprofile.gradle.utils.maybeRegister
-import com.android.build.gradle.internal.tasks.BuildAnalyzer
-import com.android.buildanalyzer.common.TaskCategory
 import java.io.File
 import kotlin.io.path.Path
 import org.gradle.api.DefaultTask
@@ -56,7 +54,6 @@ import org.gradle.api.tasks.TaskProvider
  * mostly the profile file will be unnecessarily larger.
  */
 @CacheableTask
-@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 abstract class MergeBaselineProfileTask : DefaultTask() {
 
     companion object {
@@ -82,12 +79,12 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             outputDir: Provider<Directory>,
             filterRules: List<Pair<RuleType, String>> = listOf(),
             isLastTask: Boolean,
-            warnings: Warnings
+            warnings: Warnings,
         ): TaskProvider<MergeBaselineProfileTask> {
             return project.tasks.maybeRegister(
                 MERGE_TASK_NAME,
                 mergeAwareTaskName,
-                TASK_NAME_SUFFIX
+                TASK_NAME_SUFFIX,
             ) { task ->
 
                 // Sets whether or not baseline profile dependencies have been set.
@@ -139,15 +136,15 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
             mergeAwareTaskName: String,
             library: Boolean,
             sourceDir: Provider<Directory>,
-            outputDir: Provider<Directory>,
+            outputDir: Directory,
             isLastTask: Boolean,
             hasDependencies: Boolean,
-            warnings: Warnings
+            warnings: Warnings,
         ): TaskProvider<MergeBaselineProfileTask> {
             return project.tasks.maybeRegister(
                 COPY_TASK_NAME,
                 mergeAwareTaskName,
-                "baselineProfileIntoSrc"
+                "baselineProfileIntoSrc",
             ) { task ->
                 // For explanation about each of these properties, see above function named
                 // `maybeRegisterForMerge`.
@@ -231,7 +228,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     }
                 }
                 """
-                        .trimIndent()
+                        .trimIndent(),
             )
         }
 
@@ -266,7 +263,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 is not intentional check that tests for this variant exist in the `baselineProfile`
                 dependency module.
             """
-                        .trimIndent()
+                        .trimIndent(),
             )
         }
 
@@ -320,7 +317,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
         writeProfile(
             filename = BASELINE_PROFILE_FILENAME,
             rules = filteredBaselineProfileRules,
-            profileType = "baseline"
+            profileType = "baseline",
         )
 
         // If this is a library we can stop here and don't manage the startup profiles.
@@ -347,7 +344,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 rule, which specify `includeInStartupProfile = true`. If this is not intentional
                 check that tests for this variant exist in the `baselineProfile` dependency module.
             """
-                        .trimIndent()
+                        .trimIndent(),
             )
         }
 
@@ -376,7 +373,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                 if (exists())
                     ProfileStats.from(
                         existingRules = readLines().mapNotNull { ProfileRule.parse(it) },
-                        newRules = rules
+                        newRules = rules,
                     )
                 else null
 
@@ -401,7 +398,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                     A $profileType profile was generated for the variant `${variantName.get()}`:
                     ${Path(absolutePath).toUri()}
                         """
-                        .trimIndent()
+                        .trimIndent(),
             )
 
             // Print stats if was previously calculated
@@ -420,7 +417,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                       $unmodified Unmodified rules (${"%.2f".format(unmodifiedRatio * 100)}%)
 
                       """
-                            .trimIndent()
+                            .trimIndent(),
                 )
             }
         }
@@ -507,7 +504,7 @@ internal data class ProfileStats(
                 removed = removed,
                 addedRatio = added.toFloat() / allUniqueRules,
                 removedRatio = removed.toFloat() / allUniqueRules,
-                unmodifiedRatio = unmodified.toFloat() / allUniqueRules
+                unmodifiedRatio = unmodified.toFloat() / allUniqueRules,
             )
         }
     }

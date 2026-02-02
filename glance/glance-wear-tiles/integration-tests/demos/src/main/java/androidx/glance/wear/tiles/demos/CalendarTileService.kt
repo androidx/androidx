@@ -48,7 +48,7 @@ class CalendarTileService : GlanceTileService() {
             setOf(
                 TimeInterval(),
                 TimeInterval(timeInstant, timeInstant.plusSeconds(60)),
-                TimeInterval(timeInstant.plusSeconds(60), timeInstant.plusSeconds(120))
+                TimeInterval(timeInstant.plusSeconds(60), timeInstant.plusSeconds(120)),
             )
         )
 
@@ -81,7 +81,7 @@ class CalendarTileService : GlanceTileService() {
                     GlanceModifier.size(24.dp)
                         .clickable(actionStartActivity(CalendarActivity::class.java)),
                 contentScale = ContentScale.Fit,
-                contentDescription = "launch calendar activity"
+                contentDescription = "launch calendar activity",
             )
         }
     }

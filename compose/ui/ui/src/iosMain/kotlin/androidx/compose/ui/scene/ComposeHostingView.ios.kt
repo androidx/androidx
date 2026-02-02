@@ -113,10 +113,12 @@ internal class ComposeHostingView(
     }
 
     override fun userInterfaceStyleDidChange() {
-        container.userInterfaceStyleDidChange()
+        container.updateUserInterfaceStyle(traitCollection.userInterfaceStyle)
     }
 
     override fun viewDidEnterWindowHierarchy() {
+        container.updateUserInterfaceStyle(traitCollection.userInterfaceStyle)
+
         container.initializeComposeScene()
     }
 

@@ -20,12 +20,12 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * A plugin which enables all of the Gradle customizations for AndroidX.
- * This plugin reacts to other plugins being added and adds required and optional functionality.
+ * A plugin which enables all of the Gradle customizations for AndroidX. This plugin reacts to other
+ * plugins being added and adds required and optional functionality.
  *
- * The actual implementation is in AndroidXImplPlugin.
- * This extracts this logic out of the classpath so that individual tasks can't access this logic
- * so Gradle can know that changes to this logic doesn't need to automatically invalidate every task
+ * The actual implementation is in AndroidXImplPlugin. This extracts this logic out of the classpath
+ * so that individual tasks can't access this logic so Gradle can know that changes to this logic
+ * doesn't need to automatically invalidate every task
  */
 class AndroidXPlugin : Plugin<Project> {
     override fun apply(project: Project) {
@@ -38,9 +38,7 @@ class AndroidXPlugin : Plugin<Project> {
     }
 
     companion object {
-        /**
-         * @return `true` if running in a Playground (Github) setup, `false` otherwise.
-         */
+        /** @return `true` if running in a Playground (Github) setup, `false` otherwise. */
         @JvmStatic
         fun isPlayground(project: Project): Boolean {
             return ProjectLayoutType.isPlayground(project)
