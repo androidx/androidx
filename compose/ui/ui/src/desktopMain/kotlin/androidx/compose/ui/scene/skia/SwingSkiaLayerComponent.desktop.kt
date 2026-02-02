@@ -47,7 +47,7 @@ internal class SwingSkiaLayerComponent(
         object : SkiaSwingLayer(
             renderDelegate = renderDelegate,
             analytics = skiaLayerAnalytics,
-            accessibleContextProvider = { mediator.getAccessibleContext() },
+            accessibleContextProvider = mediator.accessibility.accessibleContextProvider
         ) {
             private var endCompositionWorkaround: InputMethodEndCompositionWorkaround? = null
 

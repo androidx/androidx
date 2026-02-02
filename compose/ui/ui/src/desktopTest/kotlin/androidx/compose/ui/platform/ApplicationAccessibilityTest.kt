@@ -20,20 +20,51 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.*
+import androidx.compose.material3.TextField
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.ComposeFeatureFlags
+import androidx.compose.ui.LayerType
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.assertThat
+import androidx.compose.ui.awt.ComposePanel
 import androidx.compose.ui.awt.ComposeWindow
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.isEqualTo
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.platform.a11y.SemanticsOwnerAccessibility
+import androidx.compose.ui.platform.a11y.ComposeAccessible
+import androidx.compose.ui.platform.a11y.ComposeSceneAccessibility.ComposeSceneAccessibleContext
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
+import java.awt.Dimension
 import java.awt.Point
-import javax.accessibility.AccessibleComponent
+import java.awt.Window
+import java.awt.event.HierarchyEvent
+import java.awt.event.HierarchyListener
+import javax.accessibility.Accessible
 import javax.accessibility.AccessibleContext
+import javax.accessibility.AccessibleContext.ACCESSIBLE_STATE_PROPERTY
+import javax.accessibility.AccessibleState
+import javax.swing.JFrame
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withTimeoutOrNull
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.hostOs
+import org.junit.Assert
 import org.junit.Ignore
 import org.junit.Test
 
@@ -56,7 +87,7 @@ class ApplicationAccessibilityTest {
         }
         awaitIdle()
 
-        withAccessibleAt(window, 20, 20) {
+        withLeafAccessibleAt(window, 20, 20) {
             assertThat(accessibleName).isEqualTo("Accessible button")
         }
     }
@@ -92,7 +123,7 @@ class ApplicationAccessibilityTest {
         }
         awaitIdle()
 
-        withAccessibleAt(window, 5, 50) {
+        withLeafAccessibleAt(window, 5, 50) {
             assertThat(accessibleName).isEqualTo("Accessible popup button")
         }
     }
@@ -122,11 +153,11 @@ class ApplicationAccessibilityTest {
         }
         awaitIdle()
 
-        withAccessibleAt(window, 10, 10) {
+        withLeafAccessibleAt(window, 10, 10) {
             assertThat(accessibleName).isEqualTo("Accessible button 1")
         }
 
-        withAccessibleAt(window, 5, 22) {
+        withLeafAccessibleAt(window, 5, 22) {
             assertThat(accessibleName).isEqualTo("Accessible button 2")
         }
     }
@@ -173,11 +204,11 @@ class ApplicationAccessibilityTest {
         }
         awaitIdle()
 
-        withAccessibleAt(window, 5, 32) {
+        withLeafAccessibleAt(window, 5, 32) {
             assertThat(accessibleName).isEqualTo("popup button")
         }
 
-        withAccessibleAt(window, 5, 5) {
+        withLeafAccessibleAt(window, 5, 5) {
             assertNotEquals("button under popup", accessibleName)
         }
     }
@@ -211,11 +242,11 @@ class ApplicationAccessibilityTest {
         val firstItemPosition = firstItemPositionPx!!.toAwtPoint(window)
         val secondItemPosition = secondItemPositionPx!!.toAwtPoint(window)
 
-        withAccessibleAt(window, firstItemPosition.x + 2, firstItemPosition.y + 2) {
+        withLeafAccessibleAt(window, firstItemPosition.x + 2, firstItemPosition.y + 2) {
             assertThat(accessibleName).isEqualTo("item 1")
         }
 
-        withAccessibleAt(window, secondItemPosition.x + 2, secondItemPosition.y + 2) {
+        withLeafAccessibleAt(window, secondItemPosition.x + 2, secondItemPosition.y + 2) {
             assertThat(accessibleName).isEqualTo("item 2")
         }
     }
@@ -259,28 +290,255 @@ class ApplicationAccessibilityTest {
         val textPosition = textPositionPx!!.toAwtPoint(window)
         val buttonTextPosition = buttonTextPositionPx!!.toAwtPoint(window)
 
-        withAccessibleAt(window, textPosition.x + 2, textPosition.y + 2) {
+        withLeafAccessibleAt(window, textPosition.x + 2, textPosition.y + 2) {
             assertThat(accessibleName).isEqualTo("Alert Dialog Text")
         }
 
-        withAccessibleAt(window, buttonTextPosition.x + 2, buttonTextPosition.y + 2) {
+        withLeafAccessibleAt(window, buttonTextPosition.x + 2, buttonTextPosition.y + 2) {
             assertThat(accessibleName).isEqualTo("Alert Dialog Button")
         }
     }
 
-    private inline fun withAccessibleAt(
+    private fun verifyA11yHierarchyFromAccessible(
+        window: Window,
+        @Suppress("SameParameterValue") accessibleName: String
+    ) {
+        val accessible = window.findAccessibleNamed(accessibleName)
+        assertNotNull(accessible)
+
+        // Validate the chain from the accessible to the window
+        var child: Accessible = accessible
+        while (true) {
+            val parent = child.accessibleContext.accessibleParent ?: break
+
+            // Check that the index reported by the child matches what the parent says is the
+            // child at that index.
+            val childIndexInParent = child.accessibleContext.accessibleIndexInParent
+            val childAtIndex = parent.accessibleContext.getAccessibleChild(childIndexInParent)
+            // Note that we can't compare child with childAtIndex itself because the
+            // Accessible instances themselves are different at the seam between Swing and Compose.
+            // The child Accessible of SkiaLayer is the Canvas/HardwareLayer inside it, but the
+            // Accessible at the root of the scene is ComposeSceneAccessible. The trick is that they
+            // both return the same AccessibleContext (HardwareLayer does it via
+            // `externalAccessibleFactory`).
+            assertEquals(
+                expected = child.accessibleContext,
+                actual = childAtIndex.accessibleContext,
+                message = "Wrong actual child of ${parent.accessibleContext}"
+            )
+
+            child = parent
+        }
+        Assert.assertEquals(window, child)
+    }
+
+    @Test
+    fun verifyA11yHierarchy() = runApplicationTest {
+        launchTestWindowApplication {
+            Text("text")
+        }
+        awaitIdle()
+
+        // Relies on ComposeAccessible.getAccessibleName returning the text
+        verifyA11yHierarchyFromAccessible(window = window, accessibleName = "text")
+    }
+
+    @Test
+    fun verifyA11yHierarchyWithComposePanel() = runApplicationTest {
+        val composePanel = ComposePanel().apply {
+            setContent {
+                Text("text")
+            }
+        }
+        val window = ComposeWindow()
+        window.contentPane.add(composePanel)
+        window.size = Dimension(800, 600)
+
+        try {
+            window.isVisible = true
+            awaitIdle()
+            // Relies on ComposeAccessible.getAccessibleName returning the text
+            verifyA11yHierarchyFromAccessible(window = window, accessibleName = "text")
+        } finally {
+            window.dispose()
+        }
+    }
+
+    @Test
+    fun verifyA11yHierarchyWithComposePanelAndOnComponentLayerType() {
+        ComposeFeatureFlags.useSwingGraphicsInComposePanel.withOverride(true) {
+            ComposeFeatureFlags.layerType.withOverride(LayerType.OnComponent) {
+                verifyA11yHierarchyWithComposePanel()
+            }
+        }
+    }
+
+    @Test
+    fun initiallyFocusedElementNotifiesSystemOfFocus() = runApplicationTest {
+        SemanticsOwnerAccessibility.AccessibilityUsage.notifyInUse()
+
+        val deferredWindow = CompletableDeferred<ComposeWindow>()
+        launchTestWindowApplication {
+            val focusRequester = remember { FocusRequester() }
+            TextField(rememberTextFieldState("text"), Modifier.focusRequester(focusRequester))
+            LaunchedEffect(Unit) { focusRequester.requestFocus() }
+            LaunchedEffect(Unit) { deferredWindow.complete(this@launchTestWindowApplication.window) }
+        }
+
+        val window = deferredWindow.await()
+        var textFieldAccessible: Accessible? = null
+        var textFieldHasFocus = false
+        val receivedFocus = Channel<Unit>(CONFLATED)
+        window.addHierarchyListener(object : HierarchyListener {
+            override fun hierarchyChanged(e: HierarchyEvent?) {
+                if (window.isDisplayable) {
+                    textFieldAccessible = window.findAccessibleNamed("text")!!
+                    textFieldAccessible.accessibleContext.addPropertyChangeListener { evt ->
+                        if (evt.propertyName == ACCESSIBLE_STATE_PROPERTY) {
+                            if (evt.newValue == AccessibleState.FOCUSED) {
+                                textFieldHasFocus = true
+                            } else if (evt.oldValue == AccessibleState.FOCUSED) {
+                                textFieldHasFocus = false
+                            }
+                            receivedFocus.trySend(Unit)
+                        }
+                    }
+                    window.removeHierarchyListener(this)
+                }
+            }
+        })
+
+        suspend fun waitForTextFieldFocusedState(focused: Boolean) {
+            // If we do awaitIdle here, we'll sometimes fail the assertSceneAccessibleIsTextField
+            // check because the AccessibleFocusHelper.focusedAccessible is reset to null
+            // after 100ms, and awaitIdle sometimes takes longer.
+            withTimeoutOrNull(1000) {
+                while ((window.isFocused != focused) || (textFieldHasFocus != focused)) {
+                    receivedFocus.receive()
+                }
+            }
+            val focusStateString = if (focused) "focused" else "unfocused"
+            assertEquals(focused, window.isFocused, "Could not make original window $focusStateString")
+            assertEquals(focused, textFieldHasFocus, "TextField accessible did not send $focusStateString event")
+        }
+
+        waitForTextFieldFocusedState(focused = true)
+        assertNotNull(textFieldAccessible)
+
+        fun Accessible.accessibleAncestorChain() = sequence {
+            var ancestor: Accessible? = accessibleContext.accessibleParent
+            while (ancestor != null) {
+                yield(ancestor)
+                ancestor = ancestor.accessibleContext.accessibleParent
+            }
+        }
+
+        // What really causes Java's accessibility to report the correct element (on Windows;
+        // possibly on macOS too) is not the property change event, but a trick in
+        // AccessibleFocusHelper which reports the focused AccessibleContext following a call to
+        // requestFocusOnAccessible
+        fun assertSceneAccessibleIsTextField() {
+            // On Linux, NativeAccessibleFocusHelper doesn't do its trick with focusedAccessible
+            if ((hostOs != OS.Windows) && (hostOs != OS.MacOS)) return
+
+            // Check the Accessible chain's integrity
+            assertEquals(
+                expected = window,
+                actual = textFieldAccessible.accessibleAncestorChain().last()
+            )
+
+            // Verify that the TextField's `AccessibleContext' replaced the `ComposeSceneAccessibleContext`
+            assertTrue(
+                textFieldAccessible.accessibleAncestorChain().none {
+                    it.accessibleContext is ComposeSceneAccessibleContext
+                },
+                message = "TextField Accessible found to be a descendant of the scene"
+            )
+
+        }
+        assertSceneAccessibleIsTextField()
+
+        // The additional check below actually works on Linux, but unfortunately, not on our CI
+        if (hostOs == OS.Linux) return@runApplicationTest
+
+        // De-focus, then re-focus the window and check that another focus gained property change
+        // event was sent
+        val anotherWindow = JFrame()
+        try {
+            anotherWindow.size = Dimension(800, 600)
+            anotherWindow.isVisible = true
+            anotherWindow.toFront()
+            waitForTextFieldFocusedState(focused = false)
+            assertFalse(window.isFocused)
+            assertFalse(textFieldHasFocus)
+            delay(100)  // Helps test to be more reliable
+            window.toFront()
+            waitForTextFieldFocusedState(focused = true)
+            assertSceneAccessibleIsTextField()
+        } finally {
+            if (anotherWindow.isShowing) {
+                anotherWindow.dispose()
+            }
+        }
+    }
+
+    private inline fun withLeafAccessibleAt(
         window: ComposeWindow,
         x: Int,
         y: Int,
         check: AccessibleContext.() -> Unit
     ) {
-        val accessibleComponent = window.windowAccessible.accessibleContext as AccessibleComponent
-        val accessibleComponentAtPoint = accessibleComponent.getAccessibleAt(Point(x, y))
+        val point = Point(x, y)
 
-        check(accessibleComponentAtPoint.accessibleContext)
+        // The position excludes the window decorations (title bar), so we start the search from
+        // the root pane.
+        var accessible: Accessible = window.rootPane
+        while (true) {
+            val childAtPoint = accessible.findAccessibleChildAt(point) ?: break
+
+            // Because of the hack in `AccessibleFocusHelper`, `ComposeAccessible`s report their
+            // bounds relative to the scene root, not relative to their parent.
+            if (childAtPoint !is ComposeAccessible) {
+                childAtPoint.accessibleContext.accessibleComponent?.let { c ->
+                    point.x -= c.location.x
+                    point.y -= c.location.y
+                }
+            }
+            accessible = childAtPoint
+        }
+
+        check(accessible.accessibleContext)
+    }
+
+    // Can't use `AccessibleComponent.getAccessibleAt(Point)` because it's a hot and buggy mess
+    // (see how Container.getAccessibleAt(Point) is implemented)
+    private fun Accessible.findAccessibleChildAt(point: Point): Accessible? {
+        val context = accessibleContext ?: return null
+        val childCount =  context.accessibleChildrenCount
+        for (i in 0 until childCount) {
+            val child = context.getAccessibleChild(i)
+            val accessibleComponent = child.accessibleContext?.accessibleComponent ?: continue
+            if (!accessibleComponent.isShowing) continue
+            if (accessibleComponent.contains(point)) {
+                return child
+            }
+        }
+
+        return null
     }
 
     private fun Offset.toAwtPoint(window: ComposeWindow): Point = with(window.density) {
         return Point(x.toDp().value.toInt(), y.toDp().value.toInt())
     }
+
+    private fun Accessible.findAccessibleNamed(name: String): Accessible? {
+        val accessibleContext = this.accessibleContext
+        if (accessibleContext.accessibleName == name) return this
+        for (index in 0 until accessibleContext.accessibleChildrenCount) {
+            val child = accessibleContext.getAccessibleChild(index)
+            child.findAccessibleNamed(name)?.let { return it }
+        }
+        return null
+    }
 }
+
