@@ -55,6 +55,8 @@ class BrowserHistoryTest {
 
     @Test
     fun checkBrowserHistoryStateSynchronizedWithNavigation() = runTest {
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-9676) Fix on Firefox
+        if (isFirefox) return@runTest
         val initHistoryLength = goToBrowserRoot()
         val navController = NavHostController().apply {
             navigatorProvider.addNavigator(TestNavigator())
@@ -105,6 +107,8 @@ class BrowserHistoryTest {
 
     @Test
     fun checkNavigationSynchronizedWithBrowserHistoryState() = runTest {
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-9676) Fix on Firefox
+        if (isFirefox) return@runTest
         val initHistoryLength = goToBrowserRoot()
         val navController = NavHostController().apply {
             navigatorProvider.addNavigator(TestNavigator())
@@ -204,6 +208,8 @@ class BrowserHistoryTest {
 
     @Test
     fun checkBrowserUrlCustomization() = runTest {
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-9676) Fix on Firefox
+        if (isFirefox) return@runTest
         val initHistoryLength = goToBrowserRoot()
         val navController = NavHostController().apply {
             navigatorProvider.addNavigator(TestNavigator())
@@ -276,6 +282,8 @@ class BrowserHistoryTest {
 
     @Test
     fun checkInitScreenAndDirectNavigation() = runTest {
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-9676) Fix on Firefox
+        if (isFirefox) return@runTest
         val initHistoryLength = goToBrowserRoot()
         val navController = NavHostController().apply {
             navigatorProvider.addNavigator(TestNavigator())
@@ -314,6 +322,8 @@ class BrowserHistoryTest {
 
     @Test
     fun checkBrowserNavigationWithEncodedParams() = runTest {
+        // TODO(https://youtrack.jetbrains.com/issue/CMP-9676) Fix on Firefox
+        if (isFirefox) return@runTest
         val initHistoryLength = goToBrowserRoot()
         val navController = NavHostController().apply {
             navigatorProvider.addNavigator(TestNavigator())
@@ -383,4 +393,7 @@ class BrowserHistoryTest {
             options = AddEventListenerOptions(passive = false, once = true)
         )
     }
+
+    private val isFirefox: Boolean
+        get() = window.navigator.userAgent.contains("Firefox")
 }

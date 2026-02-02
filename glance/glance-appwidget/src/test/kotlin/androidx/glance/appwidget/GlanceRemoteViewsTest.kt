@@ -37,6 +37,7 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalGlanceRemoteViewsApi::class)
 @RunWith(RobolectricTestRunner::class)
+@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class GlanceRemoteViewsTest {
 
     private var fakeCoroutineScope: TestScope = TestScope()

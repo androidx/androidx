@@ -34,7 +34,7 @@ import androidx.glance.appwidget.unit.ResourceCheckableColorProvider
 // Translates a RadioButton composable to a RadioButton View.
 internal fun RemoteViews.translateEmittableRadioButton(
     translationContext: TranslationContext,
-    element: EmittableRadioButton
+    element: EmittableRadioButton,
 ) {
 
     val layout =

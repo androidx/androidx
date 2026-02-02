@@ -21,29 +21,27 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
     id("androidx.benchmark")
 }
 
 dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
-    androidTestImplementation(androidxArtifact(":tracing:tracing-ktx"))
-    androidTestImplementation(androidxArtifact(":tracing:tracing-perfetto"))
-    androidTestImplementation(androidxArtifact(":tracing:tracing-perfetto-binary"))
+    androidTestImplementation(project(":tracing:tracing-ktx"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinTest)
 }
 
 android {
-    namespace "androidx.benchmark.benchmark"
+    namespace = "androidx.benchmark.benchmark"
     buildTypes.release {
         androidTest {
             enableMinification = false
@@ -53,5 +51,5 @@ android {
 }
 
 androidx {
-    type = LibraryType.INTERNAL_TEST_LIBRARY
+    type = SoftwareType.BENCHMARK
 }

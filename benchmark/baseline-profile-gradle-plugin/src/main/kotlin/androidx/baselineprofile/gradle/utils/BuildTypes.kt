@@ -20,9 +20,7 @@ import com.android.build.api.dsl.AndroidSourceSet
 import com.android.build.api.dsl.ApkSigningConfig
 import com.android.build.api.dsl.ApplicationBuildType
 import com.android.build.api.dsl.BuildType
-import com.android.build.gradle.internal.api.DefaultAndroidSourceDirectorySet
-import com.android.build.gradle.internal.api.DefaultAndroidSourceFile
-import org.gradle.api.GradleException
+import java.io.File
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 
@@ -33,15 +31,10 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
     crossinline filterBlock: (T) -> (Boolean),
     crossinline newConfigureBlock: (base: T, ext: T) -> (Unit),
     crossinline overrideConfigureBlock: (base: T, ext: T) -> (Unit),
-    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf()
+    extendedBuildTypeToOriginalBuildTypeMapping: MutableMap<String, String> = mutableMapOf(),
 ) {
     extensionBuildTypes
-        .filter { buildType ->
-            if (buildType !is T) {
-                throw GradleException("Build type `${buildType.name}` is not of type ${T::class}")
-            }
-            filterBlock(buildType)
-        }
+        .filter { buildType -> filterBlock(buildType) }
         .forEach { buildType ->
             val newBuildTypeName = camelCase(newBuildTypePrefix, buildType.name)
 
@@ -74,7 +67,7 @@ internal inline fun <reified T : BuildType> createExtendedBuildTypes(
 internal inline fun <reified T : BuildType> copySigningConfigIfNotSpecified(
     baseBuildType: T,
     extBuildType: T,
-    debugSigningConfig: ApkSigningConfig?
+    debugSigningConfig: ApkSigningConfig?,
 ) {
     // If the build type is for applications, the signing config has not been defined yet,
     // we copy the signing config of the original build type, or the debug one if the original
@@ -104,9 +97,11 @@ internal inline fun <reified T : BuildType> createBuildTypeIfNotExists(
     extensionBuildTypes.create(buildTypeName).apply { configureBlock(this) }
 }
 
+@Suppress("DEPRECATION", "UNCHECKED_CAST", "PrivateApi")
 internal fun copyBuildTypeSources(
+    supportsDirectories: Boolean,
     extensionSourceSets: NamedDomainObjectContainer<out AndroidSourceSet>,
-    fromToMapping: Map<String, String>
+    fromToMapping: Map<String, String>,
 ) {
     extensionSourceSets
         .filter { it.name in fromToMapping.keys }
@@ -128,13 +123,24 @@ internal fun copyBuildTypeSources(
                     { it.resources },
                     { it.shaders },
                 )) {
-                val fromSet = dirSet(fromSourceSets) as DefaultAndroidSourceDirectorySet
-                val toSet = dirSet(toSourceSets) as DefaultAndroidSourceDirectorySet
-                toSet.srcDirs(*fromSet.srcDirs.toTypedArray())
+                val fromSet = dirSet(fromSourceSets)
+                val toSet = dirSet(toSourceSets)
+
+                if (supportsDirectories) {
+                    toSet.directories.addAll(fromSet.directories)
+                } else {
+                    AndroidSourceDirectorySetAgp85Compat.addAllDirectories(
+                        toSet = toSet,
+                        fromSet = fromSet,
+                    )
+                }
             }
 
             // Copies the manifest file
-            val manifestFile = (fromSourceSets.manifest as DefaultAndroidSourceFile).srcFile
+            // Always use reflection here since there's no public API to do this, see b/460544407
+            val method = fromSourceSets.manifest.javaClass.getDeclaredMethod("getSrcFile")
+            method.isAccessible = true
+            val manifestFile = method.invoke(fromSourceSets.manifest) as File
             toSourceSets.manifest.srcFile(manifestFile)
         }
 }

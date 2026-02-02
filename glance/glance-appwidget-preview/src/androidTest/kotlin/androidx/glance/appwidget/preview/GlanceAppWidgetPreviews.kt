@@ -48,17 +48,17 @@ fun FirstGlancePreview() {
         )
         Row(
             modifier = GlanceModifier.fillMaxSize(),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Button(
                 text = "Button 1",
                 modifier = GlanceModifier.height(48.dp),
-                onClick = object : Action {}
+                onClick = object : Action {},
             )
             Button(
                 text = "Button 2",
                 modifier = GlanceModifier.height(48.dp),
-                onClick = object : Action {}
+                onClick = object : Action {},
             )
         }
     }

@@ -19,15 +19,13 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerCategory
 import androidx.benchmark.macro.PowerMetric
-import androidx.benchmark.perfetto.PerfettoTraceProcessor
-import androidx.benchmark.perfetto.Slice
-import org.intellij.lang.annotations.Language
+import androidx.benchmark.traceprocessor.Slice
+import androidx.benchmark.traceprocessor.TraceProcessor
 
 // We want to use android_powrails.sql, but cannot as they do not split into sections with slice
 
 @OptIn(ExperimentalMetricApi::class)
 internal object PowerQuery {
-    @Language("sql")
     private fun getFullQuery(slice: Slice) =
         """
         SELECT
@@ -51,7 +49,7 @@ internal object PowerQuery {
             PowerCategory.MEMORY to listOf("Ddr", "MemoryInterface"),
             PowerCategory.MACHINE_LEARNING to listOf("Tpu"),
             PowerCategory.NETWORK to listOf("Aoc", "Radio", "VsysPwrMmwave", "Wifi", "Modem"),
-            PowerCategory.UNCATEGORIZED to emptyList()
+            PowerCategory.UNCATEGORIZED to emptyList(),
         )
 
     /**
@@ -61,11 +59,7 @@ internal object PowerQuery {
      * @param energyUws The energy used during the trace, measured in uWs.
      * @param powerUw The energy used divided by the elapsed time, measured in uW.
      */
-    data class ComponentMeasurement(
-        var name: String,
-        var energyUws: Double,
-        var powerUw: Double,
-    ) {
+    data class ComponentMeasurement(var name: String, var energyUws: Double, var powerUw: Double) {
         fun getValue(type: PowerMetric.Type): Double {
             return if (type is PowerMetric.Type.Power) powerUw else energyUws
         }
@@ -83,7 +77,7 @@ internal object PowerQuery {
     data class CategoryMeasurement(
         var energyUws: Double,
         var powerUw: Double,
-        var components: List<ComponentMeasurement>
+        var components: List<ComponentMeasurement>,
     ) {
         fun getValue(type: PowerMetric.Type): Double {
             return if (type is PowerMetric.Type.Power) powerUw else energyUws
@@ -91,8 +85,8 @@ internal object PowerQuery {
     }
 
     fun getPowerMetrics(
-        session: PerfettoTraceProcessor.Session,
-        slice: Slice
+        session: TraceProcessor.Session,
+        slice: Slice,
     ): Map<PowerCategory, CategoryMeasurement> {
         // gather all recorded rails
         val railMetrics: List<ComponentMeasurement> = getRailMetrics(session, slice)
@@ -121,7 +115,7 @@ internal object PowerQuery {
                     CategoryMeasurement(
                         energyUws = total.energyUws + next.energyUws,
                         powerUw = total.powerUw + next.powerUw,
-                        components = total.components
+                        components = total.components,
                     )
                 }
             }
@@ -129,8 +123,8 @@ internal object PowerQuery {
     }
 
     private fun getRailMetrics(
-        session: PerfettoTraceProcessor.Session,
-        slice: Slice
+        session: TraceProcessor.Session,
+        slice: Slice,
     ): List<ComponentMeasurement> {
         val query = getFullQuery(slice)
         return session

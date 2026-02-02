@@ -17,14 +17,14 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     defaultConfig {
-        minSdkVersion 23
+        compileSdk = 35
     }
-    namespace "androidx.glance.appwidget.macrobenchmark"
+    namespace = "androidx.glance.appwidget.macrobenchmark"
     targetProjectPath = ":glance:glance-appwidget:integration-tests:macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true
 }
@@ -35,14 +35,14 @@ android.buildTypes { release {} }
 androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
 
 dependencies {
-    implementation 'androidx.compose.ui:ui-unit:1.2.1'
-    implementation(project(':benchmark:benchmark-macro'))
-    implementation(project(':benchmark:benchmark-common'))
-    implementation(project(':benchmark:benchmark-macro-junit4'))
-    implementation('androidx.core:core-ktx:1.7.0')
+    implementation("androidx.compose.ui:ui-unit:1.2.1")
+    implementation(project(":benchmark:benchmark-macro"))
+    implementation(project(":benchmark:benchmark-common"))
+    implementation(project(":benchmark:benchmark-macro-junit4"))
+    implementation("androidx.core:core-ktx:1.7.0")
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-appwidget"))
-    implementation(project(":internal-testutils-macrobenchmark"))
+    implementation(project(":internal-testutils-benchmark-macro"))
     implementation(libs.kotlinTest)
     implementation(libs.testRules)
     implementation(libs.testExtJunit)

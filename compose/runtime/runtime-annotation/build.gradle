@@ -22,61 +22,34 @@
  * modifying its settings.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("AndroidXComposePlugin")
-    id("com.android.library")
-    id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
-    darwin()
-    js()
-    wasm()
-    linux()
-}
-
-kotlin {
-    jvm()
-    // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
-    // We can support the kotlin-native targets supported by kotlin coroutines:
-    // https://github.com/Kotlin/kotlinx.coroutines/blob/master/buildSrc/src/main/kotlin/kotlin-multiplatform-conventions.gradle.kts
-    // NOTE: Keep this list in sync with runtime's targets.
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
-    mingwX64()
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-            }
-        }
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.runtime.annotation"
     }
+    jvm()
+    mac()
+    linux()
+    mingwX64()
+    ios()
+    watchos()
+    tvos()
+    js()
+    wasmJs()
+
+    defaultPlatform(PlatformIdentifier.JVM)
 }
 
 androidx {
     name = "Compose Runtime Annotation"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "Provides Compose-specific annotations used by the compiler and tooling"
-}
-
-android {
-    namespace "androidx.compose.runtime.annotation"
-}
-
-androidxCompose {
-    composeCompilerPluginEnabled = false
+    samples(project(":compose:runtime:runtime-annotation:runtime-annotation-samples"))
 }

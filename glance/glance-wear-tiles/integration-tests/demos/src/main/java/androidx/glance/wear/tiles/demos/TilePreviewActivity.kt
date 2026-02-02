@@ -35,7 +35,7 @@ private val TILE_PROVIDERS_NAME =
         HelloTileService::class.java,
         CalendarTileService::class.java,
         CountTileService::class.java,
-        CurvedLayoutTileService::class.java
+        CurvedLayoutTileService::class.java,
     )
 
 class TilePageFragment(private val activityContext: Context, private val position: Int) :
@@ -45,7 +45,7 @@ class TilePageFragment(private val activityContext: Context, private val positio
     override fun onCreateView(
         inflator: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceBundle: Bundle?
+        savedInstanceBundle: Bundle?,
     ): View = inflator.inflate(R.layout.fragment_page, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -56,7 +56,7 @@ class TilePageFragment(private val activityContext: Context, private val positio
             TileUiClient(
                 context = activityContext,
                 component = ComponentName(activityContext, TILE_PROVIDERS_NAME[position]),
-                parentView = rootLayout
+                parentView = rootLayout,
             )
         tileUiClient.connect()
     }

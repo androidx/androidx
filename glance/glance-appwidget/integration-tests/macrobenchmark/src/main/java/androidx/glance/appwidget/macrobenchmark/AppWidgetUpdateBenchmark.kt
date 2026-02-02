@@ -32,9 +32,7 @@ import org.junit.runners.Parameterized
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 @RunWith(Parameterized::class)
-class AppWidgetUpdateBenchmark(
-    private val startupMode: StartupMode,
-) {
+class AppWidgetUpdateBenchmark(private val startupMode: StartupMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @get:Rule val appWidgetHostRule = AppWidgetHostRule()
@@ -48,11 +46,11 @@ class AppWidgetUpdateBenchmark(
                 listOf(
                     TraceSectionMetric(
                         "appWidgetInitialUpdate",
-                        targetPackageOnly = false
+                        targetPackageOnly = false,
                     ), // from test
                     TraceSectionMetric(
                         "GlanceAppWidget::update",
-                        targetPackageOnly = true
+                        targetPackageOnly = true,
                     ), // from target
                 ),
             iterations = 5,
@@ -72,13 +70,13 @@ class AppWidgetUpdateBenchmark(
                     TraceSectionMetric("appWidgetUpdate", targetPackageOnly = false), // from test
                     TraceSectionMetric(
                         "GlanceAppWidget::update",
-                        targetPackageOnly = true
+                        targetPackageOnly = true,
                     ), // from target
                 ),
             iterations = 5,
             compilationMode = CompilationMode.DEFAULT,
             startupMode = startupMode,
-            setupBlock = { runBlocking { appWidgetHostRule.startHost() } }
+            setupBlock = { runBlocking { appWidgetHostRule.startHost() } },
         ) {
             runBlocking { appWidgetHostRule.updateAppWidget() }
         }

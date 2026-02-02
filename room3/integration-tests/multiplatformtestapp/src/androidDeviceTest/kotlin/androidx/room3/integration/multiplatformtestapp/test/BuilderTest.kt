@@ -1,0 +1,94 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.room3.integration.multiplatformtestapp.test
+
+import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
+import androidx.room3.Room
+import androidx.room3.RoomDatabase
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import androidx.test.platform.app.InstrumentationRegistry
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlinx.coroutines.test.runTest
+
+class BuilderTest : BaseBuilderTest() {
+
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val file = instrumentation.targetContext.getDatabasePath("test.db")
+
+    override fun getRoomDatabaseBuilder(): RoomDatabase.Builder<SampleDatabase> {
+        return Room.databaseBuilder<SampleDatabase>(
+                context = instrumentation.targetContext,
+                name = file.path,
+                factory = SampleDatabaseConstructor::initialize,
+            )
+            .setDriver(BundledSQLiteDriver())
+    }
+
+    @BeforeTest
+    fun before() {
+        assertThat(file).isNotNull()
+        file.parentFile?.mkdirs()
+        deleteDatabaseFile()
+    }
+
+    @AfterTest
+    fun after() {
+        deleteDatabaseFile()
+    }
+
+    private fun deleteDatabaseFile() {
+        instrumentation.targetContext.deleteDatabase(file.name)
+    }
+
+    @Test
+    fun simpleDatabaseName() = runTest {
+        val name = "simple.db"
+        instrumentation.targetContext.deleteDatabase(name)
+
+        val db =
+            Room.databaseBuilder<SampleDatabase>(instrumentation.targetContext, name)
+                .setDriver(BundledSQLiteDriver())
+                .build()
+
+        db.dao().insertItem(1)
+        db.close()
+
+        val dbFile = instrumentation.targetContext.getDatabasePath(name)
+        assertThat(dbFile.exists())
+    }
+
+    @Test
+    fun badDatabaseName() = runTest {
+        val db =
+            Room.databaseBuilder<SampleDatabase>(
+                    context = instrumentation.targetContext,
+                    name = "/invalid/path/to/database",
+                )
+                .setDriver(BundledSQLiteDriver())
+                .build()
+
+        assertThrows<IllegalStateException> { db.dao().insertItem(1) }
+            .hasMessageThat()
+            .isEqualTo(
+                "Unable to open database '/invalid/path/to/database'. Was a proper path / name " +
+                    "used in Room's database builder?"
+            )
+    }
+}

@@ -29,7 +29,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     alias(libs.plugins.kotlinSerialization)
 }
 
@@ -49,7 +49,6 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
     implementation(libs.kotlinSerializationCore)
-     implementation(project(":savedstate:savedstate-ktx"))
     implementation(project(":navigation3:navigation3-runtime"))
 
 }

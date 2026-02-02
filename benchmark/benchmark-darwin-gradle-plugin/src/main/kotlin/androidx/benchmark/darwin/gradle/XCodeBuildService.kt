@@ -33,7 +33,7 @@ interface XCodeBuildService : BuildService<BuildServiceParameters.None> {
 fun Project.configureXCodeBuildService() {
     gradle.sharedServices.registerIfAbsent(
         XCodeBuildService.XCODE_BUILD_SERVICE_NAME,
-        XCodeBuildService::class.java
+        XCodeBuildService::class.java,
     ) { spec ->
         // Run one xcodebuild at a time.
         spec.maxParallelUsages.set(1)

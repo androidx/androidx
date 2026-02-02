@@ -21,25 +21,23 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("AndroidXComposePlugin")
 }
 
 dependencies {
 
     api(project(":glance:glance"))
-    api(project(":glance:glance-template"))
     api("androidx.compose.runtime:runtime:1.1.1")
     api("androidx.compose.ui:ui-graphics:1.1.1")
     api("androidx.compose.ui:ui-unit:1.1.1")
     api("androidx.wear.tiles:tiles:1.1.0")
 
-    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
     implementation("androidx.lifecycle:lifecycle-service:2.6.1")
@@ -51,7 +49,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinTest)
     testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.robolectric)
     testImplementation(libs.kotlinReflect)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
@@ -72,31 +69,24 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdkVersion 26
+        minSdk = 26
+        compileSdk = 35
     }
-    // Use Robolectric 4.+
-    testOptions.unitTests.includeAndroidResources = true
 
-    lintOptions {
+    lint {
         // TODO(b/191286558): Remove when lint is fixed.
-        disable "UnsafeOptInUsageError", "UnsafeOptInUsageWarning"
-        // protobuf generates unannotated methods
-        disable "UnknownNullness"
+        disable.add("UnsafeOptInUsageError")
     }
-
-    sourceSets {
-        androidTest.assets.srcDirs += project.rootDir.absolutePath + "/golden/glance/glance-wear-tiles"
-    }
-    namespace "androidx.glance.wear.tiles"
-
+    namespace = "androidx.glance.wear.tiles"
 }
 
 androidx {
     name = "Glance for Wear Tiles"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     mavenVersion = LibraryVersions.GLANCE_WEAR_TILES
     inceptionYear = "2021"
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
             "Compose-style API."
-    legacyDisableKotlinStrictApiMode = true
+    addGoldenImageAssets()
+    enableRobolectric()
 }

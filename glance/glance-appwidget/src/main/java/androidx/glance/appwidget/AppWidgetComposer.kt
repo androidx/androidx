@@ -19,21 +19,34 @@
 package androidx.glance.appwidget
 
 import android.annotation.SuppressLint
+import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.widget.RemoteViews
+import androidx.compose.runtime.BroadcastFrameClock
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
+import androidx.glance.Applier
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.GlanceId
+import androidx.glance.LocalContext
 import androidx.glance.session.runSession
+import kotlin.coroutines.coroutineContext
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Creates a snapshot of the [GlanceAppWidget] content without running recomposition.
@@ -49,7 +62,7 @@ import kotlinx.coroutines.launch
  * If you need to call compose concurrently, you can omit [id] so that a random fake ID will be
  * used. Otherwise, call compose sequentially when using the same [id].
  */
-suspend fun GlanceAppWidget.compose(
+public suspend fun GlanceAppWidget.compose(
     @Suppress("ContextFirst") context: Context,
     id: GlanceId = createFakeAppWidgetId(),
     options: Bundle? = null,
@@ -61,7 +74,7 @@ suspend fun GlanceAppWidget.compose(
             id = id,
             options = options ?: Bundle(),
             sizes = size?.let { listOf(size) },
-            state = state
+            state = state,
         )
         .first()
 
@@ -83,15 +96,21 @@ suspend fun GlanceAppWidget.compose(
  *
  * If you need to call runComposition concurrently, you can omit [id] so that a random fake ID will
  * be used. Otherwise, call runComposition sequentially when using the same [id].
+ *
+ * By default, this function uses [UnmanagedSessionReceiver] as the [lambdaReceiver] target to
+ * receive any lambda actions while this function is running. If you need to run this function in a
+ * non-default process, you can declare a sub-class of UnmanagedSessionReceiver in that process and
+ * pass its [ComponentName] here.
  */
 @SuppressLint("PrimitiveInCollection")
 @ExperimentalGlanceApi
-fun GlanceAppWidget.runComposition(
+public fun GlanceAppWidget.runComposition(
     @Suppress("ContextFirst") context: Context,
     id: GlanceId = createFakeAppWidgetId(),
     options: Bundle = Bundle(),
     sizes: List<DpSize>? = null,
     state: Any? = null,
+    lambdaReceiver: ComponentName = ComponentName(context, UnmanagedSessionReceiver::class.java),
 ): Flow<RemoteViews> = flow {
     val session =
         AppWidgetSession(
@@ -100,7 +119,7 @@ fun GlanceAppWidget.runComposition(
             initialOptions =
                 sizes?.let { optionsBundleOf(it).apply { putAll(options) } } ?: options,
             initialGlanceState = state,
-            lambdaReceiver = ComponentName(context, UnmanagedSessionReceiver::class.java),
+            lambdaReceiver = lambdaReceiver,
             sizeMode =
                 if (sizes != null) {
                     // If sizes are provided to this function, override to SizeMode.Exact so we can
@@ -133,4 +152,86 @@ fun GlanceAppWidget.runComposition(
         }
         session.lastRemoteViews.filterNotNull().collect { emit(it) }
     }
+}
+
+/**
+ * Runs the composition in [GlanceAppWidget.providePreview] one time and translate it to a
+ * [RemoteViews]. This function can be used to test the preview layout of a GlanceAppWidget.
+ *
+ * The value of [androidx.glance.LocalSize] in the composition depends on the value of
+ * [GlanceAppWidget.previewSizeMode]:
+ *
+ * If using SizeMode.Single (default), the composition will use the minimum size of the widget as
+ * determined by its [AppWidgetProviderInfo.minHeight] and [AppWidgetProviderInfo.minWidth]. If
+ * [info] is null, then [DpSize.Zero] will be used.
+ *
+ * If using SizeMode.Responsive, the composition will use the provided sizes.
+ *
+ * The given [widgetCategory] value should be a combination of
+ * [AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN],
+ * [AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD], or
+ * [AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX].
+ *
+ * @param context context to provide to [GlanceAppWidget.providePreview]
+ * @param widgetCategory widget category to provide to [GlanceAppWidget.providePreview]
+ * @param info the size of the composition is determined by the minimum width defined in this
+ *   [AppWidgetProviderInfo]
+ * @return the preview composition translated to a [RemoteViews]
+ */
+public suspend fun GlanceAppWidget.composeForPreview(
+    context: Context,
+    widgetCategory: Int,
+    info: AppWidgetProviderInfo? = null,
+): RemoteViews {
+    val content = coroutineScope {
+        val content = MutableSharedFlow<(@Composable () -> Unit)>(replay = 1)
+        val receiver = ContentReceiver { composable ->
+            content.emit(composable)
+            throw CancellationException()
+        }
+        launch(receiver) {
+            providePreview(context, widgetCategory)
+            // If the providePreview implementation does not call provideContent, set it to
+            // an empty composable.
+            if (content.replayCache.isEmpty()) {
+                Log.w(
+                    GlanceAppWidgetTag,
+                    "${this@composeForPreview::class} did not call provideContent in providePreview",
+                )
+                content.emit {}
+            }
+        }
+        content.first()
+    }
+    val minSize = info?.getMinSize(context.resources.displayMetrics) ?: DpSize.Zero
+    val root = RemoteViewsRoot(MaxComposeTreeDepth)
+    val applier = Applier(root)
+    val recomposer = Recomposer(coroutineContext)
+    val composition = Composition(applier, recomposer)
+    composition.setContent {
+        CompositionLocalProvider(LocalContext provides context) {
+            ForEachSize(previewSizeMode, minSize, content)
+        }
+    }
+    withContext(BroadcastFrameClock()) {
+        launch { recomposer.runRecomposeAndApplyChanges() }
+        recomposer.close()
+        recomposer.join()
+    }
+    normalizeCompositionTree(
+        root,
+        isPreviewComposition = true,
+        isRemoteCompose = false,
+    ) // TODO, we may have remote compose previews eventually
+    val layoutConfig = LayoutConfiguration.create(context, appWidgetId = -1)
+    val remoteViews =
+        translateComposition(
+            context = context,
+            appWidgetId = -1,
+            element = root,
+            layoutConfiguration = layoutConfig,
+            rootViewIndex = layoutConfig.addLayout(root),
+            layoutSize = DpSize.Unspecified,
+        )
+    return remoteViews
 }

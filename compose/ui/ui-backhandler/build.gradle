@@ -14,34 +14,31 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.Publish
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import androidx.build.PlatformIdentifier
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("com.android.library")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.ui.backhandler"
+    }
     desktop()
-    darwin()
+    mac()
+    ios()
     js()
-    wasm()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
         commonMain {
             dependencies {
-                implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(project(":annotation:annotation"))
                 implementation(project(":compose:runtime:runtime"))
@@ -49,16 +46,19 @@ kotlin {
             }
         }
 
-        jvmMain.dependsOn(commonMain)
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
 
-        desktopMain.dependsOn(jvmMain)
         androidMain {
-            dependsOn(jvmMain)
             dependencies {
                 api("androidx.activity:activity-compose:1.8.0")
             }
         }
 
+        // TODO: Align naming: nonAndroidMain
         jbMain {
             dependsOn(commonMain)
             dependencies {
@@ -66,35 +66,40 @@ kotlin {
                 implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
             }
         }
-        desktopMain.dependsOn(jbMain)
-        nonJvmMain.dependsOn(jbMain)
-        nativeMain.dependsOn(nonJvmMain)
-        webMain.dependsOn(nonJvmMain)
 
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeMain)
-                }
-            } else if (target.platformType in [
-                    KotlinPlatformType.js,
-                    KotlinPlatformType.wasm
-            ]) {
-                target.compilations["main"].defaultSourceSet {
-                    dependsOn(webMain)
-                }
-            }
+        jbTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(jbMain)
+        }
+
+        desktopTest {
+            dependsOn(jbTest)
+        }
+
+        nativeMain {
+            dependsOn(jbMain)
+        }
+
+        nativeTest {
+            dependsOn(jbTest)
+        }
+
+        webMain {
+            dependsOn(jbMain)
+        }
+
+        webTest {
+            dependsOn(jbTest)
         }
     }
 }
 
-android {
-    namespace "androidx.compose.ui.backhandler"
-}
-
 androidx {
-    name = "Compose Multiplatform BackHandler"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    name = "Compose BackHandler"
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2025"
     description = "Provides BackHandler in Compose Multiplatform projects"
     legacyDisableKotlinStrictApiMode = true

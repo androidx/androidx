@@ -18,13 +18,9 @@ package org.jetbrains.androidx.build
 
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXMultiplatformExtension
-import androidx.build.Release
-import androidx.build.getAlternativeProjectUrl
-import androidx.build.getBuildId
-import androidx.build.getProjectsMap
 import androidx.build.getRepositoryDirectory
+import androidx.build.hasAndroidMultiplatformPlugin
 import androidx.build.multiplatformExtension
-import androidx.build.version
 import com.android.build.gradle.LibraryPlugin
 import com.android.utils.childrenIterator
 import com.android.utils.forEach
@@ -35,10 +31,7 @@ import java.io.File
 import java.io.StringReader
 import java.io.StringWriter
 import java.util.StringTokenizer
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.collections.find
-import kotlin.collections.iterator
 import org.apache.xerces.jaxp.SAXParserImpl.JAXPSAXParser
 import org.dom4j.Document
 import org.dom4j.DocumentException
@@ -46,7 +39,6 @@ import org.dom4j.DocumentFactory
 import org.dom4j.Element
 import org.dom4j.io.SAXReader
 import org.dom4j.io.XMLWriter
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
 import org.gradle.api.artifacts.Configuration
@@ -73,25 +65,21 @@ import org.xml.sax.XMLReader
 import org.gradle.api.artifacts.ModuleIdentifier
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.internal.artifacts.DefaultModuleIdentifier
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
+import org.w3c.dom.Node
 
 fun Project.configureMavenArtifactUpload(
-    extension: AndroidXExtension,
-    kmpExtension: AndroidXMultiplatformExtension,
     componentFactory: SoftwareComponentFactory
 ) {
+    if (!JetBrainsPublication.shouldPublish(project)) return
     apply(mapOf("plugin" to "maven-publish"))
     var registered = false
     fun registerOnFirstPublishableArtifact(component: SoftwareComponent) {
         if (!registered) {
-            configureComponentPublishing(extension, kmpExtension, component, componentFactory)
+            configureComponentPublishing(component, componentFactory)
             registered = true
         }
     }
     afterEvaluate {
-        if (!JetBrainsPublication.shouldPublish(project)) {
-            return@afterEvaluate
-        }
         components.all { component ->
             if (isValidReleaseComponent(component)) {
                 registerOnFirstPublishableArtifact(component)
@@ -104,11 +92,13 @@ fun Project.configureMavenArtifactUpload(
  * Configure publishing for a [SoftwareComponent].
  */
 private fun Project.configureComponentPublishing(
-    extension: AndroidXExtension,
-    kmpExtension: AndroidXMultiplatformExtension,
     component: SoftwareComponent,
     componentFactory: SoftwareComponentFactory
 ) {
+    val extension = project.extensions.getByType(AndroidXExtension::class.java)
+    val kmpExtension =
+        project.extensions.getByType(AndroidXMultiplatformExtension::class.java)
+
     val projectArchiveDir = File(
         getRepositoryDirectory(),
         "${group.toString().replace('.', '/')}/$name"
@@ -121,16 +111,14 @@ private fun Project.configureComponentPublishing(
     val androidLibrariesSetProvider: Provider<Set<String>> = provider {
         val androidxAndroidProjects = mutableSetOf<String>()
         // Check every project is the project map to see if they are an Android Library
-        val projectModules = project.getProjectsMap()
-        for ((mavenCoordinates, projectPath) in projectModules) {
-            project.findProject(projectPath)?.plugins?.let { plugins ->
-                if (plugins.hasPlugin(LibraryPlugin::class.java)) {
-                    if (plugins.hasPlugin(KotlinMultiplatformPluginWrapper::class.java)) {
-                        // For KMP projects, android AAR is published under -android
-                        androidxAndroidProjects.add("$mavenCoordinates-android")
-                    } else {
-                        androidxAndroidProjects.add(mavenCoordinates)
-                    }
+        for (projectPath in JetBrainsPublication.projectPathToLibrary.keys) {
+            project.findProject(projectPath)?.let { project ->
+                val mavenCoordinates = "${project.group}:${project.name}"
+                if (project.plugins.hasPlugin(LibraryPlugin::class.java)) {
+                    androidxAndroidProjects.add(mavenCoordinates)
+                }
+                if (project.hasAndroidMultiplatformPlugin()) {
+                    androidxAndroidProjects.add("$mavenCoordinates-android")
                 }
             }
         }
@@ -185,40 +173,40 @@ private fun Project.configureComponentPublishing(
             }
         }
     }
-    project.tasks.withType(GenerateMavenPom::class.java).configureEach { task ->
-        task.doLast {
+    // run code only after all projects because it depends on redirection info,
+    // which is constructed at a project evaluation step
+    gradle.projectsEvaluated {
+        project.tasks.withType(GenerateMavenPom::class.java).configureEach { task ->
             fun hasTargetWithComponent(componentName: String) =
-                multiplatformExtension?.targets?.find { target ->
+                task.project.multiplatformExtension?.targets?.find { target ->
                     target.components.any { it.name == componentName }
                 } != null
 
-            // extract heuristically from:
-            // "build/publications/kotlinMultiplatformDecorated/pom-default.xml"
-            // "build/publications/desktop/pom-default.xml"
+            // extract heuristically from the task name:
+            // generatePomFileForKotlinMultiplatformDecoratedPublication
+            // generatePomFileForDesktopDecoratedPublication
             // ...
             // and take only if it is a target's component (we redirect only targets)
-            val componentName = task.destination.parentFile.name.takeIf(::hasTargetWithComponent)
+            val componentName: String? = Regex("^generatePomFileFor(.*)Publication$")
+                .matchEntire(task.name)
+                ?.groupValues?.get(1)
+                ?.replaceFirstChar { it.lowercase() }
+                ?.takeIf(::hasTargetWithComponent)
 
-            val pomFile = task.destination
-            val pom = pomFile.readText()
-            val modifiedPom = modifyPomDependencies(pom, componentName)
-            if (pom != modifiedPom) {
-                pomFile.writeText(modifiedPom)
+            val originalToRedirected: Map<ModuleIdentifier, ModuleVersionIdentifier> = if (componentName != null) {
+                originalToRedirectedDependency(componentName)
+            } else {
+                emptyMap()
             }
-        }
-    }
 
-    // Workaround for https://github.com/gradle/gradle/issues/11717
-    project.tasks.withType(GenerateModuleMetadata::class.java).configureEach { task ->
-        task.doLast {
-            val metadata = task.outputFile.asFile.get()
-            val text = metadata.readText()
-            metadata.writeText(
-                text.replace(
-                    "\"buildId\": .*".toRegex(),
-                    "\"buildId:\": \"${getBuildId()}\""
-                )
-            )
+            task.doLast {
+                val pomFile = task.destination
+                val pom = pomFile.readText()
+                val modifiedPom = modifyPomDependencies(pom, originalToRedirected)
+                if (pom != modifiedPom) {
+                    pomFile.writeText(modifiedPom)
+                }
+            }
         }
     }
 }
@@ -226,7 +214,10 @@ private fun Project.configureComponentPublishing(
 /**
  * Looks for a dependencies XML element within [pom], sorts its contents and modify it by redirecting coordinates
  */
-internal fun Project.modifyPomDependencies(pom: String, componentName: String?): String {
+internal fun modifyPomDependencies(
+    pom: String,
+    originalToRedirected: Map<ModuleIdentifier, ModuleVersionIdentifier>
+): String {
     // Workaround for using the default namespace in dom4j.
     val namespaceUris = mapOf("ns" to "http://maven.apache.org/POM/4.0.0")
     val docFactory = DocumentFactory()
@@ -234,12 +225,6 @@ internal fun Project.modifyPomDependencies(pom: String, componentName: String?):
     // Ensure that we're consistently using JAXP parser.
     val xmlReader = JAXPSAXParser()
     val document = parseText(docFactory, xmlReader, pom)
-
-    val originalToRedirected = if (componentName != null) {
-        originalToRedirectedDependency(componentName)
-    } else {
-        emptyMap()
-    }
 
     // For each <dependencies> element, sort the contained elements in-place.
     document.rootElement
@@ -364,16 +349,6 @@ private val jetBrainsLibrariesWithAndroidTarget = setOf(
 )
 private fun Project.configureMultiplatformPublication(componentFactory: SoftwareComponentFactory) {
     if (project.path !in jetBrainsLibrariesWithAndroidTarget) return
-    val multiplatformExtension = extensions.findByType<KotlinMultiplatformExtension>()!!
-    multiplatformExtension.targets.all { target ->
-        if (target is KotlinAndroidTarget) {
-            target.publishLibraryVariants(
-                Release.DEFAULT_PUBLISH_CONFIG,
-                "debug"
-            )
-        }
-    }
-
     replaceBaseMultiplatformPublication(componentFactory)
 }
 
@@ -493,19 +468,19 @@ private fun removePreviouslyUploadedArchives(projectArchiveDir: File) {
 
 private fun Project.addInformativeMetadata(extension: AndroidXExtension, pom: MavenPom) {
     pom.name.set(extension.name)
-    pom.description.set(provider { extension.description })
+    pom.description.set(extension.description)
     pom.url.set("https://github.com/JetBrains/compose-multiplatform")
-    pom.inceptionYear.set(provider { extension.inceptionYear })
+    pom.inceptionYear.set(extension.inceptionYear)
     pom.licenses { licenses ->
         licenses.license { license ->
             license.name.set("The Apache Software License, Version 2.0")
             license.url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
             license.distribution.set("repo")
         }
-        for (extraLicense in extension.getLicenses()) {
+        for (extraLicense in extension.getExtraLicenses()) {
             licenses.license { license ->
-                license.name.set(provider { extraLicense.name })
-                license.url.set(provider { extraLicense.url })
+                license.name.set(provider { extraLicense.name!! })
+                license.url.set(provider { extraLicense.url!! })
                 license.distribution.set("repo")
             }
         }
@@ -588,7 +563,7 @@ fun insertDefaultMultiplatformDependencies(
     }
 }
 
-private fun org.w3c.dom.Node.appendElement(
+private fun Node.appendElement(
     tagName: String,
     textValue: String? = null
 ): org.w3c.dom.Element {
@@ -603,9 +578,9 @@ private fun org.w3c.dom.Node.appendElement(
     return element
 }
 
-private fun org.w3c.dom.Node.find(
-    predicate: (org.w3c.dom.Node) -> Boolean
-): org.w3c.dom.Node? {
+private fun Node.find(
+    predicate: (Node) -> Boolean
+): Node? {
     val iterator = childrenIterator()
     while (iterator.hasNext()) {
         val node = iterator.next()

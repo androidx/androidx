@@ -14,89 +14,70 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    dependencies {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
-
-        api("androidx.annotation:annotation:1.1.0")
-
-        implementation("androidx.compose.runtime:runtime:1.2.1")
-        implementation(project(":compose:ui:ui-util"))
-        implementation(libs.kotlinStdlib)
-
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-        testImplementation(libs.kotlinTest)
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.ui.geometry"
     }
-}
+    desktop()
+    mac()
+    ios()
+    js()
+    wasmJs()
 
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-        darwin()
-        js()
-        wasm()
-    }
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
-                implementation(libs.kotlinStdlib)
+    sourceSets {
+        commonMain.dependencies {
+            implementation(project(":compose:runtime:runtime"))
+            implementation(project(":compose:ui:ui-util"))
+        }
 
-                implementation(project(":compose:runtime:runtime"))
-                implementation(project(":compose:ui:ui-util"))
-            }
-            jvmMain.dependencies {
-                implementation(libs.kotlinStdlib)
-            }
-            androidMain.dependencies {
-                api("androidx.annotation:annotation:1.1.0")
-            }
-            commonTest.dependencies {
-                implementation(libs.kotlinTest)
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+        }
+
+        androidMain.dependencies {
+            api("androidx.annotation:annotation:1.8.1")
+        }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.testRunner)
+        }
+
+        skikoTest {
+            dependsOn(commonTest)
+            dependencies {
                 implementation(project(":kruth:kruth"))
             }
-            desktopTest.kotlin.srcDirs("src/test/kotlin")
-
-            wasmJsMain {
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                }
-            }
         }
+
+        nonJvmTest.dependsOn(skikoTest)
+        desktopTest.dependsOn(skikoTest)
     }
 }
 
 androidx {
     name = "Compose Geometry"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Compose classes related to dimensions without units"
     legacyDisableKotlinStrictApiMode = true
 }
 
-android {
-    namespace "androidx.compose.ui.geometry"
-}

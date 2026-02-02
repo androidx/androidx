@@ -50,10 +50,11 @@ import androidx.glance.layout.WidthModifier
 import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.Dimension
 import androidx.glance.unit.ResourceColorProvider
+import kotlin.math.round
 
 internal fun RemoteViews.translateEmittableImage(
     translationContext: TranslationContext,
-    element: EmittableImage
+    element: EmittableImage,
 ) {
     val selector = element.getLayoutSelector()
     val viewDef = insertView(translationContext, selector, element.modifier)
@@ -65,6 +66,13 @@ internal fun RemoteViews.translateEmittableImage(
         else -> throw IllegalArgumentException("An unsupported ImageProvider type was used.")
     }
     element.colorFilterParams?.let { applyColorFilter(translationContext, this, it, viewDef) }
+
+    element.alpha?.let {
+        val alpha = it.coerceIn(0f, 1f) // sanitized
+        val convertedAlpha = round(alpha * 255).toInt().coerceIn(0, 255)
+        setImageViewImageAlpha(viewDef.mainViewId, /* alpha= */ convertedAlpha)
+    }
+
     applyModifiers(translationContext, this, element.modifier, viewDef)
 
     // If the content scale is Fit, the developer has expressed that they want the image to
@@ -112,7 +120,7 @@ private fun applyColorFilter(
     translationContext: TranslationContext,
     rv: RemoteViews,
     colorFilterParams: ColorFilterParams,
-    viewDef: InsertedViewInfo
+    viewDef: InsertedViewInfo,
 ) {
     when (colorFilterParams) {
         is TintColorFilterParams -> {
@@ -122,12 +130,12 @@ private fun applyColorFilter(
                     translationContext,
                     rv,
                     colorProvider,
-                    viewDef.mainViewId
+                    viewDef.mainViewId,
                 )
             } else {
                 rv.setImageViewColorFilter(
                     viewDef.mainViewId,
-                    colorProvider.getColor(translationContext.context).toArgb()
+                    colorProvider.getColor(translationContext.context).toArgb(),
                 )
             }
         }
@@ -142,7 +150,7 @@ private fun applyColorFilter(
                 Log.e(
                     GlanceAppWidgetTag,
                     "There is no use case yet to support this colorFilter in S+ versions.",
-                    trace
+                    trace,
                 )
             }
         }
@@ -170,7 +178,7 @@ private object ImageTranslatorApi31Impl {
         translationContext: TranslationContext,
         rv: RemoteViews,
         colorProvider: ColorProvider,
-        viewId: Int
+        viewId: Int,
     ) {
         when (colorProvider) {
             is DayNightColorProvider ->
@@ -180,7 +188,7 @@ private object ImageTranslatorApi31Impl {
             else ->
                 rv.setImageViewColorFilter(
                     viewId,
-                    colorProvider.getColor(translationContext.context).toArgb()
+                    colorProvider.getColor(translationContext.context).toArgb(),
                 )
         }
     }

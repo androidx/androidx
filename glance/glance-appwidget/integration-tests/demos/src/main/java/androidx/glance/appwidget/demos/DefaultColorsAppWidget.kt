@@ -40,6 +40,7 @@ import androidx.glance.appwidget.Switch
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
+import androidx.glance.color.ColorProviders
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.fillMaxSize
@@ -59,7 +60,7 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
     enum class Scheme {
         SystemM3,
         CustomM3,
-        CustomM2
+        CustomM2,
     }
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
@@ -70,15 +71,25 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
                 Scheme.CustomM3 ->
                     ColorProviders(
                         light = DemoColorScheme.LightColors,
-                        dark = DemoColorScheme.DarkColors
+                        dark = DemoColorScheme.DarkColors,
                     )
                 Scheme.CustomM2 ->
                     ColorProviders(
                         light = DemoColorScheme.SampleM2ColorsLight,
-                        dark = DemoColorScheme.SampleM2ColorsDark
+                        dark = DemoColorScheme.SampleM2ColorsDark,
                     )
             }
 
+        Content(colors, currentScheme)
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content(GlanceTheme.colors, Scheme.SystemM3)
+    }
+
+    @Composable
+    private fun Content(colors: ColorProviders, currentScheme: Scheme) {
+        var currentScheme1 = currentScheme
         GlanceTheme(colors) {
             Column(
                 GlanceModifier.fillMaxSize()
@@ -86,29 +97,29 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
                     .background(GlanceTheme.colors.widgetBackground)
             ) {
                 Button(
-                    text = "Theme: $currentScheme",
+                    text = "Theme: $currentScheme1",
                     onClick = {
-                        currentScheme =
-                            when (currentScheme) {
+                        currentScheme1 =
+                            when (currentScheme1) {
                                 Scheme.SystemM3 -> Scheme.CustomM3
                                 Scheme.CustomM3 -> Scheme.CustomM2
                                 Scheme.CustomM2 -> Scheme.SystemM3
                             }
                     },
-                    modifier = GlanceModifier.padding(8.dp)
+                    modifier = GlanceModifier.padding(8.dp),
                 )
                 Row(GlanceModifier.fillMaxWidth().padding(top = 8.dp)) {
                     CheckBox(
                         modifier = GlanceModifier.defaultWeight(),
                         checked = false,
                         onCheckedChange = doNothingAction,
-                        text = "Unchecked"
+                        text = "Unchecked",
                     )
                     CheckBox(
                         modifier = GlanceModifier.defaultWeight(),
                         checked = true,
                         onCheckedChange = doNothingAction,
-                        text = "Checked"
+                        text = "Checked",
                     )
                 }
 
@@ -117,13 +128,13 @@ class DefaultColorsAppWidget : GlanceAppWidget() {
                         modifier = GlanceModifier.defaultWeight(),
                         checked = false,
                         onClick = doNothingAction,
-                        text = "Unchecked"
+                        text = "Unchecked",
                     )
                     RadioButton(
                         modifier = GlanceModifier.defaultWeight(),
                         checked = true,
                         onClick = doNothingAction,
-                        text = "Checked"
+                        text = "Checked",
                     )
                 }
 
@@ -144,7 +155,7 @@ private fun ColorDebug() {
         Text(
             text = text,
             style = TextStyle(color = fg),
-            modifier = GlanceModifier.fillMaxWidth().background(bg).padding(6.dp)
+            modifier = GlanceModifier.fillMaxWidth().background(bg).padding(6.dp),
         )
     Column(modifier = GlanceModifier.cornerRadius(8.dp)) {
         with(GlanceTheme.colors) {
@@ -156,13 +167,13 @@ private fun ColorDebug() {
                 Text(
                     text = "PrimaryContainer / OnPrimaryContainer",
                     fg = onPrimaryContainer,
-                    bg = primaryContainer
+                    bg = primaryContainer,
                 )
                 Text(text = "Secondary / OnSecondary", fg = onSecondary, bg = secondary)
                 Text(
                     text = "SecondaryContainer / OnSecondaryContainer",
                     fg = onSecondaryContainer,
-                    bg = secondaryContainer
+                    bg = secondaryContainer,
                 )
                 Text(text = "Tertiary / OnTertiary", fg = onTertiary, bg = tertiary)
             }
@@ -170,18 +181,18 @@ private fun ColorDebug() {
                 Text(
                     text = "TertiaryContainer / OnTertiaryContainer",
                     fg = onTertiaryContainer,
-                    bg = tertiaryContainer
+                    bg = tertiaryContainer,
                 )
                 Text(text = "Surface / OnSurface", fg = onSurface, bg = surface)
                 Text(
                     text = "SurfaceVariant / OnSurfaceVariant",
                     fg = onSurfaceVariant,
-                    bg = surfaceVariant
+                    bg = surfaceVariant,
                 )
                 Text(
                     text = "InverseOnSurface / InverseSurface",
                     fg = inverseOnSurface,
-                    bg = inverseSurface
+                    bg = inverseSurface,
                 )
                 Text(text = "Background / OnBackground", fg = onBackground, bg = background)
                 Text(text = "Error / OnError", fg = onError, bg = error)
@@ -342,7 +353,7 @@ object DemoColorScheme {
             onSurface = Color.White,
             onBackground = Color.White,
             error = Red300,
-            onError = Color.Black
+            onError = Color.Black,
         )
     val SampleM2ColorsLight =
         lightColors(
@@ -355,6 +366,6 @@ object DemoColorScheme {
             onSurface = Color.Black,
             onBackground = Color.Black,
             error = Red800,
-            onError = Color.White
+            onError = Color.White,
         )
 }

@@ -22,92 +22,99 @@
  * modifying its settings.
  */
 
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    alias(libs.plugins.kotlinSerialization)
     id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.navigation"
+        androidResources.enable = true
+        // Needed for api tasks and docs generation
+        sourceSets {
+            androidMain {
+                kotlin.srcDirs += 'src/androidMain/java'
+            }
+        }
+    }
     desktop()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
     js()
-    wasm()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api "androidx.annotation:annotation:1.9.1"
-                api "androidx.collection:collection:1.5.0"
-                api project(":lifecycle:lifecycle-common")
-                api project(":lifecycle:lifecycle-runtime")
-                api project(":lifecycle:lifecycle-viewmodel")
-                api project(":lifecycle:lifecycle-viewmodel-savedstate")
-                api project(":savedstate:savedstate")
-                api project(":navigation:navigation-common")
+        commonMain.dependencies {
+            api "androidx.annotation:annotation:1.9.1"
+            api "androidx.collection:collection:1.5.0"
+            api project(":lifecycle:lifecycle-common")
+            api project(":lifecycle:lifecycle-runtime")
+            api project(":lifecycle:lifecycle-viewmodel")
+            api project(":lifecycle:lifecycle-viewmodel-savedstate")
+            api project(":savedstate:savedstate")
+            api project(":navigation:navigation-common")
 
-                api(libs.kotlinStdlib)
-                implementation(libs.kotlinSerializationCore)
-            }
+            implementation(libs.kotlinSerializationCore)
         }
-
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(project(":kruth:kruth"))
-                implementation(project(":navigation:navigation-testing"))
-                implementation(project(":internal-testutils-navigation"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":navigation:navigation-testing"))
+            implementation(project(":internal-testutils-navigation"))
         }
-
-        jvmMain.dependsOn(commonMain)
-        jvmTest.dependsOn(commonTest)
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                api("androidx.activity:activity-ktx:1.7.1")
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":internal-testutils-runtime"))
-                implementation(libs.testExtJunit)
-                implementation(libs.testExtTruth)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.testRules)
-                implementation(libs.espressoCore)
-                implementation(libs.espressoIntents)
-
-                // CustomMessageMissingMethodException: Could not find method implementation() for arguments
-                // implementation(libs.mockitoCore, excludes.bytebuddy)
-                // implementation(libs.dexmakerMockito, excludes.bytebuddy)
-                implementation("org.mockito:mockito-core:2.25.0", excludes.bytebuddy)
-                implementation("com.linkedin.dexmaker:dexmaker-mockito:2.28.3", excludes.bytebuddy)
-            }
-        }
-
         nonAndroidMain.dependsOn(commonMain)
         nonAndroidTest.dependsOn(commonTest)
 
+        jvmMain.dependsOn(nonAndroidMain)
+        jvmTest.dependsOn(nonAndroidTest)
+        desktopMain.dependsOn(jvmMain)
+        desktopTest.dependsOn(jvmTest)
+
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
+
+        androidMain.dependencies {
+            api("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+            api("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
+            api("androidx.activity:activity-ktx:1.7.1")
+            api("androidx.core:core-ktx:1.8.0")
+            api("androidx.annotation:annotation-experimental:1.4.1")
+        }
+        androidDeviceTest.dependencies {
+            implementation("androidx.annotation:annotation:1.8.0")
+            implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.7")
+            implementation("androidx.lifecycle:lifecycle-common:2.8.7")
+            implementation("androidx.lifecycle:lifecycle-runtime:2.8.7")
+            implementation("androidx.lifecycle:lifecycle-runtime-testing:2.8.7")
+            implementation(project(":internal-testutils-navigation"))
+            implementation(project(":internal-testutils-runtime"))
+            implementation(libs.hamcrestCore)
+            implementation(libs.junit)
+            implementation(libs.kotlinTest)
+            implementation(libs.testCore)
+            implementation(libs.testExtJunit)
+            implementation(libs.testExtTruth)
+            implementation(libs.testMonitor)
+            implementation(libs.testRunner)
+            implementation(libs.testRules)
+            implementation(libs.espressoIntents)
+            implementation(libs.truth)
+            implementation(libs.dexmakerMockito)
+            implementation(libs.mockitoCore)
+        }
         nonJvmMain {
             dependsOn(nonAndroidMain)
             dependencies {
@@ -116,55 +123,26 @@ androidXMultiplatform {
         }
         nonJvmTest.dependsOn(nonAndroidTest)
 
-        desktopMain {
-            dependsOn(jvmMain)
-            dependsOn(nonAndroidMain)
+        nativeMain {
+            dependsOn(nonJvmMain)
         }
-        desktopTest {
-            dependsOn(jvmTest)
-            dependsOn(nonAndroidTest)
+        nativeTest {
+            dependsOn(nonJvmTest)
         }
-
-        nativeMain.dependsOn(nonJvmMain)
-        nativeTest.dependsOn(nonJvmTest)
 
         webMain.dependencies {
             implementation(libs.kotlinXw3c)
         }
-        webMain.dependsOn(nonJvmMain)
-        webTest.dependsOn(nonJvmTest)
-
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
-        }
-        jsTest.dependsOn(webTest)
-        wasmJsTest.dependsOn(webTest)
     }
 }
 
-kotlin {
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
-}
-
-android {
-    // Include `*.java` files into the build
-    sourceSets["main"].java.srcDir("src/androidMain/java")
-    namespace "androidx.navigation"
+dependencies {
+    lintPublish(project(":navigation:navigation-runtime-lint"))
 }
 
 androidx {
     name = "Navigation Runtime"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Navigation-Runtime"
 }

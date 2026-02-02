@@ -25,12 +25,16 @@ import androidx.benchmark.Outputs
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.PropOverride
 import androidx.benchmark.Shell
+import androidx.benchmark.ShellFile
+import androidx.benchmark.UserFile
+import androidx.benchmark.UserInfo
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOG_TAG
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_ALREADY_ENABLED
 import androidx.tracing.perfetto.handshake.protocol.ResponseResultCodes.RESULT_CODE_SUCCESS
-import java.io.FileOutputStream
-import java.lang.RuntimeException
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /** Wrapper for [PerfettoCapture] which does nothing below API 23. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -45,7 +49,7 @@ class PerfettoCaptureWrapper {
     }
 
     companion object {
-        val inUseLock = Object()
+        val inUseLock = Any()
 
         /**
          * Prevents re-entrance of perfetto trace capture, as it doesn't handle this correctly
@@ -58,7 +62,7 @@ class PerfettoCaptureWrapper {
     @RequiresApi(23)
     private fun start(
         config: PerfettoConfig,
-        perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?
+        perfettoSdkConfig: PerfettoCapture.PerfettoSdkConfig?,
     ): Boolean {
         capture?.apply {
             Log.d(LOG_TAG, "Recording perfetto trace")
@@ -80,18 +84,33 @@ class PerfettoCaptureWrapper {
     }
 
     @RequiresApi(23)
-    private fun stop(traceLabel: String): String {
+    private fun stop(traceLabel: String, inMemoryTracingLabel: String?): String {
         return Outputs.writeFile(fileName = "${traceLabel}_${dateToFileName()}.perfetto-trace") {
-            capture!!.stop(it.absolutePath)
-            if (Outputs.forceFilesForShellAccessible) {
-                // This shell written file must be made readable to be later accessed by this
-                // process (e.g. for appending UiState). Unlike in other places, shell
-                // must increase access, since it's giving the app access
-                Shell.executeScriptSilent("chmod 777 ${it.absolutePath}")
+
+            // The output of this method expects the final to be written in a user writeable folder.
+            // If the default user is selected, perfetto can stop and write the file directly there.
+            // Otherwise, we first need to write it in a shell storage and the use the VirtualFile
+            // to cross between shell and user storage.
+
+            if (UserInfo.isAdditionalUser) {
+                ShellFile.inTempDir(it.name).apply {
+                    capture!!.stop(absolutePath, inMemoryTracingLabel)
+                    copyTo(UserFile(it.absolutePath))
+                    delete()
+                }
+            } else {
+                capture!!.stop(it.absolutePath, inMemoryTracingLabel)
+                if (Outputs.forceFilesForShellAccessible) {
+                    // This shell written file must be made readable to be later accessed by this
+                    // process (e.g. for appending UiState). Unlike in other places, shell
+                    // must increase access, since it's giving the app access
+                    Shell.chmod(path = it.absolutePath, args = "777")
+                }
             }
         }
     }
 
+    @OptIn(ExperimentalContracts::class)
     fun record(
         fileLabel: String,
         config: PerfettoConfig,
@@ -99,8 +118,9 @@ class PerfettoCaptureWrapper {
         traceCallback: ((String) -> Unit)? = null,
         enableTracing: Boolean = true,
         inMemoryTracingLabel: String? = null,
-        block: () -> Unit
+        block: () -> Unit,
     ): String? {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
         // skip if Perfetto not supported, or if caller opts out
         if (Build.VERSION.SDK_INT < 23 || !isAbiSupported() || !enableTracing) {
             block()
@@ -137,18 +157,13 @@ class PerfettoCaptureWrapper {
                 block()
             } finally {
                 // finally here to ensure trace is fully recorded if block throws
-                path = stop(fileLabel)
-
-                if (inMemoryTracingLabel != null) {
-                    val inMemoryTrace = InMemoryTracing.commitToTrace(inMemoryTracingLabel)
-                    inMemoryTrace.encode(FileOutputStream(path, /* append= */ true))
-                }
+                path = stop(fileLabel, inMemoryTracingLabel)
                 traceCallback?.invoke(path)
             }
-            return path
         } finally {
             propOverride?.resetIfOverridden()
             synchronized(inUseLock) { inUse = false }
         }
+        return path
     }
 }

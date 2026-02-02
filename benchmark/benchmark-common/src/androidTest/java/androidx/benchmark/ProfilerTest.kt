@@ -35,7 +35,7 @@ class ProfilerTest {
     fun getByName() {
         assertSame(
             if (Build.VERSION.SDK_INT >= 29) StackSamplingSimpleperf else StackSamplingLegacy,
-            Profiler.getByName("StackSampling")
+            Profiler.getByName("StackSampling"),
         )
         assertSame(MethodTracing, Profiler.getByName("MethodTracing"))
         assertSame(ConnectedAllocation, Profiler.getByName("ConnectedAllocation"))
@@ -61,7 +61,7 @@ class ProfilerTest {
         val file = File(Outputs.outputDirectory, outputRelPath)
         assertTrue(
             actual = regex.matches(outputRelPath),
-            message = "expected profiler output path $outputRelPath to match $regex"
+            message = "expected profiler output path $outputRelPath to match $regex",
         )
 
         if (result.convertBeforeSync != null) {
@@ -85,7 +85,7 @@ class ProfilerTest {
     fun stackSamplingLegacy() {
         verifyProfiler(
             profiler = StackSamplingLegacy,
-            regex = Regex("test-stackSamplingLegacy-.+.trace")
+            regex = Regex("test-stackSamplingLegacy-.+.trace"),
         )
         assertTrue(StackSamplingLegacy.requiresExtraRuntime)
     }
@@ -98,7 +98,7 @@ class ProfilerTest {
 
         verifyProfiler(
             profiler = StackSamplingSimpleperf,
-            regex = Regex("test-stackSampling-.+.trace")
+            regex = Regex("test-stackSampling-.+.trace"),
         )
         assertTrue(StackSamplingSimpleperf.requiresExtraRuntime)
     }

@@ -1,0 +1,17 @@
+Display 4630947073232067969
+    connectionType=Internal
+    colorModes=
+        ColorMode::NATIVE
+    deviceProductInfo={name="", manufacturerPnpId=QCM, productId=1, manufactureWeek=27, manufactureYear=2006, relativeAddress=[]}
+    name=""
+    powerMode=Doze
+    renderRate=60.00 Hz
+    activeMode={id=0, hwcId=0, resolution=408x408, vsyncRate=60.00 Hz, dpi=323.85x323.85, group=0, vrrConfig=N/A, supportedHdrTypes=INVALID}
+    displayModes=
+        {id=0, hwcId=0, resolution=408x408, vsyncRate=60.00 Hz, dpi=323.85x323.85, group=0, vrrConfig=N/A, supportedHdrTypes=INVALID}
+    displayManagerPolicy={defaultModeId=0, allowGroupSwitching=false, primaryRanges={physical=[0.00 Hz, inf Hz], render=[0.00 Hz, 60.00 Hz]}, appRequestRanges={physical=[0.00 Hz, inf Hz], render=[0.00 Hz, inf Hz]} idleScreenConfig=nullptr}
+    frameRateOverrideConfig=Enabled
+    idleTimer=
+        interval=nullopt
+        controller=Platform
+

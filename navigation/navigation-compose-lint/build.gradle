@@ -44,9 +44,8 @@ dependencies {
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(project(":navigation:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.kotlinStdlibJdk8)
     testImplementation(libs.androidLintApiStableAnalysis)
-    testImplementation(libs.androidLintTestsStableAnalysis)
+    testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
 }
 

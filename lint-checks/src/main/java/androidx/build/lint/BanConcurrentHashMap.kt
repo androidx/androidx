@@ -108,7 +108,7 @@ class BanConcurrentHashMap : Detector(), Detector.UastScanner {
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
-                Implementation(BanConcurrentHashMap::class.java, Scope.JAVA_FILE_SCOPE)
+                Implementation(BanConcurrentHashMap::class.java, Scope.JAVA_FILE_SCOPE),
             )
         const val CONCURRENT_HASHMAP_QUALIFIED_NAME = "java.util.concurrent.ConcurrentHashMap"
         const val CONCURRENT_HASHMAP = "ConcurrentHashMap"

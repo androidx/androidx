@@ -104,7 +104,7 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
         Bundle().apply {
             putInt(
                 AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY,
-                GlanceAppWidgetUnitTestDefaults.hostCategory()
+                GlanceAppWidgetUnitTestDefaults.hostCategory(),
             )
         }
 
@@ -118,17 +118,14 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
                         LocalGlanceId provides fakeGlanceID,
                         LocalState provides state,
                         LocalAppWidgetOptions provides appWidgetOptions,
-                        LocalSize provides size
+                        LocalSize provides size,
                     )
                 context?.let {
                     compositionLocals = compositionLocals.plus(LocalContext provides it)
                 }
 
                 composition.setContent {
-                    CompositionLocalProvider(
-                        values = compositionLocals,
-                        content = composable,
-                    )
+                    CompositionLocalProvider(values = compositionLocals, content = composable)
                 }
 
                 launch(currentCoroutineContext() + TestFrameClock()) {

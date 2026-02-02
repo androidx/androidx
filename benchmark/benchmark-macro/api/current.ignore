@@ -1,0 +1,19 @@
+// Baseline format: 1.0
+BecameUnchecked: androidx.benchmark.macro.MetricResultExtensionsKt:
+    Removed class androidx.benchmark.macro.MetricResultExtensionsKt from compatibility checked API surface
+BecameUnchecked: androidx.benchmark.macro.TraceProcessorExtensionsKt:
+    Removed class androidx.benchmark.macro.TraceProcessorExtensionsKt from compatibility checked API surface
+
+
+RemovedFromKotlin: androidx.benchmark.macro.BaselineProfileResult#getBaselineProfiles():
+    Source breaking change: method androidx.benchmark.macro.BaselineProfileResult.getBaselineProfiles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.BaselineProfileResult#getStartupProfiles():
+    Source breaking change: method androidx.benchmark.macro.BaselineProfileResult.getStartupProfiles() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.CompilationMode.Partial#getBaselineProfileMode():
+    Source breaking change: method androidx.benchmark.macro.CompilationMode.Partial.getBaselineProfileMode() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.CompilationMode.Partial#getWarmupIterations():
+    Source breaking change: method androidx.benchmark.macro.CompilationMode.Partial.getWarmupIterations() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.MacrobenchmarkScope#getIteration():
+    Source breaking change: method androidx.benchmark.macro.MacrobenchmarkScope.getIteration() can no longer be resolved from Kotlin source
+RemovedFromKotlin: androidx.benchmark.macro.MacrobenchmarkScope#getPackageName():
+    Source breaking change: method androidx.benchmark.macro.MacrobenchmarkScope.getPackageName() can no longer be resolved from Kotlin source

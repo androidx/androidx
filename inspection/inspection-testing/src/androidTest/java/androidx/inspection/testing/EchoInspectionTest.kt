@@ -94,12 +94,12 @@ class EchoInspectionTest {
                         object : InspectorFactory<EchoInspector>(ECHO_INSPECTION_ID) {
                             override fun createInspector(
                                 connection: Connection,
-                                environment: InspectorEnvironment
+                                environment: InspectorEnvironment,
                             ): EchoInspector {
                                 escapedEnvironment = environment
                                 return EchoInspector(connection)
                             }
-                        }
+                        },
                 )
             inspectorTester.dispose()
         }

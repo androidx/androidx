@@ -6,10 +6,9 @@ package org.jetbrains.androidx.build
 
 import org.gradle.api.Project
 
-class ComposeProperties(private val myProject: Project) {
-    val targetPlatforms: Set<ComposePlatforms>
-        get() {
-            val requestedPlatforms = myProject.findProperty("compose.platforms")?.toString() ?: "jvm, android"
-            return ComposePlatforms.parse(requestedPlatforms)
-        }
+data class ComposeProperties(val targetPlatforms: Set<ComposePlatforms>) {
+    constructor(project: Project) : this(
+        targetPlatforms =
+            ComposePlatforms.parse(project.findProperty("compose.platforms")?.toString() ?: "jvm, android")
+    )
 }

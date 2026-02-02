@@ -14,51 +14,47 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
 
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:ui:ui-test"))
     implementation(project(":compose:ui:ui-test-junit4"))
 
     implementation("androidx.compose.animation:animation:1.2.1")
     implementation("androidx.compose.material:material:1.2.1")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation(libs.espressoAccessibility)
 }
 
 androidx {
     name = "Compose Testing Samples"
-    type = LibraryType.SAMPLES
+    type = SoftwareType.SAMPLES
     inceptionYear = "2022"
     description = "Contains samples for AndroidX Compose Testing."
 }
 
 android {
-    namespace "androidx.compose.ui.test.samples"
+    compileSdk = 35
+    namespace = "androidx.compose.ui.test.samples"
 }
-
-// Workaround for https://github.com/gradle/gradle/issues/19882
-// TODO: can we use artifacts here?
-//configurations.all {
-//    resolutionStrategy.dependencySubstitution {
-//        substitute(module("androidx.lifecycle:lifecycle-common:")).
-//                using project(":lifecycle:lifecycle-common")
-//        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
-//                using project(":lifecycle:lifecycle-runtime")
-//        substitute(module("androidx.lifecycle:lifecycle-runtime-ktx:")).
-//                using project(":lifecycle:lifecycle-runtime-ktx")
-//        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
-//                using project(":lifecycle:lifecycle-viewmodel")
-//    }
-//}

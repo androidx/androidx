@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright 2021 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<!--
+  Project-specific lint configuration can be created with a `lint.xml` in the project directory.
+  That configuration will be applied in addition to this file. The precedence order is described in
+  https://googlesamples.github.io/android-custom-lint-rules/usage/lintxml.md.html
+   -->
+<lint>
+    <issue id="LintBaseline" severity="ignore">
+        <ignore regexp=".* filtered out because .* listed in the baseline file.*"/>
+    </issue>
+    <!-- Enable certain lint checks on tests which don't run on test scope by default. -->
+    <issue id="NewApi" severity="fatal" tests="true" />
+    <issue id="WrongThread" severity="fatal" tests="true" />
+    <!--
+      NewApi and ObsoleteSdkInt are implemented with the same detector. NewApi is enabled for tests
+      above, so ObsoleteSdkInt implicitly also is because the detector is running on tests. Set the
+      issue to ignore test paths since it isn't needed for tests.
+      -->
+    <issue id="ObsoleteSdkInt">
+        <ignore path="**/src/test/**" />
+        <ignore path="**/src/androidTest/**" />
+        <!-- Required for Kotlin multi-platform tests. -->
+        <ignore path="**/src/androidDeviceTest/**" />
+        <ignore path="**/src/androidHostTest/**" />
+    </issue>
+    <!-- Disable all lint checks on transformed classes by default. b/283812176 -->
+    <issue id="all">
+        <ignore path="**/.transforms/**" />
+        <!-- playground builds have dependency files in "transformed" instead of ".transforms" -->
+        <ignore path="**/.gradle/**/transforms*/**/transformed/**" />
+    </issue>
+    <issue id="AndroidXFlaggedApi">
+        <!-- Comma-delimited list of libraries which are allowed to call flagged APIs, where
+             `groupId:artifactId` represents a single module and `groupId` represents an entire
+             group of modules. -->
+        <option name="allowlist" value="androidx.lint-checks,androidx.mediarouter,androidx.core:core,androidx.core.pip" />
+    </issue>
+</lint>

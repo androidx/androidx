@@ -1,0 +1,34 @@
+// Signature format: 4.0
+package androidx.glance.wear {
+
+  public abstract class GlanceWearWidget {
+    ctor public GlanceWearWidget();
+    method @MainThread public suspend Object? onAdded(android.content.Context context, androidx.glance.wear.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public suspend Object? onRemoved(android.content.Context context, androidx.glance.wear.ActiveWearWidgetHandle widgetHandle, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method @MainThread public abstract suspend Object? provideWidgetData(android.content.Context context, androidx.glance.wear.WearWidgetParams params, kotlin.coroutines.Continuation<? super androidx.glance.wear.WearWidgetData>);
+    method public final void triggerUpdate(android.content.Context context, android.content.ComponentName provider);
+  }
+
+  public abstract class GlanceWearWidgetService extends androidx.lifecycle.LifecycleService {
+    ctor public GlanceWearWidgetService();
+    method @InaccessibleFromKotlin public abstract androidx.glance.wear.GlanceWearWidget getWidget();
+    method public final android.os.IBinder? onBind(android.content.Intent intent);
+    property public abstract androidx.glance.wear.GlanceWearWidget widget;
+    field public static final String ACTION_BIND_WIDGET_PROVIDER = "androidx.glance.wear.action.BIND_WIDGET_PROVIDER";
+    field public static final androidx.glance.wear.GlanceWearWidgetService.Companion Companion;
+  }
+
+  public static final class GlanceWearWidgetService.Companion {
+    property public static String ACTION_BIND_WIDGET_PROVIDER;
+  }
+
+  public interface WearWidgetData {
+  }
+
+  public final class WearWidgetDocument implements androidx.glance.wear.WearWidgetData {
+    ctor @KotlinOnly public WearWidgetDocument(androidx.compose.ui.graphics.Color backgroundColor, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    ctor @BytecodeOnly public WearWidgetDocument(long, kotlin.jvm.functions.Function2!, kotlin.jvm.internal.DefaultConstructorMarker!);
+  }
+
+}
+

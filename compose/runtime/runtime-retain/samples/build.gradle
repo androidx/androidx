@@ -23,21 +23,20 @@
  */
 
 import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.library")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:runtime:runtime-retain"))
     implementation("androidx.compose.material:material:1.9.1")
+    implementation("androidx.compose.material:material-icons-core:1.7.8")
 }
 
 androidx {

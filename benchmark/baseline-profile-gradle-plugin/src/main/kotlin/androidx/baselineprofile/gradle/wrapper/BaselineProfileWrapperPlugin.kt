@@ -48,6 +48,13 @@ class BaselineProfileWrapperPlugin : Plugin<Project> {
             project.pluginManager.apply(BaselineProfileConsumerPlugin::class.java)
         }
 
+        // If this module is a kotlin multiplatform library module
+        project.pluginManager.withPlugin("com.android.kotlin.multiplatform.library") {
+
+            // Applies the profile consumer plugin
+            project.pluginManager.apply(BaselineProfileConsumerPlugin::class.java)
+        }
+
         // If this module is a test module
         project.pluginManager.withPlugin("com.android.test") {
 

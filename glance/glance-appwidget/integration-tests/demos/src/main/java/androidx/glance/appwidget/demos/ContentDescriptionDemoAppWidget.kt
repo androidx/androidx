@@ -62,6 +62,15 @@ import androidx.glance.text.TextStyle
  */
 class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         var setTopLevelContentDescriptionPerItem by remember { mutableStateOf(false) }
 
         GlanceTheme {
@@ -77,7 +86,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
                     checked = setTopLevelContentDescriptionPerItem,
                     onCheckedChange = {
                         setTopLevelContentDescriptionPerItem = !setTopLevelContentDescriptionPerItem
-                    }
+                    },
                 )
                 VerticalSpacer()
                 BooksList(
@@ -108,7 +117,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
                             }
                         },
                         isLastItem = index == books.size - 1,
-                        setTopLevelContentDescription = setTopLevelContentDescriptionPerItem
+                        setTopLevelContentDescription = setTopLevelContentDescriptionPerItem,
                     )
                 }
             }
@@ -121,7 +130,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
         isInWishList: Boolean,
         toggleWishList: () -> Unit,
         isLastItem: Boolean,
-        setTopLevelContentDescription: Boolean
+        setTopLevelContentDescription: Boolean,
     ) {
         var modifier =
             GlanceModifier.padding(8.dp)
@@ -189,7 +198,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
                 // If top-level container doesn't have an explicit content description set, this
                 // text will be included in content read out by the screen reader.
                 text = book.title,
-                style = TextStyle(color = GlanceTheme.colors.primary, fontWeight = FontWeight.Bold)
+                style = TextStyle(color = GlanceTheme.colors.primary, fontWeight = FontWeight.Bold),
             )
             VerticalSpacer()
             Row {
@@ -197,7 +206,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
                     // If top-level container doesn't have a explicit content description set, this
                     // text will be included in content read out by the screen reader.
                     text = book.author,
-                    style = TextStyle(color = GlanceTheme.colors.secondary)
+                    style = TextStyle(color = GlanceTheme.colors.secondary),
                 )
                 HorizontalSpacer()
                 Text(
@@ -212,7 +221,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
                             // set,
                             // this contentDescription will be included in content read out by the
                             // screen reader.
-                            .semantics { contentDescription = "The genre is ${book.genre}" }
+                            .semantics { contentDescription = "The genre is ${book.genre}" },
                 )
             }
         }
@@ -244,7 +253,7 @@ class ContentDescriptionDemoAppWidget : GlanceAppWidget() {
         val DEMO_BOOKS =
             listOf(
                 Book("1", "Book 1", "John Doe", "Thriller"),
-                Book("2", "Book 2", "Jane Doe", "Adventure")
+                Book("2", "Book 2", "Jane Doe", "Adventure"),
             )
     }
 }

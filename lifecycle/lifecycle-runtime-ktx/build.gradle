@@ -32,32 +32,18 @@ plugins {
 androidXMultiplatform {
     androidLibrary {
         namespace = "androidx.lifecycle.ktx"
-        withAndroidTestOnDeviceBuilder {
-            it.compilationName = "instrumentedTest"
-            it.defaultSourceSetName = "androidInstrumentedTest"
-            it.sourceSetTreeName = "test"
-        }
-        withAndroidTestOnJvmBuilder {
-            it.defaultSourceSetName = "androidUnitTest"
-        }
     }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain {
-            dependencies {
-                api(libs.kotlinStdlib)
-                api(project(":lifecycle:lifecycle-runtime"))
-                api("androidx.annotation:annotation:1.8.1")
-            }
+        commonMain.dependencies {
+            api(project(":lifecycle:lifecycle-runtime"))
+            api("androidx.annotation:annotation:1.9.1")
         }
 
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.kotlinCoroutinesAndroid)
-            }
+        androidMain.dependencies {
+            api(libs.kotlinCoroutinesAndroid)
         }
     }
 }

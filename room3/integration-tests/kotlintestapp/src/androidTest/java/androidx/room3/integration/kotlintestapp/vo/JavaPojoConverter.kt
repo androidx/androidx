@@ -1,0 +1,47 @@
+/*
+ * Copyright 2018 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Not used by gen code, but tests an annotation processor case.
+@file:Suppress("unused", "UNUSED_PARAMETER")
+
+package androidx.room3.integration.kotlintestapp.vo
+
+import androidx.room3.Entity
+import androidx.room3.PrimaryKey
+import androidx.room3.RoomWarnings
+import androidx.room3.TypeConverter
+import androidx.room3.TypeConverters
+
+@Entity
+@TypeConverters(CategoryListConverter::class)
+@SuppressWarnings(RoomWarnings.MISMATCHED_GETTER)
+class EntityWithJavaPojoList {
+    @PrimaryKey var id: Long = 0
+    var pojoList: List<JavaPojo>? = null
+}
+
+class CategoryListConverter {
+
+    @TypeConverter
+    fun fromString(pojosString: String): List<JavaPojo> {
+        return emptyList()
+    }
+
+    @TypeConverter
+    fun toString(pojoList: List<JavaPojo>?): String {
+        return ""
+    }
+}

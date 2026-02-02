@@ -23,9 +23,9 @@ import org.gradle.api.Project
  * This plugin is used in Playground projects and adds functionality like resolving to snapshot
  * artifacts instead of projects or allowing access to public maven repositories.
  *
- * The actual implementation is in AndroidXRootImplPlugin.
- * This extracts this logic out of the classpath so that individual tasks can't access this logic
- * so Gradle can know that changes to this logic doesn't need to automatically invalidate every task
+ * The actual implementation is in AndroidXRootImplPlugin. This extracts this logic out of the
+ * classpath so that individual tasks can't access this logic so Gradle can know that changes to
+ * this logic doesn't need to automatically invalidate every task
  */
 @Suppress("unused") // used in Playground Projects
 class AndroidXPlaygroundRootPlugin : Plugin<Project> {

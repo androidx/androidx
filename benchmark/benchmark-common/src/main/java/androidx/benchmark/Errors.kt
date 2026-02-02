@@ -23,7 +23,6 @@ import android.os.BatteryManager
 import android.os.Build
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
-import java.io.File
 
 /** Lazy-initialized test-suite global state for errors around measurement inaccuracy. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -51,21 +50,6 @@ object Errors {
      * conservative in case the device loses power slowly while benchmarks run.
      */
     private const val MINIMUM_BATTERY_PERCENT = 25
-
-    private val isDeviceRooted =
-        arrayOf(
-                "/system/app/Superuser.apk",
-                "/sbin/su",
-                "/system/bin/su",
-                "/system/xbin/su",
-                "/data/local/xbin/su",
-                "/data/local/bin/su",
-                "/system/sd/xbin/su",
-                "/system/bin/failsafe/su",
-                "/data/local/su",
-                "/su/bin/su"
-            )
-            .any { File(it).exists() }
 
     /**
      * Note: initialization may not occur before entering BenchmarkState code, since we assert state
@@ -131,7 +115,7 @@ object Errors {
                     .trimMarginWrapNewlines()
         }
 
-        if (isDeviceRooted && !CpuInfo.locked) {
+        if (!DeviceInfo.isEmulator && DeviceInfo.isRooted && !CpuInfo.locked) {
             warningPrefix += "UNLOCKED_"
             warningString +=
                 """
@@ -185,7 +169,7 @@ object Errors {
                     |    currently supported by the benchmark library.
                 """
                         .trimMarginWrapNewlines()
-            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && !isDeviceRooted) {
+            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P && !DeviceInfo.isRooted) {
                 warningPrefix += "SIMPLEPERF_"
                 warningString +=
                     """
@@ -235,6 +219,37 @@ object Errors {
                 |    Currently at $batteryPercent%.
             """
                     .trimMarginWrapNewlines()
+        }
+        val compilationMode = PackageInfo.compilationMode
+        if (Arguments.requireAot && compilationMode != "speed") {
+            warningPrefix += "NOT-AOT-COMPILED_"
+            warningString +=
+                """
+                |WARNING: Benchmark running without full AOT compilation.
+                |    Benchmarks should be speed compiled to reduce noise. This is enabled by default
+                |    in the benchmark plugin. Observed compilation state = $compilationMode.
+            """
+                    .trimMarginWrapNewlines()
+        }
+        if (
+            Arguments.requireJitDisabledIfRooted &&
+                DeviceInfo.isRooted &&
+                Shell.getprop("dalvik.vm.extra-opts") != "-Xusejit:false"
+        ) {
+            warningPrefix += "JIT-ENABLED_"
+            warningString +=
+                """
+                |WARNING: Rooted device with JIT enabled.
+                |    Even in a speed-compiled, fully AOT'd benchmark, JIT can occur and reduce perf
+                |    consistency. Use the following script to disable JIT and restart the runtime:
+                |        ./benchmark/gradle-plugin/src/main/resources/scripts/disableJit.sh
+            """
+                    .trimMarginWrapNewlines()
+        }
+        if (DeviceMirroring.isAndroidStudioDeviceMirroringActive()) {
+            warningPrefix += "${DeviceMirroring.Error.ID}_"
+            warningString += "ERROR: " + DeviceMirroring.Error.SUMMARY
+            warningString += DeviceMirroring.Error.MESSAGE.trimMarginWrapNewlines()
         }
 
         PREFIX = warningPrefix

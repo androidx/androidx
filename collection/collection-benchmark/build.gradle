@@ -21,21 +21,20 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    id("androidx.benchmark")
     id("androidx.benchmark.darwin")
 }
 
 androidXMultiplatform {
-    android()
+    // HACK: We consume the artifacts from this target in :collection:collection-benchmark-android
+    jvm()
 
     // XCFrameworkConfig must always be called AndroidXDarwinBenchmarks
     def xcf = new XCFrameworkConfig(project, "AndroidXDarwinBenchmarks")
@@ -43,9 +42,7 @@ androidXMultiplatform {
         binaries.framework {
             // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
             baseName = "AndroidXDarwinBenchmarks"
-            // https://youtrack.jetbrains.com/issue/KT-48552
-            embedBitcode = BitcodeEmbeddingMode.DISABLE
-            export(project(":benchmark:benchmark-darwin"))
+            export(project.project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }
     }
@@ -54,26 +51,12 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
             }
         }
 
         commonTest {
             dependencies {
                 implementation(project(":collection:collection"))
-                implementation(libs.kotlinStdlib)
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
-                implementation(libs.junit)
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.testRules)
             }
         }
 
@@ -84,7 +67,7 @@ androidXMultiplatform {
             }
         }
 
-        targets.all { target ->
+        targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     def konanTargetFamily = target.konanTarget.family
@@ -94,31 +77,27 @@ androidXMultiplatform {
                         throw new GradleException("unknown native target ${target}")
                     }
                 }
+                target.compilations.configureEach {
+                    compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
+                }
             }
         }
     }
 }
 
 androidx {
-    name = "Collections Benchmarks (Android / iOS)"
+    name = "Collections Benchmarks (iOS)"
+    type = SoftwareType.BENCHMARK
     inceptionYear = "2022"
-    description = "AndroidX Collections Benchmarks (Android / iOS)"
+    description = "AndroidX Collections Benchmarks (iOS)"
 }
 
 darwinBenchmark {
-    xcodeGenConfigFile = project.rootProject.file(
-            "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml"
-    )
+    xcodeGenConfigFile = new File(rootDir,
+            "benchmark/benchmark-darwin-xcode/projects/collection-benchmark-ios.yml")
     xcodeProjectName = "collection-benchmark-ios"
     scheme = "testapp-ios"
-    // ios 13, 17.0
-    destination = "platform=iOS Simulator,name=iPhone 13,OS=17.0"
+    // To run locally switch to iOS 17.0 simulators
+    destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
     referenceSha.set(androidx.getReferenceSha())
-}
-
-android {
-    namespace "androidx.collection.benchmark"
-    defaultConfig {
-        minSdkVersion 22 // b/294570164
-    }
 }

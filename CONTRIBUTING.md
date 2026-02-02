@@ -13,12 +13,12 @@ You can start contributing to any of the following library groups from GitHub:
   - [AppCompat](https://developer.android.com/jetpack/androidx/releases/appcompat)
   - [Biometric](https://developer.android.com/training/sign-in/biometric-auth)
   - [Collection](https://developer.android.com/jetpack/androidx/releases/collection)
-  - [Compose Compiler](https://developer.android.com/jetpack/androidx/releases/compose-compiler)
   - [Compose Runtime](https://developer.android.com/jetpack/androidx/releases/compose-runtime)
   - [Core](https://developer.android.com/jetpack/androidx/releases/core)
   - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore)
   - [Fragment](https://developer.android.com/guide/components/fragments)
   - [Lifecycle](https://developer.android.com/topic/libraries/architecture/lifecycle)
+  - [Lint](https://developer.android.com/jetpack/androidx/releases/lint)
   - [Navigation](https://developer.android.com/guide/navigation)
   - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
@@ -37,9 +37,9 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
 
 - Click on the `Actions` tab in the forked `androidx` repository, and enable the use of `Workflows`.
 
-- Download and install JDK 17, if you don’t have it already.
+- Download and install JDK 21, if you don’t have it already.
 
-  Note the installation directory. If you already have JDK 17 installed and set as default, you can 
+  Note the installation directory. If you already have JDK 21 installed and set as default, you can
   find this with `which javac`.
 
 - Download and install [Android Studio](https://developer.android.com/studio) if you don't have it
@@ -60,7 +60,7 @@ creating a fork of the [androidx/androidx](https://github.com/androidx/androidx)
 
   ```bash
   # You could also add this to your .{bash|zsh}rc file.
-  export JAVA_HOME="location of JDK 17 directory"
+  export JAVA_HOME="location of JDK 21 directory"
   export ANDROID_SDK_ROOT="location of the Android SDK directory"
   ```
 
@@ -79,11 +79,15 @@ androidx
   -- datastore
   -- fragment
   -- lifecycle
+  -- lint
   -- navigation
   -- paging
   -- room
   -- work
 ```
+
+To avoid conflict with the main project, these sub project groups are located under the
+`playground-projects` folder.
 
 **Note:** For other projects, you will still need to use the Gerrit workflow used by the Android Open Source Project (AOSP). For more information, please look at the [README](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:README.md).
 
@@ -109,7 +113,7 @@ Let’s assume that you want to make a contribution to Room. The first step is t
 First launch Android Studio using:
 
 ```bash
-cd androidx/room
+cd playground-projects/room-playground
 # This will automatically launch the `room` project in Android Studio.
 ./gradlew studio
 ```

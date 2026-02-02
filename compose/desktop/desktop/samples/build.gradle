@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-import androidx.build.BuildOnServerKt
-import androidx.build.SupportConfigKt
+
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("kotlin-multiplatform")
-}
-
-dependencies {
+    id("JetBrainsAndroidXPlugin")
 }
 
 kotlin {
@@ -31,20 +29,19 @@ kotlin {
 
     sourceSets {
         jvmMain {
-            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
+            resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project), "noto-fonts/other/")
             resources.srcDirs += "src/jvmMain/res"
-        }
 
-        jvmMain.dependencies {
-            implementation(libs.skikoCurrentOs)
+            dependencies {
+                implementation(libs.skikoCurrentOs)
             implementation(project(":collection:collection"))
-            implementation(project(":compose:desktop:desktop"))
+                implementation(project(":compose:desktop:desktop"))
 
-            implementation("org.jetbrains.compose.material:material-icons-core:1.7.3") {
-                // exclude dependencies, because they override local projects when we build 0.0.0-* version
-                // (see https://repo1.maven.org/maven2/org/jetbrains/compose/material/material-icons-core-desktop/1.6.11/material-icons-core-desktop-1.6.11.module)
-                exclude group: "org.jetbrains.compose.runtime"
-                exclude group: "org.jetbrains.compose.ui"
+                implementation("org.jetbrains.compose.material:material-icons-core:1.7.3") {
+                    // exclude dependencies, because they override local projects when we build 0.0.0-* version
+                    // (see https://repo1.maven.org/maven2/org/jetbrains/compose/material/material-icons-core-desktop/1.6.11/material-icons-core-desktop-1.6.11.module)
+                    exclude group: "org.jetbrains.compose.ui"
+                }
             }
         }
     }
@@ -171,6 +168,3 @@ tasks.register('runFont', JavaExec) {
 tasks.register('run') {
     dependsOn("run1")
 }
-
-
-BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

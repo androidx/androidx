@@ -30,7 +30,6 @@ plugins {
 
 dependencies {
     testImplementation(project(":internal-testutils-gradle-plugin"))
-    testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(gradleTestKit())
@@ -44,6 +43,7 @@ tasks.withType(Test).configureEach { test ->
             ":lifecycle:lifecycle-compiler:publish",
             ":lifecycle:lifecycle-common:publish",
             ":lifecycle:lifecycle-runtime:publish",
+            ":core:core-viewtree:publish",
             ":annotation:annotation:publish",
             ":arch:core:core-common:publish",
             ":arch:core:core-runtime:publish"

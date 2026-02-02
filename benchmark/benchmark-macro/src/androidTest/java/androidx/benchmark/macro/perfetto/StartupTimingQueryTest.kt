@@ -16,10 +16,13 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build.VERSION.SDK_INT
+import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.createTempFileFromAsset
+import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
-import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import java.util.Locale
@@ -35,18 +38,20 @@ class StartupTimingQueryTest {
         @Suppress("SameParameterValue") api: Int,
         startupMode: StartupMode,
         expectedMetrics: StartupTimingQuery.SubMetrics?,
-        tracePrefix: String = "api${api}_startup_${startupMode.name.lowercase(Locale.getDefault())}"
+        tracePrefix: String = "api${api}_startup_${startupMode.name.lowercase(Locale.getDefault())}",
     ) {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset(prefix = tracePrefix, suffix = ".perfetto-trace")
 
         val startupSubMetrics =
-            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
                 StartupTimingQuery.getFrameSubMetrics(
                     session = this,
                     captureApiLevel = api,
                     targetPackageName = "androidx.benchmark.integration.macrobenchmark.target",
-                    startupMode = startupMode
+                    startupMode = startupMode,
                 )
             }
 
@@ -61,8 +66,8 @@ class StartupTimingQueryTest {
             StartupTimingQuery.SubMetrics(
                 timeToInitialDisplayNs = 264869885,
                 timeToFullDisplayNs = 715406822,
-                timelineRangeNs = 791231114368..791946521190
-            )
+                timelineRangeNs = 791231114368..791946521190,
+            ),
         )
 
     @Test
@@ -73,8 +78,8 @@ class StartupTimingQueryTest {
             StartupTimingQuery.SubMetrics(
                 timeToInitialDisplayNs = 108563770,
                 timeToFullDisplayNs = 581026583,
-                timelineRangeNs = 800868511677..801449538260
-            )
+                timelineRangeNs = 800868511677..801449538260,
+            ),
         )
 
     @Test
@@ -85,8 +90,8 @@ class StartupTimingQueryTest {
             StartupTimingQuery.SubMetrics(
                 timeToInitialDisplayNs = 35039927,
                 timeToFullDisplayNs = 537343160,
-                timelineRangeNs = 780778904571..781316247731
-            )
+                timelineRangeNs = 780778904571..781316247731,
+            ),
         )
 
     @Test
@@ -97,8 +102,8 @@ class StartupTimingQueryTest {
             StartupTimingQuery.SubMetrics(
                 timeToInitialDisplayNs = 143980066,
                 timeToFullDisplayNs = 620815843,
-                timelineRangeNs = 186974938196632..186975559012475
-            )
+                timelineRangeNs = 186974938196632..186975559012475,
+            ),
         )
 
     @Test
@@ -109,8 +114,8 @@ class StartupTimingQueryTest {
             StartupTimingQuery.SubMetrics(
                 timeToInitialDisplayNs = 62373965,
                 timeToFullDisplayNs = 555968701,
-                timelineRangeNs = 186982050780778..186982606749479
-            )
+                timelineRangeNs = 186982050780778..186982606749479,
+            ),
         )
 
     @Test
@@ -121,12 +126,12 @@ class StartupTimingQueryTest {
             StartupTimingQuery.SubMetrics(
                 timeToInitialDisplayNs = 40534066,
                 timeToFullDisplayNs = 542222554,
-                timelineRangeNs = 186969441973689..186969984196243
-            )
+                timelineRangeNs = 186969441973689..186969984196243,
+            ),
         )
 
     /**
-     * Validate that StartupTimingQuery returns null and doesn't crash when process name truncated
+     * Validate that StartupTimingQuery successfully captures metrics when process name truncated
      */
     @Test
     fun fixedApi29ColdProcessNameTruncated() =
@@ -134,6 +139,11 @@ class StartupTimingQueryTest {
             api = 29,
             startupMode = StartupMode.COLD,
             tracePrefix = "api29_cold_startup_processname_truncated",
-            expectedMetrics = null // process name is truncated, and we currently don't handle this
+            expectedMetrics =
+                StartupTimingQuery.SubMetrics(
+                    timeToInitialDisplayNs = 145119546,
+                    timeToFullDisplayNs = null,
+                    timelineRangeNs = 935014155850..935159275396,
+                ),
         )
 }

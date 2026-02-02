@@ -21,10 +21,11 @@ import android.os.Build;
 import android.system.Os;
 import android.system.OsConstants;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -74,14 +75,14 @@ import java.util.stream.Collectors;
 @SuppressLint("BanSynchronizedMethods")
 public class ProfileSession {
     private static final String SIMPLEPERF_PATH_IN_IMAGE = "/system/bin/simpleperf";
-
-    enum State {
+    public enum State {
         NOT_YET_STARTED,
         STARTED,
         PAUSED,
         STOPPED,
     }
 
+    // Making this accessible so we can introspect the state of the Profiling Session
     private State mState = State.NOT_YET_STARTED;
     private final String mAppDataDir;
     private String mSimpleperfPath;
@@ -127,6 +128,14 @@ public class ProfileSession {
             mAppDataDir = "/data/data/" + packageName;
         }
         mSimpleperfDataDir = mAppDataDir + "/simpleperf_data";
+    }
+
+    /**
+     * @return The current {@link ProfileSession} state.
+     */
+    @NonNull
+    public synchronized State getState() {
+        return mState;
     }
 
     /**
@@ -247,8 +256,7 @@ public class ProfileSession {
         return file.canExecute();
     }
 
-    @Nullable
-    private String findSimpleperfInTempDir() {
+    private @Nullable String findSimpleperfInTempDir() {
         String path = "/data/local/tmp/simpleperf";
         File file = new File(path);
         if (!file.isFile()) {
@@ -408,8 +416,7 @@ public class ProfileSession {
         }
     }
 
-    @NonNull
-    private String readReply() {
+    private @NonNull String readReply() {
         // Read one byte at a time to stop at line break or EOF. BufferedReader will try to read
         // more than available and make us blocking, so don't use it.
         String s = "";

@@ -21,20 +21,24 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+
+import androidx.build.SoftwareType
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
-    id("com.squareup.wire")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     defaultConfig {
-        minSdkVersion 23
+
+        // We don't care about perf from these correctness tests, so suppress
+        // anything that may otherwise block these tests
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] =
+                "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
     }
     sourceSets {
         main.assets.srcDirs += new File(
@@ -57,24 +61,26 @@ android {
         )
     }
 
-    namespace "androidx.benchmark.macro"
+    namespace = "androidx.benchmark.macro"
 }
 
 dependencies {
     api(project(":benchmark:benchmark-common"))
+    api(project(":test:uiautomator:uiautomator"))
+    api(libs.jspecify)
     api(libs.junit)
-    api(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     implementation("androidx.core:core:1.9.0")
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.4.1")
     implementation("androidx.tracing:tracing-ktx:1.1.0")
-    implementation("androidx.tracing:tracing-perfetto:1.0.0")
-    implementation("androidx.tracing:tracing-perfetto-binary:1.0.0")
-    implementation("androidx.tracing:tracing-perfetto-handshake:1.0.0")
+    implementation("androidx.tracing:tracing-perfetto:1.0.1")
+    implementation("androidx.tracing:tracing-perfetto-binary:1.0.1")
+    implementation("androidx.tracing:tracing-perfetto-handshake:1.0.1")
     implementation("androidx.test:core:1.5.0")
-    implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)
+    implementation("androidx.test.ext:junit:1.2.1")
+    implementation libs.testRunner
 
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":internal-testutils-ktx"))
@@ -89,74 +95,26 @@ dependencies {
 
 androidx {
     name = "Benchmark - Macrobenchmark"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         // Enable using experimental APIs from within same version group
         freeCompilerArgs += [
+                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
-                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi",
-                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalTraceProcessorApi",
+                "-opt-in=androidx.benchmark.traceprocessor.ExperimentalInsightApi",
         ]
     }
-}
-
-wire {
-    kotlin {}
-    sourcePath {
-        srcDir AndroidXConfig.getPrebuiltsRoot(project).absolutePath + '/androidx/traceprocessor'
-
-        // currently, all protos are at same tree depth
-        // can add further includes if this stops working
-        include 'protos/perfetto/*/*.proto'
-    }
-
-    prune 'perfetto.protos.AndroidBatteryMetric'
-    prune 'perfetto.protos.AndroidBinderMetric'
-    prune 'perfetto.protos.AndroidCameraMetric'
-    prune 'perfetto.protos.AndroidCameraUnaggregatedMetric'
-    prune 'perfetto.protos.AndroidCpuMetric'
-    prune 'perfetto.protos.AndroidDisplayMetrics'
-    prune 'perfetto.protos.AndroidDmaHeapMetric'
-    prune 'perfetto.protos.AndroidDvfsMetric'
-    prune 'perfetto.protos.AndroidFastrpcMetric'
-    prune 'perfetto.protos.AndroidFrameTimelineMetric'
-    prune 'perfetto.protos.AndroidGpuMetric'
-    prune 'perfetto.protos.AndroidHwcomposerMetrics'
-    prune 'perfetto.protos.AndroidHwuiMetric'
-    prune 'perfetto.protos.AndroidIonMetric'
-    prune 'perfetto.protos.AndroidIrqRuntimeMetric'
-    prune 'perfetto.protos.AndroidJankCujMetric'
-    prune 'perfetto.protos.AndroidLmkMetric'
-    prune 'perfetto.protos.AndroidLmkReasonMetric'
-    prune 'perfetto.protos.AndroidMemoryMetric'
-    prune 'perfetto.protos.AndroidMemoryUnaggregatedMetric'
-    prune 'perfetto.protos.AndroidMultiuserMetric'
-    prune 'perfetto.protos.AndroidNetworkMetric'
-    prune 'perfetto.protos.AndroidOtherTracesMetric'
-    prune 'perfetto.protos.AndroidPackageList'
-    prune 'perfetto.protos.AndroidPowerRails'
-    prune 'perfetto.protos.AndroidProcessMetadata'
-    prune 'perfetto.protos.AndroidRtRuntimeMetric'
-    prune 'perfetto.protos.AndroidSimpleperfMetric'
-    prune 'perfetto.protos.AndroidSurfaceflingerMetric'
-    prune 'perfetto.protos.AndroidTaskNames'
-    prune 'perfetto.protos.AndroidTraceQualityMetric'
-    prune 'perfetto.protos.AndroidTrustyWorkqueues'
-    prune 'perfetto.protos.G2dMetrics'
-    prune 'perfetto.protos.JavaHeapHistogram'
-    prune 'perfetto.protos.JavaHeapStats'
-    prune 'perfetto.protos.ProcessRenderInfo'
-    prune 'perfetto.protos.ProfilerSmaps'
-    prune 'perfetto.protos.TraceAnalysisStats'
-    prune 'perfetto.protos.TraceMetadata'
-    prune 'perfetto.protos.UnsymbolizedFrames'
 }
 
 // Define a task dependency so the app is installed before we run macro benchmarks.
@@ -166,7 +124,7 @@ afterEvaluate {
     def installTask = tasks.findByPath(
             ":benchmark:integration-tests:macrobenchmark-target:installRelease")
     if (installTask != null) {
-        tasks.getByPath(":benchmark:benchmark-macro:connectedDebugAndroidTest")
+        tasks.getByPath(":benchmark:benchmark-macro:connectedReleaseAndroidTest")
                 .dependsOn(installTask)
     }
 }

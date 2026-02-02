@@ -1,0 +1,86 @@
+{
+  "projectPath": ":benchmark:benchmark-macro",
+  "dependencyAdvice": [
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.core:core",
+        "resolvedVersion": "1.9.0"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.lifecycle:lifecycle-common",
+        "resolvedVersion": "2.3.1"
+      },
+      "toConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test.ext:junit",
+        "resolvedVersion": "1.3.0-alpha01"
+      },
+      "fromConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:core",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "implementation",
+      "toConfiguration": "runtimeOnly"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:monitor",
+        "resolvedVersion": "1.8.0-alpha01"
+      },
+      "toConfiguration": "implementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.test:rules",
+        "resolvedVersion": "1.7.0-alpha01"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.tracing:tracing-perfetto-binary",
+        "resolvedVersion": "1.0.0"
+      },
+      "fromConfiguration": "implementation",
+      "toConfiguration": "runtimeOnly"
+    },
+    {
+      "coordinates": {
+        "type": "module",
+        "identifier": "androidx.tracing:tracing-perfetto",
+        "resolvedVersion": "1.0.0"
+      },
+      "fromConfiguration": "implementation",
+      "toConfiguration": "runtimeOnly"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":benchmark:benchmark-traceprocessor"
+      },
+      "toConfiguration": "api"
+    },
+    {
+      "coordinates": {
+        "type": "project",
+        "identifier": ":internal-testutils-ktx"
+      },
+      "fromConfiguration": "androidTestImplementation"
+    }
+  ]
+}

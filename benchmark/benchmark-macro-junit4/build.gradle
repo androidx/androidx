@@ -21,59 +21,72 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+
+import androidx.build.SoftwareType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 android {
     defaultConfig {
-        minSdkVersion 23
+
+        // The package name is passed to the app as an instrumentation runner argument.
+        // Set default target package at runtime. This could also be set by baseline profile
+        // gradle plugin, but that's not used here.
+        testInstrumentationRunnerArguments["androidx.benchmark.targetPackageName"] =
+                "androidx.benchmark.integration.macrobenchmark.target"
+
+        // We don't care about perf from these correctness tests, so suppress
+        // anything that may otherwise block these tests
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] =
+                "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
+        // these extra payload values are used in test.
+        testInstrumentationRunnerArguments["androidx.benchmark.output.payload.simpleValue"] =
+                "simple_value"
     }
-    namespace "androidx.benchmark.macro.junit4"
+    namespace = "androidx.benchmark.macro.junit4"
 }
 
 dependencies {
     api(libs.junit)
-    api(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":benchmark:benchmark-macro"))
-    api("androidx.test.uiautomator:uiautomator:2.3.0-rc01")
+    api("androidx.test.uiautomator:uiautomator:2.3.0")
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.test:rules:1.5.0")
     implementation("androidx.test:runner:1.5.2")
 
-    androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
-    // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
 }
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         // Enable using experimental APIs from within same version group
         freeCompilerArgs += [
+                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
                 "-opt-in=androidx.benchmark.macro.ExperimentalMetricApi",
-                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoTraceProcessorApi",
-                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
         ]
     }
 }
 
 androidx {
     name = "Benchmark - Macrobenchmark JUnit4"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark JUnit4"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
+    deviceTests {
+        targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
+        targetAppVariant = "release"
+    }
+    samples(project(":benchmark:benchmark-samples"))
 }

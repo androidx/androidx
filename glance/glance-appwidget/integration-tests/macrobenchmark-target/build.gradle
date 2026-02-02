@@ -18,22 +18,22 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-appwidget"))
     implementation(project(":profileinstaller:profileinstaller"))
 }
 
 android {
-    namespace "androidx.glance.appwidget.macrobenchmark.target"
+    namespace = "androidx.glance.appwidget.macrobenchmark.target"
+    compileSdk = 35
     buildTypes {
         release {
-            minifyEnabled true
-            shrinkResources true
+            minifyEnabled = true
+            shrinkResources = true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
                     'proguard-rules.pro'
         }

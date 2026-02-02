@@ -1,13 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+<issues format="6" by="lint 9.0.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-beta02)" variant="all" version="9.0.0-beta02">
 
     <issue
         id="EagerGradleConfiguration"
         message="Avoid using method get"
-        errorLine1="            it.jars.from(jar.get().archiveFile)"
-        errorLine2="                             ~~~">
+        errorLine1="            task.jars.from(jar.get().archiveFile)"
+        errorLine2="                               ~~~">
         <location
             file="src/main/kotlin/androidx/inspection/gradle/DexInspectorTask.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use register instead of create"
+        errorLine1="            project.configurations.create(&quot;publishInspector&quot;) {"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/inspection/gradle/InspectionPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use register instead of create"
+        errorLine1="        project.configurations.create(EXPORT_INSPECTOR_DEPENDENCIES) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/inspection/gradle/InspectionPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use register instead of create"
+        errorLine1="    libraryProject.configurations.create(IMPORT_INSPECTOR_DEPENDENCIES) {"
+        errorLine2="                                  ~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/inspection/gradle/InspectionPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="EagerGradleConfiguration"
+        message="Use register instead of create"
+        errorLine1="    configurations.create(&quot;consumeInspector&quot;) {"
+        errorLine2="                   ~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/inspection/gradle/InspectionPlugin.kt"/>
     </issue>
 
     <issue
@@ -22,37 +58,10 @@
     <issue
         id="EagerGradleConfiguration"
         message="Avoid using method get"
-        errorLine1="        it.from(versionTask.get().outputDir)"
-        errorLine2="                            ~~~">
+        errorLine1="        task.from(versionTask.get().outputDir)"
+        errorLine2="                              ~~~">
         <location
             file="src/main/kotlin/androidx/inspection/gradle/ShadowDependenciesTask.kt"/>
-    </issue>
-
-    <issue
-        id="EagerGradleConfiguration"
-        message="Avoid using method get"
-        errorLine1="        it.from(versionTask.get().outputDir)"
-        errorLine2="                            ~~~">
-        <location
-            file="src/main/kotlin/androidx/inspection/gradle/ShadowDependenciesTask.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Avoid using method findProject"
-        errorLine1="    val inspectorProject = libraryProject.rootProject.findProject(inspectorProjectPath)"
-        errorLine2="                                                      ~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/inspection/gradle/InspectionPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Avoid using method getRootProject"
-        errorLine1="    val inspectorProject = libraryProject.rootProject.findProject(inspectorProjectPath)"
-        errorLine2="                                          ~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/inspection/gradle/InspectionPlugin.kt"/>
     </issue>
 
     <issue

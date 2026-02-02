@@ -16,11 +16,14 @@
 
 package androidx.benchmark.macro.perfetto
 
+import android.os.Build.VERSION.SDK_INT
+import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.MemoryUsageMetric.SubMetric
 import androidx.benchmark.macro.createTempFileFromAsset
+import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper
-import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.traceprocessor.TraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.test.assertEquals
@@ -33,32 +36,34 @@ class MemoryUsageQueryTest {
     @Test
     @MediumTest
     fun fixedTrace31() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
-        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+        TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             // Note: this particular trace has same values for last and max
             val expected =
                 mapOf(
                     SubMetric.HeapSize to 3067,
                     SubMetric.RssAnon to 47260,
                     SubMetric.RssFile to 67668,
-                    SubMetric.RssShmem to 1160
+                    SubMetric.RssShmem to 1160,
                 )
             assertEquals(
                 expected,
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.benchmark.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Last
-                )
+                    mode = MemoryUsageMetric.Mode.Last,
+                ),
             )
             assertEquals(
                 expected,
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.benchmark.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Max
-                )
+                    mode = MemoryUsageMetric.Mode.Max,
+                ),
             )
         }
     }
@@ -66,9 +71,11 @@ class MemoryUsageQueryTest {
     @Test
     @MediumTest
     fun fixedTrace33() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api33_motionlayout_messagejson", ".perfetto-trace")
-        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+        TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
                 mapOf(
                     SubMetric.HeapSize to 25019,
@@ -79,8 +86,8 @@ class MemoryUsageQueryTest {
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.constraintlayout.compose.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Last
-                )
+                    mode = MemoryUsageMetric.Mode.Last,
+                ),
             )
             assertEquals(
                 mapOf(
@@ -92,8 +99,8 @@ class MemoryUsageQueryTest {
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "androidx.constraintlayout.compose.integration.macrobenchmark.target",
-                    mode = MemoryUsageMetric.Mode.Max
-                )
+                    mode = MemoryUsageMetric.Mode.Max,
+                ),
             )
         }
     }
@@ -101,9 +108,11 @@ class MemoryUsageQueryTest {
     @Test
     @MediumTest
     fun fixedGpuTrace34() {
+        // Our API 23 emulators seem to be misconfigured b/438214932
+        assumeTrue(!isEmulator || SDK_INT != 23)
         assumeTrue(PerfettoHelper.isAbiSupported())
         val traceFile = createTempFileFromAsset("api34_startup_cold", ".perfetto-trace")
-        PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+        TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
                 mapOf(
                     SubMetric.Gpu to 30840,
@@ -115,8 +124,8 @@ class MemoryUsageQueryTest {
                 MemoryUsageQuery.getMemoryUsageKb(
                     this,
                     "com.android.systemui.people",
-                    mode = MemoryUsageMetric.Mode.Last
-                )
+                    mode = MemoryUsageMetric.Mode.Last,
+                ),
             )
         }
     }

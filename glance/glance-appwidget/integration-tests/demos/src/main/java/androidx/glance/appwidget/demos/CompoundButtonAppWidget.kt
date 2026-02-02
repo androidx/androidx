@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,10 +57,16 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Exact
 
-    override suspend fun provideGlance(
-        context: Context,
-        id: GlanceId,
-    ) = provideContent {
+    override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         Column(
             modifier =
                 GlanceModifier.fillMaxSize()
@@ -68,14 +75,14 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                     .cornerRadius(R.dimen.corner_radius)
                     .appWidgetBackground(),
             verticalAlignment = Alignment.Vertical.CenterVertically,
-            horizontalAlignment = Alignment.Horizontal.CenterHorizontally
+            horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
         ) {
             val textStyle =
                 TextStyle(
                     color = ColorProvider(day = Color.Red, night = Color.Cyan),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Italic
+                    fontStyle = FontStyle.Italic,
                 )
             val fillModifier = GlanceModifier.fillMaxWidth()
 
@@ -101,8 +108,8 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 colors =
                     CheckboxDefaults.colors(
                         checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
-                        uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
-                    )
+                        uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta),
+                    ),
             )
             CheckBox(
                 checked = checkbox3Checked,
@@ -120,7 +127,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                             ColorProvider(day = Color.Green, night = Color.Magenta),
                         checkedTrackColor = ColorProvider(day = Color.Blue, night = Color.Yellow),
                         uncheckedTrackColor =
-                            ColorProvider(day = Color.Magenta, night = Color.Green)
+                            ColorProvider(day = Color.Magenta, night = Color.Green),
                     ),
             )
             Switch(
@@ -128,7 +135,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 onCheckedChange = { switch2Checked = !switch2Checked },
                 text = "Switch 2",
                 style = textStyle,
-                modifier = fillModifier
+                modifier = fillModifier,
             )
             Column(modifier = fillModifier.selectableGroup()) {
                 RadioButton(
@@ -138,7 +145,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                     colors =
                         RadioButtonDefaults.colors(
                             checkedColor = ColorProvider(day = Color.Red, night = Color.Cyan),
-                            uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta)
+                            uncheckedColor = ColorProvider(day = Color.Green, night = Color.Magenta),
                         ),
                 )
                 RadioButton(
@@ -148,7 +155,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                     colors =
                         RadioButtonDefaults.colors(
                             checkedColor = ColorProvider(day = Color.Cyan, night = Color.Yellow),
-                            uncheckedColor = ColorProvider(day = Color.Red, night = Color.Blue)
+                            uncheckedColor = ColorProvider(day = Color.Red, night = Color.Blue),
                         ),
                 )
                 RadioButton(
@@ -158,21 +165,9 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
                 )
             }
             Row(modifier = fillModifier.selectableGroup()) {
-                RadioButton(
-                    checked = radioChecked == 0,
-                    onClick = null,
-                    text = "Radio 1",
-                )
-                RadioButton(
-                    checked = radioChecked == 1,
-                    onClick = null,
-                    text = "Radio 2",
-                )
-                RadioButton(
-                    checked = radioChecked == 2,
-                    onClick = null,
-                    text = "Radio 3",
-                )
+                RadioButton(checked = radioChecked == 0, onClick = null, text = "Radio 1")
+                RadioButton(checked = radioChecked == 1, onClick = null, text = "Radio 2")
+                RadioButton(checked = radioChecked == 2, onClick = null, text = "Radio 3")
             }
         }
     }

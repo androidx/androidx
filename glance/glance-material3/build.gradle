@@ -5,18 +5,17 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
     id("com.android.library")
 }
 
 dependencies {
-    implementation(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.4.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.compose.runtime:runtime:1.1.1")
     api(project(":glance:glance"))
     implementation("androidx.compose.material3:material3:1.0.0")
@@ -24,16 +23,14 @@ dependencies {
 }
 
 android {
-    namespace "androidx.glance.material3"
+    namespace = "androidx.glance.material3"
 }
 
 androidx {
     name = "Glance Material"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2022"
     description = "Glance Material integration library." +
             " This library provides interop APIs with Material 3."
-    metalavaK2UastEnabled = true
-    legacyDisableKotlinStrictApiMode = true
 }
 

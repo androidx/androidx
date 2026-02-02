@@ -14,138 +14,111 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
-import androidx.build.LibraryType
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.SoftwareType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
-androidXComposeMultiplatform {
-    android()
+androidXMultiplatform {
+    androidLibrary {
+        namespace = "androidx.compose.material3.windowsizeclass"
+        compileSdk = 35
+    }
     desktop()
-    darwin()
-    wasm()
+    mac()
+    ios()
     js()
-}
+    wasmJs()
 
-kotlin {
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
     sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(project(":compose:ui:ui-util"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-unit"))
-            }
+        commonMain.dependencies {
+            implementation(project(":compose:ui:ui-util"))
+            api(project(":compose:runtime:runtime"))
+            api(project(":compose:ui:ui"))
+            api(project(":compose:ui:ui-unit"))
         }
 
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(project(":kruth:kruth"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(project(":kruth:kruth"))
         }
 
-        jvmAndAndroidMain {
-            dependsOn(commonMain)
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
+        androidMain.dependencies {
+            api("androidx.annotation:annotation-experimental:1.4.1")
+            implementation("androidx.window:window:1.0.0")
         }
 
+        androidDeviceTest.dependencies {
+            implementation(project(":compose:test-utils"))
+            implementation("androidx.compose.foundation:foundation:1.6.0")
+            implementation(project(":compose:runtime:runtime"))
+            implementation(libs.testRules)
+            implementation(libs.testRunner)
+            implementation(libs.junit)
+            implementation(libs.truth)
+        }
+
+        androidHostTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.truth)
+        }
+
+        // TODO: Align naming: nonAndroidMain
         skikoMain {
             dependsOn(commonMain)
         }
 
-        androidMain {
-            dependsOn(jvmAndAndroidMain)
-            dependencies {
-                implementation("androidx.window:window:1.0.0")
-            }
+        skikoTest {
+            dependsOn(commonTest)
         }
 
         desktopMain {
             dependsOn(skikoMain)
-            dependsOn(jvmAndAndroidMain)
-            dependencies {
-
-            }
-        }
-
-        jvmAndAndroidTest {
-            dependsOn(commonTest)
-            dependencies {
-            }
-        }
-
-        androidInstrumentedTest {
-            dependsOn(jvmAndAndroidTest)
-            dependencies {
-                implementation(project(":compose:test-utils"))
-                implementation(project(":compose:foundation:foundation"))
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmAndAndroidTest)
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.truth)
-            }
         }
 
         desktopTest {
-            dependsOn(jvmAndAndroidTest)
-            dependencies {
-
-            }
-        }
-        wasmJsMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-            }
+            dependsOn(skikoTest)
         }
 
-        skikoMain.dependsOn(commonMain)
-        desktopMain.dependsOn(skikoMain)
-        nonJvmMain.dependsOn(skikoMain)
-        webMain.dependsOn(nonJvmMain)
-        jsMain.dependsOn(webMain)
-        wasmJsMain.dependsOn(webMain)
-        nativeMain.dependsOn(nonJvmMain)
+        nonJvmMain {
+            dependsOn(skikoMain)
+        }
 
-        skikoTest.dependsOn(commonTest)
-        desktopTest.dependsOn(skikoTest)
-        nonJvmTest.dependsOn(skikoTest)
-        webTest.dependsOn(nonJvmTest)
-        jsTest.dependsOn(webTest)
-        wasmJsTest.dependsOn(webTest)
-        nativeTest.dependsOn(nonJvmTest)
+        nonJvmTest {
+            dependsOn(skikoTest)
+        }
+
+        nativeMain {
+            dependsOn(nonJvmMain)
+        }
+
+        nativeTest {
+            dependsOn(nonJvmTest)
+        }
     }
 }
 
 androidx {
     name = "Compose Material 3 Window Size Class"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2022"
     description = "Provides window size classes for building responsive UIs"
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":compose:material3:material3-window-size-class:material3-window-size-class-samples"))
 }
 
-android {
-    namespace "androidx.compose.material3.windowsizeclass"
-}

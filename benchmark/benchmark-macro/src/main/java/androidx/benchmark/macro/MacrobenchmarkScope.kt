@@ -24,13 +24,14 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Arguments
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Outputs
 import androidx.benchmark.Profiler
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiAutomatorTestScope
 import androidx.tracing.trace
 import java.io.File
 
@@ -47,10 +48,17 @@ public class MacrobenchmarkScope(
      * Default to true, so Activity launches go through full creation lifecycle stages, instead of
      * just resume.
      */
-    private val launchWithClearTask: Boolean
-) {
+    private val launchWithClearTask: Boolean,
+) : UiAutomatorTestScope() {
 
-    internal val instrumentation = InstrumentationRegistry.getInstrumentation()
+    /**
+     * When launching activities through UiAutomator APIs, perform a full startActivityAndWait,
+     * which includes Macrobenchmark's custom wait-for-frames logic which would be hard to
+     * reproduce/implement in UiAutomator.
+     */
+    override fun startIntentAndWait(intent: Intent) {
+        startActivityAndWait(intent)
+    }
 
     internal val context = instrumentation.context
 
@@ -68,15 +76,74 @@ public class MacrobenchmarkScope(
     /** This is `true` iff method tracing is currently active for this benchmarking session. */
     private var isMethodTracingSessionActive: Boolean = false
 
-    /**
-     * When `true`, the app will be forced to flush its ART profiles to disk before being killed.
-     * This allows them to be later collected e.g. by a `BaselineProfile` capture, or immediate
-     * compilation by `CompilationMode.Partial` with warmupIterations.
-     */
-    internal var flushArtProfiles: Boolean = false
+    /** Additional flags that can be used to determine the type of process kill. */
+    internal data class KillMode(
+        /**
+         * When `true`, we are not strict about the process staying dead after it was initially
+         * killed. This is useful in the context of generating a Baseline profile for System apps
+         * which end up restarting right-away after a process kill happens.
+         */
+        val isKillSoftly: Boolean = false,
+        /**
+         * When used, the app will be forced to flush its ART profiles to disk before being killed.
+         * This allows them to be later collected e.g. by a `BaselineProfile` capture, or immediate
+         * compilation by [CompilationMode.Partial] with warmupIterations.
+         */
+        val flushArtProfiles: Boolean = false,
+        /**
+         * After killing the process, clear any potential runtime image.
+         *
+         * Starting in API 34 (and below with mainline), `verify` complied apps will attempt to
+         * store initialized classes to disk directly. To consistently capture worst case `verify`
+         * performance, this means macrobenchmark must recompile the target app with `verify`.
+         *
+         * @See DeviceInfo.supportsRuntimeImages
+         */
+        val clearArtRuntimeImage: Boolean = false,
+    ) {
+        companion object {
+            /** The default kill mode. Kills the process, strictly. */
+            internal val None = KillMode()
+        }
+    }
 
-    /** `true` if the app is a system app. */
-    internal var isSystemApp: Boolean = false
+    internal inline fun <T> withKillMode(
+        current: KillMode,
+        override: KillMode,
+        block: MacrobenchmarkScope.() -> T,
+    ): T {
+        check(killMode == current) { "Expected KFM = $current, was $killMode" }
+        killMode = override
+        try {
+            return block(this)
+        } finally {
+            check(killMode == override) { "Expected KFM at end to be = $override, was $killMode" }
+            killMode = current
+        }
+    }
+
+    internal var killMode: KillMode = KillMode.None
+        private set(value) {
+            hasFlushedArtProfiles = false
+            field = value
+        }
+
+    /**
+     * When `true`, the app has successfully flushed art profiles at least once.
+     *
+     * This will only be set by [killProcessAndFlushArtProfiles] when called directly, or
+     * [killProcess] when [KillMode.flushArtProfiles] is used.
+     */
+    internal var hasFlushedArtProfiles: Boolean = false
+        private set
+
+    /**
+     * When `true`, the app has attempted to flush the runtime image during [killProcess].
+     *
+     * This will only be set by [killProcess] when [KillMode.clearArtRuntimeImage] is used.
+     */
+    internal var hasClearedRuntimeImage: Boolean = false
+        private set
 
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
@@ -97,20 +164,13 @@ public class MacrobenchmarkScope(
     private val methodTraces: MutableList<Pair<String, String>> = mutableListOf()
 
     /**
-     * Get the [UiDevice] instance, to use in reading target app UI state, or interacting with the
-     * UI via touches, scrolls, or other inputs.
-     *
-     * Convenience for `UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())`
-     */
-    val device: UiDevice = UiDevice.getInstance(instrumentation)
-
-    /**
      * Start an activity, by default the launcher activity of the package, and wait until its launch
      * completes.
      *
-     * This call will ignore any parcelable extras on the intent, as the start is performed by
-     * converting the Intent to a URI, and starting via `am start` shell command. Note that from api
-     * 33 the launch intent needs to have category {@link android.intent.category.LAUNCHER}.
+     * This call supports primitive extras on the intent, but will ignore any
+     * [android.os.Parcelable] extras, as the start is performed by converting the Intent to a URI,
+     * and starting via the `am start` shell command. Note that from api 33 the launch intent needs
+     * to have category `android.intent.category.LAUNCHER`.
      *
      * @param block Allows customization of the intent used to launch the activity.
      * @throws IllegalStateException if unable to acquire intent for package.
@@ -129,8 +189,10 @@ public class MacrobenchmarkScope(
     /**
      * Start an activity with the provided intent, and wait until its launch completes.
      *
-     * This call will ignore any parcelable extras on the intent, as the start is performed by
-     * converting the Intent to a URI, and starting via `am start` shell command.
+     * This call supports primitive extras on the intent, but will ignore any
+     * [android.os.Parcelable] extras, as the start is performed by converting the Intent to a URI,
+     * and starting via the `am start` shell command. Note that from api 33 the launch intent needs
+     * to have category `android.intent.category.LAUNCHER`.
      *
      * @param intent Specifies which app/Activity should be launched.
      */
@@ -208,6 +270,13 @@ public class MacrobenchmarkScope(
             return
         }
 
+        if (!Shell.isPackageAlive(packageName)) {
+            throw IllegalStateException(
+                "Target package $packageName is not running," +
+                    " check logcat to verify the activity launched correctly"
+            )
+        }
+
         // `am start -W` doesn't reliably wait for process to complete and renderthread to produce
         // a new frame (b/226179160), so we use `dumpsys gfxinfo <package> framestats` to determine
         // when the next frame is produced.
@@ -278,22 +347,39 @@ public class MacrobenchmarkScope(
      */
     @Deprecated(
         "Use the parameter-less killProcess() API instead",
-        replaceWith = ReplaceWith("killProcess()")
+        replaceWith = ReplaceWith("killProcess()"),
     )
     @Suppress("UNUSED_PARAMETER")
-    public fun killProcess(useKillAll: Boolean = false) {
+    fun killProcess(useKillAll: Boolean = false) {
         killProcess()
     }
 
     /** Force-stop the process being measured. */
-    public fun killProcess() {
+    fun killProcess() {
         // Method traces are only flushed is a method tracing session is active.
         flushMethodTraces()
-        if (flushArtProfiles && Build.VERSION.SDK_INT >= 24) {
+
+        if (killMode.flushArtProfiles && Build.VERSION.SDK_INT >= 24) {
             // Flushing ART profiles will also kill the process at the end.
             killProcessAndFlushArtProfiles()
         } else {
             killProcessImpl()
+            if (killMode.clearArtRuntimeImage && Build.VERSION.SDK_INT >= 24) {
+                if (DeviceInfo.verifyClearsRuntimeImage) {
+                    // clear the runtime image
+                    CompilationMode.cmdPackageCompile(packageName, "verify")
+                } else if (Shell.isSessionRooted()) {
+                    CompilationMode.cmdPackageCompileReset(packageName)
+                } else {
+                    // TODO - follow up!
+                    // b/368404173
+                    InstrumentationResults.scheduleIdeWarningOnNextReport(
+                        "Unable to clear Runtime Image, subsequent launches/iterations may" +
+                            " exhibit faster startup than production due to accelerated class" +
+                            " loading."
+                    )
+                }
+            }
         }
     }
 
@@ -308,7 +394,7 @@ public class MacrobenchmarkScope(
      * @throws IllegalStateException if the device is not rooted, and the target app cannot be
      *   signalled to drop its shader cache.
      */
-    public fun dropShaderCache() {
+    fun dropShaderCache() {
         if (Arguments.dropShadersEnable) {
             Log.d(TAG, "Dropping shader cache for $packageName")
             val dropError = ProfileInstallBroadcast.dropShaderCache(packageName)
@@ -374,44 +460,66 @@ public class MacrobenchmarkScope(
     }
 
     @RequiresApi(24)
-    internal fun killProcessAndFlushArtProfiles() {
+    internal fun killProcessAndFlushArtProfiles(allowFlushWithBroadcast: Boolean = true) {
         Log.d(TAG, "Flushing ART profiles for $packageName")
         // For speed profile compilation, ART team recommended to wait for 5 secs when app
-        // is in the foreground, dump the profile, wait for an additional second before
-        // speed-profile compilation.
+        // is in the foreground, dump the profile in each process waiting an additional second each
+        // before speed-profile compilation.
         @Suppress("BanThreadSleep") Thread.sleep(5000)
-        val saveResult = ProfileInstallBroadcast.saveProfile(packageName)
-        if (saveResult == null) {
-            killProcessImpl()
-        } else {
-            if (Shell.isSessionRooted()) {
-                // fallback on `killall -s SIGUSR1`, if available with root
-                Log.d(TAG, "Unable to saveProfile with profileinstaller ($saveResult), trying kill")
-                val response =
-                    Shell.executeScriptCaptureStdoutStderr("killall -s SIGUSR1 $packageName")
-                check(response.isBlank()) {
-                    "Failed to dump profile for $packageName ($response),\n" +
-                        " and failed to save profile with broadcast: $saveResult"
-                }
+        val saveResult =
+            if (allowFlushWithBroadcast) {
+                ProfileInstallBroadcast.saveProfilesForAllProcesses(packageName)
             } else {
-                throw RuntimeException(saveResult)
+                // test codepath only, force failed save result (as if broadcast receiver not
+                // present)
+                val processCount = Shell.getRunningPidsAndProcessesForPackage(packageName).size
+                ProfileInstallBroadcast.SaveProfileResult(
+                    processCount = processCount,
+                    error = if (processCount == 0) null else "skipped",
+                )
             }
+        if (saveResult.processCount > 0) {
+            if (saveResult.error != null) {
+                if (Shell.isSessionRooted()) {
+                    Log.d(
+                        TAG,
+                        "Unable to saveProfile with profileinstaller ($saveResult), trying kill",
+                    )
+                    val response =
+                        Shell.executeScriptCaptureStdoutStderr("killall -s SIGUSR1 $packageName")
+                    check(response.isBlank()) {
+                        "Failed to dump profile for $packageName ($response),\n" +
+                            " and failed to save profile with broadcast: ${saveResult.error}"
+                    }
+                    @SuppressLint("BanThreadSleep") Thread.sleep(Arguments.saveProfileWaitMillis)
+                } else {
+                    // unable to flush profiles, throw
+                    throw RuntimeException(saveResult.error)
+                }
+            }
+            // we only mark flush successful and kill the target if running processes found
+            Log.d(TAG, "Flushed profiles in ${saveResult.processCount} processes")
+            hasFlushedArtProfiles = true
+            killProcessImpl()
         }
     }
 
     /** Force-stop the process being measured. */
     private fun killProcessImpl() {
-        val isRooted = Shell.isSessionRooted()
-        Log.d(TAG, "Killing process $packageName")
-        if (isRooted && isSystemApp) {
-            device.executeShellCommand("killall $packageName")
-        } else {
-            // We want to use `am force-stop` for apps that are not system apps
-            // to make sure app components are not automatically restarted by system_server.
-            device.executeShellCommand("am force-stop $packageName")
+        val onFailure: (String) -> Unit = { errorMessage ->
+            if (killMode.isKillSoftly) {
+                Log.w(TAG, "Unable to kill process ($packageName): $errorMessage")
+            } else {
+                throw IllegalStateException(errorMessage)
+            }
         }
-        // System Apps need an additional Thread.sleep() to ensure that the process is killed.
-        @Suppress("BanThreadSleep") Thread.sleep(Arguments.killProcessDelayMillis)
+        Shell.killProcessesAndWait(packageName, onFailure = onFailure) {
+            Log.d(TAG, "Force-stopping process $packageName")
+            Shell.executeScriptSilent("am force-stop $packageName")
+
+            // System Apps need an additional Thread.sleep() to ensure that the process is killed.
+            @Suppress("BanThreadSleep") Thread.sleep(Arguments.killProcessDelayMillis)
+        }
     }
 
     /**
@@ -529,7 +637,7 @@ public class MacrobenchmarkScope(
                 maxInitialFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to start
                 maxStableFlushWaitIterations = 50, // up to 2.5 sec of waiting on flush to complete
                 stableIterations = 8, // 400ms of stability after flush starts
-                pollDurationMs = 50L
+                pollDurationMs = 50L,
             ) {
                 Shell.executeScriptSilent("am profile stop $packageName")
             }
@@ -539,7 +647,7 @@ public class MacrobenchmarkScope(
                 File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
             // Staging location before we write it again using Outputs.writeFile(...)
             // NOTE: staging copy may be unnecessary if we just use a single `cp`
-            Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
+            Shell.cp(from = tracePath, to = stagingFile.absolutePath)
 
             // Report file
             val outputPath =
@@ -549,7 +657,7 @@ public class MacrobenchmarkScope(
 
                     // Cleanup
                     stagingFile.delete()
-                    Shell.executeScriptSilent("rm \"$tracePath\"")
+                    Shell.rm(tracePath)
                 }
             val traceLabel = "MethodTrace iteration ${iteration ?: 0}"
             // Keep track of the label and the corresponding output paths.

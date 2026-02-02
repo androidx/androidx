@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.LibraryType
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("JetBrainsAndroidXPlugin")
 }
 
+
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "org.jetbrains.lifecycle.viewmodel.savedstate"
+    }
     desktop()
-    ios()
-    linux()
     mac()
+    linux()
+    ios()
+    watchos()
+    tvos()
+    mingwX64()
     js()
-    wasm()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -58,22 +55,9 @@ androidXMultiplatform {
     }
 }
 
-kotlin {
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
-    mingwX64()
-}
-
-android {
-    namespace "androidx.lifecycle.viewmodel.savedstate"
-}
-
 androidx {
     name = "Lifecycle ViewModel with SavedState"
-    type = LibraryType.PUBLISHED_LIBRARY
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Lifecycle ViewModel"
 }

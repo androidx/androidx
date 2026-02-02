@@ -18,17 +18,17 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("org.jetbrains.kotlin.android")
+    id("com.android.experimental.built-in-kotlin")
 }
 
 dependencies {
 
-    implementation(libs.kotlinStdlib)
 
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
     implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
@@ -36,5 +36,6 @@ dependencies {
 }
 
 android {
-    namespace "androidx.compose.foundation.layout.demos"
+    compileSdk = 35
+    namespace = "androidx.compose.foundation.layout.demos"
 }

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("UnstableApiUsage")
+
 package androidx.build.lint.replacewith
 
 import org.junit.Test
@@ -28,15 +30,15 @@ class ReplaceWithDetectorKotlinMethodTest {
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
-                javaSample("replacewith.StaticKotlinMethodExplicitClassJava")
+                javaSample("replacewith.StaticKotlinMethodExplicitClassJava"),
             )
 
         val expected =
             """
-src/replacewith/StaticKotlinMethodExplicitClassJava.java:25: Information: Replacement available [ReplaceWith]
+src/replacewith/StaticKotlinMethodExplicitClassJava.java:25: Hint: Replacement available [ReplaceWith]
         ReplaceWithUsageKotlin.toString(this);
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings
+0 errors, 0 warnings, 1 hint
         """
                 .trimIndent()
 
@@ -57,7 +59,7 @@ Fix for src/replacewith/StaticKotlinMethodExplicitClassJava.java line 25: Replac
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
-                ktSample("replacewith.StaticKotlinMethodExplicitClassKotlin")
+                ktSample("replacewith.StaticKotlinMethodExplicitClassKotlin"),
             )
 
         val expected =

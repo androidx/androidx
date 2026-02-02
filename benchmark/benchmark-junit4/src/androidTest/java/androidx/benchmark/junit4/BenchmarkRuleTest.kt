@@ -16,17 +16,14 @@
 
 package androidx.benchmark.junit4
 
-import android.annotation.SuppressLint
 import android.os.Looper
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SmallTest
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
-import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -35,17 +32,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class BenchmarkRuleTest {
     @get:Rule val benchmarkRule: BenchmarkRule = BenchmarkRule()
-
-    @SuppressLint("BanThreadSleep") // doesn't affect runtime, since we have target time
-    @Test
-    fun runWithTimingDisabled() {
-        benchmarkRule.measureRepeated { runWithTimingDisabled { Thread.sleep(5) } }
-        val min = benchmarkRule.getState().getMinTimeNanos()
-        Assert.assertTrue(
-            "minimum $min should be less than 1ms",
-            min < TimeUnit.MILLISECONDS.toNanos(1)
-        )
-    }
 
     @Test
     fun measureRepeatedMainThread() {

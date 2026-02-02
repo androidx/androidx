@@ -18,37 +18,40 @@ package androidx.build
 
 import java.io.File
 
+// NOTE: This class is symlinked to
+// playground-common/playground-plugin/src/main/kotlin/androidx/build
+// Please test playground when modifying it.
 /**
  * Helper class to parse the settings.gradle file from the main build and extract a list of
  * projects.
  *
- * This is used by Playground projects too, so if it is changed please run `cd room && ./gradlew tasks`
+ * This is used by Playground projects too, so if it is changed please run `cd room3 && ./gradlew
+ * tasks`
  */
 object SettingsParser {
     /**
      * Match lines that start with includeProject, followed by a require argument for project gradle
      * path and an optional argument for project file path.
      */
-    /* ktlint-disable max-line-length */
-    private val includeProjectPattern = Regex(
-        """^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)"(,[\n\r\s]*"(?<path>[a-z0-9-/]+))?.*\).*$""",
-        setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE)
-    ).toPattern()
+    private val includeProjectPattern =
+        Regex(
+                """^[\n\r\s]*includeProject\("(?<name>[a-z0-9-:]*)"(,[\n\r\s]*"(?<path>[a-z0-9-/]+))?.*\).*$""",
+                setOf(RegexOption.MULTILINE, RegexOption.IGNORE_CASE),
+            )
+            .toPattern()
 
-    fun findProjects(
-        settingsFile: File,
-    ): List<IncludedProject> {
-        return findProjects(
-            fileContents = settingsFile.readText(Charsets.UTF_8)
-        )
+    fun findProjects(settingsFile: File): List<IncludedProject> {
+        return findProjects(fileContents = settingsFile.readText(Charsets.UTF_8))
     }
 
-    fun findProjects(
-        fileContents: String,
-    ): List<IncludedProject> {
+    fun findProjects(fileContents: String): List<IncludedProject> {
         val matcher = includeProjectPattern.matcher(fileContents)
         val includedProjects = mutableListOf<IncludedProject>()
         while (matcher.find()) {
+            if (matcher.group().contains("new File")) {
+                // we don't support explicit project paths in playground
+                continue
+            }
             // check if is an include project line, if so, extract project gradle path and
             // file system path and call the filter
             val projectGradlePath =
@@ -60,24 +63,8 @@ object SettingsParser {
         return includedProjects
     }
 
-    /**
-     * Converts a gradle path (e.g. :a:b:c) to a file path (a/b/c)
-     */
+    /** Converts a gradle path (e.g. :a:b:c) to a file path (a/b/c) */
     private fun createFilePathFromGradlePath(gradlePath: String): String {
         return gradlePath.trimStart(':').replace(':', '/')
     }
-
-    /**
-     * Represents an included project from the main settings.gradle file.
-     */
-    data class IncludedProject(
-        /**
-         * Gradle path of the project (using : as separator)
-         */
-        val gradlePath: String,
-        /**
-         * File path for the project, relative to support root folder.
-         */
-        val filePath: String
-    )
 }

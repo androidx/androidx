@@ -22,30 +22,38 @@
  * modifying its settings.
  */
 
-
+import androidx.build.SoftwareType
 import androidx.build.PlatformIdentifier
-import androidx.build.Publish
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
+import com.android.build.api.dsl.KotlinMultiplatformAndroidHostTestCompilation
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
-    alias(libs.plugins.kotlinSerialization)
     id("JetBrainsAndroidXPlugin")
+    alias(libs.plugins.kotlinSerialization)
 }
 
-JetBrainsAndroidXPlugin.applyAndConfigure(project)
-
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.navigation.common"
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
+        }
+        androidResources.enable = true
+        compilations.withType(KotlinMultiplatformAndroidHostTestCompilation) {
+            it.returnDefaultValues = true
+        }
+    }
     desktop()
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
     js()
-    wasm()
+    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -54,128 +62,89 @@ androidXMultiplatform {
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         }
 
-        commonMain {
-            dependencies {
-                api "androidx.annotation:annotation:1.9.1"
-                api "androidx.collection:collection:1.5.0"
-                api project(":lifecycle:lifecycle-common")
-                api project(":lifecycle:lifecycle-runtime")
-                api project(":lifecycle:lifecycle-viewmodel")
-                api project(":lifecycle:lifecycle-viewmodel-savedstate")
-                api project(":savedstate:savedstate")
+        commonMain.dependencies {
+            api "androidx.annotation:annotation:1.9.1"
+            api "androidx.collection:collection:1.5.0"
+            api project(":lifecycle:lifecycle-common")
+            api project(":lifecycle:lifecycle-runtime")
+            api project(":lifecycle:lifecycle-viewmodel")
+            api project(":lifecycle:lifecycle-viewmodel-savedstate")
+            api project(":savedstate:savedstate")
 
-                api(libs.kotlinStdlib)
-                implementation(libs.kotlinSerializationCore)
-            }
+            implementation(libs.kotlinSerializationCore)
         }
-
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinCoroutinesTest)
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-                implementation(project(":navigation:navigation-testing"))
-            }
+        commonTest.dependencies {
+            implementation(libs.kotlinTest)
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":navigation:navigation-testing"))
         }
-
-        jvmMain.dependsOn(commonMain)
-        jvmTest.dependsOn(commonTest)
-
-        androidMain {
-            dependsOn(jvmMain)
-            dependencies {
-                implementation("androidx.core:core-ktx:1.1.0")
-                implementation("androidx.profileinstaller:profileinstaller:1.3.0")
-            }
-        }
-
-        androidUnitTest {
-            dependsOn(jvmTest)
-            dependencies {
-                implementation("androidx.arch.core:core-testing:2.2.0")
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.truth)
-            }
-        }
-
-        androidInstrumentedTest {
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.testExtJunit)
-                implementation(libs.testCore)
-                implementation(libs.testRunner)
-                implementation(libs.espressoCore)
-                implementation(libs.truth)
-
-                // CustomMessageMissingMethodException: Could not find method implementation() for arguments
-                // implementation(libs.mockitoCore, excludes.bytebuddy)
-                // implementation(libs.dexmakerMockito, excludes.bytebuddy)
-                implementation("org.mockito:mockito-core:2.25.0", excludes.bytebuddy)
-                implementation("com.linkedin.dexmaker:dexmaker-mockito:2.28.3", excludes.bytebuddy)
-            }
-        }
-
 
         nonAndroidMain.dependsOn(commonMain)
         nonAndroidTest.dependsOn(commonTest)
 
-        desktopMain {
-            dependsOn(jvmMain)
-            dependsOn(nonAndroidMain)
+        darwinMain.dependsOn(appleMain)
+        darwinTest.dependsOn(appleTest)
+        iosMain.dependsOn(darwinMain)
+        iosTest.dependsOn(darwinTest)
+        macosMain.dependsOn(darwinMain)
+        macosTest.dependsOn(darwinTest)
+        tvosMain.dependsOn(darwinMain)
+        tvosTest.dependsOn(darwinTest)
+        watchosMain.dependsOn(darwinMain)
+        watchosTest.dependsOn(darwinTest)
+
+        jvmMain.dependsOn(nonAndroidMain)
+        jvmTest.dependsOn(nonAndroidTest)
+        desktopMain.dependsOn(jvmMain)
+        desktopTest.dependsOn(jvmTest)
+
+        desktopMain.dependsOn(nonAndroidMain)
+        desktopTest.dependsOn(nonAndroidTest)
+
+        androidMain.dependencies {
+            api(project(":lifecycle:lifecycle-runtime"))
+            api(project(":lifecycle:lifecycle-viewmodel"))
+            api(project(":savedstate:savedstate-ktx"))
+            implementation("androidx.core:core-ktx:1.1.0")
+            implementation("androidx.profileinstaller:profileinstaller:1.4.0")
         }
-        desktopTest {
-            dependsOn(jvmTest)
-            dependsOn(nonAndroidTest)
+
+        androidHostTest.dependencies {
+            implementation("androidx.arch.core:core-testing:2.2.0")
+            implementation(libs.junit)
+            implementation(libs.mockitoCore4)
+            implementation(libs.truth)
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinCoroutinesTest)
+            runtimeOnly(libs.kotlinTestJunit)
+            runtimeOnly(libs.testCore)
         }
+
+        androidDeviceTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.testExtJunit)
+            implementation(libs.testRunner)
+            implementation(libs.truth)
+            implementation(libs.mockitoCore)
+            implementation(libs.dexmakerMockito)
+        }
+
         nonJvmMain.dependsOn(nonAndroidMain)
-        nativeMain.dependsOn(nonJvmMain)
-        webMain.dependsOn(nonJvmMain)
-        darwinMain.dependsOn(nativeMain)
-        linuxMain.dependsOn(nativeMain)
-
         nonJvmTest.dependsOn(nonAndroidTest)
-        nativeTest.dependsOn(nonJvmTest)
-        webTest.dependsOn(nonJvmTest)
-        darwinTest.dependsOn(nativeTest)
-        linuxTest.dependsOn(nativeTest)
 
-        targets.all { target ->
-            if (target.platformType == KotlinPlatformType.native) {
-                if (target.konanTarget.family.appleFamily) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(darwinMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(darwinTest)
-                } else if (target.konanTarget.family == Family.LINUX) {
-                    target.compilations["main"].defaultSourceSet.dependsOn(linuxMain)
-                    target.compilations["test"].defaultSourceSet.dependsOn(linuxTest)
-                }
-            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
-                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
-                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
-            }
-        }
+        nativeMain { dependsOn(nonAndroidMain) }
+        nativeTest { dependsOn(nonAndroidTest) }
     }
 }
 
-kotlin {
-    watchosArm64()
-    watchosArm32()
-    watchosSimulatorArm64()
-    tvosArm64()
-    tvosSimulatorArm64()
-}
-
-android {
-    buildTypes.configureEach {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-    namespace "androidx.navigation.common"
+dependencies {
+    lintPublish(project(":navigation:navigation-common-lint"))
 }
 
 androidx {
     name = "Navigation Common"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    type = SoftwareType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Navigation-Common"
 }

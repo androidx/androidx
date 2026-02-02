@@ -126,7 +126,7 @@ class CheckBoxTest {
                 CheckBox(
                     checked = true,
                     onCheckedChange = null,
-                    modifier = GlanceModifier.padding(5.dp, 6.dp, 7.dp, 8.dp)
+                    modifier = GlanceModifier.padding(5.dp, 6.dp, 7.dp, 8.dp),
                 )
             }
         }
