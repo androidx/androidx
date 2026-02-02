@@ -20,5 +20,6 @@ plugins {
 }
 
 dependencies {
+    implementation(libs.kotlinStdlib)
 }
 

@@ -14,20 +14,21 @@
  * limitations under the License.
  */
 
-import androidx.build.KotlinTarget
-import androidx.build.SoftwareType
-import org.jetbrains.androidx.build.XcodeBuildLock
+
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.jetbrains.kotlin.konan.target.Architecture
-
-// TODO: Correctly apply AndroidXPlugin to pass all verification checks.
 
 plugins {
     id("AndroidXPlugin")
     id("kotlin-multiplatform")
+    id("JetBrainsAndroidXPlugin")
 }
 
 kotlin {
+    iosX64("iosX64") {
+        configure(it, false)
+    }
     iosArm64("iosArm64") {
         configure(it, true)
     }
@@ -37,9 +38,17 @@ kotlin {
 
     sourceSets {
         commonMain {}
+        def iosMain = sourceSets.create("iosMain")
+        def iosX64Main = sourceSets.getByName("iosX64Main")
+        def iosArm64Main = sourceSets.getByName("iosArm64Main")
+        def iosSimulatorArm64Main = sourceSets.getByName("iosSimulatorArm64Main")
+
+        iosMain.dependsOn(commonMain)
+        iosX64Main.dependsOn(iosMain)
+        iosArm64Main.dependsOn(iosMain)
+        iosSimulatorArm64Main.dependsOn(iosMain)
 
         configureEach {
-            languageSettings.languageVersion = KotlinTarget.DEFAULT.apiVersion.version
             languageSettings.optIn("kotlinx.cinterop.BetaInteropApi")
             languageSettings.optIn("kotlinx.cinterop.ExperimentalForeignApi")
             languageSettings.optIn("kotlin.experimental.ExperimentalNativeApi")
@@ -120,7 +129,6 @@ private def configure(target, isDevice) {
     target.compilations.main {
         def libTaskName = "${compileTaskProvider.name}ObjCLib"
         project.tasks.register(libTaskName, Exec) {
-            usesService(XcodeBuildLock.instance(project))
             inputs.dir(frameworkSourcesDir)
                     .withPropertyName("${frameworkName}-${sdkName}")
                     .withPathSensitivity(PathSensitivity.RELATIVE)
@@ -176,7 +184,7 @@ private def configure(target, isDevice) {
 
 androidx {
     name = "Compose Instrumented Test Utils"
-    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2025"
     description = "Internal utilities that convert kotlin.test into XCTest."
     legacyDisableKotlinStrictApiMode = true

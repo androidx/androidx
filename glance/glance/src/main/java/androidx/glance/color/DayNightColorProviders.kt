@@ -26,18 +26,18 @@ import androidx.glance.unit.ColorProvider
  * Returns a [ColorProvider] that provides [day] when night mode is off, and [night] when night mode
  * is on.
  */
-public fun ColorProvider(day: Color, night: Color): ColorProvider {
+fun ColorProvider(day: Color, night: Color): ColorProvider {
     return DayNightColorProvider(day, night)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
-    override fun getColor(context: Context): Color = getColor(isNightMode = context.isNightMode)
+data class DayNightColorProvider(val day: Color, val night: Color) : ColorProvider {
+    override fun getColor(context: Context) = getColor(isNightMode = context.isNightMode)
 
-    public fun getColor(isNightMode: Boolean): Color = if (isNightMode) night else day
+    fun getColor(isNightMode: Boolean) = if (isNightMode) night else day
 }
 
-public val Context.isNightMode: Boolean
+val Context.isNightMode: Boolean
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     get() =
         (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==

@@ -46,7 +46,7 @@ public actual class TestNavigatorState actual constructor() : NavigatorState() {
     public actual override fun createBackStackEntry(
         destination: NavDestination,
         arguments: SavedState?
-    ): NavBackStackEntry = NavBackStackEntry.create(
+    ) = NavBackStackEntry.create(
         context = navContext,
         destination = destination,
         arguments = arguments,

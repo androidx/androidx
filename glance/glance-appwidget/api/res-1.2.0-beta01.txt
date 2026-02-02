@@ -1,2 +1,0 @@
-bool glance_appwidget_available
-layout glance_default_loading_layout

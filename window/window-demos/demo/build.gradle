@@ -28,13 +28,14 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
     compileSdk = 35
     defaultConfig {
         applicationId = "androidx.window.demo"
+        minSdk = 23
     }
     buildFeatures {
         viewBinding = true
@@ -102,7 +103,6 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(project(":window:window-testing"))
     androidTestImplementation(project(":window:window-demos:demo-common"))
-    androidTestImplementation(project(":savedstate:savedstate-ktx"))
 
     coreLibraryDesugaring(libs.desugarJdkLibs)
 }

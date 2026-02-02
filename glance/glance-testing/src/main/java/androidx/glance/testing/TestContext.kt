@@ -22,9 +22,9 @@ import androidx.annotation.RestrictTo
  * the chain of assertions.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class TestContext<R, T : GlanceNode<R>> {
+class TestContext<R, T : GlanceNode<R>> {
     // e.g. RemoteViewsRoot
-    public var rootGlanceNode: T? = null
+    var rootGlanceNode: T? = null
     private var allNodes: List<GlanceNode<R>> = emptyList()
 
     /**
@@ -56,9 +56,9 @@ public class TestContext<R, T : GlanceNode<R>> {
      *
      * @throws AssertionError if provided selector results in an error due to no match.
      */
-    public fun findMatchingNodes(
+    fun findMatchingNodes(
         selector: GlanceNodeSelector<R>,
-        errorMessageOnFail: String,
+        errorMessageOnFail: String
     ): List<GlanceNode<R>> {
         val allNodes = getAllNodes()
         val selectionResult = selector.map(allNodes)
@@ -67,7 +67,7 @@ public class TestContext<R, T : GlanceNode<R>> {
             throw AssertionError(
                 buildErrorMessageWithReason(
                     errorMessageOnFail = errorMessageOnFail,
-                    reason = selectionResult.errorMessageOnNoMatch,
+                    reason = selectionResult.errorMessageOnNoMatch
                 )
             )
         }
@@ -81,7 +81,7 @@ public class TestContext<R, T : GlanceNode<R>> {
      * Can be false if either composable function produced no glance elements or composable function
      * was not provided..
      */
-    public fun hasNodes(): Boolean {
+    fun hasNodes(): Boolean {
         return rootGlanceNode?.children()?.isNotEmpty() ?: false
     }
 }

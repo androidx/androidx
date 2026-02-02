@@ -21,7 +21,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
+import androidx.build.Publish
+import androidx.build.SdkResourceGenerator
 
 plugins {
     id("AndroidXPlugin")
@@ -32,9 +34,10 @@ plugins {
 apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
-    compileOnly(findGradleKotlinDsl())
+    implementation(findGradleKotlinDsl())
     implementation(gradleApi())
-    implementation(libs.androidGradlePluginApi)
+    implementation(libs.androidGradlePluginz)
+    implementation(libs.kotlinStdlib)
     implementation(libs.protobufGradlePlugin)
     implementation(libs.shadow)
     implementation(libs.apacheAnt)
@@ -47,7 +50,7 @@ dependencies {
 
 gradlePlugin {
     plugins {
-        create("inspection") {
+        inspection {
             id = "androidx.inspection"
             implementationClass = "androidx.inspection.gradle.InspectionPlugin"
         }
@@ -56,7 +59,8 @@ gradlePlugin {
 
 androidx {
     name = "Inspection Gradle Plugin"
-    type = SoftwareType.INTERNAL_GRADLE_PLUGIN
+    type = LibraryType.GRADLE_PLUGIN
+    publish = Publish.NONE
     inceptionYear = "2019"
     description = "Android Inspection Gradle Plugin"
 }

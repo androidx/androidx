@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+
+    implementation(libs.kotlinStdlib)
+
     implementation("androidx.compose.runtime:runtime:1.2.1")
     implementation(project(":compose:ui:ui-text"))
     implementation("androidx.core:core:1.8.0")
@@ -48,13 +43,11 @@ dependencies {
 
 androidx {
     name = "Compose Google Fonts integration"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Compose Downloadable Fonts integration for Google Fonts"
-    legacyDisableKotlinStrictApiMode = true
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.compose.ui.text.googlefonts"
+    namespace "androidx.compose.ui.text.googlefonts"
 }

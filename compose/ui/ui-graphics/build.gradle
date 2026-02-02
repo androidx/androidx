@@ -14,171 +14,211 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-
-import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.AndroidXComposePlugin
+import androidx.build.LibraryType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("AndroidXComposePlugin")
     id("JetBrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 35
-        namespace = "androidx.compose.ui.graphics"
-        androidResources.enable = true
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
-    }
-    desktop()
-    mac()
-    ios()
-    js()
-    wasmJs()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
+if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    dependencies {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block below
+         */
 
-    configureDarwinFlags()
+        api("androidx.annotation:annotation:1.2.0")
+        api(project(":compose:ui:ui-unit"))
 
-    sourceSets {
-        commonMain.dependencies {
-            api(project(":compose:ui:ui-unit"))
-            implementation(project(":compose:runtime:runtime"))
-            implementation(project(":compose:ui:ui-util"))
-            implementation(project(":compose:ui:ui-geometry"))
-            implementation(project(":annotation:annotation"))
-            implementation(project(":collection:collection"))
-        }
+        implementation("androidx.compose.runtime:runtime:1.2.1")
+        implementation(project(":compose:ui:ui-util"))
+        implementation(libs.kotlinStdlib)
 
-        commonTest.dependencies {
-            implementation(kotlin("test"))
-        }
+        testImplementation(libs.testRules)
+        testImplementation(libs.testRunner)
+        testImplementation(libs.kotlinTestJunit)
+        testImplementation(libs.junit)
+        testImplementation(libs.truth)
 
-        androidMain.dependencies {
-            // This has stub APIs for access to legacy Android APIs, so we don't want
-            // any dependency on this module.
-            compileOnly(project(":compose:ui:ui-android-stubs"))
-            implementation("androidx.graphics:graphics-path:1.0.1")
-            implementation libs.androidx.core
-            api("androidx.annotation:annotation-experimental:1.4.1")
-        }
+        androidTestImplementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+        androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+        androidTestImplementation(project(":compose:test-utils"))
+        androidTestImplementation(libs.testRules)
+        androidTestImplementation(libs.testRunner)
+        androidTestImplementation(libs.espressoCore)
+        androidTestImplementation(libs.junit)
+        androidTestImplementation(libs.truth)
 
-        androidDeviceTest.dependencies {
-            implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
-            implementation(project(":compose:ui:ui-test-junit4"))
-            implementation(project(":compose:test-utils"))
-            implementation(libs.testRules)
-            implementation(libs.testRunner)
-            implementation(libs.espressoCore)
-            implementation(libs.junit)
-            implementation(libs.truth)
-        }
+        lintPublish(project(":compose:ui:ui-graphics-lint"))
 
-        androidHostTest.dependencies {
-            implementation(libs.testRules)
-            implementation(libs.testRunner)
-            implementation(libs.junit)
-            implementation(libs.truth)
-            implementation(project(":compose:test-utils"))
-        }
-
-        // TODO: Align naming: nonAndroidMain
-        skikoMain {
-            dependsOn(commonMain)
-            dependencies {
-                api(libs.skiko)
-            }
-        }
-
-        skikoTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(project(":compose:ui:ui-test"))
-                implementation(project(":kruth:kruth"))
-            }
-        }
-
-        skikoExcludingWebMain {
-            dependsOn(skikoMain)
-        }
-
-        skikoExcludingWebTest {
-            dependsOn(skikoTest)
-        }
-
-        desktopMain {
-            dependsOn(skikoMain)
-            dependsOn(skikoExcludingWebMain)
-        }
-
-        desktopTest {
-            dependsOn(skikoTest)
-            dependsOn(skikoExcludingWebTest)
-            resources.srcDirs += "src/desktopTest/res"
-            dependencies {
-                implementation(libs.junit)
-                implementation(libs.truth)
-                implementation(libs.skikoCurrentOs)
-                implementation(project(":compose:ui:ui-test-junit4"))
-            }
-        }
-
-        nonJvmMain {
-            dependsOn(skikoMain)
-        }
-
-        nonJvmTest {
-            dependsOn(skikoTest)
-        }
-
-        nativeMain {
-            dependsOn(nonJvmMain)
-            dependsOn(skikoExcludingWebMain)
-        }
-
-        nativeTest {
-            dependsOn(nonJvmTest)
-            dependsOn(skikoExcludingWebTest)
-        }
-
-        wasmJsMain {
-            dependencies {
-                implementation(libs.skikoWasmJs)
-                implementation(libs.skikoJsWasmRuntime)
-            }
-        }
+        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
     }
 }
 
-dependencies {
-    lintPublish(project(":compose:ui:ui-graphics-lint"))
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    androidXComposeMultiplatform {
+        android()
+        desktop()
+        js()
+        wasm()
+        darwin()
+
+        configureDarwinFlags()
+    }
+
+    kotlin {
+        /*
+         * When updating dependencies, make sure to make the an an analogous update in the
+         * corresponding block above
+         */
+
+        sourceSets {
+            commonMain.dependencies {
+                implementation(libs.kotlinStdlib)
+
+                api(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:ui:ui-geometry"))
+                implementation(project(":annotation:annotation"))
+                implementation(project(":collection:collection"))
+            }
+
+            androidMain.dependencies {
+                api("androidx.annotation:annotation:1.2.0")
+            }
+
+            skikoMain {
+                dependsOn(commonMain)
+                dependencies {
+                    api(libs.skikoCommon)
+                }
+            }
+
+            skikoExcludingWebMain {
+                dependsOn(skikoMain)
+            }
+
+            nonJvmMain.dependsOn(skikoMain)
+
+            webMain.dependsOn(nonJvmMain)
+
+            jsMain {
+                dependsOn(webMain)
+            }
+
+            wasmJsMain {
+                dependsOn(webMain)
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                    implementation(libs.create("skikoWasm"))
+                    implementation(libs.create("skikoWasmWasm"))
+                }
+            }
+
+            desktopMain {
+                dependsOn skikoExcludingWebMain
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                    implementation(libs.kotlinStdlibJdk8)
+                }
+            }
+
+            commonTest {
+                dependencies {
+                    implementation(libs.kotlinTest)
+                }
+            }
+
+            nativeMain.dependsOn(nonJvmMain)
+            nativeMain.dependsOn(skikoExcludingWebMain)
+
+            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
+            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
+            //  level dependencies block instead:
+            //  `dependencies { testImplementation(libs.robolectric) }`
+            androidTest.dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+
+            androidAndroidTest.dependencies {
+                implementation(project(":compose:ui:ui-graphics:ui-graphics-samples"))
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:test-utils"))
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.espressoCore)
+                implementation(libs.junit)
+            }
+
+            skikoTest {
+                dependsOn(commonTest)
+                dependencies {
+                    implementation(project(":compose:ui:ui-test-junit4"))
+                }
+            }
+
+            desktopTest {
+                dependsOn(skikoTest)
+                resources.srcDirs += "src/desktopTest/res"
+                dependencies {
+                    implementation(libs.junit)
+                    implementation(libs.truth)
+                    implementation(libs.skikoCurrentOs)
+                }
+            }
+            nativeTest {
+                dependsOn(skikoTest)
+            }
+
+            jsTest {
+                dependsOn(skikoTest)
+            }
+
+            wasmJsTest {
+                dependsOn(skikoTest)
+            }
+
+            configureEach {
+                languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
+                languageSettings.optIn("androidx.compose.ui.InternalComposeUiApi")
+            }
+        }
+    }
+    dependencies {
+        samples(projectOrArtifact(":compose:ui:ui-graphics:ui-graphics-samples"))
+    }
 }
 
 androidx {
     name = "Compose Graphics"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = false
-    enableRobolectric()
-    samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
 }
 
-tasks.findByName("desktopTest").configure {
-    systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
+androidxCompose {
+    composeCompilerPluginEnabled = false
+}
+
+android {
+    namespace "androidx.compose.ui.graphics"
+}
+
+if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
+    tasks.findByName("desktopTest").configure {
+        systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
+    }
 }

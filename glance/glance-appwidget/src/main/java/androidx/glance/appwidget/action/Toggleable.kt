@@ -24,5 +24,4 @@ import androidx.glance.action.ActionParameters
  * button interactions (e.g. [CheckBox], [Switch]). This key is used to retrieve the value from the
  * [ActionParameters] passed to the action.
  */
-public val ToggleableStateKey: ActionParameters.Key<Boolean> =
-    ActionParameters.Key<Boolean>(RemoteViews.EXTRA_CHECKED)
+val ToggleableStateKey = ActionParameters.Key<Boolean>(RemoteViews.EXTRA_CHECKED)

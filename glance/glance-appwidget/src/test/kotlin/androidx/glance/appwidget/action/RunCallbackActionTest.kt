@@ -33,7 +33,6 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class RunCallbackActionTest {
 
     private lateinit var fakeCoroutineScope: TestScope
@@ -55,7 +54,7 @@ class TestCallback : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters,
+        parameters: ActionParameters
     ) {
         // Nothing
     }

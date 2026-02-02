@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -32,46 +32,50 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
-    watchos()
-    tvos()
-    wasmJs()
-    js()
 
     sourceSets {
-        commonMain.dependencies {
-            api(project(":datastore:datastore-core"))
-            api(project(":datastore:datastore-core-okio"))
-            api(libs.kotlinTest)
-            api(libs.kotlinCoroutinesCore)
-            api(libs.kotlinCoroutinesTest)
-            api(libs.okio)
-        }
-
-        commonTest.dependencies {
-            implementation(project(":kruth:kruth"))
-            implementation(libs.kotlinTest)
-        }
-
-        nonWebCommonMain.dependsOn(commonMain)
-        nonWebCommonTest.dependsOn(commonTest)
-        nativeMain.dependsOn(nonWebCommonMain)
-
-        jvmMain {
-            dependsOn(nonWebCommonMain)
+        commonMain {
             dependencies {
+                api(project(":datastore:datastore-core"))
+                api(project(":datastore:datastore-core-okio"))
+                api(libs.kotlinStdlibCommon)
+                api(libs.kotlinTestCommon)
+                api(libs.kotlinCoroutinesCore)
+                api(libs.kotlinCoroutinesTest)
+                api(libs.okio)
+            }
+        }
+        nativeMain {
+            dependsOn(commonMain)
+        }
+        jvmMain {
+            dependencies {
+                api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
             }
         }
-
+        commonTest {
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+            }
+        }
         jvmTest {
-            dependsOn(nonWebCommonTest)
+            dependsOn(commonTest)
             dependencies {
                 implementation(libs.kotlinTest)
+            }
+        }
+        targets.configureEach { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
             }
         }
     }
 }
 
 androidx {
-    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

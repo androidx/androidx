@@ -16,9 +16,8 @@
 
 package androidx.inspection;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
-import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 
@@ -33,8 +32,9 @@ public class DefaultArtTooling implements ArtTooling {
         mInspectorId = inspectorId;
     }
 
+    @NonNull
     @Override
-    public <T> @NonNull List<T> findInstances(@NonNull Class<T> clazz) {
+    public <T> List<T> findInstances(@NonNull Class<T> clazz) {
         return ArtToolingImpl.findInstances(clazz);
     }
 

@@ -29,10 +29,11 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.8.1")
     implementation(libs.androidx.activity.compose)
     implementation(project(":compose:foundation:foundation"))

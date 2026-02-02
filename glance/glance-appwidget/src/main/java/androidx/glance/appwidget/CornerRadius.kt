@@ -29,7 +29,7 @@ internal data class CornerRadiusModifier(val radius: Dimension) : GlanceModifier
  *
  * Note: Only works on Android S+.
  */
-public fun GlanceModifier.cornerRadius(radius: Dp): GlanceModifier =
+fun GlanceModifier.cornerRadius(radius: Dp): GlanceModifier =
     this.then(CornerRadiusModifier(Dimension.Dp(radius)))
 
 /**
@@ -37,5 +37,5 @@ public fun GlanceModifier.cornerRadius(radius: Dp): GlanceModifier =
  *
  * Note: Only works on Android S+.
  */
-public fun GlanceModifier.cornerRadius(@DimenRes radius: Int): GlanceModifier =
+fun GlanceModifier.cornerRadius(@DimenRes radius: Int): GlanceModifier =
     this.then(CornerRadiusModifier(Dimension.Resource(radius)))

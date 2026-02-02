@@ -6,6 +6,7 @@
  * modifying its settings.
  */
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.kotlin.gradle.plugin.mpp.BitcodeEmbeddingMode
 import org.jetbrains.kotlin.gradle.plugin.mpp.apple.XCFrameworkConfig
 
 plugins {
@@ -21,14 +22,29 @@ androidXMultiplatform {
         binaries.framework {
             // The module name must be AndroidXDarwinBenchmarks for the discovery to work.
             baseName = "AndroidXDarwinBenchmarks"
-            export(project.project(":benchmark:benchmark-darwin"))
+            // https://youtrack.jetbrains.com/issue/KT-48552
+            embedBitcode = BitcodeEmbeddingMode.DISABLE
+            export(project(":benchmark:benchmark-darwin"))
             xcf.add(it)
         }
     }
 
     sourceSets {
-        iosMain.dependencies {
-            api(project(":benchmark:benchmark-darwin"))
+        iosMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":benchmark:benchmark-darwin"))
+            }
+        }
+        iosArm64Main {
+            dependsOn(iosMain)
+        }
+        iosSimulatorArm64Main {
+            dependsOn(iosMain)
+        }
+        iosX64Main {
+            dependsOn(iosMain)
         }
     }
 
@@ -42,8 +58,9 @@ androidXMultiplatform {
 }
 
 darwinBenchmark {
-    xcodeGenConfigFile = new File(rootDir,
-            "benchmark/benchmark-darwin-xcode/projects/benchmark-darwin-samples-xcode.yml")
+    xcodeGenConfigFile = project.rootProject.file(
+            "benchmark/benchmark-darwin-xcode/projects/benchmark-darwin-samples-xcode.yml"
+    )
     xcodeProjectName = "benchmark-darwin-samples-xcode"
     scheme = "testapp-ios"
     // To run locally switch to iOS 17.0 simulators

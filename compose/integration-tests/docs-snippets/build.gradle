@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.SoftwareType
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -40,19 +33,19 @@ dependencies {
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:material:material"))
     implementation(project(":compose:material3:material3"))
-    implementation("androidx.compose.material:material-icons-extended:1.7.8")
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:runtime:runtime-livedata"))
     implementation(project(":compose:ui:ui-graphics"))
     implementation(project(":compose:ui:ui-test-junit4"))
     implementation(project(":compose:ui:ui-tooling-preview"))
     implementation(project(":compose:ui:ui-viewbinding"))
-    implementation(project(":navigation:navigation-compose"))
+    implementation(androidxArtifact(":navigation:navigation-compose"))
     implementation("androidx.activity:activity-compose:1.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1")
-    implementation(project(":paging:paging-compose"))
+    implementation(androidxArtifact(":paging:paging-compose"))
 
+    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinReflect)
     implementation(libs.testCore)
     implementation(libs.testRules)
@@ -64,13 +57,13 @@ dependencies {
 
 androidx {
     name = "Compose Documentation Snippets"
-    type = SoftwareType.TEST_APPLICATION
+    publish = Publish.NONE
     description = "Compose Documentation Snippets on developer.android.com"
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.compose.integration.docs"
+    namespace "androidx.compose.integration.docs"
 }
 
-android.buildFeatures.viewBinding = true
+android.defaultConfig.minSdkVersion 21
+android.buildFeatures.viewBinding true

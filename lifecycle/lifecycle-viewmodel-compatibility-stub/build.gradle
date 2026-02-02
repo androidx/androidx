@@ -14,27 +14,36 @@
  * limitations under the License.
  */
 
-import androidx.build.SoftwareType
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("JetBrainsAndroidXPlugin")
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "org.jetbrains.lifecycle.viewmodel"
-    }
+    android()
     desktop()
     mac()
     linux()
     ios()
-    watchos()
-    tvos()
-    mingwX64()
     js()
-    wasmJs()
+    wasm()
+
+    kotlin {
+        explicitApi = ExplicitApiMode.Strict
+    }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -48,9 +57,23 @@ androidXMultiplatform {
     }
 }
 
+kotlin {
+    watchosArm64()
+    watchosArm32()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    mingwX64()
+}
+
+android {
+    namespace "androidx.lifecycle.viewmodel"
+}
+
 androidx {
     name = "Lifecycle ViewModel"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle ViewModel"
+    metalavaK2UastEnabled = false
 }

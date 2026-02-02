@@ -22,62 +22,88 @@
  * modifying its settings.
  */
 
-
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.SoftwareType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
+    id("JetBrainsAndroidXPlugin")
 }
 
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
+
 androidXMultiplatform {
-    jvm()
-    androidLibrary {
-        namespace = "androidx.window.core"
-    }
+    desktop()
+    android()
     mac()
     linux()
     ios()
-    watchos()
-    tvos()
-    mingwX64()
     js()
+    wasm()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
     wasmJs()
 
-    defaultPlatform(PlatformIdentifier.JVM)
+    watchosArm64()
+    watchosArm32()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    mingwX64()
 
     sourceSets {
-        commonMain.dependencies {
-            api("androidx.annotation:annotation:1.9.1")
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":annotation:annotation"))
+            }
         }
 
-        commonTest.dependencies {
-            implementation(libs.kotlinTest)
-            implementation(libs.kotlinCoroutinesCore)
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesCore)
+            }
         }
 
-        androidDeviceTest.dependencies {
-            implementation(libs.testRunner)
+        jvmMain.dependsOn(commonMain)
+        androidMain.dependsOn(jvmMain)
+        desktopMain.dependsOn(jvmMain)
+        nonJvmMain.dependsOn(commonMain)
+
+        targets.all { target ->
+            if (target.platformType !in [KotlinPlatformType.jvm, KotlinPlatformType.androidJvm, KotlinPlatformType.common]) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nonJvmMain)
+                }
+            }
         }
     }
 }
 
-dependencies {
-    constraints {
-        // Prevents symbols duplication with old versions of JetBrains' fork.
-        // Starting with version 1.5.0-beta01, this module is published as empty artifact with dependency
-        // to this androidx module.
-        // TODO: update this stable version once out
-        commonMainImplementation("org.jetbrains.androidx.window:window-core:1.5.0-beta01") {
-            because "prevents symbols duplication"
-        }
-    }
+android {
+    namespace "androidx.window.core"
 }
 
 androidx {
     name = "WindowManager Core"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "WindowManager Core Library."
-    samples(project(":window:window-core-samples"))
+    legacyDisableKotlinStrictApiMode = true
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }

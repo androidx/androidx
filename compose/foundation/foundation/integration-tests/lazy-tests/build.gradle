@@ -26,7 +26,7 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -37,7 +37,6 @@ android {
 dependencies {
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:test-utils"))
-    androidTestImplementation(project(":compose:ui:ui"))
     androidTestImplementation(project(":internal-testutils-fonts"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(project(":internal-testutils-runtime"))
@@ -58,5 +57,3 @@ dependencies {
     androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.mockitoKotlin)
 }
-
-androidx.deviceTests.minSdkForFtlOverride = 24 // b/437944630

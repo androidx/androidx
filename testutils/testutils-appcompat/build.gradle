@@ -21,12 +21,12 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -37,12 +37,16 @@ dependencies {
     implementation(libs.testExtJunit)
     implementation(libs.testCore)
     implementation(libs.testRules)
+    implementation(libs.kotlinStdlib)
 }
 
 android {
-    namespace = "androidx.testutils.appcompat"
+    lintOptions {
+        disable "InvalidPackage" // Lint is unhappy about junit package
+    }
+    namespace "androidx.testutils.appcompat"
 }
 
 androidx {
-    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

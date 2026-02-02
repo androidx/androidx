@@ -37,7 +37,8 @@ abstract class ExportAtomicLibraryGroupsToTextTask : DefaultTask() {
     @get:[Input]
     lateinit var libraryGroups: List<LibraryGroup>
 
-    @get:OutputDirectory abstract val outputDir: DirectoryProperty
+    @get:OutputDirectory
+    abstract val outputDir: DirectoryProperty
 
     @TaskAction
     fun exec() {

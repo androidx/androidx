@@ -28,4 +28,4 @@ internal class UriImageProvider(val uri: Uri) : ImageProvider {
  *
  * @param uri The URI of the image to be displayed.
  */
-public fun ImageProvider(uri: Uri): ImageProvider = UriImageProvider(uri)
+fun ImageProvider(uri: Uri): ImageProvider = UriImageProvider(uri)

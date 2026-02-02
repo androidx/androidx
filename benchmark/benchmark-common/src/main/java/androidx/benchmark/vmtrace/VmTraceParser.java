@@ -16,7 +16,7 @@
 
 package androidx.benchmark.vmtrace;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 import java.io.BufferedReader;
 import java.io.File;

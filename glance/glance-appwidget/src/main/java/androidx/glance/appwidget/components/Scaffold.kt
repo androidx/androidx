@@ -43,7 +43,7 @@ import androidx.glance.unit.ColorProvider
  * @param content The main content of the widget.
  */
 @Composable
-public fun Scaffold(
+fun Scaffold(
     modifier: GlanceModifier = GlanceModifier,
     titleBar: @Composable (() -> Unit)? = null,
     backgroundColor: ColorProvider = GlanceTheme.colors.widgetBackground,
@@ -62,7 +62,7 @@ public fun Scaffold(
         titleBar?.invoke()
         Box(
             modifier = GlanceModifier.padding(horizontal = horizontalPadding).defaultWeight(),
-            content = content,
+            content = content
         )
     }
 }

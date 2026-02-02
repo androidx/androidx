@@ -26,22 +26,19 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
-import androidx.benchmark.DeviceMirroring
-import androidx.benchmark.ExperimentalBenchmarkConfigApi
-import androidx.benchmark.ExperimentalConfig
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
 import androidx.benchmark.Shell
 import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
-import androidx.benchmark.createInsightSummaries
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.json.BenchmarkData
-import androidx.benchmark.macro.MacrobenchmarkScope.KillMode
+import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
-import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.perfetto.PerfettoConfig
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assume.assumeFalse
 
@@ -55,7 +52,7 @@ fun getInstalledPackageInfo(packageName: String): ApplicationInfo {
     } catch (notFoundException: PackageManager.NameNotFoundException) {
         throw AssertionError(
             "Unable to find target package $packageName, is it installed?",
-            notFoundException,
+            notFoundException
         )
     }
 }
@@ -88,7 +85,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                     speed in ways that mean benchmark improvements might not carry over to a
                     real user's experience (or even regress release performance).
                 """
-                                .trimIndent(),
+                                .trimIndent()
                     ),
                     conditionalError(
                         // Profileable is currently only needed on API 29+30, since app trace tag no
@@ -115,7 +112,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                     <!--suppress AndroidElementNotAllowed -->
                     <profileable android:shell="true"/>
                 """
-                                .trimIndent(),
+                                .trimIndent()
                     ),
                     conditionalError(
                         hasError =
@@ -150,7 +147,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                         experimentalProperties["android.experimental.self-instrumenting"] = true
                     }
                 """
-                                .trimIndent(),
+                                .trimIndent()
                     ),
                     conditionalError(
                         hasError = DeviceInfo.misconfiguredForTracing,
@@ -165,7 +162,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                     experience).
                     This error may not be suppressed.
                 """
-                                .trimIndent(),
+                                .trimIndent()
                     ),
                     conditionalError(
                         hasError = Arguments.macrobenchMethodTracingEnabled(),
@@ -179,13 +176,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
                     (e.g. was run #1 faster than run #2). Also, these metrics cannot be compared
                     with benchmark runs that don't have method tracing enabled.
                 """
-                                .trimIndent(),
-                    ),
-                    conditionalError(
-                        hasError = DeviceMirroring.isAndroidStudioDeviceMirroringActive(),
-                        id = DeviceMirroring.Error.ID,
-                        summary = DeviceMirroring.Error.SUMMARY,
-                        message = DeviceMirroring.Error.MESSAGE.trimIndent(),
+                                .trimIndent()
                     ),
                 )
                 .sortedBy { it.id }
@@ -206,7 +197,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
  *
  * This function is a building block for public testing APIs
  */
-@ExperimentalBenchmarkConfigApi
+@ExperimentalPerfettoCaptureApi
 private fun macrobenchmark(
     uniqueName: String,
     className: String,
@@ -217,10 +208,10 @@ private fun macrobenchmark(
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
-    experimentalConfig: ExperimentalConfig?,
+    perfettoConfig: PerfettoConfig?,
     perfettoSdkConfig: PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
-    measureBlock: MacrobenchmarkScope.() -> Unit,
+    measureBlock: MacrobenchmarkScope.() -> Unit
 ): BenchmarkData.TestResult {
     require(iterations > 0) { "Require iterations > 0 (iterations = $iterations)" }
     require(metrics.isNotEmpty()) {
@@ -231,7 +222,7 @@ private fun macrobenchmark(
     if (Arguments.skipBenchmarksOnEmulator) {
         assumeFalse(
             "Skipping test because it's running on emulator and `skipOnEmulator` is enabled",
-            DeviceInfo.isEmulator,
+            DeviceInfo.isEmulator
         )
     }
 
@@ -243,7 +234,10 @@ private fun macrobenchmark(
     val startTime = System.nanoTime()
     // Ensure method tracing is explicitly enabled and that we are not running in dry run mode.
     val requestMethodTracing = Arguments.macrobenchMethodTracingEnabled()
+    val applicationInfo = getInstalledPackageInfo(packageName)
     val scope = MacrobenchmarkScope(packageName, launchWithClearTask = launchWithClearTask)
+    // Capture if the app being benchmarked is a system app.
+    scope.isSystemApp = applicationInfo.isSystemApp()
 
     // Ensure the device is awake
     scope.device.wakeUp()
@@ -265,55 +259,59 @@ private fun macrobenchmark(
 
     // package name for macrobench process, so it's captured as well
     val macrobenchPackageName = InstrumentationRegistry.getInstrumentation().context.packageName
-    val iterationResults = mutableListOf<IterationResult>()
+    val outputs = mutableListOf<PhaseResult>()
 
-    TraceProcessor.runServer {
-        scope.withKillMode(
-            current = KillMode.None,
-            override =
-                KillMode(clearArtRuntimeImage = compilationMode.requiresClearArtRuntimeImage()),
-        ) {
-            // Measurement Phase
-            iterationResults +=
+    PerfettoTraceProcessor.runServer {
+        // Measurement Phase
+        outputs +=
+            runPhase(
+                uniqueName = uniqueName,
+                packageName = packageName,
+                macrobenchmarkPackageName = macrobenchPackageName,
+                iterations = if (Arguments.dryRunMode) 1 else iterations,
+                startupMode = startupModeMetricHint,
+                scope = scope,
+                profiler = null, // Don't profile when measuring
+                metrics = metrics,
+                perfettoConfig = perfettoConfig,
+                perfettoSdkConfig = perfettoSdkConfig,
+                setupBlock = setupBlock,
+                measureBlock = measureBlock
+            )
+        // Profiling Phase
+        if (requestMethodTracing) {
+            outputs +=
                 runPhase(
                     uniqueName = uniqueName,
                     packageName = packageName,
                     macrobenchmarkPackageName = macrobenchPackageName,
-                    iterations = if (Arguments.dryRunMode) 1 else iterations,
+                    // We should open up an API to control the number of iterations here.
+                    // Run profiling for 1 additional iteration.
+                    iterations = 1,
                     startupMode = startupModeMetricHint,
                     scope = scope,
-                    profiler = null, // Don't profile when measuring
-                    metrics = metrics,
-                    experimentalConfig = experimentalConfig,
+                    profiler = MethodTracingProfiler(scope),
+                    metrics = emptyList(), // Nothing to measure
+                    perfettoConfig = perfettoConfig,
                     perfettoSdkConfig = perfettoSdkConfig,
                     setupBlock = setupBlock,
-                    measureBlock = measureBlock,
+                    measureBlock = measureBlock
                 )
-            // Profiling Phase
-            if (requestMethodTracing) {
-                iterationResults +=
-                    runPhase(
-                        uniqueName = uniqueName,
-                        packageName = packageName,
-                        macrobenchmarkPackageName = macrobenchPackageName,
-                        // We should open up an API to control the number of iterations here.
-                        // Run profiling for 1 additional iteration.
-                        iterations = 1,
-                        startupMode = startupModeMetricHint,
-                        scope = scope,
-                        profiler = MethodTracingProfiler(scope),
-                        metrics = emptyList(), // Nothing to measure
-                        experimentalConfig = experimentalConfig,
-                        perfettoSdkConfig = perfettoSdkConfig,
-                        setupBlock = setupBlock,
-                        measureBlock = measureBlock,
-                    )
-            }
         }
     }
 
+    val tracePaths = mutableListOf<String>()
+    val profilerResults = mutableListOf<Profiler.ResultFile>()
+    val measurementsList = mutableListOf<List<Metric.Measurement>>()
+
+    outputs.forEach {
+        tracePaths += it.tracePaths
+        profilerResults += it.profilerResults
+        measurementsList += it.measurements
+    }
+
     // Merge measurements
-    val measurements = iterationResults.map { it.measurements }.mergeMultiIterResults()
+    val measurements = measurementsList.mergeMultiIterResults()
     require(measurements.isNotEmpty()) {
         """
             Unable to read any metrics during benchmark (metric list: $metrics).
@@ -324,17 +322,13 @@ private fun macrobenchmark(
             .trimIndent()
     }
 
-    val iterationTracePaths = iterationResults.map { it.tracePath }
-    val profilerResults = iterationResults.flatMap { it.profilerResultFiles }
     InstrumentationResults.instrumentationReport {
         reportSummaryToIde(
             warningMessage = warningMessage,
             testName = uniqueName,
             measurements = measurements,
-            insightSummaries = iterationResults.flatMap { it.insights }.createInsightSummaries(),
-            iterationTracePaths = iterationTracePaths,
-            profilerResults = profilerResults,
-            useTreeDisplayFormat = experimentalConfig?.startupInsightsConfig?.isEnabled == true,
+            iterationTracePaths = tracePaths,
+            profilerResults = profilerResults
         )
 
         warningMessage = "" // warning only printed once
@@ -353,10 +347,10 @@ private fun macrobenchmark(
         }
 
     val mergedProfilerOutputs =
-        (iterationTracePaths.mapIndexed { index, it ->
+        (tracePaths.mapIndexed { index, it ->
                 Profiler.ResultFile.ofPerfettoTrace(
                     label = "Trace Iteration $index",
-                    absolutePath = it,
+                    absolutePath = it
                 )
             } + profilerResults)
             .map { BenchmarkData.TestResult.ProfilerOutput(it) }
@@ -370,7 +364,7 @@ private fun macrobenchmark(
             repeatIterations = iterations,
             thermalThrottleSleepSeconds = 0,
             warmupIterations = warmupIterations,
-            profilerOutputs = mergedProfilerOutputs,
+            profilerOutputs = mergedProfilerOutputs
         )
     ResultWriter.appendTestResult(testResult)
     return testResult
@@ -378,7 +372,7 @@ private fun macrobenchmark(
 
 /** Run a macrobenchmark with the specified StartupMode */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalBenchmarkConfigApi
+@ExperimentalPerfettoCaptureApi
 fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
@@ -387,10 +381,10 @@ fun macrobenchmarkWithStartupMode(
     metrics: List<Metric>,
     compilationMode: CompilationMode,
     iterations: Int,
-    experimentalConfig: ExperimentalConfig?,
+    perfettoConfig: PerfettoConfig?,
     startupMode: StartupMode?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
-    measureBlock: MacrobenchmarkScope.() -> Unit,
+    measureBlock: MacrobenchmarkScope.() -> Unit
 ): BenchmarkData.TestResult {
     val perfettoSdkConfig =
         if (Arguments.perfettoSdkTracingEnable && Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -401,7 +395,7 @@ fun macrobenchmarkWithStartupMode(
                     StartupMode.COLD -> InitialProcessState.NotAlive
                     StartupMode.HOT,
                     StartupMode.WARM -> InitialProcessState.Alive
-                },
+                }
             )
         } else null
     return macrobenchmark(
@@ -413,7 +407,7 @@ fun macrobenchmarkWithStartupMode(
         compilationMode = compilationMode,
         iterations = iterations,
         startupModeMetricHint = startupMode,
-        experimentalConfig = experimentalConfig,
+        perfettoConfig = perfettoConfig,
         perfettoSdkConfig = perfettoSdkConfig,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {
@@ -452,6 +446,6 @@ fun macrobenchmarkWithStartupMode(
         },
         // Don't reuse activities by default in COLD / WARM
         launchWithClearTask = startupMode == StartupMode.COLD || startupMode == StartupMode.WARM,
-        measureBlock = measureBlock,
+        measureBlock = measureBlock
     )
 }

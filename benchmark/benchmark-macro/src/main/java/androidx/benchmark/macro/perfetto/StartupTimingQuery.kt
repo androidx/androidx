@@ -18,12 +18,14 @@ package androidx.benchmark.macro.perfetto
 
 import android.util.Log
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.traceprocessor.Slice
-import androidx.benchmark.traceprocessor.TraceProcessor
-import androidx.benchmark.traceprocessor.processNameLikePkg
-import androidx.benchmark.traceprocessor.toSlices
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
+import androidx.benchmark.perfetto.processNameLikePkg
+import androidx.benchmark.perfetto.toSlices
+import org.intellij.lang.annotations.Language
 
 internal object StartupTimingQuery {
+    @Language("sql")
     private fun getFullQuery(targetPackageName: String) =
         """
         ------ Select all startup-relevant slices from slice table
@@ -72,18 +74,18 @@ internal object StartupTimingQuery {
         ReportFullyDrawn,
         FrameUiThread,
         FrameRenderThread,
-        ActivityResume,
+        ActivityResume
     }
 
     data class SubMetrics(
         val timeToInitialDisplayNs: Long,
         val timeToFullDisplayNs: Long?,
-        val timelineRangeNs: LongRange,
+        val timelineRangeNs: LongRange
     ) {
         constructor(
             startTs: Long,
             initialDisplayTs: Long,
-            fullDisplayTs: Long?,
+            fullDisplayTs: Long?
         ) : this(
             timeToInitialDisplayNs = initialDisplayTs - startTs,
             timeToFullDisplayNs = fullDisplayTs?.let { it - startTs },
@@ -95,7 +97,7 @@ internal object StartupTimingQuery {
         uiSlices: List<Slice>,
         rtSlices: List<Slice>,
         predicateErrorLabel: String,
-        predicate: (Slice) -> Boolean,
+        predicate: (Slice) -> Boolean
     ): Long {
         // find first UI slice that corresponds with the predicate
         val uiSlice = uiSlices.firstOrNull(predicate)
@@ -113,10 +115,10 @@ internal object StartupTimingQuery {
     }
 
     fun getFrameSubMetrics(
-        session: TraceProcessor.Session,
+        session: PerfettoTraceProcessor.Session,
         captureApiLevel: Int,
         targetPackageName: String,
-        startupMode: StartupMode,
+        startupMode: StartupMode
     ): SubMetrics? {
         val queryResultIterator =
             session.query(query = getFullQuery(targetPackageName = targetPackageName))
@@ -174,7 +176,7 @@ internal object StartupTimingQuery {
                                 Log.w(
                                     "Benchmark",
                                     "No launchObserverNotifyIntentStarted slice seen before launching: " +
-                                        "slice, not reporting startup.",
+                                        "slice, not reporting startup."
                                 )
                                 return null
                             }
@@ -191,7 +193,7 @@ internal object StartupTimingQuery {
                 findEndRenderTimeForUiFrame(
                     uiSlices = uiSlices,
                     rtSlices = rtSlices,
-                    predicateErrorLabel = "after launching slice",
+                    predicateErrorLabel = "after launching slice"
                 ) { uiSlice ->
                     uiSlice.ts > launchingSlice.ts
                 }
@@ -208,7 +210,7 @@ internal object StartupTimingQuery {
                 findEndRenderTimeForUiFrame(
                     uiSlices = uiSlices,
                     rtSlices = rtSlices,
-                    predicateErrorLabel = "after activityResume",
+                    predicateErrorLabel = "after activityResume"
                 ) { uiSlice ->
                     uiSlice.ts > startTs
                 }
@@ -223,7 +225,7 @@ internal object StartupTimingQuery {
                 findEndRenderTimeForUiFrame(
                     uiSlices = uiSlices,
                     rtSlices = rtSlices,
-                    predicateErrorLabel = "ends after reportFullyDrawn",
+                    predicateErrorLabel = "ends after reportFullyDrawn"
                 ) { uiSlice ->
                     uiSlice.endTs > reportFullyDrawnSlice.ts
                 }

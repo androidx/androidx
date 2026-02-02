@@ -19,10 +19,8 @@ import androidx.annotation.RestrictTo
 import androidx.glance.GlanceModifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class SemanticsModifier(val configuration: SemanticsConfiguration) :
-    GlanceModifier.Element
+data class SemanticsModifier(val configuration: SemanticsConfiguration) : GlanceModifier.Element
 
 /** Add semantics for use in testing, accessibility and similar use cases. */
-public fun GlanceModifier.semantics(
-    properties: (SemanticsPropertyReceiver.() -> Unit)
-): GlanceModifier = this.then(SemanticsModifier(SemanticsConfiguration().also { it.properties() }))
+fun GlanceModifier.semantics(properties: (SemanticsPropertyReceiver.() -> Unit)): GlanceModifier =
+    this.then(SemanticsModifier(SemanticsConfiguration().also { it.properties() }))

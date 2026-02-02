@@ -16,7 +16,7 @@
 
 package androidx.inspection;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * This interface provides inspector specific utilities, such as
@@ -28,12 +28,14 @@ public interface InspectorEnvironment {
      * Executors provided by App Inspection Platforms. Clients should use it instead of
      * creating their own.
      */
-    default @NonNull InspectorExecutors executors() {
+    @NonNull
+    default InspectorExecutors executors() {
         throw new UnsupportedOperationException();
     }
 
     /**
      * Interface that provides ART TI capabilities.
      */
-    @NonNull ArtTooling artTooling();
+    @NonNull
+    ArtTooling artTooling();
 }

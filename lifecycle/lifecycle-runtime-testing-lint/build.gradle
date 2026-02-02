@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -35,11 +35,12 @@ dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
     // Needed for Compose lint util functions
-    bundleInside(project(":compose:lint:common"))
+    bundleInside(projectOrArtifact(":compose:lint:common"))
 
-    testImplementation(project(":compose:lint:common-test"))
+    testImplementation(projectOrArtifact(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinReflect)
+    testImplementation(libs.kotlinStdlibJdk8)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
     testImplementation(libs.junit)
@@ -47,7 +48,7 @@ dependencies {
 
 androidx {
     name = "Lifecycle Runtime Testing Lint Checks"
-    type = SoftwareType.LINT
+    type = LibraryType.LINT
     inceptionYear = "2023"
     description = "Android Lifecycle Runtime Testing Lint Checks"
 }

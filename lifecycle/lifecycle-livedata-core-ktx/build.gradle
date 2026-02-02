@@ -26,11 +26,12 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     api(project(":lifecycle:lifecycle-livedata-core"))
+    api(libs.kotlinStdlib)
 }
 
 androidx {

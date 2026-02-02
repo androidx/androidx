@@ -16,7 +16,7 @@
 
 package androidx.inspection;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * A class representing a connection between studio and inspectors.
@@ -28,6 +28,6 @@ public abstract class Connection {
      *
      * @param data An array of bytes. Up to inspectors to determine how to encode bytes.
      */
-    public void sendEvent(byte @NonNull [] data) {
+    public void sendEvent(@NonNull byte[] data) {
     }
 }

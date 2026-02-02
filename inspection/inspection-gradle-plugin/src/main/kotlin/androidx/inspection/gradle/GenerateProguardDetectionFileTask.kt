@@ -16,7 +16,6 @@
 
 package androidx.inspection.gradle
 
-import com.android.build.api.variant.Variant
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -32,6 +31,7 @@ import org.gradle.work.DisableCachingByDefault
  * Task purposely empty, unused class that would be removed by proguard. See javadoc below for more
  * information.
  */
+@Suppress("UnstableApiUsage")
 @DisableCachingByDefault(because = "Simply generates a small file and doesn't benefit from caching")
 abstract class GenerateProguardDetectionFileTask : DefaultTask() {
 
@@ -50,12 +50,12 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
             throw GradleException("Failed to create directory $dir")
         }
         val file = File(dir, "ProguardDetection.kt")
-        logger.debug("Generating ProguardDetection in {}", dir)
+        logger.debug("Generating ProguardDetection in $dir")
 
         val text =
             """
             package $packageName;
-
+            
             /**
              * Purposely empty, unused class that would be removed by proguard.
              *
@@ -73,7 +73,11 @@ abstract class GenerateProguardDetectionFileTask : DefaultTask() {
     }
 }
 
-fun Project.registerGenerateProguardDetectionFileTask(variant: Variant) {
+@ExperimentalStdlibApi
+@Suppress("DEPRECATION") // BaseVariant
+fun Project.registerGenerateProguardDetectionFileTask(
+    variant: com.android.build.gradle.api.BaseVariant
+) {
     val outputDir = taskWorkingDir(variant, "generateProguardDetection")
     val taskName = variant.taskName("generateProguardDetection")
     val mavenGroup =
@@ -85,10 +89,7 @@ fun Project.registerGenerateProguardDetectionFileTask(variant: Variant) {
             it.mavenGroup.set(mavenGroup)
             it.mavenArtifactId.set(mavenArtifactId)
         }
-    variant.sources.java!!.addGeneratedSourceDirectory(
-        task,
-        GenerateProguardDetectionFileTask::outputDir,
-    )
+    variant.registerJavaGeneratingTask(task, outputDir)
 }
 
 /**

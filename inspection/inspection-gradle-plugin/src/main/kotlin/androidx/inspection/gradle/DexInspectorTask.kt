@@ -17,10 +17,10 @@
 package androidx.inspection.gradle
 
 import com.android.build.api.artifact.SingleArtifact
-import com.android.build.api.dsl.LibraryExtension
-import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.Variant
+import com.android.build.gradle.BaseExtension
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.nio.charset.Charset
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -32,6 +32,7 @@ import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Classpath
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -43,6 +44,8 @@ import org.gradle.process.ExecOperations
 @CacheableTask
 abstract class DexInspectorTask : DefaultTask() {
     @get:Classpath abstract val d8Executable: ConfigurableFileCollection
+
+    @get:Classpath @get:InputFile abstract val androidJar: RegularFileProperty
 
     @get:Classpath @get:InputFiles abstract val compileClasspath: ConfigurableFileCollection
 
@@ -78,8 +81,14 @@ abstract class DexInspectorTask : DefaultTask() {
                 // More on compileConfiguratioh, see here:
                 // https://docs.gradle.org/current/userguide/java_plugin.html#sec:java_plugin_and_dependency_management
                 val libArgs = compileClasspath.map { listOf("--lib", it.absolutePath) }.flatten()
+                val libSdk = listOf("--lib", androidJar.get().asFile.absolutePath)
                 val minApiArg = listOf("--min-api", "$minSdkVersion")
-                it.args = listOf("--output", output.absolutePath) + libArgs + minApiArg + filesToDex
+                it.args =
+                    listOf("--output", output.absolutePath) +
+                        libArgs +
+                        libSdk +
+                        minApiArg +
+                        filesToDex
                 it.errorOutput = errorStream
                 it.isIgnoreExitValue = true
             }
@@ -93,6 +102,12 @@ abstract class DexInspectorTask : DefaultTask() {
             )
         }
     }
+
+    fun setAndroidJar(sdkDir: File, compileSdk: String) {
+        // Preview SDK compileSdkVersions are prefixed with "android-", e.g. "android-S".
+        val platform = if (compileSdk.startsWith("android")) compileSdk else "android-$compileSdk"
+        androidJar.set(File(sdkDir, "platforms/$platform/android.jar"))
+    }
 }
 
 fun Project.registerUnzipTask(variant: Variant): TaskProvider<Copy> {
@@ -105,38 +120,38 @@ fun Project.registerUnzipTask(variant: Variant): TaskProvider<Copy> {
 
 fun Project.registerBundleInspectorTask(
     variant: Variant,
-    libraryExtension: LibraryExtension,
-    libraryComponentsExtension: LibraryAndroidComponentsExtension,
+    extension: BaseExtension,
     jarName: String?,
-    jar: TaskProvider<out Jar>,
+    jar: TaskProvider<out Jar>
 ): TaskProvider<Zip> {
     val name = jarName ?: "${project.name}.jar"
     val output = taskWorkingDir(variant, "dexedInspector").map { it.file(name) }
+
     val dex =
-        tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) { task ->
-            task.minSdkVersion = libraryExtension.defaultConfig.minSdk!!
-            task.d8Executable.setFrom(
+        tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
+            it.minSdkVersion = extension.defaultConfig.minSdk!!
+            it.d8Executable.setFrom(
                 configurations.detachedConfiguration(
-                    dependencies.create("com.android.tools:r8:8.11.18")
+                    dependencies.create("com.android.tools:r8:8.2.47")
                 )
             )
-            task.jars.from(jar.get().archiveFile)
-            task.outputFile.set(output)
-            task.compileClasspath.from(
-                files(libraryComponentsExtension.sdkComponents.bootClasspath),
+            it.setAndroidJar(extension.sdkDirectory, extension.compileSdkVersion!!)
+            it.jars.from(jar.get().archiveFile)
+            it.outputFile.set(output)
+            it.compileClasspath.from(
                 variant.compileConfiguration.incoming
                     .artifactView {
                         it.attributes {
                             it.attribute(
                                 Attribute.of("artifactType", String::class.java),
-                                "android-classes",
+                                "android-classes"
                             )
                         }
                     }
                     .artifacts
-                    .artifactFiles,
+                    .artifactFiles
             )
-            task.dependsOn(jar)
+            it.dependsOn(jar)
         }
 
     return tasks.register(variant.taskName("assembleInspectorJar"), Zip::class.java) {

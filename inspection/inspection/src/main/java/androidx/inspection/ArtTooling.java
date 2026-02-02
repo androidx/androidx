@@ -16,8 +16,8 @@
 
 package androidx.inspection;
 
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 
@@ -33,7 +33,8 @@ public interface ArtTooling {
      * @param clazz class whose instances should be looked up
      * @return a list of instances of {@code clazz}
      */
-    <T> @NonNull List<T> findInstances(@NonNull Class<T> clazz);
+    @NonNull
+    <T> List<T> findInstances(@NonNull Class<T> clazz);
 
     /**
      * A callback invoked at the entry to an instrumented method.

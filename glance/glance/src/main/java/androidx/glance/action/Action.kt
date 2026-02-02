@@ -27,15 +27,14 @@ import androidx.glance.GlanceModifier
  * performed in response to the action, eg. [actionStartActivity] creates an Action that launches
  * the specified [Activity].
  */
-public interface Action
+interface Action
 
 /**
  * Apply an [Action], to be executed in response to a user click.
  *
  * @param onClick The action to run.
  */
-public fun GlanceModifier.clickable(onClick: Action): GlanceModifier =
-    this.then(ActionModifier(onClick))
+fun GlanceModifier.clickable(onClick: Action): GlanceModifier = this.then(ActionModifier(onClick))
 
 /**
  * Run [block] in response to a user click.
@@ -52,7 +51,7 @@ public fun GlanceModifier.clickable(onClick: Action): GlanceModifier =
  * @param block The action to run.
  */
 @Composable
-public fun GlanceModifier.clickable(block: () -> Unit): GlanceModifier =
+fun GlanceModifier.clickable(block: () -> Unit): GlanceModifier =
     this.then(ActionModifier(action(block = block)))
 
 /**
@@ -72,9 +71,9 @@ public fun GlanceModifier.clickable(block: () -> Unit): GlanceModifier =
  * @param block The action to run.
  */
 @Composable
-public fun GlanceModifier.clickable(
+fun GlanceModifier.clickable(
     @DrawableRes rippleOverride: Int = NoRippleOverride,
-    block: () -> Unit,
+    block: () -> Unit
 ): GlanceModifier =
     this.then(ActionModifier(action = action(block = block), rippleOverride = rippleOverride))
 
@@ -85,9 +84,9 @@ public fun GlanceModifier.clickable(
  *   no custom behavior is needed.
  * @param onClick The action to run.
  */
-public fun GlanceModifier.clickable(
+fun GlanceModifier.clickable(
     onClick: Action,
-    @DrawableRes rippleOverride: Int = NoRippleOverride,
+    @DrawableRes rippleOverride: Int = NoRippleOverride
 ): GlanceModifier = this.then(ActionModifier(action = onClick, rippleOverride = rippleOverride))
 
 /**
@@ -104,18 +103,16 @@ public fun GlanceModifier.clickable(
  *   setting explicit keys for your lambdas, e.g. "incrementCount", "openNewYorkWeather", etc.
  */
 @Composable
-public fun GlanceModifier.clickable(
+fun GlanceModifier.clickable(
     key: String? = null,
     @DrawableRes rippleOverride: Int = NoRippleOverride,
-    block: () -> Unit,
+    block: () -> Unit
 ): GlanceModifier =
     this.then(ActionModifier(action = action(key, block), rippleOverride = rippleOverride))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ActionModifier(
-    public val action: Action,
-    @DrawableRes public val rippleOverride: Int = NoRippleOverride,
-) : GlanceModifier.Element {
+class ActionModifier(val action: Action, @DrawableRes val rippleOverride: Int = NoRippleOverride) :
+    GlanceModifier.Element {
     override fun toString(): String {
         return "ActionModifier(action=$action, rippleOverride=$rippleOverride)"
     }
@@ -125,4 +122,4 @@ public class ActionModifier(
  * Constant. Tells the system that there is no ripple override. When this is passed, the system will
  * use default behavior for the ripple.
  */
-@DrawableRes public const val NoRippleOverride: Int = 0
+@DrawableRes const val NoRippleOverride = 0

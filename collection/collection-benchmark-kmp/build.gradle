@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.Publish
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
 
@@ -71,6 +71,6 @@ benchmark {
 }
 
 androidx {
-    type = SoftwareType.UNSET
+    publish = Publish.NONE
 }
 

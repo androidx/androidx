@@ -45,12 +45,15 @@ class ObsoleteCompatDetectorTest :
         }
     """
                 )
-            ),
+            )
     ) {
 
     @Test
     fun `Obsolete compat method`() {
-        val input = arrayOf(javaSample("androidx.ObsoleteCompatMethod"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ObsoleteCompatMethod"),
+            )
 
         val expected =
             """
@@ -89,7 +92,10 @@ Fix for src/androidx/ObsoleteCompatMethod.java line 38: Replace obsolete compat 
 
     @Test
     fun `Obsolete compat method missing @ReplaceWith`() {
-        val input = arrayOf(javaSample("androidx.ObsoleteCompatMethodMissingReplaceWith"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ObsoleteCompatMethodMissingReplaceWith"),
+            )
 
         val expected =
             """
@@ -115,7 +121,10 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingReplaceWith.java line 32: Re
 
     @Test
     fun `Obsolete compat method missing multi-line @ReplaceWith`() {
-        val input = arrayOf(javaSample("androidx.ObsoleteCompatMethodMissingMultiLineReplaceWith"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ObsoleteCompatMethodMissingMultiLineReplaceWith"),
+            )
 
         val expected =
             """
@@ -141,7 +150,10 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingMultiLineReplaceWith.java li
 
     @Test
     fun `Obsolete compat methods missing @Deprecated`() {
-        val input = arrayOf(javaSample("androidx.ObsoleteCompatMethodMissingDeprecated"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ObsoleteCompatMethodMissingDeprecated"),
+            )
 
         val expected =
             """
@@ -165,7 +177,10 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingDeprecated.java line 37: Rep
 
     @Test
     fun `Obsolete compat methods missing javadoc`() {
-        val input = arrayOf(javaSample("androidx.ObsoleteCompatMethodMissingJavadoc"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ObsoleteCompatMethodMissingJavadoc"),
+            )
 
         val expected =
             """
@@ -195,7 +210,10 @@ Autofix for src/androidx/ObsoleteCompatMethodMissingJavadoc.java line 44: Replac
 
     @Test
     fun `Obsolete compat methods missing Deprecated and javadoc`() {
-        val input = arrayOf(javaSample("androidx.ObsoleteCompatMethodMissingDeprecatedAndJavadoc"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ObsoleteCompatMethodMissingDeprecatedAndJavadoc"),
+            )
 
         val expected =
             """

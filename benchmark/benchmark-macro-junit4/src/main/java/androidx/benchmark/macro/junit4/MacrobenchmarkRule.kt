@@ -16,6 +16,7 @@
 
 package androidx.benchmark.macro.junit4
 
+import android.Manifest
 import androidx.annotation.IntRange
 import androidx.benchmark.Arguments
 import androidx.benchmark.ExperimentalBenchmarkConfigApi
@@ -26,7 +27,9 @@ import androidx.benchmark.macro.Metric
 import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.macrobenchmarkWithStartupMode
 import androidx.benchmark.perfetto.PerfettoConfig
+import androidx.test.rule.GrantPermissionRule
 import org.junit.Assume.assumeTrue
+import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -34,12 +37,31 @@ import org.junit.runners.model.Statement
 /**
  * JUnit rule for benchmarking large app operations like startup, scrolling, or animations.
  *
+ * ```
+ *     @get:Rule
+ *     val benchmarkRule = MacrobenchmarkRule()
+ *
+ *     @Test
+ *     fun startup() = benchmarkRule.measureRepeated(
+ *         packageName = "com.example.my.application.id"
+ *         metrics = listOf(StartupTimingMetric()),
+ *         iterations = 5,
+ *         startupMode = StartupMode.COLD,
+ *         setupBlock = {
+ *           pressHome()
+ *         }
+ *     ) { // this = MacrobenchmarkScope
+ *         val intent = Intent()
+ *         intent.setPackage("mypackage.myapp")
+ *         intent.setAction("mypackage.myapp.myaction")
+ *         startActivityAndWait(intent)
+ *     }
+ * ```
+ *
  * See the [Macrobenchmark Guide](https://developer.android.com/studio/profile/macrobenchmark) for
  * more information on macrobenchmarks.
- *
- * @sample androidx.benchmark.samples.macrobenchmarkRuleSample
  */
-class MacrobenchmarkRule : TestRule {
+public class MacrobenchmarkRule : TestRule {
     private lateinit var currentDescription: Description
 
     /**
@@ -82,7 +104,7 @@ class MacrobenchmarkRule : TestRule {
         startupMode: StartupMode? = null,
         @IntRange(from = 1) iterations: Int,
         setupBlock: MacrobenchmarkScope.() -> Unit = {},
-        measureBlock: MacrobenchmarkScope.() -> Unit,
+        measureBlock: MacrobenchmarkScope.() -> Unit
     ) {
         macrobenchmarkWithStartupMode(
             uniqueName = currentDescription.toUniqueName(),
@@ -93,9 +115,9 @@ class MacrobenchmarkRule : TestRule {
             compilationMode = compilationMode,
             iterations = iterations,
             startupMode = startupMode,
-            experimentalConfig = null,
+            perfettoConfig = null,
             setupBlock = setupBlock,
-            measureBlock = measureBlock,
+            measureBlock = measureBlock
         )
     }
 
@@ -161,10 +183,10 @@ class MacrobenchmarkRule : TestRule {
             metrics = metrics,
             compilationMode = compilationMode,
             iterations = iterations,
-            experimentalConfig = experimentalConfig,
+            perfettoConfig = experimentalConfig.perfettoConfig,
             startupMode = startupMode,
             setupBlock = setupBlock,
-            measureBlock = measureBlock,
+            measureBlock = measureBlock
         )
     }
 
@@ -177,7 +199,7 @@ class MacrobenchmarkRule : TestRule {
                 "measureRepeated(packageName, metrics, iterations,experimentalConfig, " +
                     "compilationMode, startupMode, setupBlock, measureBlock)"
             ),
-        level = DeprecationLevel.WARNING,
+        level = DeprecationLevel.WARNING
     )
     /**
      * @param perfettoConfig Configuration for Perfetto trace capture during each iteration. Note
@@ -201,10 +223,19 @@ class MacrobenchmarkRule : TestRule {
             compilationMode,
             startupMode,
             setupBlock,
-            measureBlock,
+            measureBlock
         )
 
-    override fun apply(base: Statement, description: Description): Statement =
+    override fun apply(base: Statement, description: Description): Statement {
+        // Grant external storage, as it may be needed for test output directory.
+        return RuleChain.outerRule(
+                GrantPermissionRule.grant(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            )
+            .around(::applyInternal)
+            .apply(base, description)
+    }
+
+    private fun applyInternal(base: Statement, description: Description) =
         object : Statement() {
             override fun evaluate() {
                 assumeTrue(Arguments.RuleType.Macrobenchmark in Arguments.enabledRules)

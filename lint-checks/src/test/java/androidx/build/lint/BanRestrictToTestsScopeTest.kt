@@ -32,7 +32,10 @@ class BanRestrictToTestsScopeTest :
 
     @Test
     fun `Detection of @RestrictTo(TESTS) usage in Java sources`() {
-        val input = arrayOf(javaSample("androidx.RestrictToTestsAnnotationUsageJava"))
+        val input =
+            arrayOf(
+                javaSample("androidx.RestrictToTestsAnnotationUsageJava"),
+            )
 
         val expected =
             """
@@ -81,7 +84,10 @@ Fix for src/androidx/RestrictToTestsAnnotationUsageJava.java line 35: Replace wi
 
     @Test
     fun `Detection of @RestrictTo(TESTS) usage in Kotlin sources`() {
-        val input = arrayOf(ktSample("androidx.RestrictToTestsAnnotationUsageKotlin"))
+        val input =
+            arrayOf(
+                ktSample("androidx.RestrictToTestsAnnotationUsageKotlin"),
+            )
 
         val expected =
             """

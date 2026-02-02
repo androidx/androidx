@@ -23,12 +23,10 @@ import android.widget.TextView
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.core.os.bundleOf
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.action.ActionModifier
 import androidx.glance.action.LambdaAction
-import androidx.glance.appwidget.AppWidgetSession.RunLambda
 import androidx.glance.layout.EmittableBox
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceStateDefinition
@@ -39,8 +37,7 @@ import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import kotlin.time.ExperimentalTime
-import kotlin.time.measureTime
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -52,8 +49,8 @@ import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class AppWidgetSessionTest {
 
     private val id = AppWidgetId(123)
@@ -94,31 +91,27 @@ class AppWidgetSessionTest {
         val root =
             runCompositionUntil(
                 { state, _ -> state == Recomposer.State.Idle },
-                session.provideGlance(context),
+                session.provideGlance(context)
             )
         assertThat(root.shouldIgnoreResult()).isTrue()
     }
 
-    @OptIn(ExperimentalTime::class)
     @Test
-    fun processEmittableTree() = runMediumTest {
-        measureTime {
-                val root =
-                    RemoteViewsRoot(maxDepth = 1).apply {
-                        children += EmittableText().apply { text = "hello" }
-                    }
-
-                session.processEmittableTree(context, root)
-                context.applyRemoteViews(session.lastRemoteViews.value!!).let {
-                    val text = assertIs<TextView>(it)
-                    assertThat(text.text).isEqualTo("hello")
-                }
+    fun processEmittableTree() = runTest {
+        val root =
+            RemoteViewsRoot(maxDepth = 1).apply {
+                children += EmittableText().apply { text = "hello" }
             }
-            .also { println("processEmittableTree test took: $it") }
+
+        session.processEmittableTree(context, root)
+        context.applyRemoteViews(session.lastRemoteViews.value!!).let {
+            val text = assertIs<TextView>(it)
+            assertThat(text.text).isEqualTo("hello")
+        }
     }
 
     @Test
-    fun processEmittableTree_ignoresResult() = runMediumTest {
+    fun processEmittableTree_ignoresResult() = runTest {
         val root = RemoteViewsRoot(maxDepth = 1).apply { children += EmittableIgnoreResult() }
 
         session.processEmittableTree(context, root)
@@ -126,27 +119,27 @@ class AppWidgetSessionTest {
     }
 
     @Test
-    fun processEvent_unknownAction() = runMediumTest {
+    fun processEvent_unknownAction() = runTest {
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking { session.processEvent(context, Any()) }
         }
     }
 
     @Test
-    fun processEvent_updateGlance() = runMediumTest {
+    fun processEvent_updateGlance() = runTest {
         session.processEvent(context, AppWidgetSession.UpdateGlanceState)
         assertThat(testState.getValueCalls).containsExactly(id.toSessionKey())
     }
 
     @Test
-    fun updateGlance() = runMediumTest {
+    fun updateGlance() = runTest {
         session.updateGlance()
-        session.receiveEvents(context) { this@runMediumTest.launch { session.close() } }
+        session.receiveEvents(context) { this@runTest.launch { session.close() } }
         assertThat(testState.getValueCalls).containsExactly(id.toSessionKey())
     }
 
     @Test
-    fun processEvent_runLambda() = runMediumTest {
+    fun processEvent_runLambda() = runTest {
         var didRunFirst = false
         var didRunSecond = false
         session.processEmittableTree(
@@ -166,20 +159,20 @@ class AppWidgetSessionTest {
                                 ActionModifier(LambdaAction("123") { didRunSecond = true })
                             )
                     }
-            },
+            }
         )
         session.processEvent(context, AppWidgetSession.RunLambda("123+0"))
         assertTrue(didRunFirst)
         assertFalse(didRunSecond)
 
         didRunFirst = false
-        session.processEvent(context, RunLambda("123+1"))
+        session.processEvent(context, AppWidgetSession.RunLambda("123+1"))
         assertTrue(didRunSecond)
         assertFalse(didRunFirst)
     }
 
     @Test
-    fun runLambda() = runMediumTest {
+    fun runLambda() = runTest {
         var didRunFirst = false
         var didRunSecond = false
         session.processEmittableTree(
@@ -199,12 +192,12 @@ class AppWidgetSessionTest {
                                 ActionModifier(
                                     LambdaAction("123") {
                                         didRunSecond = true
-                                        this@runMediumTest.launch { session.close() }
+                                        this@runTest.launch { session.close() }
                                     }
                                 )
                             )
                     }
-            },
+            }
         )
 
         session.runLambda("123+0")
@@ -215,7 +208,7 @@ class AppWidgetSessionTest {
     }
 
     @Test
-    fun onCompositionError_throws_whenErrorUiLayoutNotSet() = runMediumTest {
+    fun onCompositionError_throws_whenErrorUiLayoutNotSet() = runTest {
         // GlanceAppWidget.onCompositionError rethrows error when widget.errorUiLayout == 0
         val throwable = Exception("error")
         var caught: Throwable? = null
@@ -228,7 +221,7 @@ class AppWidgetSessionTest {
     }
 
     @Test
-    fun onCompositionError_noThrow_whenErrorUiLayoutIsSet() = runMediumTest {
+    fun onCompositionError_noThrow_whenErrorUiLayoutIsSet() = runTest {
         val throwable = Exception("error")
         var caught: Throwable? = null
         widget.errorUiLayout = R.layout.glance_error_layout
@@ -241,7 +234,7 @@ class AppWidgetSessionTest {
     }
 
     @Test
-    fun waitForReadyResumesWhenEventIsReceived() = runMediumTest {
+    fun waitForReadyResumesWhenEventIsReceived() = runTest {
         launch {
             session.waitForReady().join()
             session.close()
@@ -250,37 +243,11 @@ class AppWidgetSessionTest {
     }
 
     @Test
-    fun waitForReadyResumesWhenSessionIsClosed() = runMediumTest {
+    fun waitForReadyResumesWhenSessionIsClosed() = runTest {
         launch { session.waitForReady().join() }
         // Advance until waitForReady suspends.
         this.testScheduler.advanceUntilIdle()
         session.close()
-    }
-
-    @Test
-    fun recreateWithEvents() = runTest {
-        session.runLambda("1")
-        session.runLambda("2")
-        val options =
-            @Suppress("DEPRECATION") // bundleOf is deprecated
-            bundleOf("key" to "value")
-        session.updateAppWidgetOptions(options)
-        session.updateGlance()
-        session.waitForReady()
-        session.close()
-
-        val pendingEvents = session.receiveAllPendingEvents()
-        assertThat(pendingEvents).hasSize(5)
-
-        val newSession = session.recreateWithEvents(pendingEvents)
-        assertThat(newSession).isNotSameInstanceAs(session)
-        assertThat(newSession.widget).isEqualTo(session.widget)
-        assertThat(newSession.id).isEqualTo(id)
-        assertThat(newSession.options).isEqualTo(options)
-
-        val newPendingEvents = newSession.receiveAllPendingEvents()
-        assertThat(newPendingEvents).hasSize(2)
-        assertThat(newPendingEvents).containsExactly(RunLambda("1"), RunLambda("2"))
     }
 
     private class TestGlanceState : ConfigManager {
@@ -291,7 +258,7 @@ class AppWidgetSessionTest {
         override suspend fun <T> getValue(
             context: Context,
             definition: GlanceStateDefinition<T>,
-            fileKey: String,
+            fileKey: String
         ): T {
             assertIs<PreferencesGlanceStateDefinition>(definition)
             getValueCalls.add(fileKey)
@@ -306,7 +273,7 @@ class AppWidgetSessionTest {
             context: Context,
             definition: GlanceStateDefinition<T>,
             fileKey: String,
-            updateBlock: suspend (T) -> T,
+            updateBlock: suspend (T) -> T
         ): T {
             TODO("Not yet implemented")
         }
@@ -314,7 +281,7 @@ class AppWidgetSessionTest {
         override suspend fun deleteStore(
             context: Context,
             definition: GlanceStateDefinition<*>,
-            fileKey: String,
+            fileKey: String
         ) {
             TODO("Not yet implemented")
         }

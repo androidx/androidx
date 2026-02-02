@@ -14,25 +14,19 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
 
+    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
 
@@ -43,12 +37,11 @@ dependencies {
 
 androidx {
     name = "Compose Material 3 Window Size Class Samples"
-    type = SoftwareType.SAMPLES
+    type = LibraryType.SAMPLES
     inceptionYear = "2022"
     description = "Contains the sample code for the Material 3 Window Size Class APIs"
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.compose.material3.windowsizeclass.samples"
+    namespace "androidx.compose.material3.windowsizeclass.samples"
 }

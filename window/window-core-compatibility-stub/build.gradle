@@ -14,29 +14,50 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
+
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.SoftwareType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("JetBrainsAndroidXPlugin")
 }
 
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
+
 androidXMultiplatform {
     desktop()
-    androidLibrary {
-        namespace = "org.jetbrains.window.core"
-    }
+    android()
     mac()
     linux()
     ios()
-    watchos()
-    tvos()
-    mingwX64()
     js()
-    wasmJs()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    watchosArm64()
+    watchosArm32()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    mingwX64()
 
     sourceSets {
         commonMain {
@@ -48,9 +69,19 @@ androidXMultiplatform {
     }
 }
 
+android {
+    namespace "androidx.window.core"
+}
+
 androidx {
     name = "WindowManager Core"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "WindowManager Core Library."
+    legacyDisableKotlinStrictApiMode = true
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 }

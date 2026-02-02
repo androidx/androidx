@@ -2,7 +2,6 @@
 
 # Custom JNI registration, so entire class must be kept
 -keepclasseswithmembers class androidx.benchmark.BlackHole { *; }
--keepclasseswithmembers class androidx.benchmark.CpuCounterJni { *; }
 
 # basic protection against junit/androidx.test reflection, shouldn't affect library/test code
 -keepclasseswithmembers class androidx.test.** { *; }
@@ -15,10 +14,7 @@
 -keepclasseswithmembers @org.junit.runner.RunWith class * { *; }
 
 ## needed for org.junit.Test annotation to be discoverable by reflection
--keepattributes AnnotationDefault,
-                RuntimeVisibleAnnotations,
-                RuntimeVisibleParameterAnnotations,
-                RuntimeVisibleTypeAnnotations
+-keepattributes *Annotation*
 
 ## needed for listeners instantiated by reflection (e.g. InstrumentationResultsRunListener)
 -keepclasseswithmembers class * extends androidx.test.internal.runner.listener.InstrumentationRunListener { *; }

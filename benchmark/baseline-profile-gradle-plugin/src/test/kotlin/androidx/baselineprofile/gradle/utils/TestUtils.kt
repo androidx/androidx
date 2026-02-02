@@ -18,8 +18,6 @@ package androidx.baselineprofile.gradle.utils
 
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
-import java.io.File
-import kotlin.io.path.Path
 import org.gradle.testkit.runner.GradleRunner
 
 internal val GRADLE_CODE_PRINT_TASK =
@@ -55,21 +53,21 @@ internal fun GradleRunner.buildAndFail(vararg arguments: String, block: (String)
 
 internal fun GradleRunner.buildAndAssertThatOutput(
     vararg arguments: String,
-    assertBlock: StringSubject.() -> (Unit),
+    assertBlock: StringSubject.() -> (Unit)
 ) {
     this.build(*arguments) { assertBlock(assertThat(it)) }
 }
 
 internal fun GradleRunner.buildAndFailAndAssertThatOutput(
     vararg arguments: String,
-    assertBlock: StringSubject.() -> (Unit),
+    assertBlock: StringSubject.() -> (Unit)
 ) {
     this.buildAndFail(*arguments) { assertBlock(assertThat(it)) }
 }
 
 internal fun List<String>.requireInOrder(
     vararg toFind: String,
-    predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) },
+    predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.startsWith(nextToFind) }
 ): List<String> {
     var remaining = toFind.filter { it.isNotBlank() }.toMutableList()
     for (line in this) {
@@ -112,5 +110,3 @@ fun camelCase(vararg strings: String): String {
         }
         .toString()
 }
-
-fun File.toUri() = Path(canonicalPath).toUri()

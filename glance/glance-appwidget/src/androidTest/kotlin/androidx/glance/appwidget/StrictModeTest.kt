@@ -23,6 +23,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.glance.Button
 import androidx.glance.GlanceModifier
 import androidx.glance.action.actionParametersOf
@@ -47,6 +48,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+@RequiresApi(Build.VERSION_CODES.S)
 class StrictModeTest {
     @get:Rule val mHostRule = AppWidgetHostRule()
 
@@ -66,7 +68,7 @@ class StrictModeTest {
                     Log.e(
                         "StrictModeTest",
                         "Stack trace: ${Arrays.toString(it.stackTrace)}",
-                        it.cause,
+                        it.cause
                     )
                     Log.e("StrictModeTest", "${it.cause}", it.cause)
                     fail("Received violation: $it")
@@ -92,7 +94,7 @@ class StrictModeTest {
                             actionRunCallback<CallbackTest>(
                                 actionParametersOf(CallbackTest.key to 1)
                             )
-                        ),
+                        )
                 )
                 Text(
                     "text2",
@@ -101,7 +103,7 @@ class StrictModeTest {
                             actionRunCallback<CallbackTest>(
                                 actionParametersOf(CallbackTest.key to 2)
                             )
-                        ),
+                        )
                 )
             }
         }
@@ -127,7 +129,7 @@ class StrictModeTest {
     @Test
     @SdkSuppress(
         minSdkVersion = Build.VERSION_CODES.S,
-        maxSdkVersion = Build.VERSION_CODES.TIRAMISU,
+        maxSdkVersion = Build.VERSION_CODES.TIRAMISU
     )
     fun lazyColumn_actionRunCallback() {
         TestGlanceAppWidget.uiDefinition = {
@@ -140,14 +142,14 @@ class StrictModeTest {
                                 actionRunCallback<CallbackTest>(
                                     actionParametersOf(CallbackTest.key to 1)
                                 )
-                            ),
+                            )
                     )
                     Button(
                         "Button",
                         onClick =
                             actionRunCallback<CallbackTest>(
                                 actionParametersOf(CallbackTest.key to 2)
-                            ),
+                            )
                     )
                 }
             }

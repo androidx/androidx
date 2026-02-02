@@ -48,7 +48,7 @@ class BanConcurrentHashMapTest :
                     }
                 }
             """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -60,9 +60,7 @@ import java.util.concurrent.ConcurrentHashMap;
         """
                 .trimIndent()
 
-        // Skip FULLY_QUALIFIED mode -- this test specifically deals with importing the class, and
-        // FULLY_QUALIFIED removes the import. Usages of the fully qualified type are tested below.
-        lint().files(input).skipTestModes(TestMode.FULLY_QUALIFIED).run().expect(expected)
+        check(input).expect(expected)
     }
 
     @Test
@@ -82,7 +80,7 @@ import java.util.concurrent.ConcurrentHashMap;
                     }
                 }
             """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -118,7 +116,7 @@ src/androidx/ConcurrentHashMapUsageJava.java:8: Error: Detected ConcurrentHashMa
                     }
                 }
             """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -156,7 +154,7 @@ import java.util.concurrent.ConcurrentHashMap
                     }
                 }
             """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =
@@ -192,7 +190,7 @@ src/androidx/ConcurrentHashMapUsageKotlin.kt:7: Error: Detected ConcurrentHashMa
                     }
                 }
             """
-                    .trimIndent(),
+                    .trimIndent()
             )
 
         val expected =

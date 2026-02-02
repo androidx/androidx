@@ -37,7 +37,6 @@ import org.robolectric.RobolectricTestRunner
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
-@org.robolectric.annotation.Config(sdk = [org.robolectric.annotation.Config.TARGET_SDK])
 class GlanceWearTilesStateTest {
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
@@ -48,7 +47,7 @@ class GlanceWearTilesStateTest {
             GlanceState.deleteStore(
                 context,
                 PreferencesGlanceStateDefinition,
-                wearTileId.tileServiceClass.name,
+                wearTileId.tileServiceClass.name
             )
         }
     }

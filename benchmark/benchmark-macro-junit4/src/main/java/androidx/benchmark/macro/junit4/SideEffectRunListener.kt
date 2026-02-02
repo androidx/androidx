@@ -30,7 +30,13 @@ import org.junit.runner.notification.RunListener
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class SideEffectRunListener : RunListener() {
     private val delegate: RunListenerDelegate =
-        RunListenerDelegate(sideEffects = listOf(DisablePackages(), DisableDexOpt()))
+        RunListenerDelegate(
+            sideEffects =
+                listOf(
+                    DisablePackages(),
+                    DisableDexOpt(),
+                )
+        )
 
     override fun testRunStarted(description: Description) {
         super.testRunStarted(description)

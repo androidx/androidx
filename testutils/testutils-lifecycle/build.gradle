@@ -22,54 +22,87 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
+    id("JetBrainsAndroidXPlugin")
 }
 
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
+
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.testutils.lifecycle"
-    }
+    android()
     desktop()
     mac()
     linux()
-    mingwX64()
     ios()
-    watchos()
-    tvos()
-    mingwX64()
     js()
-    wasmJs()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
+}
+
+kotlin {
+    js {
+        browser()
+    }
+    wasmJs()
+
+    watchosArm64()
+    watchosArm32()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    mingwX64()
+
+    explicitApi = ExplicitApiMode.Strict
 
     sourceSets {
-        commonMain.dependencies {
-            api(project(":lifecycle:lifecycle-runtime"))
-            api("androidx.annotation:annotation:1.9.1")
+        commonMain {
+            dependencies {
+                api(project(":lifecycle:lifecycle-runtime"))
+                api(project(":annotation:annotation"))
 
-            api(libs.kotlinCoroutinesCore)
-            api(libs.kotlinCoroutinesTest)
-        }
-
-        androidMain.dependencies {
-            api(libs.testRules)
-            implementation(libs.testExtJunit)
-            implementation(libs.testCore)
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api(libs.kotlinCoroutinesTest)
+            }
         }
 
         jvmMain.dependsOn(commonMain)
-        jvmTest.dependsOn(commonTest)
+
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(libs.testRules)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+            }
+        }
+
         desktopMain.dependsOn(jvmMain)
-        desktopTest.dependsOn(jvmTest)
+        nativeMain.dependsOn(commonMain)
+        webMain.dependsOn(commonMain)
+        jsMain.dependsOn(webMain)
+        wasmJsMain.dependsOn(webMain)
+
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+            }
+        }
     }
 }
 
+android {
+    namespace "androidx.testutils.lifecycle"
+}
 
 androidx {
-    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

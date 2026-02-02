@@ -21,12 +21,14 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation(project(":lifecycle:lifecycle-runtime-ktx"))
-    implementation("androidx.activity:activity:1.2.0")
+    implementation("androidx.activity:activity:1.2.0") {
+        exclude group: "androidx.lifecycle"
+    }
     implementation(project(":lifecycle:lifecycle-viewmodel-savedstate")) {
         because "Used by :activity:activity"
     }
@@ -48,12 +50,12 @@ dependencies {
 }
 
 android {
-    sourceSets {
-        def testDir = "src/test-common/java"
-        test.java.directories.add(testDir)
-        test.kotlin.directories.add(testDir)
-        androidTest.java.directories.add(testDir)
-        androidTest.kotlin.directories.add(testDir)
+    kotlinOptions {
+        jvmTarget = "1.8" // necessary to use espresso kotlin extensions
     }
-    namespace = "androidx.lifecycle.kotlintestapp"
+    sourceSets {
+        test.java.srcDirs += "src/test-common/java"
+        androidTest.java.srcDirs += "src/test-common/java"
+    }
+    namespace "androidx.lifecycle.kotlintestapp"
 }

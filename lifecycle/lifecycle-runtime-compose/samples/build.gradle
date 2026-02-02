@@ -28,13 +28,14 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(project(":lifecycle:lifecycle-runtime-compose"))
+    implementation(libs.kotlinStdlib)
+    implementation projectOrArtifact(":lifecycle:lifecycle-runtime-compose")
     implementation "androidx.compose.material:material:1.0.1"
 }
 
@@ -46,6 +47,5 @@ androidx {
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.lifecycle.runtime.compose.samples"
+    namespace "androidx.lifecycle.runtime.compose.samples"
 }

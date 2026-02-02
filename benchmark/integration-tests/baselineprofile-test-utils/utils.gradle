@@ -80,7 +80,10 @@ def registerAssertTask(
             .projectDirectory
             .file("src/$variantName/$expectedBaselineProfileSubDir/${expectedFilename}.txt")
 
-    def genTaskName = camelCase("generate", variantName, "baselineProfile")
+    // If there is no expected file then skip testing this variant.
+    if (!expectedFile.asFile.exists()) {
+        return
+    }
 
     def taskProvider = project.tasks.register(
             camelCase("test", variantName, "${taskName}Generation"),
@@ -93,12 +96,11 @@ def registerAssertTask(
                 .file("src/$variantName/$expectedBaselineProfileSubDir/${filename}.txt")
                 .getAsFile()
                 .absolutePath)
-        // If there is no expected file then skip testing this variant.
-        it.onlyIf { expectedFile.asFile.exists() }
 
         // Depend on the main profile generation task
-        it.dependsOn(tasks.matching { it.name == genTaskName })
+        it.dependsOn(tasks.named(camelCase("generate", variantName, "baselineProfile")))
     }
+
     testTaskProviders.add(taskProvider)
 }
 

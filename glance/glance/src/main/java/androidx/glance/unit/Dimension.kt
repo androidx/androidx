@@ -26,15 +26,14 @@ import androidx.annotation.RestrictTo
  * rather than this class directly.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public sealed class Dimension {
-    public class Dp(public val dp: androidx.compose.ui.unit.Dp) : Dimension()
+sealed class Dimension {
+    class Dp(val dp: androidx.compose.ui.unit.Dp) : Dimension()
 
-    public object Wrap : Dimension()
+    object Wrap : Dimension()
 
-    public object Fill : Dimension()
+    object Fill : Dimension()
 
-    /** represents defaultWeight() */
-    public object Expand : Dimension()
+    object Expand : Dimension()
 
-    public class Resource(@DimenRes public val res: Int) : Dimension()
+    class Resource(@DimenRes val res: Int) : Dimension()
 }

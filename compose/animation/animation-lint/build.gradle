@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -45,8 +45,8 @@ dependencies {
 }
 
 androidx {
-    name = "Compose Animation Lint Checks"
-    type = SoftwareType.STANDALONE_PUBLISHED_LINT
+    name = "Compose Animation Core Lint Checks"
+    type = LibraryType.LINT
     inceptionYear = "2021"
-    description = "Compose Animation Lint Checks"
+    description = "Compose Animation Core Lint Checks"
 }

@@ -31,13 +31,17 @@ class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_D
     }
 
     override fun setup() {
-        Log.d(BenchmarkState.TAG, "Disabling packages $packages")
-        Shell.disablePackages(packages)
+        if (Build.VERSION.SDK_INT >= 21) {
+            Log.d(BenchmarkState.TAG, "Disabling packages $packages")
+            Shell.disablePackages(packages)
+        }
     }
 
     override fun tearDown() {
-        Log.d(BenchmarkState.TAG, "Re-enabling packages $packages")
-        Shell.enablePackages(packages)
+        if (Build.VERSION.SDK_INT >= 21) {
+            Log.d(BenchmarkState.TAG, "Re-enabling packages $packages")
+            Shell.enablePackages(packages)
+        }
     }
 
     companion object {
@@ -86,7 +90,7 @@ class DisablePackages(private val packages: List<String> = DEFAULT_PACKAGES_TO_D
                 "com.google.android.tts",
                 "com.google.android.videos",
                 "com.google.android.volta",
-                "com.google.android.youtube",
+                "com.google.android.youtube"
             )
     }
 }

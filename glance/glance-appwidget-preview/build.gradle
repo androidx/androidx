@@ -21,17 +21,19 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
 
 dependencies {
 
+    api(libs.kotlinStdlib)
+    api(libs.kotlinReflect)
     api(libs.kotlinCoroutinesAndroid)
 
     implementation("androidx.core:core:1.1.0")
@@ -48,14 +50,15 @@ dependencies {
 }
 
 android {
-    namespace = "androidx.glance.appwidget.preview"
-    compileSdk = 35
+    namespace "androidx.glance.appwidget.preview"
 }
 
 androidx {
     name = "Glance AppWidget Preview"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Glance tooling library. This library provides the API required for the " +
             "GlanceAppWidget components and its Glance @Composable to be previewable in the IDE."
+    metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

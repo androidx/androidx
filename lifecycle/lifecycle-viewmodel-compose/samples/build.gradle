@@ -29,11 +29,12 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
+    implementation(libs.kotlinStdlib)
     implementation(project(":lifecycle:lifecycle-common-java8"))
     implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
     implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))

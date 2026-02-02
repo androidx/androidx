@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -40,7 +33,7 @@ dependencies {
 
 androidx {
     name = "Compose Testing Manifest lint checks"
-    type = SoftwareType.STANDALONE_PUBLISHED_LINT
+    type = LibraryType.LINT
     inceptionYear = "2022"
     description = "Lint checks for Android Test Manifest"
 }

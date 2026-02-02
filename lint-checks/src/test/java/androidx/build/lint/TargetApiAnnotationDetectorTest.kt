@@ -31,7 +31,10 @@ class TargetApiAnnotationDetectorTest :
 
     @Test
     fun `Detection of TargetApi usage in Java sources`() {
-        val input = arrayOf(javaSample("androidx.TargetApiUsageJava"))
+        val input =
+            arrayOf(
+                javaSample("androidx.TargetApiUsageJava"),
+            )
 
         val expected =
             """
@@ -50,7 +53,10 @@ src/androidx/TargetApiUsageJava.java:25: Error: Use @RequiresApi instead of @Tar
 
     @Test
     fun `Detection of TargetApi usage in Kotlin sources`() {
-        val input = arrayOf(ktSample("androidx.TargetApiUsageKotlin"))
+        val input =
+            arrayOf(
+                ktSample("androidx.TargetApiUsageKotlin"),
+            )
 
         val expected =
             """

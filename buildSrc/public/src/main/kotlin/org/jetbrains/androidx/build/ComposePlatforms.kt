@@ -14,7 +14,8 @@ import org.gradle.api.Project
 enum class ComposePlatforms(vararg val alternativeNames: String) {
     KotlinMultiplatform("Common", "Metadata"),
     Desktop("Jvm"),
-    Android("Android"),
+    AndroidDebug("Android"),
+    AndroidRelease("Android"),
     Js("Web"),
     WasmJs("Web"),
     MacosArm64("Macos"),
@@ -45,7 +46,8 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
     companion object {
         val JVM_BASED = EnumSet.of(
             Desktop,
-            Android
+            AndroidDebug,
+            AndroidRelease
         )
 
         val IOS = EnumSet.of(
@@ -65,7 +67,8 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
         )
 
         val ANDROID = EnumSet.of(
-            Android
+            AndroidDebug,
+            AndroidRelease
         )
 
         val WINDOWS_NATIVE = EnumSet.of(

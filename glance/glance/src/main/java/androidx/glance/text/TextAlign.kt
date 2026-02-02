@@ -18,7 +18,7 @@ package androidx.glance.text
 
 /** Defines the alignment of the text in its view. */
 @JvmInline
-public value class TextAlign internal constructor(private val value: Int) {
+value class TextAlign internal constructor(private val value: Int) {
     override fun toString(): String {
         return when (this) {
             Left -> "Left"
@@ -30,15 +30,15 @@ public value class TextAlign internal constructor(private val value: Int) {
         }
     }
 
-    public companion object {
+    companion object {
         /** Align the text on the left edge of the container. */
-        public val Left: TextAlign = TextAlign(1)
+        val Left = TextAlign(1)
 
         /** Align the text on the right edge of the container. */
-        public val Right: TextAlign = TextAlign(2)
+        val Right = TextAlign(2)
 
         /** Align the text in the center of the container. */
-        public val Center: TextAlign = TextAlign(3)
+        val Center = TextAlign(3)
 
         /**
          * Align the text on the leading edge of the container.
@@ -47,7 +47,7 @@ public value class TextAlign internal constructor(private val value: Int) {
          *
          * For Right to Left text, like Arabic, this is the right edge.
          */
-        public val Start: TextAlign = TextAlign(4)
+        val Start = TextAlign(4)
 
         /**
          * Align the text on the trailing edge of the container.
@@ -56,9 +56,9 @@ public value class TextAlign internal constructor(private val value: Int) {
          *
          * For Right to Left text, like Arabic, this is the left edge.
          */
-        public val End: TextAlign = TextAlign(5)
+        val End = TextAlign(5)
 
         /** Return a list containing all possible values of TextAlign. */
-        public fun values(): List<TextAlign> = listOf(Left, Right, Center, Start, End)
+        fun values(): List<TextAlign> = listOf(Left, Right, Center, Start, End)
     }
 }

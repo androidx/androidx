@@ -21,18 +21,20 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
+import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("kotlin-android")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.8.1")
-    api(androidx.projectOrArtifact(":inspection:inspection"))
+    api("androidx.annotation:annotation:1.1.0")
+    api(project(":inspection:inspection"))
+    implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesAndroid)
 
     androidTestImplementation(libs.testRunner)
@@ -43,7 +45,7 @@ dependencies {
 
 androidx {
     name = "Inspection Testing"
-    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
     inceptionYear = "2019"
     description = "Experimental AndroidX Inspection Project"
 }
@@ -51,7 +53,7 @@ androidx {
 android {
     defaultConfig {
         // studio pipeline works only starting with Android O
-        minSdk = 26
+        minSdkVersion 26
     }
-    namespace = "androidx.inspection.testing"
+    namespace "androidx.inspection.testing"
 }

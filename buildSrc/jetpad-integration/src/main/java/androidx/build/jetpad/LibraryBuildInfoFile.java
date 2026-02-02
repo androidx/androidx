@@ -19,7 +19,6 @@ package androidx.build.jetpad;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * Object outlining the format of a library's build info file.
@@ -39,30 +38,24 @@ import java.util.Set;
  * @property dependencies a list of dependencies on other androidx libraries
  * @property checks arraylist of [Check]s that is used by Jetpad
  */
-public final class LibraryBuildInfoFile {
+public class LibraryBuildInfoFile {
     public String groupId;
     public String artifactId;
     public String version;
     public String kotlinVersion;
     public String path;
     public String sha;
+    public String groupZipPath;
     public String projectZipPath;
     public Boolean groupIdRequiresSameVersion;
     public ArrayList<Dependency> dependencies;
-    public ArrayList<Dependency> allDependencies;
     public ArrayList<Dependency> dependencyConstraints;
-    public Boolean shouldPublishDocs;
-    public Boolean isKmp;
-    public String target;
     public ArrayList<Check> checks;
-    public Set<String> kmpChildren;
-    public Set<String> testModuleNames;
-    public Set<String> gradlePluginIds;
 
     /**
      * @property isTipOfTree boolean that specifies whether the dependency is tip-of-tree
      */
-    public static final class Dependency implements Serializable {
+    public static class Dependency implements Serializable {
         public String groupId;
         public String artifactId;
         public String version;
@@ -85,7 +78,7 @@ public final class LibraryBuildInfoFile {
         }
     }
 
-    public static final class Check {
+    public class Check {
         public String name;
         public boolean passing;
     }

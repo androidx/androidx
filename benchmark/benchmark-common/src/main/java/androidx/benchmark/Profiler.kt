@@ -19,13 +19,10 @@ package androidx.benchmark
 import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Debug
-import android.os.Looper
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.benchmark.BenchmarkState.Companion.METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
-import androidx.benchmark.BenchmarkState.Companion.METHOD_TRACING_MAX_DURATION_NS
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.json.BenchmarkData.TestResult.ProfilerOutput
@@ -56,15 +53,18 @@ sealed class Profiler() {
         val type: ProfilerOutput.Type,
         val outputRelativePath: String,
         val source: Profiler?,
-        val convertBeforeSync: (() -> Unit)? = null,
+        val convertBeforeSync: (() -> Unit)? = null
     ) {
 
         fun embedInPerfettoTrace(perfettoTracePath: String) {
             source?.embedInPerfettoTrace(
                 File(Outputs.outputDirectory, outputRelativePath),
-                File(perfettoTracePath),
+                File(perfettoTracePath)
             )
         }
+
+        val sanitizedOutputRelativePath: String
+            get() = outputRelativePath.replace("(", "\\(").replace(")", "\\)")
 
         companion object {
             fun ofPerfettoTrace(label: String, absolutePath: String) =
@@ -72,7 +72,7 @@ sealed class Profiler() {
                     label = label,
                     outputRelativePath = Outputs.relativePathFor(absolutePath),
                     type = ProfilerOutput.Type.PerfettoTrace,
-                    source = null,
+                    source = null
                 )
 
             fun ofMethodTrace(label: String, absolutePath: String) =
@@ -80,7 +80,7 @@ sealed class Profiler() {
                     label = label,
                     outputRelativePath = Outputs.relativePathFor(absolutePath),
                     type = ProfilerOutput.Type.MethodTrace,
-                    source = null,
+                    source = null
                 )
 
             fun of(
@@ -88,48 +88,19 @@ sealed class Profiler() {
                 type: ProfilerOutput.Type,
                 outputRelativePath: String,
                 source: Profiler,
-                convertBeforeSync: (() -> Unit)? = null,
+                convertBeforeSync: (() -> Unit)? = null
             ) =
                 ResultFile(
                     label = label,
                     outputRelativePath = outputRelativePath,
                     type = type,
                     source = source,
-                    convertBeforeSync = convertBeforeSync,
+                    convertBeforeSync = convertBeforeSync
                 )
         }
     }
 
     abstract fun start(traceUniqueName: String): ResultFile?
-
-    /** Start profiling only if expected trace duration is unlikely to trigger an ANR */
-    fun startIfNotRiskingAnrDeadline(
-        traceUniqueName: String,
-        estimatedDurationNs: Long,
-    ): ResultFile? {
-        val estimatedMethodTraceDurNs =
-            estimatedDurationNs * METHOD_TRACING_ESTIMATED_SLOWDOWN_FACTOR
-        return if (
-            this == MethodTracing &&
-                Looper.myLooper() == Looper.getMainLooper() &&
-                estimatedMethodTraceDurNs > METHOD_TRACING_MAX_DURATION_NS &&
-                Arguments.profilerSkipWhenDurationRisksAnr
-        ) {
-            val expectedDurSec = estimatedMethodTraceDurNs / 1_000_000_000.0
-            InstrumentationResults.scheduleIdeWarningOnNextReport(
-                """
-                        Skipping method trace of estimated duration $expectedDurSec sec to avoid ANR
-
-                        To disable this behavior, set instrumentation arg:
-                            androidx.benchmark.profiling.skipWhenDurationRisksAnr = false
-                    """
-                    .trimIndent()
-            )
-            null
-        } else {
-            start(traceUniqueName)
-        }
-    }
 
     abstract fun stop()
 
@@ -179,7 +150,7 @@ sealed class Profiler() {
                     "MethodSamplingSimpleperf" to StackSamplingSimpleperf,
                     "Method" to MethodTracing,
                     "Sampled" to StackSamplingLegacy,
-                    "ConnectedSampled" to ConnectedSampling,
+                    "ConnectedSampled" to ConnectedSampling
                 )
                 .mapKeys { it.key.lowercase() }[name.lowercase()]
 
@@ -202,34 +173,30 @@ internal fun startRuntimeMethodTracing(
     InstrumentationResults.reportAdditionalFileToCopy("profiling_trace", path)
 
     val bufferSize = 16 * 1024 * 1024
+    if (sampled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+        startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)
+    } else {
+        // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version supports
+        // it. Note that this doesn't affect trace parsing, since this doesn't affect wall clock,
+        // it only removes the expensive thread time clock which our parser doesn't use.
+        // TODO: switch to platform-defined constant once available (b/329499422)
+        Debug.startMethodTracing(path, bufferSize, 0x10)
+    }
 
-    // Note: The last thing this method does is start profiling,
-    // since we want to capture as little benchmark infra as possible
     return if (sampled) {
-        val intervalUs = (1_000_000.0 / Arguments.profilerSampleFrequencyHz).toInt()
         Profiler.ResultFile.of(
-                outputRelativePath = traceFileName,
-                label = "Stack Sampling (legacy) Trace",
-                type = ProfilerOutput.Type.StackSamplingTrace,
-                source = profiler,
-            )
-            .also { Debug.startMethodTracingSampling(path, bufferSize, intervalUs) }
+            outputRelativePath = traceFileName,
+            label = "Stack Sampling (legacy) Trace",
+            type = ProfilerOutput.Type.StackSamplingTrace,
+            source = profiler
+        )
     } else {
         Profiler.ResultFile.of(
-                outputRelativePath = traceFileName,
-                label = "Method Trace",
-                type = ProfilerOutput.Type.MethodTrace,
-                source = profiler,
-            )
-            .also {
-                // NOTE: 0x10 flag enables low-overhead wall clock timing when ART module version
-                // supports
-                // it. Note that this doesn't affect trace parsing, since this doesn't affect wall
-                // clock,
-                // it only removes the expensive thread time clock which our parser doesn't use.
-                // TODO: switch to platform-defined constant once available (b/329499422)
-                Debug.startMethodTracing(path, bufferSize, 0x10)
-            }
+            outputRelativePath = traceFileName,
+            label = "Method Trace",
+            type = ProfilerOutput.Type.MethodTrace,
+            source = profiler
+        )
     }
 }
 
@@ -245,7 +212,7 @@ internal object StackSamplingLegacy : Profiler() {
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "stackSamplingLegacy"),
             sampled = true,
-            profiler = this,
+            profiler = this
         )
     }
 
@@ -263,7 +230,7 @@ internal object MethodTracing : Profiler() {
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "methodTracing"),
             sampled = false,
-            profiler = this,
+            profiler = this
         )
     }
 
@@ -353,7 +320,7 @@ internal object StackSamplingSimpleperf : Profiler() {
                 Shell.executeScriptSilent(it.findSimpleperf() + " api-prepare")
                 it.startRecording(
                     RecordOptions()
-                        .setSampleFrequency(Arguments.profilerSampleFrequencyHz)
+                        .setSampleFrequency(Arguments.profilerSampleFrequency)
                         .recordDwarfCallGraph() // enable Java/Kotlin callstacks
                         .setEvent("cpu-clock") // Required on API 33 to enable traceOffCpu
                         .traceOffCpu() // track time sleeping
@@ -366,35 +333,28 @@ internal object StackSamplingSimpleperf : Profiler() {
             outputRelativePath = outputRelativePath!!,
             type = ProfilerOutput.Type.StackSamplingTrace,
             source = this,
-            convertBeforeSync = this::convertBeforeSync,
+            convertBeforeSync = this::convertBeforeSync
         )
     }
 
     @RequiresApi(29)
     override fun stop() {
-        Log.d(TAG, "Stopping profiling session")
-        session?.stopRecording()
+        session!!.stopRecording()
         securityPerfHarden.resetIfOverridden()
     }
 
     @RequiresApi(29)
     fun convertBeforeSync() {
-        val session = session
-        if (session != null && session.state != ProfileSession.State.STOPPED) {
-            val exception =
-                RuntimeException("ProfileSession is not in STOPPED state (${session.state}).")
-            Log.w(TAG, "Unexpected ProfileSession state", exception)
-        }
-        Log.d(TAG, "Converting SimplePerf output to proto format")
         Outputs.writeFile(fileName = outputRelativePath!!) {
             session!!.convertSimpleperfOutputToProto("simpleperf.data", it.absolutePath)
+            session = null
         }
     }
 
     override fun config(packageNames: List<String>) =
         StackSamplingConfig(
             packageNames = packageNames,
-            frequency = Arguments.profilerSampleFrequencyHz.toLong(),
+            frequency = Arguments.profilerSampleFrequency.toLong(),
             duration = Arguments.profilerSampleDurationSeconds,
         )
 

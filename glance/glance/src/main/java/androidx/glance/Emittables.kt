@@ -21,45 +21,45 @@ import androidx.glance.layout.Alignment
 import androidx.glance.text.TextStyle
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface Emittable {
-    public var modifier: GlanceModifier
+interface Emittable {
+    var modifier: GlanceModifier
 
-    public fun copy(): Emittable
+    fun copy(): Emittable
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class EmittableWithChildren(
+abstract class EmittableWithChildren(
     internal var maxDepth: Int = Int.MAX_VALUE,
-    internal val resetsDepthForChildren: Boolean = false,
+    internal val resetsDepthForChildren: Boolean = false
 ) : Emittable {
-    public val children: MutableList<Emittable> = mutableListOf<Emittable>()
+    val children: MutableList<Emittable> = mutableListOf<Emittable>()
 
     protected fun childrenToString(): String = children.joinToString(",\n").prependIndent("  ")
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun EmittableWithChildren.addChild(e: Emittable) {
+fun EmittableWithChildren.addChild(e: Emittable) {
     this.children += e
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun EmittableWithChildren.addChildIfNotNull(e: Emittable?) {
+fun EmittableWithChildren.addChildIfNotNull(e: Emittable?) {
     if (e != null) this.children += e
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class EmittableLazyItemWithChildren : EmittableWithChildren() {
-    public var alignment: Alignment = Alignment.CenterStart
+abstract class EmittableLazyItemWithChildren : EmittableWithChildren() {
+    var alignment: Alignment = Alignment.CenterStart
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class EmittableWithText : Emittable {
-    public var text: String = ""
-    public var style: TextStyle? = null
-    public var maxLines: Int = Int.MAX_VALUE
+abstract class EmittableWithText : Emittable {
+    var text: String = ""
+    var style: TextStyle? = null
+    var maxLines: Int = Int.MAX_VALUE
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class EmittableCheckable : EmittableWithText() {
-    public var checked: Boolean = false
+abstract class EmittableCheckable : EmittableWithText() {
+    var checked: Boolean = false
 }

@@ -30,56 +30,137 @@ import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.lifecycle.viewmodel.testing"
-    }
+    androidTarget()
     desktop()
     mac()
     linux()
     ios()
-    watchos()
-    tvos()
-    mingwX64()
-    js()
-    wasmJs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
     sourceSets {
-        commonMain.dependencies {
-            api(project(":lifecycle:lifecycle-viewmodel"))
-            api(libs.kotlinCoroutinesCore)
-            implementation(project(":lifecycle:lifecycle-runtime"))
-            implementation(project(":lifecycle:lifecycle-runtime-testing"))
-            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+        commonMain {
+            dependencies {
+                api(project(":lifecycle:lifecycle-viewmodel"))
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                implementation(project(":lifecycle:lifecycle-runtime"))
+                implementation(project(":lifecycle:lifecycle-runtime-testing"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+            }
         }
 
-        commonTest.dependencies {
-            implementation(project(":kruth:kruth"))
-            implementation(libs.kotlinTest)
-            implementation(libs.kotlinCoroutinesTest)
+        commonTest {
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinCoroutinesTest)
+            }
         }
 
-        androidDeviceTest.dependencies {
-            implementation("androidx.core:core-ktx:1.2.0")
-            implementation(libs.testExtJunit)
-            implementation(libs.testCore)
-            implementation(libs.testRunner)
+        jvmMain {
+            dependsOn(commonMain)
         }
 
-        nonAndroidMain.dependsOn(commonMain)
-        nonAndroidTest.dependsOn(commonTest)
-        desktopMain.dependsOn(nonAndroidMain)
-        desktopTest.dependsOn(nonAndroidTest)
-        nonJvmMain.dependsOn(nonAndroidMain)
-        nonJvmTest.dependsOn(nonAndroidTest)
+        jvmTest {
+            dependsOn(commonTest)
+        }
 
-        webTest.dependencies {
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+        androidMain {
+            dependsOn(commonMain)
+            dependsOn(jvmMain)
+        }
+
+        androidUnitTest {
+            dependsOn(commonTest)
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.robolectric)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependsOn(jvmTest)
+            dependencies {
+                implementation("androidx.core:core-ktx:1.2.0")
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+            }
+        }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(commonMain)
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(commonTest)
+            dependsOn(nonAndroidTest)
+        }
+
+        darwinMain {
+            dependsOn(nativeMain)
+        }
+
+        darwinTest {
+            dependsOn(nativeTest)
+        }
+
+        linuxMain {
+            dependsOn(nativeMain)
+        }
+
+        linuxTest {
+            dependsOn(nativeTest)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+                target.compilations["test"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                        dependsOn(darwinTest)
+                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                        dependsOn(linuxTest)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+            }
         }
     }
 }
@@ -89,5 +170,8 @@ androidx {
     type = SoftwareType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2024"
     description = "Testing utilities for 'lifecycle-viewmodel' artifact"
-    enableRobolectric()
+}
+
+android {
+    namespace "androidx.lifecycle.viewmodel.testing"
 }

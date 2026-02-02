@@ -17,8 +17,10 @@
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("JetBrainsAndroidXPlugin")
     id("kotlin-multiplatform")
+}
+
+dependencies {
 }
 
 kotlin {
@@ -37,12 +39,12 @@ kotlin {
     }
 }
 
-tasks.register('runScaffold', JavaExec) {
+task runScaffold(type: JavaExec) {
     dependsOn(":compose:desktop:desktop:jvmJar")
-    mainClass = "androidx.compose.desktop.examples.material3.Scaffold_jvmKt"
+    main = "androidx.compose.desktop.examples.material3.Scaffold_jvmKt"
     systemProperty("skiko.fps.enabled", "true")
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
-            compilation.output.allOutputs +
-                    compilation.runtimeDependencyFiles
+        compilation.output.allOutputs +
+        compilation.runtimeDependencyFiles
 }

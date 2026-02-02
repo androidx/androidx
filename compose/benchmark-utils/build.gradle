@@ -27,7 +27,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -35,6 +35,7 @@ dependencies {
     api(project(":compose:test-utils"))
     api(androidx.projectOrArtifact(":benchmark:benchmark-junit4"))
 
+    implementation(libs.kotlinStdlibCommon)
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":tracing:tracing-ktx"))
@@ -59,5 +60,7 @@ android {
     namespace = "androidx.compose.benchmarkutils"
 
     // workarounds for b/328649293
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
+    buildTypes.configureEach {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 }

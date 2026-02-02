@@ -31,7 +31,10 @@ class BanParcelableUsageTest :
 
     @Test
     fun `Detection of Parcelable usage in Java sources`() {
-        val input = arrayOf(javaSample("androidx.ParcelableUsageJava"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ParcelableUsageJava"),
+            )
 
         val expected =
             """
@@ -47,7 +50,10 @@ public class ParcelableUsageJava implements Parcelable {
 
     @Test
     fun `Detection of Parcelable usage in Kotlin sources`() {
-        val input = arrayOf(ktSample("androidx.ParcelableUsageKotlin"))
+        val input =
+            arrayOf(
+                ktSample("androidx.ParcelableUsageKotlin"),
+            )
 
         val expected =
             """

@@ -6,32 +6,23 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("JetBrainsAndroidXPlugin")
 }
 
 androidXMultiplatform {
-    androidLibrary {
-        namespace = "org.jetbrains.savedstate"
-        optimization {
-            it.consumerKeepRules.publish = true
-            it.consumerKeepRules.files.add(new File("proguard-rules.pro"))
-        }
-        androidResources.enable = true
-    }
+    android()
     desktop()
-    mac()
-    linux()
     ios()
-    watchos()
-    tvos()
-    mingwX64()
+    linux()
+    mac()
     js()
-    wasmJs()
+    wasm()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -49,9 +40,24 @@ androidXMultiplatform {
     }
 }
 
+kotlin {
+    watchosArm64()
+    watchosArm32()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    mingwX64()
+}
+
+android {
+    namespace = "androidx.savedstate"
+    experimentalProperties["android.lint.useK2Uast"] = false // TODO(b/345531033)
+}
+
 androidx {
     name = "Saved State"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"
+    metalavaK2UastEnabled = false
 }

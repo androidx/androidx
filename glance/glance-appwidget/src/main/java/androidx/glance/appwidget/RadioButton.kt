@@ -37,12 +37,12 @@ import androidx.glance.unit.ColorProvider
 import androidx.glance.unit.FixedColorProvider
 
 /** Set of colors to apply to a RadioButton depending on the checked state. */
-public class RadioButtonColors internal constructor(internal val radio: CheckableColorProvider)
+class RadioButtonColors internal constructor(internal val radio: CheckableColorProvider)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableRadioButton(public var colors: RadioButtonColors) : EmittableCheckable() {
+class EmittableRadioButton(var colors: RadioButtonColors) : EmittableCheckable() {
     override var modifier: GlanceModifier = GlanceModifier
-    public var enabled: Boolean = true
+    var enabled: Boolean = true
 
     override fun copy(): Emittable =
         EmittableRadioButton(colors = colors).also {
@@ -85,7 +85,7 @@ public class EmittableRadioButton(public var colors: RadioButtonColors) : Emitta
  *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-public fun RadioButton(
+fun RadioButton(
     checked: Boolean,
     onClick: Action?,
     modifier: GlanceModifier = GlanceModifier,
@@ -94,7 +94,7 @@ public fun RadioButton(
     style: TextStyle? = null,
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
-): Unit = RadioButtonElement(checked, onClick, modifier, enabled, text, style, colors, maxLines)
+) = RadioButtonElement(checked, onClick, modifier, enabled, text, style, colors, maxLines)
 
 /**
  * Adds a radio button to the glance view.
@@ -114,7 +114,7 @@ public fun RadioButton(
  *   If the text exceeds the given number of lines, it will be truncated.
  */
 @Composable
-public fun RadioButton(
+fun RadioButton(
     checked: Boolean,
     onClick: () -> Unit,
     modifier: GlanceModifier = GlanceModifier,
@@ -123,7 +123,7 @@ public fun RadioButton(
     style: TextStyle? = null,
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
-): Unit =
+) =
     RadioButtonElement(
         checked,
         action(block = onClick),
@@ -132,7 +132,7 @@ public fun RadioButton(
         text,
         style,
         colors,
-        maxLines,
+        maxLines
     )
 
 /**
@@ -158,7 +158,7 @@ public fun RadioButton(
  */
 @ExperimentalGlanceApi
 @Composable
-public fun RadioButton(
+fun RadioButton(
     checked: Boolean,
     onClick: () -> Unit,
     modifier: GlanceModifier = GlanceModifier,
@@ -168,7 +168,7 @@ public fun RadioButton(
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
     maxLines: Int = Int.MAX_VALUE,
     key: String? = null,
-): Unit =
+) =
     RadioButtonElement(
         checked,
         action(key, onClick),
@@ -177,11 +177,11 @@ public fun RadioButton(
         text,
         style,
         colors,
-        maxLines,
+        maxLines
     )
 
 /** Contains the default values used by [RadioButton]. */
-public object RadioButtonDefaults {
+object RadioButtonDefaults {
     /**
      * Creates a [RadioButtonColors] using [ColorProvider]s.
      *
@@ -190,7 +190,7 @@ public object RadioButtonDefaults {
      * @return [RadioButtonColors] to tint the drawable of the [RadioButton] according to the
      *   checked state.
      */
-    public fun colors(
+    fun colors(
         checkedColor: ColorProvider,
         uncheckedColor: ColorProvider,
     ): RadioButtonColors {
@@ -199,7 +199,7 @@ public object RadioButtonDefaults {
                 createCheckableColorProvider(
                     source = "RadioButtonColors",
                     checked = checkedColor,
-                    unchecked = uncheckedColor,
+                    unchecked = uncheckedColor
                 )
         )
     }
@@ -212,10 +212,10 @@ public object RadioButtonDefaults {
      * @return [RadioButtonColors] to tint the drawable of the [RadioButton] according to the
      *   checked state.
      */
-    public fun colors(checkedColor: Color, uncheckedColor: Color): RadioButtonColors =
+    fun colors(checkedColor: Color, uncheckedColor: Color): RadioButtonColors =
         colors(
             checkedColor = FixedColorProvider(checkedColor),
-            uncheckedColor = FixedColorProvider(uncheckedColor),
+            uncheckedColor = FixedColorProvider(uncheckedColor)
         )
 
     /**
@@ -224,7 +224,7 @@ public object RadioButtonDefaults {
      * @return default [RadioButtonColors].
      */
     @Composable
-    public fun colors(): RadioButtonColors {
+    fun colors(): RadioButtonColors {
         val colorProvider =
             if (GlanceTheme.colors == DynamicThemeColorProviders) {
                 // If using the m3 dynamic color theme, we need to create a color provider from xml
@@ -234,7 +234,7 @@ public object RadioButtonDefaults {
                 createCheckableColorProvider(
                     source = "CheckBoxColors",
                     checked = GlanceTheme.colors.primary,
-                    unchecked = GlanceTheme.colors.onSurfaceVariant,
+                    unchecked = GlanceTheme.colors.onSurfaceVariant
                 )
             }
 
@@ -264,7 +264,7 @@ private fun RadioButtonElement(
             this.set(style) { this.style = it }
             this.set(colors) { this.colors = it }
             this.set(maxLines) { this.maxLines = it }
-        },
+        }
     )
 }
 
@@ -276,7 +276,7 @@ private fun RadioButtonElement(
  * is selected. When this modifier is used, an error will be thrown if more than one RadioButton has
  * their "checked" value set to true.
  */
-public fun GlanceModifier.selectableGroup(): GlanceModifier = this.then(SelectableGroupModifier)
+fun GlanceModifier.selectableGroup(): GlanceModifier = this.then(SelectableGroupModifier)
 
 internal object SelectableGroupModifier : GlanceModifier.Element
 

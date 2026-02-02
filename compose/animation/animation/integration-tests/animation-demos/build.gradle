@@ -1,20 +1,14 @@
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    implementation(libs.kotlinStdlib)
 
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:integration-tests:demos:common"))
@@ -28,14 +22,14 @@ dependencies {
     implementation(project(":compose:animation:animation-core:animation-core-samples"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:material:material"))
-    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:ui:ui-tooling-preview"))
-    implementation(project(":compose:material3:material3"))
-    implementation(project(":navigation:navigation-compose"))
-    implementation(project(":compose:ui:ui-tooling"))
+    debugImplementation(project(":compose:ui:ui-tooling"))
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.compose.animation.demos"
+    namespace "androidx.compose.animation.demos"
 }

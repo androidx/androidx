@@ -27,7 +27,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
@@ -36,6 +36,7 @@ android {
 
 dependencies {
     api(libs.jspecify)
+    api(libs.kotlinStdlib)
     api(project(":window:window"))
     api(libs.junit)
     implementation("androidx.core:core:1.8.0")

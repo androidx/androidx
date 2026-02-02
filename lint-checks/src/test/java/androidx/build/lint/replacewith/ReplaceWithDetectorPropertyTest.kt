@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("UnstableApiUsage")
-
 package androidx.build.lint.replacewith
 
-import com.android.tools.lint.useFirUast
-import org.junit.Assume.assumeFalse
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,24 +25,23 @@ class ReplaceWithDetectorPropertyTest {
 
     @Test
     fun propertyUsage_isIgnored() {
-        assumeFalse("Test fails under K2: b/353980920", useFirUast())
         val input =
             arrayOf(
                 ktSample("replacewith.ReplaceWithUsageKotlin"),
-                javaSample("replacewith.PropertyJava"),
+                javaSample("replacewith.PropertyJava")
             )
 
         // TODO(b/323214452): This is incomplete, but we have explicitly suppressed replacement of
         // Kotlin property accessors until we can properly convert the expressions to Java.
         val expected =
             """
-src/replacewith/PropertyJava.java:42: Hint: Replacement available [ReplaceWith]
+src/replacewith/PropertyJava.java:42: Information: Replacement available [ReplaceWith]
         clazz.setMethodDeprecated("value");
-              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-src/replacewith/PropertyJava.java:43: Hint: Replacement available [ReplaceWith]
+              ~~~~~~~~~~~~~~~~~~~
+src/replacewith/PropertyJava.java:43: Information: Replacement available [ReplaceWith]
         clazz.getMethodDeprecated();
               ~~~~~~~~~~~~~~~~~~~
-0 errors, 0 warnings, 2 hints
+0 errors, 0 warnings
         """
                 .trimIndent()
 
@@ -57,7 +52,7 @@ src/replacewith/PropertyJava.java:43: Hint: Replacement available [ReplaceWith]
 Fix for src/replacewith/PropertyJava.java line 42: Replace with `otherProperty = "value"`:
 @@ -42 +42
 -         clazz.setMethodDeprecated("value");
-+         clazz.otherProperty = "value";
++         clazz.otherProperty = "value"("value");
 Fix for src/replacewith/PropertyJava.java line 43: Replace with `otherProperty`:
 @@ -43 +43
 -         clazz.getMethodDeprecated();

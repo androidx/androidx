@@ -4,7 +4,3 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
-project.tasks.withType(Jar).configureEach { task ->
-    task.reproducibleFileOrder = true
-    task.preserveFileTimestamps = false
-}

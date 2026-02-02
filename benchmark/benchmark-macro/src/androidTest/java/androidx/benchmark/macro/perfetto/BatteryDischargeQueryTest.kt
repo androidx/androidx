@@ -21,9 +21,8 @@ package androidx.benchmark.macro.perfetto
 import androidx.benchmark.macro.ExperimentalMetricApi
 import androidx.benchmark.macro.PowerMetric
 import androidx.benchmark.macro.createTempFileFromAsset
-import androidx.benchmark.macro.runSingleSessionServer
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
-import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -43,7 +42,7 @@ class BatteryDischargeQueryTest {
         val traceFile = createTempFileFromAsset("api31_battery_discharge", ".perfetto-trace")
 
         val actualMetrics =
-            TraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
+            PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
                 val slice =
                     querySlices(PowerMetric.MEASURE_BLOCK_SECTION_NAME, packageName = null).first()
                 BatteryDischargeQuery.getBatteryDischargeMetrics(this, slice)
@@ -53,12 +52,12 @@ class BatteryDischargeQueryTest {
             listOf(
                 BatteryDischargeQuery.BatteryDischargeMeasurement(
                     name = "Start",
-                    chargeMah = 1020.0,
+                    chargeMah = 1020.0
                 ),
                 BatteryDischargeQuery.BatteryDischargeMeasurement(name = "End", chargeMah = 1007.0),
-                BatteryDischargeQuery.BatteryDischargeMeasurement(name = "Diff", chargeMah = 13.0),
+                BatteryDischargeQuery.BatteryDischargeMeasurement(name = "Diff", chargeMah = 13.0)
             ),
-            actualMetrics,
+            actualMetrics
         )
     }
 }

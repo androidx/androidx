@@ -22,8 +22,8 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.glance.color.ColorProviders
 
 /** Object that provides access to the current theme. */
-public object GlanceTheme {
-    public val colors: ColorProviders
+object GlanceTheme {
+    val colors: ColorProviders
         @GlanceComposable @Composable @ReadOnlyComposable get() = LocalColors.current
 }
 
@@ -33,9 +33,9 @@ public object GlanceTheme {
  * themed UI provided as [content].
  */
 @Composable
-public fun GlanceTheme(
+fun GlanceTheme(
     colors: ColorProviders = LocalColors.current,
-    content: @GlanceComposable @Composable () -> Unit,
+    content: @GlanceComposable @Composable () -> Unit
 ) {
     CompositionLocalProvider(LocalColors provides colors, content = content)
 }

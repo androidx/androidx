@@ -30,7 +30,6 @@ import androidx.glance.unit.ColorProvider
  * @param width The width of the border, in DP
  * @param color The color of the border
  */
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public fun GlanceModifier.border(width: Dp, color: ColorProvider): GlanceModifier =
     this.then(BorderModifier(BorderDimension(dp = width), color))
 
@@ -40,24 +39,21 @@ public fun GlanceModifier.border(width: Dp, color: ColorProvider): GlanceModifie
  * @param width The width of the border, value provided by a dimension resource
  * @param color The color of the border
  */
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public fun GlanceModifier.border(@DimenRes width: Int, color: ColorProvider): GlanceModifier =
     this.then(BorderModifier(BorderDimension(resourceId = width), color))
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public data class BorderModifier(
     public val width: BorderDimension,
-    public val color: ColorProvider,
+    public val color: ColorProvider
 ) : GlanceModifier.Element
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public data class BorderDimension(
     public val dp: Dp = 0.dp,
-    @DimenRes public val resourceId: Int = 0,
+    @DimenRes public val resourceId: Int = 0
 ) {
-    public fun toDp(resources: Resources): Dp =
+    fun toDp(resources: Resources): Dp =
         if (resourceId == 0) dp
         else (resources.getDimension(resourceId) / resources.displayMetrics.density).dp
 }

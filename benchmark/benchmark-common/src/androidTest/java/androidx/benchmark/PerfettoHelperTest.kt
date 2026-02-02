@@ -41,7 +41,7 @@ class PerfettoHelperTest {
     @Before
     @After
     fun cleanup() {
-        PerfettoHelper.cleanupPerfettoState()
+        PerfettoHelper.stopAllPerfettoProcesses()
     }
 
     private fun validateStopAllPerfettoProcesses(unbundled: Boolean) {
@@ -57,22 +57,15 @@ class PerfettoHelperTest {
         capture.start(
             PerfettoConfig.Benchmark(
                 appTagPackages = listOf(Packages.TEST),
-                useStackSamplingConfig = false,
+                useStackSamplingConfig = false
             )
         )
         // should be at least one perfetto process
         assertNotEquals(illegal = listOf(), actual = getPerfettoPids())
         assertTrue(capture.isRunning())
 
-        // Don't kill processes, just cleanup
-        PerfettoHelper.cleanupPerfettoState(killExistingPerfettoRecordings = false)
-
-        // should be at least one perfetto process
-        assertNotEquals(illegal = listOf(), actual = getPerfettoPids())
-        assertTrue(capture.isRunning())
-
-        // Actually kill all...
-        PerfettoHelper.cleanupPerfettoState(killExistingPerfettoRecordings = true)
+        // kill all...
+        PerfettoHelper.stopAllPerfettoProcesses()
 
         // should be none again
         assertEquals(expected = listOf(), actual = getPerfettoPids())

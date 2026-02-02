@@ -19,7 +19,7 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 androidx {
@@ -33,14 +33,14 @@ android {
     namespace = "androidx.compose.remote.player.core"
     compileSdk = 35
     defaultConfig {
-        minSdk = 29
+        minSdk = 26
     }
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.9.1")
+    api("androidx.annotation:annotation:1.8.1")
     api(libs.jspecify)
     implementation(project(":compose:remote:remote-core"))
-    implementation("androidx.customview:customview:1.2.0")
+    implementation(project(":customview:customview"))
     implementation(libs.androidx.core)
 }

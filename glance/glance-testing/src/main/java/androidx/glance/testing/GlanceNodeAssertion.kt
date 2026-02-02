@@ -25,7 +25,7 @@ import androidx.annotation.RestrictTo.Scope
  * An instance of [GlanceNodeAssertion] can be obtained from `onNode` and equivalent methods on a
  * [GlanceNodeAssertionsProvider]
  */
-public class GlanceNodeAssertion<R, T : GlanceNode<R>>
+class GlanceNodeAssertion<R, T : GlanceNode<R>>
 @RestrictTo(Scope.LIBRARY_GROUP)
 constructor(
     private val testContext: TestContext<R, T>,
@@ -36,7 +36,7 @@ constructor(
      *
      * @throws [AssertionError] if the assert fails.
      */
-    public fun assertExists(): GlanceNodeAssertion<R, T> {
+    fun assertExists(): GlanceNodeAssertion<R, T> {
         findSingleMatchingNode(errorMessageOnFail = "Failed assertExists")
         return this
     }
@@ -46,7 +46,7 @@ constructor(
      *
      * @throws [AssertionError] if the assert fails.
      */
-    public fun assertDoesNotExist(): GlanceNodeAssertion<R, T> {
+    fun assertDoesNotExist(): GlanceNodeAssertion<R, T> {
         val errorMessageOnFail = "Failed assertDoesNotExist"
         val matchedNodesCount = testContext.findMatchingNodes(selector, errorMessageOnFail).size
         if (matchedNodesCount != 0) {
@@ -57,8 +57,8 @@ constructor(
                         buildErrorReasonForCountMismatch(
                             matcherDescription = selector.description,
                             expectedCount = 0,
-                            actualCount = matchedNodesCount,
-                        ),
+                            actualCount = matchedNodesCount
+                        )
                 )
             )
         }
@@ -77,9 +77,9 @@ constructor(
      *   bigger operation that used this assert as a precondition check.
      * @throws AssertionError if the matcher does not match or the node can no longer be found.
      */
-    public fun assert(
+    fun assert(
         matcher: GlanceNodeMatcher<R>,
-        messagePrefixOnError: (() -> String)? = null,
+        messagePrefixOnError: (() -> String)? = null
     ): GlanceNodeAssertion<R, T> {
         var errorMessageOnFail = "Failed to assert condition: (${matcher.description})"
         if (messagePrefixOnError != null) {
@@ -97,7 +97,7 @@ constructor(
      * Returns [GlanceNodeAssertionCollection] that allows performing assertions on the children of
      * the node selected by this [GlanceNodeAssertion].
      */
-    public fun onChildren(): GlanceNodeAssertionCollection<R, T> {
+    fun onChildren(): GlanceNodeAssertionCollection<R, T> {
         return GlanceNodeAssertionCollection(testContext, selector.addChildrenSelector())
     }
 
@@ -111,8 +111,8 @@ constructor(
                         buildErrorReasonForCountMismatch(
                             matcherDescription = selector.description,
                             expectedCount = 1,
-                            actualCount = matchingNodes.size,
-                        ),
+                            actualCount = matchingNodes.size
+                        )
                 )
             )
         }

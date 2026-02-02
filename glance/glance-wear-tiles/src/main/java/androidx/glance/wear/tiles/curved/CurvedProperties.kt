@@ -47,7 +47,6 @@ import androidx.glance.unit.ColorProvider
  * ```
  */
 @JvmInline
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public value class AnchorType private constructor(private val value: Int) {
     public companion object {
         /**
@@ -76,28 +75,26 @@ public value class AnchorType private constructor(private val value: Int) {
  * alignment in a Row.
  */
 @JvmInline
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public value class RadialAlignment private constructor(private val value: Int) {
-    public companion object {
+    companion object {
         /** Put the child closest to the center of the [CurvedRow], within the available space */
-        public val Inner: RadialAlignment = RadialAlignment(0)
+        val Inner = RadialAlignment(0)
 
         /** Put the child in the middle point of the available space. */
-        public val Center: RadialAlignment = RadialAlignment(1)
+        val Center = RadialAlignment(1)
 
         /** Put the child farthest from the center of the [CurvedRow], within the available space */
-        public val Outer: RadialAlignment = RadialAlignment(2)
+        val Outer = RadialAlignment(2)
     }
 }
 
 /** Description of a text style for the [CurvedScope.curvedText] composable. */
 @Immutable
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 public class CurvedTextStyle(
     public val color: ColorProvider? = null,
     public val fontSize: TextUnit? = null,
     public val fontWeight: FontWeight? = null,
-    public val fontStyle: FontStyle? = null,
+    public val fontStyle: FontStyle? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -118,6 +115,6 @@ public class CurvedTextStyle(
         return result
     }
 
-    override fun toString(): String =
+    override fun toString() =
         "TextStyle(size=$fontSize, fontWeight=$fontWeight, fontStyle=$fontStyle)"
 }

@@ -28,5 +28,7 @@ internal fun sha256(file: File): String {
             hasher.putBytes(it.readNBytes(1024))
         }
     }
-    return BaseEncoding.base16().lowerCase().encode(hasher.hash().asBytes())
+    return BaseEncoding.base16().lowerCase().encode(
+        hasher.hash().asBytes()
+    )
 }

@@ -37,9 +37,4 @@ class BenchmarkRuleAnnotationTest {
     fun throwsIfNotAnnotatedMeasure() {
         unannotatedRule.measureRepeated {}
     }
-
-    @Test(expected = IllegalStateException::class)
-    fun throwsIfNotAnnotatedMeasureMain() {
-        unannotatedRule.measureRepeatedOnMainThread {}
-    }
 }

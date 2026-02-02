@@ -1,85 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 9.0.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.0-alpha10)" variant="all" version="9.0.0-alpha10">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
-        id="ExperimentalCompanionElement"
-        message="Elements in an experimental companion object must be annotated as experimental"
-        errorLine1="        @MyAnnotation const val A: Int = 1"
-        errorLine2="                                ~">
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.core.app.JobIntentService`, was not found in the project or the libraries"
+        errorLine1="        &lt;service android:name=&quot;androidx.core.app.JobIntentService&quot;>"
+        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/KtClassWithAnnotatedCompanion.kt"/>
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue
-        id="ExperimentalCompanionElement"
-        message="Elements in an experimental companion object must be annotated as experimental"
-        errorLine1="        const val C: Int = 3"
-        errorLine2="                  ~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 21): `android.view.View#getAccessibilityClassName`"
+        errorLine1="        return view.getAccessibilityClassName();"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/KtClassWithAnnotatedCompanion.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalCompanionElement"
-        message="Elements in an experimental companion object must be annotated as experimental"
-        errorLine1="        @MyAnnotation fun myFun() {}"
-        errorLine2="                          ~~~~~">
-        <location
-            file="src/main/java/androidx/KtClassWithAnnotatedCompanion.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalCompanionElement"
-        message="Elements in an experimental companion object must be annotated as experimental"
-        errorLine1="        fun myFun3() {}"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/KtClassWithAnnotatedCompanion.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalCompanionElement"
-        message="Elements in an experimental companion object must be annotated as experimental"
-        errorLine1="            val A: Int = 1"
-        errorLine2="                ~">
-        <location
-            file="src/main/java/androidx/KtClassWithAnnotatedCompanion.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalCompanionElement"
-        message="Elements in an experimental companion object must be annotated as experimental"
-        errorLine1="            var C: Int = 1"
-        errorLine2="                ~">
-        <location
-            file="src/main/java/androidx/KtClassWithAnnotatedCompanion.kt"/>
-    </issue>
-
-    <issue
-        id="AndroidXFlaggedApi"
-        message="Class `FlagFlaggedApiImpl` is a flagged API and must be inside a flag check for &quot;flaggedapi.myFlag&quot;"
-        errorLine1="        FlagFlaggedApiImpl.innerApi()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/FlaggedUsageInOutline.kt"/>
-    </issue>
-
-    <issue
-        id="AndroidXFlaggedApi"
-        message="Method `innerApi()` is a flagged API and must be inside a flag check for &quot;flaggedapi.myFlag&quot;"
-        errorLine1="        FlagFlaggedApiImpl.innerApi()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/FlaggedUsageInOutline.kt"/>
-    </issue>
-
-    <issue
-        id="AndroidXFlaggedApi"
-        message="Method `innerApi()` is a flagged API and must be inside a flag check for &quot;flaggedapi.myFlag&quot;"
-        errorLine1="        FlaggedApiContainer.innerApi()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/FlaggedUsageWithoutOutline.kt"/>
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
     </issue>
 
     <issue
@@ -209,138 +146,39 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method guarded by Trunk Stable flag &quot;flaggedapi.myFlag&quot;; however, the containing class flaggedapi.AutofixUnsafeUsageWithTypeConversion is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            val resultA = FlaggedApiContainer.apiWithTypeArgument(null)"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method guarded by Trunk Stable flag &quot;flaggedapi.myFlag&quot;; however, the containing class flaggedapi.AutofixUnsafeUsageWithTypeConversion is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            val resultB = FlaggedApiContainer.apiWithGenericType&lt;Int?, Float>(null)"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method guarded by Trunk Stable flag &quot;flaggedapi.myFlag&quot;; however, the containing class flaggedapi.AutofixUnsafeUsageWithTypeConversion is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            val resultC = FlaggedApiContainer.apiWithTwoDimensionalArray(null)"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/AutofixUnsafeUsageWithTypeConversion.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method guarded by Trunk Stable flag &quot;flaggedapi.myFlag&quot;; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            FlaggedApiContainer.innerApi()"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/FlaggedUsageWithoutOutline.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method guarded by Trunk Stable flag &quot;flaggedapi.myFlag&quot;; however, the containing class flaggedapi.FlaggedUsageWithoutOutline is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        FlaggedApiContainer.innerApi()"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/flaggedapi/FlaggedUsageWithoutOutline.kt"/>
-    </issue>
-
-    <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    public void draw(@NonNull Canvas canvas) {"
-        errorLine2="                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
-    </issue>
-
-    <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    public void getOutline(@NonNull Outline outline) {"
-        errorLine2="                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/appcompat/widget/ActionBarBackgroundDrawable.java"/>
-    </issue>
-
-    <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    static boolean recreate(@NonNull final Activity activity) {"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
-    </issue>
-
-    <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="        LifecycleCheckCallbacks(@NonNull Activity aboutToRecreate) {"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/core/app/ActivityRecreator.java"/>
-    </issue>
-
-    <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    static boolean recreate(@NonNull final Activity activity) {"
-        errorLine2="                            ~~~~~~~~">
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Exception while invoking performStopActivity&quot;, t);"
+        errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
     </issue>
 
     <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="        LifecycleCheckCallbacks(@NonNull Activity aboutToRecreate) {"
-        errorLine2="                                ~~~~~~~~">
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t);"
+        errorLine2="                  ~~~~~~~">
         <location
             file="src/main/java/androidx/sample/core/app/ActivityRecreatorChecked.java"/>
     </issue>
 
     <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    public static void scrollListBy(@NonNull ListView listView, int y) {"
-        errorLine2="                                    ~~~~~~~~">
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="                    Log.e(LOG_TAG, &quot;Exception while invoking performStopActivity&quot;, t)"
+        errorLine2="                          ~~~~~~~">
         <location
-            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
     </issue>
 
     <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    public static boolean canScrollList(@NonNull ListView listView, int direction) {"
-        errorLine2="                                        ~~~~~~~~">
+        id="LongLogTag"
+        message="The logging tag can be at most 23 characters, was 24 (ActivityRecreatorChecked)"
+        errorLine1="            Log.e(LOG_TAG, &quot;Exception while fetching field values&quot;, t)"
+        errorLine2="                  ~~~~~~~">
         <location
-            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    protected ParcelableUsageJava(@NonNull Parcel in) {"
-        errorLine2="                                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/ParcelableUsageJava.java"/>
-    </issue>
-
-    <issue
-        id="JSpecifyNullness"
-        message="Switch nullness annotation to JSpecify"
-        errorLine1="    public void writeToParcel(@NonNull Parcel dest, int flags) {"
-        errorLine2="                              ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/ParcelableUsageJava.java"/>
+            file="src/main/java/androidx/sample/core/app/ActivityRecreatorKtChecked.kt"/>
     </issue>
 
     <issue
@@ -534,7 +372,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -543,7 +381,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -552,7 +390,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -561,7 +399,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -570,70 +408,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallToThisKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallToThisKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallToThisKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="    @RequiresApi(23)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="    @RequiresApi(23)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCastKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeGenericMethodReferenceJava.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeGenericMethodReferenceKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 19"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="    @RequiresApi(19)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -642,16 +417,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 19"
-        errorLine1="    @RequiresApi(19)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClassKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -660,34 +426,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="    @RequiresApi(23)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassJava.java"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="    @RequiresApi(23) internal class Api23Impl private constructor()"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingClassKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -696,7 +435,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -705,7 +444,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="    @RequiresApi(21)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -714,34 +453,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFixKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFixKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 21"
-        errorLine1="    @RequiresApi(21)"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeReferenceWithExistingFixKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -750,16 +462,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeStaticMethodReferenceKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -768,16 +471,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
-        errorLine1="        if (Build.VERSION.SDK_INT >= 21) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeVoidMethodReferenceKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -786,7 +480,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -795,7 +489,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -804,7 +498,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -813,7 +507,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 23"
+        message="Unnecessary; SDK_INT is always >= 21"
         errorLine1="        return if (Build.VERSION.SDK_INT >= 19) {"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -822,7 +516,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 19"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="@RequiresApi(19)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -831,7 +525,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 19"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="@RequiresApi(19)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -840,7 +534,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 19"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="    @RequiresApi(19)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -849,7 +543,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 19"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="@RequiresApi(19)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -858,7 +552,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 19 from outer annotation (`@RequiresApi(19)`)"
+        message="Unnecessary; SDK_INT is always >= 19 from outer annotation (`@RequiresApi(19)`)"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -867,7 +561,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 16"
+        message="Unnecessary; SDK_INT is always >= 16"
         errorLine1="@RequiresApi(16)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -876,7 +570,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 16"
+        message="Unnecessary; SDK_INT is always >= 16"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -885,7 +579,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 16"
+        message="Unnecessary; SDK_INT is always >= 16"
         errorLine1="@RequiresApi(16)"
         errorLine2="~~~~~~~~~~~~~~~~">
         <location
@@ -894,7 +588,7 @@
 
     <issue
         id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 16"
+        message="Unnecessary; SDK_INT is always >= 16"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
@@ -1079,42 +773,6 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static List&lt;int[]&gt; apiWithTypeArgument(BiConsumer&lt;Integer, Float> param) {"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/flagging/FlaggedApiContainer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static List&lt;int[]&gt; apiWithTypeArgument(BiConsumer&lt;Integer, Float> param) {"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/flagging/FlaggedApiContainer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static float[][] apiWithTwoDimensionalArray(int[] param) {"
-        errorLine2="                  ~~~~~~~~~">
-        <location
-            file="src/main/java/android/flagging/FlaggedApiContainer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static float[][] apiWithTwoDimensionalArray(int[] param) {"
-        errorLine2="                                                       ~~~~~">
-        <location
-            file="src/main/java/android/flagging/FlaggedApiContainer.java"/>
     </issue>
 
 </issues>

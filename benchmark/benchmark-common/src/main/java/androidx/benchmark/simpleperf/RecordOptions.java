@@ -18,11 +18,10 @@ package androidx.benchmark.simpleperf;
 
 import android.system.Os;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -60,7 +59,8 @@ public class RecordOptions {
      * Set output filename. Default is perf-<month>-<day>-<hour>-<minute>-<second>.data.
      * The file will be generated under simpleperf_data/.
      */
-    public @NonNull RecordOptions setOutputFilename(@NonNull String filename) {
+    @NonNull
+    public RecordOptions setOutputFilename(@NonNull String filename) {
         mOutputFilename = filename;
         return this;
     }
@@ -68,7 +68,8 @@ public class RecordOptions {
     /**
      * Set event to record. Default is cpu-cycles. See `simpleperf list` for all available events.
      */
-    public @NonNull RecordOptions setEvent(@NonNull String event) {
+    @NonNull
+    public RecordOptions setEvent(@NonNull String event) {
         mEvent = event;
         return this;
     }
@@ -76,7 +77,8 @@ public class RecordOptions {
     /**
      * Set how many samples to generate each second running. Default is 4000.
      */
-    public @NonNull RecordOptions setSampleFrequency(int freq) {
+    @NonNull
+    public RecordOptions setSampleFrequency(int freq) {
         mFreq = freq;
         return this;
     }
@@ -85,7 +87,8 @@ public class RecordOptions {
      * Set record duration. The record stops after `durationInSecond` seconds. By default,
      * record stops only when stopRecording() is called.
      */
-    public @NonNull RecordOptions setDuration(double durationInSecond) {
+    @NonNull
+    public RecordOptions setDuration(double durationInSecond) {
         mDurationInSeconds = durationInSecond;
         return this;
     }
@@ -93,7 +96,8 @@ public class RecordOptions {
     /**
      * Record some threads in the app process. By default, record all threads in the process.
      */
-    public @NonNull RecordOptions setSampleThreads(@NonNull List<Integer> threads) {
+    @NonNull
+    public RecordOptions setSampleThreads(@NonNull List<Integer> threads) {
         mThreads.addAll(threads);
         return this;
     }
@@ -101,13 +105,15 @@ public class RecordOptions {
     /**
      * Record current thread in the app process. By default, record all threads in the process.
      */
-    public @NonNull RecordOptions setSampleCurrentThread() {
+    @NonNull
+    public RecordOptions setSampleCurrentThread() {
         return setSampleThreads(Collections.singletonList(Os.gettid()));
     }
     /**
      * Record dwarf based call graph. It is needed to get Java callstacks.
      */
-    public @NonNull RecordOptions recordDwarfCallGraph() {
+    @NonNull
+    public RecordOptions recordDwarfCallGraph() {
         mDwarfCallGraph = true;
         mFpCallGraph = false;
         return this;
@@ -117,7 +123,8 @@ public class RecordOptions {
      * Record frame pointer based call graph. It is suitable to get C++ callstacks on 64bit devices.
      */
     @SuppressWarnings("unused")
-    public @NonNull RecordOptions recordFramePointerCallGraph() {
+    @NonNull
+    public RecordOptions recordFramePointerCallGraph() {
         mFpCallGraph = true;
         mDwarfCallGraph = false;
         return this;
@@ -126,7 +133,8 @@ public class RecordOptions {
     /**
      * Trace context switch info to show where threads spend time off cpu.
      */
-    public @NonNull RecordOptions traceOffCpu() {
+    @NonNull
+    public RecordOptions traceOffCpu() {
         mTraceOffCpu = true;
         return this;
     }
@@ -134,7 +142,8 @@ public class RecordOptions {
     /**
      * Translate record options into arguments for `simpleperf record` cmd.
      */
-    public @NonNull List<String> toRecordArgs() {
+    @NonNull
+    public List<String> toRecordArgs() {
         ArrayList<String> args = new ArrayList<>();
 
         String filename = mOutputFilename;
@@ -183,15 +192,18 @@ public class RecordOptions {
         return time.format(formatter);
     }
 
-    private @Nullable String mOutputFilename;
+    @Nullable
+    private String mOutputFilename;
 
-    private @NonNull String mEvent = "cpu-cycles";
+    @NonNull
+    private String mEvent = "cpu-cycles";
 
     private int mFreq = 4000;
 
     private double mDurationInSeconds = 0.0;
 
-    private final @NonNull ArrayList<Integer> mThreads = new ArrayList<>();
+    @NonNull
+    private final ArrayList<Integer> mThreads = new ArrayList<>();
 
     private boolean mDwarfCallGraph = false;
 

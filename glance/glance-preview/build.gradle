@@ -5,28 +5,31 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXComposePlugin")
     id("AndroidXPlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.8.1")
+    implementation(libs.kotlinStdlib)
+    api("androidx.annotation:annotation:1.4.0")
     api("androidx.compose.runtime:runtime:1.1.1")
 }
 
 android {
-    namespace = "androidx.glance.preview"
+    namespace "androidx.glance.preview"
 }
 
 androidx {
     name = "Glance Preview"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Glance preview library. This library provides the API required for marking the" +
             "glance @Composable components that should have preview in the Android Studio."
+    metalavaK2UastEnabled = true
+    legacyDisableKotlinStrictApiMode = true
 }

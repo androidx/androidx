@@ -19,11 +19,12 @@ plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.application")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
 
+    implementation(libs.kotlinStdlib)
     implementation(project(":glance:glance"))
     implementation(project(":glance:glance-wear-tiles"))
     implementation("androidx.wear.tiles:tiles-renderer:1.0.1")
@@ -31,8 +32,7 @@ dependencies {
 
 android {
     defaultConfig {
-        minSdk = 26
-        compileSdk = 35
+        minSdkVersion 26
     }
-    namespace = "androidx.glance.wear.tiles.template.demos"
+    namespace "androidx.glance.wear.tiles.template.demos"
 }

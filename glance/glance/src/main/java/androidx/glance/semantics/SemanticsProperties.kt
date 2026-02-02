@@ -16,32 +16,30 @@
 
 package androidx.glance.semantics
 
-import java.lang.IllegalStateException
-
 /**
  * General semantics properties, mainly used for accessibility and testing.
  *
  * Each property is intended to be set by the respective SemanticsPropertyReceiver extension instead
  * of used directly.
  */
-public object SemanticsProperties {
+object SemanticsProperties {
     /** @see SemanticsPropertyReceiver.contentDescription */
-    public val ContentDescription: SemanticsPropertyKey<List<String>> =
+    val ContentDescription =
         SemanticsPropertyKey<List<String>>(
             name = "ContentDescription",
             mergePolicy = { parentValue, childValue ->
                 parentValue?.toMutableList()?.also { it.addAll(childValue) } ?: childValue
-            },
+            }
         )
 
     /** @see SemanticsPropertyReceiver.testTag */
-    public val TestTag: SemanticsPropertyKey<String> =
+    val TestTag =
         SemanticsPropertyKey<String>(
             name = "TestTag",
             mergePolicy = { parentValue, _ ->
                 // No merge
                 parentValue
-            },
+            }
         )
 }
 
@@ -49,14 +47,14 @@ public object SemanticsProperties {
  * SemanticsPropertyKey is the infrastructure for setting key/value pairs inside semantics block in
  * a type-safe way. Each key has one particular statically defined value type T.
  */
-public class SemanticsPropertyKey<T>(
+class SemanticsPropertyKey<T>(
     /** The name of the property. Should be the same as the constant from shich it is accessed. */
-    public val name: String,
+    val name: String,
     internal val mergePolicy: (T?, T) -> T? = { parentValue, childValue ->
         parentValue ?: childValue
-    },
+    }
 ) {
-    public fun merge(parentValue: T?, childValue: T): T? {
+    fun merge(parentValue: T?, childValue: T): T? {
         return mergePolicy(parentValue, childValue)
     }
 }
@@ -65,15 +63,15 @@ public class SemanticsPropertyKey<T>(
  * SemanticsPropertyReceiver is the scope provided by semantics {} blocks, letting you set key/value
  * pairs primarily via extension functions.
  */
-public interface SemanticsPropertyReceiver {
-    public operator fun <T> set(key: SemanticsPropertyKey<T>, value: T)
+interface SemanticsPropertyReceiver {
+    operator fun <T> set(key: SemanticsPropertyKey<T>, value: T)
 }
 
 /**
  * Developer-set content description of the semantics node, for use in testing, accessibility and
  * similar use cases.
  */
-public var SemanticsPropertyReceiver.contentDescription: String
+var SemanticsPropertyReceiver.contentDescription: String
     /** Throws [UnsupportedOperationException]. Should not be called. */
     get() {
         throw UnsupportedOperationException("You cannot retrieve a semantics property directly")
@@ -87,7 +85,7 @@ public var SemanticsPropertyReceiver.contentDescription: String
  *
  * This is a free form String and can be used to find nodes in testing frameworks.
  */
-public var SemanticsPropertyReceiver.testTag: String
+var SemanticsPropertyReceiver.testTag: String
     /** Throws [UnsupportedOperationException]. Should not be called. */
     get() {
         throw UnsupportedOperationException("You cannot retrieve a semantics property directly")
@@ -97,7 +95,7 @@ public var SemanticsPropertyReceiver.testTag: String
     }
 
 /** Describes the semantics information associated with the owning component. */
-public class SemanticsConfiguration : SemanticsPropertyReceiver {
+class SemanticsConfiguration : SemanticsPropertyReceiver {
     private val props: MutableMap<SemanticsPropertyKey<*>, Any?> = mutableMapOf()
 
     override fun <T> set(key: SemanticsPropertyKey<T>, value: T) {
@@ -110,8 +108,10 @@ public class SemanticsConfiguration : SemanticsPropertyReceiver {
      */
     // Unavoidable, guaranteed by [set]
     @Suppress("UNCHECKED_CAST")
-    public operator fun <T> get(key: SemanticsPropertyKey<T>): T {
-        return props.getOrElse(key) { throw IllegalStateException("Key not present: $key") } as T
+    operator fun <T> get(key: SemanticsPropertyKey<T>): T {
+        return props.getOrElse(key) {
+            throw java.lang.IllegalStateException("Key not present: $key")
+        } as T
     }
 
     /**
@@ -120,7 +120,7 @@ public class SemanticsConfiguration : SemanticsPropertyReceiver {
      */
     // Unavoidable, guaranteed by [set]
     @Suppress("UNCHECKED_CAST")
-    public fun <T> getOrElseNullable(key: SemanticsPropertyKey<T>, defaultValue: () -> T?): T? {
+    fun <T> getOrElseNullable(key: SemanticsPropertyKey<T>, defaultValue: () -> T?): T? {
         return props.getOrElse(key, defaultValue) as T?
     }
 
@@ -128,7 +128,7 @@ public class SemanticsConfiguration : SemanticsPropertyReceiver {
      * Retrieves the value for the given property, if one has been set, If a value has not been set,
      * returns null
      */
-    public fun <T> getOrNull(key: SemanticsPropertyKey<T>): T? {
+    fun <T> getOrNull(key: SemanticsPropertyKey<T>): T? {
         return getOrElseNullable(key) { null }
     }
 }

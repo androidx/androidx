@@ -22,12 +22,12 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.specs.Spec
 
-class FakeGradleProperty<T : Any>(private var value: T? = null) : Property<T> {
+class FakeGradleProperty<T>(private var value: T? = null) : Property<T> {
 
     private var valueProvider: Provider<out T>? = null
     private var convention: T? = null
 
-    override fun <S : Any> flatMap(
+    override fun <S : Any?> flatMap(
         transformer: Transformer<out Provider<out S>?, in T>
     ): Provider<S> {
         throw NotImplementedError()
@@ -39,7 +39,7 @@ class FakeGradleProperty<T : Any>(private var value: T? = null) : Property<T> {
     override fun getOrElse(defaultValue: T) =
         value ?: valueProvider?.get() ?: convention ?: defaultValue
 
-    override fun <S : Any> map(transformer: Transformer<out S?, in T>): Provider<S> {
+    override fun <S : Any?> map(transformer: Transformer<out S?, in T>): Provider<S> {
         throw NotImplementedError()
     }
 
@@ -92,7 +92,6 @@ class FakeGradleProperty<T : Any>(private var value: T? = null) : Property<T> {
         throw NotImplementedError()
     }
 
-    @Suppress("WRONG_NULLABILITY_FOR_JAVA_OVERRIDE")
     override fun orElse(p0: T): Provider<T> {
         throw NotImplementedError()
     }
@@ -113,9 +112,14 @@ class FakeGradleProperty<T : Any>(private var value: T? = null) : Property<T> {
         throw NotImplementedError()
     }
 
-    override fun <U : Any, R : Any> zip(
+    @Deprecated("Deprecated in Java")
+    override fun forUseAtConfigurationTime(): Provider<T> {
+        throw NotImplementedError()
+    }
+
+    override fun <U : Any?, R : Any?> zip(
         p0: Provider<U>,
-        p1: BiFunction<in T, in U, out R>,
+        p1: BiFunction<in T, in U, out R>
     ): Provider<R> {
         throw NotImplementedError()
     }

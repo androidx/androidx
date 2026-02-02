@@ -26,18 +26,21 @@ import androidx.build.SoftwareType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
+    buildTypes.configureEach {
+        consumerProguardFiles "proguard-rules.pro"
+    }
     namespace = "androidx.lifecycle.process"
 }
 
 dependencies {
+    api(libs.kotlinStdlib)
     api(project(":lifecycle:lifecycle-runtime"))
     api("androidx.startup:startup-runtime:1.1.1")
-    api("androidx.annotation:annotation:1.9.1")
+    api("androidx.annotation:annotation:1.8.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

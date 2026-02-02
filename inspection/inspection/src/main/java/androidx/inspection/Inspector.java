@@ -18,7 +18,7 @@ package androidx.inspection;
 
 import android.annotation.SuppressLint;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.concurrent.Executor;
 
@@ -30,7 +30,8 @@ import java.util.concurrent.Executor;
  */
 public abstract class Inspector {
 
-    private @NonNull Connection mConnection;
+    @NonNull
+    private Connection mConnection;
 
     /**
      * @param connection a connection object that allows to send events to studio
@@ -56,12 +57,13 @@ public abstract class Inspector {
      * @param data a raw byte array of the command sent by studio.
      * @param callback a callback to reply on the given command.
      */
-    public abstract void onReceiveCommand(byte @NonNull [] data, @NonNull CommandCallback callback);
+    public abstract void onReceiveCommand(@NonNull byte[] data, @NonNull CommandCallback callback);
 
     /**
      * Returns a connection that allows to send events to Studio.
      */
-    protected final @NonNull Connection getConnection() {
+    @NonNull
+    protected final Connection getConnection() {
         return mConnection;
     }
 
@@ -76,7 +78,7 @@ public abstract class Inspector {
          */
         // Users don't implement this callback, but call methods on it themselves
         @SuppressLint("CallbackMethodName")
-        void reply(byte @NonNull [] response);
+        void reply(@NonNull byte[] response);
 
         /**
          * Handles a signal sent from Studio that this command should be cancelled, if possible.

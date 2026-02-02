@@ -25,10 +25,10 @@ import androidx.glance.GlanceNode
 import androidx.glance.unit.Dimension
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableColumn : EmittableWithChildren() {
+class EmittableColumn : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
-    public var verticalAlignment: Alignment.Vertical = Alignment.Top
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var verticalAlignment: Alignment.Vertical = Alignment.Top
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
 
     override fun copy(): Emittable =
         EmittableColumn().also {
@@ -48,14 +48,14 @@ public class EmittableColumn : EmittableWithChildren() {
 }
 
 /** Scope defining modifiers only available on rows. */
-public interface ColumnScope {
+interface ColumnScope {
     /**
      * Size the element's height to split the available space with other weighted sibling elements
      * in the [Column]. The parent will divide the vertical space remaining after measuring
      * unweighted child elements and distribute it according to the weights, the default weight
      * being 1.
      */
-    public fun GlanceModifier.defaultWeight(): GlanceModifier
+    fun GlanceModifier.defaultWeight(): GlanceModifier
 }
 
 private object ColumnScopeImplInstance : ColumnScope {
@@ -82,11 +82,11 @@ private object ColumnScopeImplInstance : ColumnScope {
  * @param content The content inside the [Column]
  */
 @Composable
-public fun Column(
+fun Column(
     modifier: GlanceModifier = GlanceModifier,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit
 ) {
     GlanceNode(
         factory = ::EmittableColumn,
@@ -95,6 +95,6 @@ public fun Column(
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
             this.set(verticalAlignment) { this.verticalAlignment = it }
         },
-        content = { ColumnScopeImplInstance.content() },
+        content = { ColumnScopeImplInstance.content() }
     )
 }

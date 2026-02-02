@@ -36,10 +36,7 @@ internal typealias UnitTestAssertion = GlanceNodeAssertion<MappedNode, GlanceMap
  * @param text value to match.
  * @param ignoreCase whether to perform case insensitive matching
  */
-public fun UnitTestAssertion.assertHasText(
-    text: String,
-    ignoreCase: Boolean = false,
-): UnitTestAssertion {
+fun UnitTestAssertion.assertHasText(text: String, ignoreCase: Boolean = false): UnitTestAssertion {
     return assert(hasText(text, ignoreCase))
 }
 
@@ -49,9 +46,9 @@ public fun UnitTestAssertion.assertHasText(
  * @param text value to match.
  * @param ignoreCase whether to perform case insensitive matching
  */
-public fun UnitTestAssertion.assertHasTextEqualTo(
+fun UnitTestAssertion.assertHasTextEqualTo(
     text: String,
-    ignoreCase: Boolean = false,
+    ignoreCase: Boolean = false
 ): UnitTestAssertion {
     return assert(hasTextEqualTo(text, ignoreCase))
 }
@@ -63,7 +60,7 @@ public fun UnitTestAssertion.assertHasTextEqualTo(
  *   modifier on the Glance composable nodes.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-public fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertion {
+fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertion {
     return assert(hasTestTag(testTag))
 }
 
@@ -75,9 +72,9 @@ public fun UnitTestAssertion.assertHasTestTag(testTag: String): UnitTestAssertio
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  * @see SemanticsProperties.ContentDescription
  */
-public fun UnitTestAssertion.assertHasContentDescription(
+fun UnitTestAssertion.assertHasContentDescription(
     value: String,
-    ignoreCase: Boolean = false,
+    ignoreCase: Boolean = false
 ): UnitTestAssertion {
     return assert(hasContentDescription(value, ignoreCase))
 }
@@ -90,9 +87,9 @@ public fun UnitTestAssertion.assertHasContentDescription(
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  * @see SemanticsProperties.ContentDescription
  */
-public fun UnitTestAssertion.assertHasContentDescriptionEqualTo(
+fun UnitTestAssertion.assertHasContentDescriptionEqualTo(
     value: String,
-    ignoreCase: Boolean = false,
+    ignoreCase: Boolean = false
 ): UnitTestAssertion {
     return assert(hasContentDescriptionEqualTo(value, ignoreCase))
 }
@@ -102,7 +99,7 @@ public fun UnitTestAssertion.assertHasContentDescriptionEqualTo(
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-public fun UnitTestAssertion.assertHasNoClickAction(): UnitTestAssertion {
+fun UnitTestAssertion.assertHasNoClickAction(): UnitTestAssertion {
     return assert(hasNoClickAction())
 }
 
@@ -111,7 +108,7 @@ public fun UnitTestAssertion.assertHasNoClickAction(): UnitTestAssertion {
  *
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-public fun UnitTestAssertion.assertHasClickAction(): UnitTestAssertion {
+fun UnitTestAssertion.assertHasClickAction(): UnitTestAssertion {
     return assert(hasClickAction())
 }
 
@@ -130,7 +127,7 @@ public fun UnitTestAssertion.assertHasClickAction(): UnitTestAssertion {
 internal fun <T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
     activityClass: Class<T>,
     parameters: ActionParameters = actionParametersOf(),
-    activityOptions: Bundle? = null,
+    activityOptions: Bundle? = null
 ): UnitTestAssertion {
     return assert(hasStartActivityClickAction(activityClass, parameters, activityOptions))
 }
@@ -146,9 +143,9 @@ internal fun <T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
  *   expected to have been passed in the `actionStartActivity` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-public inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
+inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
     parameters: ActionParameters = actionParametersOf(),
-    activityOptions: Bundle? = null,
+    activityOptions: Bundle? = null
 ): UnitTestAssertion {
     return assert(hasStartActivityClickAction<T>(parameters, activityOptions))
 }
@@ -162,9 +159,9 @@ public inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivit
  *   in the `actionStartActivity` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-public fun UnitTestAssertion.assertHasStartActivityClickAction(
+fun UnitTestAssertion.assertHasStartActivityClickAction(
     componentName: ComponentName,
-    parameters: ActionParameters = actionParametersOf(),
+    parameters: ActionParameters = actionParametersOf()
 ): UnitTestAssertion {
     return assert(hasStartActivityClickAction(componentName, parameters))
 }

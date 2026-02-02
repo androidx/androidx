@@ -147,7 +147,7 @@ class DefaultArtToolingTest {
             ArtTooling.ExitHook<Int> { result ->
                 doubleResult = result
                 result
-            },
+            }
         )
 
         val target = Target()
@@ -179,7 +179,6 @@ class DefaultArtToolingTest {
         assertThat(target.v2).isEqualTo("Android")
     }
 
-    @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // intentionally using java.* types
     @Test
     fun testExitHooksSupportVoidAndPrimitives() {
         val tooling = DefaultArtTooling(InspectorId)
@@ -269,7 +268,7 @@ class DefaultArtToolingTest {
             ArtTooling.ExitHook<T> { result ->
                 lastResult = result
                 result
-            },
+            }
         )
     }
 }

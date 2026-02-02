@@ -1,9 +1,0 @@
-import androidx.build.AndroidXRepackageImplPlugin
-
-buildscript {
-    dependencies {
-        classpath(project.files("${project.ext["outDir"]}/buildSrc/private/build/libs/private.jar"))
-    }
-}
-
-apply plugin: AndroidXRepackageImplPlugin

@@ -17,10 +17,13 @@
 plugins {
     id("AndroidXPlugin")
     id("com.android.test")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
+    defaultConfig {
+        minSdk = 23
+    }
     namespace = "androidx.compose.integration.hero.pokedex.macrobenchmark"
     targetProjectPath = ":compose:integration-tests:hero:pokedex:pokedex-macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true

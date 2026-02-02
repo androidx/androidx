@@ -16,7 +16,6 @@
 
 package androidx.benchmark.json
 
-import androidx.benchmark.Arguments
 import androidx.benchmark.CpuInfo
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.IsolationActivity
@@ -53,9 +52,6 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
         val artMainlineVersion: Long, // -1 if not found
         val osCodenameAbbreviated: String,
         val compilationMode: String,
-        // additional data that can be passed from instrumentation arguments and copied into
-        // the json output.
-        val payload: Map<String, String> = emptyMap(), // need default value for backwards compat
         // Note: Convention is to add new entries at bottom
     ) {
         /** Default constructor populates with current run state */
@@ -69,23 +65,15 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                 sustainedPerformanceModeEnabled = IsolationActivity.sustainedPerformanceModeInUse,
                 artMainlineVersion = DeviceInfo.artMainlineVersion,
                 osCodenameAbbreviated =
-                    if (
-                        android.os.Build.VERSION.SDK_INT >= 35 &&
-                            android.os.Build.VERSION.CODENAME == "REL"
-                    ) {
-                        "REL" // OS doesn't support codename letters anymore
-                    } else {
-                        if (android.os.Build.VERSION.CODENAME != "REL") {
-                                // non-release build, use codename
-                                android.os.Build.VERSION.CODENAME
-                            } else {
-                                // release build, use start of build ID
-                                android.os.Build.ID
-                            }
-                            .substring(0, 1)
-                    },
-                compilationMode = PackageInfo.compilationMode,
-                payload = Arguments.payload,
+                    if (android.os.Build.VERSION.CODENAME != "REL") {
+                            // non-release build, use codename
+                            android.os.Build.VERSION.CODENAME
+                        } else {
+                            // release build, use start of build ID
+                            android.os.Build.ID
+                        }
+                        .substring(0, 1),
+                compilationMode = PackageInfo.compilationMode
             )
 
         /**
@@ -102,7 +90,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
             val id: String,
             val model: String,
             val type: String,
-            val version: Version,
+            val version: Version
             // Note: Convention is alphabetical
         ) {
             /** Default constructor which populates values from `android.os.BUILD` */
@@ -122,7 +110,10 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                 )
 
             @JsonClass(generateAdapter = true)
-            data class Version(val codename: String, val sdk: Int)
+            data class Version(
+                val codename: String,
+                val sdk: Int,
+            )
         }
     }
 
@@ -162,7 +153,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
             warmupIterations: Int,
             repeatIterations: Int,
             thermalThrottleSleepSeconds: Long,
-            profilerOutputs: List<ProfilerOutput>?,
+            profilerOutputs: List<ProfilerOutput>?
         ) : this(
             name = name,
             params = ResultWriter.getParams(name),
@@ -205,7 +196,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
              */
             val label: String,
             /** Filename of trace file. */
-            val filename: String,
+            val filename: String
         ) {
             constructor(
                 profilerResult: Profiler.ResultFile
@@ -218,7 +209,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
             enum class Type {
                 MethodTrace,
                 PerfettoTrace,
-                StackSamplingTrace,
+                StackSamplingTrace
             }
         }
 
@@ -229,8 +220,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
             val minimum: Double,
             val maximum: Double,
             val median: Double,
-            val coefficientOfVariation: Double,
-            val runs: List<Double>,
+            val runs: List<Double>
         ) : MetricResult() {
             constructor(
                 metricResult: androidx.benchmark.MetricResult
@@ -238,8 +228,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                 minimum = metricResult.min,
                 maximum = metricResult.max,
                 median = metricResult.median,
-                coefficientOfVariation = metricResult.coefficientOfVariation,
-                runs = metricResult.data,
+                runs = metricResult.data
             )
         }
 
@@ -249,7 +238,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
             @Suppress("PropertyName") val P90: Double,
             @Suppress("PropertyName") val P95: Double,
             @Suppress("PropertyName") val P99: Double,
-            val runs: List<List<Double>>,
+            val runs: List<List<Double>>
         ) : MetricResult() {
             constructor(
                 metricResult: androidx.benchmark.MetricResult
@@ -258,7 +247,7 @@ data class BenchmarkData(val context: Context, val benchmarks: List<TestResult>)
                 P90 = metricResult.p90,
                 P95 = metricResult.p95,
                 P99 = metricResult.p99,
-                runs = metricResult.iterationData!!,
+                runs = metricResult.iterationData!!
             )
         }
     }

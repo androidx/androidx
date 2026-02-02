@@ -16,7 +16,6 @@
 
 package androidx.benchmark.benchmark
 
-import android.annotation.SuppressLint
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -32,13 +31,9 @@ class TrivialKotlinBenchmark {
 
     @Test fun nothing() = benchmarkRule.measureRepeated {}
 
-    @SuppressLint("BanThreadSleep") // intentional bad behavior / regression
     @Test
     fun increment() {
         var i = 0
-        benchmarkRule.measureRepeated {
-            Thread.sleep(1)
-            i++
-        }
+        benchmarkRule.measureRepeated { i++ }
     }
 }

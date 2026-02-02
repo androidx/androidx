@@ -38,8 +38,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /** Object containing the result from composition of [GlanceRemoteViews]. */
-@ExperimentalGlanceRemoteViewsApi
-public class RemoteViewsCompositionResult(public val remoteViews: RemoteViews)
+@ExperimentalGlanceRemoteViewsApi class RemoteViewsCompositionResult(val remoteViews: RemoteViews)
 
 /**
  * Maximum depth for a composition. Although there is no hard limit, this should avoid deep
@@ -55,7 +54,7 @@ private val REMOTE_VIEWS_ID = object : GlanceId {}
  * reused to compose layouts for a host view.
  */
 @ExperimentalGlanceRemoteViewsApi
-public class GlanceRemoteViews {
+class GlanceRemoteViews {
     private val mutex = Mutex()
     private var layoutConfiguration: LayoutConfiguration? = null
 
@@ -70,12 +69,12 @@ public class GlanceRemoteViews {
      * @param content Definition of the UI.
      * @return Composition result containing the [RemoteViews].
      */
-    public suspend fun compose(
+    suspend fun compose(
         context: Context,
         size: DpSize,
         state: Any? = null,
         appWidgetOptions: Bundle = Bundle(),
-        content: @Composable () -> Unit,
+        content: @Composable () -> Unit
     ): RemoteViewsCompositionResult =
         withContext(BroadcastFrameClock()) {
             val layoutConfiguration = initializeLayoutConfiguration(context)
@@ -99,7 +98,7 @@ public class GlanceRemoteViews {
             recomposer.close()
             recomposer.join()
 
-            normalizeCompositionTree(root, isRemoteCompose = false) // todo: don't hardcode
+            normalizeCompositionTree(root)
 
             RemoteViewsCompositionResult(
                 translateComposition(
@@ -108,7 +107,7 @@ public class GlanceRemoteViews {
                     root,
                     layoutConfiguration,
                     layoutConfiguration.addLayout(root),
-                    size,
+                    size
                 )
             )
         }
@@ -120,7 +119,7 @@ public class GlanceRemoteViews {
                     layoutConfiguration
                         ?: LayoutConfiguration.create(
                             context,
-                            AppWidgetManager.INVALID_APPWIDGET_ID,
+                            AppWidgetManager.INVALID_APPWIDGET_ID
                         )
                 layoutConfiguration!!
             }

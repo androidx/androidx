@@ -16,10 +16,12 @@
 
 package androidx.benchmark.macro.perfetto
 
-import androidx.benchmark.traceprocessor.Slice
-import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
+import androidx.benchmark.perfetto.Slice
+import org.intellij.lang.annotations.Language
 
 internal object BatteryDischargeQuery {
+    @Language("sql")
     private fun getFullQuery(slice: Slice) =
         """
         SELECT
@@ -36,8 +38,8 @@ internal object BatteryDischargeQuery {
     data class BatteryDischargeMeasurement(var name: String, var chargeMah: Double)
 
     fun getBatteryDischargeMetrics(
-        session: TraceProcessor.Session,
-        slice: Slice,
+        session: PerfettoTraceProcessor.Session,
+        slice: Slice
     ): List<BatteryDischargeMeasurement> {
         val queryResult = session.query(query = getFullQuery(slice)).toList()
 
@@ -51,9 +53,12 @@ internal object BatteryDischargeQuery {
 
         val row = queryResult.single()
         return listOf(
-            BatteryDischargeMeasurement(name = "Start", chargeMah = row["startMah"] as Double),
+            BatteryDischargeMeasurement(
+                name = "Start",
+                chargeMah = row["startMah"] as Double,
+            ),
             BatteryDischargeMeasurement(name = "End", chargeMah = row["endMah"] as Double),
-            BatteryDischargeMeasurement(name = "Diff", chargeMah = row["diffMah"] as Double),
+            BatteryDischargeMeasurement(name = "Diff", chargeMah = row["diffMah"] as Double)
         )
     }
 }

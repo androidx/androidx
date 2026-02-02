@@ -21,7 +21,7 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 def isIdeBuild() {
@@ -31,11 +31,11 @@ def isIdeBuild() {
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("kotlin-android")
 }
 
 android {
-    namespace = "androidx.annotation.experimental.lint.integrationtests"
+    namespace "androidx.annotation.experimental.lint.integrationtests"
 }
 
 dependencies {
@@ -57,5 +57,5 @@ tasks.withType(KotlinCompile).configureEach {
 }
 
 androidx {
-    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

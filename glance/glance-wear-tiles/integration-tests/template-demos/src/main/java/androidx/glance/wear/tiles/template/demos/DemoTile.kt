@@ -39,7 +39,10 @@ class DemoTile : GlanceTileService() {
                     HeaderBlock(
                         text = TemplateText("Single Entity Demo", TextType.Title),
                         icon =
-                            TemplateImageWithDescription(ImageProvider(R.drawable.compose), "image"),
+                            TemplateImageWithDescription(
+                                ImageProvider(R.drawable.compose),
+                                "image"
+                            ),
                     ),
                 textBlock =
                     TextBlock(
@@ -54,7 +57,7 @@ class DemoTile : GlanceTileService() {
                             listOf(
                                 TemplateImageWithDescription(
                                     ImageProvider(R.drawable.compose),
-                                    "image",
+                                    "image"
                                 )
                             ),
                         priority = 1,

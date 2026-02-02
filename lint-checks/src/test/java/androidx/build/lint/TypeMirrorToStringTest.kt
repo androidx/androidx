@@ -16,7 +16,6 @@
 
 package androidx.build.lint
 
-import com.android.tools.lint.checks.infrastructure.TestFile
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -26,7 +25,6 @@ class TypeMirrorToStringTest :
     AbstractLintDetectorTest(
         useDetector = TypeMirrorToString(),
         useIssues = listOf(TypeMirrorToString.ISSUE),
-        stubs = arrayOf(typeMirrorStub),
     ) {
     @Test
     fun `Test usage TypeMirror#toString on simple receiver`() {
@@ -107,17 +105,5 @@ class TypeMirrorToStringTest :
                 .trimIndent()
 
         check(*input).expect(expected).expectFixDiffs(expectedFixDiffs)
-    }
-
-    companion object {
-        private val typeMirrorStub: TestFile =
-            kotlin(
-                """
-                    package javax.lang.model.type
-                    class TypeMirror {
-                        fun toString() = ""
-                    }
-                """
-            )
     }
 }

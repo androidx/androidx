@@ -67,7 +67,6 @@ import kotlinx.coroutines.launch
  * @param errorUiLayout If not null and an error occurs within this glance wear tile, the tile is
  *   updated with an error UI using the provided layout.
  */
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
 @Suppress("deprecation") // For backwards compatibility.
 public abstract class GlanceTileService(
     private val errorUiLayout: androidx.wear.tiles.LayoutElementBuilders.LayoutElement? =
@@ -100,7 +99,7 @@ public abstract class GlanceTileService(
         super.onDestroy()
     }
 
-    @Suppress("OVERRIDE_DEPRECATION") // b/407504857
+    @Suppress("DEPRECATION")
     override fun onStart(intent: Intent?, startId: Int) {
         lifecycleDispatcher.onServicePreSuperOnStart()
         super.onStart(intent, startId)
@@ -116,7 +115,7 @@ public abstract class GlanceTileService(
         GlanceState.getValue(
             this,
             checkNotNull(stateDefinition) { "No state defined in this service" },
-            getStateIdentifier(),
+            getStateIdentifier()
         ) as T
 
     /** Update the state of the wear tile provided by this service */
@@ -128,7 +127,7 @@ public abstract class GlanceTileService(
                 "No state defined in this service"
             },
             getStateIdentifier(),
-            updateState,
+            updateState
         )
 
     private suspend fun findCurrentState(state: Any?, lastClickableId: String): Any? =
@@ -149,7 +148,7 @@ public abstract class GlanceTileService(
         screenSize: DpSize,
         state: Any?,
         lastClickableId: String,
-        timeInterval: TimeInterval? = null,
+        timeInterval: TimeInterval? = null
     ): CompositionResult = coroutineScope {
         composeTileHelper(
             screenSize,
@@ -158,20 +157,20 @@ public abstract class GlanceTileService(
             getGlanceId(),
             this@GlanceTileService,
             errorUiLayout,
-            { Content() },
+            { Content() }
         )
     }
 
     internal class GlanceTile(
         val tile: TileBuilders.Tile?,
-        val resources: androidx.wear.tiles.ResourceBuilders.Resources?,
+        val resources: androidx.wear.tiles.ResourceBuilders.Resources?
     )
 
     /** Run the composition to build the resources, and, if required, tile as well */
     private suspend fun runComposition(
         screenSize: DpSize,
         resourcesOnly: Boolean,
-        lastClickableId: String,
+        lastClickableId: String
     ): GlanceTile = coroutineScope {
         val timelineBuilders =
             if (resourcesOnly) null else androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
@@ -264,11 +263,11 @@ public abstract class GlanceTileService(
                     if (requestParams.deviceParameters != null)
                         DpSize(
                             requestParams.deviceParameters!!.screenWidthDp.dp,
-                            requestParams.deviceParameters!!.screenHeightDp.dp,
+                            requestParams.deviceParameters!!.screenHeightDp.dp
                         )
                     else DpSize(0.dp, 0.dp),
                     false,
-                    requestParams.state?.lastClickableId ?: "",
+                    requestParams.state?.lastClickableId ?: ""
                 )
                 .tile!!
         }
@@ -299,11 +298,11 @@ public abstract class GlanceTileService(
                     if (requestParams.deviceParameters != null)
                         DpSize(
                             requestParams.deviceParameters!!.screenWidthDp.dp,
-                            requestParams.deviceParameters!!.screenHeightDp.dp,
+                            requestParams.deviceParameters!!.screenHeightDp.dp
                         )
                     else DpSize(0.dp, 0.dp),
                     true,
-                    "",
+                    ""
                 )
                 .resources!!
         }

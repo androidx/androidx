@@ -31,7 +31,7 @@ plugins {
 
 dependencies {
     api(gradleApi())
-    implementation(libs.kotlinGradlePlugin)
+    implementation(libs.kotlinGradlePluginz)
     implementation(libs.gson)
     implementation(libs.apacheCommonsMath)
     testImplementation(gradleTestKit())
@@ -50,7 +50,8 @@ gradlePlugin {
 
 androidx {
     name = "Benchmarks - Darwin Gradle Plugin"
-    type = SoftwareType.INTERNAL_GRADLE_PLUGIN
+    publish = Publish.SNAPSHOT_ONLY
+    type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "AndroidX Benchmarks - Darwin Gradle Plugin"
 }

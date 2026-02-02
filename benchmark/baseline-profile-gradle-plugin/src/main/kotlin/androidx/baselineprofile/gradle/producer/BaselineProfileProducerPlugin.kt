@@ -25,6 +25,7 @@ import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_SUPPORTS_IN
 import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_TESTED_APKS
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
+import androidx.baselineprofile.gradle.utils.AndroidTestModuleWrapper
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BASELINE_PROFILE_PREFIX
 import androidx.baselineprofile.gradle.utils.BUILD_TYPE_BENCHMARK_PREFIX
 import androidx.baselineprofile.gradle.utils.CONFIGURATION_ARTIFACT_TYPE
@@ -67,7 +68,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
         project = project,
         supportedAgpPlugins = setOf(AgpPluginId.ID_ANDROID_TEST_PLUGIN),
         minAgpVersionInclusive = MIN_AGP_VERSION_REQUIRED_INCLUSIVE,
-        maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE,
+        maxAgpVersionExclusive = MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
     ) {
 
     companion object {
@@ -117,15 +118,13 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
         )
     }
 
-    @Suppress("UnstableApiUsage")
-    fun setSelfInstrumenting(extension: TestExtension) {
+    override fun onBeforeFinalizeDsl() {
+
         // We need the instrumentation apk to run as a separate process
-        // waiting on b/307538948 for stable API
-        extension.experimentalProperties["android.experimental.self-instrumenting"] = true
+        AndroidTestModuleWrapper(project).setSelfInstrumenting(true)
     }
 
     override fun onTestFinalizeDsl(extension: TestExtension) {
-        setSelfInstrumenting(extension)
 
         // Creates the new build types to match the app target. All the existing build types beside
         // `debug`, that is the default one, are added manually in the configuration so we can
@@ -182,13 +181,13 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                 // extended. This is because we can't know here which ones are actually
                 // release in the under test module. We can only exclude debug for sure.
                 it.name != "debug"
-            },
+            }
         )
         createBuildTypeIfNotExists(
             project = project,
             extensionBuildTypes = extension.buildTypes,
             buildTypeName = nonObfuscatedReleaseName,
-            configureBlock = configureBlock,
+            configureBlock = configureBlock
         )
 
         // Similarly to baseline profile build types we also create benchmark build types if this
@@ -207,13 +206,13 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                     // Note that at this point we already have created the baseline profile build
                     // types that we don't want to extend again.
                     it.name != "debug" && it.name !in baselineProfileExtendedToOriginalTypeMap
-                },
+                }
             )
             createBuildTypeIfNotExists(
                 project = project,
                 extensionBuildTypes = extension.buildTypes,
                 buildTypeName = benchmarkReleaseName,
-                configureBlock = configureBlock,
+                configureBlock = configureBlock
             )
         }
 
@@ -265,7 +264,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                     listOf(
                         INSTRUMENTATION_ARG_SKIP_ON_EMULATOR to
                             baselineProfileExtension.skipBenchmarksOnEmulator.toString()
-                    ),
+                    )
             )
 
             if (addEnabledRulesInstrumentationArgument && enabledRulesNotSet) {
@@ -274,8 +273,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                     arguments =
                         listOf(
                             INSTRUMENTATION_ARG_ENABLED_RULES to
-                                INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK
-                        ),
+                                INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK,
+                        )
                 )
             }
         }
@@ -291,7 +290,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
             InstrumentationTestRunnerArgumentsAgp82.set(
                 variant = variant,
                 key = INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME,
-                value = TestedApksAgp83.getTargetAppApplicationId(variant),
+                value = TestedApksAgp83.getTargetAppApplicationId(variant)
             )
         }
 
@@ -314,7 +313,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                         listOf(
                             INSTRUMENTATION_ARG_ENABLED_RULES to
                                 INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE
-                        ),
+                        )
                 )
             }
 
@@ -333,7 +332,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                     project = project,
                     variant = variant,
                     configurationName = configuration.name,
-                    baselineProfileExtension = baselineProfileExtension,
+                    baselineProfileExtension = baselineProfileExtension
                 )
             }
         }
@@ -345,19 +344,19 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                 listOf(
                     variant.flavorName ?: "",
                     originalBuildTypeName,
-                    CONFIGURATION_NAME_BASELINE_PROFILES,
+                    CONFIGURATION_NAME_BASELINE_PROFILES
                 ),
             canBeConsumed = true,
             canBeResolved = false,
             buildType = originalBuildTypeName,
-            productFlavors = variant.productFlavors,
+            productFlavors = variant.productFlavors
         )
 
     private fun createTasksForVariant(
         project: Project,
         variant: TestVariant,
         configurationName: String,
-        baselineProfileExtension: BaselineProfileProducerExtension,
+        baselineProfileExtension: BaselineProfileProducerExtension
     ) {
 
         // Prepares the devices list to use to generate the baseline profile.
@@ -381,7 +380,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                         InstrumentationTestTaskWrapper.getByName(
                             project = project,
                             device = device,
-                            variantName = variant.name,
+                            variantName = variant.name
                         )
 
                     // The task is null if the managed device name does not exist
@@ -399,7 +398,7 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                 existing gradle managed devices. Example:
 
                 android {
-                    testOptions.managedDevices.allDevices {
+                    testOptions.managedDevices.devices {
                         pixel6Api31(ManagedVirtualDevice) {
                             device = "Pixel 6"
                             apiLevel = 31
@@ -431,14 +430,14 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
                 project = project,
                 variant = variant,
                 testTaskDependencies = testTasks,
-                shouldSkipGeneration = shouldSkipGeneration,
+                shouldSkipGeneration = shouldSkipGeneration
             )
 
         // The artifacts are added to the configuration that exposes the generated baseline profile
         addArtifactToConfiguration(
             configurationName = configurationName,
             taskProvider = collectTaskProvider,
-            artifactType = CONFIGURATION_ARTIFACT_TYPE,
+            artifactType = CONFIGURATION_ARTIFACT_TYPE
         )
     }
 }

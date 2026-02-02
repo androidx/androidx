@@ -21,17 +21,17 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
+    implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
     implementation(project(":compose:foundation:foundation"))
@@ -41,13 +41,12 @@ dependencies {
 
 androidx {
     name = "Compose Material Navigation Integration Samples"
-    type = SoftwareType.SAMPLES
+    type = LibraryType.SAMPLES
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Samples for Compose Material integration with Navigation"
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.compose.material.navigation.samples"
+    namespace "androidx.compose.material.navigation.samples"
 }

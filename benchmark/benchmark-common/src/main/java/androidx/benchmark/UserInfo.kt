@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import android.os.Parcel
 import android.os.Process
 import androidx.annotation.RestrictTo
@@ -35,9 +34,6 @@ object UserInfo {
             parcel.setDataPosition(0)
             return parcel.readInt()
         }
-
-    val isAdditionalUser: Boolean
-        get() = currentUserId > 0 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
     internal object Overrides {
 

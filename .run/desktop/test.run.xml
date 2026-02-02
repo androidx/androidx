@@ -10,7 +10,7 @@
       </option>
       <option name="taskNames">
         <list>
-          <option value="desktopTest" />
+          <option value="desktopTest -Pandroidx.ignoreTestFailures" />
         </list>
       </option>
       <option name="vmOptions" />

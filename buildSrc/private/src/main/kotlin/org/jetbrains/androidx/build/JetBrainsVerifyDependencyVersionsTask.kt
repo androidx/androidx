@@ -61,17 +61,17 @@ abstract class JetBrainsVerifyDependencyVersionsTask : DefaultTask() {
     }
 
     private fun verifyDependencyVersion(dependency: AndroidXDependency) {
-        val projectVersion = version.get()
-        val dependencyVersion = dependency.version
-        val projectReleasePhase = releasePhase(projectVersion)
+        val projectVersionExtra = Version(version.get()).extra ?: ""
+        val dependencyVersionExtra = Version(dependency.version).extra ?: ""
+        val projectReleasePhase = releasePhase(projectVersionExtra)
         if (projectReleasePhase < 0) {
-            throw GradleException("Project has unexpected release phase $projectVersion")
+            throw GradleException("Project has unexpected release phase $projectVersionExtra")
         }
-        val dependencyReleasePhase = releasePhase(dependencyVersion)
+        val dependencyReleasePhase = releasePhase(dependencyVersionExtra)
         if (dependencyReleasePhase < 0) {
             throw GradleException(
                 "Dependency ${dependency.group}:${dependency.name}" +
-                    ":${dependency.version} has unexpected release phase $dependencyVersion"
+                    ":${dependency.version} has unexpected release phase $dependencyVersionExtra"
             )
         }
         if (dependencyReleasePhase < projectReleasePhase) {
@@ -85,14 +85,14 @@ abstract class JetBrainsVerifyDependencyVersionsTask : DefaultTask() {
         }
     }
 
-    private fun releasePhase(versionString: String): Int {
-        val version = Version(versionString)
+    private fun releasePhase(versionExtra: String): Int {
         return when {
-            version.isStable() -> 4
-            version.isRC() -> 3
-            version.isBeta() -> 2
-            version.isAlpha() -> 1
-            version.isSnapshot() -> 0
+            versionExtra == "" -> 4
+            !versionExtra.startsWith("-") -> 4
+            versionExtra.startsWith("-rc") -> 3
+            versionExtra.startsWith("-beta") -> 2
+            versionExtra.startsWith("-alpha") -> 1
+            versionExtra.startsWith("-SNAPSHOT") -> 0
             else -> -1
         }
     }

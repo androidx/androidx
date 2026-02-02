@@ -18,7 +18,7 @@ package androidx.glance.testing
 
 /** Provides an entry point into testing exposing methods to find glance nodes */
 // Equivalent to "androidx.compose.ui.test.SemanticsNodeInteractionsProvider" from compose.
-public interface GlanceNodeAssertionsProvider<R, T : GlanceNode<R>> {
+interface GlanceNodeAssertionsProvider<R, T : GlanceNode<R>> {
     /**
      * Finds a Glance node that matches the given condition.
      *
@@ -27,12 +27,12 @@ public interface GlanceNodeAssertionsProvider<R, T : GlanceNode<R>> {
      *
      * @param matcher Matcher used for filtering
      */
-    public fun onNode(matcher: GlanceNodeMatcher<R>): GlanceNodeAssertion<R, T>
+    fun onNode(matcher: GlanceNodeMatcher<R>): GlanceNodeAssertion<R, T>
 
     /**
      * Finds all Glance nodes that matches the given condition.
      *
      * @param matcher Matcher used for filtering
      */
-    public fun onAllNodes(matcher: GlanceNodeMatcher<R>): GlanceNodeAssertionCollection<R, T>
+    fun onAllNodes(matcher: GlanceNodeMatcher<R>): GlanceNodeAssertionCollection<R, T>
 }

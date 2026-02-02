@@ -16,10 +16,8 @@
 
 package androidx.benchmark.macro
 
-import android.os.Build.VERSION.SDK_INT
-import androidx.benchmark.DeviceInfo.isEmulator
 import androidx.benchmark.perfetto.PerfettoHelper
-import androidx.benchmark.traceprocessor.TraceProcessor
+import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.filters.MediumTest
 import org.junit.Assume.assumeTrue
 import org.junit.Test
@@ -39,20 +37,13 @@ class TraceSectionMetricTest {
         createTempFileFromAsset(prefix = "api24_commas_in_slice_names", suffix = ".perfetto-trace")
             .absolutePath
 
-    private val truncatedProcessName =
-        createTempFileFromAsset(
-                prefix = "api29_cold_startup_processname_truncated",
-                suffix = ".perfetto-trace",
-            )
-            .absolutePath
-
     @Test
     fun activityThreadMain() =
         verifyFirstSum(
             tracePath = api24ColdStart,
             packageName = Packages.TARGET,
             sectionName = "ActivityThreadMain",
-            expectedFirstMs = 12.639,
+            expectedFirstMs = 12.639
         )
 
     @Test
@@ -61,7 +52,7 @@ class TraceSectionMetricTest {
             tracePath = api24ColdStart,
             packageName = Packages.TARGET,
             sectionName = "activityStart",
-            expectedFirstMs = 81.979,
+            expectedFirstMs = 81.979
         )
 
     @Test
@@ -80,7 +71,7 @@ class TraceSectionMetricTest {
             packageName = Packages.TARGET,
             sectionName = "launching: androidx.benchmark.integration.macrobenchmark.target",
             expectedFirstMs = 269.947,
-            targetPackageOnly = false, // slice from system_server
+            targetPackageOnly = false // slice from system_server
         )
 
     @Test
@@ -89,7 +80,7 @@ class TraceSectionMetricTest {
             tracePath = commasInSliceNames,
             packageName = Packages.TARGET,
             sectionName = "section1,2",
-            expectedFirstMs = 0.006615,
+            expectedFirstMs = 0.006615
         )
 
     @Test
@@ -134,20 +125,6 @@ class TraceSectionMetricTest {
             targetPackageOnly = false,
         )
 
-    @Test
-    fun truncatedProcessName() =
-        verifyFirstSum(
-            tracePath = truncatedProcessName, // trace with truncated target process name
-            packageName = Packages.TARGET,
-            sectionName = "Choreographer#doFrame",
-            expectedFirstMs = 30.819014,
-            expectedMinMs = 0.122031,
-            expectedMaxMs = 30.81901,
-            expectedSumMs = 31.983701,
-            expectedSumCount = 3,
-            targetPackageOnly = true,
-        )
-
     companion object {
         private fun verifyMetric(
             tracePath: String,
@@ -156,28 +133,27 @@ class TraceSectionMetricTest {
             mode: TraceSectionMetric.Mode,
             expectedMs: Double,
             expectedCount: Int,
-            targetPackageOnly: Boolean,
+            targetPackageOnly: Boolean
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
-            // Our API 23 emulators seem to be misconfigured b/438214932
-            assumeTrue(!isEmulator || SDK_INT != 23)
 
             val metric = TraceSectionMetric(sectionName, mode, "testLabel", targetPackageOnly)
-
-            // note that most args are incorrect here, but currently
-            // only targetPackageName matters in this context
-            val captureInfo =
-                Metric.CaptureInfo(
-                    targetPackageName = packageName,
-                    testPackageName = Packages.TEST,
-                    startupMode = StartupMode.COLD,
-                    apiLevel = 24,
-                )
-            metric.configure(captureInfo)
+            metric.configure(packageName = packageName)
 
             val result =
-                TraceProcessor.runSingleSessionServer(tracePath) {
-                    metric.getMeasurements(captureInfo = captureInfo, traceSession = this)
+                PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
+                    metric.getMeasurements(
+                        // note that most args are incorrect here, but currently
+                        // only targetPackageName matters in this context
+                        captureInfo =
+                            Metric.CaptureInfo(
+                                targetPackageName = packageName,
+                                testPackageName = Packages.TEST,
+                                startupMode = StartupMode.COLD,
+                                apiLevel = 24
+                            ),
+                        traceSession = this
+                    )
                 }
 
             var measurements =

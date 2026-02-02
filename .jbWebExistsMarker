@@ -1,0 +1,3 @@
+This file is a marker that tells, that we are at the `web` branch, or at the `jb-main` branch, and we should build web artifacts as the part of the `./compose-jb/compose/scripts/publish` script
+
+don't merge this file to aosp

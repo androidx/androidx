@@ -35,12 +35,12 @@ import androidx.glance.unit.ColorProvider
  *   progress has not reached that area of the overall indicator yet.
  */
 @Composable
-public fun LinearProgressIndicator(
+fun LinearProgressIndicator(
     /*@FloatRange(from = 0.0, to = 1.0)*/
     progress: Float,
     modifier: GlanceModifier = GlanceModifier,
     color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider,
-    backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider,
+    backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider
 ) {
     GlanceNode(
         factory = ::EmittableLinearProgressIndicator,
@@ -49,7 +49,7 @@ public fun LinearProgressIndicator(
             this.set(progress) { this.progress = it }
             this.set(color) { this.color = it }
             this.set(backgroundColor) { this.backgroundColor = it }
-        },
+        }
     )
 }
 
@@ -62,10 +62,10 @@ public fun LinearProgressIndicator(
  *   progress has not reached that area of the overall indicator yet.
  */
 @Composable
-public fun LinearProgressIndicator(
+fun LinearProgressIndicator(
     modifier: GlanceModifier = GlanceModifier,
     color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider,
-    backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider,
+    backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider
 ) {
     GlanceNode(
         factory = ::EmittableLinearProgressIndicator,
@@ -74,17 +74,17 @@ public fun LinearProgressIndicator(
             this.set(true) { this.indeterminate = it }
             this.set(color) { this.color = it }
             this.set(backgroundColor) { this.backgroundColor = it }
-        },
+        }
     )
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableLinearProgressIndicator : Emittable {
+class EmittableLinearProgressIndicator : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
-    public var progress: Float = 0.0f
-    public var indeterminate: Boolean = false
-    public var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
-    public var backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider
+    var progress: Float = 0.0f
+    var indeterminate: Boolean = false
+    var color: ColorProvider = ProgressIndicatorDefaults.IndicatorColorProvider
+    var backgroundColor: ColorProvider = ProgressIndicatorDefaults.BackgroundColorProvider
 
     override fun copy(): Emittable =
         EmittableLinearProgressIndicator().also {
@@ -106,7 +106,7 @@ public class EmittableLinearProgressIndicator : Emittable {
 }
 
 /** Contains the default values used for [LinearProgressIndicator]. */
-public object ProgressIndicatorDefaults {
+object ProgressIndicatorDefaults {
 
     /**
      * Default color for [LinearProgressIndicator]. [Material color
@@ -115,8 +115,8 @@ public object ProgressIndicatorDefaults {
     private val Color = Color(0xFF6200EE)
 
     /** Default ColorProvider for the progress indicator in [LinearProgressIndicator]. */
-    public val IndicatorColorProvider: ColorProvider = ColorProvider(Color)
+    val IndicatorColorProvider = ColorProvider(Color)
 
     /** Default ColorProvider for the background in [LinearProgressIndicator]. */
-    public val BackgroundColorProvider: ColorProvider = ColorProvider(Color.copy(alpha = 0.24f))
+    val BackgroundColorProvider = ColorProvider(Color.copy(alpha = 0.24f))
 }

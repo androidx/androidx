@@ -25,10 +25,10 @@ import androidx.glance.GlanceNode
 import androidx.glance.unit.Dimension
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableRow : EmittableWithChildren() {
+class EmittableRow : EmittableWithChildren() {
     override var modifier: GlanceModifier = GlanceModifier
-    public var horizontalAlignment: Alignment.Horizontal = Alignment.Start
-    public var verticalAlignment: Alignment.Vertical = Alignment.Top
+    var horizontalAlignment: Alignment.Horizontal = Alignment.Start
+    var verticalAlignment: Alignment.Vertical = Alignment.Top
 
     override fun copy(): Emittable =
         EmittableRow().also {
@@ -48,13 +48,13 @@ public class EmittableRow : EmittableWithChildren() {
 }
 
 /** Scope defining modifiers only available on rows. */
-public interface RowScope {
+interface RowScope {
     /**
      * Size the element's width to split the available space with other weighted sibling elements in
      * the [Row]. The parent will divide the horizontal space remaining after measuring unweighted
      * child elements and distribute it according to the weights, the default weight being 1.
      */
-    public fun GlanceModifier.defaultWeight(): GlanceModifier
+    fun GlanceModifier.defaultWeight(): GlanceModifier
 }
 
 private object RowScopeImplInstance : RowScope {
@@ -82,11 +82,11 @@ private object RowScopeImplInstance : RowScope {
  * @param content The content inside the [Row]
  */
 @Composable
-public fun Row(
+fun Row(
     modifier: GlanceModifier = GlanceModifier,
     horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     verticalAlignment: Alignment.Vertical = Alignment.Top,
-    content: @Composable RowScope.() -> Unit,
+    content: @Composable RowScope.() -> Unit
 ) {
     GlanceNode(
         factory = ::EmittableRow,
@@ -95,6 +95,6 @@ public fun Row(
             this.set(verticalAlignment) { this.verticalAlignment = it }
             this.set(horizontalAlignment) { this.horizontalAlignment = it }
         },
-        content = { RowScopeImplInstance.content() },
+        content = { RowScopeImplInstance.content() }
     )
 }

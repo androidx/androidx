@@ -1,7 +1,6 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.dp
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.glance.Button
@@ -39,39 +38,31 @@ class DefaultStateAppWidget : GlanceAppWidget() {
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
         // Get the current stored value for the given Key.
         val count = currentState(CountClicksKey) ?: 0
-        Content(count)
-    }
 
-    override suspend fun providePreview(context: Context, widgetCategory: Int) {
-        provideContent { Content(count = 1) }
-    }
-
-    @Composable
-    private fun Content(count: Int) {
         Row(
             modifier =
                 GlanceModifier.fillMaxSize()
                     .appWidgetBackground()
                     .padding(16.dp)
                     .background(R.color.default_widget_background),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "-",
                 style = TextStyle(textAlign = TextAlign.Center),
-                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to -1)),
+                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to -1))
             )
             Text(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "$count",
-                style = TextStyle(textAlign = TextAlign.Center),
+                style = TextStyle(textAlign = TextAlign.Center)
             )
             Button(
                 modifier = GlanceModifier.defaultWeight(),
                 text = "+",
                 style = TextStyle(textAlign = TextAlign.Center),
-                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to 1)),
+                onClick = actionRunCallback<ClickAction>(actionParametersOf(ClickValueKey to 1))
             )
         }
     }
@@ -81,7 +72,7 @@ class ClickAction : ActionCallback {
     override suspend fun onAction(
         context: Context,
         glanceId: GlanceId,
-        parameters: ActionParameters,
+        parameters: ActionParameters
     ) {
         // Get the current state of the given widget and the value provided in the ActionParameters
         updateAppWidgetState(context, glanceId) { state ->

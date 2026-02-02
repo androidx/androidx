@@ -25,13 +25,13 @@ import androidx.annotation.RestrictTo
 import androidx.compose.ui.graphics.Color
 
 /** Provider of colors for a glance composable's attributes. */
-public interface ColorProvider {
+interface ColorProvider {
     /** Returns the color the provider would use in the given [context]. */
-    public fun getColor(context: Context): Color
+    fun getColor(context: Context): Color
 }
 
 /** Returns a [ColorProvider] that always resolves to the [Color]. */
-public fun ColorProvider(color: Color): ColorProvider {
+fun ColorProvider(color: Color): ColorProvider {
     return FixedColorProvider(color)
 }
 
@@ -41,17 +41,17 @@ public fun ColorProvider(color: Color): ColorProvider {
  * are resolved in
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun ColorProvider(@ColorRes resId: Int): ColorProvider {
+fun ColorProvider(@ColorRes resId: Int): ColorProvider {
     return ResourceColorProvider(resId)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class FixedColorProvider(val color: Color) : ColorProvider {
-    override fun getColor(context: Context): Color = color
+data class FixedColorProvider(val color: Color) : ColorProvider {
+    override fun getColor(context: Context) = color
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public data class ResourceColorProvider(@ColorRes public val resId: Int) : ColorProvider {
+data class ResourceColorProvider(@ColorRes val resId: Int) : ColorProvider {
     override fun getColor(context: Context): Color {
         val androidColor =
             if (Build.VERSION.SDK_INT >= 23) {

@@ -17,7 +17,7 @@
 package androidx.benchmark.benchmark
 
 import androidx.benchmark.BenchmarkState
-import androidx.benchmark.TestDefinition
+import androidx.benchmark.ExperimentalBenchmarkStateApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Test
@@ -26,19 +26,13 @@ import org.junit.runner.RunWith
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class BenchmarkStateBenchmark {
-    /** Proof of concept benchmark using BenchmarkState without a JUnit Rule */
+    @OptIn(ExperimentalBenchmarkStateApi::class)
     @Test
     fun nothing() {
-        val state =
-            BenchmarkState(
-                TestDefinition(
-                    "androidx.benchmark.benchmark.BenchmarkState2Benchmark",
-                    "BenchmarkState2Benchmark",
-                    "increment",
-                )
-            )
+        val state = BenchmarkState(warmupCount = 10, repeatCount = 10)
         while (state.keepRunning()) {
-            //
+            // do nothing
         }
+        state.getMeasurementTimeNs()
     }
 }

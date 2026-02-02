@@ -18,8 +18,6 @@ package androidx.glance.appwidget
 
 import androidx.compose.ui.unit.DpSize
 import androidx.glance.LocalSize
-import androidx.glance.appwidget.SizeMode.Exact
-import androidx.glance.appwidget.SizeMode.Responsive
 
 /**
  * Modes describing how the [GlanceAppWidget] should handle size specification.
@@ -86,14 +84,14 @@ import androidx.glance.appwidget.SizeMode.Responsive
  * effects to update state variables in the composition, otherwise be sure to handle any duplicate
  * triggering that may occur.
  */
-public sealed interface SizeMode {
+sealed interface SizeMode {
     /**
      * The [GlanceAppWidget] provides a single UI.
      *
      * The [LocalSize] will be the minimum size the App Widget can be, as defined in the App Widget
      * provider info (see [android.appwidget.AppWidgetManager.getAppWidgetInfo]).
      */
-    public object Single : SizeMode, PreviewSizeMode {
+    object Single : SizeMode {
         override fun toString(): String = "SizeMode.Single"
     }
 
@@ -106,7 +104,7 @@ public sealed interface SizeMode {
      * [LocalSize] will be the one for which the UI is generated. See the note in [SizeMode] for
      * more info.
      */
-    public object Exact : SizeMode {
+    object Exact : SizeMode {
         override fun toString(): String = "SizeMode.Exact"
     }
 
@@ -126,7 +124,7 @@ public sealed interface SizeMode {
      *
      * @param sizes List of sizes to use, must not be empty.
      */
-    public class Responsive(public val sizes: Set<DpSize>) : SizeMode, PreviewSizeMode {
+    class Responsive(val sizes: Set<DpSize>) : SizeMode {
 
         init {
             require(sizes.isNotEmpty()) { "The set of sizes cannot be empty" }
@@ -148,6 +146,3 @@ public sealed interface SizeMode {
         override fun toString(): String = "SizeMode.Responsive(sizes=$sizes)"
     }
 }
-
-/** This marker interface determines which [SizeMode]s can be used for preview compositions. */
-public sealed interface PreviewSizeMode : SizeMode

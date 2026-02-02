@@ -16,7 +16,7 @@
 
 package androidx.inspection;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 /**
  * A factory that is responsible for creation of an inspector for your library.
@@ -42,7 +42,8 @@ public abstract class InspectorFactory<T extends Inspector> {
     /**
      * @return an id of an inspector that is served by this factory.
      */
-    public final @NonNull String getInspectorId() {
+    @NonNull
+    public final String getInspectorId() {
         return mInspectorId;
     }
 
@@ -53,6 +54,7 @@ public abstract class InspectorFactory<T extends Inspector> {
      * @param environment an environment that provides tooling utilities.
      * @return a new instance of an inspector.
      */
-    public abstract @NonNull T createInspector(@NonNull Connection connection,
+    @NonNull
+    public abstract T createInspector(@NonNull Connection connection,
             @NonNull InspectorEnvironment environment);
 }

@@ -6,15 +6,6 @@ on:
     branches:
       - jb-main
 
-env:
-  # TODO: https://youtrack.jetbrains.com/issue/CMP-9497/Investgate-CfW-tests-flakiness-with-enabled-gradle-configuration-cache-on-CI
-  # Web Tests require running additional processes: karma in node, browser;
-  # To reduce the memory pressure, we change some defaults:
-  GRADLE_WEB_TESTS_FLAGS: >-
-    --no-daemon --stacktrace --no-parallel --no-configuration-cache
-    -Dorg.gradle.jvmargs="-Xmx8g -XX:+UseParallelGC"
-    -Porg.gradle.workers.max=1
-
 jobs:
   compose-desktop-tests:
     runs-on: ubuntu-24.04
@@ -220,7 +211,8 @@ jobs:
       # Compile tests as a separate step to reduce memory usage and potential OOM during running tests.
       - name: Compile ${{ matrix.task }} Tests
         run: |
-          ./gradlew compileTestKotlin${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }}
+          ./gradlew compileTestKotlin${{ matrix.task }} \
+            --no-daemon --stacktrace
 
       - name: Setup Google Chrome
         uses: browser-actions/setup-chrome@v2
@@ -268,7 +260,8 @@ jobs:
       # Compile tests as a separate step to reduce memory usage and potential OOM during running tests.
       - name: Compile ${{ matrix.task }} Tests
         run: |
-          ./gradlew compileTestKotlin${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }}
+          ./gradlew compileTestKotlin${{ matrix.task }} \
+            --no-daemon --stacktrace
 
       - name: Setup Missing Packages
         run: |
@@ -287,7 +280,8 @@ jobs:
 
       - name: Run Web Firefox Tests
         run: |
-          ./gradlew :mpp:testWeb${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }} \
+          ./gradlew :mpp:testWeb${{ matrix.task }} \
+            --no-daemon --stacktrace --no-parallel \
             -Pjetbrains.androidx.web.tests.enableFirefox=true \
             -Pjetbrains.androidx.web.tests.enableChrome=false
 

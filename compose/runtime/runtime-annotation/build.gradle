@@ -22,34 +22,61 @@
  * modifying its settings.
  */
 
-import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
+import androidx.build.AndroidXComposePlugin
+import androidx.build.LibraryType
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 
 plugins {
     id("AndroidXPlugin")
+    id("AndroidXComposePlugin")
+    id("com.android.library")
+    id("JetBrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        namespace = "androidx.compose.runtime.annotation"
-    }
-    jvm()
-    mac()
-    linux()
-    mingwX64()
-    ios()
-    watchos()
-    tvos()
-    js()
-    wasmJs()
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
 
-    defaultPlatform(PlatformIdentifier.JVM)
+androidXComposeMultiplatform {
+    android()
+    darwin()
+    js()
+    wasm()
+    linux()
+}
+
+kotlin {
+    jvm()
+    // Not all modules can have these targets, so declare them here instead of androidXComposeMultiplatform.
+    // We can support the kotlin-native targets supported by kotlin coroutines:
+    // https://github.com/Kotlin/kotlinx.coroutines/blob/master/buildSrc/src/main/kotlin/kotlin-multiplatform-conventions.gradle.kts
+    // NOTE: Keep this list in sync with runtime's targets.
+    watchosArm64()
+    watchosArm32()
+    watchosSimulatorArm64()
+    tvosArm64()
+    tvosSimulatorArm64()
+    mingwX64()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+            }
+        }
+    }
 }
 
 androidx {
     name = "Compose Runtime Annotation"
-    type = SoftwareType.PUBLISHED_LIBRARY
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2025"
     description = "Provides Compose-specific annotations used by the compiler and tooling"
-    samples(project(":compose:runtime:runtime-annotation:runtime-annotation-samples"))
+}
+
+android {
+    namespace "androidx.compose.runtime.annotation"
+}
+
+androidxCompose {
+    composeCompilerPluginEnabled = false
 }

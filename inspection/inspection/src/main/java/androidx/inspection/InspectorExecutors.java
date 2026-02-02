@@ -18,7 +18,7 @@ package androidx.inspection;
 
 import android.os.Handler;
 
-import org.jspecify.annotations.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.concurrent.Executor;
 
@@ -57,7 +57,8 @@ public interface InspectorExecutors {
      * Even when a future wasn't dropped or lost, developers would still need to block one
      * of the threads.
      */
-    @NonNull Handler handler();
+    @NonNull
+    Handler handler();
 
     /**
      * Primary single threaded executor for the given inspector.
@@ -69,10 +70,12 @@ public interface InspectorExecutors {
      * It is important to keep this executor responsive, so it can quickly process incoming
      * messages.
      */
-    @NonNull Executor primary();
+    @NonNull
+    Executor primary();
 
     /**
      * An executor for offloading blocking IO tasks to a shared pool of threads.
      */
-    @NonNull Executor io();
+    @NonNull
+    Executor io();
 }

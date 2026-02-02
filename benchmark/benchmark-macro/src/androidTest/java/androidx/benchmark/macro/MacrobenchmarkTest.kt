@@ -20,9 +20,6 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
-import androidx.benchmark.DeviceMirroring
-import androidx.benchmark.ExperimentalBenchmarkConfigApi
-import androidx.benchmark.ExperimentalConfig
 import androidx.benchmark.json.BenchmarkData
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
@@ -42,7 +39,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@OptIn(ExperimentalMacrobenchmarkApi::class, ExperimentalBenchmarkConfigApi::class)
+@OptIn(ExperimentalMacrobenchmarkApi::class)
 class MacrobenchmarkTest {
 
     @Before
@@ -63,9 +60,9 @@ class MacrobenchmarkTest {
                     compilationMode = CompilationMode.Ignore(),
                     iterations = 1,
                     startupMode = null,
-                    experimentalConfig = null,
+                    perfettoConfig = null,
                     setupBlock = {},
-                    measureBlock = {},
+                    measureBlock = {}
                 )
             }
         assertTrue(exception.message!!.contains("Empty list of metrics"))
@@ -84,9 +81,9 @@ class MacrobenchmarkTest {
                     compilationMode = CompilationMode.Ignore(),
                     iterations = 0, // invalid
                     startupMode = null,
-                    experimentalConfig = null,
+                    perfettoConfig = null,
                     setupBlock = {},
-                    measureBlock = {},
+                    measureBlock = {}
                 )
             }
         assertTrue(exception.message!!.contains("Require iterations > 0"))
@@ -104,7 +101,7 @@ class MacrobenchmarkTest {
                 compilationMode = CompilationMode.Ignore(),
                 iterations = 1,
                 startupMode = StartupMode.COLD,
-                experimentalConfig = null,
+                perfettoConfig = null,
                 setupBlock = {},
                 measureBlock = {
                     startActivityAndWait(
@@ -113,18 +110,18 @@ class MacrobenchmarkTest {
                                 ".TRIVIAL_STARTUP_ACTIVITY"
                         )
                     )
-                },
+                }
             )
         assertEquals(1, result.profilerOutputs!!.size)
         assertEquals(
             result.profilerOutputs!!.single().type,
-            BenchmarkData.TestResult.ProfilerOutput.Type.PerfettoTrace,
+            BenchmarkData.TestResult.ProfilerOutput.Type.PerfettoTrace
         )
     }
 
     enum class Block {
         Setup,
-        Measure,
+        Measure
     }
 
     @RequiresApi(29)
@@ -145,7 +142,7 @@ class MacrobenchmarkTest {
             compilationMode = CompilationMode.DEFAULT,
             iterations = 2,
             startupMode = startupMode,
-            experimentalConfig = null,
+            perfettoConfig = null,
             setupBlock = {
                 opOrder += Block.Setup
                 setupIterations += iteration
@@ -157,7 +154,7 @@ class MacrobenchmarkTest {
                     measurementIterations += iteration
                 }
                 assertEquals(Packages.TARGET, packageName)
-            },
+            }
         )
         if (startupMode == StartupMode.WARM || startupMode == StartupMode.HOT) {
             // measure block is executed an extra time, before first
@@ -169,9 +166,9 @@ class MacrobenchmarkTest {
                     Block.Setup,
                     Block.Measure,
                     Block.Setup,
-                    Block.Measure,
+                    Block.Measure
                 ),
-                opOrder,
+                opOrder
             )
             assertEquals(listOf(null, 0, 1), setupIterations)
             assertEquals(listOf(null, 0, 1), measurementIterations)
@@ -221,9 +218,9 @@ class MacrobenchmarkTest {
                     compilationMode = CompilationMode.DEFAULT,
                     iterations = 3,
                     startupMode = null,
-                    experimentalConfig = ExperimentalConfig(PerfettoConfig.MinimalTest(atraceApps)),
+                    perfettoConfig = PerfettoConfig.MinimalTest(atraceApps),
                     setupBlock = {},
-                    measureBlock = { trace(TRACE_LABEL) { Thread.sleep(2) } },
+                    measureBlock = { trace(TRACE_LABEL) { Thread.sleep(2) } }
                 )
                 .metrics[TRACE_LABEL + "SumMs"]!!
                 .runs
@@ -244,56 +241,6 @@ class MacrobenchmarkTest {
     @LargeTest
     @Test
     fun customConfig_noProcess() = validateSlicesCustomConfig(includeMacroAppTag = false)
-
-    @LargeTest
-    @Test
-    fun macrobenchmark_deviceMirroring_active_throwsError() =
-        try {
-            DeviceMirroring.isAndroidStudioDeviceMirroringActiveOverride = true
-            val exception =
-                assertFailsWith<AssertionError> {
-                    macrobenchmarkWithStartupMode(
-                        uniqueName = "uniqueName", // ignored, uniqueness not important
-                        className = "className",
-                        testName = "testName",
-                        packageName = Packages.TARGET,
-                        metrics = listOf(StartupTimingMetric()),
-                        compilationMode = CompilationMode.Ignore(),
-                        iterations = 1,
-                        startupMode = StartupMode.COLD,
-                        experimentalConfig = null,
-                        setupBlock = {},
-                        measureBlock = {},
-                    )
-                }
-            assertTrue(exception.message!!.contains("Android Studio Device Mirroring is active"))
-        } finally {
-            DeviceMirroring.isAndroidStudioDeviceMirroringActiveOverride = null
-        }
-
-    @LargeTest
-    @Test
-    fun macrobenchmark_deviceMirroring_inactive_runsBenchmark() =
-        try {
-            DeviceMirroring.isAndroidStudioDeviceMirroringActiveOverride = false
-            val result =
-                macrobenchmarkWithStartupMode(
-                    uniqueName = "uniqueName", // ignored, uniqueness not important
-                    className = "className",
-                    testName = "testName",
-                    packageName = Packages.TARGET,
-                    metrics = listOf(TraceSectionMetric(TRACE_LABEL, targetPackageOnly = false)),
-                    compilationMode = CompilationMode.Ignore(),
-                    iterations = 1,
-                    startupMode = StartupMode.COLD,
-                    experimentalConfig = null,
-                    setupBlock = {},
-                    measureBlock = {},
-                )
-            assertEquals(1, result.metrics[TRACE_LABEL + "SumMs"]!!.runs.size)
-        } finally {
-            DeviceMirroring.isAndroidStudioDeviceMirroringActiveOverride = null
-        }
 
     companion object {
         const val TRACE_LABEL = "MacrobencharkTestTraceLabel"

@@ -32,7 +32,10 @@ class BanThreadSleepTest :
 
     @Test
     fun `Detection of Thread#sleep in Java sources`() {
-        val input = arrayOf(javaSample("androidx.ThreadSleepUsageJava"))
+        val input =
+            arrayOf(
+                javaSample("androidx.ThreadSleepUsageJava"),
+            )
 
         val expected =
             """
@@ -48,7 +51,10 @@ src/androidx/ThreadSleepUsageJava.java:21: Error: Uses Thread.sleep() [BanThread
 
     @Test
     fun `Detection of Thread#sleep in Kotlin sources`() {
-        val input = arrayOf(ktSample("androidx.ThreadSleepUsageKotlin"))
+        val input =
+            arrayOf(
+                ktSample("androidx.ThreadSleepUsageKotlin"),
+            )
 
         val expected =
             """

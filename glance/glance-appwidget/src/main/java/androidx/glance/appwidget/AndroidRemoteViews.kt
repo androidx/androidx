@@ -32,7 +32,7 @@ import androidx.glance.GlanceNode
  * @param modifier modifier used to adjust the layout algorithm or draw decoration content.
  */
 @Composable
-public fun AndroidRemoteViews(remoteViews: RemoteViews, modifier: GlanceModifier = GlanceModifier) {
+fun AndroidRemoteViews(remoteViews: RemoteViews, modifier: GlanceModifier = GlanceModifier) {
     AndroidRemoteViews(remoteViews, View.NO_ID, modifier) {}
 }
 
@@ -48,7 +48,7 @@ public fun AndroidRemoteViews(remoteViews: RemoteViews, modifier: GlanceModifier
  * @param content the content that will be added to the provided container.
  */
 @Composable
-public fun AndroidRemoteViews(
+fun AndroidRemoteViews(
     remoteViews: RemoteViews,
     @IdRes containerViewId: Int,
     modifier: GlanceModifier = GlanceModifier,
@@ -61,7 +61,7 @@ public fun AndroidRemoteViews(
             this.set(containerViewId) { this.containerViewId = it }
             this.set(modifier) { this.modifier = it }
         },
-        content = content,
+        content = content
     )
 }
 

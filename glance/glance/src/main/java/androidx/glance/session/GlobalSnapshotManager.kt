@@ -34,11 +34,11 @@ import kotlinx.coroutines.launch
  * Dispatchers.Default. This is based on [androidx.compose.ui.platform.GlobalSnapshotManager].
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public object GlobalSnapshotManager {
+object GlobalSnapshotManager {
     private val started = AtomicBoolean(false)
     private val sent = AtomicBoolean(false)
 
-    public fun ensureStarted() {
+    fun ensureStarted() {
         if (started.compareAndSet(false, true)) {
             val channel = Channel<Unit>(1)
             CoroutineScope(Dispatchers.Default).launch {
@@ -58,7 +58,7 @@ public object GlobalSnapshotManager {
 
 /** Monitors global snapshot state writes and sends apply notifications. */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public suspend fun globalSnapshotMonitor() {
+suspend fun globalSnapshotMonitor() {
     val channel = Channel<Unit>(1)
     val sent = AtomicBoolean(false)
     val observerHandle =

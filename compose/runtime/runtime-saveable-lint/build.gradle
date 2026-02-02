@@ -22,7 +22,7 @@
  * modifying its settings.
  */
 import androidx.build.BundleInsideHelper
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -34,9 +34,9 @@ BundleInsideHelper.forInsideLintJar(project)
 dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
-    bundleInside(project(":compose:lint:common"))
+    bundleInside(projectOrArtifact(":compose:lint:common"))
 
-    testImplementation(project(":compose:lint:common-test"))
+    testImplementation(projectOrArtifact(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
@@ -46,7 +46,7 @@ dependencies {
 
 androidx {
     name = "Compose Runtime Saveable Lint Checks"
-    type = SoftwareType.STANDALONE_PUBLISHED_LINT
+    type = LibraryType.LINT
     inceptionYear = "2021"
     description = "Compose Runtime Saveable Lint Checks"
 }

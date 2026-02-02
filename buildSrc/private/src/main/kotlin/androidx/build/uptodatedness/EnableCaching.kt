@@ -16,9 +16,8 @@
 
 package androidx.build.uptodatedness
 
+import java.io.File
 import org.gradle.api.Task
-import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.Provider
 
 // Tells Gradle to skip running this task, even if this task declares no output files
 fun Task.cacheEvenIfNoOutputs() {
@@ -28,6 +27,6 @@ fun Task.cacheEvenIfNoOutputs() {
 // Returns a dummy/unused output path that we can pass to Gradle to prevent Gradle from thinking
 // that we forgot to declare outputs of this task, and instead to skip this task if its inputs
 // are unchanged
-private fun Task.getDummyOutput(): Provider<RegularFile> {
-    return project.layout.buildDirectory.file("dummyOutput/" + this.name.replace(":", "-"))
+fun Task.getDummyOutput(): File {
+    return File(this.project.buildDir, "dummyOutput/" + this.name.replace(":", "-"))
 }

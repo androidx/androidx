@@ -91,7 +91,7 @@ fun isolatedGlanceComposableTestSamples() {
                         } else {
                             "MyApp"
                         },
-                    modifier = GlanceModifier.semantics { testTag = "header-text" },
+                    modifier = GlanceModifier.semantics { testTag = "header-text" }
                 )
             }
         }
@@ -99,7 +99,9 @@ fun isolatedGlanceComposableTestSamples() {
         @Composable
         fun StatusRow(status: Boolean) {
             Row(modifier = GlanceModifier.fillMaxSize()) {
-                Text(text = "Status")
+                Text(
+                    text = "Status",
+                )
                 Spacer(modifier = GlanceModifier.width(10.dp))
                 Text(
                     text =
@@ -108,7 +110,7 @@ fun isolatedGlanceComposableTestSamples() {
                         } else {
                             "Finished"
                         },
-                    modifier = GlanceModifier.semantics { testTag = "status-text" },
+                    modifier = GlanceModifier.semantics { testTag = "status-text" }
                 )
             }
         }

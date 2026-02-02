@@ -23,7 +23,7 @@ import androidx.glance.GlanceModifier
 import androidx.glance.GlanceNode
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class EmittableSpacer : Emittable {
+class EmittableSpacer : Emittable {
     override var modifier: GlanceModifier = GlanceModifier
 
     override fun copy(): Emittable = EmittableSpacer().also { it.modifier = modifier }
@@ -38,6 +38,6 @@ public class EmittableSpacer : Emittable {
  * @param modifier Modifiers to set to this spacer
  */
 @Composable
-public fun Spacer(modifier: GlanceModifier = GlanceModifier) {
+fun Spacer(modifier: GlanceModifier = GlanceModifier) {
     GlanceNode(factory = ::EmittableSpacer, update = { this.set(modifier) { this.modifier = it } })
 }

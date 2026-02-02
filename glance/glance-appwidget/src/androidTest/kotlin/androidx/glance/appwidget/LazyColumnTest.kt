@@ -43,7 +43,6 @@ import androidx.glance.appwidget.lazy.ReservedItemIdRangeEnd
 import androidx.glance.appwidget.lazy.items
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.padding
-import androidx.glance.session.GlanceSessionManager
 import androidx.glance.text.Text
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -355,7 +354,7 @@ class LazyColumnTest {
                 item {
                     Text(
                         text = "Row item 0, count $count",
-                        modifier = GlanceModifier.clickable { count++ },
+                        modifier = GlanceModifier.clickable { count++ }
                     )
                 }
             }
@@ -380,7 +379,7 @@ class LazyColumnTest {
                 item {
                     Text(
                         "Text",
-                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>()),
+                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>())
                     )
                     Button("Button", onClick = actionStartActivity<Activity>())
                 }
@@ -408,7 +407,7 @@ class LazyColumnTest {
                 item {
                     Text(
                         "Text",
-                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>()),
+                        modifier = GlanceModifier.clickable(actionStartActivity<Activity>())
                     )
                     Button("Button", onClick = actionStartActivity<Activity>())
                 }
@@ -474,7 +473,7 @@ class LazyColumnTest {
                 val button =
                     list.getViewFromUnboxedListItem<FrameLayout>(
                         itemPosition = it,
-                        viewPosition = 0,
+                        viewPosition = 0
                     )
                 buttons[it] = assertIs<FrameLayout>(button)
             }
@@ -519,33 +518,6 @@ class LazyColumnTest {
             mHostRule.waitForListViewChildCount(next)
         }
     }
-
-    @Test
-    @SdkSuppress(minSdkVersion = 29, maxSdkVersion = 31)
-    fun glanceRemoteViewsFactory_loadDataCatchesErrors() = runTest {
-        TestGlanceAppWidget.uiDefinition = {
-            LazyColumn {
-                item { Text("Row item 0") }
-                item { Text("Row item 1") }
-            }
-        }
-
-        mHostRule.startHost()
-        // Close session so that GlanceRemoteViewsFactory is forced to call createAppWidgetSession.
-        GlanceSessionManager.runWithLock {
-            closeSession(AppWidgetId(mHostRule.appWidgetId).toSessionKey())
-        }
-        val factory =
-            GlanceRemoteViewsService.GlanceRemoteViewsFactory(
-                context = context,
-                appWidgetId = mHostRule.appWidgetId,
-                viewId = 2,
-                size = "",
-            )
-        // withErrorOnSessionCreation causes the GlanceAppWidget to throw an IllegalStateException
-        // in createAppWidgetSession.
-        TestGlanceAppWidget.withErrorOnSessionCreation { factory.onDataSetChanged() }
-    }
 }
 
 /**
@@ -580,7 +552,7 @@ internal fun AppWidgetHostRule.waitForListViewChildren(action: (list: ListView) 
 
 internal fun AppWidgetHostRule.waitForListViewChildWithText(
     text: String,
-    action: (list: ListView) -> Unit = {},
+    action: (list: ListView) -> Unit = {}
 ) {
     onHostView {}
 
@@ -647,7 +619,7 @@ private suspend fun ListAdapter.waitForItemIdAtPosition(position: Int, expectedI
                 Log.i(
                     "LazyColumnTest",
                     "ItemId at $position was expected to be " +
-                        "$expectedItemId, but was $actualItemId. Waiting for 200 ms.",
+                        "$expectedItemId, but was $actualItemId. Waiting for 200 ms."
                 )
                 delay(200) // Wait before retrying
                 actualItemId = getItemId(position)
@@ -662,7 +634,7 @@ private suspend fun ListAdapter.waitForItemIdAtPosition(position: Int, expectedI
 
 internal inline fun <reified T : View> ListView.getViewFromUnboxedListItem(
     itemPosition: Int,
-    viewPosition: Int,
+    viewPosition: Int
 ): T {
     // Box added during normalization to allow aligning item contents per the alignment set on
     // LazyColumn

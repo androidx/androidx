@@ -22,21 +22,26 @@
  * modifying its settings.
  */
 import androidx.build.SoftwareType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
 
+    testApi(libs.kotlinStdlib)
     testImplementation(libs.kotlinTest)
+    testImplementation(libs.kotlinTestAnnotationsCommon)
 }
 
 android {
-    defaultConfig.consumerProguardFiles("proguard-rules.pro")
+    buildTypes.configureEach {
+        consumerProguardFiles "proguard-rules.pro"
+    }
     namespace = "androidx.window.extensions.core"
 }
 

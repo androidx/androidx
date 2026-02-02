@@ -18,35 +18,31 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
 
-    implementation("androidx.core:core:1.12.0")
+    implementation(libs.kotlinStdlib)
 
-    implementation("androidx.activity:activity-compose:1.10.1")
     implementation(project(":compose:animation:animation"))
     implementation(project(":compose:foundation:foundation"))
-    implementation(project(":compose:foundation:foundation:foundation-samples"))
     implementation(project(":compose:foundation:foundation-layout"))
-    implementation(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
+    implementation(project(":compose:foundation:foundation:foundation-samples"))
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:material:material"))
-    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-util"))
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":compose:ui:ui-text:ui-text-samples"))
-    implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
+    // TODO: artifact is not published so commented out
+    // implementation(project(":paging:paging-compose:integration-tests:paging-demos"))
     implementation(project(":compose:ui:ui-tooling-preview"))
-    implementation(project(":compose:ui:ui-tooling"))
+    debugImplementation(project(":compose:ui:ui-tooling"))
     implementation(project(":internal-testutils-fonts"))
-    implementation("androidx.collection:collection:1.4.2")
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.compose.foundation.demos"
+    namespace "androidx.compose.foundation.demos"
 }

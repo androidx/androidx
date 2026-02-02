@@ -29,11 +29,14 @@ plugins {
     id("java-gradle-plugin")
 }
 
+apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
+
 dependencies {
-    compileOnly("com.android.tools.build:gradle-api:8.2.1")
+    compileOnly("com.android.tools.build:gradle:7.3.0")
+
     implementation(gradleApi())
 
-    testImplementation("com.android.tools.build:gradle-api:8.2.1")
+    testImplementation("com.android.tools.build:gradle:7.3.0")
     testImplementation(gradleTestKit())
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(libs.junit)
@@ -51,15 +54,9 @@ gradlePlugin {
 
 androidx {
     name = "Benchmark Gradle Plugin"
-    type = SoftwareType.GRADLE_PLUGIN
-    minimumGradleVersion = "8.2"
+    type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2019"
     description = "Android Benchmark Gradle Plugin"
 }
 
-afterEvaluate {
-    tasks.named("test") {
-        it.environment("PLUGIN_VERSION", androidx.LibraryVersions.BENCHMARK)
-        it.dependsOn( tasks.named("publish"))
-    }
-}
+afterEvaluate { tasks.named("test") {it.dependsOn( tasks.named("publish")) }}

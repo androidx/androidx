@@ -34,4 +34,4 @@ package androidx.glance.preview
 @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.FUNCTION)
 @ExperimentalGlancePreviewApi
 @Repeatable
-public annotation class Preview(val widthDp: Int = -1, val heightDp: Int = -1)
+annotation class Preview(val widthDp: Int = -1, val heightDp: Int = -1)

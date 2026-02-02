@@ -21,23 +21,27 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("kotlin-android")
 }
 
 dependencies {
-    api(libs.mockitoCore)
+    api(libs.mockitoCore, excludes.bytebuddy)
 
+    implementation(libs.kotlinStdlib)
 }
 
 android {
-    namespace = "androidx.testutils.mockito"
+    lintOptions {
+        disable "InvalidPackage" // Lint is unhappy about java.lang.instrument package
+    }
+    namespace "androidx.testutils.mockito"
 }
 
 androidx {
-    type = SoftwareType.INTERNAL_TEST_LIBRARY
+    type = LibraryType.INTERNAL_TEST_LIBRARY
 }

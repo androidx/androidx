@@ -18,5 +18,4 @@ package androidx.glance.wear.tiles
 
 @RequiresOptIn("This API is experimental and is likely to change in the future.")
 @Retention(AnnotationRetention.BINARY)
-@Deprecated("glance-wear-tiles is deprecated and will be removed")
-public annotation class ExperimentalGlanceWearTilesApi
+annotation class ExperimentalGlanceWearTilesApi

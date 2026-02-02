@@ -14,26 +14,19 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.SoftwareType
+import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
 
+    implementation(libs.kotlinStdlib)
     implementation(project(":compose:ui:ui"))
     implementation(project(":compose:ui:ui-util"))
     implementation(libs.viewBinding)
@@ -46,18 +39,18 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
+
+    samples(project(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
 }
 
 androidx {
     name = "Compose ViewBinding"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Compose integration with ViewBinding"
     legacyDisableKotlinStrictApiMode = true
-    samples(project(":compose:ui:ui-viewbinding:ui-viewbinding-samples"))
 }
 
 android {
-    compileSdk = 35
-    namespace = "androidx.compose.ui.viewbinding"
+    namespace "androidx.compose.ui.viewbinding"
 }

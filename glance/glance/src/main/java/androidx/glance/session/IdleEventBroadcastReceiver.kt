@@ -26,28 +26,31 @@ import androidx.annotation.RequiresApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-internal class IdleEventBroadcastReceiver(val onIdle: (String) -> Unit) : BroadcastReceiver() {
+internal class IdleEventBroadcastReceiver(val onIdle: () -> Unit) : BroadcastReceiver() {
     companion object {
         val events =
             listOf(
                 PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED,
                 PowerManager.ACTION_DEVICE_LIGHT_IDLE_MODE_CHANGED,
-                PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED,
+                PowerManager.ACTION_LOW_POWER_STANDBY_ENABLED_CHANGED
             )
         val filter = IntentFilter().apply { events.forEach { addAction(it) } }
     }
 
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action in events) checkIdleStatus(context, intent.action!!)
+        if (intent.action in events) checkIdleStatus(context)
     }
 
-    internal fun checkIdleStatus(context: Context, action: String) {
+    internal fun checkIdleStatus(context: Context) {
+        // Idle status is not available before Android M
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
+
         val pm = context.getSystemService(Context.POWER_SERVICE) as PowerManager
-        var isIdle = pm.isDeviceIdleMode
+        var isIdle = Api23Impl.isIdle(pm)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             isIdle = isIdle || Api33Impl.isLightIdleOrLowPowerStandby(pm)
         }
-        if (isIdle) onIdle(action)
+        if (isIdle) onIdle()
     }
 }
 
@@ -58,16 +61,23 @@ private object Api33Impl {
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.M)
+private object Api23Impl {
+    fun isIdle(pm: PowerManager): Boolean {
+        return pm.isDeviceIdleMode
+    }
+}
+
 /** Observe idle events while running [block]. If the device enters idle mode, run [onIdle]. */
 internal suspend fun <T> observeIdleEvents(
     context: Context,
-    onIdle: suspend (String) -> Unit,
+    onIdle: suspend () -> Unit,
     block: suspend () -> T,
 ): T = coroutineScope {
-    val idleReceiver = IdleEventBroadcastReceiver { launch { onIdle(it) } }
+    val idleReceiver = IdleEventBroadcastReceiver { launch { onIdle() } }
     context.registerReceiver(idleReceiver, IdleEventBroadcastReceiver.filter)
     try {
-        idleReceiver.checkIdleStatus(context, "initial_idle_check")
+        idleReceiver.checkIdleStatus(context)
         return@coroutineScope block()
     } finally {
         context.unregisterReceiver(idleReceiver)

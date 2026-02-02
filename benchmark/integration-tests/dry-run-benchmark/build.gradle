@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-import androidx.build.SoftwareType
-
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("kotlin-android")
     id("androidx.benchmark")
 }
 
@@ -28,12 +26,9 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.kotlinStdlib)
 }
 
 android {
-    namespace = "androidx.benchmark.integration.dryrun.benchmark"
-}
-
-androidx {
-    type = SoftwareType.BENCHMARK
+    namespace "androidx.benchmark.integration.dryrun.benchmark"
 }

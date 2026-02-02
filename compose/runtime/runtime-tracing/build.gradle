@@ -14,31 +14,28 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
-import androidx.build.SoftwareType
+import androidx.build.Publish
+import androidx.build.RunApiTasks
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("kotlin-android")
 }
 
 android {
-    namespace = "androidx.compose.runtime.tracing"
+    defaultConfig {
+        minSdkVersion 21
+    }
+    namespace "androidx.compose.runtime.tracing"
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.8.1")
-    implementation("androidx.compose.runtime:runtime:1.3.3")
-    // Keep the versions of tracing-perfetto used by Benchmark and Runtime Tracing in sync.
-    implementation("androidx.tracing:tracing-perfetto:1.0.1")
+    api("androidx.annotation:annotation:1.3.0")
+    implementation(libs.kotlinStdlib)
+    implementation(project(":compose:runtime:runtime"))
+    implementation(androidxArtifact(":tracing:tracing-perfetto"))
     implementation("androidx.startup:startup-runtime:1.1.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -47,7 +44,7 @@ dependencies {
 
 androidx {
     name = "Compose Runtime: Tracing"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2022"
     description = "Additional tracing in Compose"
 }

@@ -16,6 +16,7 @@
 
 package org.jetbrains.androidx.build
 
+import androidx.build.getProjectsMap
 import com.android.utils.mapValuesNotNull
 import org.gradle.api.Project
 import org.jetbrains.kotlin.gradle.plugin.mpp.*
@@ -40,10 +41,7 @@ import org.gradle.api.internal.component.SoftwareComponentInternal
 import org.gradle.api.internal.component.UsageContext
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.tasks.AbstractPublishToMaven
-import org.jetbrains.kotlin.gradle.ExternalKotlinTargetApi
 import org.jetbrains.kotlin.gradle.InternalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.plugin.KotlinTargetComponent
-import org.jetbrains.kotlin.gradle.plugin.mpp.external.DecoratedExternalKotlinTarget
 
 /**
  * Usage that should be added to rootSoftwareComponent to represent target-specific variants
@@ -63,17 +61,8 @@ internal class CustomUsage(
     override fun getGlobalExcludes(): Set<ExcludeRule> = emptySet()
 }
 
-@OptIn(InternalKotlinGradlePluginApi::class, ExternalKotlinTargetApi::class)
-internal fun Project.setupRedirection(target: DecoratedExternalKotlinTarget, newRootComponent: CustomRootComponent) {
-    setupRedirection(target.name, target.kotlinComponents, newRootComponent)
-}
 @OptIn(InternalKotlinGradlePluginApi::class)
-internal fun Project.setupRedirection(target: AbstractKotlinTarget, newRootComponent: CustomRootComponent) {
-    setupRedirection(target.name, target.kotlinComponents, newRootComponent)
-}
-
-@OptIn(InternalKotlinGradlePluginApi::class)
-internal fun Project.setupRedirection(targetName: String, kotlinComponents: Set<KotlinTargetComponent>, newRootComponent: CustomRootComponent) {
+internal fun Project.publishAndroidxReference(target: AbstractKotlinTarget, newRootComponent: CustomRootComponent) {
     afterEvaluate {
         extensions.getByType(PublishingExtension::class.java).apply {
             val kotlinMultiplatform = publications
@@ -94,7 +83,7 @@ internal fun Project.setupRedirection(targetName: String, kotlinComponents: Set<
             if (it.publication.name == "kotlinMultiplatform") it.enabled = false
         }
 
-        kotlinComponents.forEach { component ->
+        target.kotlinComponents.forEach { component ->
             val componentName = component.name
 
             if (component is KotlinVariant)
@@ -117,17 +106,15 @@ internal fun Project.setupRedirection(targetName: String, kotlinComponents: Set<
                 is KotlinVariant -> component.usages
                 is KotlinVariantWithMetadataVariant -> component.usages
                 is JointAndroidKotlinTargetComponent -> component.usages
-                is InternalKotlinTargetComponent -> component.usages
                 else -> emptyList()
             }
 
             usages.forEach { usage ->
                 // Use -published configuration because it would have correct attribute set
                 // required for publication.
-                val configurationName = if (usage.name.endsWith("-published")) usage.name else usage.name + "-published"
-
+                val configurationName = usage.name + "-published"
                 configurations.matching { it.name == configurationName }.all { conf ->
-                    newRootComponent.replaceUsagesFor(targetName, conf, usage)
+                    newRootComponent.addUsageFromConfiguration(conf, usage)
                 }
             }
         }
@@ -139,38 +126,33 @@ internal class CustomRootComponent(
     val customizeDependencyPerConfiguration: (Configuration) -> ModuleDependency
 ) : SoftwareComponentInternal, ComponentWithVariants, ComponentWithCoordinates {
     override fun getName(): String = "kotlinDecoratedRootComponent"
-    override fun getVariants(): Set<SoftwareComponent> =
-        rootComponent.variants.filterTo(mutableSetOf()) { it.name !in replacedTargets }
-
+    override fun getVariants(): Set<SoftwareComponent> = rootComponent.variants
     override fun getCoordinates(): ModuleVersionIdentifier =
         rootComponent.coordinates
 
-    override fun getUsages(): Set<UsageContext> = rootComponent.usages + extraUsages.map { it() }
+    override fun getUsages(): Set<UsageContext> = rootComponent.usages + extraUsages
 
-    private val replacedTargets = mutableSetOf<String>()
-    private val extraUsages = mutableSetOf<() -> UsageContext>()
+    private val extraUsages = mutableSetOf<UsageContext>()
 
-    fun replaceUsagesFor(targetName: String, configuration: Configuration, defaultUsage: KotlinUsageContext) {
-        replacedTargets.add(targetName)
-        extraUsages.add { usageFor(configuration, defaultUsage) }
-    }
-
-    private fun usageFor(configuration: Configuration, defaultUsage: KotlinUsageContext): CustomUsage {
+    fun addUsageFromConfiguration(configuration: Configuration, defaultUsage: KotlinUsageContext) {
         val newDependency = customizeDependencyPerConfiguration(configuration)
 
-        // Dependencies from <target>Main
-        val targetDependencies = defaultUsage.dependencies.toSet()
+        // Dependencies from metadataApiElements, metadataSourcesElements.
+        // Includes not only commonMain, but also other non-target sourceSets (skikoMain, webMain)
+        val metadataDependencies = rootComponent.usages.flatMap { it.dependencies }
 
-        // Dependencies from commonMain/skikoMain/webMain/etc
-        val sharedSourcesetsDependencies = rootComponent.usages.flatMap { it.dependencies }
+        // Dependencies from debugApiElements and other Android configurations
+        val androidDependencies = defaultUsage.dependencies.toSet()
 
-        // Intersection of the dependencies gives us commonMain deps
-        val commonMainDependencies = sharedSourcesetsDependencies.filter { it in targetDependencies }
+        // Intersection of metadataDependencies and androidDependencies gives us commonMain deps
+        val commonMainDependencies = metadataDependencies.filter { it in androidDependencies }
 
-        return CustomUsage(
-            name = configuration.name,
-            attributes = configuration.attributes,
-            dependencies = setOf(newDependency) + commonMainDependencies
+        extraUsages.add(
+            CustomUsage(
+                name = configuration.name,
+                attributes = configuration.attributes,
+                dependencies = setOf(newDependency) + commonMainDependencies
+            )
         )
     }
 }
@@ -208,7 +190,8 @@ internal fun Project.originalToRedirectedDependency(
      * ...
      */
     val projectDefined =
-        JetBrainsPublication.projectPathToLibrary.keys
+        getProjectsMap()
+            .values
             .mapNotNull { project.findProject(it) }
             .flatMap { project ->
                 val redirecting = project.artifactRedirection() ?: return@flatMap emptyList()

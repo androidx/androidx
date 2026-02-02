@@ -28,7 +28,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.android.experimental.built-in-kotlin")
+    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlinSerialization)
 }
 
@@ -39,6 +39,7 @@ dependencies {
     api(project(":navigation:navigation-fragment"))
     api(project(":navigation:navigation-runtime"))
     api(libs.playFeatureDelivery)
+    api(libs.kotlinStdlib)
 
     implementation(libs.kotlinSerializationCore)
     implementation("androidx.activity:activity:1.7.2")
@@ -47,13 +48,19 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
 
+    testRuntimeOnly(libs.testCore)
+    testRuntimeOnly(libs.testRunner)
+    testRuntimeOnly(libs.robolectric)
+
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(project(":internal-testutils-runtime"), {
+        exclude group: "androidx.fragment", module: "fragment"
+    })
 }
 
 android {

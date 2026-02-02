@@ -23,21 +23,21 @@ import androidx.annotation.RestrictTo
 import androidx.glance.ExperimentalGlanceApi
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface StartActivityAction : Action {
-    public val parameters: ActionParameters
-    public val activityOptions: Bundle?
+interface StartActivityAction : Action {
+    val parameters: ActionParameters
+    val activityOptions: Bundle?
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StartActivityComponentAction(
-    public val componentName: ComponentName,
+class StartActivityComponentAction(
+    val componentName: ComponentName,
     override val parameters: ActionParameters,
     override val activityOptions: Bundle?,
 ) : StartActivityAction
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class StartActivityClassAction(
-    public val activityClass: Class<out Activity>,
+class StartActivityClassAction(
+    val activityClass: Class<out Activity>,
     override val parameters: ActionParameters,
     override val activityOptions: Bundle?,
 ) : StartActivityAction
@@ -49,7 +49,7 @@ public class StartActivityClassAction(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  *   the activity intent, keyed by the parameter key name string.
  */
-public fun actionStartActivity(
+fun actionStartActivity(
     componentName: ComponentName,
     parameters: ActionParameters = actionParametersOf(),
 ): Action = StartActivityComponentAction(componentName, parameters, null)
@@ -64,7 +64,7 @@ public fun actionStartActivity(
  *   an activity start.
  */
 @ExperimentalGlanceApi
-public fun actionStartActivity(
+fun actionStartActivity(
     componentName: ComponentName,
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null,
@@ -77,7 +77,7 @@ public fun actionStartActivity(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  *   the activity intent, keyed by the parameter key name string.
  */
-public fun <T : Activity> actionStartActivity(
+fun <T : Activity> actionStartActivity(
     activity: Class<T>,
     parameters: ActionParameters = actionParametersOf(),
 ): Action = StartActivityClassAction(activity, parameters, null)
@@ -92,7 +92,7 @@ public fun <T : Activity> actionStartActivity(
  *   an activity start.
  */
 @ExperimentalGlanceApi
-public fun <T : Activity> actionStartActivity(
+fun <T : Activity> actionStartActivity(
     activity: Class<T>,
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null,
@@ -106,8 +106,8 @@ public fun <T : Activity> actionStartActivity(
  * @param parameters the parameters associated with the action. Parameter values will be added to
  *   the activity intent, keyed by the parameter key name string.
  */
-public inline fun <reified T : Activity> actionStartActivity(
-    parameters: ActionParameters = actionParametersOf()
+inline fun <reified T : Activity> actionStartActivity(
+    parameters: ActionParameters = actionParametersOf(),
 ): Action = actionStartActivity(T::class.java, parameters)
 
 @Suppress("MissingNullability")
@@ -121,7 +121,7 @@ public inline fun <reified T : Activity> actionStartActivity(
  *   an activity start.
  */
 @ExperimentalGlanceApi
-public inline fun <reified T : Activity> actionStartActivity(
+inline fun <reified T : Activity> actionStartActivity(
     parameters: ActionParameters = actionParametersOf(),
     activityOptions: Bundle? = null,
 ): Action = actionStartActivity(T::class.java, parameters, activityOptions)

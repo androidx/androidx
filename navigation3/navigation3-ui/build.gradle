@@ -21,116 +21,138 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-
-import androidx.build.SoftwareType
-import androidx.build.PlatformIdentifier
+import androidx.build.AndroidXComposePlugin
+import androidx.build.Publish
+import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
     id("AndroidXComposePlugin")
-    id("JetBrainsAndroidXPlugin")
     alias(libs.plugins.kotlinSerialization)
+    id("JetBrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
-    androidLibrary {
-        compileSdk = 36
-        namespace = "androidx.navigation3.ui"
-        androidResources.enable = true
-    }
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetBrainsAndroidXPlugin.applyAndConfigure(project)
+
+androidXComposeMultiplatform {
+    android()
     desktop()
-    mac()
-    ios()
+    darwin()
     js()
-    wasmJs()
+    wasm()
+}
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
+kotlin {
     sourceSets {
         def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
         def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
-        commonMain.dependencies {
-            api("androidx.navigation3:navigation3-runtime:$navigation3Version")
-            api("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")
-            api(project(":compose:animation:animation"))
-            api(project(":compose:runtime:runtime"))
-            api(project(":compose:runtime:runtime-saveable"))
-            api(project(":compose:ui:ui"))
-            api("androidx.savedstate:savedstate:1.3.2")
-            api("androidx.savedstate:savedstate-compose:1.3.2")
-            implementation("androidx.annotation:annotation:1.9.1")
-            implementation("androidx.collection:collection:1.5.0")
-            implementation(project(":lifecycle:lifecycle-runtime"))
-            implementation(project(":lifecycle:lifecycle-runtime-compose"))
+        commonMain {
+            dependencies {
+                api("androidx.navigation3:navigation3-runtime:$navigation3Version")
+                api("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0")
+                api(project(":compose:animation:animation"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:runtime:runtime-saveable"))
+                api(project(":compose:ui:ui"))
+                api("androidx.savedstate:savedstate:1.4.0")
+                api("androidx.savedstate:savedstate-compose:1.4.0")
+                implementation("androidx.annotation:annotation:1.9.1")
+                implementation(libs.kotlinStdlib)
+                implementation("androidx.collection:collection:1.5.0")
+                implementation(project(":lifecycle:lifecycle-runtime"))
+                implementation(project(":lifecycle:lifecycle-runtime-compose"))
+            }
         }
 
-        commonTest.dependencies {
-            implementation(libs.kotlinTest)
-            implementation(project(":kruth:kruth"))
-            implementation(project(":compose:runtime:runtime-test-utils"))
-            implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+                implementation(project(":compose:runtime:runtime-test-utils"))
+                implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
+            }
         }
 
-        androidMain.dependencies {
-            api("androidx.activity:activity-compose:1.12.0")
-        }
-
-        androidDeviceTest.dependencies {
-            implementation("androidx.activity:activity-compose:1.12.0")
-            implementation(libs.testRules)
-            implementation(libs.testRunner)
-            implementation(libs.junit)
-            implementation(libs.testExtJunitKtx)
-            implementation(libs.truth)
-            implementation("androidx.compose.material3:material3:1.3.1")
-            implementation(project(":compose:test-utils"))
-            implementation(project(":compose:ui:ui-test"))
-            implementation(project(":compose:ui:ui-test-junit4"))
-            implementation(libs.kotlinSerializationCore)
-        }
-
-        nonAndroidMain {
+        jvmMain {
             dependsOn(commonMain)
+            dependencies {
+            }
         }
 
-        nonAndroidTest {
-            dependsOn(commonTest)
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.activity:activity-compose:1.10.1")
+            }
         }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation("androidx.activity:activity-compose:1.10.1")
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.testExtJunitKtx)
+                implementation(libs.truth)
+                implementation("androidx.compose.material3:material3:1.3.1")
+                implementation(project(":compose:test-utils"))
+                implementation("androidx.compose.ui:ui-test:1.7.5")
+                implementation("androidx.compose.ui:ui-test-junit4:1.7.5")
+                implementation(libs.kotlinSerializationCore)
+            }
+        }
+
+        nonAndroidMain.dependsOn(commonMain)
+        nonAndroidTest.dependsOn(commonTest)
+        nonJvmMain.dependsOn(nonAndroidMain)
+        nonJvmTest.dependsOn(nonAndroidTest)
 
         desktopMain {
+            dependsOn(jvmMain)
             dependsOn(nonAndroidMain)
         }
 
         desktopTest {
+            dependsOn(jvmTest)
             dependsOn(nonAndroidTest)
         }
 
-        nativeMain {
-            dependsOn(nonAndroidMain)
-        }
+        nativeMain.dependsOn(nonJvmMain)
+        nativeTest.dependsOn(nonJvmTest)
 
-        nativeTest {
-            dependsOn(nonAndroidTest)
-        }
+        webMain.dependsOn(nonJvmMain)
+        webTest.dependsOn(nonJvmTest)
 
-        webMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        webTest {
-            dependsOn(nonAndroidTest)
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet.dependsOn(nativeMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(nativeTest)
+            } else if (target.platformType in [KotlinPlatformType.js, KotlinPlatformType.wasm]) {
+                target.compilations["main"].defaultSourceSet.dependsOn(webMain)
+                target.compilations["test"].defaultSourceSet.dependsOn(webTest)
+            }
         }
     }
 }
 
 androidx {
     name = "Androidx Navigation 3 UI"
-    type = SoftwareType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2024"
     description = "Provides a Navigation3 display that uses the building blocks from runtime to " +
             "create a higher level solution."
-    samples(project(":navigation3:navigation3-ui:navigation3-ui-samples"))
-    addGoldenImageAssets()
+}
+
+android {
+    namespace "androidx.navigation3.ui"
 }

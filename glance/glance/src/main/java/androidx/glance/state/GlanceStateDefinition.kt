@@ -34,7 +34,7 @@ import kotlinx.coroutines.sync.withLock
  * once defined, the data should be updated using the state directly, this definition should not
  * change.
  */
-public interface GlanceStateDefinition<T> {
+interface GlanceStateDefinition<T> {
 
     /**
      * This file indicates the location of the persisted data.
@@ -43,7 +43,7 @@ public interface GlanceStateDefinition<T> {
      * @param fileKey The unique string key used to name and identify the data file corresponding to
      *   a remote UI. Each remote UI has a unique UI key, used to key the data for that UI.
      */
-    public fun getLocation(context: Context, fileKey: String): File
+    fun getLocation(context: Context, fileKey: String): File
 
     /**
      * Creates the underlying data store.
@@ -52,7 +52,7 @@ public interface GlanceStateDefinition<T> {
      * @param fileKey The unique string key used to name and identify the data file corresponding to
      *   a remote UI. Each remote UI has a unique UI key, used to key the data for that UI.
      */
-    public suspend fun getDataStore(context: Context, fileKey: String): DataStore<T>
+    suspend fun getDataStore(context: Context, fileKey: String): DataStore<T>
 }
 
 /**
@@ -60,7 +60,7 @@ public interface GlanceStateDefinition<T> {
  * GlanceStateDefinition.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface ConfigManager {
+interface ConfigManager {
     /**
      * Returns the stored data associated with the given UI key string.
      *
@@ -68,10 +68,10 @@ public interface ConfigManager {
      * @param fileKey identifies the data file associated with the store, must be unique for any
      *   remote UI in the app.
      */
-    public suspend fun <T> getValue(
+    suspend fun <T> getValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
-        fileKey: String,
+        fileKey: String
     ): T
 
     /**
@@ -81,21 +81,17 @@ public interface ConfigManager {
      * @param fileKey identifies the date file associated with the store, must be unique for any
      *   remote UI in the app.
      */
-    public suspend fun <T> updateValue(
+    suspend fun <T> updateValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
         fileKey: String,
-        updateBlock: suspend (T) -> T,
+        updateBlock: suspend (T) -> T
     ): T
 
     /**
      * Delete the file underlying the [DataStore] and remove local references to the [DataStore].
      */
-    public suspend fun deleteStore(
-        context: Context,
-        definition: GlanceStateDefinition<*>,
-        fileKey: String,
-    )
+    suspend fun deleteStore(context: Context, definition: GlanceStateDefinition<*>, fileKey: String)
 }
 
 /**
@@ -104,24 +100,24 @@ public interface ConfigManager {
  * month displayed on a calendar rather than actual calendar entries.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public object GlanceState : ConfigManager {
+object GlanceState : ConfigManager {
     override suspend fun <T> getValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
-        fileKey: String,
+        fileKey: String
     ): T = getDataStore(context, definition, fileKey).data.first()
 
     override suspend fun <T> updateValue(
         context: Context,
         definition: GlanceStateDefinition<T>,
         fileKey: String,
-        updateBlock: suspend (T) -> T,
+        updateBlock: suspend (T) -> T
     ): T = getDataStore(context, definition, fileKey).updateData(updateBlock)
 
     override suspend fun deleteStore(
         context: Context,
         definition: GlanceStateDefinition<*>,
-        fileKey: String,
+        fileKey: String
     ) {
         mutex.withLock {
             dataStores.remove(fileKey)
@@ -134,7 +130,7 @@ public object GlanceState : ConfigManager {
     private suspend fun <T> getDataStore(
         context: Context,
         definition: GlanceStateDefinition<T>,
-        fileKey: String,
+        fileKey: String
     ): DataStore<T> =
         mutex.withLock {
             dataStores.getOrPut(fileKey) { definition.getDataStore(context, fileKey) }
@@ -148,7 +144,7 @@ public object GlanceState : ConfigManager {
 }
 
 /** Base class helping the creation of a state using DataStore's [Preferences]. */
-public object PreferencesGlanceStateDefinition : GlanceStateDefinition<Preferences> {
+object PreferencesGlanceStateDefinition : GlanceStateDefinition<Preferences> {
     private var coroutineScope: CoroutineScope? = null
 
     override fun getLocation(context: Context, fileKey: String): File =
@@ -163,7 +159,7 @@ public object PreferencesGlanceStateDefinition : GlanceStateDefinition<Preferenc
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun setCoroutineScope(scope: CoroutineScope) {
+    fun setCoroutineScope(scope: CoroutineScope) {
         coroutineScope = scope
     }
 }

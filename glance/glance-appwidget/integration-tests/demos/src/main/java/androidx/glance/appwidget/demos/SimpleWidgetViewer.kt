@@ -18,7 +18,6 @@ package androidx.glance.appwidget.demos
 
 import android.appwidget.AppWidgetHostView
 import android.appwidget.AppWidgetProviderInfo
-import android.content.ComponentName
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -45,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.glance.ExperimentalGlanceApi
 import androidx.glance.appwidget.GlanceAppWidget
-import androidx.glance.appwidget.UnmanagedSessionReceiver
 import androidx.glance.appwidget.runComposition
 import kotlinx.coroutines.Dispatchers
 
@@ -103,14 +101,7 @@ class SimpleWidgetViewer : ComponentActivity() {
 fun WidgetView(widget: GlanceAppWidget, size: DpSize = DpSize(200.dp, 200.dp)) {
     val context = LocalContext.current
     val remoteViews by
-        remember(widget, size) {
-                widget.runComposition(
-                    context = context,
-                    sizes = listOf(size),
-                    lambdaReceiver =
-                        ComponentName(context, CustomUnmanagedSessionReceiver::class.java),
-                )
-            }
+        remember(widget, size) { widget.runComposition(context, sizes = listOf(size)) }
             .collectAsState(null, Dispatchers.Default)
     AndroidView(
         factory = {
@@ -155,5 +146,3 @@ private fun AppWidgetHostView.setFakeAppWidget() {
         throw IllegalStateException("Couldn't set fake provider", e)
     }
 }
-
-class CustomUnmanagedSessionReceiver : UnmanagedSessionReceiver()

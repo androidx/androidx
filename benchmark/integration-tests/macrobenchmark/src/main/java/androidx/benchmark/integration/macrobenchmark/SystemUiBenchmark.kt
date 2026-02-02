@@ -29,23 +29,28 @@ class SystemUiBenchmark {
     @get:Rule val baselineRule = BaselineProfileRule()
 
     @Test
-    @Ignore("Suppressed for CI runs since killing SystemUi locks the device")
+    @Ignore
     fun baselineProfiles() {
         baselineRule.collect(
             packageName = PACKAGE_NAME,
-            maxIterations = 1,
-            stableIterations = 1,
             profileBlock = {
                 pressHome()
-                device.openNotification()
+                repeat(5) {
+                    device.openNotification()
+                    pressHome()
+                    device.waitForIdle()
+                    device.openQuickSettings()
+                    pressHome()
+                }
+                device.waitForIdle()
+                Thread.sleep(SLEEP_TIMEOUT)
                 pressHome()
-                device.openQuickSettings()
-                pressHome()
-            },
+            }
         )
     }
 
     companion object {
         private const val PACKAGE_NAME = "com.android.systemui"
+        private const val SLEEP_TIMEOUT = 5000L
     }
 }
