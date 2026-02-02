@@ -40,6 +40,8 @@ import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.a11y.SemanticsOwnerAccessibility
 import androidx.compose.ui.platform.a11y.ComposeAccessible
 import androidx.compose.ui.platform.a11y.ComposeSceneAccessibility.ComposeSceneAccessibleContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.window.*
 import java.awt.Dimension
@@ -380,7 +382,14 @@ class ApplicationAccessibilityTest {
         val deferredWindow = CompletableDeferred<ComposeWindow>()
         launchTestWindowApplication {
             val focusRequester = remember { FocusRequester() }
-            TextField(rememberTextFieldState("text"), Modifier.focusRequester(focusRequester))
+            TextField(
+                state = rememberTextFieldState("Hello, World"),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .semantics {
+                        contentDescription = "text"
+                    }
+            )
             LaunchedEffect(Unit) { focusRequester.requestFocus() }
             LaunchedEffect(Unit) { deferredWindow.complete(this@launchTestWindowApplication.window) }
         }

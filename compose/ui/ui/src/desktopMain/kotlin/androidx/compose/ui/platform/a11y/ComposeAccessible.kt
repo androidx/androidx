@@ -256,7 +256,8 @@ internal class ComposeAccessible(
         }
 
         override fun getAccessibleName(): String? {
-            return text?.toString()
+            return semanticsConfig.getOrNull(SemanticsProperties.ContentDescription)?.mergeText()
+                ?: semanticsConfig.getOrNull(SemanticsProperties.Text)?.mergeText()
         }
 
         override fun getAccessibleDescription(): String? {
