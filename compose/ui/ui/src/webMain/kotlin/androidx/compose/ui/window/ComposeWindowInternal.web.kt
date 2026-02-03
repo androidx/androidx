@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.draganddrop.WebDragAndDropManager
 import androidx.compose.ui.events.EventTargetListener
@@ -94,7 +93,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
-import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoRenderDelegate
@@ -366,6 +364,13 @@ internal class ComposeWindow(
     private fun initEvents(canvas: HTMLCanvasElement) {
         var offset = Offset.Zero
 
+        /*
+         * CMP-9673 [Web] Double touch and mouse events
+         * If a touch event is followed by mouse events with the same timestamp, the mouse events are ignored.
+         */
+        var finalTouchEventTimestamp: Any? = null
+        fun MouseEvent.isReal() = timeStamp !== finalTouchEventTimestamp
+
         addTypedEvent<TouchEvent>("touchstart") { event ->
             canvas.getBoundingClientRect().apply {
                 offset = Offset(x = left.toFloat(), y = top.toFloat())
@@ -380,30 +385,32 @@ internal class ComposeWindow(
 
         addTypedEvent<TouchEvent>("touchend") { event ->
             onTouchEvent(event, offset)
+            finalTouchEventTimestamp = event.timeStamp
         }
 
         addTypedEvent<TouchEvent>("touchcancel") { event ->
             onTouchEvent(event, offset)
+            finalTouchEventTimestamp = event.timeStamp
         }
 
         addTypedEvent<MouseEvent>("mousedown") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mouseup") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mousemove") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mouseenter") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mouseleave") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<WheelEvent>("wheel") { event ->
