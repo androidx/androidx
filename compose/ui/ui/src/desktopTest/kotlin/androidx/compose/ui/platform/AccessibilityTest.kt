@@ -483,6 +483,41 @@ class AccessibilityTest {
         assertThat(test.onNodeWithTag("button").fetchAccessible().accessibleContext?.accessibleRole)
             .isEqualTo(AccessibleRole.PUSH_BUTTON)
     }
+
+    @Test
+    fun textFieldAccessibleNameUsesContentDescription() = runDesktopA11yTest {
+        test.setContent {
+            BasicTextField(
+                value = "typed text",
+                onValueChange = { },
+                modifier = Modifier
+                    .testTag("textFieldWithLabel")
+                    .semantics {
+                        contentDescription = "Email"
+                    }
+            )
+        }
+
+        val context = test.onNodeWithTag("textFieldWithLabel").fetchAccessible().accessibleContext
+        assertThat(context?.accessibleName).isEqualTo("Email")
+        assertThat(context?.accessibleDescription).isEqualTo("Email")
+    }
+
+    @Test
+    fun textFieldAccessibleNameIsNullWithoutContentDescription() = runDesktopA11yTest {
+        test.setContent {
+            BasicTextField(
+                value = "typed text",
+                onValueChange = { },
+                modifier = Modifier.testTag("textFieldNoLabel")
+            )
+        }
+
+        val context = test.onNodeWithTag("textFieldNoLabel").fetchAccessible().accessibleContext
+        // TextField without contentDescription should have null accessibleName.
+        // The text content is available through the AccessibleText interface.
+        assertThat(context?.accessibleName).isEqualTo(null)
+    }
 }
 
 

@@ -92,6 +92,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
+import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoRenderDelegate
 import org.jetbrains.skiko.hostOs
@@ -361,6 +362,13 @@ internal class ComposeWindow(
         var offsetX = 0f
         var offsetY = 0f
 
+        /*
+         * CMP-9673 [Web] Double touch and mouse events
+         * If a touch event is followed by mouse events with the same timestamp, the mouse events are ignored.
+         */
+        var finalTouchEventTimestamp: Any? = null
+        fun MouseEvent.isReal() = timeStamp !== finalTouchEventTimestamp
+
         addTypedEvent<TouchEvent>("touchstart") { event ->
             canvas.getBoundingClientRect().apply {
                 offsetX = left.toFloat()
@@ -376,30 +384,32 @@ internal class ComposeWindow(
 
         addTypedEvent<TouchEvent>("touchend") { event ->
             onTouchEvent(event, offsetX, offsetY)
+            finalTouchEventTimestamp = event.timeStamp
         }
 
         addTypedEvent<TouchEvent>("touchcancel") { event ->
             onTouchEvent(event, offsetX, offsetY)
+            finalTouchEventTimestamp = event.timeStamp
         }
 
         addTypedEvent<MouseEvent>("mousedown") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mouseup") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mousemove") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mouseenter") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<MouseEvent>("mouseleave") { event ->
-            onMouseEvent(event)
+            if (event.isReal()) onMouseEvent(event)
         }
 
         addTypedEvent<WheelEvent>("wheel") { event ->
