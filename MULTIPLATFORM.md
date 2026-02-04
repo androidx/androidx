@@ -2,6 +2,7 @@
 
 - Java 17 (should be specified in JAVA_HOME)
 - Android SDK downloaded from Android Studio and specified in `ANDROID_SDK_ROOT`
+- (on Windows) Git "symlinks" is enabled (call `git config --global core.symlinks true` to set it globally)
 
 ## Developing in IDE
 
