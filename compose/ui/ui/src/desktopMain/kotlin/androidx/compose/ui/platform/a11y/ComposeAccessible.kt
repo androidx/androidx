@@ -65,7 +65,6 @@ import javax.accessibility.AccessibleValue
 import javax.swing.text.AttributeSet
 import javax.swing.text.SimpleAttributeSet
 import kotlin.math.roundToInt
-import kotlinx.atomicfu.atomic
 import org.jetbrains.skia.BreakIterator
 
 private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
@@ -108,8 +107,6 @@ internal class ComposeAccessible(
             }
         }
 
-    private val isNativelyInitialized = atomic(false)
-
     val composeAccessibleContext: ComposeAccessibleComponent by lazy { ComposeAccessibleComponent() }
 
     private var disposed = false
@@ -121,14 +118,10 @@ internal class ComposeAccessible(
     override fun getAccessibleContext(): AccessibleContext? {
         if (disposed) {
             // The accessibility system keeps calling functions on the context even after the node
-            // has been removed. We return null so it doesn't do that.
+            // has been removed. We return `null` so it doesn't do that.
             return null
         }
 
-        // see doc for [nativeInitializeAccessible] for details, why this initialization is needed
-        if (isNativelyInitialized.compareAndSet(expect = false, update = true)) {
-            initializeAccessible(this)
-        }
         return composeAccessibleContext
     }
 
