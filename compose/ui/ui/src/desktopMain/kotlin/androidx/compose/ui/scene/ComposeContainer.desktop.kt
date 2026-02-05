@@ -56,6 +56,7 @@ import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlinx.coroutines.CoroutineExceptionHandler
 import org.jetbrains.annotations.VisibleForTesting
 import org.jetbrains.skia.Canvas
@@ -90,6 +91,7 @@ internal class ComposeContainer(
 
     private val layerType: LayerType = ComposeFeatureFlags.layerType.value,
     private val renderSettings: RenderSettings = RenderSettings.SkiaSurface(),
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : WindowFocusListener,
     WindowListener {
     val windowContext = PlatformWindowContext()
@@ -127,9 +129,6 @@ internal class ComposeContainer(
     @VisibleForTesting
     val architectureComponentsOwner = DefaultArchitectureComponentsOwner(savedState)
 
-    private val coroutineExceptionHandler = DesktopCoroutineExceptionHandler()
-    private val coroutineContext = MainUIDispatcher + coroutineExceptionHandler
-
     private val mediator = ComposeSceneMediator(
         container = container,
         isWindowLevel = isWindowLevel,
@@ -142,7 +141,7 @@ internal class ComposeContainer(
             FocusableLayerEventFilter()
         ),
         architectureComponentsOwner = architectureComponentsOwner,
-        coroutineContext = coroutineContext,
+        coroutineContext = coroutineContext + MainUIDispatcher + DesktopCoroutineExceptionHandler(),
         skiaLayerComponentFactory = ::createSkiaLayerComponent,
         composeSceneFactory = ::createComposeScene,
     )

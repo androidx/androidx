@@ -130,7 +130,7 @@ internal class WindowTestScope(
 
     private val robot = Robot()
 
-    fun launchTestApplication(
+    fun CoroutineScope.launchTestApplication(
         content: @Composable ApplicationScope.() -> Unit
     ) = realLaunchApplication {
         if (isOpen) {

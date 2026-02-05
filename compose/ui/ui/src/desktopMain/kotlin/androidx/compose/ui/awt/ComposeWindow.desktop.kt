@@ -37,28 +37,28 @@ import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
 import java.util.Locale
 import javax.swing.JFrame
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
 
 /**
- * ComposeWindow is a window for building UI using Compose for Desktop.
- * ComposeWindow inherits javax.swing.JFrame.
+ * System window for displaying Compose UI, inheriting [javax.swing.JFrame].
  *
- * @param graphicsConfiguration the GraphicsConfiguration that is used to construct the new window.
- * If null, the system default GraphicsConfiguration is assumed.
- * @param skiaLayerAnalytics Analytics that helps to know more about SkiaLayer behaviour.
- * SkiaLayer is underlying class used internally to draw Compose content.
- * Implementation usually uses third-party solution to send info to some centralized analytics gatherer.
+ * @param graphicsConfiguration [GraphicsConfiguration] of the target screen device; if `null`, the default system
+ * [GraphicsConfiguration] is assumed.
+ * @param skiaLayerAnalytics Allows receiving notifications about the underlying Skia layer behavior.
  * @param savedState The saved state to restore the UI state from a previous instance.
+ * @param coroutineContext The coroutine context for Compose content rendering and effects.
  */
 class ComposeWindow @ExperimentalComposeUiApi constructor(
     graphicsConfiguration: GraphicsConfiguration? = null,
     skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty,
     savedState: SavedState? = null,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext
 ) : JFrame(graphicsConfiguration) {
     /**
-     * ComposeWindow is a window for building UI using Compose for Desktop.
-     * ComposeWindow inherits javax.swing.JFrame.
+     * System window for displaying Compose UI, inheriting [javax.swing.JFrame].
      *
      * @param graphicsConfiguration the GraphicsConfiguration that is used to construct the new window.
      * If null, the system default GraphicsConfiguration is assumed.
@@ -72,6 +72,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
         isUndecorated = ::isUndecorated,
         skiaLayerAnalytics = skiaLayerAnalytics,
         savedState = savedState,
+        coroutineContext = coroutineContext
     )
     private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
