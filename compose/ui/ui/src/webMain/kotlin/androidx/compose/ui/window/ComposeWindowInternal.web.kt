@@ -21,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.draganddrop.WebDragAndDropManager
 import androidx.compose.ui.events.EventTargetListener
@@ -93,6 +94,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkikoRenderDelegate
@@ -334,6 +336,14 @@ internal class ComposeWindow(
         canvasEvents.addDisposableEvent(type) { event -> handler(event as T) }
     }
 
+    private fun <T : Event> addTypedEvent(
+        type: String,
+        passive: Boolean,
+        handler: (event: T) -> Unit
+    ) {
+        canvasEvents.addDisposableEvent(type, passive) { event -> handler(event as T) }
+    }
+
     private fun processKeyboardEvent(keyboardEvent: KeyboardEvent) {
         val keyEvent = keyboardEvent.toComposeEvent()
         val processed = scene.sendKeyEvent(keyEvent) ||
@@ -371,7 +381,7 @@ internal class ComposeWindow(
         var finalTouchEventTimestamp: Any? = null
         fun MouseEvent.isReal() = timeStamp !== finalTouchEventTimestamp
 
-        addTypedEvent<TouchEvent>("touchstart") { event ->
+        addTypedEvent<TouchEvent>("touchstart", passive = false) { event ->
             canvas.getBoundingClientRect().apply {
                 offset = Offset(x = left.toFloat(), y = top.toFloat())
             }
@@ -379,16 +389,16 @@ internal class ComposeWindow(
             onTouchEvent(event, offset)
         }
 
-        addTypedEvent<TouchEvent>("touchmove") { event ->
+        addTypedEvent<TouchEvent>("touchmove", passive = false) { event ->
             onTouchEvent(event, offset)
         }
 
-        addTypedEvent<TouchEvent>("touchend") { event ->
+        addTypedEvent<TouchEvent>("touchend", passive = false) { event ->
             onTouchEvent(event, offset)
             finalTouchEventTimestamp = event.timeStamp
         }
 
-        addTypedEvent<TouchEvent>("touchcancel") { event ->
+        addTypedEvent<TouchEvent>("touchcancel", passive = false) { event ->
             onTouchEvent(event, offset)
             finalTouchEventTimestamp = event.timeStamp
         }
@@ -413,7 +423,7 @@ internal class ComposeWindow(
             if (event.isReal()) onMouseEvent(event)
         }
 
-        addTypedEvent<WheelEvent>("wheel") { event ->
+        addTypedEvent<WheelEvent>("wheel", passive = false) { event ->
             onWheelEvent(event)
         }
 
@@ -586,7 +596,7 @@ internal class ComposeWindow(
         )
         activeTouchOffset = null
 
-        if (result.anyChangeConsumed) {
+        if (result.anyChangeConsumed && event.cancelable) {
             event.preventDefault()
         }
     }
@@ -603,7 +613,7 @@ internal class ComposeWindow(
             "mouseleave" -> PointerEventType.Exit
             else -> PointerEventType.Unknown
         }
-        scene.sendPointerEvent(
+        val result = scene.sendPointerEvent(
             eventType = eventType,
             position = event.offset,
             buttons = event.composeButtons,
@@ -616,6 +626,10 @@ internal class ComposeWindow(
             nativeEvent = event,
             button = event.composeButton,
         )
+
+        if (result.anyChangeConsumed && event.cancelable) {
+            event.preventDefault()
+        }
     }
 
     private fun onWheelEvent(
@@ -649,7 +663,9 @@ internal class ComposeWindow(
             button = event.composeButton,
         )
 
-        if (result.anyChangeConsumed) event.preventDefault()
+        if (result.anyChangeConsumed && event.cancelable) {
+            event.preventDefault()
+        }
     }
 
     private val MouseEvent.offset
