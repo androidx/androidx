@@ -321,6 +321,11 @@ inline fun <T> LazyListScope.itemsIndexed(
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.
+ * @param maintainScrollPositionOnKeyChange whether to maintain scroll position when items are
+ *   added/removed before the first visible item. When true (default), the list will automatically
+ *   adjust the scroll position to keep the same item visible when items with keys are added or
+ *   removed before it. When false, the scroll position will be based purely on index, which may
+ *   cause visible content to jump when the list content changes.
  * @param content a block which describes the content. Inside this block you can use methods like
  *   [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -336,6 +341,7 @@ fun LazyRow(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    maintainScrollPositionOnKeyChange: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
     LazyList(
@@ -349,6 +355,7 @@ fun LazyRow(
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
+        maintainScrollPositionOnKeyChange = maintainScrollPositionOnKeyChange,
         content = content,
     )
 }
@@ -381,6 +388,11 @@ fun LazyRow(
  * @param overscrollEffect the [OverscrollEffect] that will be used to render overscroll for this
  *   layout. Note that the [OverscrollEffect.node] will be applied internally as well - you do not
  *   need to use Modifier.overscroll separately.
+ * @param maintainScrollPositionOnKeyChange whether to maintain scroll position when items are
+ *   added/removed before the first visible item. When true (default), the list will automatically
+ *   adjust the scroll position to keep the same item visible when items with keys are added or
+ *   removed before it. When false, the scroll position will be based purely on index, which may
+ *   cause visible content to jump when the list content changes.
  * @param content a block which describes the content. Inside this block you can use methods like
  *   [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -396,6 +408,7 @@ fun LazyColumn(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     userScrollEnabled: Boolean = true,
     overscrollEffect: OverscrollEffect? = rememberOverscrollEffect(),
+    maintainScrollPositionOnKeyChange: Boolean = true,
     content: LazyListScope.() -> Unit,
 ) {
     LazyList(
@@ -409,6 +422,7 @@ fun LazyColumn(
         reverseLayout = reverseLayout,
         userScrollEnabled = userScrollEnabled,
         overscrollEffect = overscrollEffect,
+        maintainScrollPositionOnKeyChange = maintainScrollPositionOnKeyChange,
         content = content,
     )
 }

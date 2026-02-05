@@ -132,6 +132,7 @@ import kotlinx.coroutines.launch
 val LazyListDemos =
     listOf(
         ComposableDemo("Simple column") { LazyColumnDemo() },
+        ComposableDemo("MaintainScrollPosition test") { MaintainScrollPositionDemo() },
         ComposableDemo("Add/remove items") { ListAddRemoveItemsDemo() },
         ComposableDemo("Hoisted state") { ListHoistedStateDemo() },
         ComposableDemo("Horizontal list") { LazyRowItemsDemo() },
@@ -244,6 +245,73 @@ private fun LazyColumnAutoplayDemo() {
                 .fillMaxWidth()
                 .height(400.dp)
         )
+    }
+}
+
+@Preview
+@Composable
+private fun MaintainScrollPositionDemo() {
+    var items by remember { mutableStateOf((0..50).toList()) }
+    var maintainScrollPosition by remember { mutableStateOf(true) }
+
+    Column {
+        Row(
+            modifier = Modifier.padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Button(onClick = {
+                // Add item at the beginning
+                items = listOf(items.size) + items
+            }) {
+                Text("Add First")
+            }
+            Button(onClick = {
+                // Remove first item
+                if (items.isNotEmpty()) {
+                    items = items.drop(1)
+                }
+            }) {
+                Text("Remove First")
+            }
+        }
+        Row(
+            modifier = Modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = maintainScrollPosition,
+                onCheckedChange = { maintainScrollPosition = it }
+            )
+            Text("maintainScrollPositionOnKeyChange: $maintainScrollPosition")
+        }
+
+        Text(
+            "Scroll down, then add/remove items at the beginning.\n" +
+            "With maintainScrollPosition=true: visible item stays\n" +
+            "With maintainScrollPosition=false: scroll jumps",
+            modifier = Modifier.padding(8.dp),
+            fontSize = 12.sp
+        )
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            maintainScrollPositionOnKeyChange = maintainScrollPosition
+        ) {
+            items(items, key = { it }) { item ->
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .animateItem()
+                ) {
+                    Text(
+                        "Item $item",
+                        modifier = Modifier.padding(16.dp),
+                        fontSize = 20.sp
+                    )
+                }
+            }
+        }
     }
 }
 
