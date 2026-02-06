@@ -69,7 +69,7 @@ androidXMultiplatform {
             api(project(":lifecycle:lifecycle-viewmodel"))
             api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             api(project(":savedstate:savedstate"))
-            api("androidx.collection:collection:1.5.0")
+            implementation("androidx.collection:collection:1.5.0")
             implementation(libs.kotlinSerializationCore)
         }
         commonTest.dependencies {

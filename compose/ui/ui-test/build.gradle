@@ -68,9 +68,9 @@ androidXMultiplatform {
 
         jvmAndAndroidMain.dependencies {
             // fork-only dependencies
-            api(project(":compose:runtime:runtime"))
-            api(libs.kotlinCoroutinesCore)
-            api(libs.kotlinCoroutinesTest)
+            implementation(project(":compose:runtime:runtime"))
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinCoroutinesTest)
         }
 
         androidMain.dependencies {

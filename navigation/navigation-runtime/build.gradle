@@ -57,14 +57,14 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlinCoroutinesCore)
+            api(libs.kotlinCoroutinesCore)
             api(project(":navigation:navigation-common"))
             api(project(":lifecycle:lifecycle-common"))
             api(project(":lifecycle:lifecycle-runtime"))
             api(project(":lifecycle:lifecycle-viewmodel"))
 
             implementation(libs.kotlinSerializationCore)
-            api("androidx.collection:collection:1.5.0")
+            implementation("androidx.collection:collection:1.5.0")
 
             // fork-only dependencies
             api("androidx.annotation:annotation:1.9.1")

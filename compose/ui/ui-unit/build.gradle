@@ -50,7 +50,7 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":annotation:annotation"))
+            api(project(":annotation:annotation"))
             api(project(":compose:ui:ui-geometry"))
             implementation("androidx.collection:collection:1.5.0")
             implementation(project(":compose:runtime:runtime"))

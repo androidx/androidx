@@ -52,13 +52,13 @@ androidXMultiplatform {
         commonMain.dependencies {
             api("androidx.navigationevent:navigationevent:$navigationEventVersion")
             implementation(project(":compose:ui:ui"))
-            api(project(":compose:runtime:runtime"))
+            implementation(project(":compose:runtime:runtime"))
             implementation(libs.kotlinCoroutinesCore)
         }
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)
-            api("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
+            implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
             implementation(project(":kruth:kruth"))
         }
 
