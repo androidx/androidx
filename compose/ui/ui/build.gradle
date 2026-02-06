@@ -72,6 +72,8 @@ androidXMultiplatform {
 
     sourceSets {
         def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
+        def savedstateVersion =
+                project.findProperty('artifactRedirection.version.androidx.savedstate')
 
         commonMain.dependencies {
             implementation(libs.kotlinCoroutinesCore)
@@ -90,6 +92,7 @@ androidXMultiplatform {
             api(project(":compose:ui:ui-util"))
 
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
+            implementation("androidx.savedstate:savedstate-compose:$savedstateVersion")
 
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")

@@ -61,6 +61,9 @@ androidXMultiplatform {
             implementation(libs.kotlinTest)
             implementation(project(":kruth:kruth"))
             implementation(project(":compose:ui:ui-test"))
+            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+            implementation(project(":lifecycle:lifecycle-viewmodel-testing"))
+            implementation(project(":lifecycle:lifecycle-runtime-testing"))
         }
 
         androidMain.dependencies {

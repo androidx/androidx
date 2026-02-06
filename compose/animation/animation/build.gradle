@@ -60,6 +60,7 @@ androidXMultiplatform {
 
             api(project(":compose:ui:ui"))
             implementation(project(":compose:ui:ui-util"))
+            implementation(project(":compose:ui:ui-graphics"))
             implementation(project(":collection:collection"))
         }
 

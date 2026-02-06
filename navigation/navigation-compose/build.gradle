@@ -47,6 +47,8 @@ androidXMultiplatform {
             api("org.jetbrains.compose.animation:animation:1.8.2")
             api("org.jetbrains.compose.runtime:runtime:1.8.2")
             api("org.jetbrains.compose.runtime:runtime-saveable:1.8.2")
+            implementation("org.jetbrains.compose.ui:ui:1.8.2")
+            implementation("org.jetbrains.compose.animation:animation:1.8.2")
             implementation("org.jetbrains.compose.animation:animation-core:1.8.2")
             implementation("org.jetbrains.compose.foundation:foundation-layout:1.8.2")
             implementation("androidx.collection:collection:1.5.0")
@@ -57,6 +59,7 @@ androidXMultiplatform {
             implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
             implementation(project(":savedstate:savedstate"))
             implementation(project(":savedstate:savedstate-compose"))
+            implementation(libs.kotlinCoroutinesCore)
             implementation(libs.kotlinSerializationCore)
 
             // fork-only dependencies
