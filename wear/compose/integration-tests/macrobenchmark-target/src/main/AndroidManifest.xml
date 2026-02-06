@@ -68,6 +68,28 @@
         </activity>
 
         <activity
+            android:name=".SimpleCurvedLayoutActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.integration.macrobenchmark.target.SIMPLE_CURVED_LAYOUT_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ComplexCurvedLayoutActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name=
+                    "androidx.wear.compose.integration.macrobenchmark.target.COMPLEX_CURVED_LAYOUT_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
             android:name=".SwipeToDismissActivity"
             android:theme="@style/AppTheme"
             android:exported="true">

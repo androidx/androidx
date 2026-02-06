@@ -23,6 +23,12 @@ internal val CONTENT_DESCRIPTION = "find-me"
 
 internal fun numberedContentDescription(n: Int) = "find-me-$n"
 
+internal fun pressHome() {
+    val instrumentation = InstrumentationRegistry.getInstrumentation()
+    val device = UiDevice.getInstance(instrumentation)
+    device.pressHome()
+}
+
 internal fun disableChargingExperience() {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
     val device = UiDevice.getInstance(instrumentation)
