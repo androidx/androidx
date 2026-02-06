@@ -132,7 +132,6 @@ import kotlinx.coroutines.launch
 val LazyListDemos =
     listOf(
         ComposableDemo("Simple column") { LazyColumnDemo() },
-        ComposableDemo("MaintainScrollPosition test") { MaintainScrollPositionDemo() },
         ComposableDemo("Add/remove items") { ListAddRemoveItemsDemo() },
         ComposableDemo("Hoisted state") { ListHoistedStateDemo() },
         ComposableDemo("Horizontal list") { LazyRowItemsDemo() },
@@ -145,6 +144,7 @@ val LazyListDemos =
         ComposableDemo("LazyRow DSL") { LazyRowScope() },
         ComposableDemo("LazyColumn with sticky headers") { StickyHeaderListSample() },
         ComposableDemo("LazyVerticalGrid with sticky headers") { StickyHeaderGridSample() },
+        ComposableDemo("LazyColumn PreserveFirstVisibleItem") { PreserveFirstVisibleItemDemo() },
         ComposableDemo("LazyColumn with sticky headers - header index") {
             StickyHeaderHeaderIndexSample()
         },
@@ -245,73 +245,6 @@ private fun LazyColumnAutoplayDemo() {
                 .fillMaxWidth()
                 .height(400.dp)
         )
-    }
-}
-
-@Preview
-@Composable
-private fun MaintainScrollPositionDemo() {
-    var items by remember { mutableStateOf((0..50).toList()) }
-    var maintainScrollPosition by remember { mutableStateOf(true) }
-
-    Column {
-        Row(
-            modifier = Modifier.padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Button(onClick = {
-                // Add item at the beginning
-                items = listOf(items.size) + items
-            }) {
-                Text("Add First")
-            }
-            Button(onClick = {
-                // Remove first item
-                if (items.isNotEmpty()) {
-                    items = items.drop(1)
-                }
-            }) {
-                Text("Remove First")
-            }
-        }
-        Row(
-            modifier = Modifier.padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = maintainScrollPosition,
-                onCheckedChange = { maintainScrollPosition = it }
-            )
-            Text("maintainScrollPositionOnKeyChange: $maintainScrollPosition")
-        }
-
-        Text(
-            "Scroll down, then add/remove items at the beginning.\n" +
-            "With maintainScrollPosition=true: visible item stays\n" +
-            "With maintainScrollPosition=false: scroll jumps",
-            modifier = Modifier.padding(8.dp),
-            fontSize = 12.sp
-        )
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            maintainScrollPositionOnKeyChange = maintainScrollPosition
-        ) {
-            items(items, key = { it }) { item ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .animateItem()
-                ) {
-                    Text(
-                        "Item $item",
-                        modifier = Modifier.padding(16.dp),
-                        fontSize = 20.sp
-                    )
-                }
-            }
-        }
     }
 }
 
@@ -1254,4 +1187,106 @@ private class DragAndDropListState(val targetListState: LazyListState) {
                 targetListBackground = Color.Transparent
             }
         }
+}
+
+@Composable
+private fun PreserveFirstVisibleItemDemo() {
+    var items by remember { mutableStateOf((1..20).map { DemoItem(id = it, title = "Item $it") }) }
+    var items2 by remember { mutableStateOf((1..20).map { DemoItem(id = it, title = "Item $it") }) }
+
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        LazyColumnDemo(
+            modifier = Modifier.weight(1f),
+            items = items,
+            preserveFirstVisibleItem = true,
+            onTapShuffleBtn = {
+                val mutableList = items.toMutableList()
+                mutableList.shuffle()
+                items = mutableList
+            },
+            onTapDeleteFirstBtn = {
+                val mutableList = items.toMutableList()
+                mutableList.removeAt(0)
+                items = mutableList
+            },
+            itemContent = { item ->
+                Text(
+                    item.title,
+                    Modifier.fillMaxSize().background(White).padding(horizontal = 16.dp, vertical = 12.dp),
+                    color = Color.DarkGray
+                )
+            }
+        )
+        LazyColumnDemo(
+            modifier = Modifier.weight(1f),
+            items = items2,
+            preserveFirstVisibleItem = false,
+            onTapShuffleBtn = {
+                val mutableList = items2.toMutableList()
+                mutableList.shuffle()
+                items2 = mutableList
+            },
+            onTapDeleteFirstBtn = {
+                val mutableList = items2.toMutableList()
+                mutableList.removeAt(0)
+                items2 = mutableList
+            },
+            itemContent = { item ->
+                Text(
+                    item.title,
+                    Modifier.fillMaxSize().background(White).padding(horizontal = 16.dp, vertical = 12.dp),
+                    color = Color.DarkGray
+                )
+            }
+        )
+    }
+}
+
+data class DemoItem(
+    val id: Int,
+    val title: String,
+)
+
+@Composable
+fun LazyColumnDemo(
+    modifier: Modifier = Modifier,
+    items: List<DemoItem>,
+    preserveFirstVisibleItem: Boolean,
+    onTapDeleteFirstBtn: ()-> Unit,
+    onTapShuffleBtn: ()->Unit,
+    itemContent: @Composable (DemoItem) -> Unit,
+    listState: LazyListState = rememberLazyListState()
+) {
+    Box(modifier.fillMaxSize()) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("preserveFirstVisibleItem: $preserveFirstVisibleItem",
+                color = White
+            )
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)){
+                Button(onClick = onTapShuffleBtn) {
+                    Text("Shuffle")
+                }
+                Button(onClick = onTapDeleteFirstBtn) {
+                    Text("Delete First Item")
+                }
+            }
+
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                state = listState,
+                verticalArrangement = Arrangement.spacedBy(0.dp),
+                preserveFirstVisibleItem = preserveFirstVisibleItem
+            ) {
+                itemsIndexed(
+                    items = items,
+                    key = { _, item -> item.id }
+                ) { index, item ->
+                    Column(Modifier.animateItem()) {
+                        itemContent(item)
+                    }
+                }
+            }
+        }
+    }
 }

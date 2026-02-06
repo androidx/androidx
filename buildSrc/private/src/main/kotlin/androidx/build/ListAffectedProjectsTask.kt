@@ -154,11 +154,7 @@ private fun findAllProjectsDependingOn(
     return result
 }
 
-internal fun Project.registerListAffectedProjectsTask() {
-    // allProjectConsumers is only set in the main settings.gradle, not in playground builds
-    if (!gradle.extra.has("allProjectConsumers")) {
-        return
-    }
+internal fun Project.registerListAffectedProjectsTask() =
     tasks.register("listAffectedProjects", ListAffectedProjectsTask::class.java) { task ->
         task.tasksToRun.convention(listOf("bOS"))
         task.shouldRunOnDependentProjects.convention(false)
@@ -174,4 +170,3 @@ internal fun Project.registerListAffectedProjectsTask() {
         // Always run task
         task.outputs.upToDateWhen { false }
     }
-}
