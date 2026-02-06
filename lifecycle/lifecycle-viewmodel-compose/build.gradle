@@ -50,13 +50,10 @@ androidXMultiplatform {
         commonMain.dependencies {
             api(project(":lifecycle:lifecycle-common"))
             api(project(":lifecycle:lifecycle-viewmodel"))
+            api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             api("androidx.annotation:annotation:1.9.1")
             api("org.jetbrains.compose.runtime:runtime:1.9.3")
-
-            // Moved from platform dependencies
-            api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             api("org.jetbrains.compose.ui:ui:1.9.3")
-
             api(libs.kotlinSerializationCore)
         }
 

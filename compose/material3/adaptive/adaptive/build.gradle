@@ -49,8 +49,10 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api(project(":compose:foundation:foundation"))
-            api(project(":compose:ui:ui-geometry"))
             api("org.jetbrains.androidx.window:window-core:1.5.0")
+
+            // fork-only dependencies
+            api(project(":compose:ui:ui-geometry"))
         }
 
         androidMain.dependencies {

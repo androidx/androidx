@@ -72,28 +72,30 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(libs.kotlinCoroutinesCore)
             implementation(project(":annotation:annotation"))
             implementation(project(":collection:collection"))
-            implementation(libs.kotlinCoroutinesCore)
 
             // when updating the runtime version please also update the runtime-saveable version
             implementation(project(":compose:runtime:runtime"))
-            // We do not publish runtime-retain from the fork (it's KMP-compatible from the start)
-            // api(project(":compose:runtime:runtime-retain"))
             def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
             api("androidx.compose.runtime:runtime-retain:$composeVersion")
             api(project(":compose:runtime:runtime-saveable"))
 
-            api project(":compose:ui:ui-geometry")
-            api project(":compose:ui:ui-graphics")
-            api project(":compose:ui:ui-text")
-            api project(":compose:ui:ui-unit")
-            api project(":compose:ui:ui-util")
-            api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.6")
+            api(project(":compose:ui:ui-geometry"))
+            api(project(":compose:ui:ui-graphics"))
+            api(project(":compose:ui:ui-text"))
+            api(project(":compose:ui:ui-unit"))
+            api(project(":compose:ui:ui-util"))
+
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose:2.9.6")
+
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
+
+            // fork-only dependencies
+            api("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6")
+            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.6")
         }
 
         commonTest.dependencies {

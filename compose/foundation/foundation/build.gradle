@@ -56,14 +56,16 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":annotation:annotation"))
             implementation(project(":collection:collection"))
-            api(project(':compose:animation:animation'))
-            api(project(':compose:runtime:runtime'))
-            api(project(':compose:ui:ui'))
+            api(project(":compose:animation:animation"))
+            api(project(":compose:runtime:runtime"))
+            api(project(":compose:ui:ui"))
             implementation(project(":compose:ui:ui-text"))
             implementation(project(":compose:ui:ui-util"))
-            implementation(project(':compose:foundation:foundation-layout'))
+            implementation(project(":compose:foundation:foundation-layout"))
+
+            // fork-only dependencies
+            implementation(project(":annotation:annotation"))
         }
 
         commonTest.dependencies {

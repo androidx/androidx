@@ -51,8 +51,10 @@ androidXMultiplatform {
             dependencies {
                 implementation(project(":compose:material3:material3"))
                 implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.2.0")
-                implementation(project(":compose:ui:ui"))
                 implementation("org.jetbrains.androidx.window:window-core:1.4.0")
+
+                // fork-only dependencies
+                implementation(project(":compose:ui:ui"))
                 api("androidx.annotation:annotation:1.9.1")
             }
         }
