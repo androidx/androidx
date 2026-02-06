@@ -57,9 +57,6 @@ androidXMultiplatform {
             implementation(project(":compose:ui:ui-util"))
             implementation(project(":collection:collection"))
             implementation(project(":compose:ui:ui-unit"))
-
-            // fork-only dependencies
-            implementation(project(":annotation:annotation"))
         }
 
         commonTest.dependencies {

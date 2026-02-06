@@ -67,9 +67,6 @@ androidXMultiplatform {
 
             api(project(":annotation:annotation"))
             implementation(project(":collection:collection"))
-
-            // fork-only dependencies
-            implementation(project(":compose:ui:ui-geometry"))
         }
 
         commonTest.dependencies {

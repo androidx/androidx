@@ -62,9 +62,6 @@ androidXMultiplatform {
             implementation(project(":compose:animation:animation"))
             implementation(project(":compose:foundation:foundation-layout"))
             implementation(project(":compose:ui:ui-util"))
-
-            // fork-only dependencies
-            implementation(project(":annotation:annotation"))
         }
 
         commonTest.dependencies {

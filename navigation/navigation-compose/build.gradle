@@ -61,9 +61,6 @@ androidXMultiplatform {
             implementation(project(":savedstate:savedstate-compose"))
             implementation(libs.kotlinCoroutinesCore)
             implementation(libs.kotlinSerializationCore)
-
-            // fork-only dependencies
-            implementation("androidx.annotation:annotation:1.9.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlinTest)

@@ -60,11 +60,6 @@ androidXMultiplatform {
             api(project(":compose:ui:ui"))
             api(project(":compose:ui:ui-text"))
             api("androidx.graphics:graphics-shapes:1.1.0")
-
-            // fork-only dependencies
-            implementation(project(":compose:ui:ui-graphics"))
-            implementation(project(":compose:ui:ui-backhandler"))
-            implementation("androidx.annotation:annotation:1.9.1")
         }
 
         androidMain.dependencies {

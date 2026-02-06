@@ -59,9 +59,6 @@ androidXMultiplatform {
             implementation(project(":compose:ui:ui-util"))
             implementation(project(":collection:collection"))
             api(libs.kotlinCoroutinesCore)
-
-            // fork-only dependencies
-            implementation(project(":annotation:annotation"))
         }
 
         commonTest.dependencies {

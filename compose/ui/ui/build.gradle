@@ -79,7 +79,6 @@ androidXMultiplatform {
             implementation(libs.kotlinCoroutinesCore)
             api(project(":annotation:annotation"))
             implementation(project(":collection:collection"))
-
             // when updating the runtime version please also update the runtime-saveable version
             implementation(project(":compose:runtime:runtime"))
             api("androidx.compose.runtime:runtime-retain:$composeVersion")
@@ -96,10 +95,6 @@ androidXMultiplatform {
 
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel:2.9.6")
             implementation("org.jetbrains.androidx.lifecycle:lifecycle-viewmodel-savedstate:2.9.6")
-
-            // fork-only dependencies
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-common:2.9.6")
-            implementation("org.jetbrains.androidx.lifecycle:lifecycle-runtime:2.9.6")
         }
 
         commonTest.dependencies {

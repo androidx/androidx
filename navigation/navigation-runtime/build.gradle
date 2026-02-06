@@ -65,20 +65,9 @@ androidXMultiplatform {
 
             implementation(libs.kotlinSerializationCore)
             implementation("androidx.collection:collection:1.5.0")
-
-            // fork-only dependencies
-            api("androidx.annotation:annotation:1.9.1")
-            api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-            api(project(":savedstate:savedstate"))
         }
         commonTest.dependencies {
             implementation(libs.kotlinTest)
-
-            // fork-only dependencies
-            implementation(libs.kotlinCoroutinesTest)
-            implementation(project(":kruth:kruth"))
-            implementation(project(":navigation:navigation-testing"))
-            implementation(project(":internal-testutils-navigation"))
         }
         nonAndroidMain.dependsOn(commonMain)
         nonAndroidTest.dependsOn(commonTest)

@@ -46,9 +46,6 @@ androidXMultiplatform {
             implementation(project(":annotation:annotation"))
             implementation(libs.kotlinCoroutinesCore)
             implementation(libs.kotlinCoroutinesTest)
-
-            // fork-only dependencies
-            implementation(libs.kotlinStdlib)
         }
 
         commonTest.dependencies {
