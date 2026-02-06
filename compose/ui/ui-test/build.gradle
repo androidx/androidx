@@ -127,6 +127,8 @@ androidXMultiplatform {
             }
         }
 
+        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+
         // TODO: Align naming: nonAndroidMain
         skikoMain {
             dependsOn(commonMain)
@@ -143,7 +145,6 @@ androidXMultiplatform {
                 // because this module supports all KMP platforms from the beginning
                 // Project dependency (commented out version) is required for `integration` branch setup
                 // implementation(project(":navigationevent:navigationevent"))
-                def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
                 implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
             }
         }

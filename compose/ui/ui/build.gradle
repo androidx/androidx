@@ -71,6 +71,8 @@ androidXMultiplatform {
     configureDarwinFlags()
 
     sourceSets {
+        def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
+
         commonMain.dependencies {
             implementation(libs.kotlinCoroutinesCore)
             implementation(project(":annotation:annotation"))
@@ -78,7 +80,6 @@ androidXMultiplatform {
 
             // when updating the runtime version please also update the runtime-saveable version
             implementation(project(":compose:runtime:runtime"))
-            def composeVersion = project.findProperty('artifactRedirection.version.androidx.compose')
             api("androidx.compose.runtime:runtime-retain:$composeVersion")
             api(project(":compose:runtime:runtime-saveable"))
 

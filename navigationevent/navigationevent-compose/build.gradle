@@ -48,6 +48,7 @@ androidXMultiplatform {
 
     sourceSets {
         def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+
         commonMain.dependencies {
             api("androidx.navigationevent:navigationevent:$navigationEventVersion")
             implementation(project(":compose:ui:ui"))
