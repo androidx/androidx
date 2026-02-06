@@ -88,7 +88,7 @@ internal fun LazyList(
      * scroll position will be based purely on index, which may cause visible content to jump when
      * the list content changes.
      */
-    maintainScrollPositionOnKeyChange: Boolean = true,
+    preserveFirstVisibleItem: Boolean = true,
     /** The content of the list */
     content: LazyListScope.() -> Unit,
 ) {
@@ -114,7 +114,7 @@ internal fun LazyList(
             coroutineScope,
             graphicsContext,
             if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null,
-            maintainScrollPositionOnKeyChange,
+            preserveFirstVisibleItem,
         )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -194,7 +194,7 @@ private fun rememberLazyListMeasurePolicy(
     /** Scroll behavior for sticky items */
     stickyItemsPlacement: StickyItemsPlacement?,
     /** Whether to maintain scroll position based on item keys */
-    maintainScrollPositionOnKeyChange: Boolean,
+    preserveFirstVisibleItem: Boolean,
 ) =
     remember(
         state,
@@ -208,7 +208,7 @@ private fun rememberLazyListMeasurePolicy(
         verticalArrangement,
         graphicsContext,
         stickyItemsPlacement,
-        maintainScrollPositionOnKeyChange,
+        preserveFirstVisibleItem,
     ) {
         LazyLayoutMeasurePolicy { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
@@ -340,7 +340,7 @@ private fun rememberLazyListMeasurePolicy(
             val firstVisibleScrollOffset: Int
             Snapshot.withoutReadObservation {
                 firstVisibleItemIndex =
-                    if (maintainScrollPositionOnKeyChange) {
+                    if (preserveFirstVisibleItem) {
                         state.updateScrollPositionIfTheFirstItemWasMoved(
                             itemProvider,
                             state.firstVisibleItemIndex,
