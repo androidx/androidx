@@ -32,7 +32,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
@@ -636,6 +638,7 @@ public fun <T : Any> NavDisplay(
     val gestureTransition = navigationEventState.transitionState
 
     val inPredictiveBack = gestureTransition is InProgress && previousScene != null
+    val wasInPredictiveBack = remember { mutableStateOf(false) }
     val progress =
         when (gestureTransition) {
             is Idle -> 0f
@@ -655,6 +658,10 @@ public fun <T : Any> NavDisplay(
             transitionCurrentStateEntries.map { it.contentKey },
             sceneState.entries.map { it.contentKey },
         )
+    val predictiveEnded = wasInPredictiveBack.value && !inPredictiveBack
+    val finishingPredictivePop = predictiveEnded && (isPop || transition.targetState == scene)
+
+    SideEffect { wasInPredictiveBack.value = inPredictiveBack }
 
     // Track currently rendered Scenes and their ZIndices
     val sceneMap = remember { mutableStateMapOf<AnimatedSceneKey, Scene<T>>() }
@@ -764,8 +771,8 @@ public fun <T : Any> NavDisplay(
             }
         }
     } else {
-        LaunchedEffect(scene) {
-            if (transitionState.currentState != scene) {
+        LaunchedEffect(scene, finishingPredictivePop) {
+            if (transitionState.currentState != scene || finishingPredictivePop) {
                 // We are animating to the final state for regular navigate forward and regular pop
                 transitionState.animateTo(scene)
             } else {
@@ -813,7 +820,7 @@ public fun <T : Any> NavDisplay(
                 transitionScene.predictivePopSpec()?.invoke(this, swipeEdge)
                     ?: predictivePopTransitionSpec(swipeEdge)
             }
-            isPop -> {
+            finishingPredictivePop || isPop -> {
                 transitionScene.contentTransform(NavDisplay.PopTransitionKey)?.invoke(this)
                     ?: popTransitionSpec(this)
             }
