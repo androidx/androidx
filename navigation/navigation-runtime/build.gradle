@@ -117,6 +117,13 @@ androidXMultiplatform {
         }
         nonJvmTest.dependsOn(nonAndroidTest)
 
+        nonAndroidTest.dependencies {
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":navigation:navigation-testing"))
+            implementation(project(":internal-testutils-navigation"))
+        }
+
         nativeMain {
             dependsOn(nonJvmMain)
         }
