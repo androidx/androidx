@@ -17,6 +17,8 @@
 package androidx.compose.ui.events
 
 import kotlin.js.js
+import kotlinx.browser.document
+import kotlinx.browser.window
 import org.w3c.dom.AddEventListenerOptions
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.EventTarget
@@ -29,12 +31,26 @@ private external class AbortController {
 
 
 private fun withSignal(signal: AbortSignal): AddEventListenerOptions = js("({signal: signal})")
+private fun withSignalAndPassive(signal: AbortSignal, passive: Boolean): AddEventListenerOptions =
+    js("({signal: signal, passive: passive})")
 
 internal class EventTargetListener(private val eventTarget: EventTarget) {
     private val abortController = AbortController()
 
     fun addDisposableEvent(eventName: String, handler: (Event) -> Unit) {
         eventTarget.addEventListener(eventName, handler, withSignal(abortController.signal))
+    }
+
+    fun addDisposableEvent(
+        eventName: String,
+        passive: Boolean,
+        handler: (Event) -> Unit
+    ) {
+        eventTarget.addEventListener(
+            type = eventName,
+            callback = handler,
+            options = withSignalAndPassive(abortController.signal, passive)
+        )
     }
 
     fun dispose() {

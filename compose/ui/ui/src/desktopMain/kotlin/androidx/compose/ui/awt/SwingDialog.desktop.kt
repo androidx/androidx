@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.painter.Painter
@@ -233,6 +234,8 @@ fun SwingDialog(
         }
     }
 
+    val coroutineContext = rememberCoroutineScope().coroutineContext
+
     SwingDialog(
         visible = visible,
         onPreviewKeyEvent = onPreviewKeyEvent,
@@ -243,10 +246,14 @@ fun SwingDialog(
                 ComposeDialog(
                     owner = owner,
                     modalityType = currentModalityType,
-                    graphicsConfiguration = graphicsConfiguration
+                    graphicsConfiguration = graphicsConfiguration,
+                    coroutineContext = coroutineContext
                 )
             } else {
-                ComposeDialog(graphicsConfiguration = graphicsConfiguration)
+                ComposeDialog(
+                    graphicsConfiguration = graphicsConfiguration,
+                    coroutineContext = coroutineContext
+                )
             }
             dialog.apply {
                 // close state is controlled by DialogState.isOpen

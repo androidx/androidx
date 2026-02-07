@@ -32,6 +32,8 @@ import java.awt.FocusTraversalPolicy
 import java.awt.Window
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import org.jetbrains.skiko.DelicateSkikoApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.jetbrains.skiko.transparentWindowBackgroundHack
@@ -44,6 +46,7 @@ internal class ComposeWindowPanel(
     private val isUndecorated: () -> Boolean,
     skiaLayerAnalytics: SkiaLayerAnalytics,
     savedState: SavedState? = null,
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
 ) : JLayeredPaneWithTransparencyHack() {
     private var isDisposed = false
 
@@ -66,7 +69,8 @@ internal class ComposeWindowPanel(
         },
         // Swing graphics is not supposed to be used here.
         // TODO: Add isVsyncEnabled flag to ComposeWindowPanel constructor
-        renderSettings = RenderSettings.SkiaSurface()
+        renderSettings = RenderSettings.SkiaSurface(),
+        coroutineContext = coroutineContext
     )
     private val composeContainer
         get() = requireNotNull(_composeContainer) {
