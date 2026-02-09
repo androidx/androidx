@@ -40,14 +40,15 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
 import org.w3c.dom.HTMLCanvasElement
-import org.w3c.dom.events.MouseEvent
-import org.w3c.dom.events.MouseEventInit
+import org.w3c.dom.pointerevents.PointerEvent
+import org.w3c.dom.pointerevents.PointerEventInit
+
 
 class SelectionContainerTests : OnCanvasTests {
 
     private fun HTMLCanvasElement.doClick() {
-        dispatchEvent(MouseEvent("mousedown", MouseEventInit(clientX = 8, clientY = 8, buttons = 1, button = 1)))
-        dispatchEvent(MouseEvent("mouseup", MouseEventInit(clientX = 8, clientY = 8, buttons = 0, button = 1)))
+        dispatchEvent(PointerEvent("pointerdown", PointerEventInit(clientX = 8, clientY = 8, buttons = 1, button = 1, pointerType = "mouse")))
+        dispatchEvent(PointerEvent("pointerup", PointerEventInit(clientX = 8, clientY = 8, buttons = 0, button = 1, pointerType = "mouse")))
     }
 
     @Test
@@ -81,7 +82,7 @@ class SelectionContainerTests : OnCanvasTests {
         }
 
         val canvas = getCanvas()
-        canvas.dispatchEvent(MouseEvent("mouseenter"))
+        canvas.dispatchEvent(PointerEvent("pointerenter", PointerEventInit(pointerType = "mouse")))
 
         // single click - no selection expected
         canvas.doClick()
@@ -101,8 +102,8 @@ class SelectionContainerTests : OnCanvasTests {
 
         selection = syncChannel.receive()
         assertTrue(selection.exists())
-        assertEquals(0, selection!!.start.offset)
-        assertEquals(6, selection!!.end.offset)
+        assertEquals(0, selection.start.offset)
+        assertEquals(6, selection.end.offset)
 
         withContext(Dispatchers.Default) {
             delay(viewConfiguration!!.doubleTapTimeoutMillis)
@@ -143,7 +144,7 @@ class SelectionContainerTests : OnCanvasTests {
         }
 
         val canvas = getCanvas()
-        canvas.dispatchEvent(MouseEvent("mouseenter"))
+        canvas.dispatchEvent(PointerEvent("pointerenter", PointerEventInit(pointerType = "mouse")))
 
         // triple click
         canvas.doClick()
@@ -152,8 +153,8 @@ class SelectionContainerTests : OnCanvasTests {
 
         var selection = syncChannel.receive()
         assertTrue(selection.exists())
-        assertEquals(0, selection!!.start.offset)
-        assertEquals(27, selection!!.end.offset)
+        assertEquals(0, selection.start.offset)
+        assertEquals(27, selection.end.offset)
 
         withContext(Dispatchers.Default) {
             delay(viewConfiguration!!.doubleTapTimeoutMillis)
@@ -196,7 +197,7 @@ class SelectionContainerTests : OnCanvasTests {
         }
 
         val canvas = getCanvas()
-        canvas.dispatchEvent(MouseEvent("mouseenter"))
+        canvas.dispatchEvent(PointerEvent("pointerenter", PointerEventInit(pointerType = "mouse")))
 
         // first single click
         canvas.doClick()
