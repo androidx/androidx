@@ -140,6 +140,7 @@ androidx {
 
 //TODO(b/407640608): Fix to work without this block for PaneMotionTest.test_allDefaultPaneMotionTransitions
 tasks.withType(KotlinCompile).configureEach {
+    if (it.name != "compileAndroidMain") return
     kotlinOptions {
         freeCompilerArgs += [
                 "-Xlambdas=class"
