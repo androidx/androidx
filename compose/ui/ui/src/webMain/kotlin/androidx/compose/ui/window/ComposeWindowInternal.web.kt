@@ -72,6 +72,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpRect
+import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.viewinterop.InteropViewGroup
 import androidx.compose.ui.viewinterop.LocalInteropContainer
@@ -492,15 +494,7 @@ internal class ComposeWindow(
     }
 
     private fun resize(boxSize: DpSize) {
-        val sizeInPx =
-            if (boxSize.isSpecified) {
-                IntSize(
-                    (boxSize.width.value * density.density).toInt(),
-                    (boxSize.height.value * density.density).toInt()
-                )
-            } else {
-                IntSize.Zero
-            }
+        val sizeInPx = boxSize.toSize(density).toIntSize()
 
         canvas.width = sizeInPx.width
         canvas.height = sizeInPx.height
