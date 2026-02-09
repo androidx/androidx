@@ -324,8 +324,7 @@ inline fun <T> LazyListScope.itemsIndexed(
  * @param preserveFirstVisibleItem whether to maintain scroll position when items are
  *   added/removed before the first visible item. When true (default), the list will automatically
  *   adjust the scroll position to keep the same item visible when items with keys are added or
- *   removed before it. When false, the scroll position will be based purely on index, which may
- *   cause visible content to jump when the list content changes.
+ *   removed before it. When false, the scroll position will be based purely on index.
  * @param content a block which describes the content. Inside this block you can use methods like
  *   [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
@@ -391,8 +390,7 @@ fun LazyRow(
  * @param preserveFirstVisibleItem whether to maintain scroll position when items are
  *   added/removed before the first visible item. When true (default), the list will automatically
  *   adjust the scroll position to keep the same item visible when items with keys are added or
- *   removed before it. When false, the scroll position will be based purely on index, which may
- *   cause visible content to jump when the list content changes.
+ *   removed before it. When false, the scroll position will be based purely on index.
  * @param content a block which describes the content. Inside this block you can use methods like
  *   [LazyListScope.item] to add a single item or [LazyListScope.items] to add a list of items.
  */
