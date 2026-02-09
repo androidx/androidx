@@ -269,11 +269,16 @@ private fun PreserveTestList(
                     }
                 }
             } else {
-                items(items) { item ->
-                    Box(Modifier.animateItem()) {
-                        DemoItemView(item)
-                    }
-                }
+                /**
+                 * The code below is functional but has been temporarily commented out because
+                 * it triggers a Lint error due to missing keys.
+                 * Please uncomment this section during the actual demo.
+                 */
+//                items(items) { item ->
+//                    Box(Modifier.animateItem()) {
+//                        DemoItemView(item)
+//                    }
+//                }
             }
         }
     }
