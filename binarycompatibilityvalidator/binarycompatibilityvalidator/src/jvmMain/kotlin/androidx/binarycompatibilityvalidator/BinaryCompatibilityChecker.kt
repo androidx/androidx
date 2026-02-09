@@ -59,8 +59,13 @@ class BinaryCompatibilityChecker(
                         LibraryAbiReader.readAbiInfo(it)
                             .allDeclarations()
                             .filterIsInstance<AbiClass>()
-                    } catch (e: IllegalArgumentException) {
-                        // Malformed library, probably missing IR and can't be used
+                    } catch (_: IllegalStateException) {
+                        // Malformed library, probably missing IR and can't be used.
+                        // Happens for cinterop dependencies (e.g.
+                        // atomicfu-linuxX64Cinterop-interopMain-0.28.0.klib)
+                        // which we don't need for BCV. If a necessary library fails to load, we'll
+                        // catch it later
+                        // by failing symbol lookup with an exception.
                         listOf()
                     }
                 }
