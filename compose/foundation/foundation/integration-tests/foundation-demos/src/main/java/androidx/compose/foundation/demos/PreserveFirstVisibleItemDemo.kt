@@ -31,6 +31,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
 import androidx.compose.material.Text
@@ -56,40 +57,70 @@ fun PreserveFirstVisibleItemDemo() {
     var useKeys by remember { mutableStateOf(true) }
 
     Column(Modifier.fillMaxSize()) {
-        Text("Scenarios", modifier = Modifier.padding(8.dp))
         LazyRow(
             contentPadding = PaddingValues(8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             item {
                 Button(onClick = {
+                    /** Shuffles all elements starting from the top. */
+                    /** In the default behavior, the first item (Item 0) remains at the top during the shuffle.
+                     * However, when set to 'false', the scroll offset stays at the very top regardless of the shuffle result.
+                     */
+                    coroutineScope.launch {
+                        useKeys = true
+                        items = (0..20).map { DemoItem(it, "Item $it") }
+                        delay(100)
+                        stateTrue.scrollToItem(0)
+                        stateFalse.scrollToItem(0)
+                        delay(250)
+                        items = items.shuffled()
+                    }
+                }) { Text("Shuffle") }
+            }
+            item {
+                Button(onClick = {
+                    /** Moves to the 50th index, maintains existing keys, and removes preceding content. */
+                    /** In the default behavior, the view shifts up to stay aligned with the 50th index.
+                     * However, when set to 'false', it maintains the scroll offset from the moment it was
+                     * aligned to the 50th index, causing it to move to the very bottom.
+                     */
                     coroutineScope.launch {
                         useKeys = true
                         items = (0..100).map { DemoItem(it, "Item $it") }
+                        delay(100)
                         stateTrue.scrollToItem(50)
                         stateFalse.scrollToItem(50)
                         delay(1000)
                         items = items.filter { it.id % 5 == 0 }
                     }
-                }) { Text("Bounds Clamp") }
+                }) { Text("Filter + Maintain Key") }
             }
             item {
                 Button(onClick = {
+                    /** Moves to the 50th index, then removes the preceding items including the current key. */
+                    /** In the default state, because the reference point for maintaining the scroll offset
+                     * is lost, it behaves the same as the 'false' state and moves to the very bottom of the scroll area.
+                     */
                     coroutineScope.launch {
                         useKeys = true
                         items = (0..100).map { DemoItem(it, "Item $it") }
+                        delay(100)
                         stateTrue.scrollToItem(50)
                         stateFalse.scrollToItem(50)
                         delay(1000)
                         items = items.filter { it.id % 2 == 1 }
                     }
-                }) { Text("Key Fallback") }
+                }) { Text("Filter + Remove Key") }
             }
             item {
                 Button(onClick = {
+                    /** Clears the list. */
+                    /** Both states are filtered correctly due to the boundary coercion logic of the list elements. */
                     coroutineScope.launch {
                         useKeys = true
                         items = (0..20).map { DemoItem(it, "Item $it") }
+                        delay(100)
                         stateTrue.scrollToItem(10)
                         stateFalse.scrollToItem(10)
                         delay(1000)
@@ -99,6 +130,10 @@ fun PreserveFirstVisibleItemDemo() {
             }
             item {
                 Button(onClick = {
+                    /** Clears the list and then repopulates it. */
+                    /** In the default state, since there is no reference point to maintain the scroll offset,
+                     * it stays at the very top of the scroll area, identical to the 'false' state.
+                     */
                     coroutineScope.launch {
                         useKeys = true
                         items = emptyList()
@@ -109,9 +144,14 @@ fun PreserveFirstVisibleItemDemo() {
             }
             item {
                 Button(onClick = {
+                    /** Moves the scroll offset to Item 10, then adds 10 items to the front of the list. */
+                    /** In the default state, Item 10 remains anchored at the top position.
+                     * In the 'false' state, the newly added Item 0 becomes visible instead.
+                     */
                     coroutineScope.launch {
                         useKeys = true
                         items = (10..30).map { DemoItem(it, "Item $it") }
+                        delay(100)
                         stateTrue.scrollToItem(0)
                         stateFalse.scrollToItem(0)
                         delay(1000)
@@ -121,9 +161,14 @@ fun PreserveFirstVisibleItemDemo() {
             }
             item {
                 Button(onClick = {
+                    /** Moves the scroll offset to Item 10, then removes 5 items from the front of the list. */
+                    /** In the default state, Item 10 remains anchored at the top even after the preceding items are removed.
+                     * In the 'false' state, the list scrolls up by the number of dropped items.
+                     */
                     coroutineScope.launch {
                         useKeys = true
                         items = (0..20).map { DemoItem(it, "Item $it") }
+                        delay(100)
                         stateTrue.scrollToItem(10)
                         stateFalse.scrollToItem(10)
                         delay(1000)
@@ -133,57 +178,14 @@ fun PreserveFirstVisibleItemDemo() {
             }
             item {
                 Button(onClick = {
-                    coroutineScope.launch {
-                        useKeys = true
-                        items = (0..20).map { DemoItem(it, "Item $it") }
-                        stateTrue.scrollToItem(5)
-                        stateFalse.scrollToItem(5)
-                        delay(1000)
-                        items = items.shuffled()
-                    }
-                }) { Text("Shuffle") }
-            }
-            item {
-                Button(onClick = {
-                    coroutineScope.launch {
-                        useKeys = true
-                        items = (0..20).map { DemoItem(it, "Item $it") }
-                        stateTrue.scrollToItem(10)
-                        stateFalse.scrollToItem(10)
-                        delay(1000)
-                        items = items.filter { it.id % 2 == 0 }
-                    }
-                }) { Text("Filter Keep") }
-            }
-            item {
-                Button(onClick = {
-                    coroutineScope.launch {
-                        useKeys = true
-                        items = (0..20).map { DemoItem(it, "Item $it") }
-                        stateTrue.scrollToItem(10)
-                        stateFalse.scrollToItem(10)
-                        delay(1000)
-                        items = items.filter { it.id % 2 == 1 }
-                    }
-                }) { Text("Filter Remove") }
-            }
-            item {
-                Button(onClick = {
-                    coroutineScope.launch {
-                        useKeys = true
-                        items = (0..50).map { DemoItem(it, "Item $it") }
-                        stateTrue.scrollToItem(20)
-                        stateFalse.scrollToItem(20)
-                        delay(1000)
-                        items = items.drop(10)
-                    }
-                }) { Text("Remove Before") }
-            }
-            item {
-                Button(onClick = {
+                    /** Moves the scroll offset to Item 10, then adds 10 items to the front of the list. */
+                    /** In the default state, because no keys are being injected to maintain the scroll offset,
+                     * it stays at the very top, identical to the 'false' state.
+                     */
                     coroutineScope.launch {
                         useKeys = false
                         items = (10..30).map { DemoItem(it, "Item $it") }
+                        delay(100)
                         stateTrue.scrollToItem(0)
                         stateFalse.scrollToItem(0)
                         delay(1000)
@@ -193,9 +195,14 @@ fun PreserveFirstVisibleItemDemo() {
             }
             item {
                 Button(onClick = {
+                    /** Scrolls to the very bottom to display the last element, then adds 10 items to the top. */
+                    /** In the default state, the scroll position remains unchanged.
+                     * In the 'false' state, the list scrolls down by the number of added items.
+                     */
                     coroutineScope.launch {
                         useKeys = true
                         items = (0..20).map { DemoItem(it, "Item $it") }
+                        delay(100)
                         stateTrue.scrollToItem(20)
                         stateFalse.scrollToItem(20)
                         delay(1000)
@@ -249,12 +256,23 @@ private fun PreserveTestList(
             modifier = Modifier.fillMaxSize().background(Color.LightGray)
         ) {
             if (useKeys) {
-                items(items, key = { it.id }) { item ->
-                    DemoItemView(item)
+                itemsIndexed(
+                    items = items,
+                    key = { _, item -> item.id }
+                ) { index, item ->
+                    val isFirst = index == 0
+                    Column(Modifier.animateItem()) {
+                        if (isFirst) {
+                            Text("This is First Row")
+                        }
+                        DemoItemView(item)
+                    }
                 }
             } else {
                 items(items) { item ->
-                    DemoItemView(item)
+                    Box(Modifier.animateItem()) {
+                        DemoItemView(item)
+                    }
                 }
             }
         }
