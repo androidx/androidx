@@ -116,6 +116,7 @@ import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
+import org.w3c.dom.pointerevents.PointerEvent
 
 private val actualDensity
     get() = window.devicePixelRatio
@@ -374,13 +375,6 @@ internal class ComposeWindow(
     private fun initEvents(canvas: HTMLCanvasElement) {
         var offset = Offset.Zero
 
-        /*
-         * CMP-9673 [Web] Double touch and mouse events
-         * If a touch event is followed by mouse events with the same timestamp, the mouse events are ignored.
-         */
-        var finalTouchEventTimestamp: Any? = null
-        fun MouseEvent.isReal() = timeStamp !== finalTouchEventTimestamp
-
         addTypedEvent<TouchEvent>("touchstart", passive = false) { event ->
             canvas.getBoundingClientRect().apply {
                 offset = Offset(x = left.toFloat(), y = top.toFloat())
@@ -395,32 +389,30 @@ internal class ComposeWindow(
 
         addTypedEvent<TouchEvent>("touchend", passive = false) { event ->
             onTouchEvent(event, offset)
-            finalTouchEventTimestamp = event.timeStamp
         }
 
         addTypedEvent<TouchEvent>("touchcancel", passive = false) { event ->
             onTouchEvent(event, offset)
-            finalTouchEventTimestamp = event.timeStamp
         }
 
-        addTypedEvent<MouseEvent>("mousedown") { event ->
-            if (event.isReal()) onMouseEvent(event)
+        addTypedEvent<PointerEvent>("pointerdown") { event ->
+            onPointerEvent(event)
         }
 
-        addTypedEvent<MouseEvent>("mouseup") { event ->
-            if (event.isReal()) onMouseEvent(event)
+        addTypedEvent<PointerEvent>("pointerup") { event ->
+            onPointerEvent(event)
         }
 
-        addTypedEvent<MouseEvent>("mousemove") { event ->
-            if (event.isReal()) onMouseEvent(event)
+        addTypedEvent<PointerEvent>("pointermove") { event ->
+            onPointerEvent(event)
         }
 
-        addTypedEvent<MouseEvent>("mouseenter") { event ->
-            if (event.isReal()) onMouseEvent(event)
+        addTypedEvent<PointerEvent>("pointerenter") { event ->
+            onPointerEvent(event)
         }
 
-        addTypedEvent<MouseEvent>("mouseleave") { event ->
-            if (event.isReal()) onMouseEvent(event)
+        addTypedEvent<PointerEvent>("pointerleave") { event ->
+            onPointerEvent(event)
         }
 
         addTypedEvent<WheelEvent>("wheel", passive = false) { event ->
@@ -601,18 +593,24 @@ internal class ComposeWindow(
         }
     }
 
-    private fun onMouseEvent(
-        event: MouseEvent,
+    private fun onPointerEvent(
+        event: PointerEvent,
     ) {
+        // TODO: we need this guard so that we won't process touch events second time
+        // see https://youtrack.jetbrains.com/issue/CMP-9745/Switch-to-pointer-events-for-processing-touch-events
+        if (event.pointerType != "mouse") return
+
         keyboardModeState = KeyboardModeState.Hardware
+
         val eventType = when (event.type) {
-            "mousedown" -> PointerEventType.Press
-            "mousemove" -> PointerEventType.Move
-            "mouseup" -> PointerEventType.Release
-            "mouseenter" -> PointerEventType.Enter
-            "mouseleave" -> PointerEventType.Exit
+            "pointerdown" -> PointerEventType.Press
+            "pointermove" -> PointerEventType.Move
+            "pointerup" -> PointerEventType.Release
+            "pointerenter" -> PointerEventType.Enter
+            "pointerleave" -> PointerEventType.Exit
             else -> PointerEventType.Unknown
         }
+
         val result = scene.sendPointerEvent(
             eventType = eventType,
             position = event.offset,

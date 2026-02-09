@@ -19,14 +19,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import kotlinx.browser.document
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 import org.w3c.dom.HTMLTextAreaElement
-import org.w3c.dom.events.MouseEvent
-import org.w3c.dom.events.MouseEventInit
+import org.w3c.dom.pointerevents.PointerEvent
+import org.w3c.dom.pointerevents.PointerEventInit
+
 
 class MouseTextInputTests: OnCanvasTests {
     @Test
@@ -61,11 +61,11 @@ class MouseTextInputTests: OnCanvasTests {
         assertTrue(textFieldWidth > 0, "TextField width should be positive")
 
         val canvas = getCanvas()
-        canvas.dispatchEvent(MouseEvent("mouseenter"))
+        canvas.dispatchEvent(PointerEvent("pointerenter", PointerEventInit(pointerType = "mouse")))
         yield()
-        canvas.dispatchEvent(MouseEvent("mousedown", MouseEventInit(clientX = 8, clientY = 20, buttons = 1, button = 1)))
+        canvas.dispatchEvent(PointerEvent("pointerdown", PointerEventInit(clientX = 8, clientY = 20, buttons = 1, button = 1, pointerType = "mouse")))
         yield()
-        canvas.dispatchEvent(MouseEvent("mouseup", MouseEventInit(clientX = 8, clientY = 20, buttons = 0, button = 1)))
+        canvas.dispatchEvent(PointerEvent("pointerup", PointerEventInit(clientX = 8, clientY = 20, buttons = 0, button = 1, pointerType = "mouse")))
 
         awaitIdle()
         assertEquals(TextRange(0, 0), textRange.value)
@@ -92,10 +92,10 @@ class MouseTextInputTests: OnCanvasTests {
         val startX = textAreaRect.left.toInt() + 1
         val startY = textAreaRect.top.toInt() + 8
         val endX = startX + textFieldWidth
-        canvas.dispatchEvent(MouseEvent("mousemove", MouseEventInit(clientX = startX, clientY = startY, buttons = 1, button = 1)))
-        canvas.dispatchEvent(MouseEvent("mousedown", MouseEventInit(clientX = startX, clientY = startY, buttons = 1, button = 1)))
-        canvas.dispatchEvent(MouseEvent("mousemove", MouseEventInit(clientX = endX, clientY = startY, buttons = 1, button = 1)))
-        canvas.dispatchEvent(MouseEvent("mouseup", MouseEventInit(clientX = endX, clientY = startY, buttons = 0, button = 1)))
+        canvas.dispatchEvent(PointerEvent("pointermove", PointerEventInit(clientX = startX, clientY = startY, buttons = 1, button = 1, pointerType = "mouse")))
+        canvas.dispatchEvent(PointerEvent("pointerdown", PointerEventInit(clientX = startX, clientY = startY, buttons = 1, button = 1, pointerType = "mouse")))
+        canvas.dispatchEvent(PointerEvent("pointermove", PointerEventInit(clientX = endX, clientY = startY, buttons = 1, button = 1, pointerType = "mouse")))
+        canvas.dispatchEvent(PointerEvent("pointerup", PointerEventInit(clientX = endX, clientY = startY, buttons = 0, button = 1, pointerType = "mouse")))
 
         awaitIdle()
         assertEquals(TextRange(0, 14), textRange.value)
