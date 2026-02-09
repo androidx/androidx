@@ -30,6 +30,8 @@ object FoundationNames {
     object Lazy {
         val PackageName = Package(FoundationNames.PackageName, "lazy")
         val LazyListState = Name(PackageName, "LazyListState")
+        val LazyColumn = Name(PackageName, "LazyColumn")
+        val LazyRow = Name(PackageName, "LazyRow")
 
         object Grid {
             val PackageName = Package(Lazy.PackageName, "grid")
