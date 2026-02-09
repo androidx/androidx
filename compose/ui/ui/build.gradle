@@ -329,6 +329,15 @@ if (!ProjectLayoutType.isPlayground(project)) {
     }
 }
 
+// TODO(b/407725586): Remove this block when AndroidAssistTest passes on API Level 21
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-Xlambdas=class"
+        ]
+    }
+}
+
 // This task updates the translations of the localizable strings for the desktopMain target.
 // It obtains them from Android's base repository.
 tasks.register("updateTranslations", UpdateTranslationsTask.class) {
