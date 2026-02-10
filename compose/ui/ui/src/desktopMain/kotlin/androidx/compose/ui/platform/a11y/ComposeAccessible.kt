@@ -68,7 +68,6 @@ import javax.accessibility.AccessibleTextSequence
 import javax.accessibility.AccessibleValue
 import javax.swing.text.AttributeSet
 import javax.swing.text.SimpleAttributeSet
-import kotlin.math.roundToInt
 import org.jetbrains.skia.BreakIterator
 
 private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boolean>>
