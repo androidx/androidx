@@ -18,6 +18,7 @@ package androidx.compose.ui.platform.a11y
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.internal.fastIndexOfFirst
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireCoordinator
 import androidx.compose.ui.semantics.AccessibilityAction
@@ -268,11 +269,7 @@ internal class ComposeAccessible(
 
         override fun getAccessibleIndexInParent(): Int {
             val parent = semanticsNode.parent ?: return ownerAccessibility.indexInScene()
-            val orderedChildren = parent.traversalOrderedChildren()
-            for (i in orderedChildren.indices) {
-                if (orderedChildren[i].id == semanticsNode.id) return i
-            }
-            return -1
+            return parent.traversalOrderedChildren().fastIndexOfFirst { it.id == semanticsNode.id }
         }
 
         override fun getAccessibleComponent(): AccessibleComponent? {
