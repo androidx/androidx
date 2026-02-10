@@ -34,9 +34,10 @@ import androidx.compose.ui.graphics.vector.DefaultTranslationY
 import androidx.compose.ui.graphics.vector.EmptyPath
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
+import androidx.compose.ui.internal.fastMapIndexedNotNullTo
 import androidx.compose.ui.res.vector.BuildContext.Group
 import androidx.compose.ui.unit.Density
-import java.util.LinkedList
+import java.util.*
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 
@@ -208,7 +209,7 @@ private fun Element.parseColorStops(): Array<Pair<Float, Color>> {
         .filter { it.nodeName == "item" }
         .toList()
 
-    val colorStops = items.mapIndexedNotNullTo(mutableListOf()) { index, item ->
+    val colorStops = items.fastMapIndexedNotNullTo(mutableListOf()) { index, item ->
         item.parseColorStop(defaultOffset = index.toFloat() / items.lastIndex.coerceAtLeast(1))
     }
 
@@ -239,7 +240,7 @@ private fun Element.parseColorStop(defaultOffset: Float): Pair<Float, Color>? {
 
 private fun Element.attributeOrNull(namespace: String, name: String): String? {
     val value = getAttributeNS(namespace, name)
-    return if (value.isNotBlank()) value else null
+    return value.ifBlank { null }
 }
 
 /**

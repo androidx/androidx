@@ -17,17 +17,14 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.runtime.InternalComposeApi
-import org.jetbrains.skia.Rect as SkRect
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.FrameRateCategory
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.DefaultCameraDistance
@@ -46,14 +43,13 @@ import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.prepareTransformationMatrix
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toSkiaRRect
-import androidx.compose.ui.graphics.toSkiaRect
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.unit.toSize
 import kotlin.math.abs
 import kotlin.math.max
@@ -250,9 +246,12 @@ internal class LegacyRenderNodeLayer(
 
         if (picture == null) {
             val measureDrawBounds = !clip || shadowElevation > 0
-            val bounds = size.toSize().toRect()
+            val bounds = size.toRect()
             val pictureCanvas = pictureRecorder.beginRecording(
-                bounds = if (measureDrawBounds) PICTURE_BOUNDS else bounds.toSkiaRect(),
+                left = if (measureDrawBounds) PICTURE_MIN_VALUE else bounds.left,
+                top = if (measureDrawBounds) PICTURE_MIN_VALUE else bounds.top,
+                right = if (measureDrawBounds) PICTURE_MAX_VALUE else bounds.right,
+                bottom = if (measureDrawBounds) PICTURE_MAX_VALUE else bounds.bottom,
                 bbh = if (measureDrawBounds) bbhFactory else null
             )
             performDrawLayer(pictureCanvas.asComposeCanvas(), bounds)
@@ -287,8 +286,34 @@ internal class LegacyRenderNodeLayer(
             val isClipping = if (clip && outline != null) {
                 canvas.save()
                 when (outline) {
-                    is Outline.Rectangle -> canvas.clipRect(outline.rect)
-                    is Outline.Rounded -> canvas.clipRoundRect(outline.roundRect)
+                    is Outline.Rectangle -> canvas.clipRect(
+                        outline.rect.left,
+                        outline.rect.top,
+                        outline.rect.right,
+                        outline.rect.bottom
+                    )
+                    is Outline.Rounded -> {
+                        val antiAlias = true
+                        canvas.nativeCanvas.clipRRect(
+                            outline.roundRect.left,
+                            outline.roundRect.top,
+                            outline.roundRect.right,
+                            outline.roundRect.bottom,
+                            floatArrayOf(
+                                outline.roundRect.topLeftCornerRadius.x,
+                                outline.roundRect.topLeftCornerRadius.y,
+                                outline.roundRect.topRightCornerRadius.x,
+                                outline.roundRect.topRightCornerRadius.y,
+                                outline.roundRect.bottomRightCornerRadius.x,
+                                outline.roundRect.bottomRightCornerRadius.y,
+                                outline.roundRect.bottomLeftCornerRadius.x,
+                                outline.roundRect.bottomLeftCornerRadius.y
+                            ),
+
+                            ClipMode.INTERSECT,
+                            antiAlias
+                        )
+                    }
                     is Outline.Generic -> canvas.clipPath(outline.path)
                 }
                 true
@@ -326,17 +351,6 @@ internal class LegacyRenderNodeLayer(
                 canvas.restore()
             }
         }
-    }
-
-    private fun Canvas.clipRoundRect(rect: RoundRect, clipOp: ClipOp = ClipOp.Intersect) {
-        val antiAlias = true
-        nativeCanvas.clipRRect(rect.toSkiaRRect(), clipOp.toSkia(), antiAlias)
-    }
-
-    private fun ClipOp.toSkia() = when (this) {
-        ClipOp.Difference -> ClipMode.DIFFERENCE
-        ClipOp.Intersect -> ClipMode.INTERSECT
-        else -> ClipMode.INTERSECT
     }
 
     override fun updateDisplayList() = Unit
@@ -387,9 +401,3 @@ private inline fun Float.isZero(): Boolean = abs(this) <= NON_ZERO_EPSILON
 // case).
 private const val PICTURE_MIN_VALUE = -(1 shl 30).toFloat()
 private const val PICTURE_MAX_VALUE = ((1 shl 30)-1).toFloat()
-private val PICTURE_BOUNDS = SkRect.makeLTRB(
-    l = PICTURE_MIN_VALUE,
-    t = PICTURE_MIN_VALUE,
-    r = PICTURE_MAX_VALUE,
-    b = PICTURE_MAX_VALUE
-)

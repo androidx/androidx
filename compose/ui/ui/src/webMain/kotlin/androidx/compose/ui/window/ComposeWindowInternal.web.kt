@@ -69,6 +69,7 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isSpecified
 import androidx.compose.ui.unit.size
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toIntSize
@@ -314,10 +315,8 @@ internal class ComposeWindow(
         }
 
     private val skiaLayer: SkiaLayer = SkiaLayer().apply {
-        renderDelegate = object : SkikoRenderDelegate {
-            override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
-                scene.render(canvas.asComposeCanvas(), nanoTime)
-            }
+        renderDelegate = SkikoRenderDelegate { canvas, _, _, nanoTime ->
+            scene.render(canvas.asComposeCanvas(), nanoTime)
         }
     }
 
@@ -325,7 +324,7 @@ internal class ComposeWindow(
         coroutineContext = Dispatchers.Main,
         platformContext = platformContext,
         density = density,
-        invalidate = skiaLayer::needRedraw,
+        invalidate = skiaLayer::needRender,
     )
 
     private val systemThemeObserver = getSystemThemeObserver()
@@ -373,26 +372,28 @@ internal class ComposeWindow(
     }
 
     private fun initEvents(canvas: HTMLCanvasElement) {
-        var offset = Offset.Zero
+        var offsetX = 0f
+        var offsetY = 0f
 
         addTypedEvent<TouchEvent>("touchstart", passive = false) { event ->
             canvas.getBoundingClientRect().apply {
-                offset = Offset(x = left.toFloat(), y = top.toFloat())
+                offsetX = left.toFloat()
+                offsetY = top.toFloat()
             }
 
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<TouchEvent>("touchmove", passive = false) { event ->
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<TouchEvent>("touchend", passive = false) { event ->
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<TouchEvent>("touchcancel", passive = false) { event ->
-            onTouchEvent(event, offset)
+            onTouchEvent(event, offsetX, offsetY)
         }
 
         addTypedEvent<PointerEvent>("pointerdown") { event ->
@@ -509,7 +510,7 @@ internal class ComposeWindow(
         // TODO: Align with Container/Mediator architecture
         skiaLayer.attachTo(canvas)
         scene.size = sizeInPx
-        skiaLayer.needRedraw()
+        skiaLayer.needRender()
     }
 
     // TODO: need to call .dispose() on window close.
@@ -533,7 +534,8 @@ internal class ComposeWindow(
 
     private fun onTouchEvent(
         event: TouchEvent,
-        offset: Offset,
+        offsetX: Float,
+        offsetY: Float
     ) {
         // iOS Safari doesn't request focus when the page is shown,
         // and the lifecycle doesn't trigger ON_RESUME.
@@ -567,9 +569,9 @@ internal class ComposeWindow(
             ComposeScenePointer(
                 id = PointerId(touch.identifier.toLong()),
                 position = Offset(
-                    x = touch.clientX - offset.x,
-                    y = touch.clientY - offset.y
-                ) * density.density,
+                    x = (touch.clientX - offsetX) * density.density,
+                    y = (touch.clientY - offsetY) * density.density
+                ),
                 pressed = pressed,
                 type = PointerType.Touch,
                 pressure = touchForce(touch).toFloat()
@@ -668,9 +670,9 @@ internal class ComposeWindow(
 
     private val MouseEvent.offset
         get() = Offset(
-            x = offsetX.toFloat(),
-            y = offsetY.toFloat()
-        ) * density.density
+            x = offsetX.toFloat() * density.density,
+            y = offsetY.toFloat() * density.density
+        )
 }
 
 //https://developer.mozilla.org/en-US/docs/Web/API/Document/visibilityState
@@ -685,7 +687,7 @@ internal fun onSkikoReady(block: () -> Unit) {
 
 internal fun onDomReady(block: () -> Unit) {
     // https://developer.mozilla.org/en-US/docs/Web/API/Document/DOMContentLoaded_event
-    if (document.readyState == DocumentReadyState.Companion.LOADING) {
+    if (document.readyState == DocumentReadyState.LOADING) {
         document.addEventListener("DOMContentLoaded", {
             block()
         })
