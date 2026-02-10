@@ -17,4 +17,4 @@
 package androidx.compose.foundation
 
 // TODO: b/168524931 - should this depend on the input device?
-internal actual val TapIndicationDelay: Long = 0L
+internal actual val TapIndicationDelay: Long = 150L
