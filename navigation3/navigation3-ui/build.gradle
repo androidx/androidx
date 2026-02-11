@@ -51,6 +51,7 @@ androidXMultiplatform {
     sourceSets {
         def navigation3Version = project.findProperty('artifactRedirection.version.androidx.navigation3')
         def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+
         commonMain.dependencies {
             api("androidx.navigation3:navigation3-runtime:$navigation3Version")
             api("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0-rc02")

@@ -49,11 +49,9 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                implementation(project(":compose:material3:material3"))
-                implementation("org.jetbrains.compose.material3.adaptive:adaptive:1.2.0")
-                implementation(project(":compose:ui:ui"))
+                api(project(":compose:material3:material3"))
+                api("org.jetbrains.compose.material3.adaptive:adaptive:1.2.0")
                 implementation("org.jetbrains.androidx.window:window-core:1.4.0")
-                api("androidx.annotation:annotation:1.9.1")
             }
         }
 

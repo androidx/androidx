@@ -52,22 +52,15 @@ androidXMultiplatform {
             api(project(":compose:ui:ui"))
             api(project(":compose:ui:ui-text"))
             api(project(":compose:ui:ui-unit"))
+            implementation(project(":compose:runtime:runtime"))
             api(libs.kotlinCoroutinesCore)
             api(libs.kotlinCoroutinesTest)
-
-            implementation(project(":annotation:annotation"))
-            implementation(project(":collection:collection"))
             implementation(project(":compose:ui:ui-util"))
+            implementation(project(":collection:collection"))
         }
 
         commonTest.dependencies {
             implementation(libs.kotlinTest)
-        }
-
-        jvmAndAndroidMain.dependencies {
-            api(project(":compose:runtime:runtime"))
-            api(libs.kotlinCoroutinesCore)
-            api(libs.kotlinCoroutinesTest)
         }
 
         androidMain.dependencies {
@@ -125,6 +118,8 @@ androidXMultiplatform {
             }
         }
 
+        def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
+
         // TODO: Align naming: nonAndroidMain
         skikoMain {
             dependsOn(commonMain)
@@ -141,7 +136,6 @@ androidXMultiplatform {
                 // because this module supports all KMP platforms from the beginning
                 // Project dependency (commented out version) is required for `integration` branch setup
                 // implementation(project(":navigationevent:navigationevent"))
-                def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
                 implementation("androidx.navigationevent:navigationevent:$navigationEventVersion")
             }
         }

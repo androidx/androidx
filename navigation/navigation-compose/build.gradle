@@ -42,25 +42,25 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(libs.kotlinSerializationCore)
-            implementation("androidx.annotation:annotation:1.9.1")
-            implementation("androidx.collection:collection:1.5.0")
-
             api(project(":navigation:navigation-runtime"))
             api(project(":navigation:navigation-common"))
-            api "org.jetbrains.compose.animation:animation:1.8.2"
-            api "org.jetbrains.compose.runtime:runtime:1.8.2"
-            api "org.jetbrains.compose.runtime:runtime-saveable:1.8.2"
-
-            implementation "org.jetbrains.compose.animation:animation-core:1.8.2"
-            implementation "org.jetbrains.compose.foundation:foundation-layout:1.8.2"
+            api("org.jetbrains.compose.animation:animation:1.8.2")
+            api("org.jetbrains.compose.runtime:runtime:1.8.2")
+            api("org.jetbrains.compose.runtime:runtime-saveable:1.8.2")
+            api("org.jetbrains.compose.ui:ui:1.8.2")
+            api("org.jetbrains.compose.animation:animation:1.8.2")
+            implementation("org.jetbrains.compose.animation:animation-core:1.8.2")
+            implementation("org.jetbrains.compose.foundation:foundation-layout:1.8.2")
+            implementation("androidx.collection:collection:1.5.0")
             implementation(project(":lifecycle:lifecycle-common"))
             implementation(project(":lifecycle:lifecycle-runtime-compose"))
+            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
             implementation(project(":lifecycle:lifecycle-viewmodel"))
             implementation(project(":lifecycle:lifecycle-viewmodel-compose"))
-            implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
-            implementation project(":savedstate:savedstate")
-            implementation project(":savedstate:savedstate-compose")
+            implementation(project(":savedstate:savedstate"))
+            implementation(project(":savedstate:savedstate-compose"))
+            implementation(libs.kotlinCoroutinesCore)
+            implementation(libs.kotlinSerializationCore)
         }
         commonTest.dependencies {
             implementation(libs.kotlinTest)
