@@ -591,7 +591,7 @@ public final class androidx/compose/ui/graphics/OutlineKt {
 }
 
 public abstract interface class androidx/compose/ui/graphics/Paint {
-	public abstract fun asFrameworkPaint ()Lorg/jetbrains/skia/Paint;
+	public fun asFrameworkPaint ()Lorg/jetbrains/skia/Paint;
 	public abstract fun getAlpha ()F
 	public abstract fun getBlendMode-0nO6VwU ()I
 	public abstract fun getColor-0d7_KjU ()J

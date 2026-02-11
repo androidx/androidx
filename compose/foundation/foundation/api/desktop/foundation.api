@@ -586,9 +586,6 @@ public final class androidx/compose/foundation/gestures/DraggableState$DefaultIm
 	public static synthetic fun drag$default (Landroidx/compose/foundation/gestures/DraggableState;Landroidx/compose/foundation/MutatePriority;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;ILjava/lang/Object;)Ljava/lang/Object;
 }
 
-public abstract interface annotation class androidx/compose/foundation/gestures/ExperimentalTapGestureDetectorBehaviorApi : java/lang/annotation/Annotation {
-}
-
 public abstract interface class androidx/compose/foundation/gestures/FlingBehavior {
 	public abstract fun performFling (Landroidx/compose/foundation/gestures/ScrollScope;FLkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
@@ -748,16 +745,16 @@ public final class androidx/compose/foundation/gestures/TransformGestureDetector
 }
 
 public abstract interface class androidx/compose/foundation/gestures/TransformScope {
-	public fun transformBy-IEwrmTk (JFJF)V
-	public static synthetic fun transformBy-IEwrmTk$default (Landroidx/compose/foundation/gestures/TransformScope;JFJFILjava/lang/Object;)V
 	public abstract fun transformBy-d-4ec7I (FJF)V
 	public static synthetic fun transformBy-d-4ec7I$default (Landroidx/compose/foundation/gestures/TransformScope;FJFILjava/lang/Object;)V
+	public fun transformByWithCentroid-IEwrmTk (JFJF)V
+	public static synthetic fun transformByWithCentroid-IEwrmTk$default (Landroidx/compose/foundation/gestures/TransformScope;JFJFILjava/lang/Object;)V
 }
 
 public final class androidx/compose/foundation/gestures/TransformScope$DefaultImpls {
-	public static fun transformBy-IEwrmTk (Landroidx/compose/foundation/gestures/TransformScope;JFJF)V
-	public static synthetic fun transformBy-IEwrmTk$default (Landroidx/compose/foundation/gestures/TransformScope;JFJFILjava/lang/Object;)V
 	public static synthetic fun transformBy-d-4ec7I$default (Landroidx/compose/foundation/gestures/TransformScope;FJFILjava/lang/Object;)V
+	public static fun transformByWithCentroid-IEwrmTk (Landroidx/compose/foundation/gestures/TransformScope;JFJF)V
+	public static synthetic fun transformByWithCentroid-IEwrmTk$default (Landroidx/compose/foundation/gestures/TransformScope;JFJFILjava/lang/Object;)V
 }
 
 public final class androidx/compose/foundation/gestures/TransformableKt {
@@ -1050,14 +1047,14 @@ public abstract interface class androidx/compose/foundation/lazy/LazyListScope {
 
 public final class androidx/compose/foundation/lazy/LazyListScope$DefaultImpls {
 	public static fun item (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)V
-	public static synthetic fun item (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)V
+	public static fun item (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)V
 	public static synthetic fun item$default (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
 	public static synthetic fun item$default (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
 	public static fun items (Landroidx/compose/foundation/lazy/LazyListScope;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;)V
-	public static synthetic fun items (Landroidx/compose/foundation/lazy/LazyListScope;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;)V
+	public static fun items (Landroidx/compose/foundation/lazy/LazyListScope;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;)V
 	public static synthetic fun items$default (Landroidx/compose/foundation/lazy/LazyListScope;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)V
 	public static synthetic fun items$default (Landroidx/compose/foundation/lazy/LazyListScope;ILkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)V
-	public static synthetic fun stickyHeader (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)V
+	public static fun stickyHeader (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)V
 	public static fun stickyHeader (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function4;)V
 	public static synthetic fun stickyHeader$default (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)V
 	public static synthetic fun stickyHeader$default (Landroidx/compose/foundation/lazy/LazyListScope;Ljava/lang/Object;Ljava/lang/Object;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)V
