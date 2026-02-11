@@ -595,23 +595,23 @@ actual value class Key(val keyCode: Long) {
 
         // TODO: https://youtrack.jetbrains.com/issue/CMP-9751/Implement-actuals-from-Add-NumPad-movement-keys-CL-in-CMP
         actual val NumPadDirectionUp: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadDirectionDown: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadDirectionLeft: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadDirectionRight: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadMoveHome: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadMoveEnd: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadPageUp: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadPageDown: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
         actual val NumPadInsert: Key
-            get() = TODO("Not yet implemented")
+            get() = Unknown
     }
 
     actual override fun toString(): String {
