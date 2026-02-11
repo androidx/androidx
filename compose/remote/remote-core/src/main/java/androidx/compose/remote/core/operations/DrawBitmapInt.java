@@ -205,18 +205,18 @@ public class DrawBitmapInt extends PaintOperation implements AccessibleComponent
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
                 .description("Draw a bitmap using integer coordinates")
-                .field(DocumentedOperation.INT, "id", "id of bitmap")
-                .field(DocumentedOperation.INT, "srcLeft", "The left side of the image")
-                .field(DocumentedOperation.INT, "srcTop", "The top of the image")
-                .field(DocumentedOperation.INT, "srcRight", "The right side of the image")
-                .field(DocumentedOperation.INT, "srcBottom", "The bottom of the image")
-                .field(DocumentedOperation.INT, "dstLeft", "The left side of the image")
-                .field(DocumentedOperation.INT, "dstTop", "The top of the image")
-                .field(DocumentedOperation.INT, "dstRight", "The right side of the image")
-                .field(DocumentedOperation.INT, "dstBottom", "The bottom of the image")
-                .field(DocumentedOperation.INT, "cdId", "id of string");
+                .field(DocumentedOperation.INT, "imageId", "The ID of the bitmap")
+                .field(DocumentedOperation.INT, "srcLeft", "The left side of the source image")
+                .field(DocumentedOperation.INT, "srcTop", "The top of the source image")
+                .field(DocumentedOperation.INT, "srcRight", "The right side of the source image")
+                .field(DocumentedOperation.INT, "srcBottom", "The bottom of the source image")
+                .field(DocumentedOperation.INT, "dstLeft", "The left side of the destination")
+                .field(DocumentedOperation.INT, "dstTop", "The top of the destination")
+                .field(DocumentedOperation.INT, "dstRight", "The right side of the destination")
+                .field(DocumentedOperation.INT, "dstBottom", "The bottom of the destination")
+                .field(DocumentedOperation.INT, "cdId", "The ID of the content description string");
     }
 
     @Override

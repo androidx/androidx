@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations.layout.managers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.Operation;
@@ -23,6 +25,7 @@ import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.PaintOperation;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
@@ -61,6 +64,8 @@ public class StateLayout extends LayoutManager {
     public int @NonNull [] cacheListElementsId = new int[MAX_CACHE_ELEMENTS];
 
     public boolean inTransition = false;
+
+    private static final int OP_CODE = Operations.LAYOUT_STATE;
 
     public StateLayout(
             @Nullable Component parent,
@@ -606,6 +611,21 @@ public class StateLayout extends LayoutManager {
         int indexId = buffer.readInt();
         operations.add(
                 new StateLayout(null, componentId, animationId, 0f, 0f, 100f, 100f, indexId));
+    }
+
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(@NonNull DocumentationBuilder doc) {
+        doc.operation("Layout Operations", OP_CODE, "StateLayout")
+                .description("A layout that switches between child layouts based on an index")
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(INT, "animationId", "ID for animation purposes")
+                .field(INT, "horizontalPositioning", "Horizontal positioning value")
+                .field(INT, "verticalPositioning", "Vertical positioning value")
+                .field(INT, "indexId", "The ID of the variable providing the current state index");
     }
 
     @NonNull

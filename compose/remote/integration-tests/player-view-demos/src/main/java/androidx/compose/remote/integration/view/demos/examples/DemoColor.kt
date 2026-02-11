@@ -24,6 +24,8 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.pingPong
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
 fun colorButtons(): RemoteComposeWriter {
@@ -91,3 +93,5 @@ fun colorButtons(): RemoteComposeWriter {
         }
     return rc.writer
 }
+
+@Preview @Composable private fun ColorButtonsPreview() = RemoteDocPreview(colorButtons())

@@ -28,7 +28,6 @@ import androidx.compose.remote.creation.compose.state.RemoteMatrix3x3
 import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.util.fastMap
 
@@ -94,7 +93,7 @@ public data class RemoteSweepGradient(
     private val center: RemoteOffset? = null,
 ) : RemoteBrush() {
 
-    override fun RemoteStateScope.createShader(size: RemoteSize): Shader {
+    override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
         val realCenter = center ?: size.center
         val centerX = resolve(realCenter.x, size.width)
         val centerY = resolve(realCenter.y, size.height)

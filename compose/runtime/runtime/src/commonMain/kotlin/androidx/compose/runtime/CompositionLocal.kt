@@ -343,7 +343,6 @@ internal class ComputedProvidableCompositionLocal<T>(
  *   is a non-nullable type (e.g., `compositionLocalWithHostDefaultOf<String>`), a missing key will
  *   result in a [NullPointerException] when the value is accessed.
  */
-@OptIn(InternalComposeApi::class)
 public fun <T> compositionLocalWithHostDefaultOf(
     key: HostDefaultKey<T>
 ): ProvidableCompositionLocal<T> = compositionLocalWithComputedDefaultOf {

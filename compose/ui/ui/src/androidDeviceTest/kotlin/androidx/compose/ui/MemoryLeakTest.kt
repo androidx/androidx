@@ -265,70 +265,72 @@ class MemoryLeakTest {
         }
     }
 
-    /**
-     * Runs the given code in a loop for exactly [iterations] times and every [gcFrequency] it will
-     * force garbage collection and check the allocated heap size. Suspending so that we can briefly
-     * yield() to the dispatcher before collecting garbage so that event loop driven cleanup
-     * processes can run before we take measurements.
-     */
-    suspend fun loopAndVerifyMemory(
-        iterations: Int,
-        gcFrequency: Int,
-        ignoreFirstRun: Boolean = false,
-        operationToPerform: suspend () -> Unit,
-    ) {
-        val rawStats = ArrayList<Long>(iterations / gcFrequency)
+    companion object {
+        /**
+         * Runs the given code in a loop for exactly [iterations] times and every [gcFrequency] it
+         * will force garbage collection and check the allocated heap size. Suspending so that we
+         * can briefly yield() to the dispatcher before collecting garbage so that event loop driven
+         * cleanup processes can run before we take measurements.
+         */
+        suspend fun loopAndVerifyMemory(
+            iterations: Int,
+            gcFrequency: Int,
+            ignoreFirstRun: Boolean = false,
+            operationToPerform: suspend () -> Unit,
+        ) {
+            val rawStats = ArrayList<Long>(iterations / gcFrequency)
 
-        // Collect data
-        repeat(iterations) { i ->
-            if (i % gcFrequency == 0) {
-                // Let any scheduled cleanup processes run before we take measurements
-                yield()
-                Runtime.getRuntime().let {
-                    it.gc() // Run gc
-                    rawStats.add(it.totalMemory() - it.freeMemory()) // Collect memory info
+            // Collect data
+            repeat(iterations) { i ->
+                if (i % gcFrequency == 0) {
+                    // Let any scheduled cleanup processes run before we take measurements
+                    yield()
+                    Runtime.getRuntime().let {
+                        it.gc() // Run gc
+                        rawStats.add(it.totalMemory() - it.freeMemory()) // Collect memory info
+                    }
                 }
+                operationToPerform()
             }
-            operationToPerform()
+
+            fun Long.formatMemory(): String {
+                return NumberFormat.getNumberInstance(Locale.US).format(this / 1024) + " KiB"
+            }
+
+            // Throw away the first run if needed
+            val memoryStats = if (ignoreFirstRun) rawStats.drop(1) else rawStats
+            val formattedStats = memoryStats.joinToString(", ") { it.formatMemory() }
+
+            // Verify that memory did not grow
+            val min = memoryStats.minOrNull()
+            val max = memoryStats.maxOrNull()
+
+            if (min == null || max == null) {
+                throw AssertionError("Collected memory data are corrupted")
+            }
+
+            // Check if every iteration the memory grew => that's a bad sign
+            val diffs = memoryStats.zipWithNext().map { (it.second - it.first) / 1024 }
+            val areAllDiffsGrowing = diffs.all { it > 0 }
+            if (areAllDiffsGrowing) {
+                throw AssertionError(
+                    "Possible memory leak detected!. Memory kept " +
+                        "increasing every step. Min: ${min.formatMemory()}, max: " +
+                        "${max.formatMemory()}\nData: [$formattedStats]"
+                )
+            }
+
+            // Check if we have a significant diff across all the data
+            val diff = max - min
+            if (diff > 1024 * 1024) { // 1 MiB tolerance
+                throw AssertionError(
+                    "Possible memory leak detected! Min: " +
+                        "${min.formatMemory()}, max: ${max.formatMemory()}\n" +
+                        "Data: [$formattedStats]"
+                )
+            }
+
+            Log.i("MemoryTest", "Measured memory data: $formattedStats")
         }
-
-        fun Long.formatMemory(): String {
-            return NumberFormat.getNumberInstance(Locale.US).format(this / 1024) + " KiB"
-        }
-
-        // Throw away the first run if needed
-        val memoryStats = if (ignoreFirstRun) rawStats.drop(1) else rawStats
-        val formattedStats = memoryStats.joinToString(", ") { it.formatMemory() }
-
-        // Verify that memory did not grow
-        val min = memoryStats.minOrNull()
-        val max = memoryStats.maxOrNull()
-
-        if (min == null || max == null) {
-            throw AssertionError("Collected memory data are corrupted")
-        }
-
-        // Check if every iteration the memory grew => that's a bad sign
-        val diffs = memoryStats.zipWithNext().map { (it.second - it.first) / 1024 }
-        val areAllDiffsGrowing = diffs.all { it > 0 }
-        if (areAllDiffsGrowing) {
-            throw AssertionError(
-                "Possible memory leak detected!. Memory kept " +
-                    "increasing every step. Min: ${min.formatMemory()}, max: " +
-                    "${max.formatMemory()}\nData: [$formattedStats]"
-            )
-        }
-
-        // Check if we have a significant diff across all the data
-        val diff = max - min
-        if (diff > 1024 * 1024) { // 1 MiB tolerance
-            throw AssertionError(
-                "Possible memory leak detected! Min: " +
-                    "${min.formatMemory()}, max: ${max.formatMemory()}\n" +
-                    "Data: [$formattedStats]"
-            )
-        }
-
-        Log.i("MemoryTest", "Measured memory data: $formattedStats")
     }
 }

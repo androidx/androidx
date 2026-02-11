@@ -57,8 +57,8 @@ internal abstract class LazyLayoutMeasuredItemProvider<T : LazyLayoutMeasuredIte
         return if (cachedPlaceable != null) {
             cachedPlaceable
         } else {
-            val mensurables = compose(index)
-            List(mensurables.size) { i -> mensurables[i].measure(constraints) }
+            val measurables = compose(index)
+            List(measurables.size) { i -> measurables[i].measure(constraints) }
                 .also { placeablesCache[index] = it }
         }
     }

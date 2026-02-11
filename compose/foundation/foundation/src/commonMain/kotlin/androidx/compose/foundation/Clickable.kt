@@ -17,10 +17,9 @@
 package androidx.compose.foundation
 
 import androidx.collection.mutableLongObjectMapOf
-import androidx.compose.foundation.ComposeFoundationFlags.isDetectTapGesturesImmediateCoroutineDispatchEnabled
+import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.ScrollableContainerNode
-import androidx.compose.foundation.gestures.detectTapAndPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.isChangedToDown
 import androidx.compose.foundation.interaction.HoverInteraction
@@ -28,6 +27,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.remember
+import androidx.compose.ui.ExperimentalIndirectPointerApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequesterModifierNode
@@ -682,6 +682,7 @@ private val KeyEvent.isEnter: Boolean
             Key.Enter,
             Key.NumPadEnter,
             Key.Spacebar -> true
+
             else -> false
         }
 
@@ -872,29 +873,6 @@ internal open class ClickableNode(
         onClick = onClick,
     ) {
 
-    @OptIn(ExperimentalFoundationApi::class)
-    private val isSuspendingPointerInputEnabled =
-        // old behavior prior this flag was heavily relying on coroutines dispatching
-        !isDetectTapGesturesImmediateCoroutineDispatchEnabled
-
-    override fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode? =
-        if (isSuspendingPointerInputEnabled) {
-            SuspendingPointerInputModifierNode {
-                detectTapAndPress(
-                    onPress = { offset ->
-                        if (enabled) {
-                            requestFocusWhenInMouseInputMode()
-
-                            handlePressInteraction(offset)
-                        }
-                    },
-                    onTap = { if (enabled) onClick() },
-                )
-            }
-        } else {
-            null
-        }
-
     private fun getExtendedTouchPadding(size: IntSize): Size {
         // copied from SuspendingPointerInputModifierNodeImpl.extendedTouchPadding:
         // TODO expose this as a new public api available outside of suspending apis b/422396609
@@ -915,9 +893,6 @@ internal open class ClickableNode(
         bounds: IntSize,
     ) {
         super.onPointerEvent(pointerEvent, pass, bounds)
-        if (isSuspendingPointerInputEnabled) {
-            return
-        }
         if (pass == PointerEventPass.Main) {
             val downEvent = this.downEvent
             if (downEvent == null) {
@@ -927,7 +902,11 @@ internal open class ClickableNode(
                     this.downEvent = change
                     if (enabled) {
                         requestFocusWhenInMouseInputMode()
-                        handlePressInteractionStart(change.position, indirectPointer = false)
+                        if (isDelayPressesUsingGestureConsumptionEnabled) {
+                            handlePressInteractionStart(change)
+                        } else {
+                            handlePressInteractionStart(change.position, false)
+                        }
                     }
                 }
             } else if (pointerEvent.changes.fastAll { it.changedToUp() }) {
@@ -1267,7 +1246,8 @@ internal abstract class AbstractClickableNode(
     TraversableNode,
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode,
-    IndirectPointerInputModifierNode {
+    IndirectPointerInputModifierNode,
+    GestureConnection {
     protected var enabled = enabled
         private set
 
@@ -1286,6 +1266,7 @@ internal abstract class AbstractClickableNode(
     private var localIndicationNodeFactory: IndicationNodeFactory? = null
 
     private var pointerInputNode: SuspendingPointerInputModifierNode? = null
+    private var gestureNode: DelegatableNode? = null
     private var indicationNode: DelegatableNode? = null
 
     private var pressInteraction: PressInteraction.Press? = null
@@ -1309,8 +1290,10 @@ internal abstract class AbstractClickableNode(
     /**
      * Handles subclass-specific click related pointer input logic. Hover is already handled
      * elsewhere, so this should only handle clicks.
+     *
+     * TODO(b/477836055) Migrate to non-suspending API.
      */
-    abstract fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode?
+    open fun createPointerInputNodeIfNeeded(): SuspendingPointerInputModifierNode? = null
 
     open fun SemanticsPropertyReceiver.applyAdditionalSemantics() {}
 
@@ -1380,6 +1363,7 @@ internal abstract class AbstractClickableNode(
     override fun onIndirectPointerEvent(event: IndirectPointerEvent, pass: PointerEventPass) {
         initializeIndicationAndInteractionSourceIfNeeded()
         if (enabled) {
+            initializeGestureCoordination()
             if (indirectPointerClickDetector == null) {
                 indirectPointerClickDetector = IndirectPointerClickDetector(this)
             }
@@ -1430,6 +1414,9 @@ internal abstract class AbstractClickableNode(
         // Remove indication in case we are reused / moved - we will create a new node when needed
         indicationNode?.let { undelegate(it) }
         indicationNode = null
+
+        gestureNode?.let { undelegate(it) }
+        gestureNode = null
     }
 
     protected fun disposeInteractions() {
@@ -1503,6 +1490,14 @@ internal abstract class AbstractClickableNode(
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    private fun initializeGestureCoordination() {
+        if (!isDelayPressesUsingGestureConsumptionEnabled) return
+        if (gestureNode == null) {
+            gestureNode = delegate(gestureNode(this))
+        }
+    }
+
     override fun onPointerEvent(
         pointerEvent: PointerEvent,
         pass: PointerEventPass,
@@ -1511,6 +1506,7 @@ internal abstract class AbstractClickableNode(
         centerOffset = bounds.center.toOffset()
         initializeIndicationAndInteractionSourceIfNeeded()
         if (enabled) {
+            initializeGestureCoordination()
             if (pass == PointerEventPass.Main) {
                 when (pointerEvent.type) {
                     PointerEventType.Enter -> coroutineScope.launch { emitHoverEnter() }
@@ -1562,6 +1558,7 @@ internal abstract class AbstractClickableNode(
                 }
                 onClickKeyDownEvent(event) || wasInteractionHandled
             }
+
             enabled && event.isClick -> {
                 val press = currentKeyPressInteractions.remove(keyCode)
                 if (press != null) {
@@ -1577,6 +1574,7 @@ internal abstract class AbstractClickableNode(
                 // Only consume if we were previously pressed for this key event
                 press != null
             }
+
             else -> false
         }
     }
@@ -1619,17 +1617,52 @@ internal abstract class AbstractClickableNode(
 
     private var delayJob: Job? = null
 
-    /**
-     * Handles emitting a [PressInteraction.Press].
-     *
-     * @param offset offset of the press
-     * @param indirectPointer whether the source of this press was indirect pointer. False for
-     *   pointer input.
-     */
+    /** Handles emitting a [PressInteraction.Press]. */
+    protected fun handlePressInteractionStart(event: IndirectPointerInputChange) {
+        interactionSource?.let { interactionSource ->
+            val press = PressInteraction.Press(event.position)
+            if (delayPressInteraction(event)) {
+                delayJob =
+                    coroutineScope.launch {
+                        delay(TapIndicationDelay)
+                        interactionSource.emit(press)
+                        indirectPointerPressInteraction = press
+                    }
+            } else {
+                indirectPointerPressInteraction = press
+                coroutineScope.launch { interactionSource.emit(press) }
+            }
+        }
+    }
+
+    protected fun handlePressInteractionStart(event: PointerInputChange) {
+        interactionSource?.let { interactionSource ->
+            val press = PressInteraction.Press(event.position)
+            if (delayPressInteraction(event)) {
+                delayJob =
+                    coroutineScope.launch {
+                        delay(TapIndicationDelay)
+                        interactionSource.emit(press)
+                        pressInteraction = press
+                    }
+            } else {
+                pressInteraction = press
+                coroutineScope.launch { interactionSource.emit(press) }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
     protected fun handlePressInteractionStart(offset: Offset, indirectPointer: Boolean) {
         interactionSource?.let { interactionSource ->
             val press = PressInteraction.Press(offset)
-            if (delayPressInteraction()) {
+            val shouldDelayPress =
+                if (isDelayPressesUsingGestureConsumptionEnabled) {
+                    delayPressInteraction(null)
+                } else {
+                    delayPressInteraction()
+                }
+            if (shouldDelayPress) {
                 delayJob =
                     coroutineScope.launch {
                         delay(TapIndicationDelay)
@@ -1747,11 +1780,18 @@ internal abstract class AbstractClickableNode(
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     protected suspend fun PressGestureScope.handlePressInteraction(offset: Offset) {
         interactionSource?.let { interactionSource ->
             coroutineScope {
                 val delayJob = launch {
-                    if (delayPressInteraction()) {
+                    val shouldDelayPress =
+                        if (isDelayPressesUsingGestureConsumptionEnabled) {
+                            delayPressInteraction(null)
+                        } else {
+                            delayPressInteraction()
+                        }
+                    if (shouldDelayPress) {
                         delay(TapIndicationDelay)
                     }
                     val press = PressInteraction.Press(offset)
@@ -1789,6 +1829,19 @@ internal abstract class AbstractClickableNode(
     private fun delayPressInteraction(): Boolean =
         hasScrollableContainer() || isComposeRootInScrollableContainer()
 
+    private fun delayPressInteraction(event: PointerInputChange?): Boolean {
+        val hasInterestedParent =
+            if (event == null) {
+                parentGestureConnection != null
+            } else {
+                hasInterestedParent(event)
+            }
+        return hasInterestedParent || isComposeRootInScrollableContainer()
+    }
+
+    private fun delayPressInteraction(event: IndirectPointerInputChange): Boolean =
+        hasInterestedParent(event) || isComposeRootInScrollableContainer()
+
     private fun emitHoverEnter() {
         if (hoverInteraction == null) {
             val interaction = HoverInteraction.Enter()
@@ -1815,6 +1868,7 @@ internal abstract class AbstractClickableNode(
         private var downEvent: IndirectPointerInputChange? = null
 
         // TODO(b/449944873): Align PointerInput and IndirectTouchInput implementations
+        @OptIn(ExperimentalFoundationApi::class, ExperimentalIndirectPointerApi::class)
         fun processRawEvent(
             pointerEvent: IndirectPointerEvent,
             pass: PointerEventPass,
@@ -1826,7 +1880,11 @@ internal abstract class AbstractClickableNode(
                     if (pointerEvent.changes.fastAny { it.changedToDownIgnoreConsumed() }) {
                         val change = pointerEvent.changes[0]
                         this.downEvent = change
-                        node.handlePressInteractionStart(change.position, indirectPointer = true)
+                        if (isDelayPressesUsingGestureConsumptionEnabled) {
+                            node.handlePressInteractionStart(change)
+                        } else {
+                            node.handlePressInteractionStart(change.position, true)
+                        }
                         change.consume()
                     }
                 } else if (pointerEvent.changes.fastAny { it.isMovingIgnoreConsumed() }) {
@@ -1868,6 +1926,26 @@ internal abstract class AbstractClickableNode(
     }
 
     companion object TraverseKey
+}
+
+internal fun DelegatingNode.hasInterestedParent(event: IndirectPointerInputChange): Boolean {
+    var hasInterestedParent = false
+    traverseAncestorGestureConnections { coordinator ->
+        val isCoordinatorInterested = coordinator.isInterested(event)
+        hasInterestedParent = hasInterestedParent || isCoordinatorInterested
+        !hasInterestedParent
+    }
+    return hasInterestedParent
+}
+
+internal fun DelegatingNode.hasInterestedParent(event: PointerInputChange): Boolean {
+    var hasInterestedParent = false
+    traverseAncestorGestureConnections { coordinator ->
+        val isCoordinatorInterested = coordinator.isInterested(event)
+        hasInterestedParent = hasInterestedParent || isCoordinatorInterested
+        !hasInterestedParent
+    }
+    return hasInterestedParent
 }
 
 internal fun TraversableNode.hasScrollableContainer(): Boolean {

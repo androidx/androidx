@@ -20,6 +20,7 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -63,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertModifierIsPure
 import androidx.compose.testutils.first
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
@@ -78,14 +80,19 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.materialize
+import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.platform.AbstractComposeView
 import androidx.compose.ui.platform.InspectableValue
@@ -100,6 +107,7 @@ import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.dragAndDrop
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -108,6 +116,7 @@ import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
@@ -117,6 +126,7 @@ import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
@@ -146,6 +156,8 @@ import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.instanceOf
 import org.junit.After
 import org.junit.Assert
+import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -249,6 +261,54 @@ class ScrollableTest {
 
         rule.onNodeWithTag(scrollableBoxTag).sendIndirectSwipeBackward(rule)
         rule.runOnIdle { assertThat(total).isWithin(0.5f).of(0.0f) }
+    }
+
+    @Test
+    fun scrollable_mouseHorizontalDragDoesNotScroll() {
+        var total = 0f
+        val scrollableState =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = scrollableState, orientation = Orientation.Horizontal)
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.dragAndDrop(
+                start = this.center,
+                end = Offset(this.center.x + 100f, this.center.y),
+                durationMillis = 100,
+            )
+        }
+        assertThat(total).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun scrollable_trackpadHorizontalDragDoesNotScroll() {
+        assumeTrue(ComposeUiFlags.isTrackpadGestureHandlingEnabled)
+        var total = 0f
+        val scrollableState =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = scrollableState, orientation = Orientation.Horizontal)
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.dragAndDrop(
+                start = this.center,
+                end = Offset(this.center.x + 100f, this.center.y),
+                durationMillis = 100,
+            )
+        }
+        assertThat(total).isEqualTo(0)
     }
 
     @Test
@@ -394,6 +454,40 @@ class ScrollableTest {
         }
 
         assertThat(total).isEqualTo(0)
+    }
+
+    @Test
+    fun scrollable_horizontalScroll_trackpad() {
+        var total = 0f
+        val controller =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = controller, orientation = Orientation.Horizontal)
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.scroll(Offset(100f, 0f)) // only moved horizontally
+        }
+
+        var lastTotal =
+            rule.runOnIdle {
+                assertThat(total).isGreaterThan(0)
+                total
+            }
+
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.scroll(Offset(0f, 100f)) // only moved vertically
+        }
+
+        rule.runOnIdle { assertThat(total).isEqualTo(lastTotal) }
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.scroll(Offset(-100f, 0f)) // only moved horizontally
+        }
+        rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
     /*
@@ -659,6 +753,55 @@ class ScrollableTest {
     }
 
     @Test
+    fun scrollable_mouseVerticalDragDoesNotScroll() {
+        var total = 0f
+        val scrollableState =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = scrollableState, orientation = Orientation.Vertical)
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.dragAndDrop(
+                start = this.center,
+                end = Offset(this.center.x, this.center.y + 100f),
+                durationMillis = 100,
+            )
+        }
+        assertThat(total).isEqualTo(0)
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun scrollable_trackpadVerticalDragDoesNotScroll() {
+        assumeTrue(ComposeUiFlags.isTrackpadGestureHandlingEnabled)
+
+        var total = 0f
+        val scrollableState =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = scrollableState, orientation = Orientation.Vertical)
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.dragAndDrop(
+                start = this.center,
+                end = Offset(this.center.x, this.center.y + 100f),
+                durationMillis = 100,
+            )
+        }
+        assertThat(total).isEqualTo(0)
+    }
+
+    @Test
     fun scrollable_verticalScroll_2d_mouseWheel() {
         var total = 0f
         val scrollableState =
@@ -857,6 +1000,40 @@ class ScrollableTest {
             assertThat(totalVerticalScroll).isGreaterThan(0)
             assertThat(totalHorizontalScroll).isGreaterThan(0)
         }
+    }
+
+    @Test
+    fun scrollable_verticalScroll_trackpad() {
+        var total = 0f
+        val scrollableState =
+            ScrollableState(
+                consumeScrollDelta = {
+                    total += it
+                    it
+                }
+            )
+        setScrollableContent {
+            Modifier.scrollable(state = scrollableState, orientation = Orientation.Vertical)
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.scroll(Offset(0f, 100f)) // only moved vertically
+        }
+
+        var lastTotal =
+            rule.runOnIdle {
+                assertThat(total).isGreaterThan(0)
+                total
+            }
+
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.scroll(Offset(100f, 0f)) // only moved horizontally
+        }
+
+        rule.runOnIdle { assertThat(total).isEqualTo(lastTotal) }
+        rule.onNodeWithTag(scrollableBoxTag).performTrackpadInput {
+            this.scroll(Offset(0f, -100f)) // only moved vertically
+        }
+        rule.runOnIdle { assertThat(total).isLessThan(0.01f) }
     }
 
     /*
@@ -2936,8 +3113,10 @@ class ScrollableTest {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_setsModifierLocalScrollableContainer() {
+        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
         val scrollableState = ScrollableState { it }
 
         var isOuterInScrollableContainer: Boolean? = null
@@ -2969,6 +3148,121 @@ class ScrollableTest {
         rule.runOnIdle {
             assertThat(isOuterInScrollableContainer).isFalse()
             assertThat(isInnerInScrollableContainer).isTrue()
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollable_isInterestedInDownEvents() {
+        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
+        val scrollableState = ScrollableState { it }
+
+        var isOuterInterested: Boolean? = null
+        var isInnerInterested: Boolean? = null
+        rule.setContent {
+            Box {
+                Box(
+                    modifier =
+                        Modifier.testTag(scrollableBoxTag)
+                            .size(100.dp)
+                            .then(
+                                InspectGestureNodeElement { parentCoordinator, event ->
+                                    isOuterInterested = parentCoordinator.isInterested(event)
+                                }
+                            )
+                            .scrollable(
+                                state = scrollableState,
+                                orientation = Orientation.Horizontal,
+                            )
+                            .then(
+                                InspectGestureNodeElement { parentCoordinator, event ->
+                                    isInnerInterested = parentCoordinator.isInterested(event)
+                                }
+                            )
+                )
+            }
+        }
+
+        rule.onRoot().performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isTrue()
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollable_isInterestedInDownEvents_handlesParentEnabledState() {
+        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
+        val scrollableState = ScrollableState { it }
+
+        var isOuterInterested: Boolean? = null
+        var isInnerInterested: Boolean? = null
+        var isEnabled by mutableStateOf(false)
+        rule.setContent {
+            Box {
+                Box(
+                    modifier =
+                        Modifier.testTag(scrollableBoxTag)
+                            .size(100.dp)
+                            .then(
+                                InspectGestureNodeElement { parentCoordinator, event ->
+                                    isOuterInterested = parentCoordinator.isInterested(event)
+                                }
+                            )
+                            .scrollable(
+                                state = scrollableState,
+                                orientation = Orientation.Horizontal,
+                                enabled = isEnabled,
+                            )
+                            .then(
+                                InspectGestureNodeElement { parentCoordinator, event ->
+                                    isInnerInterested = parentCoordinator.isInterested(event)
+                                }
+                            )
+                )
+            }
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isFalse()
+        }
+
+        rule.runOnUiThread {
+            isOuterInterested = null
+            isInnerInterested = null
+            isEnabled = true
+        }
+        rule.onRoot().performTouchInput {
+            down(center)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isTrue()
+        }
+
+        rule.runOnUiThread {
+            isOuterInterested = null
+            isInnerInterested = null
+            isEnabled = false
+        }
+        rule.onRoot().performTouchInput {
+            down(center)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isFalse()
         }
     }
 
@@ -3009,8 +3303,10 @@ class ScrollableTest {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_setsModifierLocalScrollableContainer_scrollUpdates() {
+        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
         val scrollableState = ScrollableState { it }
 
         var isInnerInScrollableContainer: Boolean? = null
@@ -4190,4 +4486,52 @@ internal class ScrollableContainerReaderNode(var hasScrollableBlock: (Boolean) -
     }
 
     companion object TraverseKey
+}
+
+internal class InspectGestureNodeElement(
+    val onDownEvent: (GestureConnection, PointerInputChange) -> Unit
+) : ModifierNodeElement<InspectGestureNode>() {
+    override fun create(): InspectGestureNode {
+        return InspectGestureNode(onDownEvent)
+    }
+
+    override fun update(node: InspectGestureNode) {
+        node.onDownEvent = onDownEvent
+    }
+
+    override fun hashCode(): Int = onDownEvent.hashCode()
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other === null) return false
+        if (this::class != other::class) return false
+
+        other as InspectGestureNodeElement
+
+        if (onDownEvent !== other.onDownEvent) return false
+
+        return true
+    }
+}
+
+internal class InspectGestureNode(
+    var onDownEvent: (GestureConnection, PointerInputChange) -> Unit
+) : PointerInputModifierNode, DelegatingNode() {
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize,
+    ) {
+        if (
+            pass == PointerEventPass.Main &&
+                pointerEvent.changes.first().changedToDownIgnoreConsumed()
+        ) {
+            parentGestureConnection?.let { onDownEvent(it, pointerEvent.changes.first()) }
+        }
+    }
+
+    override fun onCancelPointerInput() {
+        // no-op
+    }
 }

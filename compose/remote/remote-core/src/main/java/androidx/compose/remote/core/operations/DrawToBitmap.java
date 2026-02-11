@@ -113,6 +113,7 @@ public class DrawToBitmap extends PaintOperation implements Serializable {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
                 .description("Draw to a bitmap")
                 .field(
                         DocumentedOperation.INT,

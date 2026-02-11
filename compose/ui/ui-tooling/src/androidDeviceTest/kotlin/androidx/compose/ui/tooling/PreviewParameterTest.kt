@@ -16,9 +16,9 @@
 
 package androidx.compose.ui.tooling
 
-import androidx.compose.material.Colors
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.ColorScheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
@@ -71,7 +71,9 @@ class PreviewParameterTest {
     }
 
     private class MyColorsProvider :
-        CollectionPreviewParameterProvider<Colors>(listOf(lightColors(), darkColors()))
+        CollectionPreviewParameterProvider<ColorScheme>(
+            listOf(lightColorScheme(), darkColorScheme())
+        )
 
     @Test
     fun checkColorsProvider() {

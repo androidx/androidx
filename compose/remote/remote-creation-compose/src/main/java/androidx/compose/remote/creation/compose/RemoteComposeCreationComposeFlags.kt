@@ -57,5 +57,5 @@ public object RemoteComposeCreationComposeFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public var isRemoteApplierEnabled: Boolean = false
+    public var isRemoteApplierEnabled: Boolean = true
 }

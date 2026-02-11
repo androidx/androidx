@@ -91,7 +91,6 @@ package androidx.compose.ui.graphics {
   public final class AndroidPaint implements androidx.compose.ui.graphics.Paint {
     ctor public AndroidPaint();
     ctor public AndroidPaint(android.graphics.Paint internalPaint);
-    method public android.graphics.Paint asFrameworkPaint();
     method @InaccessibleFromKotlin public float getAlpha();
     method @BytecodeOnly public int getBlendMode-0nO6VwU();
     method @BytecodeOnly public long getColor-0d7_KjU();
@@ -136,6 +135,8 @@ package androidx.compose.ui.graphics {
   public final class AndroidPaint_androidKt {
     method public static androidx.compose.ui.graphics.Paint Paint();
     method public static androidx.compose.ui.graphics.Paint asComposePaint(android.graphics.Paint);
+    method @InaccessibleFromKotlin public static android.graphics.Paint getNativePaint(androidx.compose.ui.graphics.Paint);
+    property public static android.graphics.Paint androidx.compose.ui.graphics.Paint.nativePaint;
   }
 
   public final class AndroidPath implements androidx.compose.ui.graphics.Path {
@@ -872,7 +873,7 @@ package androidx.compose.ui.graphics {
   }
 
   public interface Paint {
-    method public android.graphics.Paint asFrameworkPaint();
+    method @Deprecated public default android.graphics.Paint asFrameworkPaint();
     method @InaccessibleFromKotlin public float getAlpha();
     method @BytecodeOnly public int getBlendMode-0nO6VwU();
     method @BytecodeOnly public long getColor-0d7_KjU();
@@ -1379,7 +1380,7 @@ package androidx.compose.ui.graphics {
 
   @Deprecated public typealias NativeCanvas = android.graphics.Canvas;
 
-  public typealias NativePaint = android.graphics.Paint;
+  @Deprecated public typealias NativePaint = android.graphics.Paint;
 
   public typealias Shader = android.graphics.Shader;
 

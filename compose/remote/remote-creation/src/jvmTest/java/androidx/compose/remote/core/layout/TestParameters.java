@@ -17,24 +17,20 @@
 package androidx.compose.remote.core.layout;
 
 import androidx.compose.remote.core.RemoteClock;
-import androidx.compose.remote.core.SystemClock;
 
 import org.jspecify.annotations.NonNull;
+
 
 public class TestParameters {
     boolean mCaptureGoldFiles = false;
     @NonNull String mName = "Unknown";
-    private @NonNull RemoteClock mClock = new SystemClock();
+    private @NonNull RemoteClock mClock;
 
-    public TestParameters(@NonNull String name, boolean captureGoldFiles, RemoteClock clock) {
+    public TestParameters(@NonNull String name, boolean captureGoldFiles,
+            @NonNull RemoteClock clock) {
         mName = name;
         mCaptureGoldFiles = captureGoldFiles;
         mClock = clock;
-    }
-
-    public TestParameters(@NonNull String name, boolean captureGoldFiles) {
-        mName = name;
-        mCaptureGoldFiles = captureGoldFiles;
     }
 
     /**

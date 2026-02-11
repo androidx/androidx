@@ -29,6 +29,8 @@ import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -37,6 +39,7 @@ import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
@@ -108,6 +111,23 @@ class BasicTooltipTest {
         // Check that the tooltip is now dismissed
         rule.waitForIdle()
         Truth.assertThat(state.isVisible).isFalse()
+
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+            // Hover over the anchor with trackpad input
+            rule.onNodeWithTag(TOOLTIP_ANCHOR).performTrackpadInput { enter() }
+
+            // Check that the tooltip is now showing
+            rule.waitForIdle()
+            Truth.assertThat(state.isVisible).isTrue()
+
+            // Hover away from the anchor
+            rule.onNodeWithTag(TOOLTIP_ANCHOR).performTrackpadInput { exit() }
+
+            // Check that the tooltip is now dismissed
+            rule.waitForIdle()
+            Truth.assertThat(state.isVisible).isFalse()
+        }
     }
 
     @Test
@@ -145,6 +165,20 @@ class BasicTooltipTest {
         // Check that the tooltip is still not showing
         rule.waitForIdle()
         Truth.assertThat(state.isVisible).isFalse()
+
+        rule.onNodeWithTag(TOOLTIP_ANCHOR).performMouseInput { exit() }
+
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+            // Hover over the anchor with mouse input
+            rule.onNodeWithTag(TOOLTIP_ANCHOR).performTrackpadInput { enter() }
+
+            // Check that the tooltip is still not showing
+            rule.waitForIdle()
+            Truth.assertThat(state.isVisible).isFalse()
+
+            rule.onNodeWithTag(TOOLTIP_ANCHOR).performTrackpadInput { exit() }
+        }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)

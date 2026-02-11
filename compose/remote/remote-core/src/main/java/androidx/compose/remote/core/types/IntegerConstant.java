@@ -126,9 +126,9 @@ public class IntegerConstant extends Operation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", id(), "IntegerConstant")
+        doc.operation("Data Operations", id(), "IntegerConstant")
                 .description("A integer and its associated id")
-                .field(DocumentedOperation.INT, "id", "id of Int")
+                .field(DocumentedOperation.INT, "id", "id of the Int constant")
                 .field(INT, "value", "32-bit int value");
     }
 

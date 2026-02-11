@@ -35,7 +35,7 @@ public fun RemoteRowV2(
 ) {
     val scope = remember { RemoteRowScopeV2() }
     RemoteComposeNode(
-        factory = { RemoteRowNodeV2() },
+        factory = ::RemoteRowNodeV2,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }
             set(horizontalArrangement) { hArr -> this.horizontalArrangement = hArr }

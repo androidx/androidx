@@ -142,7 +142,7 @@ object UiStubs {
                 key1: Any?,
                 block: PointerInputEventHandler
             ): Modifier = Modifier
-        """
+            """
                 .trimIndent(),
             """
                 META-INF/main.kotlin_module:

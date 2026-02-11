@@ -26,6 +26,7 @@ import androidx.compose.remote.creation.compose.capture.DisplayPool
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCapture
 import androidx.compose.remote.player.core.RemoteDocument
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.LayoutDirection
 import java.io.ByteArrayInputStream
 
 /** Helper to capture a document */
@@ -72,6 +73,7 @@ public class RemoteComposeHost(
             context = baseContext,
             virtualDisplay = virtualDisplay,
             creationDisplayInfo = connection,
+            layoutDirection = toLayoutDirection(context.resources.configuration.layoutDirection),
             immediateCapture = true,
             onPaint = { view, writer ->
                 if (document == null) {
@@ -92,5 +94,14 @@ public class RemoteComposeHost(
             profiles = profiles,
             content = content,
         )
+    }
+}
+
+/** Convert an Android layout direction to a compose [layout direction][LayoutDirection]. */
+internal fun toLayoutDirection(androidLayoutDirection: Int): LayoutDirection {
+    return when (androidLayoutDirection) {
+        android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
+        android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
+        else -> throw IllegalArgumentException("Unknown layout direction: $androidLayoutDirection")
     }
 }

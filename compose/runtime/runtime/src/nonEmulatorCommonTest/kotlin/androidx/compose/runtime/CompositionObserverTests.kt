@@ -768,15 +768,15 @@ class CompositionObserverTests {
 
         assertEquals(
             """
-                begin
-                enter
-                enter
-                enter
-                read
-                exit
-                exit
-                exit
-                end
+            begin
+            enter
+            enter
+            enter
+            read
+            exit
+            exit
+            exit
+            end
             """
                 .trimIndent()
                 .trim(),
@@ -790,12 +790,12 @@ class CompositionObserverTests {
 
         assertEquals(
             """
-                invalidate MutableState(value=text2)
-                begin
-                enter 1
-                read
-                exit
-                end
+            invalidate MutableState(value=text2)
+            begin
+            enter 1
+            read
+            exit
+            end
             """
                 .trimIndent()
                 .trim(),

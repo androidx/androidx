@@ -28,7 +28,7 @@ internal actual typealias RectF = android.graphics.RectF
 
 internal actual typealias Path = android.graphics.Path
 
-internal actual typealias Matrix = android.graphics.Matrix
+internal actual typealias MatrixTransform = android.graphics.Matrix
 
 internal actual val RectF.left: Float
     get() = this.left
@@ -160,7 +160,7 @@ public actual class RemotePath : RemotePathBase {
         retPath.addPath(mCachePath!!)
     }
 
-    public actual fun transform(matrix: Matrix) {
+    public actual fun transform(matrix: MatrixTransform) {
         var i = 0
         while (i < size) {
             when (Utils.idFromNan(pathArray[i])) {

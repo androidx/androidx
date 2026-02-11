@@ -108,4 +108,4 @@ fun basicTimer(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable fun BasicTimerPreview() = RemoteDocPreview(basicTimer())
+@Preview @Composable private fun BasicTimerPreview() = RemoteDocPreview(basicTimer())

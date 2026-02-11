@@ -86,20 +86,23 @@ private val KeyEvent.keyCode
     get() = nativeKeyEvent.keyCode
 
 private val demoInstructionText =
-    """Navigate the below text fields using the (shift)-tab keys on a physical keyboard.
-        | We expect the focus to move forward and backwards,
-        | Arrow keys should move the cursor around the currently focused text field
-        | (unless using a dpad device).
-        | IME action is also set to next,
-        | so the enter key ought to move the focus to the next focus element.
-        | In multi-line, the tab and enter keys should add '\t' and '\n', respectively.
-        |"""
+    """
+    |Navigate the below text fields using the (shift)-tab keys on a physical keyboard.
+    | We expect the focus to move forward and backwards,
+    | Arrow keys should move the cursor around the currently focused text field
+    | (unless using a dpad device).
+    | IME action is also set to next,
+    | so the enter key ought to move the focus to the next focus element.
+    | In multi-line, the tab and enter keys should add '\t' and '\n', respectively.
+    |"""
         .trimMargin()
         .replace("\n", "")
 
 private val keyIndicatorInstructionText =
-    """The keys being pressed and their modifiers are shown below.
-        | Keys that are currently being pressed are in red text."""
+    """
+    |The keys being pressed and their modifiers are shown below.
+    | Keys that are currently being pressed are in red text.
+    """
         .trimMargin()
         .replace("\n", "")
 

@@ -241,7 +241,6 @@ package androidx.compose.animation.core {
   }
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalAnimationSpecApi @androidx.compose.runtime.Immutable public final class ArcAnimationSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
-    ctor public ArcAnimationSpec();
     ctor @KotlinOnly public <T> ArcAnimationSpec(optional androidx.compose.animation.core.ArcMode mode, optional int durationMillis, optional int delayMillis, optional androidx.compose.animation.core.Easing easing);
     ctor @BytecodeOnly public ArcAnimationSpec(int, int, int, androidx.compose.animation.core.Easing!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public ArcAnimationSpec(int, int, int, androidx.compose.animation.core.Easing!, kotlin.jvm.internal.DefaultConstructorMarker!);

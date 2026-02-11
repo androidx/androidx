@@ -141,7 +141,9 @@ internal fun PointerInputEvent(
             activeHover = it.type == PointerType.Mouse,
             historical = it.historical,
             scrollDelta = scrollDelta,
-            originalEventPosition = it.position
+            originalEventPosition = it.position,
+            scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+            panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
         )
     },
     buttons = buttons,

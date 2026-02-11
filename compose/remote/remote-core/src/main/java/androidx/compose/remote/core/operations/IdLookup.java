@@ -130,11 +130,12 @@ public class IdLookup extends Operation implements VariableSupport, Serializable
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("access an id (integer) from and array")
-                .field(INT, "textId", "id of the integer generated")
-                .field(FLOAT, "dataSet", "float pointer to the array/list to turn int a string")
-                .field(FLOAT, "index", "index of element to return");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Look up an ID from an ID collection via index")
+                .field(INT, "textId", "The ID of the integer variable to store the result")
+                .field(FLOAT, "dataSet", "The ID of the collection")
+                .field(FLOAT, "index", "The index of the ID to retrieve");
     }
 
     @Override

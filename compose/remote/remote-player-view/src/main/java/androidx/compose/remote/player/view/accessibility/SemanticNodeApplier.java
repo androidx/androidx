@@ -22,6 +22,7 @@ import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.semantics.AccessibilitySemantics;
 
 import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -63,10 +64,12 @@ public interface SemanticNodeApplier<N> {
      * @param semantics                  A list of {@link AccessibilitySemantics} objects
      *                                   representing the semantic
      *                                   properties and actions to apply.
+     * @param parentId                   The parent according to semantic tree.
      */
     void applyComponent(@NonNull RemoteComposeDocumentAccessibility remoteComposeAccessibility,
             @NonNull N nodeInfo, @NonNull Component component,
-            @NonNull List<@NonNull AccessibilitySemantics> semantics);
+            @NonNull List<@NonNull AccessibilitySemantics> semantics,
+            @Nullable Integer parentId);
 
     /**
      * add children to the node

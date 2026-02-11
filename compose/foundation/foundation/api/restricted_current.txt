@@ -153,19 +153,23 @@ package androidx.compose.foundation {
     property public boolean isBringIntoViewRltBouncyBehaviorInPagerFixEnabled;
     property public boolean isCacheWindowForPagerEnabled;
     property public boolean isCacheWindowRefillFixEnabled;
-    property public boolean isDetectTapGesturesImmediateCoroutineDispatchEnabled;
+    property public boolean isDelayPressesUsingGestureConsumptionEnabled;
+    property public boolean isNestedDraggablesTouchConflictFixEnabled;
     property public boolean isNewContextMenuEnabled;
     property public boolean isPausableCompositionInPrefetchEnabled;
     property public boolean isSmartSelectionEnabled;
+    property public boolean isTrackpadGestureHandlingEnabled;
     field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
     field public static boolean isAnchoredDraggableTargetValueCalculationFixEnabled;
     field public static boolean isBringIntoViewRltBouncyBehaviorInPagerFixEnabled;
     field public static boolean isCacheWindowForPagerEnabled;
     field public static boolean isCacheWindowRefillFixEnabled;
-    field public static boolean isDetectTapGesturesImmediateCoroutineDispatchEnabled;
+    field public static boolean isDelayPressesUsingGestureConsumptionEnabled;
+    field public static boolean isNestedDraggablesTouchConflictFixEnabled;
     field public static boolean isNewContextMenuEnabled;
     field public static boolean isPausableCompositionInPrefetchEnabled;
     field public static boolean isSmartSelectionEnabled;
+    field public static boolean isTrackpadGestureHandlingEnabled;
   }
 
   public final class DarkThemeKt {
@@ -288,7 +292,6 @@ package androidx.compose.foundation {
   }
 
   @Deprecated @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public final class OverscrollConfiguration {
-    ctor @Deprecated public OverscrollConfiguration();
     ctor @KotlinOnly @Deprecated public OverscrollConfiguration(optional androidx.compose.ui.graphics.Color glowColor, optional androidx.compose.foundation.layout.PaddingValues drawPadding);
     ctor @BytecodeOnly @Deprecated public OverscrollConfiguration(long, androidx.compose.foundation.layout.PaddingValues!, int, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly @Deprecated public OverscrollConfiguration(long, androidx.compose.foundation.layout.PaddingValues!, kotlin.jvm.internal.DefaultConstructorMarker!);
@@ -723,9 +726,6 @@ package androidx.compose.foundation.gestures {
     method @BytecodeOnly public static Object! drag$default(androidx.compose.foundation.gestures.DraggableState!, androidx.compose.foundation.MutatePriority!, kotlin.jvm.functions.Function2!, kotlin.coroutines.Continuation!, int, Object!);
   }
 
-  @Deprecated @SuppressCompatibility @kotlin.RequiresOptIn(message="This API feature-flags new behavior and will be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTapGestureDetectorBehaviorApi {
-  }
-
   @androidx.compose.runtime.Stable public interface FlingBehavior {
     method public suspend Object? performFling(androidx.compose.foundation.gestures.ScrollScope, float initialVelocity, kotlin.coroutines.Continuation<? super java.lang.Float>);
   }
@@ -844,12 +844,9 @@ package androidx.compose.foundation.gestures {
     method @BytecodeOnly @Deprecated public static Object! awaitFirstDown$default(androidx.compose.ui.input.pointer.AwaitPointerEventScope!, boolean, kotlin.coroutines.Continuation!, int, Object!);
     method public static suspend Object? detectTapGestures(androidx.compose.ui.input.pointer.PointerInputScope, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onDoubleTap, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onLongPress, optional kotlin.jvm.functions.Function3<? super androidx.compose.foundation.gestures.PressGestureScope,? super androidx.compose.ui.geometry.Offset,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> onPress, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? onTap, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @BytecodeOnly public static Object! detectTapGestures$default(androidx.compose.ui.input.pointer.PointerInputScope!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function3!, kotlin.jvm.functions.Function1!, kotlin.coroutines.Continuation!, int, Object!);
-    method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.foundation.gestures.ExperimentalTapGestureDetectorBehaviorApi public static boolean getDetectTapGesturesEnableNewDispatchingBehavior();
-    method @InaccessibleFromKotlin @Deprecated @SuppressCompatibility @androidx.compose.foundation.gestures.ExperimentalTapGestureDetectorBehaviorApi public static void setDetectTapGesturesEnableNewDispatchingBehavior(boolean);
     method public static suspend Object? waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope, optional androidx.compose.ui.input.pointer.PointerEventPass pass, kotlin.coroutines.Continuation<? super androidx.compose.ui.input.pointer.PointerInputChange?>);
     method @BytecodeOnly @Deprecated public static Object! waitForUpOrCancellation(androidx.compose.ui.input.pointer.AwaitPointerEventScope!, kotlin.coroutines.Continuation!);
     method @BytecodeOnly public static Object! waitForUpOrCancellation$default(androidx.compose.ui.input.pointer.AwaitPointerEventScope!, androidx.compose.ui.input.pointer.PointerEventPass!, kotlin.coroutines.Continuation!, int, Object!);
-    property @Deprecated @SuppressCompatibility @androidx.compose.foundation.gestures.ExperimentalTapGestureDetectorBehaviorApi public static boolean DetectTapGesturesEnableNewDispatchingBehavior;
   }
 
   @androidx.compose.runtime.Stable public interface TargetedFlingBehavior extends androidx.compose.foundation.gestures.FlingBehavior {
@@ -872,12 +869,12 @@ package androidx.compose.foundation.gestures {
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface TransformScope {
-    method @KotlinOnly public default void transformBy(androidx.compose.ui.geometry.Offset centroid, optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
-    method @KotlinOnly @Deprecated public void transformBy(optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
-    method @BytecodeOnly public default void transformBy-IEwrmTk(long, float, long, float);
-    method @BytecodeOnly public static void transformBy-IEwrmTk$default(androidx.compose.foundation.gestures.TransformScope!, long, float, long, float, int, Object!);
-    method @BytecodeOnly @Deprecated public void transformBy-d-4ec7I(float, long, float);
-    method @BytecodeOnly @Deprecated public static void transformBy-d-4ec7I$default(androidx.compose.foundation.gestures.TransformScope!, float, long, float, int, Object!);
+    method @KotlinOnly public void transformBy(optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
+    method @BytecodeOnly public void transformBy-d-4ec7I(float, long, float);
+    method @BytecodeOnly public static void transformBy-d-4ec7I$default(androidx.compose.foundation.gestures.TransformScope!, float, long, float, int, Object!);
+    method @KotlinOnly public default void transformByWithCentroid(optional androidx.compose.ui.geometry.Offset centroid, optional float zoomChange, optional androidx.compose.ui.geometry.Offset panChange, optional float rotationChange);
+    method @BytecodeOnly public default void transformByWithCentroid-IEwrmTk(long, float, long, float);
+    method @BytecodeOnly public static void transformByWithCentroid-IEwrmTk$default(androidx.compose.foundation.gestures.TransformScope!, long, float, long, float, int, Object!);
   }
 
   public final class TransformableKt {
@@ -1596,7 +1593,7 @@ package androidx.compose.foundation.lazy.layout {
     method @BytecodeOnly public boolean contains(Object!);
     method public boolean containsAll(java.util.Collection<androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem> elements);
     method public operator androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem get(int index);
-    method @BytecodeOnly public int getSize();
+    method public int getSize();
     method public int indexOf(androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList.PinnedItem element);
     method @BytecodeOnly public int indexOf(Object!);
     method public boolean isEmpty();
@@ -2289,7 +2286,6 @@ package androidx.compose.foundation.text {
   }
 
   @androidx.compose.runtime.Immutable public final class KeyboardOptions {
-    ctor public KeyboardOptions();
     ctor @KotlinOnly @Deprecated public KeyboardOptions(optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, boolean autoCorrect, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional Boolean? showKeyboardOnFocus, optional androidx.compose.ui.text.intl.LocaleList? hintLocales);
     ctor @KotlinOnly public KeyboardOptions(optional androidx.compose.ui.text.input.KeyboardCapitalization capitalization, optional Boolean? autoCorrectEnabled, optional androidx.compose.ui.text.input.KeyboardType keyboardType, optional androidx.compose.ui.text.input.ImeAction imeAction, optional androidx.compose.ui.text.input.PlatformImeOptions? platformImeOptions, optional Boolean? showKeyboardOnFocus, optional androidx.compose.ui.text.intl.LocaleList? hintLocales);
     ctor @BytecodeOnly public KeyboardOptions(int, boolean, int, int, androidx.compose.ui.text.input.PlatformImeOptions!, int, kotlin.jvm.internal.DefaultConstructorMarker!);

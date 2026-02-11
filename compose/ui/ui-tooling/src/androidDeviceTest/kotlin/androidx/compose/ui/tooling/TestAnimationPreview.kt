@@ -44,6 +44,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -51,15 +52,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.material.Button
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
-import androidx.compose.material.TriStateCheckbox
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -85,7 +83,7 @@ enum class CheckBoxState {
 @Preview(name = "CheckBox + Scaffold")
 @Composable
 fun TransitionWithScaffoldPreview() {
-    Scaffold { TransitionPreview() }
+    Scaffold { padding -> TransitionPreview(padding) }
 }
 
 @Preview(name = "All unsupported and transition animations")
@@ -180,7 +178,7 @@ fun TransitionAnimatedVisibilityPreview() {
 
 @Preview
 @Composable
-fun TransitionPreview() {
+fun TransitionPreview(padding: PaddingValues = PaddingValues.Zero) {
     val (selected, onSelected) = remember { mutableStateOf(false) }
     val transition =
         updateTransition(
@@ -203,7 +201,7 @@ fun TransitionPreview() {
         shape = MaterialTheme.shapes.large.copy(topStart = CornerSize(checkBoxCorner)),
         modifier = Modifier.toggleable(value = selected, onValueChange = onSelected),
     ) {
-        Icon(imageVector = Icons.Filled.Done, contentDescription = null)
+        Box(Modifier.size(50.dp).background(Color.Blue))
     }
 }
 

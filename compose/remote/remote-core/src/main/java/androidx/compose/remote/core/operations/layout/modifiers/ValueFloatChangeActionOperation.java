@@ -120,12 +120,10 @@ public class ValueFloatChangeActionOperation extends Operation implements Action
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "ValueFloatChangeActionOperation")
-                .description(
-                        "ValueIntegerChange action. "
-                                + " This operation represents a value change for the given id")
-                .field(INT, "TARGET_VALUE_ID", "Value ID")
-                .field(FLOAT, "VALUE", "float value to be assigned to the target");
+        doc.operation("Actions & Events Operations", OP_CODE, "ValueFloatChangeActionOperation")
+                .description("Action that sets a new value for a float variable")
+                .field(INT, "targetValueId", "The ID of the float variable to update")
+                .field(FLOAT, "value", "The new float value to assign");
     }
 
     @Override

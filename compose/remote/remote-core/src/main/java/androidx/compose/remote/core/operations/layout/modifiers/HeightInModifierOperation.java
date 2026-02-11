@@ -81,7 +81,7 @@ public class HeightInModifierOperation extends DimensionInModifierOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "HeightInModifierOperation")
+        doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .description("Add additional constraints to the height")
                 .field(DocumentedOperation.FLOAT, "min", "The minimum height, -1 if not applied")
                 .field(DocumentedOperation.FLOAT, "max", "The maximum height, -1 if not applied");

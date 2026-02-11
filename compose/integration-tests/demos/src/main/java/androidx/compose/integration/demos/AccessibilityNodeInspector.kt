@@ -17,7 +17,9 @@
 package androidx.compose.integration.demos
 
 import android.graphics.Matrix
+import android.graphics.Path as AndroidPath
 import android.graphics.Rect
+import android.graphics.Region
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -42,9 +44,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -79,16 +79,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toComposeIntRect
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.pointer.changedToUp
@@ -158,6 +164,15 @@ private const val UsageMessage =
         "Release to view the node's properties and print the information to logcat " +
         "(tagged \"$LogTag\").\n\n" +
         "Go back to close inspector."
+
+private const val ShapeTypeKey = "androidx.compose.ui.semantics.shapeType"
+private const val ShapeRectKey = "androidx.compose.ui.semantics.shapeRect"
+private const val ShapeRectCornersKey = "androidx.compose.ui.semantics.shapeCorners"
+private const val ShapeRegionKey = "androidx.compose.ui.semantics.shapeRegion"
+
+private const val ShapeTypeRectangle = 0
+private const val ShapeTypeRounded = 1
+private const val ShapeTypeGeneric = 2
 
 /**
  * A composable that, when touched or dragged, will immediately show an overlay on the current
@@ -300,6 +315,14 @@ private data class DrawSelectionOverlayModifier(val state: AccessibilityNodeInsp
 
 private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspectorState) :
     Modifier.Node(), DrawModifierNode {
+    private var _path: Path? = null
+    private val lazyPath: Path
+        get() = _path ?: Path().also { _path = it }
+
+    private var _androidPath: AndroidPath? = null
+    private val lazyAndroidPath: AndroidPath
+        get() = _androidPath ?: AndroidPath().also { _androidPath = it }
+
     override fun ContentDrawScope.draw() {
         val coords = requireLayoutCoordinates()
         state.nodesUnderCursor.let { nodes ->
@@ -307,27 +330,41 @@ private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspe
                 val layerAlpha = 0.8f / nodes.size
                 nodes.fastForEach { node ->
                     val bounds = coords.screenToLocal(node.boundsInScreen)
-                    clipRect(
-                        left = bounds.left.toFloat(),
-                        top = bounds.top.toFloat(),
-                        right = bounds.right.toFloat(),
-                        bottom = bounds.bottom.toFloat(),
-                        clipOp = ClipOp.Difference,
-                    ) {
-                        drawRect(Color.Black.copy(alpha = layerAlpha))
+                    val path = node.toShapePath()
+                    if (path != null) {
+                        path.translate(bounds.topLeft.toOffset())
+                        clipPath(path, clipOp = ClipOp.Difference) {
+                            drawRect(Color.Black.copy(alpha = layerAlpha))
+                        }
+                    } else {
+                        clipRect(
+                            left = bounds.left.toFloat(),
+                            top = bounds.top.toFloat(),
+                            right = bounds.right.toFloat(),
+                            bottom = bounds.bottom.toFloat(),
+                            clipOp = ClipOp.Difference,
+                        ) {
+                            drawRect(Color.Black.copy(alpha = layerAlpha))
+                        }
                     }
                 }
             }
         }
 
         state.highlightedNode?.let { node ->
-            val lastBounds = coords.screenToLocal(node.boundsInScreen)
-            drawRect(
-                Color.Green,
-                style = Stroke(1.dp.toPx()),
-                topLeft = lastBounds.topLeft.toOffset(),
-                size = lastBounds.size.toSize(),
-            )
+            val bounds = coords.screenToLocal(node.boundsInScreen)
+            val path = node.toShapePath()
+            if (path != null) {
+                path.translate(bounds.topLeft.toOffset())
+                drawPath(path, Color.Green, style = Stroke(1.dp.toPx()))
+            } else {
+                drawRect(
+                    Color.Green,
+                    style = Stroke(1.dp.toPx()),
+                    topLeft = bounds.topLeft.toOffset(),
+                    size = bounds.size.toSize(),
+                )
+            }
         }
 
         state.selectionOffset
@@ -347,12 +384,62 @@ private class DrawSelectionOverlayModifierNode(val state: AccessibilityNodeInspe
             }
     }
 
+    /**
+     * @return a [Path] that matches the shape or `null` if a path didn't exist. The resulting path
+     *   is reused on every invocation of this method.
+     */
+    private fun NodeInfo.toShapePath(): Path? {
+        // A11y extras not available until api 26.
+        if (Build.VERSION.SDK_INT < 26) return null
+
+        fun readExtra(key: String): Any? =
+            AccessibilityNodeInfoHelper.readExtraData(nodeInfo.unwrap(), key)
+
+        val shapeType = readExtra(ShapeTypeKey) as? Int? ?: return null
+        val path = lazyPath
+        path.rewind()
+        when (shapeType) {
+            ShapeTypeRectangle -> { // Rect
+                val rect = readExtra(ShapeRectKey) as Rect
+                path.addRect(rect.toComposeRect())
+            }
+            ShapeTypeRounded -> { // Rounded Rect
+                val rect = readExtra(ShapeRectKey) as Rect
+                val corners = readExtra(ShapeRectCornersKey) as FloatArray
+                path.addRoundRect(rect.toComposeRoundRect(corners))
+            }
+            ShapeTypeGeneric -> { // Generic
+                val region = readExtra(ShapeRegionKey) as Region
+                val androidPath = lazyAndroidPath
+                androidPath.rewind()
+                region.getBoundaryPath(androidPath)
+                path.addPath(androidPath.asComposePath())
+            }
+            else -> return null
+        }
+        return path
+    }
+
     private fun LayoutCoordinates.screenToLocal(rect: IntRect): IntRect {
         return IntRect(
             topLeft = screenToLocal(rect.topLeft.toOffset()).round(),
             bottomRight = screenToLocal(rect.bottomRight.toOffset()).round(),
         )
     }
+}
+
+private fun Rect.toComposeRoundRect(radii: FloatArray): RoundRect {
+    require(radii.size == 8) { "Corner radius array must have 8 elements" }
+    return RoundRect(
+        left = left.toFloat(),
+        top = top.toFloat(),
+        right = right.toFloat(),
+        bottom = bottom.toFloat(),
+        topLeftCornerRadius = CornerRadius(radii[0], radii[1]),
+        topRightCornerRadius = CornerRadius(radii[2], radii[3]),
+        bottomRightCornerRadius = CornerRadius(radii[4], radii[5]),
+        bottomLeftCornerRadius = CornerRadius(radii[6], radii[7]),
+    )
 }
 
 /**

@@ -81,7 +81,7 @@ public class WidthInModifierOperation extends DimensionInModifierOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "WidthInModifierOperation")
+        doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
                 .description("Add additional constraints to the width")
                 .field(DocumentedOperation.FLOAT, "min", "The minimum width, -1 if not applied")
                 .field(DocumentedOperation.FLOAT, "max", "The maximum width, -1 if not applied");

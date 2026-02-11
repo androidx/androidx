@@ -177,6 +177,8 @@ abstract interface <#A: kotlin/Any?> androidx.compose.runtime/Applier { // andro
 
 abstract interface <#A: kotlin/Any?> androidx.compose.runtime/CompositionServiceKey // androidx.compose.runtime/CompositionServiceKey|null[0]
 
+abstract interface <#A: kotlin/Any?> androidx.compose.runtime/HostDefaultKey // androidx.compose.runtime/HostDefaultKey|null[0]
+
 abstract interface <#A: kotlin/Any?> androidx.compose.runtime/MutableState : androidx.compose.runtime/State<#A> { // androidx.compose.runtime/MutableState|null[0]
     abstract var value // androidx.compose.runtime/MutableState.value|{}value[0]
         abstract fun <get-value>(): #A // androidx.compose.runtime/MutableState.value.<get-value>|<get-value>(){}[0]
@@ -297,6 +299,10 @@ abstract interface androidx.compose.runtime/FloatState : androidx.compose.runtim
         open fun <get-value>(): kotlin/Float // androidx.compose.runtime/FloatState.value.<get-value>|<get-value>(){}[0]
 }
 
+abstract interface androidx.compose.runtime/HostDefaultProvider { // androidx.compose.runtime/HostDefaultProvider|null[0]
+    abstract fun <#A1: kotlin/Any?> getHostDefault(androidx.compose.runtime/HostDefaultKey<#A1>): #A1 // androidx.compose.runtime/HostDefaultProvider.getHostDefault|getHostDefault(androidx.compose.runtime.HostDefaultKey<0:0>){0§<kotlin.Any?>}[0]
+}
+
 abstract interface androidx.compose.runtime/IntState : androidx.compose.runtime/State<kotlin/Int> { // androidx.compose.runtime/IntState|null[0]
     abstract val intValue // androidx.compose.runtime/IntState.intValue|{}intValue[0]
         abstract fun <get-intValue>(): kotlin/Int // androidx.compose.runtime/IntState.intValue.<get-intValue>|<get-intValue>(){}[0]
@@ -370,12 +376,12 @@ abstract interface androidx.compose.runtime/RecomposerErrorInformation { // andr
 abstract interface androidx.compose.runtime/RecomposerInfo { // androidx.compose.runtime/RecomposerInfo|null[0]
     abstract val changeCount // androidx.compose.runtime/RecomposerInfo.changeCount|{}changeCount[0]
         abstract fun <get-changeCount>(): kotlin/Long // androidx.compose.runtime/RecomposerInfo.changeCount.<get-changeCount>|<get-changeCount>(){}[0]
-    abstract val errorState // androidx.compose.runtime/RecomposerInfo.errorState|{}errorState[0]
-        abstract fun <get-errorState>(): kotlinx.coroutines.flow/StateFlow<androidx.compose.runtime/RecomposerErrorInformation?> // androidx.compose.runtime/RecomposerInfo.errorState.<get-errorState>|<get-errorState>(){}[0]
     abstract val hasPendingWork // androidx.compose.runtime/RecomposerInfo.hasPendingWork|{}hasPendingWork[0]
         abstract fun <get-hasPendingWork>(): kotlin/Boolean // androidx.compose.runtime/RecomposerInfo.hasPendingWork.<get-hasPendingWork>|<get-hasPendingWork>(){}[0]
     abstract val state // androidx.compose.runtime/RecomposerInfo.state|{}state[0]
         abstract fun <get-state>(): kotlinx.coroutines.flow/Flow<androidx.compose.runtime/Recomposer.State> // androidx.compose.runtime/RecomposerInfo.state.<get-state>|<get-state>(){}[0]
+    open val errorState // androidx.compose.runtime/RecomposerInfo.errorState|{}errorState[0]
+        open fun <get-errorState>(): kotlinx.coroutines.flow/StateFlow<androidx.compose.runtime/RecomposerErrorInformation?> // androidx.compose.runtime/RecomposerInfo.errorState.<get-errorState>|<get-errorState>(){}[0]
 }
 
 abstract interface androidx.compose.runtime/RememberObserver { // androidx.compose.runtime/RememberObserver|null[0]
@@ -725,10 +731,6 @@ final class <#A: kotlin/Any?> androidx.compose.runtime.snapshots/SnapshotStateSe
     final fun retainAll(kotlin.collections/Collection<#A>): kotlin/Boolean // androidx.compose.runtime.snapshots/SnapshotStateSet.retainAll|retainAll(kotlin.collections.Collection<1:0>){}[0]
     final fun toSet(): kotlin.collections/Set<#A> // androidx.compose.runtime.snapshots/SnapshotStateSet.toSet|toSet(){}[0]
     final fun toString(): kotlin/String // androidx.compose.runtime.snapshots/SnapshotStateSet.toString|toString(){}[0]
-}
-
-final class <#A: kotlin/Any?> androidx.compose.runtime/HostDefaultKey { // androidx.compose.runtime/HostDefaultKey|null[0]
-    constructor <init>() // androidx.compose.runtime/HostDefaultKey.<init>|<init>(){}[0]
 }
 
 final class <#A: kotlin/Any?> androidx.compose.runtime/ProvidedValue { // androidx.compose.runtime/ProvidedValue|null[0]
@@ -1179,6 +1181,8 @@ final val androidx.compose.runtime.tooling/androidx_compose_runtime_tooling_Para
 final val androidx.compose.runtime.tooling/androidx_compose_runtime_tooling_SourceInformation$stableprop // androidx.compose.runtime.tooling/androidx_compose_runtime_tooling_SourceInformation$stableprop|#static{}androidx_compose_runtime_tooling_SourceInformation$stableprop[0]
 final val androidx.compose.runtime/DefaultMonotonicFrameClock // androidx.compose.runtime/DefaultMonotonicFrameClock|{}DefaultMonotonicFrameClock[0]
     final fun <get-DefaultMonotonicFrameClock>(): androidx.compose.runtime/MonotonicFrameClock // androidx.compose.runtime/DefaultMonotonicFrameClock.<get-DefaultMonotonicFrameClock>|<get-DefaultMonotonicFrameClock>(){}[0]
+final val androidx.compose.runtime/LocalHostDefaultProvider // androidx.compose.runtime/LocalHostDefaultProvider|{}LocalHostDefaultProvider[0]
+    final fun <get-LocalHostDefaultProvider>(): androidx.compose.runtime/ProvidableCompositionLocal<androidx.compose.runtime/HostDefaultProvider> // androidx.compose.runtime/LocalHostDefaultProvider.<get-LocalHostDefaultProvider>|<get-LocalHostDefaultProvider>(){}[0]
 final val androidx.compose.runtime/androidx_compose_runtime_AbstractApplier$stableprop // androidx.compose.runtime/androidx_compose_runtime_AbstractApplier$stableprop|#static{}androidx_compose_runtime_AbstractApplier$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_BroadcastFrameClock$stableprop // androidx.compose.runtime/androidx_compose_runtime_BroadcastFrameClock$stableprop|#static{}androidx_compose_runtime_BroadcastFrameClock$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_ComposeRuntimeFlags$stableprop // androidx.compose.runtime/androidx_compose_runtime_ComposeRuntimeFlags$stableprop|#static{}androidx_compose_runtime_ComposeRuntimeFlags$stableprop[0]
@@ -1187,7 +1191,6 @@ final val androidx.compose.runtime/androidx_compose_runtime_CompositionLocal$sta
 final val androidx.compose.runtime/androidx_compose_runtime_CompositionLocalContext$stableprop // androidx.compose.runtime/androidx_compose_runtime_CompositionLocalContext$stableprop|#static{}androidx_compose_runtime_CompositionLocalContext$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop // androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop|#static{}androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop // androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop|#static{}androidx_compose_runtime_DisposableEffectScope$stableprop[0]
-final val androidx.compose.runtime/androidx_compose_runtime_HostDefaultKey$stableprop // androidx.compose.runtime/androidx_compose_runtime_HostDefaultKey$stableprop|#static{}androidx_compose_runtime_HostDefaultKey$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop // androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop|#static{}androidx_compose_runtime_MovableContent$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop // androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop|#static{}androidx_compose_runtime_MovableContentState$stableprop[0]
 final val androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop // androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop|#static{}androidx_compose_runtime_MovableContentStateReference$stableprop[0]
@@ -1397,7 +1400,6 @@ final fun androidx.compose.runtime/androidx_compose_runtime_CompositionLocal$sta
 final fun androidx.compose.runtime/androidx_compose_runtime_CompositionLocalContext$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_CompositionLocalContext$stableprop_getter|androidx_compose_runtime_CompositionLocalContext$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop_getter|androidx_compose_runtime_DerivedSnapshotState_ResultRecord$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_DisposableEffectScope$stableprop_getter|androidx_compose_runtime_DisposableEffectScope$stableprop_getter(){}[0]
-final fun androidx.compose.runtime/androidx_compose_runtime_HostDefaultKey$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_HostDefaultKey$stableprop_getter|androidx_compose_runtime_HostDefaultKey$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_MovableContent$stableprop_getter|androidx_compose_runtime_MovableContent$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_MovableContentState$stableprop_getter|androidx_compose_runtime_MovableContentState$stableprop_getter(){}[0]
 final fun androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop_getter(): kotlin/Int // androidx.compose.runtime/androidx_compose_runtime_MovableContentStateReference$stableprop_getter|androidx_compose_runtime_MovableContentStateReference$stableprop_getter(){}[0]

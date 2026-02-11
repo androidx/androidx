@@ -275,6 +275,8 @@ internal class SyntheticEventSender(
         activeHover,
         scrollDelta = Offset(0f, 0f),
         historical = emptyList(), // we don't copy historical for synthetic
-        originalEventPosition = position
+        originalEventPosition = position,
+        scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+        panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
     )
 }

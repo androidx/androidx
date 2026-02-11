@@ -29,6 +29,7 @@ import androidx.compose.remote.creation.compose.capture.WriterEvents
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -66,6 +67,7 @@ class PendingIntentActionTest {
                 creationDisplayInfo = CreationDisplayInfo(1, 1, 160),
                 profile = RcPlatformProfiles.ANDROIDX,
                 writerEvents = writerEvents,
+                layoutDirection = LayoutDirection.Ltr,
             )
 
         val testAction = PendingIntentAction(testPendingIntent)

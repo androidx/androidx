@@ -232,7 +232,7 @@ public class AnimatedFloatExpression {
     public static final float CMD4 = asNan(OFFSET + 67);
 
     /** LAST valid operator */
-    public static final int LAST_OP = OFFSET + 63;
+    public static final int LAST_OP = OFFSET + 79;
 
     /** VAR1 operator */
     public static final float VAR1 = asNan(OFFSET + 70);
@@ -251,6 +251,21 @@ public class AnimatedFloatExpression {
 
     /** CUBIC operator  A_SPLINE_LOOP is A_SPLINE but the array is assumed to be a loop */
     public static final float A_SPLINE_LOOP = asNan(OFFSET + 75);
+
+    /** SUM the array till the n value */
+    public static final float A_SUM_TILL = asNan(OFFSET + 76);
+
+    /** SUM two arrays multiplying each element with the other  */
+    public static final float A_SUM_XY = asNan(OFFSET + 77);
+
+    /** SUM the squar of the arrays values  */
+    public static final float A_SUM_SQR = asNan(OFFSET + 78);
+
+    /**  Linear interpolation between elements. like spline but linear */
+    public static final float A_LERP = asNan(OFFSET + 79);
+
+    public static final int END_OP =  OFFSET + 79;
+
 
     // TODO SQUARE, DUP, HYPOT, SWAP
     //    private static final float FP_PI = (float) Math.PI;
@@ -271,11 +286,15 @@ public class AnimatedFloatExpression {
      * Get the max op for a given API level
      */
     public static int getMaxOpForLevel(int level) {
-        if (level == 7) {
-            return LAST_OP;
-        } else {
-            return API_LEVEL6_MAX;
+        switch (level) {
+            case 7:
+                return LAST_OP;
+            case 6:
+                return API_LEVEL6_MAX;
+            default:
+                return END_OP;
         }
+
     }
 
     private float getSplineValue(int arrayId, float pos) {
@@ -516,6 +535,11 @@ public class AnimatedFloatExpression {
         sNames.put(k++, "change_sign");
         sNames.put(k++, "cubic");
         sNames.put(k++, "a_spline_loop");
+        sNames.put(k++, "a_sum_till");
+        sNames.put(k++, "a_sum_xy");
+        sNames.put(k++, "a_sum_sqr");
+        sNames.put(k++, "a_lerp");
+
     }
 
     /**
@@ -625,7 +649,8 @@ public class AnimatedFloatExpression {
             1, 1, 1, 1, // store
             0, 0, 0, 0, // load
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-            1, 5, 2 // change_sign, cubic, a_spline_loop
+            1, 5, 2, // change_sign, cubic, a_spline_loop
+            2, 2, 1, 2 // a_sum_till, a_sum_xy, a_sum_sqr, a_lerp
     };
 
     /**
@@ -724,6 +749,10 @@ public class AnimatedFloatExpression {
     private static final int OP_CHANGE_SIGN = OFFSET + 73;
     private static final int OP_CUBIC = OFFSET + 74;
     private static final int OP_A_SPLINE_LOOP = OFFSET + 75;
+    private static final int OP_A_SUM_TILL = OFFSET + 76;
+    private static final int OP_A_SUM_XY = OFFSET + 77;
+    private static final int OP_A_SUM_SQR = OFFSET + 78;
+    private static final int OP_A_LERP = OFFSET + 79;
 
     int opEval(int sp, int id) {
         float[] array;
@@ -1060,6 +1089,55 @@ public class AnimatedFloatExpression {
                 float r = mStack[sp] - i;
                 r = (r < 0.0f) ? r + 1.0f : r; // mStack[sp] - (float) Math.floor(mStack[sp]
                 mStack[sp - 1] = getSplineValue(id, r);
+                return sp - 1;
+            case OP_A_SUM_TILL:
+                id = fromNaN(mStack[sp - 1]);
+                assert mCollectionsAccess != null;
+                int last = (int) mStack[sp];
+                sum = 0;
+                for (int j = 0; j <= last; j++) {
+                    sum += mCollectionsAccess.getFloatValue(id, j);
+                }
+                mStack[sp - 1] = sum;
+                return sp - 1;
+            case OP_A_SUM_XY:
+                int idX = fromNaN(mStack[sp - 1]);
+                int idY = fromNaN(mStack[sp]);
+                assert mCollectionsAccess != null;
+                float[] arrayX = mCollectionsAccess.getFloats(idX);
+                float[] arrayY = mCollectionsAccess.getFloats(idY);
+                float sumXY = 0;
+                for (int index = 0; index < arrayX.length; index++) {
+                    sumXY += arrayX[index] * arrayY[index];
+                }
+                mStack[sp - 1] = sumXY;
+                return sp - 1;
+            case OP_A_SUM_SQR:
+                id = fromNaN(mStack[sp]);
+                assert mCollectionsAccess != null;
+                array = mCollectionsAccess.getFloats(id);
+                float sumSq = 0;
+                for (int index = 0; index < array.length; index++) {
+                    float v = array[index];
+                    sumSq += v * v;
+                }
+                mStack[sp] = sumSq;
+                return sp;
+            case OP_A_LERP:
+                id = fromNaN(mStack[sp - 1]);
+                assert mCollectionsAccess != null;
+                array = mCollectionsAccess.getFloats(id);
+                float p_lerp = mStack[sp] * (array.length - 1);
+                int index_lerp = (int) p_lerp;
+                if (index_lerp < 0) {
+                    mStack[sp - 1] = array[0];
+                } else if (index_lerp >= array.length - 1) {
+                    mStack[sp - 1] = array[array.length - 1];
+                } else {
+                    float t_lerp = p_lerp - index_lerp;
+                    mStack[sp - 1] = array[index_lerp] + t_lerp * (array[index_lerp + 1]
+                            - array[index_lerp]);
+                }
                 return sp - 1;
         }
         return sp;

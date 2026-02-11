@@ -19,10 +19,14 @@ package androidx.compose.remote.integration.view.demos.examples
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 
-@Preview @Composable fun DemoAnchorTextPreview() = RemoteDocPreview(DemoAnchorText.anchoredText())
+@Preview
+@Composable
+private fun DemoAnchorTextPreview() = RemoteDocPreview(DemoAnchorText.anchoredText())
 
 @Preview
 @Composable
-fun DemoAttributedStringPreview() = RemoteDocPreview(DemoAttributedString.demo())
+private fun DemoAttributedStringPreview() = RemoteDocPreview(DemoAttributedString.demo())
 
-@Preview @Composable fun DemoPathsPreview() = RemoteDocPreview(DemoPaths.pathTest())
+@Preview @Composable private fun DemoPathsPreview() = RemoteDocPreview(DemoPaths.pathTest())
+
+@Preview @Composable private fun HostileActorPreview() = RemoteDocPreview(HostileActor.demoImage())

@@ -44,7 +44,8 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
                 shortcutModifier(event) ->
                     when (event.key) {
                         Key.C,
-                        Key.Insert -> KeyCommand.COPY
+                        Key.Insert,
+                        Key.NumPadInsert -> KeyCommand.COPY
                         Key.V -> KeyCommand.PASTE
                         Key.X -> KeyCommand.CUT
                         Key.A -> KeyCommand.SELECT_ALL
@@ -55,28 +56,45 @@ internal fun commonKeyMapping(shortcutModifier: (KeyEvent) -> Boolean): KeyMappi
                 event.isCtrlPressed -> null
                 event.isShiftPressed ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.SELECT_LEFT_CHAR
-                        Key.DirectionRight -> KeyCommand.SELECT_RIGHT_CHAR
-                        Key.DirectionUp -> KeyCommand.SELECT_UP
-                        Key.DirectionDown -> KeyCommand.SELECT_DOWN
-                        Key.PageUp -> KeyCommand.SELECT_PAGE_UP
-                        Key.PageDown -> KeyCommand.SELECT_PAGE_DOWN
-                        Key.MoveHome -> KeyCommand.SELECT_LINE_START
-                        Key.MoveEnd -> KeyCommand.SELECT_LINE_END
-                        Key.Insert -> KeyCommand.PASTE
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.SELECT_LEFT_CHAR
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.SELECT_RIGHT_CHAR
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.SELECT_UP
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.SELECT_DOWN
+                        Key.PageUp,
+                        Key.NumPadPageUp -> KeyCommand.SELECT_PAGE_UP
+                        Key.PageDown,
+                        Key.NumPadPageDown -> KeyCommand.SELECT_PAGE_DOWN
+                        Key.MoveHome,
+                        Key.NumPadMoveHome -> KeyCommand.SELECT_LINE_START
+                        Key.MoveEnd,
+                        Key.NumPadMoveEnd -> KeyCommand.SELECT_LINE_END
+                        Key.Insert,
+                        Key.NumPadInsert -> KeyCommand.PASTE
                         else -> null
                     }
                 else ->
                     when (event.key) {
-                        Key.DirectionLeft -> KeyCommand.LEFT_CHAR
-                        Key.DirectionRight -> KeyCommand.RIGHT_CHAR
-                        Key.DirectionUp -> KeyCommand.UP
-                        Key.DirectionDown -> KeyCommand.DOWN
+                        Key.DirectionLeft,
+                        Key.NumPadDirectionLeft -> KeyCommand.LEFT_CHAR
+                        Key.DirectionRight,
+                        Key.NumPadDirectionRight -> KeyCommand.RIGHT_CHAR
+                        Key.DirectionUp,
+                        Key.NumPadDirectionUp -> KeyCommand.UP
+                        Key.DirectionDown,
+                        Key.NumPadDirectionDown -> KeyCommand.DOWN
                         Key.DirectionCenter -> KeyCommand.CENTER
-                        Key.PageUp -> KeyCommand.PAGE_UP
-                        Key.PageDown -> KeyCommand.PAGE_DOWN
-                        Key.MoveHome -> KeyCommand.LINE_START
-                        Key.MoveEnd -> KeyCommand.LINE_END
+                        Key.PageUp,
+                        Key.NumPadPageUp -> KeyCommand.PAGE_UP
+                        Key.PageDown,
+                        Key.NumPadPageDown -> KeyCommand.PAGE_DOWN
+                        Key.MoveHome,
+                        Key.NumPadMoveHome -> KeyCommand.LINE_START
+                        Key.MoveEnd,
+                        Key.NumPadMoveEnd -> KeyCommand.LINE_END
                         Key.Enter,
                         Key.NumPadEnter -> KeyCommand.NEW_LINE
                         Key.Backspace -> KeyCommand.DELETE_PREV_CHAR
@@ -100,18 +118,26 @@ internal val defaultKeyMapping: KeyMapping =
                 return when {
                     event.isShiftPressed && event.isCtrlPressed ->
                         when (event.key) {
-                            Key.DirectionLeft -> KeyCommand.SELECT_LEFT_WORD
-                            Key.DirectionRight -> KeyCommand.SELECT_RIGHT_WORD
-                            Key.DirectionUp -> KeyCommand.SELECT_PREV_PARAGRAPH
-                            Key.DirectionDown -> KeyCommand.SELECT_NEXT_PARAGRAPH
+                            Key.DirectionLeft,
+                            Key.NumPadDirectionLeft -> KeyCommand.SELECT_LEFT_WORD
+                            Key.DirectionRight,
+                            Key.NumPadDirectionRight -> KeyCommand.SELECT_RIGHT_WORD
+                            Key.DirectionUp,
+                            Key.NumPadDirectionUp -> KeyCommand.SELECT_PREV_PARAGRAPH
+                            Key.DirectionDown,
+                            Key.NumPadDirectionDown -> KeyCommand.SELECT_NEXT_PARAGRAPH
                             else -> null
                         }
                     event.isCtrlPressed ->
                         when (event.key) {
-                            Key.DirectionLeft -> KeyCommand.LEFT_WORD
-                            Key.DirectionRight -> KeyCommand.RIGHT_WORD
-                            Key.DirectionUp -> KeyCommand.PREV_PARAGRAPH
-                            Key.DirectionDown -> KeyCommand.NEXT_PARAGRAPH
+                            Key.DirectionLeft,
+                            Key.NumPadDirectionLeft -> KeyCommand.LEFT_WORD
+                            Key.DirectionRight,
+                            Key.NumPadDirectionRight -> KeyCommand.RIGHT_WORD
+                            Key.DirectionUp,
+                            Key.NumPadDirectionUp -> KeyCommand.PREV_PARAGRAPH
+                            Key.DirectionDown,
+                            Key.NumPadDirectionDown -> KeyCommand.NEXT_PARAGRAPH
                             Key.H -> KeyCommand.DELETE_PREV_CHAR
                             Key.Delete -> KeyCommand.DELETE_NEXT_WORD
                             Key.Backspace -> KeyCommand.DELETE_PREV_WORD
@@ -120,8 +146,10 @@ internal val defaultKeyMapping: KeyMapping =
                         }
                     event.isShiftPressed ->
                         when (event.key) {
-                            Key.MoveHome -> KeyCommand.SELECT_LINE_START
-                            Key.MoveEnd -> KeyCommand.SELECT_LINE_END
+                            Key.MoveHome,
+                            Key.NumPadMoveHome -> KeyCommand.SELECT_LINE_START
+                            Key.MoveEnd,
+                            Key.NumPadMoveEnd -> KeyCommand.SELECT_LINE_END
                             else -> null
                         }
                     event.isAltPressed ->

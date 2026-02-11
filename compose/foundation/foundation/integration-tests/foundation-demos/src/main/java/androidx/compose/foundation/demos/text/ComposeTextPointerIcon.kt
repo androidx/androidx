@@ -57,9 +57,11 @@ fun TextPointerIconDemo() {
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            """The texts below demonstrate how different pointer hover icons work on
-                | different texts and text fields with different permutations of
-                | overrideDescendants."""
+            """
+            |The texts below demonstrate how different pointer hover icons work on
+            | different texts and text fields with different permutations of
+            | overrideDescendants.
+            """
                 .trimMargin()
                 .replace("\n", "")
         )

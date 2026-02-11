@@ -19,7 +19,6 @@ package androidx.compose.remote.creation.compose.state
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 
 /**
@@ -92,7 +91,7 @@ public class MutableRemoteLong(
  * A Composable function to remember and provide a mutable remote long value.
  *
  * @param name The unique name for this remote long, used for identification in the remote document.
- * @param domain The domain of the remote long (defaults to [RemoteDomains.USER]). This helps
+ * @param domain The domain of the remote long (defaults to [RemoteState.Domain.User]). This helps
  *   organize named values.
  * @param value A lambda that provides the initial [Long] value for this remote long.
  * @return A [MutableRemoteLong] instance that will be remembered across recompositions.
@@ -100,7 +99,7 @@ public class MutableRemoteLong(
 @Composable
 public fun rememberRemoteLongValue(
     name: String,
-    domain: RemoteDomains = RemoteDomains.USER,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> Long,
 ): MutableRemoteLong {
     return rememberNamedState(name, domain) {

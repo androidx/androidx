@@ -532,12 +532,15 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
                         if (historicalPosition.isValid()) {
                             historical.add(
                                 HistoricalChange(
-                                    it.uptimeMillis,
-                                    coordinates!!.localPositionOf(
-                                        parentCoordinates,
-                                        historicalPosition,
-                                    ),
-                                    it.originalEventPosition,
+                                    uptimeMillis = it.uptimeMillis,
+                                    position =
+                                        coordinates!!.localPositionOf(
+                                            parentCoordinates,
+                                            historicalPosition,
+                                        ),
+                                    scaleGestureFactor = it.scaleGestureFactor,
+                                    panGestureOffset = it.panGestureOffset,
+                                    originalEventPosition = it.originalEventPosition,
                                 )
                             )
                         }

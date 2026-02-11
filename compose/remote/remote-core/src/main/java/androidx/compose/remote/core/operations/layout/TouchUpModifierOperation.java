@@ -128,7 +128,7 @@ public class TouchUpModifierOperation extends ListActionsOperation implements To
         doc.operation("Modifier Operations", OP_CODE, name())
                 .description(
                         "Touch up modifier. This operation contains"
-                                + " a list of action executed on Touch up");
+                                + " a list of action operations executed on touch up");
     }
 
     @Override

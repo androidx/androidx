@@ -128,7 +128,7 @@ public class TouchCancelModifierOperation extends ListActionsOperation implement
         doc.operation("Modifier Operations", OP_CODE, name())
                 .description(
                         "Touch cancel modifier. This operation contains"
-                                + " a list of action executed on Touch cancel");
+                                + " a list of action operations executed on touch cancel");
     }
 
     @Override

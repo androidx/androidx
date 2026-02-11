@@ -31,6 +31,8 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.StateRe
 private val stackTraceLinePattern =
     Regex("\\s*at ([\\w$.<>]+)\\.([\\w$-<>]+)\\(([ $.\\w<>]*):(-?\\d+)\\)")
 
+private val composers = listOf("GapComposer", "LinkComposer", "ComposerImpl")
+
 /** Validate a DSL for a [GetRecompositionStateReadResponse]. */
 internal fun validate(
     reads: GetRecompositionStateReadResponse,
@@ -275,11 +277,18 @@ internal class StateReadValidator(
 
     private fun assertIsMatch(line: String, actual: String?, expected: String) {
         val message = "Found in line: $line"
-        if (expected.endsWith("<any>")) {
-            val prefix = expected.substring(0, expected.length - 5)
-            assertWithMessage(message).that(actual).startsWith(prefix)
-        } else {
-            assertWithMessage(message).that(actual).isEqualTo(expected)
+        when {
+            expected.endsWith("<any>") -> {
+                val prefix = expected.substring(0, expected.length - 5)
+                assertWithMessage(message).that(actual).startsWith(prefix)
+            }
+            expected.contains("<composer>") -> {
+                val composer = composers.find { expected.replace("<composer>", it) == actual }
+                if (composer == null) {
+                    assertWithMessage(message).that(actual).isEqualTo(expected)
+                }
+            }
+            else -> assertWithMessage(message).that(actual).isEqualTo(expected)
         }
     }
 

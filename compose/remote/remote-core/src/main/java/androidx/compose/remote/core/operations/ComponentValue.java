@@ -123,18 +123,26 @@ public class ComponentValue extends Operation implements SerializableToString, S
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Encode a component-related value (eg its width, height etc.)")
+        doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
+                .description(
+                        "Expose a component's layout property (width, height, etc.) as a variable")
                 .field(
                         DocumentedOperation.INT,
-                        "TYPE",
-                        "The type of value, either WIDTH(0) or HEIGHT(1)")
-                .field(INT, "COMPONENT_ID", "The component id to reference")
+                        "type",
+                        "The type of value to expose")
+                .possibleValues("WIDTH", WIDTH)
+                .possibleValues("HEIGHT", HEIGHT)
+                .possibleValues("POS_X", POS_X)
+                .possibleValues("POS_Y", POS_Y)
+                .possibleValues("POS_ROOT_X", POS_ROOT_X)
+                .possibleValues("POS_ROOT_Y", POS_ROOT_Y)
+                .possibleValues("CONTENT_WIDTH", CONTENT_WIDTH)
+                .possibleValues("CONTENT_HEIGHT", CONTENT_HEIGHT)
+                .field(INT, "componentId", "The ID of the component to reference")
                 .field(
                         INT,
-                        "VALUE_ID",
-                        "The id of the RemoteFloat representing the described"
-                                + " component value, which can be used in expressions");
+                        "valueId",
+                        "The ID of the variable to store the value in");
     }
 
     public ComponentValue(int type, int componentId, int valueId) {

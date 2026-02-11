@@ -30,7 +30,7 @@ public fun RemoteCanvasV2(
     onDraw: RemoteDrawScope.() -> Unit,
 ) {
     RemoteComposeNode(
-        factory = { RemoteCanvasNodeV2() },
+        factory = ::RemoteCanvasNodeV2,
         update = {
             set(modifier) { this.modifier = it }
             set(onDraw) { this.onDraw = it }

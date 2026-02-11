@@ -17,11 +17,10 @@
 package androidx.compose.remote.integration.demos
 
 import android.os.Bundle
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.remote.creation.compose.capture.RememberRemoteDocumentInline
 import androidx.compose.remote.creation.compose.layout.RemoteAlignment
 import androidx.compose.remote.creation.compose.layout.RemoteArrangement
 import androidx.compose.remote.creation.compose.layout.RemoteBox
@@ -31,7 +30,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.border
-import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.fillMaxWidth
 import androidx.compose.remote.creation.compose.modifier.height
 import androidx.compose.remote.creation.compose.modifier.rememberRemoteScrollState
@@ -40,57 +38,40 @@ import androidx.compose.remote.creation.compose.modifier.verticalScroll
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rdp
-import androidx.compose.remote.player.compose.RemoteDocumentPlayer
-import androidx.compose.remote.player.core.RemoteDocument
+import androidx.compose.remote.integration.demos.widget.listWidget
+import androidx.compose.remote.player.view.RemoteComposePlayer
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
 
+@Suppress("RestrictedApiAndroidX")
 class ListActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { ScrollableListMain(modifier = Modifier.fillMaxSize()) }
-    }
-}
 
-@Composable
-@Suppress("RestrictedApiAndroidX")
-fun ScrollableListMain(modifier: Modifier = Modifier) {
-    var documentState by remember { mutableStateOf<RemoteDocument?>(null) }
+        lifecycleScope.launch {
+            val bytes = listWidget(applicationContext, "ListActivity")
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        @Suppress("COMPOSE_APPLIER_CALL_MISMATCH") // b/446706254
-        RememberRemoteDocumentInline(
-            onDocument = { doc ->
-                println("Document generated: $doc")
-                if (documentState == null) {
-                    // Generate seems to get called again with a partial document
-                    // Essentially re-recording but with existing state, so document is incomplete
-                    documentState = RemoteDocument(doc)
+            val frameLayout =
+                FrameLayout(this@ListActivity).apply {
+                    setBackgroundColor(Color.LightGray.toArgb())
+                    setPadding(20, 200, 20, 200)
                 }
-            }
-        ) {
-            ScrollableList(modifier = RemoteModifier.fillMaxSize())
-        }
 
-        if (documentState != null) {
-            val windowInfo = LocalWindowInfo.current
-            RemoteDocumentPlayer(
-                document = documentState!!.document,
-                windowInfo.containerSize.width,
-                windowInfo.containerSize.height,
-                modifier = modifier.fillMaxSize(),
-                0,
-                onNamedAction = { _, _, _ -> },
-            )
+            val player =
+                RemoteComposePlayer(this@ListActivity).apply {
+                    layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    setDocument(bytes)
+                }
+
+            frameLayout.addView(player)
+
+            setContentView(frameLayout)
         }
     }
 }
@@ -98,7 +79,7 @@ fun ScrollableListMain(modifier: Modifier = Modifier) {
 @RemoteComposable
 @Composable
 @Suppress("RestrictedApiAndroidX")
-fun ScrollableList(modifier: RemoteModifier = RemoteModifier) {
+fun ScrollableList(name: String, modifier: RemoteModifier = RemoteModifier) {
     val scrollState = rememberRemoteScrollState()
     RemoteColumn(
         modifier = modifier.verticalScroll(scrollState).background(Color.White),
@@ -116,7 +97,11 @@ fun ScrollableList(modifier: RemoteModifier = RemoteModifier) {
                 horizontalAlignment = RemoteAlignment.CenterHorizontally,
                 verticalArrangement = RemoteArrangement.Center,
             ) {
-                RemoteText("Item $it", color = RemoteColor(Color.Black), fontSize = 36.sp)
+                RemoteText(
+                    if (it == 0) name else "Item $it",
+                    color = RemoteColor(Color.Black),
+                    fontSize = 36.sp,
+                )
             }
         }
     }
@@ -126,5 +111,5 @@ fun ScrollableList(modifier: RemoteModifier = RemoteModifier) {
 @Preview
 @Composable
 fun ScrollableListPreview() {
-    RemotePreview { ScrollableList() }
+    RemotePreview { ScrollableList("ScrollableListPreview") }
 }

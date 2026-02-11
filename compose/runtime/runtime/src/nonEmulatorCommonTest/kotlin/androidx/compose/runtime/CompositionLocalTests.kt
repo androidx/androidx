@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalComposeApi::class)
-
 package androidx.compose.runtime
 
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
@@ -892,7 +890,7 @@ class CompositionLocalTests {
 
     @Test
     fun hostDefault_resolvesValueFromProvider() = compositionTest {
-        val key = HostDefaultKey<String>()
+        val key = TestHostDefaultKey<String>()
         val local = compositionLocalWithHostDefaultOf(key)
         val provider = TestHostDefaultProvider(mapOf(key to "HostValue"))
 
@@ -905,7 +903,7 @@ class CompositionLocalTests {
 
     @Test
     fun hostDefault_explicitValueOverridesHost() = compositionTest {
-        val key = HostDefaultKey<String>()
+        val key = TestHostDefaultKey<String>()
         val local = compositionLocalWithHostDefaultOf(key)
         val provider = TestHostDefaultProvider(mapOf(key to "HostValue"))
 
@@ -921,7 +919,7 @@ class CompositionLocalTests {
     @Test
     fun hostDefault_returnsNullForMissingNullableKey() = compositionTest {
         // Key expects a nullable String
-        val key = HostDefaultKey<String?>()
+        val key = TestHostDefaultKey<String?>()
         val local = compositionLocalWithHostDefaultOf(key)
         // Provider is empty
         val provider = TestHostDefaultProvider(emptyMap())
@@ -936,7 +934,7 @@ class CompositionLocalTests {
     @Test
     fun hostDefault_throwsForMissingNonNullableKey() = compositionTest {
         // Key expects a non-null String
-        val key = HostDefaultKey<Int>()
+        val key = TestHostDefaultKey<Int>()
         val local = compositionLocalWithHostDefaultOf(key)
         val provider = TestHostDefaultProvider(emptyMap())
 
@@ -944,8 +942,12 @@ class CompositionLocalTests {
         try {
             compose {
                 CompositionLocalProvider(LocalHostDefaultProvider provides provider) {
-                    // This access should crash!
-                    @Suppress("UnusedVariable", "unused") val unused = local.current
+                    // Platform behavior varies for unprovided CompositionLocals.
+                    // On JS/Native, a null value might be successfully assigned to 'unused'
+                    // unless forced via !!. On JVM, unboxing null to a primitive (Int)
+                    // typically throws a NullPointerException or ClassCastException immediately.
+                    @Suppress("UnusedVariable", "unused", "UNNECESSARY_NOT_NULL_ASSERTION")
+                    val unused: Int = local.current!!
                 }
             }
         } catch (e: NullPointerException) {
@@ -964,7 +966,7 @@ class CompositionLocalTests {
 
     @Test
     fun hostDefault_dynamicUpdatesFromProvider() = compositionTest {
-        val key = HostDefaultKey<String>()
+        val key = TestHostDefaultKey<String>()
         val local = compositionLocalWithHostDefaultOf(key)
 
         // We use mutable state to swap providers to simulate the host environment changing
@@ -1017,6 +1019,8 @@ fun MockViewValidator.CacheInvalidate(state: State<Int>) {
 data class SomeData(val value: String = "default")
 
 @Stable class StableRef<T>(var value: T)
+
+private class TestHostDefaultKey<T> : HostDefaultKey<T>
 
 private class TestHostDefaultProvider(val values: Map<HostDefaultKey<*>, Any?>) :
     HostDefaultProvider {

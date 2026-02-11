@@ -24,7 +24,6 @@ import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvalua
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
-import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.math.abs
@@ -841,7 +840,7 @@ public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt {
  * A Composable function to remember and provide a **named** mutable remote integer value.
  *
  * @param name The unique name for this remote integer.
- * @param domain The domain of the named integer (defaults to [RemoteDomains.USER]). This helps
+ * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]). This helps
  *   organize named values in the remote document.
  * @param value A lambda that provides the initial [Int] value for this remote integer.
  * @return A [MutableRemoteInt] instance that will be remembered across recompositions.
@@ -850,7 +849,7 @@ public fun rememberRemoteIntValue(value: () -> Int): MutableRemoteInt {
 @RemoteComposable
 public fun rememberRemoteIntValue(
     name: String,
-    domain: RemoteDomains = RemoteDomains.USER,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> Int,
 ): RemoteInt {
     val state = LocalRemoteComposeCreationState.current
@@ -884,14 +883,14 @@ public fun rememberRemoteInt(content: () -> RemoteInt): RemoteInt {
  * A Composable function to remember and provide a **named** [RemoteInt] expression.
  *
  * @param name The unique name for this remote integer.
- * @param domain The domain of the named integer (defaults to [RemoteDomains.USER]).
+ * @param domain The domain of the named integer (defaults to [RemoteState.Domain.User]).
  * @param content A lambda that provides the [RemoteInt] expression.
  * @return A [RemoteIntExpression] representing the named remote integer.
  */
 @Composable
 public fun rememberRemoteInt(
     name: String,
-    domain: RemoteDomains = RemoteDomains.USER,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
     content: () -> RemoteInt,
 ): RemoteIntExpression {
     val state = LocalRemoteComposeCreationState.current

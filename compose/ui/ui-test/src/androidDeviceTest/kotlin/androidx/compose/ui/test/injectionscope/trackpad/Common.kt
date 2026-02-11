@@ -18,6 +18,8 @@ package androidx.compose.ui.test.injectionscope.trackpad
 
 import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.testutils.WithViewConfiguration
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -64,19 +66,26 @@ object Common {
     }
 
     /** Verifies [DataPoint]s for events that are expected to come from a trackpad */
+    @OptIn(ExperimentalComposeUiApi::class)
     fun DataPoint.verifyTrackpadEvent(
         expectedTimestamp: Long,
         expectedEventType: PointerEventType,
         expectedDown: Boolean,
         expectedPosition: Offset,
         expectedButtons: PointerButtons = PointerButtons(0),
+        expectedPointerType: PointerType =
+            if (ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+                PointerType.Mouse
+            } else {
+                PointerType.Touch
+            },
     ) {
         verify(
             expectedTimestamp = expectedTimestamp,
             expectedId = null,
             expectedDown = expectedDown,
             expectedPosition = expectedPosition,
-            expectedPointerType = PointerType.Touch,
+            expectedPointerType = expectedPointerType,
             expectedEventType = expectedEventType,
             expectedButtons = expectedButtons,
         )

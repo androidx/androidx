@@ -20,10 +20,17 @@ package androidx.compose.remote.creation.compose.state
 
 import android.content.Context
 import android.graphics.Bitmap
+import androidx.compose.remote.core.Operation
+import androidx.compose.remote.core.RemoteComposeBuffer
+import androidx.compose.remote.core.operations.NamedVariable
+import androidx.compose.remote.core.operations.layout.RootLayoutComponent
+import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.captureSingleRemoteDocument
+import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
@@ -32,6 +39,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import com.google.common.truth.Truth.assertThat
+import java.io.ByteArrayInputStream
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotSame
@@ -120,6 +129,35 @@ class RemoteStateTest {
 
                 AssertSameSameDifferent(blue, blue2, red)
             }
+        }
+    }
+
+    @Test
+    fun withGlobalScope() = runTest {
+        withContext(Dispatchers.Main) {
+            val capturedDoc =
+                captureSingleRemoteDocument(context) {
+                    val s1 = rememberRemoteString("s1") { "1" }
+                    // Will be committed immediately in a global scope
+                    val s2 = rememberRemoteString("s2") { "2" }.withGlobalScope()
+
+                    RemoteBox { RemoteText(s1 + s2) }
+                }
+
+            val operations = ArrayList<Operation>()
+            RemoteComposeBuffer.fromInputStream(ByteArrayInputStream(capturedDoc.bytes)).apply {
+                inflateFromBuffer(operations)
+            }
+
+            // s2 has global scope so is created before ROOT
+            val s2Index =
+                operations.indexOfFirst { it is NamedVariable && it.mVarName == "USER:s2" }
+            val rootIndex = operations.indexOfFirst { it is RootLayoutComponent }
+            val boxIndex = operations.indexOfFirst { it is BoxLayout }
+            val s1Index =
+                operations.indexOfFirst { it is NamedVariable && it.mVarName == "USER:s1" }
+
+            assertThat(listOf(s2Index, rootIndex, boxIndex, s1Index)).isInOrder()
         }
     }
 

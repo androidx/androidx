@@ -148,11 +148,18 @@ public class PathCombine extends PaintOperation implements VariableSupport, Seri
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Merge two string into one")
-                .field(INT, "srcPathId1", "id of the path")
-                .field(INT, "srcPathId1", "x Shift of the path")
-                .field(DocumentedOperation.BYTE, "operation", "the operation");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("path_combine")
+                .description("Combine two paths using a boolean operation (Union, Intersect, etc.)")
+                .field(DocumentedOperation.INT, "outId", "The ID of the resulting path")
+                .field(INT, "pathId1", "The ID of the first source path")
+                .field(INT, "pathId2", "The ID of the second source path")
+                .field(DocumentedOperation.BYTE, "operation", "The boolean operation to perform")
+                .possibleValues("OP_DIFFERENCE", OP_DIFFERENCE)
+                .possibleValues("OP_INTERSECT", OP_INTERSECT)
+                .possibleValues("OP_REVERSE_DIFFERENCE", OP_REVERSE_DIFFERENCE)
+                .possibleValues("OP_UNION", OP_UNION)
+                .possibleValues("OP_XOR", OP_XOR);
     }
 
     @NonNull

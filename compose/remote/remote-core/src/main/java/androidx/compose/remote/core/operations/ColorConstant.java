@@ -33,7 +33,7 @@ import java.util.List;
 
 /** Operation that defines a simple Color based on ID Mainly for colors in theming. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class ColorConstant extends Operation implements Serializable {
+public class ColorConstant extends Operation implements Serializable, ComponentData {
     private static final int OP_CODE = Operations.COLOR_CONSTANT;
     private static final String CLASS_NAME = "ColorConstant";
 
@@ -115,10 +115,10 @@ public class ColorConstant extends Operation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Define a Color")
-                .field(DocumentedOperation.INT, "id", "Id of the color")
-                .field(INT, "color", "32 bit ARGB color");
+        doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .description("Define a static color and associate it with an ID")
+                .field(DocumentedOperation.INT, "colorId", "The ID of the color")
+                .field(INT, "color", "32-bit ARGB color value");
     }
 
     @Override

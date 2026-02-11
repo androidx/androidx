@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.operations.Utils.floatToString;
 
@@ -106,11 +107,11 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
     /**
      * Writes out the operation to the buffer
      *
-     * @param buffer buffer to write to
-     * @param outId id of the path
+     * @param buffer  buffer to write to
+     * @param outId   id of the path
      * @param pathId1 source path 1
      * @param pathId2 source path 2
-     * @param tween interpolate between two paths
+     * @param tween   interpolate between two paths
      */
     public static void apply(
             @NonNull WireBuffer buffer, int outId, int pathId1, int pathId2, float tween) {
@@ -124,7 +125,7 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -142,11 +143,14 @@ public class PathTween extends PaintOperation implements VariableSupport, Serial
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Merge two string into one")
-                .field(DocumentedOperation.INT, "pathId", "id of the path")
-                .field(INT, "srcPathId1", "id of the path")
-                .field(INT, "srcPathId1", "x Shift of the path");
+        doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("path_tween")
+                .description("Interpolate between two paths and store the result in a new path ID")
+                .field(DocumentedOperation.INT, "outId",
+                        "The ID of the resulting interpolated path")
+                .field(INT, "pathId1", "The ID of the first source path")
+                .field(INT, "pathId2", "The ID of the second source path")
+                .field(FLOAT, "tween", "The interpolation factor [0..1]");
     }
 
     @NonNull

@@ -33,6 +33,33 @@ import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
 
 /**
+ * Sets up the test environment, runs the given [test][block] and then tears down the test
+ * environment. Use the methods on [ComposeUiTest] in the test to find Compose content and make
+ * assertions on it. If you need access to platform specific elements (such as the Activity on
+ * Android), use one of the platform specific variants of this method, e.g.
+ * [runAndroidComposeUiTest] on Android.
+ *
+ * Implementations of this method will launch a Compose host (such as an Activity on Android) for
+ * you. If your test needs to launch its own host, use a platform specific variant that doesn't
+ * launch anything for you (if available), e.g. [runEmptyComposeUiTest] on Android. Always make sure
+ * that the Compose content is set during execution of the [test lambda][block] so the test
+ * framework is aware of the content. Whether you need to launch the host from within the test
+ * lambda as well depends on the platform.
+ *
+ * This API differs from the deprecated API by using
+ * [kotlinx.coroutines.test.StandardTestDispatcher] by default for running composition, instead of
+ * [kotlinx.coroutines.test.UnconfinedTestDispatcher]. This ensures that the test behavior is
+ * consistent with [kotlinx.coroutines.test.runTest] and provides explicit control over coroutine
+ * execution order. This means you may need to explicitly advance time or run current coroutines
+ * when testing complex coroutine logic, as tasks are queued on the scheduler rather than running
+ * eagerly.
+ *
+ * Keeping a reference to the [ComposeUiTest] outside of this function is an error. Also avoid using
+ * [ComposeTestRule] (e.g., createComposeRule) inside [runComposeUiTest][block] or any of their
+ * respective variants. Since these APIs independently manage the test environment, mixing them may
+ * lead to unexpected behavior.
+ *
+ * @sample androidx.compose.ui.test.samples.RunComposeUiTestSample
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
  *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
  *   context contains a [TestDispatcher], it is used for composition and the [MainTestClock].
@@ -76,6 +103,10 @@ actual fun runComposeUiTest(
  * when testing complex coroutine logic, as tasks are queued on the scheduler rather than running
  * eagerly.
  *
+ * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runAndroidComposeUiTest][block]
+ * or any of their respective variants. Since these APIs independently manage the test environment,
+ * mixing them may lead to unexpected behavior.
+ *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
@@ -114,6 +145,10 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  * execution order. This means you may need to explicitly advance time or run current coroutines
  * when testing complex coroutine logic, as tasks are queued on the scheduler rather than running
  * eagerly.
+ *
+ * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runAndroidComposeUiTest][block]
+ * or any of their respective variants. Since these APIs independently manage the test environment,
+ * mixing them may lead to unexpected behavior.
  *
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content
@@ -201,6 +236,10 @@ fun <A : ComponentActivity> runAndroidComposeUiTest(
  * directly on the Activity or on an [androidx.compose.ui.platform.AbstractComposeView]. You will
  * need to do this from within the [test lambda][block], or the test framework will not be able to
  * find the content.
+ *
+ * Avoid using [ComposeTestRule] (e.g., createComposeRule) inside [runEmptyComposeUiTest][block] or
+ * any of their respective variants. Since these APIs independently manage the test environment,
+ * mixing them may lead to unexpected behavior.
  */
 @Suppress("RedundantUnitReturnType")
 @ExperimentalTestApi

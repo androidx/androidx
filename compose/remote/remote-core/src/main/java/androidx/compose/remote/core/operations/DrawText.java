@@ -184,25 +184,26 @@ public class DrawText extends PaintOperation implements VariableSupport {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", id(), CLASS_NAME)
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_text")
                 .description("Draw a run of text, all in a single direction")
-                .field(DocumentedOperation.INT, "textId", "id of bitmap")
+                .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(
                         DocumentedOperation.INT,
                         "start",
-                        "The start of the text to render. -1=end of string")
-                .field(DocumentedOperation.INT, "end", "The end of the text to render")
+                        "The start index of the text to render")
+                .field(DocumentedOperation.INT, "end", "The end index of the text to render")
                 .field(
                         DocumentedOperation.INT,
                         "contextStart",
-                        "the index of the start of the shaping context")
+                        "The index of the start of the shaping context")
                 .field(
                         DocumentedOperation.INT,
                         "contextEnd",
-                        "the index of the end of the shaping context")
+                        "The index of the end of the shaping context")
                 .field(DocumentedOperation.FLOAT, "x", "The x position at which to draw the text")
                 .field(DocumentedOperation.FLOAT, "y", "The y position at which to draw the text")
-                .field(DocumentedOperation.BOOLEAN, "RTL", "Whether the run is in RTL direction");
+                .field(DocumentedOperation.BOOLEAN, "rtl", "Whether the run is in RTL direction");
     }
 
     @Override

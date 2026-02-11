@@ -26,7 +26,6 @@ import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.state.rememberRemoteFloat
 import androidx.compose.remote.creation.compose.state.rememberRemoteString
 import androidx.compose.remote.player.compose.SCREENSHOT_GOLDEN_DIRECTORY
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -42,10 +41,7 @@ import org.junit.runners.JUnit4
 class RemoteStateTest {
     @get:Rule
     val composeTestRule =
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.Compose,
-        )
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
     fun testNamedFloatIdDiffers() {

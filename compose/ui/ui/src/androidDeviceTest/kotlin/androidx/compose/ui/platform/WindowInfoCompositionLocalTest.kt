@@ -488,6 +488,28 @@ class WindowInfoCompositionLocalTest {
         assertThat(containerSize.height).isIn(heightRange)
         assertThat(recompositions).isEqualTo(1)
     }
+
+    @Test
+    fun containerSizeUpdatesWhenDeviceSizeChanges() {
+        var containerSize = IntSize.Zero
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            containerSize = LocalWindowInfo.current.containerSize
+        }
+        rule.runOnIdle {
+            val composeViewContext = view.findViewTreeComposeViewContext()
+            val resources = rule.activity.resources
+            val configuration = Configuration(resources.configuration)
+            configuration.screenWidthDp = (1000 / resources.displayMetrics.density).roundToInt()
+            configuration.screenHeightDp = (2000 / resources.displayMetrics.density).roundToInt()
+            configuration.smallestScreenWidthDp = 1000
+            composeViewContext?.testWindowSize = IntSize(1000, 2000)
+            composeViewContext?.onConfigurationChanged(configuration)
+        }
+
+        rule.runOnIdle { assertThat(containerSize).isEqualTo(IntSize(1000, 2000)) }
+    }
 }
 
 /**

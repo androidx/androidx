@@ -498,11 +498,14 @@ public class RemoteComposeWriter {
     /**
      * Measure bitmap font text dimensions.
      *
+     * @param textId       The id of the text to measure
+     * @param bmFontId     The id of the bitmap font to measure the text with
+     * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
      * @return float id of the property
      */
-    public float bitmapTextMeasure(int textId, int bmFontId, int measureWidth) {
+    public float bitmapTextMeasure(int textId, int bmFontId, int measureWidth, float glyphSpacing) {
         int id = mState.createNextAvailableId();
-        mBuffer.bitmapTextMeasure(id, textId, bmFontId, measureWidth);
+        mBuffer.bitmapTextMeasure(id, textId, bmFontId, measureWidth, glyphSpacing);
         return Utils.asNan(id);
     }
 
@@ -1264,10 +1267,12 @@ public class RemoteComposeWriter {
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param x            The x-coordinate of the origin of the text being drawn
      * @param y            The y-coordinate of the baseline of the text being drawn
+     * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapFontTextRun(
-            int textId, int bitmapFontId, int start, int end, float x, float y) {
-        mBuffer.addDrawBitmapFontTextRun(textId, bitmapFontId, start, end, x, y);
+            int textId, int bitmapFontId, int start, int end, float x, float y,
+            float glyphSpacing) {
+        mBuffer.addDrawBitmapFontTextRun(textId, bitmapFontId, start, end, x, y, glyphSpacing);
     }
 
     /**
@@ -1279,14 +1284,17 @@ public class RemoteComposeWriter {
      * @param start        The index of the first character in text to draw
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param yAdj         Adjustment away from the path along the normal at that point
+     * @param glyphSpacing Horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapFontTextRunOnPath(
-            int textId, int bitmapFontId, @NonNull Object path, int start, int end, float yAdj) {
+            int textId, int bitmapFontId, @NonNull Object path, int start, int end, float yAdj,
+            float glyphSpacing) {
         int pathId = mState.dataGetId(path);
         if (pathId == -1) { // never been seen before
             pathId = addPathData(path);
         }
-        mBuffer.addDrawBitmapFontTextRunOnPath(textId, bitmapFontId, pathId, start, end, yAdj);
+        mBuffer.addDrawBitmapFontTextRunOnPath(
+                textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing);
     }
 
     /**
@@ -1378,6 +1386,7 @@ public class RemoteComposeWriter {
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param panX         justifies text -1.0=right, 0.0=center, 1.0=left
      * @param panY         position text -1.0=above, 0.0=center, 1.0=below, Nan=baseline
+     * @param glyphSpacing horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapTextAnchored(
             @NonNull String text,
@@ -1387,9 +1396,11 @@ public class RemoteComposeWriter {
             float x,
             float y,
             float panX,
-            float panY) {
+            float panY,
+            float glyphSpacing) {
         int textId = addText(text);
-        mBuffer.drawBitmapTextAnchored(textId, bitmapFontId, start, end, x, y, panX, panY);
+        mBuffer.drawBitmapTextAnchored(
+                textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing);
     }
 
     /**
@@ -1413,6 +1424,7 @@ public class RemoteComposeWriter {
      * @param end          (end - 1) is the index of the last character in text to draw
      * @param panX         justifies text -1.0=right, 0.0=center, 1.0=left
      * @param panY         position text -1.0=above, 0.0=center, 1.0=below, Nan=baseline
+     * @param glyphSpacing horizontal spacing adjustment between glyphs in pixels
      */
     public void drawBitmapTextAnchored(
             int textId,
@@ -1422,8 +1434,10 @@ public class RemoteComposeWriter {
             float x,
             float y,
             float panX,
-            float panY) {
-        mBuffer.drawBitmapTextAnchored(textId, bitmapFontId, start, end, x, y, panX, panY);
+            float panY,
+            float glyphSpacing) {
+        mBuffer.drawBitmapTextAnchored(
+                textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing);
     }
 
     /**
@@ -2984,6 +2998,43 @@ public class RemoteComposeWriter {
 
     /** End a collapsible row layout */
     public void endCollapsibleRow() {
+        mBuffer.addContainerEnd();
+        mBuffer.addContainerEnd();
+    }
+
+    /**
+     * Add a flow layout
+     *
+     * @param modifier   list of modifiers for the layout
+     * @param horizontal horizontal positioning
+     * @param vertical   vertical positioning
+     * @param content    content of the layout
+     */
+    public void flow(
+            @NonNull RecordingModifier modifier,
+            int horizontal,
+            int vertical,
+            @NonNull RemoteComposeWriterInterface content) {
+        startFlow(modifier, horizontal, vertical);
+        content.run();
+        endFlow();
+    }
+
+    /**
+     * Start a flow layout
+     */
+    public void startFlow(@NonNull RecordingModifier modifier, int horizontal, int vertical) {
+        int componentId = modifier.getComponentId();
+        float spacedBy = modifier.getSpacedBy();
+        mBuffer.addFlowStart(componentId, -1, horizontal, vertical, spacedBy);
+        for (RecordingModifier.Element m : modifier.getList()) {
+            m.write(this);
+        }
+        addContentStart();
+    }
+
+    /** End a flow layout */
+    public void endFlow() {
         mBuffer.addContainerEnd();
         mBuffer.addContainerEnd();
     }

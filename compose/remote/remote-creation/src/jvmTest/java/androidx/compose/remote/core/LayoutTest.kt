@@ -21,11 +21,9 @@ import androidx.compose.remote.core.layout.ApplyTouchDrag
 import androidx.compose.remote.core.layout.ApplyTouchUp
 import androidx.compose.remote.core.layout.CaptureComponentTree
 import androidx.compose.remote.core.layout.Color
-import androidx.compose.remote.core.layout.LayoutTestPlayer
 import androidx.compose.remote.core.layout.ResizeDocument
 import androidx.compose.remote.core.layout.TestComponentVisibility
 import androidx.compose.remote.core.layout.TestOperation
-import androidx.compose.remote.core.layout.TestParameters
 import androidx.compose.remote.core.operations.layout.Component
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout
@@ -34,83 +32,16 @@ import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.layout.managers.TextLayout.TEXT_ALIGN_START
 import androidx.compose.remote.creation.RFloat
 import androidx.compose.remote.creation.Rc.Time.CONTINUOUS_SEC
-import androidx.compose.remote.creation.RemoteComposeContext
 import androidx.compose.remote.creation.actions.ValueIntegerChange
 import androidx.compose.remote.creation.computeMeasure
 import androidx.compose.remote.creation.computePosition
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneId
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestName
 
-class LayoutTest : LayoutTestPlayer() {
-    val GENERATE_GOLD_FILES: Boolean = false
-    var platform: RcPlatformServices = RcPlatformServices.None
+open class LayoutTest : BaseLayoutTest() {
 
-    @Rule @JvmField var name = TestName()
-
-    class TestClock(val time: Long) : RemoteClock() {
-        override fun nanoTime(): Long {
-            return time
-        }
-
-        override fun getZone(): ZoneId? {
-            return ZoneId.of("UTC")
-        }
-
-        override fun withZone(zone: ZoneId?): Clock? {
-            return null
-        }
-
-        override fun instant(): Instant? {
-            return Instant.ofEpochMilli(time)
-        }
-    }
-
-    private fun checkLayout(
-        w: Int,
-        h: Int,
-        apiLevel: Int,
-        profile: Int,
-        description: String,
-        ops: ArrayList<TestOperation?>,
-        testClock: RemoteClock = TestClock(1234),
-    ) {
-        if (ops.size == 0) {
-            return
-        }
-        if (ops[0] !is TestLayout) {
-            return
-        }
-        val function = (ops[0] as TestLayout).layout
-        val testParameters = TestParameters(name.getMethodName(), GENERATE_GOLD_FILES, testClock)
-        val writer =
-            RemoteComposeContext(
-                    w,
-                    h,
-                    description,
-                    apiLevel,
-                    profile,
-                    platform,
-                    { root { function.invoke(this) } },
-                )
-                .writer
-        play(writer, ops, testParameters)
-    }
-
-    data class TestLayout(var layout: RemoteComposeContext.() -> Unit) : TestOperation() {
-        override fun apply(
-            context: RemoteContext,
-            document: CoreDocument,
-            testParameters: TestParameters,
-            commands: List<Map<String?, Any?>?>?,
-        ): Boolean {
-            // Nothing here
-            return false
-        }
+    init {
+        GENERATE_GOLD_FILES = false
     }
 
     @Test

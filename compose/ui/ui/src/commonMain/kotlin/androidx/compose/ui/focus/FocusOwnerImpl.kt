@@ -343,13 +343,7 @@ internal class FocusOwnerImpl(
                     Default -> {
                         /* Do Nothing */
                     }
-                    else ->
-                        @OptIn(ExperimentalComposeUiApi::class)
-                        return if (ComposeUiFlags.isRequestFocusOnNonFocusableFocusTargetEnabled) {
-                            customDest.findFocusTarget(onFound)
-                        } else {
-                            customDest.findFocusTargetNode(onFound)
-                        }
+                    else -> return customDest.findFocusTarget(onFound)
                 }
             }
 

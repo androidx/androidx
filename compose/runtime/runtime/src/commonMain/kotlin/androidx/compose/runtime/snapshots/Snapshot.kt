@@ -29,7 +29,6 @@ import androidx.compose.runtime.internal.JvmDefaultWithCompatibility
 import androidx.compose.runtime.internal.SnapshotThreadLocal
 import androidx.compose.runtime.internal.currentThreadId
 import androidx.compose.runtime.platform.SynchronizedObject
-import androidx.compose.runtime.platform.makeMonitor
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.requirePrecondition
@@ -303,7 +302,7 @@ public sealed class Snapshot(
          * changes to the global snapshot.
          */
         public val isApplyObserverNotificationPending: Boolean
-            get() = isApplyObserverNotificationPendingImpl.get() > 0
+            get() = pendingApplyObserverCount.get() > 0
 
         /**
          * All new state objects initial state records should be [PreexistingSnapshotId] which then
@@ -676,28 +675,6 @@ public sealed class Snapshot(
          */
         public fun notifyObjectsInitialized(): Unit = currentSnapshot().notifyObjectsInitialized()
 
-        // This wrapper allows us to create flags that can be mutated from multiple threads. We use
-        // this class instead of [AtomicBoolean] because there are constraints forcing us to lock
-        // the code surrounding where the flags are accessed, meaning that [AtomicBoolean] would
-        // just add unnecessary overhead.
-        private class BooleanWrapper(var value: Boolean)
-
-        /**
-         * A queue of [BooleanWrapper]s that are blocking corresponding [sendApplyNotifications]
-         * calls from returning until the necessary apply notifications have been sent.
-         */
-        private var sendApplyNotificationsQueue = ArrayDeque<BooleanWrapper>()
-        private var threadWithRightToDrain: Long? = null
-        // A lock that must be taken before accessing [sendApplyNotificationsQueue] or
-        // [threadWithRightToDrain].
-        private val sendApplyNotificationsQueueLock = makeSynchronizedObject()
-
-        /**
-         * A monitor used to limit how often [sendApplyNotifications] calls re-inspect the values of
-         * the [BooleanWrapper]s in [sendApplyNotificationsQueue].
-         */
-        private val sendApplyNotificationsMonitor = makeMonitor()
-
         /**
          * Send any pending apply notifications for state objects changed outside a snapshot.
          *
@@ -709,79 +686,8 @@ public sealed class Snapshot(
          * observer registered with [registerGlobalWriteObserver].
          */
         public fun sendApplyNotifications() {
-            val canProceed = BooleanWrapper(false)
-
-            synchronized(sendApplyNotificationsQueueLock) {
-                sendApplyNotificationsQueue.add(canProceed)
-                if (sendApplyNotificationsQueue.size == 1) {
-                    // A thread only gets the right to drain [sendApplyNotificationsQueue] upon
-                    // encountering an empty queue.
-                    threadWithRightToDrain = currentThreadId()
-                }
-            }
-
-            if (
-                synchronized(sendApplyNotificationsQueueLock) { threadWithRightToDrain } !=
-                    currentThreadId()
-            ) {
-                synchronized(sendApplyNotificationsMonitor) {
-                    while (!canProceed.value) {
-                        sendApplyNotificationsMonitor.wait()
-                    }
-                }
-            } else {
-                val changes = sync { globalSnapshot.hasPendingChanges() }
-                if (changes) {
-                    advanceGlobalSnapshot()
-                }
-
-                synchronized(sendApplyNotificationsQueueLock) {
-                    if (threadWithRightToDrain != currentThreadId()) {
-                        // This call must return because [advanceGlobalSnapshot] led to a recursive
-                        // [sendApplyNotifications] call that already drained the queue.
-                        return
-                    }
-
-                    sendApplyNotificationsQueue.removeFirst()
-                    if (sendApplyNotificationsQueue.isEmpty()) {
-                        // There are no other blocked threads, so we can take a fast path and skip
-                        // the code that drains the queue.
-                        threadWithRightToDrain = null
-                        return
-                    }
-                }
-
-                while (true) {
-                    val numCallsToUnblock =
-                        synchronized(sendApplyNotificationsQueueLock) {
-                            sendApplyNotificationsQueue.size
-                        }
-
-                    val changes = sync { globalSnapshot.hasPendingChanges() }
-                    if (changes) advanceGlobalSnapshot()
-
-                    synchronized(sendApplyNotificationsQueueLock) {
-                        if (threadWithRightToDrain != currentThreadId()) {
-                            // This call must return because [advanceGlobalSnapshot] led to a
-                            // recursive [sendApplyNotifications] call that already drained the
-                            // queue.
-                            return
-                        }
-
-                        (0 until numCallsToUnblock).forEach { _ ->
-                            val first = sendApplyNotificationsQueue.removeFirst()
-                            first.value = true
-                        }
-                        synchronized(sendApplyNotificationsMonitor) {
-                            sendApplyNotificationsMonitor.notifyAll()
-                        }
-                        if (sendApplyNotificationsQueue.isEmpty()) {
-                            threadWithRightToDrain = null
-                            return
-                        }
-                    }
-                }
-            }
+            val changes = sync { globalSnapshot.hasPendingChanges() }
+            if (changes) advanceGlobalSnapshot()
         }
 
         @InternalComposeApi public fun openSnapshotCount(): Int = openSnapshots.toList().size
@@ -1626,10 +1532,7 @@ internal class GlobalSnapshot(snapshotId: SnapshotId, invalid: SnapshotIdSet) :
         snapshotId,
         invalid,
         null,
-        { state ->
-            val observers = globalWriteObservers
-            observers.fastForEach { it(state) }
-        },
+        { state -> sync { globalWriteObservers.fastForEach { it(state) } } },
     ) {
 
     @OptIn(ExperimentalComposeRuntimeApi::class)
@@ -2099,9 +2002,11 @@ private fun <T> resetGlobalSnapshotLocked(
     return result
 }
 
-// [advanceGlobalSnapshot] can only be called by one thread at a time, but can be called
-// recursively, so this counts the number of [advanceGlobalSnapshot] calls on the callstack.
-private var isApplyObserverNotificationPendingImpl = AtomicInt(0)
+/**
+ * Counts the number of threads currently inside `advanceGlobalSnapshot`, notifying observers of
+ * changes to the global snapshot.
+ */
+private var pendingApplyObserverCount = AtomicInt(0)
 
 private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
     val globalSnapshot = globalSnapshot
@@ -2110,7 +2015,7 @@ private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
     val result = sync {
         modified = globalSnapshot.modified
         if (modified != null) {
-            isApplyObserverNotificationPendingImpl.add(1)
+            pendingApplyObserverCount.add(1)
         }
         resetGlobalSnapshotLocked(globalSnapshot, block)
     }
@@ -2125,7 +2030,7 @@ private fun <T> advanceGlobalSnapshot(block: (invalid: SnapshotIdSet) -> T): T {
                 observers.fastForEach { observer -> observer(modifiedSet, globalSnapshot) }
             }
         } finally {
-            isApplyObserverNotificationPendingImpl.add(-1)
+            pendingApplyObserverCount.add(-1)
         }
     }
 

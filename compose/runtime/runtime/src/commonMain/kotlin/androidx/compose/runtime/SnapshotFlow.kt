@@ -20,12 +20,13 @@
 package androidx.compose.runtime
 
 import androidx.collection.MutableScatterSet
+import androidx.collection.mutableScatterMapOf
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.collection.ScopeMap
-import androidx.compose.runtime.external.kotlinx.collections.immutable.internal.assert
 import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.runtime.snapshots.fastForEach
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.jvm.JvmMultifileClass
@@ -77,17 +78,14 @@ public fun <T : R, R> Flow<T>.collectAsState(
  *
  * Once a [SnapshotFlowManager] is no longer needed, its [dispose] method should be called.
  *
+ * It is not safe to share a [SnapshotFlowManager] instance across [snapshotFlow]s running on
+ * different threads, but it is not a problem for apply observers to run in parallel with
+ * [SnapshotFlowManager] logic.
+ *
  * @see snapshotFlow
  */
-public class SnapshotFlowManager() {
-    /**
-     * A lock that must be taken before accessing [singleSubscriptionManager] or
-     * [multiSubscriptionManager].
-     */
-    private val lock = makeSynchronizedObject()
-    private var singleSubscriptionManager: SingleSubscriptionSnapshotFlowManager? =
-        SingleSubscriptionSnapshotFlowManager()
-    private var multiSubscriptionManager: MultiSubscriptionSnapshotFlowManager? = null
+public class SnapshotFlowManager {
+    private var managerImpl: SnapshotFlowManagerImpl? = SingleSubscriptionSnapshotFlowManager()
 
     /**
      * Returns the result of running [block] and also subscribes [channel] to be notified whenever a
@@ -96,61 +94,53 @@ public class SnapshotFlowManager() {
      * If there is already a subscription associated with [channel] from a previous invocation of
      * [runAndWatch], it will be cancelled and replaced.
      *
-     * Calling this method after this manager has been disposed of will cause no effect.
+     * If this method is called after this manager has been disposed of, an [IllegalStateException]
+     * will be thrown.
      */
     internal fun <T> runAndWatch(channel: SendChannel<Unit>, block: () -> T): T {
-        synchronized(lock) {
-            if (singleSubscriptionManager == null && multiSubscriptionManager == null) {
-                throw IllegalStateException(
-                    "Called runAndWatch on a manager that has been disposed of"
-                )
-            }
-
-            val singleSubscriptionManagerRef = singleSubscriptionManager
-            if (singleSubscriptionManagerRef != null) {
-                val subscribedChannel = singleSubscriptionManagerRef.subscribedChannel
-                if (subscribedChannel != null && subscribedChannel != channel) {
-                    // This manager now needs to manage notifications for more than one channel, so
-                    // we promote the backing object from a [SingleSubscriptionSnapshotFlowManager]
-                    // to a [MultiSubscriptionSnapshotFlowManager].
-                    multiSubscriptionManager = singleSubscriptionManagerRef.promote()
-                    singleSubscriptionManager = null
-                }
-            }
-
-            return (singleSubscriptionManager ?: multiSubscriptionManager)!!.runAndWatch(
-                channel,
-                block,
-            )
+        checkPrecondition(managerImpl != null) {
+            "Called runAndWatch on a manager that has been disposed of"
         }
+
+        val managerImplRef = managerImpl
+        if (managerImplRef is SingleSubscriptionSnapshotFlowManager) {
+            val subscribedChannel = managerImplRef.subscribedChannel
+            if (subscribedChannel != null && subscribedChannel != channel) {
+                // This manager now needs to manage notifications for more than one channel, so we
+                // promote the backing object from a [SingleSubscriptionSnapshotFlowManager] to a
+                // [MultiSubscriptionSnapshotFlowManager].
+                managerImpl = managerImplRef.promote()
+            }
+        }
+
+        return managerImpl!!.runAndWatch(channel, block)
     }
 
     /**
-     * This must be called by [snapshotFlow]s when they are in the process of exiting to eliminate
-     * the possibility of calling [SendChannel.trySend] on a channel that has been collected.
+     * This must be called by a [snapshotFlow] when it is in the process of exiting to dispose of
+     * all subscriptions associated with it.
+     *
+     * If this method is called after this manager has been disposed of, it will cause no effect.
      */
     internal fun reportSnapshotFlowCancellation(channel: SendChannel<Unit>) {
-        synchronized(lock) {
-            assert(
-                singleSubscriptionManager != null && multiSubscriptionManager == null ||
-                    singleSubscriptionManager == null && multiSubscriptionManager != null
-            )
-            singleSubscriptionManager?.reportSnapshotFlowCancellation(channel)
-            multiSubscriptionManager?.reportSnapshotFlowCancellation(channel)
-        }
+        managerImpl?.reportSnapshotFlowCancellation(channel)
     }
 
     /**
      * Disposes of this manager. Disposing of a manager disconnects it from the [Snapshot] system,
      * rendering it incapable of handling any subscriptions.
+     *
+     * If this method is called after this manager has been disposed of, an [IllegalStateException]
+     * will be thrown.
      */
     public fun dispose() {
-        synchronized(lock) {
-            singleSubscriptionManager?.dispose()
-            singleSubscriptionManager = null
-            multiSubscriptionManager?.dispose()
-            multiSubscriptionManager = null
+        managerImpl.let {
+            checkPrecondition(it != null) {
+                "Called dispose on a manager that has been disposed of"
+            }
+            it.dispose()
         }
+        managerImpl = null
     }
 }
 
@@ -165,8 +155,28 @@ internal abstract class SnapshotFlowManagerImpl internal constructor() {
     /**
      * Adds [obj] to the set of objects watched by [channel], meaning that [channel] will be
      * notified of future changes to [obj].
+     *
+     * The subscription changes resulting from an invocation of this method will not take effect
+     * until committed by an invocation of [commitSubscriptionChanges].
      */
     internal abstract fun watch(channel: SendChannel<Unit>, obj: Any)
+
+    /**
+     * Returns [watch] with its first argument fixed to [channel] by partial application. That is,
+     * [readObserverFor(channel)(obj)] is equivalent to [watch(channel, obj)].
+     */
+    internal abstract fun readObserverFor(channel: SendChannel<Unit>): (Any) -> Unit
+
+    /**
+     * Unsubscribes [channel] from being notified of changes to all objects.
+     *
+     * The subscription changes resulting from an invocation of this method will not take effect
+     * until committed by an invocation of [commitSubscriptionChanges].
+     */
+    internal abstract fun clearWatchSet(channel: SendChannel<Unit>)
+
+    /** Commits subscription changes made since the last invocation of this method. */
+    internal abstract fun commitSubscriptionChanges()
 
     /**
      * Returns the result of running [block] and also subscribes [channel] to be notified whenever a
@@ -174,35 +184,29 @@ internal abstract class SnapshotFlowManagerImpl internal constructor() {
      *
      * If there is already a subscription associated with [channel] from a previous invocation of
      * [runAndWatch], it will be cancelled and replaced.
-     *
-     * Calling this method after this manager has been disposed of will cause no effect.
      */
     internal fun <T> runAndWatch(channel: SendChannel<Unit>, block: () -> T): T {
-        val readObserver: (Any) -> Unit = { watch(channel, it) }
         val result =
-            Snapshot.takeSnapshot(readObserver).run {
-                synchronized(lock) {
-                    clearWatchSet(channel)
-                    try {
-                        enter(block)
-                    } finally {
-                        dispose()
-                    }
+            Snapshot.takeSnapshot(readObserverFor(channel)).run {
+                clearWatchSet(channel)
+                try {
+                    enter(block)
+                } finally {
+                    dispose()
                 }
             }
 
+        commitSubscriptionChanges()
         return result
     }
 
-    /** Unsubscribes [channel] from being notified of changes to all objects. */
-    protected abstract fun clearWatchSet(channel: SendChannel<Unit>)
-
     /**
-     * This must be called by [snapshotFlow]s when they are in the process of exiting to eliminate
-     * the possibility of calling [SendChannel.trySend] on a channel that has been collected.
+     * This must be called by a [snapshotFlow] when it is in the process of exiting to dispose of
+     * all subscriptions associated with it.
      */
     internal fun reportSnapshotFlowCancellation(channel: SendChannel<Unit>) {
-        synchronized(lock) { clearWatchSet(channel) }
+        clearWatchSet(channel)
+        commitSubscriptionChanges()
     }
 
     /**
@@ -219,28 +223,43 @@ internal abstract class SnapshotFlowManagerImpl internal constructor() {
  * (i.e. has been passed to an invocation of [snapshotFlow]) and is passed to another invocation of
  * [snapshotFlow], an [IllegalStateException] will be thrown.
  */
-internal class SingleSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() {
+private class SingleSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() {
     // This variable allows us to avoid allocating [watchSet] until we need to watch more than one
     // object.
     private var soleWatchedObject: Any? = null
 
+    /**
+     * A working copy of [soleWatchedObject].
+     *
+     * Invocations of [watch] and [clearWatchSet] only affect this working copy. Invoking
+     * [commitSubscriptionChanges] clones this working copy into [soleWatchedObject].
+     */
+    private var workingSoleWatchedObject: Any? = null
+
     /** The set of objects that are being watched for changes. */
     private var watchSet: MutableScatterSet<Any>? = null
 
-    private var _subscribedChannel: SendChannel<Unit>? = null
+    /**
+     * A working copy of [watchSet].
+     *
+     * Invocations of [watch] and [clearWatchSet] only affect this working copy. Invoking
+     * [commitSubscriptionChanges] clones this working copy into [watchSet].
+     */
+    private var workingWatchSet: MutableScatterSet<Any>? = null
+
     /** The channel that has an active subscription being managed by this manager. */
-    internal val subscribedChannel
-        get() = synchronized(lock) { _subscribedChannel }
+    var subscribedChannel: SendChannel<Unit>? = null
+
+    // Caches the only valid return value of [readObserverFor].
+    private val readObserverCache = { obj: Any -> watch(subscribedChannel!!, obj) }
 
     private val unregisterApplyObserver =
         Snapshot.registerApplyObserver { changed, _ ->
             var toNotify: SendChannel<Unit>? = null
             synchronized(lock) {
-                val subscribedChannel = _subscribedChannel ?: return@registerApplyObserver
-
                 val watchSet = watchSet
                 if (watchSet == null) {
-                    if (changed.contains(soleWatchedObject!!)) {
+                    if (changed.contains(soleWatchedObject)) {
                         toNotify = subscribedChannel
                     }
                 } else {
@@ -254,49 +273,73 @@ internal class SingleSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl()
         }
 
     override fun watch(channel: SendChannel<Unit>, obj: Any) {
-        synchronized(lock) {
-            if (_subscribedChannel != null && _subscribedChannel != channel) {
-                throw IllegalStateException(
-                    "Requested a SingleSubscriptionSnapshotFlowManager to manage multiple subscriptions"
-                )
-            }
+        checkPrecondition(subscribedChannel == channel) {
+            "Requested a SingleSubscriptionSnapshotFlowManager to manage multiple subscriptions"
+        }
 
-            _subscribedChannel = channel
-
-            val watchSetRef = watchSet
-            val soleWatchedObjectRef = soleWatchedObject
-            if (watchSetRef == null) {
-                if (soleWatchedObjectRef == null) {
-                    soleWatchedObject = obj
-                } else {
-                    watchSet =
-                        mutableScatterSetOf<Any>().also {
-                            it.add(soleWatchedObjectRef)
-                            it.add(obj)
-                        }
-                    soleWatchedObject = null
-                }
+        val workingWatchSetRef = workingWatchSet
+        val workingSoleWatchedObjectRef = workingSoleWatchedObject
+        if (workingWatchSetRef == null) {
+            if (workingSoleWatchedObjectRef == null) {
+                workingSoleWatchedObject = obj
             } else {
-                assert(soleWatchedObject == null)
-                watchSetRef.add(obj)
+                workingWatchSet =
+                    mutableScatterSetOf<Any>().also {
+                        it.add(workingSoleWatchedObjectRef)
+                        it.add(obj)
+                    }
+                workingSoleWatchedObject = null
             }
+        } else {
+            checkPrecondition(
+                workingSoleWatchedObject == null,
+                { "workingSoleWatchedObject must be null when workingWatchSet is non-null" },
+            )
+            workingWatchSetRef.add(obj)
         }
     }
 
-    private fun clearWatchSetImpl() {
-        synchronized(lock) {
-            _subscribedChannel = null
-            soleWatchedObject = null
-            watchSet = null
+    override fun readObserverFor(channel: SendChannel<Unit>): (Any) -> Unit {
+        checkPrecondition(subscribedChannel == null || subscribedChannel == channel) {
+            "Requested a SingleSubscriptionSnapshotFlowManager to manage multiple subscriptions"
         }
+
+        subscribedChannel = channel
+
+        return readObserverCache
+    }
+
+    private fun clearWatchSetImpl() {
+        workingSoleWatchedObject = null
+        workingWatchSet = null
     }
 
     override fun clearWatchSet(channel: SendChannel<Unit>) = clearWatchSetImpl()
 
-    override fun dispose() {
+    override fun commitSubscriptionChanges() {
         synchronized(lock) {
-            unregisterApplyObserver.dispose()
-            clearWatchSetImpl()
+            soleWatchedObject = workingSoleWatchedObject
+
+            if (workingWatchSet == null) {
+                watchSet = null
+            } else {
+                if (watchSet == null) {
+                    watchSet = mutableScatterSetOf()
+                }
+                val temp = watchSet
+                watchSet = workingWatchSet
+                workingWatchSet = temp
+            }
+        }
+    }
+
+    override fun dispose() {
+        unregisterApplyObserver.dispose()
+        clearWatchSetImpl()
+        synchronized(lock) {
+            subscribedChannel = null
+            soleWatchedObject = null
+            watchSet = null
         }
     }
 
@@ -305,37 +348,57 @@ internal class SingleSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl()
      * [MultiSubscriptionSnapshotFlowManager], disposes of this manager, and returns the new
      * manager.
      */
-    internal fun promote(): MultiSubscriptionSnapshotFlowManager {
-        synchronized(lock) {
-            val multiSubscriptionManager =
-                MultiSubscriptionSnapshotFlowManager().also {
-                    val subscribedChannel = subscribedChannel
-                    if (subscribedChannel != null) {
-                        val watchSet = watchSet
-                        if (watchSet == null) {
-                            it.watch(subscribedChannel, soleWatchedObject!!)
-                        } else {
-                            watchSet.forEach { obj -> it.watch(subscribedChannel, obj) }
-                        }
-                    }
+    fun promote(): MultiSubscriptionSnapshotFlowManager {
+        val multiSubscriptionManager =
+            MultiSubscriptionSnapshotFlowManager().also {
+                val subscribedChannel = subscribedChannel
+                checkPrecondition(subscribedChannel != null) {
+                    "promote must only be called when a manager is managing subscriptions for " +
+                        "one channel and needs to start managing them for a second"
                 }
+                val watchSet = watchSet
+                if (watchSet == null) {
+                    it.watch(subscribedChannel, soleWatchedObject!!)
+                } else {
+                    watchSet.forEach { obj -> it.watch(subscribedChannel, obj) }
+                }
+                it.commitSubscriptionChanges()
+            }
 
-            dispose()
-            return multiSubscriptionManager
-        }
+        dispose()
+        return multiSubscriptionManager
     }
 }
 
-/** A [SnapshotFlowManagerImpl] that can manage an unbounded number of active subscriptions. */
-internal class MultiSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() {
+/**
+ * A [SnapshotFlowManagerImpl] that can manage an unbounded number of active subscriptions.
+ *
+ * This class is not thread-safe.
+ */
+private class MultiSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() {
+    private sealed interface SubscriptionChange
+
+    private class Add(val obj: Any, val channel: SendChannel<Unit>) : SubscriptionChange
+
+    private class RemoveScope(val channel: SendChannel<Unit>) : SubscriptionChange
+
     /**
      * A map from snapshot state objects to the channels that are subscribed to be notified of
      * changes to those objects.
      */
     private var subscriptions: ScopeMap<Any, SendChannel<Unit>> = ScopeMap()
 
+    /**
+     * A list of changes that will be applied to [subscriptions] the next time
+     * [commitSubscriptionChanges] is invoked.
+     */
+    private val pendingChanges = mutableListOf<SubscriptionChange>()
+
     /** Used by the apply observer to keep track of the channels that it needs to notify. */
     private val toNotify = mutableScatterSetOf<SendChannel<Unit>>()
+
+    // Used by [readObserverFor] to cache partially applied functions.
+    private val readObserverCache = mutableScatterMapOf<SendChannel<Unit>, (Any) -> Unit>()
 
     private val unregisterApplyObserver =
         Snapshot.registerApplyObserver { changed, _ ->
@@ -354,18 +417,39 @@ internal class MultiSubscriptionSnapshotFlowManager : SnapshotFlowManagerImpl() 
         }
 
     override fun watch(channel: SendChannel<Unit>, obj: Any) {
-        synchronized(lock) { subscriptions.add(obj, channel) }
+        pendingChanges.add(Add(obj, channel))
+    }
+
+    override fun readObserverFor(channel: SendChannel<Unit>): (Any) -> Unit {
+        return readObserverCache.get(channel)
+            ?: { obj: Any -> watch(channel, obj) }.also { readObserverCache.put(channel, it) }
     }
 
     override fun clearWatchSet(channel: SendChannel<Unit>) {
-        synchronized(lock) { subscriptions.removeScope(channel) }
+        pendingChanges.add(RemoveScope(channel))
+    }
+
+    override fun commitSubscriptionChanges() {
+        synchronized(lock) {
+            pendingChanges.fastForEach {
+                when (it) {
+                    is Add -> {
+                        subscriptions.add(it.obj, it.channel)
+                    }
+                    is RemoveScope -> {
+                        subscriptions.removeScope(it.channel)
+                    }
+                }
+            }
+        }
+        pendingChanges.clear()
     }
 
     override fun dispose() {
-        synchronized(lock) {
-            unregisterApplyObserver.dispose()
-            subscriptions.clear()
-        }
+        unregisterApplyObserver.dispose()
+        pendingChanges.clear()
+        readObserverCache.clear()
+        synchronized(lock) { subscriptions.clear() }
     }
 }
 
@@ -454,10 +538,10 @@ public fun <T> snapshotFlow(block: () -> T): Flow<T> {
  * [manager] controls how snapshot state is observed. When the [manager] argument is omitted, a
  * [SnapshotFlowManager] is instantiated under the hood, so by explicitly managing a
  * [SnapshotFlowManager] and passing it to multiple invocations of [snapshotFlow], you can improve
- * performance by sharing resources between those [snapshotFlow]s. [SnapshotFlowManager] is
- * thread-safe, so you can share a [SnapshotFlowManager] instance across [snapshotFlow]s running on
- * different threads, but be aware that it may be more performant not to do so, as doing so may
- * cause heavy lock contention. In all other cases, sharing a [SnapshotFlowManager] is encouraged.
+ * performance by sharing resources between those [snapshotFlow]s. It is not safe to share a
+ * [SnapshotFlowManager] instance across [snapshotFlow]s running on different threads. Sharing a
+ * [SnapshotFlowManager] across multiple [snapshotFlow]s running on the same thread is always
+ * encouraged.
  *
  * @sample androidx.compose.runtime.samples.snapshotFlowSample
  *

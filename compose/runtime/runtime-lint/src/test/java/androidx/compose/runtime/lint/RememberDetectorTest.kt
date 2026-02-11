@@ -434,4 +434,47 @@ src/androidx/compose/runtime/foo/FooState.kt:69: Error: remember calls must not 
             .run()
             .expectClean()
     }
+
+    @Test
+    fun resolvesTypesThroughContextParameter() {
+        lint()
+            .files(
+                Stubs.Remember,
+                Stubs.Composable,
+                kotlin(
+                    """
+                    package test
+
+                    import androidx.compose.runtime.Composable
+                    import androidx.compose.runtime.remember
+
+                    @Composable
+                    context(c: FooContext)
+                    fun foo() {
+                        val rememberedString = remember { c.value }
+                        val rememberedContextDerived = remember { bar(c.value) }
+                        val remembered = remember { c.unitFun() }
+                    }
+
+                    fun bar(input: String) = Any()
+                    fun bar(input: Int) {}
+
+                    data class FooContext(
+                        val value: String
+                    ) {
+                        fun unitFun() {}
+                    }
+                    """
+                ),
+            )
+            .run()
+            .expect(
+                """
+src/test/FooContext.kt:12: Error: remember calls must not return Unit [RememberReturnType]
+                        val remembered = remember { c.unitFun() }
+                                         ~~~~~~~~
+1 error
+                """
+            )
+    }
 }

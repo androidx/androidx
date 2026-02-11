@@ -34,6 +34,9 @@ import androidx.compose.runtime.platform.makeSynchronizedObject
 import androidx.compose.runtime.platform.synchronized
 import androidx.compose.runtime.requirePrecondition
 import androidx.compose.runtime.structuralEqualityPolicy
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 
 /**
  * Helper class to efficiently observe snapshot state reads. See [observeReads] for more details.
@@ -223,17 +226,25 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         onValueChangedForScope: (T) -> Unit,
         block: () -> Unit,
     ) {
-        val scopeMap = synchronized(observedScopeMapsLock) { ensureMap(onValueChangedForScope) }
+        val scopeMap: ObservedScopeMap
 
-        val oldPaused = isPaused
-        val oldMap = currentMap
-        val oldThreadId = currentMapThreadId
+        val oldPaused: Boolean
+        val oldMap: ObservedScopeMap?
+        val oldThreadId: Long
+        val currentThreadId = currentThreadId()
+
+        withScopeMapLock {
+            scopeMap = ensureMap(onValueChangedForScope)
+            oldPaused = isPaused
+            oldMap = currentMap
+            oldThreadId = currentMapThreadId
+        }
 
         if (oldThreadId != -1L) {
-            requirePrecondition(oldThreadId == currentThreadId()) {
+            requirePrecondition(oldThreadId == currentThreadId) {
                 "Detected multithreaded access to SnapshotStateObserver: " +
                     "previousThreadId=$oldThreadId), " +
-                    "currentThread={id=${currentThreadId()}, name=${currentThreadName()}}. " +
+                    "currentThread={id=${currentThreadId}, name=${currentThreadName()}}. " +
                     "Note that observation on multiple threads in layout/draw is not supported. " +
                     "Make sure your measure/layout/draw for each Owner (AndroidComposeView) " +
                     "is executed on the same thread."
@@ -241,16 +252,32 @@ public class SnapshotStateObserver(private val onChangedExecutor: (callback: () 
         }
 
         try {
-            isPaused = false
-            currentMap = scopeMap
-            currentMapThreadId = currentThreadId()
+            withScopeMapLock {
+                isPaused = false
+                currentMap = scopeMap
+                currentMapThreadId = currentThreadId
+            }
 
             scopeMap.observe(scope, readObserver, block)
         } finally {
-            currentMap = oldMap
-            isPaused = oldPaused
-            currentMapThreadId = oldThreadId
+            withScopeMapLock {
+                currentMap = oldMap
+                isPaused = oldPaused
+                currentMapThreadId = oldThreadId
+            }
         }
+    }
+
+    /**
+     * Forces compiler to understand InvocationKind.EXACTLY_ONCE which is guaranteed by each
+     * implementation of `synchronized`
+     */
+    @Suppress("LEAKED_IN_PLACE_LAMBDA", "BanInlineOptIn")
+    @OptIn(ExperimentalContracts::class)
+    private inline fun <T> withScopeMapLock(block: () -> T): T {
+        @Suppress("WRONG_INVOCATION_KIND")
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+        return synchronized(observedScopeMapsLock, block)
     }
 
     /**

@@ -83,28 +83,25 @@ public class RoundedClipRectModifierOperation extends DrawBase4
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Modifier Operations", id(), "RoundedClipRectModifierOperation")
-                .description("clip with rectangle")
+        doc.operation("Modifier Operations", id(), CLASS_NAME)
+                .additionalDocumentation("modifier_rounded_clip_rect")
+                .description("Clip the component's content to its rounded rectangular bounds")
                 .field(
                         FLOAT,
                         "topStart",
-                        "The topStart radius of the rectangle to "
-                                + "intersect with the current clip")
+                        "The topStart radius of the rectangle")
                 .field(
                         FLOAT,
                         "topEnd",
-                        "The topEnd radius of the rectangle to "
-                                + "intersect with the current clip")
+                        "The topEnd radius of the rectangle")
                 .field(
                         FLOAT,
                         "bottomStart",
-                        "The bottomStart radius of the rectangle to "
-                                + "intersect with the current clip")
+                        "The bottomStart radius of the rectangle")
                 .field(
                         FLOAT,
                         "bottomEnd",
-                        "The bottomEnd radius of the rectangle to "
-                                + "intersect with the current clip");
+                        "The bottomEnd radius of the rectangle");
     }
 
     float mWidth;

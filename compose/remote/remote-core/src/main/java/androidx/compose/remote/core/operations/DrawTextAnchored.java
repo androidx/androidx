@@ -192,20 +192,25 @@ public class DrawTextAnchored extends PaintOperation implements VariableSupport,
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_text_anchored")
                 .description("Draw text centered about an anchor point")
-                .field(DocumentedOperation.INT, "textId", "id of bitmap")
+                .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
                 .field(DocumentedOperation.FLOAT, "x", "The x-position of the anchor point")
                 .field(DocumentedOperation.FLOAT, "y", "The y-position of the anchor point")
                 .field(
                         DocumentedOperation.FLOAT,
                         "panX",
-                        "The pan from left(-1) to right(1) 0 being centered")
+                        "The horizontal pan from left(-1) to right(1), 0 being centered")
                 .field(
                         DocumentedOperation.FLOAT,
                         "panY",
-                        "The pan from top(-1) to bottom(1) 0 being centered")
-                .field(DocumentedOperation.INT, "flags", "Change the behaviour");
+                        "The vertical pan from top(-1) to bottom(1), 0 being centered")
+                .field(DocumentedOperation.INT, "flags", "Behavior flags")
+                .possibleValues("ANCHOR_TEXT_RTL", ANCHOR_TEXT_RTL)
+                .possibleValues("ANCHOR_MONOSPACE_MEASURE", ANCHOR_MONOSPACE_MEASURE)
+                .possibleValues("MEASURE_EVERY_TIME", MEASURE_EVERY_TIME)
+                .possibleValues("BASELINE_RELATIVE", BASELINE_RELATIVE);
     }
 
     float @NonNull [] mBounds = new float[4];

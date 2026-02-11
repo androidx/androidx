@@ -17,7 +17,6 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.runtime.saveable.LocalSaveableStateRegistry
-import androidx.compose.ui.ComposeUiFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
@@ -61,17 +60,12 @@ internal fun FocusTargetNode.restoreFocusedChild(): Boolean {
         if (
             it.isAttached && it.requireLayoutNode().compositeKeyHash == previouslyFocusedChildHash
         ) {
-            @OptIn(ExperimentalComposeUiApi::class)
-            return if (ComposeUiFlags.isRequestFocusOnNonFocusableFocusTargetEnabled) {
-                return it.restoreFocusedChild() ||
-                    // When requestFocus fails, it attempts to grant focus to one of its children.
-                    // We don't want to send focus to the children when restoreFocusedChild() fails,
-                    // since it has its own fallback logic. So we call requestFocus only if this
-                    // focus target is itself focusable.
-                    it.fetchFocusProperties().canFocus && it.requestFocus()
-            } else {
-                it.restoreFocusedChild() || it.requestFocus()
-            }
+            return it.restoreFocusedChild() ||
+                // When requestFocus fails, it attempts to grant focus to one of its children.
+                // We don't want to send focus to the children when restoreFocusedChild() fails,
+                // since it has its own fallback logic. So we call requestFocus only if this
+                // focus target is itself focusable.
+                it.fetchFocusProperties().canFocus && it.requestFocus()
         }
     }
     return false

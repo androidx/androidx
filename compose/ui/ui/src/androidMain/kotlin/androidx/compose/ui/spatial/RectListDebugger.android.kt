@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
@@ -68,7 +69,7 @@ private class RectListDebuggerModifierNode : DrawModifierNode, Modifier.Node() {
                 it.color = Color.Red
                 it.style = PaintingStyle.Stroke
             }
-            .asFrameworkPaint()
+            .nativePaint
 
     var token: Any? = null
 

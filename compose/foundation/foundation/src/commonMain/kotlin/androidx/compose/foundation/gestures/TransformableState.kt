@@ -68,25 +68,36 @@ interface TransformableState {
     val isTransformInProgress: Boolean
 }
 
-/** Scope used for suspending transformation operations */
+/**
+ * Scope used for suspending transformation operations.
+ *
+ * Implementers of this interface should override both [transformBy] and [transformByWithCentroid],
+ * treating a call to [transformBy] as a call to [transformByWithCentroid] with a
+ * [Offset.Unspecified] centroid. To maintain compatibility, the default implementation of
+ * [transformByWithCentroid] will call [transformBy], dropping the centroid information.
+ *
+ * Overriding the newer [transformByWithCentroid] and using the centroid, if specified, allows
+ * implementing more natural transformations around the point where the transformation occurs.
+ */
 @JvmDefaultWithCompatibility
 interface TransformScope {
     /**
      * Attempts to transform by [zoomChange] in relative multiplied value, by [panChange] in pixels
      * and by [rotationChange] in degrees.
      *
+     * Prefer calling the version of transformBy by that takes a centroid Offset, especially if the
+     * zooming or rotation should happen around a particular point. This allows for more natural
+     * transformations around a specific point. If there is no appropriate Offset to use, you can
+     * pass Offset.Unspecified.
+     *
+     * Implementations of TransformScope need to support both for compatibility, and can be expected
+     * to interpret calls to [transformBy] without a centroid as equivalent to a call to
+     * [transformByWithCentroid] with an [Offset.Unspecified] centroid.
+     *
      * @param zoomChange scale factor multiplier change for zoom
      * @param panChange panning offset change, in [Offset] pixels
      * @param rotationChange change of the rotation in degrees
      */
-    @Deprecated(
-        "Prefer calling the version of transformBy by that takes a centroid Offset, especially " +
-            "if the zooming or rotation should happen around a particular point. This allow for " +
-            "more natural transformations around a specific point. If there is no appropriate " +
-            "Offset to use, you can pass Offset.Unspecified. Implementations of TransformScope " +
-            "need to support both, and should interpret calls to transformBy without a centroid as " +
-            "equivalent to a call to transformBy with an Offset.Unspecified centroid."
-    )
     fun transformBy(
         zoomChange: Float = 1f,
         panChange: Offset = Offset.Zero,
@@ -97,15 +108,16 @@ interface TransformScope {
      * Attempts to transform by [zoomChange] in relative multiplied value, by [panChange] in pixels
      * and by [rotationChange] in degrees.
      *
+     * The default implementation calls [transformBy], dropping the [centroid].
+     *
      * @param centroid the centroid around which the transformation is occurring. This may be
      *   [Offset.Unspecified] if the transformation is not associated with any centroid.
      * @param zoomChange scale factor multiplier change for zoom
      * @param panChange panning offset change, in [Offset] pixels
      * @param rotationChange change of the rotation in degrees
      */
-    @Suppress("DEPRECATION")
-    fun transformBy(
-        centroid: Offset,
+    fun transformByWithCentroid(
+        centroid: Offset = Offset.Unspecified,
         zoomChange: Float = 1f,
         panChange: Offset = Offset.Zero,
         rotationChange: Float = 0f,
@@ -239,7 +251,7 @@ suspend fun TransformableState.animateZoomBy(
     transform {
         AnimationState(initialValue = previous).animateTo(zoomFactor, animationSpec) {
             val scaleFactor = if (previous == 0f) 1f else this.value / previous
-            transformBy(centroid = centroid, zoomChange = scaleFactor)
+            transformByWithCentroid(centroid = centroid, zoomChange = scaleFactor)
             previous = this.value
         }
     }
@@ -275,7 +287,7 @@ suspend fun TransformableState.animateRotateBy(
     transform {
         AnimationState(initialValue = previous).animateTo(degrees, animationSpec) {
             val delta = this.value - previous
-            transformBy(centroid = centroid, rotationChange = delta)
+            transformByWithCentroid(centroid = centroid, rotationChange = delta)
             previous = this.value
         }
     }
@@ -314,7 +326,7 @@ suspend fun TransformableState.animatePanBy(
             animationSpec,
         ) {
             val delta = this.value - previous
-            transformBy(centroid = centroid, panChange = delta)
+            transformByWithCentroid(centroid = centroid, panChange = delta)
             previous = this.value
         }
     }
@@ -399,7 +411,7 @@ suspend fun TransformableState.animateBy(
                 initialVelocity = ZeroAnimationVelocity,
             )
             .animateTo(targetState, animationSpec) {
-                transformBy(
+                transformByWithCentroid(
                     centroid = centroid,
                     zoomChange =
                         if (previousState.zoom == 0f) 1f else value.zoom / previousState.zoom,
@@ -575,7 +587,7 @@ suspend fun TransformableState.zoomBy(zoomFactor: Float) =
  */
 suspend fun TransformableState.zoomBy(zoomFactor: Float, centroid: Offset = Offset.Unspecified) =
     transform {
-        transformBy(
+        transformByWithCentroid(
             centroid = centroid,
             zoomChange = zoomFactor,
             panChange = Offset.Zero,
@@ -601,7 +613,7 @@ suspend fun TransformableState.rotateBy(degrees: Float) = rotateBy(degrees, Offs
  */
 suspend fun TransformableState.rotateBy(degrees: Float, centroid: Offset = Offset.Unspecified) =
     transform {
-        transformBy(
+        transformByWithCentroid(
             centroid = centroid,
             zoomChange = 1f,
             panChange = Offset.Zero,
@@ -628,7 +640,12 @@ suspend fun TransformableState.panBy(offset: Offset) =
  */
 suspend fun TransformableState.panBy(offset: Offset, centroid: Offset = Offset.Unspecified) =
     transform {
-        transformBy(centroid = centroid, zoomChange = 1f, panChange = offset, rotationChange = 0f)
+        transformByWithCentroid(
+            centroid = centroid,
+            zoomChange = 1f,
+            panChange = offset,
+            rotationChange = 0f,
+        )
     }
 
 /**
@@ -652,11 +669,10 @@ private class DefaultTransformableState(
 
     private val transformScope: TransformScope =
         object : TransformScope {
-            @Suppress("OVERRIDE_DEPRECATION")
             override fun transformBy(zoomChange: Float, panChange: Offset, rotationChange: Float) =
-                transformBy(Offset.Unspecified, zoomChange, panChange, rotationChange)
+                transformByWithCentroid(Offset.Unspecified, zoomChange, panChange, rotationChange)
 
-            override fun transformBy(
+            override fun transformByWithCentroid(
                 centroid: Offset,
                 zoomChange: Float,
                 panChange: Offset,

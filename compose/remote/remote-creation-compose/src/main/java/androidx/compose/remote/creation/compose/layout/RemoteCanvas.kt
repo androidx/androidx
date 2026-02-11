@@ -91,6 +91,16 @@ public class RemoteCanvas(
     }
 
     /**
+     * Rotates the canvas by [degrees].
+     *
+     * @param degrees The angle of rotation in degrees.
+     * @param pivot The pivot point around which to rotate.
+     */
+    public fun rotate(degrees: RemoteFloat, pivot: RemoteOffset) {
+        internalCanvas.rotate(degrees, pivot.x, pivot.y)
+    }
+
+    /**
      * Applies a transformation [matrix] to the canvas.
      *
      * @param matrix The [Matrix] to concatenate with the current canvas transformation.

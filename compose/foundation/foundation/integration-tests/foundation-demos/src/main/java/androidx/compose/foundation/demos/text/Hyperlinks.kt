@@ -131,7 +131,7 @@ fun Hyperlinks() {
                 """
                 This is a <span style="color:red"><a href="https://developer.android.com">link</a></span> here.
                 Another <a href="https://developer.android.com">link</a> follows.
-            """
+                """
                     .trimIndent()
             val annotatedString = AnnotatedString.fromHtml(htmlString)
             BasicText(annotatedString)

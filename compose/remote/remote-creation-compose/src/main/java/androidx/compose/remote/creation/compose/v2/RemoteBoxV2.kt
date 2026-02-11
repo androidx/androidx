@@ -35,7 +35,7 @@ public fun RemoteBoxV2(
 ) {
     val scope = remember { RemoteBoxScopeV2() }
     RemoteComposeNode(
-        factory = { RemoteBoxNodeV2() },
+        factory = ::RemoteBoxNodeV2,
         update = {
             set(modifier) { nodeModifier -> this.modifier = nodeModifier }
             set(horizontalAlignment) { hAlign -> this.horizontalAlignment = hAlign }

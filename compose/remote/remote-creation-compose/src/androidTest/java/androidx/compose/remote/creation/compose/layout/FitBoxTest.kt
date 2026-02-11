@@ -23,30 +23,24 @@ import androidx.compose.remote.creation.compose.modifier.fillMaxSize
 import androidx.compose.remote.creation.compose.modifier.size
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.remote.creation.compose.test.base.GridScreenshotUI
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
+import androidx.compose.remote.creation.compose.test.util.propertyName
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
 @SdkSuppress(minSdkVersion = 35, maxSdkVersion = 35)
-@RunWith(TestParameterInjector::class)
+@RunWith(AndroidJUnit4::class)
 class FitBoxTest {
-    @TestParameter private lateinit var targetPlayer: TargetPlayer
-
     @get:Rule
     val composeTestRule: RemoteComposeScreenshotTestRule by lazy {
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = targetPlayer,
-        )
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
     }
 
     private val gridScreenshotUI = GridScreenshotUI()
@@ -68,24 +62,25 @@ class FitBoxTest {
                         for (arrangement in arrangements) {
                             for (alignment in alignments) {
                                 yield(
-                                    @RemoteComposable @Composable {
-                                        FitBox(
-                                            modifier = RemoteModifier.fillMaxSize(),
-                                            horizontalAlignment = alignment,
-                                            verticalArrangement = arrangement,
-                                        ) {
-                                            RemoteBox(
-                                                modifier =
-                                                    RemoteModifier.size(48.rdp)
-                                                        .background(Color(0xFF6200EE))
-                                            )
-                                            RemoteBox(
-                                                modifier =
-                                                    RemoteModifier.size(24.rdp)
-                                                        .background(Color(0xFF03DAC6))
-                                            )
+                                    "${arrangement.propertyName()} ${alignment.propertyName()}" to
+                                        @RemoteComposable @Composable {
+                                            FitBox(
+                                                modifier = RemoteModifier.fillMaxSize(),
+                                                horizontalAlignment = alignment,
+                                                verticalArrangement = arrangement,
+                                            ) {
+                                                RemoteBox(
+                                                    modifier =
+                                                        RemoteModifier.size(48.rdp)
+                                                            .background(Color(0xFF6200EE))
+                                                )
+                                                RemoteBox(
+                                                    modifier =
+                                                        RemoteModifier.size(24.rdp)
+                                                            .background(Color(0xFF03DAC6))
+                                                )
+                                            }
                                         }
-                                    }
                                 )
                             }
                         }

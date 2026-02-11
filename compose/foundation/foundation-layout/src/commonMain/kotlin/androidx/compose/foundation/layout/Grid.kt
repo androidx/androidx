@@ -20,6 +20,7 @@ package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
 import androidx.collection.LongList
+import androidx.collection.MutableIntList
 import androidx.collection.MutableIntSet
 import androidx.collection.MutableObjectList
 import androidx.collection.mutableLongListOf
@@ -72,6 +73,9 @@ import kotlin.math.roundToInt
  * * **Auto-placement:** Items without a specific [GridScope.gridItem] modifier flow automatically
  *   into the next available cell based on the configured [GridFlow]. .
  *
+ * Example usage:
+ *
+ * @sample androidx.compose.foundation.layout.samples.SimpleGrid
  * @param config A block that defines the columns, rows, and gaps of the grid. This block runs
  *   during the measure pass, enabling efficient updates based on state.
  * @param modifier The modifier to be applied to the layout.
@@ -495,8 +499,8 @@ value class GridTrackSize internal constructor(internal val encodedValue: Long) 
         @Stable val MaxContent = pack(TypeMaxContent, 0f)
 
         /**
-         * A track that behaves automatically, typically similar to [MinContent] or [Flex] depending
-         * on context.
+         * A track that behaves as minmax(min-content, max-content). It occupies at least its
+         * minimum content size, and grows to fit its maximum content size if space is available.
          */
         @Stable val Auto = pack(TypeAuto, 0f)
 
@@ -1124,17 +1128,13 @@ private fun calculateGridTrackSizes(
     // --- Phase 1: Calculate Column Widths ---
     // Use totalColCount for array size
     val columnWidths = IntArray(totalColCount)
-    // If constraints are infinite (e.g. horizontal scroll), we pass Infinity.
-    // This triggers the fallback logic in calculateAxisSize (Percentage -> Auto).
-    val availableWidth =
-        if (constraints.hasFixedWidth) constraints.maxWidth else Constraints.Infinity
 
     val totalTrackWidth =
         calculateColumnWidths(
             density = density,
             explicitSpecs = columnSpecs,
             totalCount = totalColCount,
-            availableSpace = availableWidth,
+            availableSpace = constraints.maxWidth,
             outSizes = columnWidths,
             itemsByColumn = itemsByColumn,
             constraints = constraints,
@@ -1144,15 +1144,13 @@ private fun calculateGridTrackSizes(
 
     // --- Phase 2: Calculate Row Heights ---
     val rowHeights = IntArray(totalRowCount)
-    val availableHeight =
-        if (constraints.hasFixedHeight) constraints.maxHeight else Constraints.Infinity
 
     val totalTrackHeight =
         calculateRowHeights(
             density = density,
             explicitSpecs = rowSpecs,
             totalCount = totalRowCount,
-            availableSpace = availableHeight,
+            availableSpace = constraints.maxHeight,
             outSizes = rowHeights,
             itemsByRow = itemsByRow,
             constraints = constraints,
@@ -1192,7 +1190,11 @@ private fun calculateGridTrackSizes(
  * * **Auto/Content-based:** Measured using the intrinsic width of items in that column.
  * 2. **Pass 1.5 (Spanning Items):** Increases column widths if an item spanning multiple columns
  *    requires more width than the sum of those columns.
- * 3. **Pass 2 (Flex Distribution):** Distributes any remaining horizontal space among
+ * 3. **Pass 1.8 (Expand Auto Tracks):** Distributes remaining available space to `Auto` tracks,
+ *    allowing them to grow from their `min-content` floor toward their `max-content` cap. This
+ *    ensures `Auto` columns are responsive but don't aggressively consume space needed for `Flex`
+ *    columns.
+ * 4. **Pass 2 (Flex Distribution):** Distributes any remaining horizontal space among
  *    [GridTrackSize.Flex] columns according to their weight.
  *
  * @param density Used for Dp-to-Px conversion.
@@ -1238,6 +1240,12 @@ private fun calculateColumnWidths(
     val crossAxisAvailable =
         if (constraints.hasBoundedHeight) constraints.maxHeight else Constraints.Infinity
 
+    // Keep track of which columns are Auto so we can expand them later
+    val autoIndices = MutableIntList()
+
+    // Store max intrinsic widths for Auto tracks here to avoid re-measuring later.
+    val autoColumnMaxSizes = IntArray(totalCount)
+
     // --- Pass 1: Base Sizes (Single-Span Items) ---
     // Iterate through every column index (both explicit and implicit).
     for (index in 0 until totalCount) {
@@ -1275,10 +1283,25 @@ private fun calculateColumnWidths(
                     calculateMinIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
                 GridTrackSize.TypeMaxContent ->
                     calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
-                // Auto typically behaves like MaxContent in most contexts (fit the content
-                // comfortably).
-                GridTrackSize.TypeAuto ->
-                    calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                GridTrackSize.TypeAuto -> {
+                    if (availableTrackSpace == Constraints.Infinity) {
+                        // If infinite space, Auto behaves like MaxContent
+                        calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                    } else {
+                        // Finite space: Auto needs Min (for base) AND Max (for growth).
+                        val packed =
+                            calculateMinMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
+                        // Unpack the Long (High 32 = Max, Low 32 = Min)
+                        val max = (packed ushr 32).toInt()
+                        val min = (packed and 0xFFFFFFFFL).toInt()
+
+                        autoIndices.add(index)
+                        // Cache Max for Pass 1.8
+                        autoColumnMaxSizes[index] = max
+                        // Return Min for Base Size
+                        min
+                    }
+                }
                 // Measure the max intrinsic width of all items in this column.
                 else -> calculateMaxIntrinsicWidth(itemsByColumn[index], crossAxisAvailable)
             }
@@ -1297,6 +1320,18 @@ private fun calculateColumnWidths(
         crossAxisSizes = null, // Not needed for column width calculation
         gap = columnGap,
     )
+
+    // --- Pass 1.8: Expand Auto Tracks ---
+    // Only strictly needed if we are constrained.
+    // Auto tracks consume space AFTER fixed/min-content, but BEFORE Flex tracks.
+    if (availableTrackSpace != Constraints.Infinity && autoIndices.isNotEmpty()) {
+        expandAutoTracks(
+            autoTrackIndices = autoIndices,
+            outSizes = outSizes,
+            maxSizes = autoColumnMaxSizes,
+            availableSpace = availableTrackSpace,
+        )
+    }
 
     var usedSpace = 0
     for (size in outSizes) {
@@ -1356,7 +1391,11 @@ private fun calculateColumnWidths(
  * * **Flex:** Starts at `min-content` size to prevent collapse if content exists.
  * 2. **Pass 1.5 (Spanning Items):** Increases row heights if an item spanning multiple rows is
  *    taller than the sum of those rows.
- * 3. **Pass 2 (Flex Distribution):** Distributes any remaining vertical space among
+ * 3. **Pass 1.8 (Expand Auto Tracks):** Distributes remaining available space to `Auto` tracks,
+ *    allowing them to grow from their `min-content` floor toward their `max-content` cap. This
+ *    ensures `Auto` columns are responsive but don't aggressively consume space needed for `Flex`
+ *    columns.
+ * 4. **Pass 2 (Flex Distribution):** Distributes any remaining vertical space among
  *    [GridTrackSize.Flex] rows according to their weight.
  *
  * @param density Used for Dp-to-Px conversion.
@@ -1398,6 +1437,11 @@ private fun calculateRowHeights(
         } else {
             (availableSpace - totalGapSpace).coerceAtLeast(0)
         }
+
+    // Keep track of which columns are Auto so we can expand them later
+    val autoIndices = MutableIntList()
+
+    val autoRowMaxSizes = IntArray(totalCount)
 
     // --- Pass 1: Base Sizes (Single-Span Items) ---
     // We iterate through every row index (both explicit and implicit).
@@ -1452,14 +1496,33 @@ private fun calculateRowHeights(
                         columnWidths = columnWidths,
                         fallbackWidth = constraints.maxWidth,
                     )
-                // Auto typically behaves like MaxContent in most contexts (fit the content
-                // comfortably).
-                GridTrackSize.TypeAuto ->
-                    calculateMaxIntrinsicHeight(
-                        items = itemsByRow[index],
-                        columnWidths = columnWidths,
-                        fallbackWidth = constraints.maxWidth,
-                    )
+                GridTrackSize.TypeAuto -> {
+                    // If infinite space, Auto behaves like MaxContent
+                    if (availableTrackSpace == Constraints.Infinity) {
+                        calculateMaxIntrinsicHeight(
+                            items = itemsByRow[index],
+                            columnWidths = columnWidths,
+                            fallbackWidth = constraints.maxWidth,
+                        )
+                    } else {
+                        // Finite space: Auto needs Min (for base) and Max (for growth).
+                        val packed =
+                            calculateMinMaxIntrinsicHeight(
+                                itemsByRow[index],
+                                columnWidths,
+                                constraints.maxWidth,
+                            )
+                        // Unpack the Long (High 32 = Max, Low 32 = Min)
+                        val max = (packed ushr 32).toInt()
+                        val min = (packed and 0xFFFFFFFFL).toInt()
+
+                        autoIndices.add(index)
+                        // Cache Max for Pass 1.8
+                        autoRowMaxSizes[index] = max
+                        // Return Min for Base Size
+                        min
+                    }
+                }
                 else ->
                     calculateMaxIntrinsicHeight(
                         items = itemsByRow[index],
@@ -1482,6 +1545,18 @@ private fun calculateRowHeights(
         crossAxisSizes = columnWidths,
         gap = rowGap,
     )
+
+    // --- Pass 1.8: Expand Auto Tracks ---
+    // Only strictly needed if we are constrained.
+    // Auto tracks consume space AFTER fixed/min-content, but BEFORE Flex tracks.
+    if (availableTrackSpace != Constraints.Infinity && autoIndices.isNotEmpty()) {
+        expandAutoTracks(
+            autoTrackIndices = autoIndices,
+            outSizes = outSizes,
+            maxSizes = autoRowMaxSizes,
+            availableSpace = availableTrackSpace,
+        )
+    }
 
     var usedSpace = 0
     for (size in outSizes) {
@@ -1588,6 +1663,67 @@ private fun calculateMinIntrinsicHeight(
         }
     }
     return maxSize
+}
+
+/**
+ * Calculates both the minimum and maximum intrinsic widths of the provided [items] in a single
+ * pass.
+ *
+ * @param items The list of items in this column.
+ * @param heightConstraint The available height to measure against (often [Constraints.Infinity]).
+ * @return A packed [Long] containing both values to avoid object allocation:
+ * * **High 32 bits:** The maximum intrinsic width. Extract via `(packed ushr 32).toInt()`.
+ * * **Low 32 bits:** The minimum intrinsic width. Extract via `(packed and 0xFFFFFFFFL).toInt()`.
+ */
+private fun calculateMinMaxIntrinsicWidth(
+    items: MutableObjectList<GridItem>?,
+    heightConstraint: Int,
+): Long {
+    if (items == null) return 0L
+    var maxMin = 0
+    var maxMax = 0
+    items.forEach { item ->
+        if (item.columnSpan == 1) {
+            val min = item.measurable.minIntrinsicWidth(heightConstraint)
+            val max = item.measurable.maxIntrinsicWidth(heightConstraint)
+            if (min > maxMin) maxMin = min
+            if (max > maxMax) maxMax = max
+        }
+    }
+    return (maxMax.toLong() shl 32) or (maxMin.toLong() and 0xFFFFFFFFL)
+}
+
+/**
+ * Calculates both the minimum and maximum intrinsic heights of the provided [items] in a single
+ * pass.
+ *
+ * @param items The list of items in this row.
+ * @param columnWidths The calculated pixel widths of all columns. Used to measure height correctly.
+ * @param fallbackWidth The width to use if an item resides in an implicit column (index out of
+ *   bounds).
+ * @return A packed [Long] containing both values:
+ * * **High 32 bits:** The maximum intrinsic height. Extract via `(packed ushr 32).toInt()`.
+ * * **Low 32 bits:** The minimum intrinsic height. Extract via `(packed and 0xFFFFFFFFL).toInt()`.
+ */
+private fun calculateMinMaxIntrinsicHeight(
+    items: MutableObjectList<GridItem>?,
+    columnWidths: IntArray,
+    fallbackWidth: Int,
+): Long {
+    if (items == null) return 0L
+    var maxMin = 0
+    var maxMax = 0
+    items.forEach { item ->
+        if (item.rowSpan == 1) {
+            val colIndex = item.column
+            val width = if (colIndex < columnWidths.size) columnWidths[colIndex] else fallbackWidth
+            val min = item.measurable.minIntrinsicHeight(width)
+            val max = item.measurable.maxIntrinsicHeight(width)
+            if (min > maxMin) maxMin = min
+            if (max > maxMax) maxMax = max
+        }
+    }
+    return (maxMax.toLong() shl 32) or (maxMin.toLong() and 0xFFFFFFFFL)
 }
 
 /**
@@ -1716,6 +1852,88 @@ private fun distributeSpanningSpace(
                     if (remainder > 0) remainder--
                 }
             }
+        }
+    }
+}
+
+/**
+ * Expands [GridTrackSize.Auto] tracks from their minimum intrinsic size toward their maximum
+ * intrinsic size using the remaining available space.
+ *
+ * This behavior allows tracks to occupy at least their minimum content size, growing to fit their
+ * maximum content size if the container allows it.
+ *
+ * This runs **Pass 1.8**, after `MinContent` base sizes are calculated but before `Flex` tracks
+ * receive space. This ensures `Auto` tracks typically size to fit their content comfortably before
+ * `Flex` tracks consume the rest of the container.
+ *
+ * **Distribution Logic:**
+ * 1. **Growth Potential:** For each Auto track, we calculate `Potential = MaxIntrinsicSize -
+ *    MinIntrinsicSize`.
+ * 2. **Proportional Allocation:**
+ * - If `remainingSpace` covers the total potential, all Auto tracks become their
+ *   `MaxIntrinsicSize`.
+ * - If space is scarce, it is distributed **proportionally** based on potential. A track with a
+ *   large difference between its Min and Max (e.g., a long paragraph that can wrap) receives more
+ *   space than a track with little potential (e.g., an icon).
+ *
+ * @param autoTrackIndices The list of indices corresponding to [GridTrackSize.Auto] tracks.
+ * @param outSizes The array of current track sizes in pixels. **Mutated in-place.**
+ * - **Input:** Contains the `min-content` size (Pass 1 result).
+ * - **Output:** Contains the expanded size (up to `max-content`).
+ *
+ * @param maxSizes The array of pre-calculated maximum intrinsic sizes for these tracks.
+ * @param availableSpace The total constrained size of the container (width or height).
+ */
+private fun expandAutoTracks(
+    autoTrackIndices: MutableIntList,
+    outSizes: IntArray,
+    maxSizes: IntArray,
+    availableSpace: Int,
+) {
+    if (autoTrackIndices.isEmpty()) return
+
+    // 1. Calculate how much space is currently used by all tracks (Fixed + MinContent + etc)
+    var usedSpace = 0
+    for (size in outSizes) {
+        usedSpace += size
+    }
+
+    val remainingSpace = availableSpace - usedSpace
+    if (remainingSpace <= 0) return
+
+    // 2. Calculate the "Growth Potential" for each auto track (Max - Min)
+    // We also sum the total potential to determine distribution shares.
+    val growthPotentials = IntArray(autoTrackIndices.size)
+    var totalGrowthPotential = 0
+
+    autoTrackIndices.forEachIndexed { i, trackIndex ->
+        val currentSize = outSizes[trackIndex]
+        val maxIntrinsicSize = maxSizes[trackIndex]
+        val potential = max(0, maxIntrinsicSize - currentSize)
+        growthPotentials[i] = potential
+        totalGrowthPotential += potential
+    }
+
+    // 3. If there is no potential to grow (all tracks are already at max content), exit.
+    if (totalGrowthPotential == 0) return
+
+    // 4. Distribute space
+    // If we have enough space to satisfy everyone's max potential, just set them all to max.
+    if (remainingSpace >= totalGrowthPotential) {
+        for (i in autoTrackIndices.indices) {
+            val trackIndex = autoTrackIndices[i]
+            outSizes[trackIndex] += growthPotentials[i]
+        }
+    } else {
+        // Otherwise, distribute proportionally based on how much each track WANTS to grow.
+        // This ensures a fair distribution where tracks with huge content get more space
+        // than tracks that only need a few more pixels.
+        for (i in autoTrackIndices.indices) {
+            val trackIndex = autoTrackIndices[i]
+            val share =
+                (growthPotentials[i].toFloat() / totalGrowthPotential * remainingSpace).roundToInt()
+            outSizes[trackIndex] += share
         }
     }
 }

@@ -31,6 +31,8 @@ import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.modifiers.RoundedRectShape
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
 import androidx.compose.remote.creation.sin
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
 fun demoUseOfGlobal(): RemoteComposeWriter {
@@ -52,6 +54,8 @@ fun demoUseOfGlobal(): RemoteComposeWriter {
         }
     return rc.writer
 }
+
+@Preview @Composable private fun DemoUseOfGlobalPreview() = RemoteDocPreview(demoUseOfGlobal())
 
 @Suppress("RestrictedApiAndroidX")
 private fun RemoteComposeContextAndroid.date() {

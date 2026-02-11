@@ -22,6 +22,7 @@ import static androidx.compose.remote.integration.view.demos.examples.RcTickerKt
 
 import android.app.Activity;
 
+import androidx.compose.remote.integration.view.demos.examples.BadExamples.MemoryKt;
 import androidx.compose.remote.integration.view.demos.examples.ColorCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.ColorThemeCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.CountdownKt;
@@ -30,6 +31,7 @@ import androidx.compose.remote.integration.view.demos.examples.DemoAnchorText;
 import androidx.compose.remote.integration.view.demos.examples.DemoAttributedString;
 import androidx.compose.remote.integration.view.demos.examples.DemoColorKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoGlobalKt;
+import androidx.compose.remote.integration.view.demos.examples.DemoGraphsKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoMetalClockKt;
 import androidx.compose.remote.integration.view.demos.examples.DemoParticlesKt;
@@ -40,8 +42,11 @@ import androidx.compose.remote.integration.view.demos.examples.ExampleNumbersKt;
 import androidx.compose.remote.integration.view.demos.examples.ExampleTimerKt;
 import androidx.compose.remote.integration.view.demos.examples.FontCheckKt;
 import androidx.compose.remote.integration.view.demos.examples.HostileActor;
+import androidx.compose.remote.integration.view.demos.examples.LinearRegressionKt;
 import androidx.compose.remote.integration.view.demos.examples.MClockKt;
+import androidx.compose.remote.integration.view.demos.examples.PieChartKt;
 import androidx.compose.remote.integration.view.demos.examples.PlotWaveKt;
+import androidx.compose.remote.integration.view.demos.examples.PressureGaugeKt;
 import androidx.compose.remote.integration.view.demos.examples.ServerSideKt;
 import androidx.compose.remote.integration.view.demos.examples.ShaderCalendarKt;
 import androidx.compose.remote.integration.view.demos.examples.TextKt;
@@ -60,8 +65,15 @@ public abstract class DemosCreation {
      */
     public static @NonNull ArrayList<RCDoc> getDemos(@NonNull Activity activity) {
         return new ArrayList<>(Arrays.asList(
-
+                getp("0/A/PressureGauge", PressureGaugeKt::demoPressureGauge),
                 getp("0/og/serverClock", ServerSideKt::serverClock),
+                getp("0/A/demoGraphs1", DemoGraphsKt::demoGraphs),
+                getp("0/A/demoGraphs0", DemoGraphsKt::demoGraphs2),
+                getpc("0/A/pieChart", PieChartKt::demoPieChart),
+                getpc("0/A/goodPieChart", PieChartKt::demoPieChart_good),
+                //getpc("0/A/PieChart2", PieChartKt::demoPieChart2),
+                getpc("0/A/LinearRegression", LinearRegressionKt::demoLinearRegression),
+                getp("0/v/badMemory", MemoryKt::fillMemory),
 
 
                 getp("5/Server/serverClock", ServerSideKt::serverClock),
@@ -92,10 +104,22 @@ public abstract class DemosCreation {
                 getp("1/plot2", DemoKt::plot2),
                 getp("1/plot3", DemoKt::plot3),
                 getp("1/plot4", DemoKt::plot4),
-                getp("1/touch1", DemoTouchKt::touchStopGently),
-                getp("1/touch2", DemoTouchKt::touchStopNotchesEven),
-                getp("1/touch3", DemoTouchKt::demoTouchThumbWheel1),
-                getp("1/touch44", DemoTouchKt::touchStopAbsolutePos),
+                getp("2/touch/00Touch1", DemoTouchKt::demoTouch1),
+                getp("2/touch/01Touch2", DemoTouchKt::demoTouch2),
+                getp("2/touch/02TouchWrap", DemoTouchKt::demoTouchWrap),
+
+                getp("2/touch/03StopGently", DemoTouchKt::touchStopGently),
+                getp("2/touch/04StopEnds", DemoTouchKt::touchStopEnds),
+                getp("2/touch/05StopInstantly", DemoTouchKt::touchStopInstantly),
+
+                getp("2/touch/06StopNotchesEven", DemoTouchKt::touchStopNotchesEven),
+                getp("2/touch/07StopNotchesPercents", DemoTouchKt::touchStopNotchesPercents),
+                getp("2/touch/08StopNotchesAbsolute", DemoTouchKt::touchStopNotchesAbsolute),
+                getp("2/touch/09StopAbsolutePos", DemoTouchKt::touchStopAbsolutePos),
+                getp("2/touch/10simpleJavaAnim", DemoTouchKt::simpleJavaAnim),
+
+                getp("2/touch/11ThumbWheel1", DemoTouchKt::demoTouchThumbWheel1),
+                getp("2/touch/12ThumbWheel2", DemoTouchKt::demoTouchThumbWheel2),
 
                 getp("5/Server/serverClock", ServerSideKt::serverClock),
 

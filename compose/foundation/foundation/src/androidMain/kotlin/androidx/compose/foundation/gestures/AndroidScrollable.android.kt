@@ -19,6 +19,8 @@ package androidx.compose.foundation.gestures
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.ComposeFoundationFlags
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
@@ -53,9 +55,29 @@ internal class AndroidConfig(val viewConfiguration: android.view.ViewConfigurati
     override fun Density.calculateMouseWheelScroll(event: PointerEvent, bounds: IntSize): Offset {
         val verticalScrollFactor = -getVerticalScrollFactor()
         val horizontalScrollFactor = -getHorizontalScrollFactor()
-        return event.changes
-            .fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
-            .let { Offset(it.x * horizontalScrollFactor, it.y * verticalScrollFactor) }
+
+        // Mouse wheel scrolling can be accumulated from two sources: the mouse wheel scroll
+        // in scrollDelta, and the gesturePanOffset. Combine them to get the final scroll
+        // amount.
+        val accumulatedScrollDelta =
+            event.changes
+                .fastFold(Offset.Zero) { acc, c -> acc + c.scrollDelta }
+                .let { Offset(it.x * horizontalScrollFactor, it.y * verticalScrollFactor) }
+
+        @OptIn(ExperimentalFoundationApi::class)
+        val accumulatedGesturePanOffset =
+            if (ComposeFoundationFlags.isTrackpadGestureHandlingEnabled) {
+                event.changes.firstOrNull()?.let {
+                    it.panGestureOffset +
+                        it.historical.fastFold(Offset.Zero) { acc, historicalChange ->
+                            acc + historicalChange.panGestureOffset
+                        }
+                } ?: Offset.Zero
+            } else {
+                Offset.Zero
+            }
+
+        return accumulatedScrollDelta - accumulatedGesturePanOffset
     }
 }
 

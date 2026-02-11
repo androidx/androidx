@@ -57,7 +57,9 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * This provides a recording canvas implementation. This is the main way we intercept the output of
@@ -112,6 +114,9 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
 
     override val remoteDensity: RemoteDensity
         get() = creationState.remoteDensity
+
+    override val layoutDirection: LayoutDirection
+        get() = creationState.layoutDirection
 
     private var usingShaderMatrix: Boolean = false
 
@@ -825,6 +830,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      *   [start] until the last character of [text] are drawn
      * @param x The left x-coordinate to start rendering from
      * @param y The top y-coordinate to start rendering from
+     * @param glyphSpacing Horizontal adjustment in pixels between glyphs
      * @param paint The [Paint] to render with
      */
     public fun drawBitmapFontTextRun(
@@ -834,6 +840,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         end: Int,
         x: RemoteFloat,
         y: RemoteFloat,
+        glyphSpacing: RemoteFloat,
         paint: Paint,
     ) {
         usePaint(paint)
@@ -844,6 +851,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             end,
             x.getFloatIdForCreationState(creationState),
             y.getFloatIdForCreationState(creationState),
+            glyphSpacing.getFloatIdForCreationState(creationState),
         )
     }
 
@@ -857,6 +865,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      * @param end The character to stop drawing at. Note if this is -1 then all characters from
      *   [start] until the last character of [text] are drawn
      * @param yAdj Adjustment away from the path along the normal at that point
+     * @param glyphSpacing Horizontal adjustment in pixels between glyphs
      * @param paint The [Paint] to render with
      */
     public fun drawBitmapFontTextRunOnPath(
@@ -866,6 +875,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         start: Int,
         end: Int,
         yAdj: Float,
+        glyphSpacing: Float,
         paint: Paint,
     ) {
         usePaint(paint)
@@ -876,6 +886,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             start,
             end,
             yAdj,
+            glyphSpacing,
         )
     }
 
@@ -894,6 +905,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
      *   centered horizontally, 1 = right aligned.
      * @param pany A vertical translation applied to the text. A value of -1 = top aligned, 0 =
      *   centered vertically, 1 = bottom aligned.
+     * @param glyphSpacing Horizontal adjustment in pixels between glyphs
      * @param paint The [Paint] to render with
      */
     public fun drawAnchoredBitmapFontTextRun(
@@ -905,6 +917,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         y: RemoteFloat,
         panx: RemoteFloat,
         pany: RemoteFloat,
+        glyphSpacing: RemoteFloat,
         paint: Paint,
     ) {
         usePaint(paint)
@@ -917,6 +930,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
             y.getFloatIdForCreationState(creationState),
             panx.getFloatIdForCreationState(creationState),
             pany.getFloatIdForCreationState(creationState),
+            glyphSpacing.getFloatIdForCreationState(creationState),
         )
     }
 
@@ -1278,7 +1292,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        usePaint(paint.asFrameworkPaint())
+        usePaint(paint.nativePaint)
         if (path1 is RemoteComposePath && path2 is RemoteComposePath) {
             document.drawTweenPath(
                 path1.remote,
@@ -1318,7 +1332,7 @@ public open class RecordingCanvas(bitmap: Bitmap) : Canvas(bitmap), RemoteStateS
         stop: RemoteFloat,
         paint: androidx.compose.ui.graphics.Paint,
     ) {
-        usePaint(paint.asFrameworkPaint())
+        usePaint(paint.nativePaint)
         document.drawTweenPath(
             path1,
             path2,

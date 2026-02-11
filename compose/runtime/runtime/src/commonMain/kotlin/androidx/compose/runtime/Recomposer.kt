@@ -132,7 +132,9 @@ public interface RecomposerInfo {
      *
      * @return a flow of error states captured during composition
      */
-    @ComposeToolingApi public val errorState: StateFlow<RecomposerErrorInformation?>
+    @ComposeToolingApi
+    public val errorState: StateFlow<RecomposerErrorInformation?>
+        get() = DefaultErrorStateFlow
 
     /**
      * Register an observer to be notified when a composition is added to or removed from the given
@@ -142,6 +144,12 @@ public interface RecomposerInfo {
      */
     @ExperimentalComposeRuntimeApi
     public fun observe(observer: CompositionRegistrationObserver): CompositionObserverHandle? = null
+
+    private companion object {
+        @ComposeToolingApi
+        private val DefaultErrorStateFlow: StateFlow<RecomposerErrorInformation?> =
+            MutableStateFlow(null)
+    }
 }
 
 /** Read only information about [Recomposer] error state. */
@@ -1339,12 +1347,10 @@ public class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionC
                             .let { pairs ->
                                 // Check for any nested states
                                 if (
-                                    ComposeRuntimeFlags.isMovingNestedMovableContentEnabled &&
-                                        pairs.fastAny {
-                                            it.second == null &&
-                                                it.first.content in
-                                                    movableContentNestedStatesAvailable
-                                        }
+                                    pairs.fastAny {
+                                        it.second == null &&
+                                            it.first.content in movableContentNestedStatesAvailable
+                                    }
                                 ) {
                                     // We have at least one nested state we could use, if a state
                                     // is available for the container then schedule the state to be

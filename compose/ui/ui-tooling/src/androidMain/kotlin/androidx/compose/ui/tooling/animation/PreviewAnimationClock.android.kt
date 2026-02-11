@@ -24,15 +24,17 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.animation.tooling.ComposeAnimatedProperty
 import androidx.compose.animation.tooling.ComposeAnimation
 import androidx.compose.animation.tooling.TransitionInfo
-import androidx.compose.ui.tooling.animation.AnimateXAsStateComposeAnimation.Companion.parse
-import androidx.compose.ui.tooling.animation.AnimatedContentComposeAnimation.Companion.parseAnimatedContent
-import androidx.compose.ui.tooling.animation.InfiniteTransitionComposeAnimation.Companion.parse
 import androidx.compose.ui.tooling.animation.clock.AnimateXAsStateClock
 import androidx.compose.ui.tooling.animation.clock.AnimatedVisibilityClock
 import androidx.compose.ui.tooling.animation.clock.ComposeAnimationClock
 import androidx.compose.ui.tooling.animation.clock.InfiniteTransitionClock
 import androidx.compose.ui.tooling.animation.clock.TransitionClock
 import androidx.compose.ui.tooling.animation.clock.millisToNanos
+import androidx.compose.ui.tooling.animation.search.AnimateXAsStateSearchInfo
+import androidx.compose.ui.tooling.animation.search.AnimatedContentSearchInfo
+import androidx.compose.ui.tooling.animation.search.AnimatedVisibilitySearchInfo
+import androidx.compose.ui.tooling.animation.search.InfiniteTransitionSearchInfo
+import androidx.compose.ui.tooling.animation.search.TransitionSearchInfo
 import androidx.compose.ui.tooling.animation.states.AnimatedVisibilityState
 import androidx.compose.ui.tooling.animation.states.TargetState
 
@@ -118,44 +120,41 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
             ?: animatedContentClocks[animation]
     }
 
-    fun trackTransition(animation: Transition<*>) {
-        trackAnimation(animation) {
-            animation.parse()?.let {
-                transitionClocks[it] = TransitionClock(it)
+    fun trackTransition(searchInfo: TransitionSearchInfo) {
+        trackAnimation(searchInfo.transition) {
+            searchInfo.createAnimation()?.let {
+                transitionClocks[it] = searchInfo.createClock(it)
                 notifySubscribe(it)
                 return@trackAnimation
             }
 
             // If for some reason animation couldn't be parsed, track it as unsupported.
-            createUnsupported(animation.label)
+            createUnsupported(searchInfo.transition.label)
         }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun trackAnimatedVisibility(animation: Transition<*>, onSeek: () -> Unit = {}) {
-        // All AnimatedVisibility animations should be Transition<Boolean>.
-        // If it's not the case - ignore it.
-        if (animation.currentState !is Boolean) return
-        trackAnimation(animation) {
-            animation as Transition<Boolean>
-            val composeAnimation = animation.parseAnimatedVisibility()
+    fun trackAnimatedVisibility(searchInfo: AnimatedVisibilitySearchInfo, onSeek: () -> Unit = {}) {
+        trackAnimation(searchInfo.transition) {
+            searchInfo.transition as Transition<Boolean>
+            val composeAnimation = searchInfo.createAnimation()
             onSeek()
             animatedVisibilityClocks[composeAnimation] =
-                AnimatedVisibilityClock(composeAnimation).apply { setClockTime(0L) }
+                searchInfo.createClock(composeAnimation).apply { setClockTime(0L) }
             notifySubscribe(composeAnimation)
         }
     }
 
-    fun trackAnimateXAsState(animation: AnimationSearch.AnimateXAsStateSearchInfo<*, *>) {
-        trackAnimation(animation.animatable) {
-            animation.parse()?.let {
-                animateXAsStateClocks[it] = AnimateXAsStateClock(it)
+    fun trackAnimateXAsState(searchInfo: AnimateXAsStateSearchInfo<*, *>) {
+        trackAnimation(searchInfo.animatable) {
+            searchInfo.createAnimation()?.let {
+                animateXAsStateClocks[it] = searchInfo.createClock(it)
                 notifySubscribe(it)
                 return@trackAnimation
             }
 
             // If for some reason animation couldn't be parsed, track it as unsupported.
-            createUnsupported(animation.animatable.label)
+            createUnsupported(searchInfo.animatable.label)
         }
     }
 
@@ -171,21 +170,21 @@ internal open class PreviewAnimationClock(private val setAnimationsTimeCallback:
         trackUnsupported(animation, "DecayAnimation")
     }
 
-    fun trackAnimatedContent(animation: Transition<*>) {
-        trackAnimation(animation) {
-            animation.parseAnimatedContent()?.let {
-                animatedContentClocks[it] = TransitionClock(it)
+    fun trackAnimatedContent(searchInfo: AnimatedContentSearchInfo) {
+        trackAnimation(searchInfo.transition) {
+            searchInfo.createAnimation()?.let {
+                animatedContentClocks[it] = searchInfo.createClock(it)
                 notifySubscribe(it)
                 return@trackAnimation
             }
             // If for some reason animation couldn't be parsed, track it as unsupported.
-            createUnsupported(animation.label)
+            createUnsupported(searchInfo.transition.label)
         }
     }
 
-    fun trackInfiniteTransition(animation: AnimationSearch.InfiniteTransitionSearchInfo) {
-        trackAnimation(animation.infiniteTransition) {
-            animation.parse()?.let {
+    fun trackInfiniteTransition(searchInfo: InfiniteTransitionSearchInfo) {
+        trackAnimation(searchInfo.infiniteTransition) {
+            searchInfo.createAnimation()?.let {
                 infiniteTransitionClocks[it] =
                     InfiniteTransitionClock(it) {
                         // Let InfiniteTransitionClock be aware about max duration of other

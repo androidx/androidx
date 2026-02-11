@@ -177,7 +177,7 @@ public class RippleModifierOperation extends DecoratorModifierOperation implemen
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, name())
+        doc.operation("Modifier Operations", OP_CODE, name())
                 .description(
                         "Ripple modifier. This modifier will do a ripple animation on touch down");
     }

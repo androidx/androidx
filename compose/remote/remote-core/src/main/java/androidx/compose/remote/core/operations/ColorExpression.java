@@ -15,7 +15,6 @@
  */
 package androidx.compose.remote.core.operations;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
@@ -100,9 +99,9 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Create a new ColorExpression object
      *
-     * @param id the id of the color
-     * @param hue the hue of the color
-     * @param sat the saturation of the color
+     * @param id    the id of the color
+     * @param hue   the hue of the color
+     * @param sat   the saturation of the color
      * @param value the value of the color
      */
     public ColorExpression(int id, float hue, float sat, float value) {
@@ -120,11 +119,11 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Create a new ColorExpression object based on HSV
      *
-     * @param id id of the color
-     * @param mode the mode of the color
+     * @param id    id of the color
+     * @param mode  the mode of the color
      * @param alpha the alpha of the color
-     * @param hue the hue of the color
-     * @param sat the saturation of the color
+     * @param hue   the hue of the color
+     * @param sat   the saturation of the color
      * @param value the value (brightness) of the color
      */
     public ColorExpression(int id, byte mode, int alpha, float hue, float sat, float value) {
@@ -145,11 +144,11 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Create a new ColorExpression object based interpolationg two colors
      *
-     * @param id the id of the color
-     * @param mode the type of mode (are colors ids or actual values)
+     * @param id     the id of the color
+     * @param mode   the type of mode (are colors ids or actual values)
      * @param color1 the first color to use
      * @param color2 the second color to use
-     * @param tween the value to use to interpolate between the two colors
+     * @param tween  the value to use to interpolate between the two colors
      */
     public ColorExpression(int id, int mode, int color1, int color2, float tween) {
         this.mId = id;
@@ -171,12 +170,12 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Create a new ColorExpression object based on ARGB
      *
-     * @param id the id of the color
-     * @param mode the mode must be ARGB_MODE
+     * @param id    the id of the color
+     * @param mode  the mode must be ARGB_MODE
      * @param alpha the alpha value of the color
-     * @param red the red of component the color
+     * @param red   the red of component the color
      * @param green the greej component of the color
-     * @param blue the blue of component the color
+     * @param blue  the blue of component the color
      */
     public ColorExpression(int id, byte mode, float alpha, float red, float green, float blue) {
         if (mode != ARGB_MODE) {
@@ -339,7 +338,6 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
                     + Utils.floatToString(mValue)
                     + ")";
         }
-        Utils.log(" ColorExpression toString" + mId + " " + mMode);
         if (mMode == ARGB_MODE) {
             return "ColorExpression["
                     + mId
@@ -388,12 +386,8 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Call to write a ColorExpression object on the buffer
      *
-     * @param buffer
-     * @param id of the ColorExpression object
+     * @param id   of the ColorExpression object
      * @param mode if colors are id or actual values
-     * @param color1
-     * @param color2
-     * @param tween
      */
     public static void apply(
             @NonNull WireBuffer buffer, int id, int mode, int color1, int color2, float tween) {
@@ -403,12 +397,7 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Call to write a ColorExpression object on the buffer
      *
-     * @param buffer
      * @param id of the ColorExpression object
-     * @param alpha
-     * @param red
-     * @param green
-     * @param blue
      */
     public static void apply(
             @NonNull WireBuffer buffer, int id, float alpha, float red, float green, float blue) {
@@ -433,7 +422,7 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -488,18 +477,22 @@ public class ColorExpression extends Operation implements VariableSupport, Seria
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("A Color defined by an expression")
-                .field(DocumentedOperation.INT, "id", "Id of the color")
-                .field(INT, "mode", "The use of the next 3 fields")
+        doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .description("Define a color via dynamic expression (HSV, ARGB, or Interpolation)")
+                .field(DocumentedOperation.INT, "id", "The ID of the resulting color")
+                .field(INT, "mode", "The color calculation mode")
                 .possibleValues("COLOR_COLOR_INTERPOLATE", 0)
-                .possibleValues("COLOR_ID_INTERPOLATE", 1)
-                .possibleValues("ID_COLOR_INTERPOLATE", 2)
+                .possibleValues("ID_COLOR_INTERPOLATE", 1)
+                .possibleValues("COLOR_ID_INTERPOLATE", 2)
                 .possibleValues("ID_ID_INTERPOLATE", 3)
-                .possibleValues("HSV", 4)
-                .field(INT, "color1", "32 bit ARGB color")
-                .field(INT, "color2", "32 bit ARGB color")
-                .field(FLOAT, "tween", "32 bit ARGB color");
+                .possibleValues("HSV_MODE", 4)
+                .possibleValues("ARGB_MODE", 5)
+                .possibleValues("IDARGB_MODE", 6)
+                .field(INT, "param1", "First parameter (color1, hue, or alpha depending on mode)")
+                .field(INT, "param2",
+                        "Second parameter (color2, saturation, or red depending on mode)")
+                .field(INT, "param3", "Third parameter (tween, value, or green depending on mode)")
+                .field(INT, "param4", "Fourth parameter (blue, only used in ARGB modes)");
     }
 
     @NonNull

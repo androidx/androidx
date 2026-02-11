@@ -101,10 +101,10 @@ public class TextLength extends Operation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("get the length of the text and store in float table")
-                .field(INT, "id", "id of float length")
-                .field(INT, "value", "index of text");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .description("Get the length of a string and store it in a float variable")
+                .field(INT, "lengthId", "The ID of the float variable to store the length")
+                .field(INT, "textId", "The ID of the text to measure");
     }
 
     @Override

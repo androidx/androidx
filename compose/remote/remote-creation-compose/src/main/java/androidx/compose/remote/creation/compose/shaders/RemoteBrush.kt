@@ -47,7 +47,7 @@ public abstract class RemoteBrush {
      */
     public val intrinsicSize: Size = Size.Unspecified
 
-    public abstract fun RemoteStateScope.createShader(size: RemoteSize): Shader
+    public abstract fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader
 
     public open val hasShader: Boolean
         get() = true
@@ -82,5 +82,5 @@ public abstract class RemoteShader : android.graphics.Shader() {
      * The [RemoteMatrix3x3] if any to apply to the shader. Note not all profiles will support
      * shader rotation.
      */
-    public abstract val remoteMatrix3x3: RemoteMatrix3x3?
+    public abstract var remoteMatrix3x3: RemoteMatrix3x3?
 }

@@ -634,19 +634,22 @@ public class TextLayout extends LayoutManager implements VariableSupport, Access
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
-                .description("Text layout implementation.\n\n")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
+        doc.operation("Text Operations", id(), name())
+                .description("Text layout implementation")
+                .field(INT, "componentId", "Unique ID for this component")
                 .field(
                         INT,
-                        "ANIMATION_ID",
-                        "id used to match components," + " for animation purposes")
-                .field(INT, "COLOR", "text color")
-                .field(FLOAT, "FONT_SIZE", "font size")
-                .field(INT, "FONT_STYLE", "font style (0 = normal, 1 = italic)")
-                .field(FLOAT, "FONT_WEIGHT", "font weight (1-1000, normal = 400)")
-                .field(INT, "FONT_FAMILY_ID", "font family id")
-                .field(INT, "FLAGS", "Change the behaviour, currently only used for dynamic color");
+                        "animationId",
+                        "ID used to match components for animation purposes")
+                .field(INT, "textId", "The ID of the text to display")
+                .field(INT, "color", "The text color (ARGB)")
+                .field(FLOAT, "fontSize", "The font size in pixels")
+                .field(INT, "fontStyle", "The font style (0=normal, 1=italic)")
+                .field(FLOAT, "fontWeight", "The font weight [1..1000]")
+                .field(INT, "fontFamilyId", "The ID of the font family name string")
+                .field(INT, "textAlign", "The text alignment and flags")
+                .field(INT, "overflow", "The overflow strategy")
+                .field(INT, "maxLines", "The maximum number of lines");
     }
 
     @Override

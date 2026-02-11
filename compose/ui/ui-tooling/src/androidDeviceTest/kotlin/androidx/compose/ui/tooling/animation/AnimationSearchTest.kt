@@ -161,13 +161,15 @@ class AnimationSearchTest {
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("IntAnimation", it.animatable.label)
         }
         search.animations.last().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("DpAnimation", it.animatable.label)
         }
@@ -198,13 +200,15 @@ class AnimationSearchTest {
         assertEquals(2, search.animations.size)
         search.animations.first().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("CustomIntLabel", it.animatable.label)
         }
         search.animations.last().let {
             assertTrue(it.animationSpec is SpringSpec)
-            Assert.assertNotNull(it.toolingState)
+            Assert.assertNotNull(it.toolingOverride.state)
+            Assert.assertNotNull(it.toolingOverride.override)
             Assert.assertNotNull(it.animatable)
             assertEquals("CustomDpLabel", it.animatable.label)
         }
@@ -255,7 +259,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("checkBoxAnim", search.animations.first().label)
+        assertEquals("checkBoxAnim", search.animations.first().transition.label)
     }
 
     @Test
@@ -314,8 +318,8 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("A", search.animations.first().targetState)
-        assertEquals("Crossfade", search.animations.first().label)
+        assertEquals("A", search.animations.first().transition.targetState)
+        assertEquals("Crossfade", search.animations.first().transition.label)
     }
 
     @Test
@@ -339,8 +343,8 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("A", search.animations.first().targetState)
-        assertEquals("CrossfadeWithLabel", search.animations.first().label)
+        assertEquals("A", search.animations.first().transition.targetState)
+        assertEquals("CrossfadeWithLabel", search.animations.first().transition.label)
     }
 
     @Test
@@ -359,7 +363,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals("My Animated Visibility", search.animations.first().label)
+        assertEquals("My Animated Visibility", search.animations.first().transition.label)
     }
 
     @Test
@@ -385,7 +389,7 @@ class AnimationSearchTest {
         assertEquals(1, search.animations.size)
         search.track()
         assertEquals(1, callbacks)
-        assertEquals(0, search.animations.first().targetState)
+        assertEquals(0, search.animations.first().transition.targetState)
     }
 
     @Test

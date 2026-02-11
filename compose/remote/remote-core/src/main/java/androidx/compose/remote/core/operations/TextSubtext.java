@@ -121,12 +121,13 @@ public class TextSubtext extends Operation implements VariableSupport, Serializa
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Merge two string into one")
-                .field(DocumentedOperation.INT, "textId", "id of the text")
-                .field(INT, "srcTextId1", "id of the path")
-                .field(FLOAT, "start", "the start of the subrange")
-                .field(FLOAT, "end", "the end of the subrange exclusive -1 for end of string");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Extract a substring from a source string")
+                .field(DocumentedOperation.INT, "textId", "The ID of the resulting substring")
+                .field(INT, "srcId1", "The ID of the source string")
+                .field(FLOAT, "start", "The start index of the substring")
+                .field(FLOAT, "len", "The length of the substring (or -1 for remainder)");
     }
 
     @Override

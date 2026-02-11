@@ -117,9 +117,9 @@ public class FloatConstant extends Operation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
+        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
                 .description("A float and its associated id")
-                .field(DocumentedOperation.INT, "id", "id of float")
+                .field(DocumentedOperation.INT, "id", "id of the Float constant")
                 .field(FLOAT, "value", "32-bit float value");
     }
 

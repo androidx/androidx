@@ -82,6 +82,7 @@ import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponent
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents3
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents4
 import androidx.compose.remote.integration.view.demos.examples.RcCanvasComponents5
+import androidx.compose.remote.integration.view.demos.examples.RcFlow
 import androidx.compose.remote.integration.view.demos.examples.RcSimpleClock1
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo
 import androidx.compose.remote.integration.view.demos.examples.RcTextDemo2
@@ -311,6 +312,7 @@ class ExperimentActivity : ComponentActivity() {
                 ),
             "Procedural..." to
                 listOf(
+                    getpc("RcFlow") { RcFlow() },
                     getpc("Stock") { RcTicker(applicationContext) },
                     getpc("2 VText") { RcCanvasComponents5() },
                     getpc("Canvas + HText") { RcCanvasComponents4() },
@@ -678,7 +680,7 @@ fun DisplayControls(fileReady: Boolean, name: String, func: RemoteComposeFunc, c
         var playbackTheme by remember { mutableIntStateOf(Theme.UNSPECIFIED) }
         var debugMode by remember { mutableIntStateOf(0) }
         var documentWidth = remember { mutableIntStateOf(300) }
-        var documentHeight = remember { mutableIntStateOf(300) }
+        var documentHeight = remember { mutableIntStateOf(600) }
         val currentDocument = func.getDoc()
 
         if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -744,10 +746,10 @@ private fun DocumentView(
             },
             update = {
                 it.setTheme(playbackTheme)
+                it.setDebug(debugMode)
                 if (currentDocument.value != null) {
                     it.setDocument(RemoteDocument(currentDocument.value!!))
                 }
-                it.setDebug(debugMode)
             },
         )
 
@@ -986,10 +988,10 @@ fun DisplayMain(
                         },
                         update = {
                             it.setTheme(playbackTheme)
+                            it.setDebug(debugMode)
                             if (currentDocument.value != null) {
                                 it.setDocument(RemoteDocument(currentDocument.value!!))
                             }
-                            it.setDebug(debugMode)
                         },
                     )
                 }

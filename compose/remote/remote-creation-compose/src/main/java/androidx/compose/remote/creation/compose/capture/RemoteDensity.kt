@@ -24,7 +24,7 @@ import androidx.compose.remote.creation.compose.state.rf
 
 /**
  * Represents the screen density and font scale factor used for unit conversions in a remote
- * composition context. Similar to Compoes Density.
+ * composition context. Similar to Compose Density.
  *
  * @property density The logical density of the display, used to convert DP to pixels.
  * @property fontScale The current user preference for the scaling factor for fonts.

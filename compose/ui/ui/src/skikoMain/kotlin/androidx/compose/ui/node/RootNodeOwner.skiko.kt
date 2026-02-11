@@ -898,8 +898,6 @@ internal class RootNodeOwner(
         private var currentFrameRateCategory = 0f
 
         override fun voteFrameRate(frameRate: Float) {
-            if (!ComposeUiFlags.isAdaptiveRefreshRateEnabled) return
-
             val isCurrentFrameRateUnset = currentFrameRate.isNaN()
             val isCurrentFrameRateCategoryUnset = currentFrameRateCategory == 0f
 
@@ -946,7 +944,7 @@ internal class RootNodeOwner(
             }
 
             val isAnyCurrentFrameRateSet = !currentFrameRate.isNaN() || currentFrameRateCategory != 0f
-            if (ComposeUiFlags.isAdaptiveRefreshRateEnabled && isAnyCurrentFrameRateSet) {
+            if (isAnyCurrentFrameRateSet) {
                 platformContext.voteFrameRate(currentFrameRate, currentFrameRateCategory)
                 currentFrameRate = Float.NaN
                 currentFrameRateCategory = 0f

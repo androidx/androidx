@@ -43,7 +43,8 @@ import java.util.List;
  * animation floats. The floats represent a RPN style calculator
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class IntegerExpression extends Operation implements VariableSupport, Serializable {
+public class IntegerExpression extends Operation implements VariableSupport, ComponentData,
+        Serializable {
     private static final int OP_CODE = Operations.INTEGER_EXPRESSION;
     private static final String CLASS_NAME = "IntegerExpression";
     public int mId;
@@ -164,9 +165,9 @@ public class IntegerExpression extends Operation implements VariableSupport, Ser
      * Writes out the operation to the buffer
      *
      * @param buffer buffer to write to
-     * @param id the id of the integer
-     * @param mask the mask bits of ints & operators or variables
-     * @param value array of integers to be evaluated
+     * @param id     the id of the integer
+     * @param mask   the mask bits of ints & operators or variables
+     * @param value  array of integers to be evaluated
      */
     public static void apply(@NonNull WireBuffer buffer, int id, int mask, int @NonNull [] value) {
         buffer.start(OP_CODE);
@@ -181,7 +182,7 @@ public class IntegerExpression extends Operation implements VariableSupport, Ser
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -205,12 +206,13 @@ public class IntegerExpression extends Operation implements VariableSupport, Ser
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Expression that computes an integer")
-                .field(DocumentedOperation.INT, "id", "id of integer")
-                .field(INT, "mask", "bits representing operators or other id's")
-                .field(INT, "length", "length of array")
-                .field(INT_ARRAY, "values", "length", "Array of ints");
+        doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
+                .description("Define an integer via dynamic expression")
+                .field(DocumentedOperation.INT, "id", "The ID of the resulting integer")
+                .field(INT, "mask",
+                        "Bitmask representing whether each value is a constant or an ID")
+                .field(INT, "length", "The number of elements in the expression")
+                .field(INT_ARRAY, "values", "The array of constants, IDs, and operators (RPN)");
     }
 
     @NonNull
@@ -222,8 +224,8 @@ public class IntegerExpression extends Operation implements VariableSupport, Ser
     /**
      * given the "i" position in the mask is this an ID
      *
-     * @param mask 32 bit mask used for defining numbers vs other
-     * @param i the bit in question
+     * @param mask  32 bit mask used for defining numbers vs other
+     * @param i     the bit in question
      * @param value the value
      * @return true if this is an ID
      */

@@ -98,6 +98,28 @@ public interface RemoteState<T> {
 
     /** The constant value or null if there isn't one. */
     public val constantValueOrNull: T?
+
+    /** Represents the domain (namespace) for named remote states. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public open class Domain internal constructor(internal val coreDomain: String?) {
+        /** The default user-defined domain. */
+        public object User : Domain(RemoteDomains.USER.toString())
+
+        /** The system-defined domain, used for platform-level states. */
+        public object System : Domain(RemoteDomains.SYSTEM.toString())
+
+        override fun toString(): String {
+            return coreDomain ?: ""
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is Domain && other.coreDomain == coreDomain
+        }
+
+        override fun hashCode(): Int {
+            return coreDomain.hashCode()
+        }
+    }
 }
 
 /**
@@ -124,21 +146,21 @@ public interface MutableRemoteState<T> : RemoteState<T> {}
  *
  * @param T The type of the state object, which must extend [BaseRemoteState].
  * @param name A unique name to identify this state object within its domain.
- * @param domain The domain to which this named state belongs. See [RemoteDomains].
+ * @param domain The domain to which this named state belongs. See [RemoteState.Domain].
  * @param function A lambda that creates the state object if it doesn't already exist.
  * @return The existing or newly created state object of type [T].
  */
 @RemoteComposable
 @Composable
-public inline fun <reified T : RemoteState<*>> rememberNamedState(
+internal inline fun <reified T : RemoteState<*>> rememberNamedState(
     name: String,
-    domain: RemoteDomains,
-    noinline function: () -> T,
+    domain: RemoteState.Domain,
+    noinline function: (RemoteComposeCreationState) -> T,
 ): T {
     return LocalRemoteComposeCreationState.current.getOrCreateNamedState(
         T::class.java,
         name,
-        domain.name,
+        domain.coreDomain,
         function,
     )
 }

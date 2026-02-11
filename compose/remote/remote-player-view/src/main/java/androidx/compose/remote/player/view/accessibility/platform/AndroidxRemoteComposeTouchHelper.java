@@ -35,7 +35,9 @@ import androidx.customview.widget.ExploreByTouchHelper;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A helper class for implementing a custom accessibility service for remote Compose content.
@@ -83,6 +85,11 @@ public class AndroidxRemoteComposeTouchHelper<N, C, S> extends ExploreByTouchHel
 
     private final SemanticNodeApplier<AccessibilityNodeInfoCompat> mApplier;
     private final View mHost;
+
+    // Cache for last known child to semantic parent mapping
+    // to allow correct calculation of boundsInParent
+    // May grow, but not indefinitely O(200) entries
+    private final Map<Integer, Integer> mChildToParentMapping = new HashMap<>();
 
     /**
      * Constructs an {@link AndroidxRemoteComposeTouchHelper}.
@@ -188,11 +195,15 @@ public class AndroidxRemoteComposeTouchHelper<N, C, S> extends ExploreByTouchHel
 
         List<AccessibilitySemantics> semantics = mRemoteDocA11y.semanticModifiersForComponent(
                 component);
-        mApplier.applyComponent(mRemoteDocA11y, node, component, semantics);
+        Integer semanticParentId = mChildToParentMapping.get(virtualViewId);
+        mApplier.applyComponent(mRemoteDocA11y, node, component, semantics, semanticParentId);
 
         if (mergeMode == Mode.SET) {
             List<Integer> childViews = mRemoteDocA11y.semanticallyRelevantChildComponents(component,
                     false);
+
+            // declare children so parent is known
+            childViews.forEach((id) -> mChildToParentMapping.put(id, virtualViewId));
 
             mApplier.addChildren(node, childViews);
         }

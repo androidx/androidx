@@ -15,9 +15,6 @@
  */
 package androidx.compose.remote.player.view.platform;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
-import static androidx.compose.remote.core.RemoteClock.nanoTime;
-
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -38,6 +35,7 @@ import android.widget.TextView;
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
 import androidx.compose.remote.core.LayoutCallback;
+import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.SystemClock;
 import androidx.compose.remote.core.operations.ColorTheme;
@@ -62,7 +60,7 @@ import java.util.Set;
  * <p>Its role is to paint a document as an AndroidView as well as handling user interactions
  * (touch/click).
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteComposeView extends FrameLayout implements View.OnAttachStateChangeListener,
         LayoutCallback {
 
@@ -72,7 +70,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     private static final int MAX_BITMAP_MEMORY = 20 * 1024 * 1024;
     private String mErrorMessage = "";
 
-    Clock mClock;
+    RemoteClock mClock;
 
     RemoteDocument mDocument = null;
     int mTheme = Theme.SYSTEM;
@@ -110,7 +108,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     public RemoteComposeView(@NonNull Context context) {
         super(context);
         addOnAttachStateChangeListener(this);
-        setClock(new SystemClock());
+        setClock(RemoteClock.SYSTEM);
     }
 
     /**
@@ -122,7 +120,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
     public RemoteComposeView(@NonNull Context context, @NonNull AttributeSet attrs) {
         super(context);
         addOnAttachStateChangeListener(this);
-        setClock(new SystemClock());
+        setClock(RemoteClock.SYSTEM);
     }
 
     /**
@@ -138,7 +136,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         super(context, attrs, defStyleAttr);
         setBackgroundColor(Color.WHITE);
         addOnAttachStateChangeListener(this);
-        setClock(new SystemClock());
+        setClock(RemoteClock.SYSTEM);
     }
 
     /**
@@ -155,7 +153,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         super(context, attrs, defStyleAttr);
         setBackgroundColor(Color.WHITE);
         addOnAttachStateChangeListener(this);
-        setClock(clock);
+        setClock(new SystemClock(clock));
     }
 
     /**
@@ -164,9 +162,9 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      *
      * @param clock The {@link Clock} to set.
      */
-    private void setClock(@NonNull Clock clock) {
+    private void setClock(@NonNull RemoteClock clock) {
         this.mClock = clock;
-        mStart = nanoTime(clock);
+        mStart = clock.nanoTime();
         mLastFrameCall = clock.millis();
         mARContext = new AndroidRemoteContext(clock);
         mARContext.setEdgeEffectBuilder(() -> new EdgeEffect(getContext()));
@@ -198,10 +196,10 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
      */
     @SuppressWarnings("ReferenceEquality") // newClock != mClock
     public void setDocument(@NonNull RemoteDocument value) {
-        Clock newClock = value.getClock();
+        RemoteClock newClock = value.getClock();
         if (newClock != mClock) {
             mClock = newClock;
-            mStart = nanoTime(mClock);
+            mStart = mClock.nanoTime();
             mLastFrameCall = mClock.millis();
         }
 
@@ -227,10 +225,22 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
         requestLayout();
         mARContext.loadFloat(RemoteContext.ID_TOUCH_EVENT_TIME, -Float.MAX_VALUE);
         mARContext.loadFloat(RemoteContext.ID_FONT_SIZE, getDefaultTextSize());
-
-        mDocument.applyDataOperations(mARContext);
-
+        try {
+            mDocument.applyDataOperations(mARContext);
+        } catch (Exception e) {
+            e.printStackTrace();
+            mDisable = true;
+            mErrorMessage = e.getMessage();
+            invalidate();
+        }
         invalidate();
+        Integer debug = (Integer) mDocument.getDocument().getProperty(Header.DEBUG);
+        if (debug != null) {
+            if (debug > 0) {
+                System.out.println("Debug level set to " + debug);
+                setDebug(debug);
+            }
+        }
         Integer fps = (Integer) mDocument.getDocument().getProperty(Header.DOC_DESIRED_FPS);
         if (fps != null && fps > 0) {
             mMaxFrameRate = fps;
@@ -801,7 +811,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
             }
         } // REMOVE IN PLATFORM
         try {
-            long nanoStart = nanoTime(mClock);
+            long nanoStart = mClock.nanoTime();
             long start = mEvalTime ? nanoStart : 0; // measure execution of commands
             float animationTime = (nanoStart - mStart) * 1E-9f;
             mARContext.setAnimationTime(animationTime);
@@ -818,7 +828,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
             mDocument.paint(mARContext, theme);
             if (mDebug == 1) {
                 mCount++;
-                long nanoEnd = nanoTime(mClock);
+                long nanoEnd = mClock.nanoTime();
                 if (nanoEnd - mTime > 1000000000L) {
                     System.out.println(" count " + mCount + " fps");
                     mCount = 0;
@@ -849,7 +859,7 @@ public class RemoteComposeView extends FrameLayout implements View.OnAttachState
                 }
             }
             if (mEvalTime) {
-                mDuration += nanoTime(mClock) - start;
+                mDuration += mClock.nanoTime() - start;
                 mCount++;
             }
         } catch (Exception ex) {

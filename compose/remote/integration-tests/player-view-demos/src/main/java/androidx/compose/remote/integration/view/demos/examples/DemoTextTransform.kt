@@ -25,6 +25,8 @@ import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.pingPong
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import kotlin.random.Random
 
 @Suppress("RestrictedApiAndroidX")
@@ -115,3 +117,5 @@ fun RemoteComposeContextAndroid.txt(str: Int) {
         textAlign = Rc.Text.ALIGN_LEFT,
     )
 }
+
+@Preview @Composable private fun DemoTextTransformPreview() = RemoteDocPreview(demoTextTransform())

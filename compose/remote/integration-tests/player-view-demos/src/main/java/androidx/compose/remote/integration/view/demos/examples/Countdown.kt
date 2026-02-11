@@ -108,4 +108,4 @@ fun countDown(): RemoteComposeContext {
     return doc
 }
 
-@Preview @Composable fun CountDownPreview() = RemoteDocPreview(countDown())
+@Preview @Composable private fun CountDownPreview() = RemoteDocPreview(countDown())

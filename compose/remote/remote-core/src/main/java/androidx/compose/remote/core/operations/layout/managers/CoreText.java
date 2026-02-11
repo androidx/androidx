@@ -16,8 +16,10 @@
 
 package androidx.compose.remote.core.operations.layout.managers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
 import static androidx.compose.remote.core.operations.utilities.touch.CommandParameters.PA_FLOAT;
 import static androidx.compose.remote.core.operations.utilities.touch.CommandParameters.PA_INT;
 import static androidx.compose.remote.core.operations.utilities.touch.CommandParameters.param;
@@ -33,6 +35,7 @@ import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.VariableSupport;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.operations.Utils;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.layout.measure.ComponentMeasure;
@@ -1126,19 +1129,37 @@ public class CoreText extends LayoutManager implements VariableSupport, Accessib
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
-                .description("Text layout implementation.\n\n")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
-                .field(
-                        INT,
-                        "ANIMATION_ID",
-                        "id used to match components," + " for animation purposes")
-                .field(INT, "COLOR", "text color")
-                .field(FLOAT, "FONT_SIZE", "font size")
-                .field(INT, "FONT_STYLE", "font style (0 = normal, 1 = italic)")
-                .field(FLOAT, "FONT_WEIGHT", "font weight (1-1000, normal = 400)")
-                .field(INT, "FONT_FAMILY_ID", "font family id")
-                .field(INT, "FLAGS", "Change the behaviour, currently only used for dynamic color");
+        doc.operation("Layout Managers", id(), name())
+                .addedVersion(7)
+                .experimental(true)
+                .additionalDocumentation("core_text")
+                .description("Core text layout implementation with advanced styling")
+                .field(INT, "textId", "The ID of the text to display")
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(INT, "animationId", "ID for animation purposes")
+                .field(INT, "color", "The text color (ARGB)")
+                .field(INT, "colorId", "The ID of the color variable")
+                .field(FLOAT, "fontSize", "The font size")
+                .field(FLOAT, "minFontSize", "Minimum font size for autosize")
+                .field(FLOAT, "maxFontSize", "Maximum font size for autosize")
+                .field(INT, "fontStyle", "The font style")
+                .field(FLOAT, "fontWeight", "The font weight")
+                .field(INT, "fontFamily", "The ID of the font family")
+                .field(INT, "textAlign", "Text alignment")
+                .field(INT, "overflow", "Overflow behavior")
+                .field(INT, "maxLines", "Maximum number of lines")
+                .field(FLOAT, "letterSpacing", "Letter spacing")
+                .field(FLOAT, "lineHeightAdd", "Line height addition")
+                .field(FLOAT, "lineHeightMultiplier", "Line height multiplier")
+                .field(INT, "lineBreakStrategy", "Line break strategy")
+                .field(INT, "hyphenationFrequency", "Hyphenation frequency")
+                .field(INT, "justificationMode", "Justification mode")
+                .field(BOOLEAN, "underline", "Whether to underline")
+                .field(BOOLEAN, "strikethrough", "Whether to strikethrough")
+                .field(INT_ARRAY, "fontAxis", "Font axis tags")
+                .field(DocumentedOperation.FLOAT_ARRAY, "fontAxisValues", "Font axis values")
+                .field(BOOLEAN, "autosize", "Whether to enable autosize")
+                .field(INT, "flags", "Behavior flags");
     }
 
     @Override

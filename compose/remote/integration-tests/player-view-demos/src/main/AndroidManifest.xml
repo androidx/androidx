@@ -130,7 +130,7 @@
 
         <receiver android:name=".widgets.MyWidget"
             android:exported="true"
-            android:label="My New RemoteCompose Widget">
+            android:label="RC Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="androidx.compose.remote.ACTION_CLICKED" />
@@ -140,10 +140,23 @@
                 android:resource="@xml/launcher_widget" />
         </receiver>
 
+        <receiver android:name=".widgets.MyPWidget"
+            android:exported="true"
+            android:label="Procedural RCWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="androidx.compose.remote.ACTION_CLICKED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/launcher_widget" />
+        </receiver>
+
+
         <receiver
             android:name=".ExperimentWidgetProvider"
             android:exported="true"
-            android:label="RemoteCompose Widget">
+            android:label="Experimental Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
@@ -175,7 +188,7 @@
         <receiver
             android:name=".TickerWidgetProvider"
             android:exported="true"
-            android:label="RemoteCompose Widget">
+            android:label="Stock ticker Widget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>

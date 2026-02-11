@@ -20,12 +20,16 @@ import android.os.Build
 import android.view.MotionEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Pan
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.MouseButton
@@ -76,47 +80,124 @@ class ScrollTest {
             recorder.run {
                 assertTimestampsAreIncreasing()
 
-                assertThat(events.size).isEqualTo(5)
+                assertThat(events.size)
+                    .isEqualTo(
+                        @OptIn(ExperimentalComposeUiApi::class)
+                        if (
+                            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                Build.VERSION.SDK_INT >= 34
+                        ) {
+                            4
+                        } else {
+                            5
+                        }
+                    )
                 events[0].verifyTrackpadEvent(T, Enter, false, Offset.Zero)
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
                 events[1].let { event ->
-                    event.verifyTrackpadEvent(T, Press, true, Offset.Zero)
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            expectedTimestamp = T,
+                            expectedEventType = Press,
+                            expectedDown = true,
+                            expectedPosition = Offset.Zero,
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
                 events[2].let { event ->
-                    event.verifyTrackpadEvent(T * 2, Move, true, Offset(0f, 10f))
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T * 2, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(-10f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, -10f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            expectedTimestamp = T * 2,
+                            expectedEventType = Move,
+                            expectedDown = true,
+                            expectedPosition = Offset(0f, 10f),
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(-10f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(-10f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
                 events[3].let { event ->
-                    event.verifyTrackpadEvent(T * 3, Release, false, Offset(0f, 10f))
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T * 3, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            expectedTimestamp = T * 3,
+                            expectedEventType = Release,
+                            expectedDown = false,
+                            expectedPosition = Offset(0f, 10f),
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
-                // TODO: b/461873914
-                //       since we didn't see the exit before, the enter gets overwritten to be a
-                //       move
-                events[4].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                @OptIn(ExperimentalComposeUiApi::class)
+                if (
+                    !(ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                        Build.VERSION.SDK_INT >= 34)
+                ) {
+                    // TODO: b/461873914
+                    //       since we didn't see the exit before, the enter gets overwritten to be a
+                    //       move
+                    events[4].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                }
             }
         }
     }
@@ -139,47 +220,124 @@ class ScrollTest {
             recorder.run {
                 assertTimestampsAreIncreasing()
 
-                assertThat(events.size).isEqualTo(5)
+                assertThat(events.size)
+                    .isEqualTo(
+                        @OptIn(ExperimentalComposeUiApi::class)
+                        if (
+                            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                Build.VERSION.SDK_INT >= 34
+                        ) {
+                            4
+                        } else {
+                            5
+                        }
+                    )
                 events[0].verifyTrackpadEvent(T, Enter, false, Offset.Zero)
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
                 events[1].let { event ->
-                    event.verifyTrackpadEvent(T, Press, true, Offset.Zero)
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            T,
+                            Press,
+                            true,
+                            Offset.Zero,
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
                 events[2].let { event ->
-                    event.verifyTrackpadEvent(T * 2, Move, true, Offset(10f, 0f))
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T * 2, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(-10f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            T * 2,
+                            Move,
+                            true,
+                            Offset(10f, 0f),
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
                 events[3].let { event ->
-                    event.verifyTrackpadEvent(T * 3, Release, false, Offset(10f, 0f))
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T * 3, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            T * 3,
+                            Release,
+                            false,
+                            Offset(10f, 0f),
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
-                // TODO: b/461873914
-                //       since we didn't see the exit before, the enter gets overwritten to be a
-                //       move
-                events[4].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                @OptIn(ExperimentalComposeUiApi::class)
+                if (
+                    !(ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                        Build.VERSION.SDK_INT >= 34)
+                ) {
+                    // TODO: b/461873914
+                    //       since we didn't see the exit before, the enter gets overwritten to be a
+                    //       move
+                    events[4].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                }
             }
         }
     }
@@ -204,49 +362,126 @@ class ScrollTest {
             recorder.run {
                 assertTimestampsAreIncreasing()
 
-                assertThat(events.size).isEqualTo(7)
+                assertThat(events.size)
+                    .isEqualTo(
+                        @OptIn(ExperimentalComposeUiApi::class)
+                        if (
+                            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                Build.VERSION.SDK_INT >= 34
+                        ) {
+                            6
+                        } else {
+                            7
+                        }
+                    )
                 events[0].verifyTrackpadEvent(T, Enter, false, Offset.Zero)
                 events[1].verifyTrackpadEvent(T, Press, true, Offset.Zero, PrimaryButton)
                 events[2].verifyTrackpadEvent(T, Release, false, Offset.Zero)
                 // TODO: b/461873914
                 //       the system sends an exit here, but we don't see it in Compose currently
                 events[3].let { event ->
-                    event.verifyTrackpadEvent(T, Press, true, Offset.Zero)
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            T,
+                            Press,
+                            true,
+                            Offset.Zero,
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
                 events[4].let { event ->
-                    event.verifyTrackpadEvent(T * 2, Move, true, Offset(10f, 0f))
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T * 2, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(-10f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            T * 2,
+                            Move,
+                            true,
+                            Offset(10f, 0f),
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(-10f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
                 events[5].let { event ->
-                    event.verifyTrackpadEvent(T * 3, Release, false, Offset(10f, 0f))
-                    assertThat(event.classification)
-                        .isEqualTo(
-                            if (Build.VERSION.SDK_INT >= 34)
-                                MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
-                            else MotionEvent.CLASSIFICATION_NONE
+                    @OptIn(ExperimentalComposeUiApi::class)
+                    if (
+                        ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                            Build.VERSION.SDK_INT >= 34
+                    ) {
+                        event.verifyTrackpadEvent(T * 3, Pan, false, Offset.Zero)
+                        assertThat(event.classification)
+                            .isEqualTo(MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE)
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    } else {
+                        event.verifyTrackpadEvent(
+                            T * 3,
+                            Release,
+                            false,
+                            Offset(10f, 0f),
+                            expectedPointerType = PointerType.Touch,
                         )
-                    assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
-                    assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34)
+                                    MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                        assertThat(event.axisGestureScrollXDistance).isEqualTo(0f)
+                        assertThat(event.axisGestureScrollYDistance).isEqualTo(0f)
+                        assertThat(event.gesturePanOffset).isEqualTo(Offset(0f, 0f))
+                    }
                 }
-                // TODO: b/461873914
-                //       since we didn't see the exit before, the enter gets overwritten to be a
-                //       move
-                events[6].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                @OptIn(ExperimentalComposeUiApi::class)
+                if (
+                    !(ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                        Build.VERSION.SDK_INT >= 34)
+                ) {
+                    // TODO: b/461873914
+                    //       since we didn't see the exit before, the enter gets overwritten to be a
+                    //       move
+                    events[6].verifyTrackpadEvent(T * 3, Move, false, Offset.Zero)
+                }
             }
         }
     }
