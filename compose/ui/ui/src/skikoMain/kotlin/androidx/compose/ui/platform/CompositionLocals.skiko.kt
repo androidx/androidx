@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.HostDefaultKey
 import androidx.compose.runtime.HostDefaultProvider
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.LocalHostDefaultProvider
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.remember
@@ -74,6 +75,7 @@ private val PlatformArchitectureComponentsOwner.values: Array<ProvidedValue<*>>
         return providedValues.toTypedArray()
     }
 
+@OptIn(InternalComposeApi::class)
 @Composable
 internal fun ProvidePlatformCompositionLocals(
     vararg values: ProvidedValue<*>,
