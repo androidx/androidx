@@ -16,13 +16,13 @@
 
 package androidx.compose.ui.skiko
 
-import org.jetbrains.skia.Rect as SkRect
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skia.Picture
 import org.jetbrains.skia.PictureRecorder
 import org.jetbrains.skia.RTreeFactory
+import org.jetbrains.skia.Rect as SkRect
 import org.jetbrains.skiko.SkikoRenderDelegate
 
 internal class RecordDrawRectRenderDecorator(
@@ -54,7 +54,13 @@ internal class RecordDrawRectRenderDecorator(
     private inline fun Canvas.recordCullRect(
         block: (Canvas) -> Unit
     ): SkRect? {
-        val pictureCanvas = pictureRecorder.beginRecording(SkRect.Unconstrained, bbhFactory)
+        val pictureCanvas = pictureRecorder.beginRecording(
+            Float.MIN_VALUE,
+            Float.MIN_VALUE,
+            Float.MAX_VALUE,
+            Float.MAX_VALUE,
+            bbhFactory
+        )
         pictureCanvas.translate(MeasureOffset, MeasureOffset)
         block(pictureCanvas)
         val picture = pictureRecorder.finishRecordingAsPicture()

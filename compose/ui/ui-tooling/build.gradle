@@ -43,8 +43,8 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            api(project(":compose:ui:ui-tooling-preview"))
             api(project(":compose:runtime:runtime"))
+            api(project(":compose:ui:ui-tooling-preview"))
             api(project(":compose:ui:ui"))
             api(project(":compose:ui:ui-tooling-data"))
         }

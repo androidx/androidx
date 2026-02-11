@@ -130,7 +130,10 @@ internal class SkiaBackedPath(
         forceMoveTo: Boolean
     ) {
         internalPath.arcTo(
-            rect.toSkiaRect(),
+            rect.left,
+            rect.top,
+            rect.right,
+            rect.bottom,
             startAngleDegrees,
             sweepAngleDegrees,
             forceMoveTo
@@ -138,27 +141,83 @@ internal class SkiaBackedPath(
     }
 
     override fun addRect(rect: Rect) {
-        internalPath.addRect(rect.toSkiaRect(), PathDirection.COUNTER_CLOCKWISE)
+        internalPath.addRect(
+            rect.left,
+            rect.top,
+            rect.right,
+            rect.bottom,
+            PathDirection.COUNTER_CLOCKWISE
+        )
     }
 
     override fun addRect(rect: Rect, direction: Path.Direction) {
-        internalPath.addRect(rect.toSkiaRect(), direction.toSkiaPathDirection())
+        internalPath.addRect(
+            rect.left,
+            rect.top,
+            rect.right,
+            rect.bottom,
+            direction.toSkiaPathDirection()
+        )
     }
 
     override fun addOval(oval: Rect) {
-        internalPath.addOval(oval.toSkiaRect(), PathDirection.COUNTER_CLOCKWISE)
+        internalPath.addOval(
+            oval.left,
+            oval.top,
+            oval.right,
+            oval.bottom,
+            PathDirection.COUNTER_CLOCKWISE
+        )
     }
 
     override fun addOval(oval: Rect, direction: Path.Direction) {
-        internalPath.addOval(oval.toSkiaRect(), direction.toSkiaPathDirection())
+        internalPath.addOval(
+            oval.left,
+            oval.top,
+            oval.right,
+            oval.bottom,
+            direction.toSkiaPathDirection()
+        )
     }
 
     override fun addRoundRect(roundRect: RoundRect) {
-        internalPath.addRRect(roundRect.toSkiaRRect(), PathDirection.COUNTER_CLOCKWISE)
+        internalPath.addRRect(
+            roundRect.left,
+            roundRect.top,
+            roundRect.right,
+            roundRect.bottom,
+            floatArrayOf(
+                roundRect.topLeftCornerRadius.x,
+                roundRect.topLeftCornerRadius.y,
+                roundRect.topRightCornerRadius.x,
+                roundRect.topRightCornerRadius.y,
+                roundRect.bottomRightCornerRadius.x,
+                roundRect.bottomRightCornerRadius.y,
+                roundRect.bottomLeftCornerRadius.x,
+                roundRect.bottomLeftCornerRadius.y
+            ),
+            PathDirection.COUNTER_CLOCKWISE
+        )
     }
 
     override fun addRoundRect(roundRect: RoundRect, direction: Path.Direction) {
-        internalPath.addRRect(roundRect.toSkiaRRect(), direction.toSkiaPathDirection())
+        internalPath.addRRect(
+            roundRect.left,
+            roundRect.top,
+            roundRect.right,
+            roundRect.bottom,
+            floatArrayOf(
+                roundRect.topLeftCornerRadius.x,
+                roundRect.topLeftCornerRadius.y,
+                roundRect.topRightCornerRadius.x,
+                roundRect.topRightCornerRadius.y,
+                roundRect.bottomRightCornerRadius.x,
+                roundRect.bottomRightCornerRadius.y,
+                roundRect.bottomLeftCornerRadius.x,
+                roundRect.bottomLeftCornerRadius.y
+            ),
+            direction.toSkiaPathDirection()
+        )
     }
 
     override fun addArcRad(oval: Rect, startAngleRadians: Float, sweepAngleRadians: Float) {
@@ -166,7 +225,13 @@ internal class SkiaBackedPath(
     }
 
     override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-        internalPath.addArc(oval.toSkiaRect(), startAngleDegrees, sweepAngleDegrees)
+        internalPath.addArc(
+            oval.left,
+            oval.top,
+            oval.right,
+            oval.bottom,
+            startAngleDegrees, sweepAngleDegrees
+        )
     }
 
     override fun addPath(path: Path, offset: Offset) {

@@ -43,10 +43,9 @@ androidXMultiplatform {
     sourceSets {
         commonMain.dependencies {
             api(project(":compose:ui:ui-test"))
-            implementation(libs.kotlinStdlib)
+            implementation(project(":annotation:annotation"))
             implementation(libs.kotlinCoroutinesCore)
             implementation(libs.kotlinCoroutinesTest)
-            implementation(project(":annotation:annotation"))
         }
 
         commonTest.dependencies {

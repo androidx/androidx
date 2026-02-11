@@ -79,3 +79,11 @@ internal inline fun Size.toDpSize(density: Density): DpSize = with(density) {
 internal inline fun DpSize.toSize(density: Density): Size = with(density) {
    toSize()
 }
+
+/**
+ * Converts a [IntSize] to a [Rect].
+ */
+@Stable
+internal inline fun IntSize.toRect(): Rect =
+    Rect(0f, 0f, width.toFloat(), height.toFloat())
+

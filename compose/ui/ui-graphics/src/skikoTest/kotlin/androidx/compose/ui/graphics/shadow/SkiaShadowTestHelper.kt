@@ -53,9 +53,14 @@ fun shadowTest(block: DrawScope.() -> Unit, verify: (PixelMap) -> Unit) {
             block()
         }
         surface.flushAndSubmit(true)
-        val area =
-            IRect.makeWH(TEST_WIDTH, TEST_HEIGHT)
-        val imageBitmap = surface.makeImageSnapshot(area)!!.toComposeImageBitmap()
+        val imageBitmap = surface
+            .makeImageSnapshot(
+                0,
+                0,
+                TEST_WIDTH,
+                TEST_HEIGHT
+            )!!
+            .toComposeImageBitmap()
         verify(imageBitmap.toPixelMap())
     } finally {
         surface.close()

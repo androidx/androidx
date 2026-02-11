@@ -122,14 +122,16 @@ internal abstract class WebInteropElementHolder<T : HTMLElement>(
     }
 
     private fun updateClipPath(clippedRect: IntRect, unclippedRect: IntRect) {
-        if (interopWrapper.offsetWidth <= 0 || interopWrapper.offsetHeight <= 0) return
+        val interopOffsetWidth = interopWrapper.offsetWidth
+        val interopOffsetHeight = interopWrapper.offsetHeight
+        if (interopOffsetWidth <= 0 || interopOffsetHeight <= 0) return
 
         val topClip = maxOf(clippedRect.top - unclippedRect.top, 0)
         val leftClip = maxOf(clippedRect.left - unclippedRect.left, 0)
         val bottomClip = maxOf(unclippedRect.bottom - clippedRect.bottom, 0)
         val rightClip = maxOf(unclippedRect.right - clippedRect.right, 0)
 
-        val newHiddenState = topClip >= interopWrapper.offsetHeight.toFloat() || leftClip >= interopWrapper.offsetWidth.toFloat()
+        val newHiddenState = topClip >= interopOffsetHeight || leftClip >= interopOffsetWidth
 
         if (newHiddenState != isHidden) {
              toggleVisibility(interopWrapper, newHiddenState)

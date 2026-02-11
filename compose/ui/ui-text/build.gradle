@@ -64,9 +64,8 @@ androidXMultiplatform {
             implementation(project(":compose:runtime:runtime-saveable"))
 
             implementation(project(":compose:ui:ui-util"))
-            implementation(project(":compose:ui:ui-geometry"))
 
-            implementation(project(":annotation:annotation"))
+            api(project(":annotation:annotation"))
             implementation(project(":collection:collection"))
         }
 

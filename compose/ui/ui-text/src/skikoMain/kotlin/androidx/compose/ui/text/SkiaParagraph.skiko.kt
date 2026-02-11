@@ -172,7 +172,7 @@ internal class SkiaParagraph(
         )
         val path = Path()
         for (b in boxes) {
-            path.asSkiaPath().addRect(b.rect)
+            path.asSkiaPath().addRect(b.rect.left, b.rect.top, b.rect.right, b.rect.bottom)
         }
         return path
     }

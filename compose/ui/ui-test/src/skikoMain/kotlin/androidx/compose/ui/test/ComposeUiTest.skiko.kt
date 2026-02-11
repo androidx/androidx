@@ -459,8 +459,12 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
 
     fun captureToImage(semanticsNode: SemanticsNode): ImageBitmap {
         val rect = semanticsNode.boundsInWindow
-        val iRect = IRect.makeLTRB(rect.left.toInt(), rect.top.toInt(), rect.right.toInt(), rect.bottom.toInt())
-        val image = surface.makeImageSnapshot(iRect)
+        val image = surface.makeImageSnapshot(
+                rect.left.toInt(),
+                rect.top.toInt(),
+                rect.right.toInt(),
+                rect.bottom.toInt()
+        )
         return image!!.toComposeImageBitmap()
     }
 

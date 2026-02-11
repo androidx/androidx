@@ -66,6 +66,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.viewinterop.SwingInteropContainer
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.asDpOffset
@@ -95,7 +97,6 @@ import java.awt.im.InputMethodRequests
 import javax.swing.JComponent
 import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.roundToInt
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -667,8 +668,8 @@ internal class ComposeSceneMediator(
         val size = sceneBoundsInPx?.size ?: container.sizeInPx
         scene.size = IntSize(
             // container.sizeInPx can be negative
-            width = size.width.coerceAtLeast(0f).roundToInt(),
-            height = size.height.coerceAtLeast(0f).roundToInt()
+            width = size.width.fastCoerceAtLeast(0f).fastRoundToInt(),
+            height = size.height.fastCoerceAtLeast(0f).fastRoundToInt()
         )
     }
 

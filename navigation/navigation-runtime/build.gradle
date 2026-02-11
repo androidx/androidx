@@ -57,23 +57,17 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            api "androidx.annotation:annotation:1.9.1"
-            api "androidx.collection:collection:1.5.0"
-            api project(":lifecycle:lifecycle-common")
-            api project(":lifecycle:lifecycle-runtime")
-            api project(":lifecycle:lifecycle-viewmodel")
-            api project(":lifecycle:lifecycle-viewmodel-savedstate")
-            api project(":savedstate:savedstate")
-            api project(":navigation:navigation-common")
+            api(libs.kotlinCoroutinesCore)
+            api(project(":navigation:navigation-common"))
+            api(project(":lifecycle:lifecycle-common"))
+            api(project(":lifecycle:lifecycle-runtime"))
+            api(project(":lifecycle:lifecycle-viewmodel"))
 
             implementation(libs.kotlinSerializationCore)
+            implementation("androidx.collection:collection:1.5.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlinTest)
-            implementation(libs.kotlinCoroutinesTest)
-            implementation(project(":kruth:kruth"))
-            implementation(project(":navigation:navigation-testing"))
-            implementation(project(":internal-testutils-navigation"))
         }
         nonAndroidMain.dependsOn(commonMain)
         nonAndroidTest.dependsOn(commonTest)
@@ -122,6 +116,13 @@ androidXMultiplatform {
             }
         }
         nonJvmTest.dependsOn(nonAndroidTest)
+
+        nonAndroidTest.dependencies {
+            implementation(libs.kotlinCoroutinesTest)
+            implementation(project(":kruth:kruth"))
+            implementation(project(":navigation:navigation-testing"))
+            implementation(project(":internal-testutils-navigation"))
+        }
 
         nativeMain {
             dependsOn(nonJvmMain)

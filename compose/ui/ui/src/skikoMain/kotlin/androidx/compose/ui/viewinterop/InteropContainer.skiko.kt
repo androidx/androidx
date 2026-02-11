@@ -26,8 +26,8 @@ import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.ModifierNodeElement
-import androidx.compose.ui.node.OnUnplacedModifierNode
 import androidx.compose.ui.node.TraversableNode
+import androidx.compose.ui.node.UnplacedAwareModifierNode
 import androidx.compose.ui.node.traverseDescendantsInDrawOrder
 
 /**
@@ -204,7 +204,7 @@ private const val TRAVERSAL_NODE_KEY =
  */
 internal class TrackInteropPlacementModifierNode(
     var interopViewHolder: InteropViewHolder?,
-) : Modifier.Node(), TraversableNode, LayoutAwareModifierNode, OnUnplacedModifierNode,
+) : Modifier.Node(), TraversableNode, LayoutAwareModifierNode, UnplacedAwareModifierNode,
     GlobalPositionAwareModifierNode {
     private var isPlaced = false
     override val traverseKey = TRAVERSAL_NODE_KEY

@@ -47,8 +47,6 @@ androidXMultiplatform {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":collection:collection"))
-
             api(project(":compose:animation:animation"))
             api(project(":compose:foundation:foundation-layout"))
             api(project(":compose:runtime:runtime"))
@@ -56,6 +54,7 @@ androidXMultiplatform {
             api(project(":compose:ui:ui-geometry"))
 
             implementation(project(":compose:ui:ui-util"))
+            implementation(project(":collection:collection"))
         }
         androidMain.dependencies {
             api("androidx.annotation:annotation:1.8.1")

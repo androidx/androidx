@@ -28,6 +28,7 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.PlatformRootForTest
 import androidx.compose.ui.scene.ComposeScenePointer
+import androidx.compose.ui.util.fastForEach
 
 @OptIn(InternalComposeUiApi::class)
 internal actual fun createInputDispatcher(
@@ -300,7 +301,7 @@ internal class SkikoInputDispatcher(
     override fun flush() {
         val copy = batchedEvents.toList()
         batchedEvents.clear()
-        for (event in copy) {
+        copy.fastForEach { event ->
             advanceClockTime(event.eventTime - currentClockTime)
             currentClockTime = event.eventTime
             event.action()

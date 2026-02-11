@@ -19,6 +19,7 @@ package androidx.compose.ui.draganddrop
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.toPainter
+import androidx.compose.ui.util.fastMap
 import java.awt.Image
 import java.awt.datatransfer.DataFlavor
 import java.awt.datatransfer.DataFlavor.selectBestTextFlavor
@@ -52,7 +53,7 @@ private class DragDataFilesListImpl(
 ) : DragData.FilesList {
     override fun readFiles(): List<String> {
         val files = transferable.getTransferData(DataFlavor.javaFileListFlavor) as List<*>
-        return files.filterIsInstance<File>().map { it.toURI().toString() }
+        return files.filterIsInstance<File>().fastMap { it.toURI().toString() }
     }
 }
 

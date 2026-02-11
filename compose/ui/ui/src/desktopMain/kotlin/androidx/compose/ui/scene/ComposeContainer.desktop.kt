@@ -438,7 +438,7 @@ internal class ComposeContainer(
      */
     fun layersAbove(layer: DesktopComposeSceneLayer) = sequence {
         var isAbove = false
-        for (i in layers) {
+        layers.fastForEach { i ->
             if (i == layer) {
                 isAbove = true
             } else if (isAbove) {

@@ -24,7 +24,7 @@ private class SemanticRegionImpl : SemanticsRegion {
     val region = Region()
 
     override fun set(rect: IntRect) {
-        region.setRect(IRect.makeLTRB(rect.left, rect.top, rect.right, rect.bottom))
+        region.setRect(rect.left, rect.top, rect.right, rect.bottom)
     }
 
     override val bounds: IntRect
@@ -40,7 +40,7 @@ private class SemanticRegionImpl : SemanticsRegion {
     }
 
     override fun difference(rect: IntRect): Boolean {
-        return region.op(IRect.makeLTRB(rect.left, rect.top, rect.right, rect.bottom), Region.Op.DIFFERENCE)
+        return region.op(rect.left, rect.top, rect.right, rect.bottom, Region.Op.DIFFERENCE)
     }
 }
 

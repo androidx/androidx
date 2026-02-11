@@ -82,7 +82,12 @@ internal actual class CacheDrawScopeDragShadowCallback {
             onDrawWithContent {
                 val pictureRecorder = PictureRecorder()
                 val pictureCanvas = pictureRecorder
-                    .beginRecording(Rect.makeWH(width, height))
+                    .beginRecording(
+                        0f,
+                        0f,
+                        width,
+                        height
+                    )
                     .asComposeCanvas()
                 draw(
                     density = this,

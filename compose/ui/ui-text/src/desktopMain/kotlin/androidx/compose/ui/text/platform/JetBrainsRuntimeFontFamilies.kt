@@ -20,6 +20,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.util.fastDistinctBy
+import androidx.compose.ui.util.fastMap
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
@@ -90,7 +92,7 @@ internal object JetBrainsRuntimeFontFamilies {
             val embeddedFontFileNames = field.get(fontManager) as HashSet<String>
             val embeddedFontPaths = embeddedFontFileNames.map { jbrEmbeddedFontsPath.resolve(it) }
                 .sortedBy { it.absolutePathString() }
-                .distinctBy { it.absolutePathString() }
+                .fastDistinctBy { it.absolutePathString() }
 
             embeddedFontPaths.asSequence()
                 .map { path ->
@@ -110,7 +112,7 @@ internal object JetBrainsRuntimeFontFamilies {
                 .distinctBy { (_, font) -> font.file.absolutePath }
                 .groupBy { (familyName, _) -> familyName }
                 .forEach { (identity, fileFonts) ->
-                    val fontFamily = FontListFontFamily(fileFonts.map { it.second })
+                    val fontFamily = FontListFontFamily(fileFonts.fastMap { it.second })
                     embeddedFamilies += identity.lowercase() to fontFamily
                 }
         } finally {
