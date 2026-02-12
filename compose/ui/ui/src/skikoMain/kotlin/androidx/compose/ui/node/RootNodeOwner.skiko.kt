@@ -146,8 +146,10 @@ internal class RootNodeOwner(
     val semanticsOwner get() = owner.semanticsOwner
     var size: IntSize? = size
         set(value) {
-            field = value
-            onRootConstrainsChanged(value?.toConstraints())
+            if (field != value) {
+                field = value
+                onRootConstrainsChanged(value?.toConstraints())
+            }
         }
     var density by mutableStateOf(density)
 
@@ -219,7 +221,7 @@ internal class RootNodeOwner(
                 height = children.fastMaxOfOrDefault(0) { it.outerCoordinator.measuredHeight },
             )
         } finally {
-            measureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(constraints)
+            measureAndLayoutDelegate.updateRootConstraintsWithInfinityCheck(size?.toConstraints())
         }
     }
 
