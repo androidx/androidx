@@ -121,9 +121,9 @@ internal fun Project.configureDependencyVerification() {
                             .filter { !it.name.contains("test", ignoreCase = true) }
                             .flatMap { compilation ->
                                 listOf(
-                                    compilation.implementationConfigurationName,
-                                    compilation.apiConfigurationName,
-                                    compilation.runtimeOnlyConfigurationName
+                                    compilation.defaultSourceSet.implementationConfigurationName,
+                                    compilation.defaultSourceSet.apiConfigurationName,
+                                    compilation.defaultSourceSet.runtimeOnlyConfigurationName
                                 )
                             }
                     }

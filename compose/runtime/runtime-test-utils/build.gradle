@@ -61,6 +61,6 @@ androidx {
     type = SoftwareType.SNAPSHOT_ONLY_LIBRARY
     inceptionYear = "2024"
     description = "Compose runtime test utils shared between runtime and compiler tests."
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
 }
 
