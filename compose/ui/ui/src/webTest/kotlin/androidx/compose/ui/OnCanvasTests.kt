@@ -34,12 +34,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestResult
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 import org.w3c.dom.Element
 import org.w3c.dom.HTMLCanvasElement
@@ -104,13 +107,23 @@ internal interface OnCanvasTests {
     ) {
         ComposeViewport(viewportContainerId = containerId, configure = configure, content = content)
 
-        suspendCoroutine { continuation ->
-            // This helps reduce the flakiness.
-            // A potential cause of flakiness: the default Coroutine Dispatcher regularly postpones
-            // the resumption of the tasks in its queue to the next frame.
-            // (it does so to let the event loop run / release the single thread)
-            // I don't expect any issue from doing this, since a test will suspend and won't do anything.
-            window.requestAnimationFrame { continuation.resumeWith(Result.success(it)) }
+        withContext(Dispatchers.Default) {
+            val timeoutDuration = 1.seconds
+            try {
+                // Using withTimeout here for diagnostic. Some flaky tests fail due to timeout. But there is nothing else except this suspend call.
+                withTimeout(timeoutDuration) {
+                    suspendCoroutine<Unit> { continuation ->
+                        // This helps reduce the flakiness.
+                        // A potential cause of flakiness: the default Coroutine Dispatcher regularly postpones
+                        // the resumption of the tasks in its queue to the next frame.
+                        // (it does so to let the event loop run / release the single thread)
+                        // I don't expect any issue from doing this, since a test will suspend and won't do anything.
+                        window.requestAnimationFrame { continuation.resumeWith(Result.success(Unit)) }
+                    }
+                }
+            } catch (e: TimeoutCancellationException) {
+                throw AssertionError("Timed out ($timeoutDuration) waiting for AnimationFrame", e)
+            }
         }
     }
 
@@ -157,6 +170,18 @@ internal interface OnCanvasTests {
     fun runApplicationTest(body: suspend WebApplicationScope.() -> Unit): TestResult {
         return runTest {
             WebApplicationScope(this).body()
+        }
+    }
+
+    suspend fun <T> Channel<T>.receiveWithTimeout(timeout: Duration = 2.seconds): T {
+        return withContext(Dispatchers.Default) {
+            try {
+                withTimeout(timeout) {
+                    this@receiveWithTimeout.receive()
+                }
+            } catch (e: TimeoutCancellationException) {
+                throw AssertionError("Timed out ($timeout) waiting for value on channel", e)
+            }
         }
     }
 }

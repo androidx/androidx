@@ -49,6 +49,8 @@ import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.roundToInt
 import kotlin.time.Duration
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -366,7 +368,8 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
     }
 
     override fun waitForIdle() {
-        // TODO: consider adding a timeout to avoid an infinite loop?
+        val startedAt = currentNanoTime().toDuration(DurationUnit.NANOSECONDS)
+        var lastReportedElapsedSeconds = 0L
         // always check even if we are idle
         uncaughtExceptionHandler.throwUncaught()
         while (!isIdle()) {
@@ -374,6 +377,12 @@ open class SkikoComposeUiTest @InternalTestApi constructor(
             uncaughtExceptionHandler.throwUncaught()
             if (!areAllResourcesIdle()) {
                 sleep(IDLING_RESOURCES_CHECK_INTERVAL_MS)
+            }
+            val currentTime = currentNanoTime().toDuration(DurationUnit.NANOSECONDS)
+            val elapsedSeconds = (currentTime - startedAt).inWholeSeconds
+            if (elapsedSeconds > lastReportedElapsedSeconds) {
+                println("Suspicious! waitForIdle has not finished after $elapsedSeconds seconds.")
+                lastReportedElapsedSeconds = elapsedSeconds
             }
         }
     }
