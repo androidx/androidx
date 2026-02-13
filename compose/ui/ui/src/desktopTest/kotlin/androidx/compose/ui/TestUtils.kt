@@ -30,8 +30,6 @@ import androidx.compose.ui.window.WindowPosition
 import java.awt.*
 import java.awt.event.InputMethodEvent
 import java.awt.event.KeyEvent
-import java.awt.event.KeyEvent.KEY_PRESSED
-import java.awt.event.KeyEvent.KEY_RELEASED
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import java.awt.font.TextHitInfo
@@ -106,10 +104,24 @@ fun Window.sendKeyTypedEvent(
     modifiers = modifiers
 )
 
-fun Window.sendCharTypedEvents(char: Char) {
-    sendKeyEvent(char.code, char, KEY_PRESSED)
+fun Window.sendCharTypedEvents(
+    char: Char,
+    triggerAccentedInputHack: Boolean = false
+) {
+    sendKeyEvent(char.code, char, KeyEvent.KEY_PRESSED)
     sendKeyTypedEvent(char)
-    sendKeyEvent(char.code, char, KEY_RELEASED)
+    if (triggerAccentedInputHack) {
+        triggerNeedsToDeletePreviousChar()
+    }
+    sendKeyEvent(char.code, char, KeyEvent.KEY_RELEASED)
+}
+
+fun Window.triggerNeedsToDeletePreviousChar() {
+    // This triggers the "needToDeletePreviousChar" hack in DesktopTextInputService(2).
+    // If the implementation of this ever changes, this test will need to change as well.
+    // Note that using java.awt.Robot to test this doesn't appear to work, as the accented
+    // characters toolbar isn't displayed.
+    focusOwner.inputMethodRequests.getSelectedText(null)
 }
 
 fun Window.sendInputMethodEvent(

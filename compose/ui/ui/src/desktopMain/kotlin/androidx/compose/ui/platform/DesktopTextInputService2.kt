@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.runtime.key
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.awt.toAwtRectangleRounded
 import androidx.compose.ui.scene.ComposeSceneMediator
@@ -155,7 +154,7 @@ private class InputMethodSession(
     // For our editor component we need this workaround.
     // After https://bugs.openjdk.java.net/browse/JDK-8074882 is fixed, this workaround should be replaced with a proper solution.
     var charKeyPressed: Boolean = false
-    var needToDeletePreviousChar: Boolean = false
+    private var needToDeletePreviousChar: Boolean = false
 
     override fun getLocationOffset(x: Int, y: Int): TextHitInfo? {
         if (composition != null) {
@@ -237,10 +236,10 @@ private class InputMethodSession(
     }
 
     fun inputMethodTextChanged(event: InputMethodEvent) {
-        val committed = event.committedText
-        val composing = event.composingText
+        val committedText = event.committedText
+        val composingText = event.composingText
 
-        imeComposingText = composing
+        imeComposingText = composingText
 
         if (ignoreNextInputMethodEvent) {
             ignoreNextInputMethodEvent = false
@@ -248,13 +247,15 @@ private class InputMethodSession(
         }
 
         request.editText {
-            if (needToDeletePreviousChar && selection.min > 0 && composing.isEmpty()) {
+            if (needToDeletePreviousChar) {
+                if ((selection.min > 0) && composingText.isEmpty() && (composition == null)) {
+                    deleteSurroundingTextInCodePoints(1, 0)
+                }
                 needToDeletePreviousChar = false
-                deleteSurroundingTextInCodePoints(1, 0)
             }
-            commitText(committed, 1)
-            if (composing.isNotEmpty()) {
-                setComposingText(composing, 1)
+            commitText(committedText, 1)
+            if (composingText.isNotEmpty()) {
+                setComposingText(composingText, 1)
             }
         }
     }

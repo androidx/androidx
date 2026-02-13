@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.ui.isMacOs
+import androidx.compose.ui.sendCharTypedEvents
 import androidx.compose.ui.sendInputMethodEvent
 import androidx.compose.ui.sendKeyEvent
 import androidx.compose.ui.sendKeyTypedEvent
@@ -709,17 +710,11 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
         assertStateEquals("請問", selection = TextRange(2), composition = null)
 
         // backspace
-        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
-        window.sendKeyTypedEvent(Char(8))
-        triggerNeedsToDeletePreviousChar()
-        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
+        window.sendCharTypedEvents(Char(8), triggerAccentedInputHack = true)
         assertStateEquals("請", selection = TextRange(1), composition = null)
 
         // backspace
-        window.sendKeyEvent(8, Char(8), KEY_PRESSED)
-        window.sendKeyTypedEvent(Char(8))
-        triggerNeedsToDeletePreviousChar()
-        window.sendKeyEvent(8, Char(8), KEY_RELEASED)
+        window.sendCharTypedEvents(Char(8), triggerAccentedInputHack = true)
         assertStateEquals("", selection = TextRange(0), composition = null)
 
         // q
@@ -799,6 +794,27 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
         assertStateEquals("欠", selection = TextRange(1), composition = null)
     }
 
+    @Theory
+    internal fun `1, n, i, space (Chinese - Pinyin Simplified , macOS)`(
+        textFieldKind: TextFieldKind<*>
+    ) = runTextFieldTest(textFieldKind, "Chinese Wubi, macOS") {
+        // 1
+        window.sendCharTypedEvents('1', triggerAccentedInputHack = true)
+
+        // n
+        window.sendInputMethodEvent("n", 0)
+        window.sendKeyEvent(78, 'n', KEY_RELEASED)
+
+        // i
+        window.sendInputMethodEvent("ni", 0)
+        window.sendKeyEvent(73, 'i', KEY_RELEASED)
+
+        // space
+        window.sendInputMethodEvent("你", 1)
+        window.sendKeyEvent(32, ' ', KEY_RELEASED)
+
+        assertStateEquals("1你", selection = TextRange(2), composition = null)
+    }
 
     // Verifies that each typed character and character replaced by the input service is reported
     // (to `inputTransformation`) as a change in the last character only.
@@ -871,10 +887,7 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
         ) {
             if (!isMacOs) return@runTextFieldTest  // Assume.assumeTrue doesn't work with @Theory
 
-            window.sendKeyEvent('c'.code, 'c', KEY_PRESSED)
-            window.sendKeyTypedEvent('c')
-            triggerNeedsToDeletePreviousChar()
-            window.sendKeyEvent('c'.code, 'c', KEY_RELEASED)
+            window.sendCharTypedEvents('c', triggerAccentedInputHack = true)
             assertStateEquals("c", selection = TextRange(1), composition = null)
 
             window.sendInputMethodEvent("ç", 1)
@@ -890,12 +903,4 @@ class WindowTypeTest : BaseWindowTextFieldTest() {
             window.sendInputMethodEvent("·", committedCharacterCount = 1)
             assertStateEquals("·", selection = TextRange(1), composition = null)
         }
-
-    private fun TextFieldTestScope.triggerNeedsToDeletePreviousChar() {
-        // This triggers the "needToDeletePreviousChar" hack in DesktopTextInputService(2).
-        // If the implementation of this ever changes, this test will need to change as well.
-        // Note that using java.awt.Robot to test this doesn't appear to work, as the accented
-        // characters toolbar isn't displayed.
-        window.focusOwner.inputMethodRequests.getSelectedText(null)
-    }
 }
