@@ -243,7 +243,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
 
     /**
      * Update the composition with the content described by the [content] composable. After this
-     * has been called the changes to produce the initial composition has been calculated and
+     * has been called, the changes to produce the initial composition have been calculated and
      * applied to the composition.
      *
      * Will throw an [IllegalStateException] if the composition has been disposed.

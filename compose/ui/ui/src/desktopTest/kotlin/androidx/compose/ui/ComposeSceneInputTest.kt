@@ -67,12 +67,6 @@ class ComposeSceneInputTest {
             independentPopup.Content()
         }
 
-        // Popup takes two iterations to complete its layout, so we need to run render an extra time
-        // TODO(maryanovsky): Remove this when https://github.com/JetBrains/compose-jb/issues/2726
-        //                    is completed.
-        while (scene.hasInvalidations())
-            scene.render()
-
         scene.sendPointerEvent(PointerEventType.Enter, Offset(5f, 5f))
         background.events.assertReceivedNoEvents()
         cutPopup.events.assertReceivedLast(
@@ -161,12 +155,6 @@ class ComposeSceneInputTest {
             overlappedPopup.Content()
             independentPopup.Content()
         }
-
-        // Popup takes two iterations to complete its layout, so we need to run render an extra time
-        // TODO(maryanovsky): Remove this when https://github.com/JetBrains/compose-jb/issues/2726
-        //                    is completed.
-        while (scene.hasInvalidations())
-            scene.render()
 
         scene.sendPointerEvent(PointerEventType.Enter, Offset(5f, 5f))
         scene.sendPointerEvent(PointerEventType.Press, Offset(5f, 5f))

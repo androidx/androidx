@@ -159,8 +159,9 @@ internal class ComposeSceneInputHandler(
                 pointerPositions[pointer.id] = pointer.position
             }
         }
-        // touches/styluses positions should be removed from [pointerPositions] if they are not down anymore
-        // also, mouse exited ComposeScene should be removed
+
+        // touches/styluses positions should be removed from [pointerPositions] if they are not down
+        // anymore also, mouse exited ComposeScene should be removed
         val iterator = pointerPositions.iterator()
         while (iterator.hasNext()) {
             val pointerId = iterator.next().key

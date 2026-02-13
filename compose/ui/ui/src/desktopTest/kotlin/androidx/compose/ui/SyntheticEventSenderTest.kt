@@ -458,6 +458,24 @@ class SyntheticEventSenderTest {
         )
     }
 
+    @Test
+    fun `should not re-enter after mouse exit`() {
+        val received = mutableListOf<PointerInputEvent>()
+        val sender = SyntheticEventSender {
+            PointerEventResult(received.add(it))
+        }
+        sender.send(mouseEvent(Move, 10f, 20f, pressed = false))
+        sender.send(mouseEvent(Exit, 10f, 20f, pressed = false))
+
+        sender.needUpdatePointerPosition = true
+        sender.updatePointerPosition()
+
+        received positionAndDownShouldEqual listOf(
+            mouseEvent(Move, 10f, 20f, pressed = false),
+            mouseEvent(Exit, 10f, 20f, pressed = false)
+        )
+    }
+
     private fun eventsSentBy(
         vararg inputEvents: PointerInputEvent
     ): List<PointerInputEvent> {
