@@ -63,6 +63,8 @@
             scheduleRAF();
         });
     }
+
+    document.addEventListener('selectionchange', () => log(`selectionchange --- ${input.selectionStart}-${input.selectionEnd}`));
 </script>
 </body>
 </html>
