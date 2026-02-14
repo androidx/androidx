@@ -185,9 +185,9 @@ private class TempWebVelocityTracker1D(
     constructor(isDataDifferential: Boolean) : this(isDataDifferential, Strategy.Impulse)
 
     private fun getStrategyForSampleSize(size: Int): Strategy? = when {
-        size > 2 -> strategy
-        //Lsq2 is not possible for 2 samples, so fallback to Impulse
-        size == 2 -> Strategy.Impulse
+        size > 4 -> strategy
+        //Lsq2 has downsides when the sample size is small, so we use Impulse for small samples.
+        size > 1 -> Strategy.Impulse
         else -> null
     }
 

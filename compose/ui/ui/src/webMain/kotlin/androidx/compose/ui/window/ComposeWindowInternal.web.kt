@@ -298,6 +298,9 @@ internal class ComposeWindow(
             override val viewConfiguration =
                 object : ViewConfiguration by PlatformContext.DefaultViewConfiguration {
                     override val touchSlop: Float get() = with(density) { 18.dp.toPx() }
+                    override val maximumFlingVelocity: Float
+                        //https://cs.android.com/android/platform/superproject/+/android-latest-release:frameworks/base/core/java/android/view/ViewConfiguration.java;l=240;drc=733537294b158d22f2ae383f2ed77c93741798e9
+                        get() = with(density) { 8000.dp.toPx() }
                 }
 
             override fun setPointerIcon(pointerIcon: PointerIcon) {
