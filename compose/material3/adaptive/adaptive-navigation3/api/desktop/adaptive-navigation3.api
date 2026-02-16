@@ -13,14 +13,25 @@ public final class androidx/compose/material3/adaptive/navigation3/ComposableSin
 	public final fun getLambda$1316828981$adaptive_navigation3 ()Lkotlin/jvm/functions/Function3;
 }
 
+public abstract interface class androidx/compose/material3/adaptive/navigation3/ListDetailSceneScope {
+	public abstract fun getScaffoldTransitionScope ()Landroidx/compose/material3/adaptive/layout/PaneScaffoldTransitionScope;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/ListDetailSceneScopeKt {
+	public static final fun getLocalListDetailSceneScope ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+}
+
 public final class androidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy : androidx/navigation3/scene/SceneStrategy {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;
-	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZLjava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/functions/Function4;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun calculateScene (Landroidx/navigation3/scene/SceneStrategyScope;Ljava/util/List;)Landroidx/navigation3/scene/Scene;
 	public final fun getAdaptStrategies ()Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;
 	public final fun getBackNavigationBehavior-pSECbL4 ()Ljava/lang/String;
 	public final fun getDirective ()Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;
+	public final fun getPaneExpansionDragHandle ()Lkotlin/jvm/functions/Function4;
+	public final fun getPaneExpansionState ()Landroidx/compose/material3/adaptive/layout/PaneExpansionState;
+	public final fun shouldHandleSinglePaneLayout ()Z
 }
 
 public final class androidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion {
@@ -30,21 +41,38 @@ public final class androidx/compose/material3/adaptive/navigation3/ListDetailSce
 	public static synthetic fun extraPane$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
 	public final fun listPane (Ljava/lang/Object;Lkotlin/jvm/functions/Function3;)Ljava/util/Map;
 	public static synthetic fun listPane$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;Ljava/lang/Object;Lkotlin/jvm/functions/Function3;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun paneAnimation (Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Landroidx/compose/animation/core/FiniteAnimationSpec;)Ljava/util/Map;
+	public static synthetic fun paneAnimation$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Landroidx/compose/animation/core/FiniteAnimationSpec;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun preferredPaneSize (FF)Ljava/util/Map;
+	public static synthetic fun preferredPaneSize$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;FFILjava/lang/Object;)Ljava/util/Map;
+	public final fun preferredPaneSize-YgX7TsA (FF)Ljava/util/Map;
+	public static synthetic fun preferredPaneSize-YgX7TsA$default (Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy$Companion;FFILjava/lang/Object;)Ljava/util/Map;
 }
 
 public final class androidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategyKt {
-	public static final fun rememberListDetailSceneStrategy-Bh82XIE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy;
-	public static final synthetic fun rememberListDetailSceneStrategy-jRFdvxE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy;
+	public static final synthetic fun rememberListDetailSceneStrategy-1MrBOZs (ZLjava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/functions/Function4;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy;
+	public static final fun rememberListDetailSceneStrategy-EFFb1r0 (ZLjava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/functions/Function4;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/ListDetailSceneStrategy;
+}
+
+public abstract interface class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneScope {
+	public abstract fun getScaffoldTransitionScope ()Landroidx/compose/material3/adaptive/layout/PaneScaffoldTransitionScope;
+}
+
+public final class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneScopeKt {
+	public static final fun getLocalSupportingPaneSceneScope ()Landroidx/compose/runtime/ProvidableCompositionLocal;
 }
 
 public final class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy : androidx/navigation3/scene/SceneStrategy {
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;
-	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (ZLjava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/functions/Function4;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun calculateScene (Landroidx/navigation3/scene/SceneStrategyScope;Ljava/util/List;)Landroidx/navigation3/scene/Scene;
 	public final fun getAdaptStrategies ()Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;
 	public final fun getBackNavigationBehavior-pSECbL4 ()Ljava/lang/String;
 	public final fun getDirective ()Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;
+	public final fun getPaneExpansionDragHandle ()Lkotlin/jvm/functions/Function4;
+	public final fun getPaneExpansionState ()Landroidx/compose/material3/adaptive/layout/PaneExpansionState;
+	public final fun shouldHandleSinglePaneLayout ()Z
 }
 
 public final class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion {
@@ -52,12 +80,18 @@ public final class androidx/compose/material3/adaptive/navigation3/SupportingPan
 	public static synthetic fun extraPane$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
 	public final fun mainPane (Ljava/lang/Object;)Ljava/util/Map;
 	public static synthetic fun mainPane$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun paneAnimation (Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Landroidx/compose/animation/core/FiniteAnimationSpec;)Ljava/util/Map;
+	public static synthetic fun paneAnimation$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;Landroidx/compose/animation/EnterTransition;Landroidx/compose/animation/ExitTransition;Landroidx/compose/animation/core/FiniteAnimationSpec;ILjava/lang/Object;)Ljava/util/Map;
+	public final fun preferredPaneSize (FF)Ljava/util/Map;
+	public static synthetic fun preferredPaneSize$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;FFILjava/lang/Object;)Ljava/util/Map;
+	public final fun preferredPaneSize-YgX7TsA (FF)Ljava/util/Map;
+	public static synthetic fun preferredPaneSize-YgX7TsA$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;FFILjava/lang/Object;)Ljava/util/Map;
 	public final fun supportingPane (Ljava/lang/Object;)Ljava/util/Map;
 	public static synthetic fun supportingPane$default (Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy$Companion;Ljava/lang/Object;ILjava/lang/Object;)Ljava/util/Map;
 }
 
 public final class androidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategyKt {
-	public static final fun rememberSupportingPaneSceneStrategy-Bh82XIE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy;
-	public static final synthetic fun rememberSupportingPaneSceneStrategy-jRFdvxE (Ljava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy;
+	public static final synthetic fun rememberSupportingPaneSceneStrategy-1MrBOZs (ZLjava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/functions/Function4;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy;
+	public static final fun rememberSupportingPaneSceneStrategy-EFFb1r0 (ZLjava/lang/String;Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;Lkotlin/jvm/functions/Function4;Landroidx/compose/material3/adaptive/layout/PaneExpansionState;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation3/SupportingPaneSceneStrategy;
 }
 
