@@ -90,6 +90,7 @@ import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberSupportingPaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation3.ListDetailSceneStrategy
+import androidx.compose.material3.adaptive.navigation3.LocalListDetailSceneScope
 import androidx.compose.material3.adaptive.navigation3.rememberListDetailSceneStrategy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -697,17 +698,31 @@ fun ListDetailWithNavigation3Sample() {
                 }
 
                 entry<DetailKey>(metadata = ListDetailSceneStrategy.detailPane()) {
+                    val scaffoldSceneScope = LocalListDetailSceneScope.current
                     DetailPaneContent(
                         selectedItem = selectedIndex?.let { items[it] },
                         onShowExtra = {
                             val dest = ExtraKey(selectedIndex!!)
                             if (backStack.last() != dest) backStack.add(dest)
                         },
+                        backButton =
+                            if (scaffoldSceneScope == null) {
+                                // Only show back button in a single-pane context
+                                { BackButton(onClick = { backStack.removeLastOrNull() }) }
+                            } else null,
                     )
                 }
 
                 entry<ExtraKey>(metadata = ListDetailSceneStrategy.extraPane()) {
-                    ExtraPaneContent(item = extraItems[selectedIndex!!])
+                    val scaffoldSceneScope = LocalListDetailSceneScope.current
+                    ExtraPaneContent(
+                        item = extraItems[selectedIndex!!],
+                        backButton =
+                            if (scaffoldSceneScope == null) {
+                                // Only show back button in a single-pane context
+                                { BackButton(onClick = { backStack.removeLastOrNull() }) }
+                            } else null,
+                    )
                 }
             },
     )
@@ -892,6 +907,7 @@ private fun DetailPaneContent(
     selectedItem: String?,
     onShowExtra: () -> Unit,
     modifier: Modifier = Modifier,
+    backButton: (@Composable () -> Unit)? = null,
 ) {
     val title: String
     val description: String
@@ -907,7 +923,7 @@ private fun DetailPaneContent(
         modifier = modifier,
         title = title,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        backButton = {},
+        backButton = backButton ?: {},
     ) {
         Text(description)
         if (selectedItem != null) {
@@ -1001,12 +1017,16 @@ private fun ExtraPaneContent(
 }
 
 @Composable
-private fun ExtraPaneContent(item: String, modifier: Modifier = Modifier) {
+private fun ExtraPaneContent(
+    item: String,
+    modifier: Modifier = Modifier,
+    backButton: (@Composable () -> Unit)? = null,
+) {
     BasicScreen(
         modifier = modifier,
         title = item,
         containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-        backButton = {},
+        backButton = backButton ?: {},
     ) {
         Text("This is extra content about $item.")
     }
@@ -1039,7 +1059,11 @@ private fun BasicScreen(
 }
 
 @Composable
-private fun BackButton(visible: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun BackButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    visible: Boolean = true,
+) {
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,

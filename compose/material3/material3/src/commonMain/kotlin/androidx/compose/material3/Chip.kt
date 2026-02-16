@@ -33,10 +33,13 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.SuggestionChipDefaults.defaultElevatedSuggestionChipColors
 import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.internal.heightOrZero
@@ -78,8 +81,10 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
@@ -165,7 +170,7 @@ fun AssistChip(
         elevation = elevation,
         border = border,
         minHeight = AssistChipDefaults.Height,
-        horizontalSpacing = horizontalSpacing,
+        horizontalArrangement = ChipArrangement(horizontalSpacing),
         paddingValues = contentPadding,
         interactionSource = interactionSource,
     )
@@ -405,7 +410,7 @@ fun ElevatedAssistChip(
         elevation = elevation,
         colors = colors,
         minHeight = AssistChipDefaults.Height,
-        horizontalSpacing = horizontalSpacing,
+        horizontalArrangement = ChipArrangement(horizontalSpacing),
         paddingValues = contentPadding,
         shape = shape,
         border = border,
@@ -1085,6 +1090,13 @@ fun InputChip(
  *   [SuggestionChipDefaults.suggestionChipElevation].
  * @param border the border to draw around the container of this chip. Pass `null` for no border.
  *   See [SuggestionChipDefaults.suggestionChipBorder].
+ * @param horizontalArrangement the horizontal arrangement of the chip's children. Note that while
+ *   [SuggestionChip] only has a [label] and an [icon], the horizontal arrangement is designed to
+ *   support three children (e.g. [icon, label, icon]) for consistency across chips. If there isn't
+ *   an icon, then the horizontal padding between the [label] and the [border] will be the sum of
+ *   [contentPadding] and the spacing in this [horizontalArrangement].
+ * @param contentPadding the padding around the content of this chip, including the [icon] and
+ *   [label]. See [SuggestionChipDefaults.ContentPadding]
  * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
  *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
  *   preview the chip in different states. Note that if `null` is provided, interactions will still
@@ -1101,6 +1113,8 @@ fun SuggestionChip(
     colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
     elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
     border: BorderStroke? = SuggestionChipDefaults.suggestionChipBorder(enabled),
+    horizontalArrangement: Arrangement.Horizontal = SuggestionChipDefaults.horizontalArrangement(),
+    contentPadding: PaddingValues = SuggestionChipDefaults.ContentPadding,
     interactionSource: MutableInteractionSource? = null,
 ) =
     Chip(
@@ -1117,7 +1131,78 @@ fun SuggestionChip(
         elevation = elevation,
         border = border,
         minHeight = SuggestionChipDefaults.Height,
-        paddingValues = SuggestionChipPadding,
+        horizontalArrangement = horizontalArrangement,
+        paddingValues = contentPadding,
+        interactionSource = interactionSource,
+    )
+
+/**
+ * [Material Design suggestion chip](https://m3.material.io/components/chips/overview)
+ *
+ * Chips help people enter information, make selections, filter content, or trigger actions. Chips
+ * can show multiple interactive elements together in the same area, such as a list of selectable
+ * movie times, or a series of email contacts.
+ *
+ * Suggestion chips help narrow a user's intent by presenting dynamically generated suggestions,
+ * such as possible responses or search filters.
+ *
+ * ![Suggestion chip
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/suggestion-chip.png)
+ *
+ * This suggestion chip is applied with a flat style. If you want an elevated style, use the
+ * [ElevatedSuggestionChip].
+ *
+ * Example of a flat SuggestionChip with a trailing icon:
+ *
+ * @sample androidx.compose.material3.samples.SuggestionChipSample
+ * @param onClick called when this chip is clicked
+ * @param label text label for this chip
+ * @param modifier the [Modifier] to be applied to this chip
+ * @param enabled controls the enabled state of this chip. When `false`, this component will not
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param icon optional icon at the start of the chip, preceding the [label] text
+ * @param shape defines the shape of this chip's container, border (when [border] is not null), and
+ *   shadow (when using [elevation])
+ * @param colors [ChipColors] that will be used to resolve the colors used for this chip in
+ *   different states. See [SuggestionChipDefaults.suggestionChipColors].
+ * @param elevation [ChipElevation] used to resolve the elevation for this chip in different states.
+ *   This controls the size of the shadow below the chip. Additionally, when the container color is
+ *   [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
+ *   [SuggestionChipDefaults.suggestionChipElevation].
+ * @param border the border to draw around the container of this chip. Pass `null` for no border.
+ *   See [SuggestionChipDefaults.suggestionChipBorder].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ */
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+@Composable
+fun SuggestionChip(
+    onClick: () -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: @Composable (() -> Unit)? = null,
+    shape: Shape = SuggestionChipDefaults.shape,
+    colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
+    elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
+    border: BorderStroke? = SuggestionChipDefaults.suggestionChipBorder(enabled),
+    interactionSource: MutableInteractionSource? = null,
+) =
+    SuggestionChip(
+        modifier = modifier,
+        onClick = onClick,
+        enabled = enabled,
+        label = label,
+        icon = icon,
+        shape = shape,
+        colors = colors,
+        elevation = elevation,
+        border = border,
+        horizontalArrangement = SuggestionChipDefaults.horizontalArrangement(),
+        contentPadding = SuggestionChipDefaults.ContentPadding,
         interactionSource = interactionSource,
     )
 
@@ -1199,7 +1284,88 @@ fun SuggestionChip(
         elevation = elevation,
         border = border?.borderStroke(enabled)?.value,
         minHeight = SuggestionChipDefaults.Height,
-        paddingValues = SuggestionChipPadding,
+        paddingValues = SuggestionChipDefaults.ContentPadding,
+        interactionSource = interactionSource,
+    )
+
+/**
+ * [Material Design elevated suggestion chip](https://m3.material.io/components/chips/overview)
+ *
+ * Chips help people enter information, make selections, filter content, or trigger actions. Chips
+ * can show multiple interactive elements together in the same area, such as a list of selectable
+ * movie times, or a series of email contacts.
+ *
+ * Suggestion chips help narrow a user's intent by presenting dynamically generated suggestions,
+ * such as possible responses or search filters.
+ *
+ * ![Suggestion chip
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/elevated-suggestion-chip.png)
+ *
+ * This suggestion chip is applied with an elevated style. If you want a flat style, use the
+ * [SuggestionChip].
+ *
+ * Example of an elevated SuggestionChip with a trailing icon:
+ *
+ * @sample androidx.compose.material3.samples.ElevatedSuggestionChipSample
+ * @param onClick called when this chip is clicked
+ * @param label text label for this chip
+ * @param modifier the [Modifier] to be applied to this chip
+ * @param enabled controls the enabled state of this chip. When `false`, this component will not
+ *   respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param icon optional icon at the start of the chip, preceding the [label] text
+ * @param shape defines the shape of this chip's container, border (when [border] is not null), and
+ *   shadow (when using [elevation])
+ * @param colors [ChipColors] that will be used to resolve the colors used for this chip in
+ * @param elevation [ChipElevation] used to resolve the elevation for this chip in different states.
+ *   This controls the size of the shadow below the chip. Additionally, when the container color is
+ *   [ColorScheme.surface], this controls the amount of primary color applied as an overlay. See
+ *   [Surface] and [SuggestionChipDefaults.elevatedSuggestionChipElevation].
+ * @param border the border to draw around the container of this chip different states. See
+ *   [SuggestionChipDefaults.elevatedSuggestionChipColors].
+ * @param horizontalArrangement the horizontal arrangement of the chip's children. Note that while
+ *   [SuggestionChip] only has a [label] and an [icon], the horizontal arrangement is designed to
+ *   support three children (e.g. [icon, label, icon]) for consistency across chips. If there isn't
+ *   an icon, then the horizontal padding between the [label] and the [border] will be the sum of
+ *   [contentPadding] and the spacing in this [horizontalArrangement].
+ * @param contentPadding the padding around the content of this chip, including the [icon] and
+ *   [label]. See [SuggestionChipDefaults.ContentPadding]
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this chip. You can use this to change the chip's appearance or
+ *   preview the chip in different states. Note that if `null` is provided, interactions will still
+ *   happen internally.
+ */
+@Composable
+fun ElevatedSuggestionChip(
+    onClick: () -> Unit,
+    label: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: @Composable (() -> Unit)? = null,
+    shape: Shape = SuggestionChipDefaults.shape,
+    colors: ChipColors = SuggestionChipDefaults.elevatedSuggestionChipColors(),
+    elevation: ChipElevation? = SuggestionChipDefaults.elevatedSuggestionChipElevation(),
+    border: BorderStroke? = null,
+    horizontalArrangement: Arrangement.Horizontal = SuggestionChipDefaults.horizontalArrangement(),
+    contentPadding: PaddingValues = SuggestionChipDefaults.ContentPadding,
+    interactionSource: MutableInteractionSource? = null,
+) =
+    Chip(
+        modifier = modifier,
+        onClick = onClick,
+        enabled = enabled,
+        label = label,
+        labelTextStyle = SuggestionChipTokens.LabelTextFont.value,
+        labelColor = colors.labelColor(enabled),
+        leadingIcon = icon,
+        trailingIcon = null,
+        elevation = elevation,
+        colors = colors,
+        minHeight = SuggestionChipDefaults.Height,
+        horizontalArrangement = horizontalArrangement,
+        paddingValues = contentPadding,
+        shape = shape,
+        border = border,
         interactionSource = interactionSource,
     )
 
@@ -1243,6 +1409,7 @@ fun SuggestionChip(
  *   preview the chip in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 @Composable
 fun ElevatedSuggestionChip(
     onClick: () -> Unit,
@@ -1256,19 +1423,16 @@ fun ElevatedSuggestionChip(
     border: BorderStroke? = null,
     interactionSource: MutableInteractionSource? = null,
 ) =
-    Chip(
+    ElevatedSuggestionChip(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
         label = label,
-        labelTextStyle = SuggestionChipTokens.LabelTextFont.value,
-        labelColor = colors.labelColor(enabled),
-        leadingIcon = icon,
-        trailingIcon = null,
+        icon = icon,
         elevation = elevation,
         colors = colors,
-        minHeight = SuggestionChipDefaults.Height,
-        paddingValues = SuggestionChipPadding,
+        horizontalArrangement = SuggestionChipDefaults.horizontalArrangement(),
+        contentPadding = SuggestionChipDefaults.ContentPadding,
         shape = shape,
         border = border,
         interactionSource = interactionSource,
@@ -1349,7 +1513,7 @@ fun ElevatedSuggestionChip(
         elevation = elevation,
         colors = colors,
         minHeight = SuggestionChipDefaults.Height,
-        paddingValues = SuggestionChipPadding,
+        paddingValues = SuggestionChipDefaults.ContentPadding,
         shape = shape,
         border = border?.borderStroke(enabled)?.value,
         interactionSource = interactionSource,
@@ -2104,6 +2268,26 @@ object SuggestionChipDefaults {
     /** The size of a suggestion chip icon. */
     val IconSize = SuggestionChipTokens.LeadingIconSize
 
+    /** The padding around the content of the chip, including the icon and label. */
+    val ContentPadding = PaddingValues(horizontal = 8.dp)
+
+    /** Default spacing between elements in a suggestion chip. */
+    val HorizontalSpacing = 8.dp
+
+    /** Returns the default arrangement of the icon and label within a suggestion chip. */
+    fun horizontalArrangement(): Arrangement.Horizontal = DefaultHorizontalArrangement
+
+    /**
+     * Creates an [Arrangement.Horizontal] that represents the default arrangement of the icon and
+     * label within a suggestion chip.
+     *
+     * @param spacing the spacing between the icon and label
+     */
+    fun horizontalArrangement(spacing: Dp): Arrangement.Horizontal {
+        if (spacing == HorizontalSpacing) return DefaultHorizontalArrangement
+        return ChipArrangement(spacing)
+    }
+
     /**
      * Creates a [ChipColors] that represents the default container, label, and icon colors used in
      * a flat [SuggestionChip].
@@ -2315,6 +2499,35 @@ object SuggestionChipDefaults {
         @Composable get() = SuggestionChipTokens.ContainerShape.value
 }
 
+private class ChipArrangement(override val spacing: Dp) : Arrangement.Horizontal {
+    override fun Density.arrange(
+        totalSize: Int,
+        sizes: IntArray,
+        layoutDirection: LayoutDirection,
+        outPositions: IntArray,
+    ) {
+        if (sizes.isEmpty()) return
+        val spacingPx = spacing.roundToPx()
+
+        sizes.forEachIndexed { index, size ->
+            val currentX =
+                when (index) {
+                    0 -> 0
+                    1 -> sizes[0] + spacingPx
+                    2 -> totalSize - size
+                    else -> 0
+                }
+
+            outPositions[index] =
+                if (layoutDirection == LayoutDirection.Ltr) {
+                    currentX
+                } else {
+                    totalSize - currentX - size
+                }
+        }
+    }
+}
+
 @Composable
 private fun Chip(
     modifier: Modifier,
@@ -2330,7 +2543,8 @@ private fun Chip(
     elevation: ChipElevation?,
     border: BorderStroke?,
     minHeight: Dp,
-    horizontalSpacing: Dp = HorizontalElementsPadding,
+    horizontalArrangement: Arrangement.Horizontal =
+        Arrangement.spacedBy(HorizontalElementsPadding, Alignment.CenterHorizontally),
     paddingValues: PaddingValues,
     interactionSource: MutableInteractionSource?,
 ) {
@@ -2356,7 +2570,7 @@ private fun Chip(
             leadingIconColor = colors.leadingIconContentColor(enabled),
             trailingIconColor = colors.trailingIconContentColor(enabled),
             minHeight = minHeight,
-            horizontalSpacing = horizontalSpacing,
+            horizontalArrangement = horizontalArrangement,
             paddingValues = paddingValues,
         )
     }
@@ -2430,19 +2644,23 @@ private fun ChipContent(
     leadingIconColor: Color,
     trailingIconColor: Color,
     minHeight: Dp,
-    horizontalSpacing: Dp,
+    horizontalArrangement: Arrangement.Horizontal,
     paddingValues: PaddingValues,
 ) {
     CompositionLocalProvider(
         LocalContentColor provides labelColor,
         LocalTextStyle provides labelTextStyle,
     ) {
-        Layout(
-            modifier = Modifier.defaultMinSize(minHeight = minHeight).padding(paddingValues),
+        Row(
+            modifier =
+                Modifier.width(IntrinsicSize.Max)
+                    .defaultMinSize(minHeight = minHeight)
+                    .padding(paddingValues),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = horizontalArrangement,
             content = {
                 if (avatar != null || leadingIcon != null) {
                     Box(
-                        modifier = Modifier.layoutId(LeadingIconLayoutId),
                         contentAlignment = Alignment.Center,
                         content = {
                             val leadingContent =
@@ -2452,16 +2670,17 @@ private fun ChipContent(
                             }
                         },
                     )
+                } else {
+                    Spacer(modifier = Modifier.width(0.dp))
                 }
                 Row(
-                    modifier = Modifier.layoutId(LabelLayoutId).padding(horizontalSpacing, 0.dp),
+                    modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically,
                     content = { label() },
                 )
                 if (trailingIcon != null) {
                     Box(
-                        modifier = Modifier.layoutId(TrailingIconLayoutId),
                         contentAlignment = Alignment.Center,
                         content = {
                             val trailingContent = trailingContent(trailingIcon, trailingIconColor)
@@ -2470,9 +2689,10 @@ private fun ChipContent(
                             }
                         },
                     )
+                } else {
+                    Spacer(modifier = Modifier.width(0.dp))
                 }
             },
-            measurePolicy = remember { ChipLayoutMeasurePolicy() },
         )
     }
 }
@@ -3335,9 +3555,7 @@ private fun inputChipPadding(
 /** The padding between the elements in the chip. */
 private val HorizontalElementsPadding = 8.dp
 
-/** Returns the [PaddingValues] for the suggestion chip. */
-private val SuggestionChipPadding = PaddingValues(horizontal = HorizontalElementsPadding)
-
+private val DefaultHorizontalArrangement = ChipArrangement(SuggestionChipDefaults.HorizontalSpacing)
 private const val LeadingIconLayoutId = "leadingIcon"
 private const val LabelLayoutId = "label"
 private const val TrailingIconLayoutId = "trailingIcon"

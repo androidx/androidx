@@ -362,6 +362,7 @@ public final class androidx/compose/material3/adaptive/layout/PaneScaffoldDirect
 	public static final field $stable I
 	public static final field Companion Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective$Companion;
 	public synthetic fun <init> (IFIFFFLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (IFIFFFLjava/util/List;ZLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (IFIFFLjava/util/List;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final synthetic fun copy-7PwrCCA (IFIFFLjava/util/List;)Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;
 	public static synthetic fun copy-7PwrCCA$default (Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;IFIFFLjava/util/List;ILjava/lang/Object;)Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;
@@ -376,6 +377,7 @@ public final class androidx/compose/material3/adaptive/layout/PaneScaffoldDirect
 	public final fun getMaxVerticalPartitions ()I
 	public final fun getVerticalPartitionSpacerSize-D9Ej5fM ()F
 	public fun hashCode ()I
+	public final fun shouldAutoFocusCurrentDestination ()Z
 	public fun toString ()Ljava/lang/String;
 }
 

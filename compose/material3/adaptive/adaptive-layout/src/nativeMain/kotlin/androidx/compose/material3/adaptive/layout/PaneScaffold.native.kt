@@ -16,9 +16,7 @@
 
 package androidx.compose.material3.adaptive.layout
 
-import androidx.compose.ui.Modifier
-
 @Suppress("NOTHING_TO_INLINE")
-internal actual inline fun Modifier.Element.isGraphicsLayerElement(): Boolean {
+internal actual inline fun androidx.compose.ui.Modifier.Element.isGraphicsLayerElement(): Boolean {
     return this::class.qualifiedName == "androidx.compose.ui.graphics.GraphicsLayerElement"
 }

@@ -20,6 +20,9 @@ package androidx.compose.material3.internal
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.material3.ComposeMaterial3Flags.isAnchoredDraggableComponentsInvalidationFixEnabled
+import androidx.compose.material3.ComposeMaterial3Flags.isAnchoredDraggableComponentsStrictOffsetCheckEnabled
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Measurable
@@ -27,6 +30,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.node.requireLayoutDirection
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -61,9 +65,7 @@ private class DraggableAnchorsElement<T>(
     override fun create() = DraggableAnchorsNode(state, anchors, orientation)
 
     override fun update(node: DraggableAnchorsNode<T>) {
-        node.state = state
-        node.anchors = anchors
-        node.orientation = orientation
+        node.update(state, anchors, orientation)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -99,16 +101,34 @@ private class DraggableAnchorsNode<T>(
     var anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
     var orientation: Orientation,
 ) : Modifier.Node(), LayoutModifierNode {
-    private var didLookahead: Boolean = false
+    private var didInitializeAnchors = false
 
     override fun onDetach() {
-        didLookahead = false
+        didInitializeAnchors = false
     }
 
     private val isReverseDirection: Boolean
         get() =
             requireLayoutDirection() == LayoutDirection.Rtl && orientation == Orientation.Horizontal
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    fun update(
+        state: AnchoredDraggableState<T>,
+        anchors: (size: IntSize, constraints: Constraints) -> Pair<DraggableAnchors<T>, T>,
+        orientation: Orientation,
+    ) {
+        val shouldInvalidateMeasure =
+            isAnchoredDraggableComponentsInvalidationFixEnabled && this.state != state
+        this.state = state
+        this.anchors = anchors
+        this.orientation = orientation
+        if (shouldInvalidateMeasure) {
+            didInitializeAnchors = false
+            invalidateMeasurement()
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints,
@@ -117,12 +137,13 @@ private class DraggableAnchorsNode<T>(
         // If we are in a lookahead pass, we only want to update the anchors here and not in
         // post-lookahead. If there is no lookahead happening (!isLookingAhead && !didLookahead),
         // update the anchors in the main pass.
-        if (!isLookingAhead || !didLookahead) {
+        if (!isLookingAhead || !didInitializeAnchors) {
             val size = IntSize(placeable.width, placeable.height)
             val newAnchorResult = anchors(size, constraints)
             state.updateAnchors(newAnchorResult.first, newAnchorResult.second)
+            didInitializeAnchors = true
         }
-        didLookahead = isLookingAhead || didLookahead
+        didInitializeAnchors = isLookingAhead || didInitializeAnchors
         return layout(placeable.width, placeable.height) {
             // In a lookahead pass, we use the position of the current target as this is where any
             // ongoing animations would move. If the component is in a settled state, lookahead
@@ -130,7 +151,20 @@ private class DraggableAnchorsNode<T>(
             val offset =
                 if (isLookingAhead) {
                     state.anchors.positionOf(state.targetValue)
-                } else state.requireOffset()
+                } else {
+                    state.offset
+                }
+
+            // By default, we want to be strict about cases with uninitialized offsets and throw an
+            // exception.
+            if (isAnchoredDraggableComponentsStrictOffsetCheckEnabled) {
+                checkOffsetIsValid(offset, isLookingAhead)
+            } else {
+                // For debugging purposes, we allow the offset to be uninitialized by disabling the
+                // flag. In that case, we don't place anything.
+                if (offset.isNaN()) return@layout
+            }
+
             val rtlModifier = if (isReverseDirection) -1f else 1f
             val xOffset = if (orientation == Orientation.Horizontal) offset * rtlModifier else 0f
             val yOffset = if (orientation == Orientation.Vertical) offset else 0f
@@ -144,6 +178,32 @@ private class DraggableAnchorsNode<T>(
             }
         }
     }
+
+    /**
+     * Require the [AnchoredDraggableState.offset] to be a valid float, or throw an exception with
+     * more information otherwise.
+     */
+    private fun checkOffsetIsValid(offset: Float, isLookingAhead: Boolean) {
+        if (offset.isNaN()) {
+            throw AnchoredDraggableUninitializedException(
+                isLookingAhead = isLookingAhead,
+                didLookahead = didInitializeAnchors,
+                anchors = state.anchors,
+                targetValue = state.targetValue,
+            )
+        }
+    }
+}
+
+private class AnchoredDraggableUninitializedException(
+    isLookingAhead: Boolean,
+    didLookahead: Boolean,
+    anchors: DraggableAnchors<*>,
+    targetValue: Any?,
+) : Throwable() {
+    override val message: String =
+        "AnchoredDraggableState was not initialized correctly. " +
+            "isLookingAhead=$isLookingAhead,didLookahead=$didLookahead,anchors=$anchors,targetValue=$targetValue"
 }
 
 internal const val ConfirmValueChangeDeprecated =

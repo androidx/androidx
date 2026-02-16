@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CornerBasedShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.childSemantics
 import androidx.compose.material3.internal.rememberAnimatedShape
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -1604,7 +1603,7 @@ private fun shapeForInteraction(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val IconButtonShapes.isCornerBasedShape: Boolean
-    get() = shape is RoundedCornerShape && pressedShape is CornerBasedShape
+    get() = shape is CornerBasedShape && pressedShape is CornerBasedShape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val IconButtonShapes.isStatic: Boolean
@@ -1613,7 +1612,7 @@ internal val IconButtonShapes.isStatic: Boolean
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal val IconToggleButtonShapes.isCornerBasedShape: Boolean
     get() =
-        shape is RoundedCornerShape &&
+        shape is CornerBasedShape &&
             pressedShape is CornerBasedShape &&
             checkedShape is CornerBasedShape
 
@@ -1634,7 +1633,7 @@ private fun shapeByInteraction(
         } else shapes.shape
 
     if (shapes.isCornerBasedShape) {
-        return key(shapes) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+        return key(shapes) { rememberAnimatedShape(shape as CornerBasedShape, animationSpec) }
     }
     return shape
 }
@@ -1655,7 +1654,7 @@ private fun shapeByInteraction(
         } else shapes.shape
 
     if (shapes.isCornerBasedShape) {
-        return key(shapes) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+        return key(shapes) { rememberAnimatedShape(shape as CornerBasedShape, animationSpec) }
     }
     return shape
 }

@@ -43,6 +43,8 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.SheetValue.Expanded
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.SheetValue.PartiallyExpanded
+import androidx.compose.material3.internal.PredictiveBack
+import androidx.compose.material3.internal.PredictiveBackHandler
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString
@@ -76,6 +78,7 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.max
 import kotlin.math.min
 import kotlinx.coroutines.CoroutineScope
@@ -164,23 +167,35 @@ fun ModalBottomSheet(
     }
 
     val predictiveBackProgress = remember { Animatable(initialValue = 0f) }
+    val settleToDismiss: () -> Unit = {
+        if (sheetState.currentValue == Expanded && sheetState.hasPartiallyExpandedState) {
+            // Smoothly animate away predictive back transformations since we are not fully
+            // dismissing. We don't need to do this in the else below because we want to
+            // preserve the predictive back transformations (scale) during the hide animation.
+            scope.launch { predictiveBackProgress.animateTo(0f) }
+            scope.launch { sheetState.partialExpand() }
+        } else { // Is expanded without collapsed state or is collapsed.
+            scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
+        }
+    }
 
     ModalBottomSheetDialog(
         properties = properties,
         contentColor = contentColor,
-        onDismissRequest = {
-            if (sheetState.currentValue == Expanded && sheetState.hasPartiallyExpandedState) {
-                // Smoothly animate away predictive back transformations since we are not fully
-                // dismissing. We don't need to do this in the else below because we want to
-                // preserve the predictive back transformations (scale) during the hide animation.
-                scope.launch { predictiveBackProgress.animateTo(0f) }
-                scope.launch { sheetState.partialExpand() }
-            } else { // Is expanded without collapsed state or is collapsed.
-                scope.launch { sheetState.hide() }.invokeOnCompletion { onDismissRequest() }
-            }
-        },
-        predictiveBackProgress = predictiveBackProgress,
+        onDismissRequest = settleToDismiss,
     ) {
+        PredictiveBackHandler(enabled = properties.shouldDismissOnBackPress) { progress ->
+            try {
+                progress.collect { backEvent ->
+                    predictiveBackProgress.snapTo(PredictiveBack.transform(backEvent.progress))
+                }
+                // Back gesture completed successfully.
+                settleToDismiss()
+            } catch (e: CancellationException) {
+                // Back gesture cancelled.
+                predictiveBackProgress.animateTo(0f)
+            }
+        }
         Box(modifier = Modifier.fillMaxSize().imePadding().semantics { isTraversalGroup = true }) {
             Scrim(
                 color = scrimColor,
@@ -512,7 +527,6 @@ internal expect fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
     contentColor: Color,
     properties: ModalBottomSheetProperties,
-    predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     content: @Composable () -> Unit,
 )
 

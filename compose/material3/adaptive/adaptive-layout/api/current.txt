@@ -381,7 +381,9 @@ package androidx.compose.material3.adaptive.layout {
 
   @androidx.compose.runtime.Immutable public final class PaneScaffoldDirective {
     ctor @KotlinOnly public PaneScaffoldDirective(int maxHorizontalPartitions, androidx.compose.ui.unit.Dp horizontalPartitionSpacerSize, int maxVerticalPartitions, androidx.compose.ui.unit.Dp verticalPartitionSpacerSize, androidx.compose.ui.unit.Dp defaultPanePreferredWidth, androidx.compose.ui.unit.Dp defaultPanePreferredHeight, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    ctor @KotlinOnly public PaneScaffoldDirective(int maxHorizontalPartitions, androidx.compose.ui.unit.Dp horizontalPartitionSpacerSize, int maxVerticalPartitions, androidx.compose.ui.unit.Dp verticalPartitionSpacerSize, androidx.compose.ui.unit.Dp defaultPanePreferredWidth, androidx.compose.ui.unit.Dp defaultPanePreferredHeight, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds, boolean shouldAutoFocusCurrentDestination);
     ctor @KotlinOnly public PaneScaffoldDirective(int maxHorizontalPartitions, androidx.compose.ui.unit.Dp horizontalPartitionSpacerSize, int maxVerticalPartitions, androidx.compose.ui.unit.Dp verticalPartitionSpacerSize, androidx.compose.ui.unit.Dp defaultPanePreferredWidth, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    ctor @BytecodeOnly public PaneScaffoldDirective(int, float, int, float, float, float, java.util.List!, boolean, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public PaneScaffoldDirective(int, float, int, float, float, float, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);
     ctor @BytecodeOnly public PaneScaffoldDirective(int, float, int, float, float, java.util.List!, kotlin.jvm.internal.DefaultConstructorMarker!);
     method @KotlinOnly public androidx.compose.material3.adaptive.layout.PaneScaffoldDirective copy(optional int maxHorizontalPartitions, optional androidx.compose.ui.unit.Dp horizontalPartitionSpacerSize, optional int maxVerticalPartitions, optional androidx.compose.ui.unit.Dp verticalPartitionSpacerSize, optional androidx.compose.ui.unit.Dp defaultPanePreferredWidth, optional java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds, optional androidx.compose.ui.unit.Dp defaultPanePreferredHeight);
@@ -396,12 +398,14 @@ package androidx.compose.material3.adaptive.layout {
     method @InaccessibleFromKotlin public int getMaxHorizontalPartitions();
     method @InaccessibleFromKotlin public int getMaxVerticalPartitions();
     method @BytecodeOnly public float getVerticalPartitionSpacerSize-D9Ej5fM();
+    method @InaccessibleFromKotlin public boolean shouldAutoFocusCurrentDestination();
     property public androidx.compose.ui.unit.Dp defaultPanePreferredHeight;
     property public androidx.compose.ui.unit.Dp defaultPanePreferredWidth;
     property public java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds;
     property public androidx.compose.ui.unit.Dp horizontalPartitionSpacerSize;
     property public int maxHorizontalPartitions;
     property public int maxVerticalPartitions;
+    property public boolean shouldAutoFocusCurrentDestination;
     property public androidx.compose.ui.unit.Dp verticalPartitionSpacerSize;
     field public static final androidx.compose.material3.adaptive.layout.PaneScaffoldDirective.Companion Companion;
   }

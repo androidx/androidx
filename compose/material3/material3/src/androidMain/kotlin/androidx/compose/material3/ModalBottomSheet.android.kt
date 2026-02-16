@@ -25,13 +25,8 @@ import android.view.View
 import android.view.ViewOutlineProvider
 import android.view.Window
 import android.view.WindowManager
-import androidx.activity.BackEventCompat
 import androidx.activity.ComponentDialog
-import androidx.activity.OnBackPressedCallback
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.shouldApplySecureFlag
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
@@ -42,7 +37,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -70,8 +64,6 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 // Logic forked from androidx.compose.ui.window.DialogProperties. Removed dismissOnClickOutside
 // and usePlatformDefaultWidth as they are not relevant for fullscreen experience.
@@ -228,14 +220,12 @@ actual object ModalBottomSheetDefaults {
 }
 
 // Fork of androidx.compose.ui.window.AndroidDialog_androidKt.Dialog
-// Added predictiveBackProgress param to pass into BottomSheetDialogWrapper.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
     contentColor: Color,
     properties: ModalBottomSheetProperties,
-    predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     content: @Composable () -> Unit,
 ) {
     val view = LocalView.current
@@ -244,7 +234,6 @@ internal actual fun ModalBottomSheetDialog(
     val composition = rememberCompositionContext()
     val currentContent by rememberUpdatedState(content)
     val dialogId = rememberSaveable { UUID.randomUUID() }
-    val scope = rememberCoroutineScope()
     val dialog =
         remember(view, density) {
             ModalBottomSheetDialogWrapper(
@@ -255,8 +244,6 @@ internal actual fun ModalBottomSheetDialog(
                     layoutDirection,
                     density,
                     dialogId,
-                    predictiveBackProgress,
-                    scope,
                 )
                 .apply {
                     setContent(composition) {
@@ -285,7 +272,6 @@ internal actual fun ModalBottomSheetDialog(
 }
 
 // Fork of androidx.compose.ui.window.DialogLayout
-// Additional parameters required for current predictive back implementation.
 @Suppress("ViewConstructor")
 private class ModalBottomSheetDialogLayout(context: Context, override val window: Window) :
     AbstractComposeView(context), DialogWindowProvider {
@@ -311,7 +297,6 @@ private class ModalBottomSheetDialogLayout(context: Context, override val window
 }
 
 // Fork of androidx.compose.ui.window.DialogWrapper.
-// predictiveBackProgress and scope params added for predictive back implementation.
 // EdgeToEdgeFloatingDialogWindowTheme provided to allow theme to extend into status bar.
 @ExperimentalMaterial3Api
 private class ModalBottomSheetDialogWrapper(
@@ -322,8 +307,6 @@ private class ModalBottomSheetDialogWrapper(
     layoutDirection: LayoutDirection,
     density: Density,
     dialogId: UUID,
-    predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-    scope: CoroutineScope,
 ) :
     ComponentDialog(
         ContextThemeWrapper(
@@ -391,22 +374,6 @@ private class ModalBottomSheetDialogWrapper(
             isAppearanceLightNavigationBars =
                 properties.isAppearanceLightNavigationBars ?: contentColor.isDark()
         }
-        // Due to how the onDismissRequest callback works
-        // (it enforces a just-in-time decision on whether to update the state to hide the dialog)
-        // we need to provide a custom onBackPressedCallback to provide predictive back animations
-        // for this component while handling onDismissRequest.
-        onBackPressedDispatcher.addCallback(
-            owner = this,
-            onBackPressedCallback =
-                PredictiveBackOnBackPressedCallback(
-                    isEnabled = properties.shouldDismissOnBackPress,
-                    scope = scope,
-                    predictiveBackProgress = predictiveBackProgress,
-                    onDismissRequest = {
-                        this.onDismissRequest()
-                    }, // Ensure lambda captures current onDismissRequest
-                ),
-        )
     }
 
     private fun setLayoutDirection(layoutDirection: LayoutDirection) {
@@ -476,37 +443,6 @@ private class ModalBottomSheetDialogWrapper(
     override fun cancel() {
         // Prevents the dialog from dismissing itself
         return
-    }
-
-    private class PredictiveBackOnBackPressedCallback(
-        isEnabled: Boolean,
-        val scope: CoroutineScope,
-        val predictiveBackProgress: Animatable<Float, AnimationVector1D>,
-        var onDismissRequest: () -> Unit,
-    ) : OnBackPressedCallback(isEnabled) {
-
-        override fun handleOnBackStarted(backEvent: BackEventCompat) {
-            scope.launch {
-                predictiveBackProgress.snapTo(PredictiveBack.transform(backEvent.progress))
-            }
-        }
-
-        override fun handleOnBackProgressed(backEvent: BackEventCompat) {
-            scope.launch {
-                // Use snapTo for immediate feedback during the gesture
-                predictiveBackProgress.snapTo(PredictiveBack.transform(backEvent.progress))
-            }
-        }
-
-        override fun handleOnBackPressed() {
-            // Back gesture completed successfully, invoke dismiss
-            onDismissRequest()
-        }
-
-        override fun handleOnBackCancelled() {
-            // Back gesture cancelled, animate back to 0
-            scope.launch { predictiveBackProgress.animateTo(0f) }
-        }
     }
 }
 

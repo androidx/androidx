@@ -782,6 +782,7 @@ fun OutlinedButton(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TextButton(
     onClick: () -> Unit,
@@ -791,7 +792,12 @@ fun TextButton(
     colors: ButtonColors = ButtonDefaults.textButtonColors(),
     elevation: ButtonElevation? = null,
     border: BorderStroke? = null,
-    contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
+    contentPadding: PaddingValues =
+        if (ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled) {
+            ButtonDefaults.ContentPadding
+        } else {
+            ButtonDefaults.TextButtonContentPadding
+        },
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) =
@@ -859,6 +865,7 @@ fun TextButton(
  *   still happen internally.
  * @param content The content displayed on the button, expected to be text.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalMaterial3ExpressiveApi
 @Composable
 fun TextButton(
@@ -869,7 +876,12 @@ fun TextButton(
     colors: ButtonColors = ButtonDefaults.textButtonColors(),
     elevation: ButtonElevation? = null,
     border: BorderStroke? = null,
-    contentPadding: PaddingValues = ButtonDefaults.TextButtonContentPadding,
+    contentPadding: PaddingValues =
+        if (ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled) {
+            ButtonDefaults.contentPaddingFor(ButtonDefaults.MinHeight)
+        } else {
+            ButtonDefaults.TextButtonContentPadding
+        },
     interactionSource: MutableInteractionSource? = null,
     content: @Composable RowScope.() -> Unit,
 ) =
@@ -1879,6 +1891,10 @@ internal val ButtonShapes.hasRoundedCornerShapes: Boolean
     get() = shape is RoundedCornerShape && pressedShape is RoundedCornerShape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal val ButtonShapes.hasCornerBasedShapes: Boolean
+    get() = shape is CornerBasedShape && pressedShape is CornerBasedShape
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun shapeByInteraction(
     shapes: ButtonShapes,
@@ -1891,9 +1907,10 @@ private fun shapeByInteraction(
         } else {
             shapes.shape
         }
-
     if (shapes.hasRoundedCornerShapes)
         return key(shapes) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+    else if (shapes.hasCornerBasedShapes)
+        return key(shapes) { rememberAnimatedShape(shape as CornerBasedShape, animationSpec) }
 
     return shape
 }

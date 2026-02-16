@@ -86,8 +86,7 @@ import kotlinx.coroutines.launch
  * @param sheetContent the content of the bottom sheet
  * @param modifier the [Modifier] to be applied to the root of the scaffold
  * @param scaffoldState the state of the bottom sheet scaffold
- * @param sheetPeekHeight the height of the bottom sheet when it is collapsed. Should be greater
- *   than 0.dp. If 0.dp is passed, the anchor will instead be treated as Hidden.
+ * @param sheetPeekHeight the height of the bottom sheet when it is collapsed
  * @param sheetMaxWidth [Dp] that defines what the maximum width the sheet will take. Pass in
  *   [Dp.Unspecified] for a sheet that spans the entire screen width.
  * @param sheetShape the shape of the bottom sheet
@@ -283,20 +282,29 @@ private fun StandardBottomSheet(
                     constraints ->
                     val layoutHeight = constraints.maxHeight.toFloat()
                     val sheetHeight = sheetSize.height.toFloat()
+
                     val newAnchors = DraggableAnchors {
-                        // Content height of 0 should be Hidden by default
-                        // A peekHeight of 0 clashes with Hidden anchor, provide Hidden
-                        // User has not disabled Hidden state
                         val isHiddenAnchorAvailable =
                             sheetHeight == 0f || peekHeightPx == 0f || !state.skipHiddenState
-                        // User has not disabled PartiallyExpanded state
-                        // Ensure peek height does not clash with Hidden anchor
-                        // Ensure peekHeight does not clash with expanded anchor
+
+                        // We are preserving ambiguous anchor reconciliation for first layout pass.
+                        // This handles the use case where sheetPeekHeight is backed by a mutable
+                        // value which is backed by 0.dp before being recalculated. We can assume
+                        // the state is in its first pass by asserting anchor sizes are zero, as we
+                        // enforce at least 1 anchor below. We then settle at partial as this is
+                        // the anchor external users have access to via sheetPeekHeight API.
+                        val isInitialLayout = state.anchoredDraggableState.anchors.size == 0
+                        val isStableAtPartial =
+                            state.currentValue == PartiallyExpanded && !state.isAnimationRunning
+
+                        val isAmbiguousPartialAllowed =
+                            peekHeightPx == 0f && (isInitialLayout || isStableAtPartial)
+
                         val isPartiallyExpandedAnchorAvailable =
                             !state.skipPartiallyExpanded &&
-                                peekHeightPx > 0f &&
+                                (peekHeightPx > 0f || isAmbiguousPartialAllowed) &&
                                 peekHeightPx != sheetHeight
-                        // Ensure expanded anchor does not clash with Hidden
+
                         val isExpandedAnchorAvailable = sheetHeight > 0f
 
                         require(
@@ -304,7 +312,7 @@ private fun StandardBottomSheet(
                                 isPartiallyExpandedAnchorAvailable ||
                                 isExpandedAnchorAvailable
                         ) {
-                            "Require at least 1 anchor to be initialized"
+                            "BottomSheetScaffold: Require at least 1 anchor to be initialized"
                         }
 
                         if (isPartiallyExpandedAnchorAvailable) {
