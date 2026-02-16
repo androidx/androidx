@@ -63,6 +63,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (UIFocusEffect *)focusEffect API_AVAILABLE(ios(15.0));
 
+- (nullable id)accessibilityHitTest:(CGPoint)point withEvent:(nullable UIEvent *)event;
+
 @end
 
 NS_ASSUME_NONNULL_END

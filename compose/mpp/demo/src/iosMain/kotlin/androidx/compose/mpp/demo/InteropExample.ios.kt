@@ -103,28 +103,32 @@ private fun UIKitViewInteractionModeSection() {
         factory = { TouchReactingView("Cooperative, Default") },
         modifier = Modifier.fillMaxWidth().height(40.dp),
         properties = UIKitInteropProperties(
-            interactionMode = UIKitInteropInteractionMode.Cooperative()
+            interactionMode = UIKitInteropInteractionMode.Cooperative(),
+            isNativeAccessibilityEnabled = true
         )
     )
     UIKitView(
         factory = { TouchReactingView("Cooperative, 1000 ms") },
         modifier = Modifier.fillMaxWidth().height(40.dp),
         properties = UIKitInteropProperties(
-            interactionMode = UIKitInteropInteractionMode.Cooperative(delayMillis = 1000)
+            interactionMode = UIKitInteropInteractionMode.Cooperative(delayMillis = 1000),
+            isNativeAccessibilityEnabled = true
         )
     )
     UIKitView(
         factory = { TouchReactingView("Non-cooperative") },
         modifier = Modifier.fillMaxWidth().height(40.dp),
         properties = UIKitInteropProperties(
-            interactionMode = UIKitInteropInteractionMode.NonCooperative
+            interactionMode = UIKitInteropInteractionMode.NonCooperative,
+            isNativeAccessibilityEnabled = true
         )
     )
     UIKitView(
         factory = { TouchReactingView("Non-interactive") },
         modifier = Modifier.fillMaxWidth().height(40.dp),
         properties = UIKitInteropProperties(
-            interactionMode = null
+            interactionMode = null,
+            isNativeAccessibilityEnabled = true
         )
     )
 }
@@ -193,6 +197,7 @@ private fun ComposeInsideScrollViewSection() {
             scrollView
         },
         modifier = Modifier.fillMaxWidth().height(100.dp),
+        properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
     )
 }
 
@@ -227,7 +232,8 @@ private fun UIScrollViewSection() {
         modifier = Modifier.fillMaxWidth().height(100.dp),
         update = {
             println("MKMapView updated")
-        }
+        },
+        properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
     )
 
     Text("Vertical interop UIScrollView:")
@@ -251,7 +257,8 @@ private fun UIScrollViewSection() {
             scrollViewSize = with(density) {
                 DpSize(it.width.toDp(), it.height.toDp())
             }
-        }
+        },
+        properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
     )
 }
 
@@ -275,7 +282,8 @@ private fun TextSection() {
             },
             modifier = Modifier.weight(0.5f).height(40.dp)
                 .border(1.dp, Color.Blue),
-            onReset = { /* Just to make it reusable */ }
+            onReset = { /* Just to make it reusable */ },
+            properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
         )
     }
 }
@@ -332,7 +340,8 @@ fun UIMenuSection() {
                 setTitle("Open UIMenu", forState = UIControlStateNormal)
             }
         },
-        modifier = Modifier.fillMaxWidth().height(40.dp)
+        modifier = Modifier.fillMaxWidth().height(40.dp),
+        properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
     )
 }
 
@@ -473,7 +482,8 @@ private fun ComposeUITextField(value: String, onValueChange: (String) -> Unit, m
                 }, value = $value"
             )
             textField.text = value
-        }
+        },
+        properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
     )
 }
 
@@ -517,7 +527,8 @@ val ReusableMapsExample = Screen.Example("Reusable maps") {
                     },
                     onRelease = {
                         allocations -= 1
-                    }
+                    },
+                    properties = UIKitInteropProperties(isNativeAccessibilityEnabled = true)
                 )
             }
         }

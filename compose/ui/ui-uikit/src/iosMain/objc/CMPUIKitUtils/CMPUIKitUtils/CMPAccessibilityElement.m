@@ -113,6 +113,14 @@ NS_ASSUME_NONNULL_BEGIN
     return [UIFocusHaloEffect effectWithRect:[self focusEffectRect]];
 }
 
+- (nullable id)accessibilityHitTest:(CGPoint)point withEvent:(nullable UIEvent *)event {
+    if (@available(iOS 18.0, *)) {
+        return [super accessibilityHitTest:point withEvent:event];
+    } else {
+        return nil;
+    }
+}
+
 @end
 
 NS_ASSUME_NONNULL_END

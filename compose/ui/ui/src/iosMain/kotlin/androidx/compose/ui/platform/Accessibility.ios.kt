@@ -20,7 +20,9 @@ import androidx.collection.MutableIntSet
 import androidx.compose.runtime.BroadcastFrameClock
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.node.HitTestResult
 import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.platform.accessibility.AccessibilityScrollEventResult
 import androidx.compose.ui.platform.accessibility.accessibilityCustomActions
 import androidx.compose.ui.platform.accessibility.accessibilityTraits
@@ -121,6 +123,7 @@ import platform.UIKit.UIAccessibilityTraitNone
 import platform.UIKit.UIAccessibilityTraits
 import platform.UIKit.UICoordinateSpaceProtocol
 import platform.UIKit.UIEdgeInsetsInsetRect
+import platform.UIKit.UIEvent
 import platform.UIKit.UIFocusAnimationCoordinator
 import platform.UIKit.UIFocusEnvironmentProtocol
 import platform.UIKit.UIFocusItemContainerProtocol
@@ -134,6 +137,7 @@ import platform.UIKit.accessibilityElementAtIndex
 import platform.UIKit.accessibilityElementCount
 import platform.UIKit.accessibilityElements
 import platform.UIKit.accessibilityFrame
+import platform.UIKit.accessibilityHitTest
 import platform.UIKit.isAccessibilityElement
 import platform.UIKit.setAutomationElements
 import platform.darwin.NSObject
@@ -469,6 +473,55 @@ private class AccessibilityRoot(
         } else {
             emptyList<Any>()
         }
+    }
+
+    override fun accessibilityHitTest(point: CValue<CGPoint>, withEvent: UIEvent?): Any? {
+        if (!mediator.isEnabled) {
+            return null
+        }
+
+        mediator.activateAccessibilityIfNeeded()
+
+        val hitSemanticsEntities = HitTestResult()
+        val pointerPosition = with(mediator.view.density) {
+            val point = point.asDpOffset()
+            Offset(point.x.toPx(), point.y.toPx())
+        }
+
+        mediator.owner.unmergedRootSemanticsNode.layoutNode.hitTestSemantics(
+            pointerPosition = pointerPosition,
+            hitSemanticsEntities = hitSemanticsEntities,
+        )
+
+        for (i in hitSemanticsEntities.lastIndex downTo 0) {
+            val layoutNode = hitSemanticsEntities[i].requireLayoutNode()
+
+            val element =
+                mediator.getAccessibilityElement(AccessibilityElementKey.Semantics(layoutNode.semanticsId))
+                    ?: continue
+            val interopView = (element as AccessibilityElement).node.accessibilityInteropView
+            if (interopView != null && interopView.isAccessibilityFocusable()) {
+                val rect = mediator.view.convertRect(element.accessibilityFrame(), fromView = null)
+                val (originX, originY) = rect.useContents { origin.x to origin.y }
+
+                val pointInElement = point.useContents {
+                    CGPointMake(x = x - originX, y = y - originY)
+                }
+
+                interopView.accessibilityHitTest(pointInElement, withEvent)?.let {
+                    return it
+                }
+            }
+
+            if (!element.isAccessibilityElement()) {
+                continue
+            }
+
+            return element
+        }
+
+        // Used as a backup to iOS-like focus behavior
+        return super.accessibilityHitTest(point, withEvent)
     }
 }
 
@@ -1093,6 +1146,10 @@ internal class AccessibilityMediator(
                 )
             }
         }
+    }
+
+    fun getAccessibilityElement(key: AccessibilityElementKey): CMPAccessibilityElement? {
+        return accessibilityElementsMap[key]
     }
 
     /**
