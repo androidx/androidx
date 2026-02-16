@@ -63,15 +63,15 @@ class NonObservableLocaleDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-            Autofix for src/test/test.kt line 9: Replace with LocalLocale.current.platformLocale:
-            @@ -5 +5,2 @@
-            -                import java.util.Locale
-            +                import androidx.compose.ui.platform.LocalLocale
-            +import java.util.Locale
-            @@ -9 +10 @@
-            -                    val locale = Locale.getDefault()
-            +                    val locale = LocalLocale.current.platformLocale
-            """
+                Autofix for src/test/test.kt line 9: Replace with LocalLocale.current.platformLocale:
+                @@ -5 +5,2 @@
+                -                import java.util.Locale
+                +                import androidx.compose.ui.platform.LocalLocale
+                +import java.util.Locale
+                @@ -9 +10 @@
+                -                    val locale = Locale.getDefault()
+                +                    val locale = LocalLocale.current.platformLocale
+                """
                     .trimIndent()
             )
     }
@@ -149,13 +149,13 @@ class NonObservableLocaleDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-                 Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
-                 @@ -5,0 +6 @@
-                 +import androidx.compose.ui.platform.LocalLocaleList
-                 @@ -9 +10 @@
-                 -                    val localeList = LocaleList.getAdjustedDefault()
-                 +                    val localeList = android.os.LocaleList(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
-            """
+                Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
+                @@ -5,0 +6 @@
+                +import androidx.compose.ui.platform.LocalLocaleList
+                @@ -9 +10 @@
+                -                    val localeList = LocaleList.getAdjustedDefault()
+                +                    val localeList = android.os.LocaleList(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
+                """
                     .trimIndent()
             )
     }
@@ -190,12 +190,12 @@ class NonObservableLocaleDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-                    Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
-                    @@ -5,0 +6 @@
-                    +import androidx.compose.ui.platform.LocalLocaleList
-                    @@ -9 +10 @@
-                    -                    val localeList = getAdjustedDefault()
-                    +                    val localeList = android.os.LocaleList(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
+                Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
+                @@ -5,0 +6 @@
+                +import androidx.compose.ui.platform.LocalLocaleList
+                @@ -9 +10 @@
+                -                    val localeList = getAdjustedDefault()
+                +                    val localeList = android.os.LocaleList(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
                 """
                     .trimIndent()
             )
@@ -232,14 +232,14 @@ class NonObservableLocaleDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-                    Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
-                    @@ -5 +5,2 @@
-                    -                import androidx.core.os.LocaleListCompat
-                    +                import androidx.compose.ui.platform.LocalLocaleList
-                    +import androidx.core.os.LocaleListCompat
-                    @@ -9 +10 @@
-                    -                    val localeList = LocaleListCompat.getAdjustedDefault()
-                    +                    val localeList = LocaleListCompat.create(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
+                Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
+                @@ -5 +5,2 @@
+                -                import androidx.core.os.LocaleListCompat
+                +                import androidx.compose.ui.platform.LocalLocaleList
+                +import androidx.core.os.LocaleListCompat
+                @@ -9 +10 @@
+                -                    val localeList = LocaleListCompat.getAdjustedDefault()
+                +                    val localeList = LocaleListCompat.create(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
                 """
                     .trimIndent()
             )
@@ -276,14 +276,14 @@ class NonObservableLocaleDetectorTest : LintDetectorTest() {
             )
             .expectFixDiffs(
                 """
-                    Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
-                    @@ -5 +5,2 @@
-                    -                import androidx.core.os.LocaleListCompat.getAdjustedDefault
-                    +                import androidx.compose.ui.platform.LocalLocaleList
-                    +import androidx.core.os.LocaleListCompat.getAdjustedDefault
-                    @@ -9 +10 @@
-                    -                    val localeList = getAdjustedDefault()
-                    +                    val localeList = LocaleListCompat.create(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
+                Autofix for src/test/test.kt line 9: Replace with LocalLocaleList.current:
+                @@ -5 +5,2 @@
+                -                import androidx.core.os.LocaleListCompat.getAdjustedDefault
+                +                import androidx.compose.ui.platform.LocalLocaleList
+                +import androidx.core.os.LocaleListCompat.getAdjustedDefault
+                @@ -9 +10 @@
+                -                    val localeList = getAdjustedDefault()
+                +                    val localeList = LocaleListCompat.create(*LocalLocaleList.current.map { it.platformLocale }.toTypedArray())
                 """
                     .trimIndent()
             )

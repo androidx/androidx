@@ -87,7 +87,7 @@ internal class AndroidCanvas() : Canvas {
             bounds.top,
             bounds.right,
             bounds.bottom,
-            paint.asFrameworkPaint(),
+            paint.nativePaint,
             android.graphics.Canvas.ALL_SAVE_FLAG,
         )
     }
@@ -140,11 +140,11 @@ internal class AndroidCanvas() : Canvas {
 
     /** @see Canvas.drawLine */
     override fun drawLine(p1: Offset, p2: Offset, paint: Paint) {
-        internalCanvas.drawLine(p1.x, p1.y, p2.x, p2.y, paint.asFrameworkPaint())
+        internalCanvas.drawLine(p1.x, p1.y, p2.x, p2.y, paint.nativePaint)
     }
 
     override fun drawRect(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        internalCanvas.drawRect(left, top, right, bottom, paint.asFrameworkPaint())
+        internalCanvas.drawRect(left, top, right, bottom, paint.nativePaint)
     }
 
     override fun drawRoundRect(
@@ -156,24 +156,16 @@ internal class AndroidCanvas() : Canvas {
         radiusY: Float,
         paint: Paint,
     ) {
-        internalCanvas.drawRoundRect(
-            left,
-            top,
-            right,
-            bottom,
-            radiusX,
-            radiusY,
-            paint.asFrameworkPaint(),
-        )
+        internalCanvas.drawRoundRect(left, top, right, bottom, radiusX, radiusY, paint.nativePaint)
     }
 
     override fun drawOval(left: Float, top: Float, right: Float, bottom: Float, paint: Paint) {
-        internalCanvas.drawOval(left, top, right, bottom, paint.asFrameworkPaint())
+        internalCanvas.drawOval(left, top, right, bottom, paint.nativePaint)
     }
 
     /** @see Canvas.drawCircle */
     override fun drawCircle(center: Offset, radius: Float, paint: Paint) {
-        internalCanvas.drawCircle(center.x, center.y, radius, paint.asFrameworkPaint())
+        internalCanvas.drawCircle(center.x, center.y, radius, paint.nativePaint)
     }
 
     override fun drawArc(
@@ -194,13 +186,13 @@ internal class AndroidCanvas() : Canvas {
             startAngle,
             sweepAngle,
             useCenter,
-            paint.asFrameworkPaint(),
+            paint.nativePaint,
         )
     }
 
     /** @see Canvas.drawPath */
     override fun drawPath(path: Path, paint: Paint) {
-        internalCanvas.drawPath(path.asAndroidPath(), paint.asFrameworkPaint())
+        internalCanvas.drawPath(path.asAndroidPath(), paint.nativePaint)
     }
 
     /** @see Canvas.drawImage */
@@ -209,7 +201,7 @@ internal class AndroidCanvas() : Canvas {
             image.asAndroidBitmap(),
             topLeftOffset.x,
             topLeftOffset.y,
-            paint.asFrameworkPaint(),
+            paint.nativePaint,
         )
     }
 
@@ -243,7 +235,7 @@ internal class AndroidCanvas() : Canvas {
                 right = dstOffset.x + dstSize.width
                 bottom = dstOffset.y + dstSize.height
             },
-            paint.asFrameworkPaint(),
+            paint.nativePaint,
         )
     }
 
@@ -272,7 +264,7 @@ internal class AndroidCanvas() : Canvas {
 
     private fun drawPoints(points: List<Offset>, paint: Paint) {
         points.fastForEach { point ->
-            internalCanvas.drawPoint(point.x, point.y, paint.asFrameworkPaint())
+            internalCanvas.drawPoint(point.x, point.y, paint.nativePaint)
         }
     }
 
@@ -289,7 +281,7 @@ internal class AndroidCanvas() : Canvas {
      */
     private fun drawLines(points: List<Offset>, paint: Paint, stepBy: Int) {
         if (points.size >= 2) {
-            val frameworkPaint = paint.asFrameworkPaint()
+            val frameworkPaint = paint.nativePaint
             var i = 0
             while (i < points.size - 1) {
                 val p1 = points[i]
@@ -314,7 +306,7 @@ internal class AndroidCanvas() : Canvas {
 
     private fun drawRawPoints(points: FloatArray, paint: Paint, stepBy: Int) {
         if (points.size % 2 == 0) {
-            val frameworkPaint = paint.asFrameworkPaint()
+            val frameworkPaint = paint.nativePaint
             var i = 0
             while (i < points.size - 1) {
                 val x = points[i]
@@ -341,7 +333,7 @@ internal class AndroidCanvas() : Canvas {
         // Float array is treated as alternative set of x and y coordinates
         // x1, y1, x2, y2, x3, y3, ... etc.
         if (points.size >= 4 && points.size % 2 == 0) {
-            val frameworkPaint = paint.asFrameworkPaint()
+            val frameworkPaint = paint.nativePaint
             var i = 0
             while (i < points.size - 3) {
                 val x1 = points[i]
@@ -369,7 +361,7 @@ internal class AndroidCanvas() : Canvas {
             vertices.indices,
             0, // TODO(njawad) figure out proper indexOffset)
             vertices.indices.size,
-            paint.asFrameworkPaint(),
+            paint.nativePaint,
         )
     }
 }

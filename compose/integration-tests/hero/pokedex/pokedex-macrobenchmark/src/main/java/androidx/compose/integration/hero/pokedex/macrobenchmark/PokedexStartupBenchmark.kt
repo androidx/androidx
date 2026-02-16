@@ -25,6 +25,9 @@ import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.Pokedex
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexConstants.POKEDEX_TARGET_PACKAGE_NAME
 import androidx.compose.integration.hero.pokedex.macrobenchmark.internal.PokedexDatabaseCleanupRule
 import androidx.test.filters.LargeTest
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.Until
 import androidx.testutils.createStartupCompilationParams
 import androidx.testutils.measureStartup
 import org.junit.Rule
@@ -47,23 +50,40 @@ class PokedexStartupBenchmark(
     val pokedexBenchmarkRuleChain: RuleChain =
         RuleChain.outerRule(PokedexDatabaseCleanupRule()).around(benchmarkRule)
 
-    private fun measureStartup(action: String) =
+    private fun measureStartup(action: String, contentSelector: BySelector) =
         benchmarkRule.measureStartup(
             compilationMode = compilation,
             startupMode = startupMode,
             packageName = POKEDEX_TARGET_PACKAGE_NAME,
             iterations = HeroMacrobenchmarkDefaults.ITERATIONS,
-        ) {
-            this.action = action
-            this.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
-            this.putExtra(POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS, enableSharedElementTransitions)
-        }
+            waitForContent = {
+                device.waitForIdle()
+                val searchCondition = Until.hasObject(contentSelector)
+                device.waitOrThrow(searchCondition, 3_000)
+            },
+            setupIntent = {
+                this.action = action
+                this.putExtra(POKEDEX_ENABLE_SHARED_TRANSITION_SCOPE, enableSharedTransitionScope)
+                this.putExtra(
+                    POKEDEX_ENABLE_SHARED_ELEMENT_TRANSITIONS,
+                    enableSharedElementTransitions,
+                )
+            },
+        )
 
     @Test
-    fun startupCompose() = measureStartup("$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_COMPOSE_ACTIVITY")
+    fun startupCompose() =
+        measureStartup(
+            action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_COMPOSE_ACTIVITY",
+            contentSelector = By.res("PokedexList"),
+        )
 
     @Test
-    fun startupViews() = measureStartup("$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_HOME_ACTIVITY")
+    fun startupViews() =
+        measureStartup(
+            action = "$POKEDEX_TARGET_PACKAGE_NAME.POKEDEX_VIEWS_HOME_ACTIVITY",
+            contentSelector = By.res(POKEDEX_TARGET_PACKAGE_NAME, "PokedexList"),
+        )
 
     companion object {
         /**

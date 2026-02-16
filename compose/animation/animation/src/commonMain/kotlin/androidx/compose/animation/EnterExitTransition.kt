@@ -854,8 +854,7 @@ public fun slideOutVertically(
     )
 
 /** ********************* Below are internal classes and methods ***************** */
-@Immutable
-internal data class Fade(val alpha: Float, val animationSpec: FiniteAnimationSpec<Float>)
+@Immutable internal data class Fade(val alpha: Float, val animationSpec: FiniteAnimationSpec<Float>)
 
 @Immutable
 internal data class Slide(

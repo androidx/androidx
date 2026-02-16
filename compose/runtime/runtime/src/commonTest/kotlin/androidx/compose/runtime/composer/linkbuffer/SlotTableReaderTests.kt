@@ -270,7 +270,8 @@ class SlotTableReaderTests {
               B:2000
               S:2000
              O:200
-            O:20"""
+            O:20
+            """
                 .trimIndent(),
             traverse(enter = { true }, block = { false }).trimIndent(),
         )
@@ -287,7 +288,8 @@ class SlotTableReaderTests {
               B:2000
               S:2000
              O:200
-            O:20"""
+            O:20
+            """
                 .trimIndent(),
             traverse(enter = { groupKey(it) != 10 }, block = { false }).trimIndent(),
         )
@@ -318,7 +320,8 @@ class SlotTableReaderTests {
              I:200
               U:2000
              O:200
-            O:20"""
+            O:20
+            """
                 .trimIndent(),
             traverse(
                     enter = { hasRecomposeRequired(it) },

@@ -136,11 +136,11 @@ public class TextLookup extends Operation implements VariableSupport, Serializab
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Look an array and turn into a text object")
-                .field(INT, "textId", "id of the text generated")
-                .field(FLOAT, "dataSet", "float pointer to the array/list to turn int a string")
-                .field(FLOAT, "index", "index of element to return");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .description("Look up a string from a collection via index")
+                .field(INT, "textId", "The ID of the resulting text")
+                .field(INT, "dataSetId", "The ID of the string collection")
+                .field(FLOAT, "index", "The index of the string to retrieve");
     }
 
     @Override

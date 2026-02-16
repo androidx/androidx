@@ -19,6 +19,10 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.HostDefaultKey
+import androidx.compose.runtime.HostDefaultProvider
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.LocalHostDefaultProvider
 import androidx.compose.runtime.ProvidedValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.retain.LocalRetainedValuesStore
@@ -71,6 +75,7 @@ private val PlatformArchitectureComponentsOwner.values: Array<ProvidedValue<*>>
         return providedValues.toTypedArray()
     }
 
+@OptIn(InternalComposeApi::class)
 @Composable
 internal fun ProvidePlatformCompositionLocals(
     vararg values: ProvidedValue<*>,
@@ -85,12 +90,20 @@ internal fun ProvidePlatformCompositionLocals(
     }
     DisposableEffect(Unit) { onDispose { saveableStateRegistry.dispose() } }
 
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-9752/Properly-implement-HostDefaultProvider-and-LocalHostDefaultProvider-for-CMP
+    val hostDefaultProvider = object : HostDefaultProvider {
+        override fun <T> getHostDefault(key: HostDefaultKey<T>): T {
+            return platformContext.architectureComponentsOwner as T
+        }
+
+    }
     CompositionLocalProvider(
         *values,
         LocalPlatformScreenReader provides platformContext.screenReader,
         LocalPlatformWindowInsets provides platformContext.windowInsets,
         *platformContext.architectureComponentsOwner.values,
         LocalSaveableStateRegistry provides saveableStateRegistry,
+        LocalHostDefaultProvider provides hostDefaultProvider,
         content = content,
     )
 }

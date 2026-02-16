@@ -236,11 +236,11 @@ public class ComponentStart extends Operation implements Container {
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Layout Operations", id(), name())
                 .description(
-                        "Basic component encapsulating draw commands." + "This is not resizable.")
-                .field(INT, "TYPE", "Type of components")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
-                .field(FLOAT, "WIDTH", "width of the component")
-                .field(FLOAT, "HEIGHT", "height of the component");
+                        "Basic component encapsulating draw commands. This is not resizable.")
+                .field(INT, "type", "Type of component")
+                .field(INT, "componentId", "Unique ID for this component")
+                .field(FLOAT, "width", "Width of the component")
+                .field(FLOAT, "height", "Height of the component");
     }
 
     @NonNull

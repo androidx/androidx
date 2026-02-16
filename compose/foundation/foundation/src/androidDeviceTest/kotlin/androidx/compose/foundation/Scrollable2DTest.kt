@@ -20,6 +20,7 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.rememberSplineBasedDecay
+import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.gestures.DefaultFlingBehavior
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Scroll2DScope
@@ -96,6 +97,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Assert
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -1361,8 +1363,10 @@ class Scrollable2DTest {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_setsModifierLocalScrollableContainer() {
+        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
         val scrollable2DState = Scrollable2DState { it }
 
         var isOuterInScrollableContainer: Boolean? = null
@@ -1394,8 +1398,10 @@ class Scrollable2DTest {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_setsModifierLocalScrollableContainer_scrollDisabled() {
+        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
         val scrollable2DState = Scrollable2DState { it }
 
         var isOuterInScrollableContainer: Boolean? = null
@@ -1427,8 +1433,10 @@ class Scrollable2DTest {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun scrollable_setsModifierLocalScrollableContainer_scrollUpdates() {
+        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
         val scrollable2DState = Scrollable2DState { it }
 
         var isInnerInScrollableContainer: Boolean? = null
@@ -1454,6 +1462,114 @@ class Scrollable2DTest {
         rule.runOnIdle { enabled.value = false }
 
         rule.runOnIdle { assertThat(isInnerInScrollableContainer).isFalse() }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollable_isInterestedInDownEvents() {
+        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
+        val controller = Scrollable2DState { it }
+
+        var isOuterInterested: Boolean? = null
+        var isInnerInterested: Boolean? = null
+        rule.setContent {
+            Box {
+                Box(
+                    modifier =
+                        Modifier.testTag(scrollable2DBoxTag)
+                            .size(100.dp)
+                            .then(
+                                InspectGestureNodeElement { parentCoordinator, event ->
+                                    isOuterInterested = parentCoordinator.isInterested(event)
+                                }
+                            )
+                            .scrollable2D(state = controller)
+                            .then(
+                                InspectGestureNodeElement { parentCoordinator, event ->
+                                    isInnerInterested = parentCoordinator.isInterested(event)
+                                }
+                            )
+                )
+            }
+        }
+
+        rule.onRoot().performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isTrue()
+        }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun scrollable_isInterestedInDownEvents_handlesParentEnabledState() {
+        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
+        val scrollable2DState = Scrollable2DState { it }
+
+        var isOuterInterested: Boolean? = null
+        var isInnerInterested: Boolean? = null
+        var isEnabled by mutableStateOf(false)
+        rule.setContent {
+            Box {
+                Box(
+                    modifier =
+                        Modifier.testTag(scrollable2DBoxTag)
+                            .size(100.dp)
+                            .then(
+                                InspectGestureNodeElement { parentNode, event ->
+                                    isOuterInterested = parentNode.isInterested(event)
+                                }
+                            )
+                            .scrollable2D(state = scrollable2DState, enabled = isEnabled)
+                            .then(
+                                InspectGestureNodeElement { parentNode, event ->
+                                    isInnerInterested = parentNode.isInterested(event)
+                                }
+                            )
+                )
+            }
+        }
+
+        rule.onRoot().performTouchInput {
+            down(center)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isFalse()
+        }
+
+        rule.runOnUiThread {
+            isOuterInterested = null
+            isInnerInterested = null
+            isEnabled = true
+        }
+        rule.onRoot().performTouchInput {
+            down(center)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isTrue()
+        }
+
+        rule.runOnUiThread {
+            isOuterInterested = null
+            isInnerInterested = null
+            isEnabled = false
+        }
+        rule.onRoot().performTouchInput {
+            down(center)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(isOuterInterested).isNull()
+            assertThat(isInnerInterested).isFalse()
+        }
     }
 
     @Test

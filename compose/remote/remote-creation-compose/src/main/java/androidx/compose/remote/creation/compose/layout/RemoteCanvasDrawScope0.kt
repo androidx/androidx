@@ -62,6 +62,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultFilterQ
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
@@ -695,7 +696,7 @@ public open class RemoteCanvasDrawScope0(
             center.x.floatId,
             center.y.floatId,
             radius.floatId,
-            toPaint(color, style, alpha.floatId, colorFilter, blendMode).asFrameworkPaint(),
+            toPaint(color, style, alpha.floatId, colorFilter, blendMode).nativePaint,
         )
     }
 

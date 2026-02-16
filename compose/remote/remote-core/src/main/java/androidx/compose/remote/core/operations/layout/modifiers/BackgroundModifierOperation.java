@@ -289,16 +289,17 @@ public class BackgroundModifierOperation extends DecoratorModifierOperation impl
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define the Background Modifier")
-                .field(INT, "flags", "")
-                .field(INT, "colorId", "")
-                .field(INT, "reserved", "")
-                .field(INT, "reserved", "")
-                .field(FLOAT, "r", "")
-                .field(FLOAT, "g", "")
-                .field(FLOAT, "b", "")
-                .field(FLOAT, "a", "")
-                .field(FLOAT, "shapeType", "0 for RECTANGLE, 1 for CIRCLE");
+                .additionalDocumentation("modifier_background")
+                .description("Define a background color or shape for a component")
+                .field(INT, "flags", "Behavior flags")
+                .field(INT, "colorId", "The ID of the color if flags include COLOR_REF")
+                .field(INT, "reserve1", "Reserved for future use")
+                .field(INT, "reserve2", "Reserved for future use")
+                .field(FLOAT, "r", "Red component [0..1]")
+                .field(FLOAT, "g", "Green component [0..1]")
+                .field(FLOAT, "b", "Blue component [0..1]")
+                .field(FLOAT, "a", "Alpha component [0..1]")
+                .field(INT, "shapeType", "The shape type (0=RECTANGLE, 1=CIRCLE)");
     }
 
     @Override

@@ -39,7 +39,6 @@ import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.unit.IntSize
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
-import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -59,6 +58,8 @@ internal fun PointerInputEventData(
         down,
         pressure = 1.0f,
         PointerType.Touch,
+        scaleGestureFactor = 0f,
+        panGestureOffset = Offset.Zero,
     )
 }
 
@@ -271,6 +272,8 @@ internal fun InternalPointerEvent(
                 down = data.pressed,
                 pressure = data.pressure,
                 type = data.type,
+                scaleGestureFactor = data.scaleGestureFactor,
+                panGestureOffset = data.panGestureOffset,
             )
         )
     }
@@ -390,6 +393,8 @@ internal fun internalPointerEventOf(vararg changes: PointerInputChange): Interna
                 type = it.type,
                 activeHover = false,
                 historical = emptyList(),
+                scaleGestureFactor = 0f,
+                panGestureOffset = Offset.Zero,
             )
         }
     val pointerEvent = PointerInputEvent(0L, pointers, event)
@@ -425,6 +430,8 @@ internal fun hoverInternalPointerEvent(
             type = change.type,
             activeHover = true,
             historical = emptyList(),
+            scaleGestureFactor = 0f,
+            panGestureOffset = Offset.Zero,
         )
     val pointerEvent = PointerInputEvent(0L, listOf(pointer), createHoverMotionEvent(action, x, y))
 

@@ -15,11 +15,9 @@
  */
 package androidx.compose.remote.core.operations;
 
-import static androidx.compose.remote.core.documentation.DocumentedOperation.BYTE;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT_ARRAY;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT_ARRAY;
-import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.UTF8;
 
 import androidx.annotation.RestrictTo;
@@ -373,20 +371,21 @@ public class ShaderData extends Operation implements VariableSupport, Serializab
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Shader")
-                .field(DocumentedOperation.INT, "shaderID", "id of shader")
-                .field(BYTE, " floatSize", "number of float uniforms")
-                .field(BYTE, " intSize", "number of int uniform")
-                .field(SHORT, " intSize", "number of int uniform")
-                .field(UTF8, "floatName", "name of float uniform")
-                .field(INT, "length", "length")
-                .field(FLOAT_ARRAY, "VALUE", "float uniform (max 4)")
-                .field(UTF8, "IntName", "id of shader text")
-                .field(INT, "length", "length of uniform")
-                .field(INT_ARRAY, "VALUE", "int uniform (max 4)")
-                .field(UTF8, "bitmapName", "name of bitmap")
-                .field(INT, "VALUE", "id of bitmap");
+        doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("shader_data")
+                .description("Define a shader with associated uniforms")
+                .field(DocumentedOperation.INT, "shaderID", "The ID of the shader")
+                .field(DocumentedOperation.INT, "shaderTextId", "The ID of the shader source text")
+                .field(DocumentedOperation.INT, "sizes",
+                        "Encoded sizes of uniform maps (float, int, bitmap)")
+                .field(UTF8, "floatUniformName[0..n]", "Name of float uniform")
+                .field(INT, "floatUniformLength[0..n]", "Length of float uniform")
+                .field(FLOAT_ARRAY, "floatUniformValues[0..n]", "Values of float uniform")
+                .field(UTF8, "intUniformName[0..n]", "Name of int uniform")
+                .field(INT, "intUniformLength[0..n]", "Length of int uniform")
+                .field(INT_ARRAY, "intUniformValues[0..n]", "Values of int uniform")
+                .field(UTF8, "bitmapUniformName[0..n]", "Name of bitmap uniform")
+                .field(INT, "bitmapUniformValue[0..n]", "ID of bitmap uniform");
     }
 
     @Override

@@ -644,6 +644,7 @@ internal interface FlowLineMeasurePolicy : RowColumnMeasurePolicy {
             placeable.rowColumnParentData?.crossAxisAlignment ?: crossAxisAlignment
         return childCrossAlignment.align(
             size = crossAxisLayoutSize,
+            itemCrossAxisSize = placeable.crossAxisSize(),
             layoutDirection = layoutDirection,
             placeable = placeable,
             beforeCrossAxisAlignmentLine = beforeCrossAxisAlignmentLine,

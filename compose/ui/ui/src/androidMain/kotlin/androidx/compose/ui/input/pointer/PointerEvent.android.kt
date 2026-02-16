@@ -27,6 +27,8 @@ import android.view.MotionEvent.CLASSIFICATION_PINCH
 import android.view.MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
 import androidx.annotation.IntDef
 import androidx.collection.LongSparseArray
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.util.fastForEach
 
 internal actual typealias NativePointerButtons = Int
@@ -105,16 +107,50 @@ internal actual constructor(
     actual var type: PointerEventType = calculatePointerEventType()
         internal set
 
+    @OptIn(ExperimentalComposeUiApi::class)
     private fun calculatePointerEventType(): PointerEventType {
         val motionEvent = motionEvent
         if (motionEvent != null) {
+            /**
+             * Special case: for a two finger swipe from a trackpad, we interpret the motion event
+             * as a scroll event type, rather than the fake finger press + move + release
+             */
+            val isTwoFingerSwipe =
+                Build.VERSION.SDK_INT >= 29 &&
+                    motionEvent.classification == CLASSIFICATION_TWO_FINGER_SWIPE
+            val isPinch =
+                Build.VERSION.SDK_INT >= 29 && motionEvent.classification == CLASSIFICATION_PINCH
             return when (motionEvent.actionMasked) {
                 MotionEvent.ACTION_DOWN,
-                MotionEvent.ACTION_POINTER_DOWN -> PointerEventType.Press
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    if (isTwoFingerSwipe && ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+                        PointerEventType.Pan
+                    } else if (isPinch && ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+                        PointerEventType.Scale
+                    } else {
+                        PointerEventType.Press
+                    }
+                }
                 MotionEvent.ACTION_UP,
-                MotionEvent.ACTION_POINTER_UP -> PointerEventType.Release
+                MotionEvent.ACTION_POINTER_UP -> {
+                    if (isTwoFingerSwipe && ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+                        PointerEventType.Pan
+                    } else if (isPinch && ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+                        PointerEventType.Scale
+                    } else {
+                        PointerEventType.Release
+                    }
+                }
                 MotionEvent.ACTION_HOVER_MOVE,
-                MotionEvent.ACTION_MOVE -> PointerEventType.Move
+                MotionEvent.ACTION_MOVE -> {
+                    if (isTwoFingerSwipe && ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+                        PointerEventType.Pan
+                    } else if (isPinch && ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+                        PointerEventType.Scale
+                    } else {
+                        PointerEventType.Move
+                    }
+                }
                 MotionEvent.ACTION_HOVER_ENTER -> PointerEventType.Enter
                 MotionEvent.ACTION_HOVER_EXIT -> PointerEventType.Exit
                 ACTION_SCROLL -> PointerEventType.Scroll
@@ -149,14 +185,17 @@ internal actual constructor(
                     changesArray.put(change.id.value, change)
                     pointerEventData +=
                         PointerInputEventData(
-                            change.id,
-                            change.uptimeMillis,
-                            change.position,
-                            change.position,
-                            change.pressed,
-                            change.pressure,
-                            change.type,
-                            this.internalPointerEvent?.activeHoverEvent(change.id) == true,
+                            id = change.id,
+                            uptime = change.uptimeMillis,
+                            positionOnScreen = change.position,
+                            position = change.position,
+                            down = change.pressed,
+                            pressure = change.pressure,
+                            type = change.type,
+                            activeHover =
+                                this.internalPointerEvent?.activeHoverEvent(change.id) == true,
+                            scaleGestureFactor = change.scaleGestureFactor,
+                            panGestureOffset = change.panGestureOffset,
                         )
                 }
 

@@ -158,17 +158,22 @@ public class DrawTextOnCircle extends PaintOperation implements VariableSupport,
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", OP_CODE, CLASS_NAME)
-                .description("Draw text along circle")
-                .field(DocumentedOperation.INT, "textId", "id of the text")
-                .field(DocumentedOperation.FLOAT, "centerX", "x coordinate of the center")
-                .field(DocumentedOperation.FLOAT, "centerY", "y coordinate of the center")
-                .field(DocumentedOperation.FLOAT, "radius", "radius of the circle")
-                .field(DocumentedOperation.FLOAT, "startAngle", "start angle of the circle")
-                .field(DocumentedOperation.FLOAT, "warpRadiusOffset", "warp radius offset")
-                .field(DocumentedOperation.INT, "alignment", "alignment of the text")
-                .field(DocumentedOperation.INT, "placement", "placement of the text")
-        ;
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_text_on_circle")
+                .description("Draw text along a circle")
+                .field(DocumentedOperation.INT, "textId", "The ID of the text")
+                .field(DocumentedOperation.FLOAT, "centerX", "The x coordinate of the center")
+                .field(DocumentedOperation.FLOAT, "centerY", "The y coordinate of the center")
+                .field(DocumentedOperation.FLOAT, "radius", "The radius of the circle")
+                .field(DocumentedOperation.FLOAT, "startAngle", "The start angle in degrees")
+                .field(DocumentedOperation.FLOAT, "warpRadiusOffset", "The warp radius offset")
+                .field(DocumentedOperation.INT, "alignment", "The alignment of the text")
+                .possibleValues("START", Alignment.START.ordinal())
+                .possibleValues("CENTER", Alignment.CENTER.ordinal())
+                .possibleValues("END", Alignment.END.ordinal())
+                .field(DocumentedOperation.INT, "placement", "The placement of the text")
+                .possibleValues("OUTSIDE", Placement.OUTSIDE.ordinal())
+                .possibleValues("INSIDE", Placement.INSIDE.ordinal());
     }
 
     @Override

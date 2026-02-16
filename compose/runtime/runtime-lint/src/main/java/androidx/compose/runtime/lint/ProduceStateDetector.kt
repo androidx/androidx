@@ -36,9 +36,14 @@ import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UMultiResolvable
+import org.jetbrains.uast.UPostfixExpression
+import org.jetbrains.uast.UPrefixExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.UUnaryExpression
 import org.jetbrains.uast.UastBinaryOperator
+import org.jetbrains.uast.UastPostfixOperator
+import org.jetbrains.uast.UastPrefixOperator
 import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
@@ -134,6 +139,39 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
                             callsSetValue = true
                         }
                         return callsSetValue
+                    }
+
+                    /** Visit unary operator to see if it is an assign operator (++value) */
+                    override fun visitPrefixExpression(node: UPrefixExpression): Boolean {
+                        if (unaryExpressionSetsValue(node)) {
+                            callsSetValue = true
+                        }
+                        return callsSetValue
+                    }
+
+                    /** Visit unary operator to see if it is an assign operator (value++) */
+                    override fun visitPostfixExpression(node: UPostfixExpression): Boolean {
+                        if (unaryExpressionSetsValue(node)) {
+                            callsSetValue = true
+                        }
+                        return callsSetValue
+                    }
+
+                    private fun unaryExpressionSetsValue(node: UUnaryExpression): Boolean {
+                        val assignOperators =
+                            arrayOf(
+                                UastPrefixOperator.DEC,
+                                UastPrefixOperator.INC,
+                                UastPostfixOperator.DEC,
+                                UastPostfixOperator.INC,
+                            )
+                        if (node.operator !in assignOperators) {
+                            return false
+                        }
+                        if (node.operand.rightMostNameReference()?.identifier != "value") {
+                            return false
+                        }
+                        return true
                     }
 
                     private tailrec fun UExpression.rightMostNameReference():

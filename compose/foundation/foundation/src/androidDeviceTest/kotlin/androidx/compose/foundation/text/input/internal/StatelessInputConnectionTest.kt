@@ -97,6 +97,9 @@ class StatelessInputConnectionTest {
                 return state.mapToTransformed(range)
             }
 
+            override val transformedLength: Int
+                get() = value.length
+
             override fun beginBatchEdit(): Boolean {
                 beginBatchEditCalls++
                 batchDepth++

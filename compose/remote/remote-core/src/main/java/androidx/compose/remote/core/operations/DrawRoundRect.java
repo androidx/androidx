@@ -101,6 +101,7 @@ public class DrawRoundRect extends DrawBase6 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_round_rect")
                 .description("Draw the specified round-rect")
                 .field(DocumentedOperation.FLOAT, "left", "The left side of the rect")
                 .field(DocumentedOperation.FLOAT, "top", "The top of the rect")

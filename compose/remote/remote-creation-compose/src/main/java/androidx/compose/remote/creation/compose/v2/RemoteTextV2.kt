@@ -22,8 +22,10 @@ import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.state.RemoteColor
 import androidx.compose.remote.creation.compose.state.RemoteFloat
 import androidx.compose.remote.creation.compose.state.RemoteString
+import androidx.compose.remote.creation.compose.state.rc
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.style.TextAlign
@@ -36,12 +38,12 @@ import androidx.compose.ui.text.style.TextOverflow
 public fun RemoteTextV2(
     text: RemoteString,
     modifier: RemoteModifier = RemoteModifier,
-    color: RemoteColor? = null,
+    color: RemoteColor = Color.Black.rc,
     fontSize: RemoteFloat = 14f.rf,
     fontWeight: RemoteFloat = 400f.rf,
-    fontStyle: FontStyle? = null,
+    fontStyle: FontStyle = FontStyle.Normal,
     fontFamily: String? = null,
-    textAlign: TextAlign? = null,
+    textAlign: TextAlign = TextAlign.Unspecified,
     overflow: TextOverflow = TextOverflow.Clip,
     maxLines: Int = Int.MAX_VALUE,
     minFontSize: Float? = null,
@@ -53,7 +55,7 @@ public fun RemoteTextV2(
     fontVariationSettings: FontVariation.Settings? = null,
 ) {
     RemoteComposeNode(
-        factory = { RemoteTextNodeV2() },
+        factory = ::RemoteTextNodeV2,
         update = {
             set(text) { this.text = it }
             set(modifier) { this.modifier = it }

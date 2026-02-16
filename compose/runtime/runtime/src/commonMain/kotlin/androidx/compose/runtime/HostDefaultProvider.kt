@@ -22,49 +22,20 @@ package androidx.compose.runtime
  * This is intended for internal usage by [compositionLocalWithHostDefaultOf] to resolve values from
  * the hosting environment (e.g., `android.view.View`).
  */
-@InternalComposeApi
 public val LocalHostDefaultProvider: ProvidableCompositionLocal<HostDefaultProvider> =
     compositionLocalOf {
         error("CompositionLocal LocalHostDefaultProvider not present")
     }
 
 /**
- * An interface that allows the hosting environment (the platform embedding the Compose content) to
- * provide default values for [CompositionLocal]s based on a key.
+ * An interface that allows the hosting environment (e.g., Android, Desktop, or iOS) to provide
+ * default values for [CompositionLocal] using [compositionLocalWithHostDefaultOf].
  *
- * This acts as a bridge or service locator, allowing platform-agnostic libraries to retrieve
- * platform-specific components (like `LifecycleOwner` or `ViewModelStoreOwner`) without depending
- * directly on platform artifacts (e.g., `android.view.View`).
+ * This acts as a decoupling layer, allowing platform-agnostic libraries to request
+ * platform-specific components ((like `LifecycleOwner` or `ViewModelStoreOwner`) without depending
+ * on platform-specific APIs or artifacts.
  */
-@InternalComposeApi
 public interface HostDefaultProvider {
-
-    /**
-     * Retrieves a default value identified by [key] from the host environment.
-     *
-     * @param key The identifier for the value to retrieve. The type and meaning of the key are
-     *   defined by the host implementation (e.g., an Android resource ID).
-     * @return The requested value, or null if not found.
-     */
+    /** Retrieves a value associated with [key] from the host environment. */
     public fun <T> getHostDefault(key: HostDefaultKey<T>): T
-}
-
-/**
- * A type-safe identifier used to define a key for retrieving default values from the hosting
- * environment.
- *
- * This key is strictly required by [compositionLocalWithHostDefaultOf] to establish a mapping
- * between a [CompositionLocal] and a value provided by the host (via the internal
- * [HostDefaultProvider]).
- *
- * The internal representation of this key is platform-specific. For example, on Android, this acts
- * as a wrapper around a Resource ID to query the View hierarchy, while ensuring the retrieved value
- * matches the type [T].
- *
- * @param T The type of the value associated with this key.
- * @see compositionLocalWithHostDefaultOf
- * @see HostDefaultProvider
- */
-public expect class HostDefaultKey<T> {
-    public constructor()
 }

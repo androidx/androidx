@@ -26,12 +26,16 @@ import androidx.compose.remote.core.operations.Utils
 import androidx.compose.remote.core.operations.layout.managers.BoxLayout
 import androidx.compose.remote.core.operations.layout.managers.RowLayout
 import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
+import androidx.compose.remote.creation.ComponentWidth
+import androidx.compose.remote.creation.Rc
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.RemoteComposeWriterAndroid
 import androidx.compose.remote.creation.RemoteComposeWriterInterface
+import androidx.compose.remote.creation.abs
+import androidx.compose.remote.creation.minus
 import androidx.compose.remote.creation.modifiers.RecordingModifier
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.remote.creation.rf
+import androidx.compose.remote.creation.sin
 
 //    var platform = AndroidxRcPlatformServices()
 
@@ -117,8 +121,6 @@ fun demoTouch1(): RemoteComposeWriter {
     return rcDoc
 }
 
-@Preview @Composable fun DemoTouch1Preview() = RemoteDocPreview(demoTouch1())
-
 @Suppress("RestrictedApiAndroidX")
 fun demoTouch2(): RemoteComposeWriter {
     val rcDoc = RemoteComposeWriterAndroid(300, 300, "Clock", platform)
@@ -201,19 +203,17 @@ fun demoTouch2(): RemoteComposeWriter {
     return rcDoc
 }
 
-@Preview @Composable fun DemoTouch2Preview() = RemoteDocPreview(demoTouch2())
-
 @Suppress("RestrictedApiAndroidX")
 fun demoTouch3(mode: Int, spec: FloatArray?, title: String?): RemoteComposeWriter {
-    val rcDoc = RemoteComposeWriterAndroid(300, 300, "Clock", platform)
+    val rcDoc = RemoteComposeWriterAndroid(300, 300, "demoTouch", platform)
     rcDoc.root(
         RemoteComposeWriterInterface {
             rcDoc.startBox(
-                RecordingModifier().fillMaxWidth().fillMaxHeight(),
+                RecordingModifier().fillMaxWidth().fillMaxHeight().background(0xFFAAAAAA.toInt()),
                 BoxLayout.START,
                 BoxLayout.START,
             )
-            rcDoc.startCanvas(RecordingModifier().fillMaxSize())
+            rcDoc.startCanvas(RecordingModifier().fillMaxSize().background(0xFFAA9988.toInt()))
             val anim =
                 rcDoc.floatExpression(
                     RemoteContext.FLOAT_CONTINUOUS_SEC,
@@ -263,58 +263,59 @@ fun demoTouch3(mode: Int, spec: FloatArray?, title: String?): RemoteComposeWrite
             rcDoc.drawArc(left, top, right, bottom, 120f, 300f)
             rcDoc.getPainter().setStrokeWidth(5f).commit()
             val line = rcDoc.floatExpression(h, 40f, AnimatedFloatExpression.SUB)
-            if (spec == null) {
-                return@RemoteComposeWriterInterface
+            if (spec != null) {
+
+                when (mode.toByte()) {
+                    RemoteComposeWriter.STOP_NOTCHES_EVEN -> {
+                        var angle = 30f
+                        while (angle <= 330) {
+                            rcDoc.save()
+                            rcDoc.rotate(angle, cx, cy)
+                            rcDoc.drawLine(cx, h, cx, line)
+                            rcDoc.restore()
+                            angle += (330 - 30) / spec[0]
+                        }
+                    }
+
+                    RemoteComposeWriter.STOP_NOTCHES_PERCENTS -> {
+                        var i = 0
+
+                        while (i < spec.size) {
+                            val angle = spec[i] * (330 - 30) + 30
+                            rcDoc.save()
+                            rcDoc.rotate(angle, cx, cy)
+                            rcDoc.drawLine(cx, h, cx, line)
+                            rcDoc.restore()
+                            i++
+                        }
+                    }
+
+                    RemoteComposeWriter.STOP_NOTCHES_ABSOLUTE -> {
+                        var i = 0
+                        while (i < spec.size) {
+                            val angle = spec[i]
+                            rcDoc.save()
+                            rcDoc.rotate(angle, cx, cy)
+                            rcDoc.drawLine(cx, h, cx, line)
+                            rcDoc.restore()
+                            i++
+                        }
+                    }
+
+                    RemoteComposeWriter.STOP_ENDS -> {
+                        var i = 0
+                        while (i < 2) {
+                            val angle = (30 + (330 - 30) * i).toFloat()
+                            rcDoc.save()
+                            rcDoc.rotate(angle, cx, cy)
+                            rcDoc.drawLine(cx, h, cx, line)
+                            rcDoc.restore()
+                            i++
+                        }
+                    }
+                }
             }
-            when (mode.toByte()) {
-                RemoteComposeWriter.STOP_NOTCHES_EVEN -> {
-                    var angle = 30f
-                    while (angle <= 330) {
-                        rcDoc.save()
-                        rcDoc.rotate(angle, cx, cy)
-                        rcDoc.drawLine(cx, h, cx, line)
-                        rcDoc.restore()
-                        angle += (330 - 30) / spec[0]
-                    }
-                }
 
-                RemoteComposeWriter.STOP_NOTCHES_PERCENTS -> {
-                    var i = 0
-
-                    while (i < spec.size) {
-                        val angle = spec[i] * (330 - 30) + 30
-                        rcDoc.save()
-                        rcDoc.rotate(angle, cx, cy)
-                        rcDoc.drawLine(cx, h, cx, line)
-                        rcDoc.restore()
-                        i++
-                    }
-                }
-
-                RemoteComposeWriter.STOP_NOTCHES_ABSOLUTE -> {
-                    var i = 0
-                    while (i < spec.size) {
-                        val angle = spec[i]
-                        rcDoc.save()
-                        rcDoc.rotate(angle, cx, cy)
-                        rcDoc.drawLine(cx, h, cx, line)
-                        rcDoc.restore()
-                        i++
-                    }
-                }
-
-                RemoteComposeWriter.STOP_ENDS -> {
-                    var i = 0
-                    while (i < 2) {
-                        val angle = (30 + (330 - 30) * i).toFloat()
-                        rcDoc.save()
-                        rcDoc.rotate(angle, cx, cy)
-                        rcDoc.drawLine(cx, h, cx, line)
-                        rcDoc.restore()
-                        i++
-                    }
-                }
-            }
             // NOTCH
             val tx = RemoteContext.FLOAT_TOUCH_POS_X
             val ty = RemoteContext.FLOAT_TOUCH_POS_Y
@@ -523,15 +524,13 @@ fun demoTouchWrap(): RemoteComposeWriter {
     return rcDoc
 }
 
-@Preview @Composable fun DemoTouchWrapPreview() = RemoteDocPreview(demoTouchWrap())
-
 @Suppress("RestrictedApiAndroidX")
 fun demoTouchThumbWheel1(): RemoteComposeWriter {
     val rcDoc = RemoteComposeWriterAndroid(300, 300, "Clock", platform)
     rcDoc.root(
         RemoteComposeWriterInterface {
             rcDoc.startBox(
-                RecordingModifier().fillMaxWidth().fillMaxHeight(),
+                RecordingModifier().fillMaxWidth().fillMaxHeight().background(0xFF8899AA.toInt()),
                 BoxLayout.START,
                 BoxLayout.START,
             )
@@ -652,8 +651,6 @@ fun demoTouchThumbWheel1(): RemoteComposeWriter {
     return rcDoc
 }
 
-@Preview @Composable fun DemoTouchThumbWheel1Preview() = RemoteDocPreview(demoTouchThumbWheel1())
-
 @Suppress("RestrictedApiAndroidX")
 fun demoTouchThumbWheel2(): RemoteComposeWriter {
     val rcDoc = RemoteComposeWriterAndroid(300, 300, "Clock", platform)
@@ -672,8 +669,6 @@ fun demoTouchThumbWheel2(): RemoteComposeWriter {
 
     return rcDoc
 }
-
-@Preview @Composable fun DemoTouchThumbWheel2Preview() = RemoteDocPreview(demoTouchThumbWheel2())
 
 @Suppress("RestrictedApiAndroidX")
 private fun dial1(rcDoc: RemoteComposeWriterAndroid): Int {
@@ -876,21 +871,15 @@ fun touchStopGently(): RemoteComposeWriter {
     return demoTouch3(RemoteComposeWriter.STOP_GENTLY.toInt(), null, "STOP_GENTLY")
 }
 
-@Preview @Composable fun TouchStopGentlyPreview() = RemoteDocPreview(touchStopGently())
-
 @Suppress("RestrictedApiAndroidX")
 fun touchStopEnds(): RemoteComposeWriter {
     return demoTouch3(RemoteComposeWriter.STOP_ENDS.toInt(), null, "STOP_ENDS")
 }
 
-@Preview @Composable fun TouchStopEndsPreview() = RemoteDocPreview(touchStopEnds())
-
 @Suppress("RestrictedApiAndroidX")
 fun touchStopInstantly(): RemoteComposeWriter {
     return demoTouch3(RemoteComposeWriter.STOP_INSTANTLY.toInt(), null, "STOP_INSTANTLY")
 }
-
-@Preview @Composable fun TouchStopInstantlyPreview() = RemoteDocPreview(touchStopInstantly())
 
 @Suppress("RestrictedApiAndroidX")
 fun touchStopNotchesEven(): RemoteComposeWriter {
@@ -901,8 +890,6 @@ fun touchStopNotchesEven(): RemoteComposeWriter {
     )
 }
 
-@Preview @Composable fun TouchStopNotchesEvenPreview() = RemoteDocPreview(touchStopNotchesEven())
-
 @Suppress("RestrictedApiAndroidX")
 fun touchStopNotchesPercents(): RemoteComposeWriter {
     return demoTouch3(
@@ -911,10 +898,6 @@ fun touchStopNotchesPercents(): RemoteComposeWriter {
         "STOP_NOTCHES_PERCENTS",
     )
 }
-
-@Preview
-@Composable
-fun TouchStopNotchesPercentsPreview() = RemoteDocPreview(touchStopNotchesPercents())
 
 @Suppress("RestrictedApiAndroidX")
 fun touchStopNotchesAbsolute(): RemoteComposeWriter {
@@ -925,16 +908,10 @@ fun touchStopNotchesAbsolute(): RemoteComposeWriter {
     )
 }
 
-@Preview
-@Composable
-fun TouchStopNotchesAbsolutePreview() = RemoteDocPreview(touchStopNotchesAbsolute())
-
 @Suppress("RestrictedApiAndroidX")
 fun touchStopAbsolutePos(): RemoteComposeWriter {
     return demoTouch3(RemoteComposeWriter.STOP_ABSOLUTE_POS.toInt(), null, "STOP_ABSOLUTE_POS")
 }
-
-@Preview @Composable fun TouchStopAbsolutePosPreview() = RemoteDocPreview(touchStopAbsolutePos())
 
 @Suppress("RestrictedApiAndroidX")
 fun simpleJavaAnim(): RemoteComposeWriter {
@@ -948,34 +925,39 @@ fun simpleJavaAnim(): RemoteComposeWriter {
                 BoxLayout.START,
             )
             rcDoc.startCanvas(RecordingModifier().fillMaxSize())
-            val anim =
-                rcDoc.floatExpression(
-                    RemoteContext.FLOAT_CONTINUOUS_SEC,
-                    2f,
-                    AnimatedFloatExpression.MOD,
+
+            val pos =
+                rcDoc.addTouch(
+                    0f,
+                    Float.NaN,
                     1f,
-                    AnimatedFloatExpression.SUB,
+                    RemoteComposeWriter.STOP_INSTANTLY.toInt(),
+                    0f,
+                    0,
+                    null,
+                    null,
+                    RemoteContext.FLOAT_TOUCH_POS_X,
+                    rcDoc.ComponentWidth().toFloat(),
+                    Rc.FloatExpression.DIV,
                 )
-            rcDoc.getPainter().setColor(Color.RED).commit()
-            val cx =
-                rcDoc.floatExpression(
-                    RemoteContext.FLOAT_WINDOW_WIDTH,
-                    0.5f,
-                    AnimatedFloatExpression.MUL,
+            val anim = rcDoc.rf(pos) * 2f - 1f
+            val col =
+                rcDoc.addColorExpression(
+                    0f,
+                    0.9f,
+                    (abs(sin(anim * 3.14f / 2f)) * 0.5f + 0.5f).toFloat(),
                 )
-            val cy =
-                rcDoc.floatExpression(
-                    RemoteContext.FLOAT_WINDOW_HEIGHT,
-                    0.5f,
-                    AnimatedFloatExpression.MUL,
-                )
+            rcDoc.getPainter().setColorId(col.toInt()).commit()
+            val cx = rcDoc.ComponentWidth() * 0.5f
+            val cy = rcDoc.ComponentWidth() * 0.5f
+
             rcDoc.save()
-            rcDoc.scale(anim, 1f, cx, cy)
+            rcDoc.scale(anim.toFloat(), 1f, cx.toFloat(), cy.toFloat())
             rcDoc.drawOval(
                 0f,
                 0f,
-                RemoteContext.FLOAT_WINDOW_WIDTH,
-                RemoteContext.FLOAT_WINDOW_HEIGHT,
+                rcDoc.ComponentWidth().toFloat(),
+                rcDoc.ComponentWidth().toFloat(),
             )
             rcDoc.restore()
             rcDoc.endCanvas()
@@ -985,4 +967,46 @@ fun simpleJavaAnim(): RemoteComposeWriter {
     return rcDoc
 }
 
-@Preview @Composable fun SimpleJavaAnimPreview() = RemoteDocPreview(simpleJavaAnim())
+/*
+@Preview @Composable private fun DemoTouchWrapPreview() = RemoteDocPreview(demoTouchWrap())
+
+
+@Preview @Composable private fun DemoTouch1Preview() = RemoteDocPreview(demoTouch1())
+
+@Preview @Composable private fun DemoTouch2Preview() = RemoteDocPreview(demoTouch2())
+
+@Preview
+@Composable
+private fun DemoTouchThumbWheel1Preview() = RemoteDocPreview(demoTouchThumbWheel1())
+
+@Preview
+@Composable
+private fun DemoTouchThumbWheel2Preview() = RemoteDocPreview(demoTouchThumbWheel2())
+
+@Preview @Composable private fun TouchStopGentlyPreview() = RemoteDocPreview(touchStopGently())
+
+@Preview @Composable private fun TouchStopEndsPreview() = RemoteDocPreview(touchStopEnds())
+
+@Preview
+@Composable
+private fun TouchStopInstantlyPreview() = RemoteDocPreview(touchStopInstantly())
+
+@Preview
+@Composable
+private fun TouchStopNotchesEvenPreview() = RemoteDocPreview(touchStopNotchesEven())
+
+
+@Preview
+@Composable
+private fun TouchStopNotchesPercentsPreview() = RemoteDocPreview(touchStopNotchesPercents())
+
+@Preview
+@Composable
+private fun TouchStopNotchesAbsolutePreview() = RemoteDocPreview(touchStopNotchesAbsolute())
+
+@Preview
+@Composable
+private fun TouchStopAbsolutePosPreview() = RemoteDocPreview(touchStopAbsolutePos())
+
+@Preview @Composable private fun SimpleJavaAnimPreview() = RemoteDocPreview(simpleJavaAnim())
+*/

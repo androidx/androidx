@@ -24,7 +24,6 @@ import androidx.compose.remote.core.operations.utilities.AnimatedFloatExpression
 import androidx.compose.remote.core.operations.utilities.IntegerExpressionEvaluator
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 
@@ -851,14 +850,14 @@ internal constructor(
  *
  * @param name The unique name for this remote string, used for identification in the remote
  *   document.
- * @param domain The domain of the remote string (defaults to [RemoteDomains.USER]).
+ * @param domain The domain of the remote string (defaults to [RemoteState.Domain.User]).
  * @param content A lambda that provides the initial [String] value for this remote string.
  * @return A [MutableRemoteString] instance that will be remembered across recompositions.
  */
 @Composable
 public fun rememberRemoteString(
     name: String,
-    domain: RemoteDomains = RemoteDomains.USER,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
     content: () -> String,
 ): MutableRemoteString {
     val state = LocalRemoteComposeCreationState.current
@@ -899,7 +898,7 @@ public fun rememberRemoteString(content: () -> String): MutableRemoteString {
  * A convenience Composable function to remember a **system-level** named remote string.
  *
  * This is a specialized version of [rememberRemoteString] where the `domain` is fixed to
- * [RemoteDomains.SYSTEM].
+ * [RemoteState.Domain.System].
  *
  * @param name The unique name for this system remote string.
  * @param content A lambda that provides the initial [String] value for this remote string.
@@ -907,7 +906,7 @@ public fun rememberRemoteString(content: () -> String): MutableRemoteString {
  */
 @Composable
 public fun rememberSystemRemoteString(name: String, content: () -> String): MutableRemoteString =
-    rememberRemoteString(name = name, domain = RemoteDomains.SYSTEM, content)
+    rememberRemoteString(name = name, domain = RemoteState.Domain.System, content)
 
 /** Extension property to convert a [String] to a [RemoteString]. */
 public val String.rs: RemoteString

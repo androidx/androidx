@@ -28,6 +28,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.expectError
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -60,6 +62,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import com.google.common.truth.Truth.assertWithMessage
 import kotlin.math.roundToInt
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -400,9 +403,10 @@ class ClickTest {
             dragAndDrop(center, center + Offset(2f * width, 4f * height))
         }
         waitForIdle()
-        // TODO: b/458071288
-        //       This is failing due to touch slop being applied to trackpad events
-        // assertWithMessage("xOffset").that(xOffsetPx).isWithin(marginPx).of(2 * sizePx)
-        // assertWithMessage("yOffset").that(yOffsetPx).isWithin(marginPx).of(4 * sizePx)
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isTrackpadGestureHandlingEnabled) {
+            assertWithMessage("xOffset").that(xOffsetPx).isWithin(marginPx).of(2 * sizePx)
+            assertWithMessage("yOffset").that(yOffsetPx).isWithin(marginPx).of(4 * sizePx)
+        }
     }
 }

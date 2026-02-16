@@ -104,6 +104,23 @@ internal constructor(private val idProvider: (creationState: RemoteComposeCreati
             })
 
         /**
+         * Creates a [RemoteMatrix3x3] that translates along the X-axis and the Y-axis.
+         *
+         * @param x The distance to translate along the X-axis.
+         * @param y The distance to translate along the Y-axis.
+         */
+        public fun createTranslateXY(x: RemoteFloat, y: RemoteFloat): RemoteMatrix3x3 =
+            RemoteMatrix3x3({ creationState ->
+                Utils.idFromNan(
+                    creationState.document.matrixExpression(
+                        x.getFloatIdForCreationState(creationState),
+                        y.getFloatIdForCreationState(creationState),
+                        MatrixOperations.TRANSLATE2,
+                    )
+                )
+            })
+
+        /**
          * Creates a [RemoteMatrix3x3] that scales along the X-axis.
          *
          * @param scale The scaling factor.

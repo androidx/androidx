@@ -26,7 +26,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -34,7 +36,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
@@ -220,6 +224,118 @@ class GraphicsLayerSemanticsTest(private val modifierVariant: ModifierVariant) {
                 .toScreenBounds(info.boundsInScreen)
                 .subtractRootViewOffset()
                 .assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 10.dp, bottom = 10.dp)
+        }
+    }
+
+    // b/479577752
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun rectangleShape_clipWithOverflow_shapeFillsOverflowedNodeBounds() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(Modifier.size(100.dp).background(Color.Black.copy(alpha = 0.1f))) {
+                Box(Modifier.requiredSize(50.dp).clipToBounds()) {
+                    Box(
+                        Modifier.wrapContentSize(Alignment.TopStart, unbounded = true)
+                            .size(100.dp)
+                            .parameterizedGraphicsLayer(RectangleShape, clip = true)
+                            .background(Color.Blue)
+                            .testTag(testTag)
+                    )
+                }
+            }
+        }
+
+        val virtualViewId = rule.onNodeWithTag(testTag).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
+            info.extras
+                .getRectParcelable(ExtraDataShapeRectKey)
+                .toScreenBounds(info.boundsInScreen)
+                .subtractRootViewOffset()
+                .assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 100.dp, bottom = 100.dp)
+        }
+    }
+
+    // b/479577752
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun roundedCornerShape_clipWithOverflow_shapeFillsOverflowedNodeBounds() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(Modifier.size(100.dp).background(Color.Black.copy(alpha = 0.1f))) {
+                Box(Modifier.requiredSize(50.dp).clipToBounds()) {
+                    Box(
+                        Modifier.wrapContentSize(Alignment.TopStart, unbounded = true)
+                            .size(100.dp)
+                            .parameterizedGraphicsLayer(RoundedCornerShape(25.dp), clip = true)
+                            .background(Color.Blue)
+                            .testTag(testTag)
+                    )
+                }
+            }
+        }
+
+        val virtualViewId = rule.onNodeWithTag(testTag).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectKey)
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRectCornersKey)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.extras.containsKey(ExtraDataShapeRectKey)).isTrue()
+            info.extras
+                .getRectParcelable(ExtraDataShapeRectKey)
+                .toScreenBounds(info.boundsInScreen)
+                .subtractRootViewOffset()
+                .assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 100.dp, bottom = 100.dp)
+            assertThat(info.extras.containsKey(ExtraDataShapeRectCornersKey)).isTrue()
+            val corners = info.extras.getFloatArray(ExtraDataShapeRectCornersKey)!!
+            with(rule.density) { assertThat(corners).isEqualTo(FloatArray(8) { 25.dp.toPx() }) }
+        }
+    }
+
+    // b/479577752
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun genericShape_clipWithOverflow_shapeFillsOverflowedNodeBounds() {
+        // Arrange.
+        rule.setContentWithAccessibilityEnabled {
+            Box(Modifier.size(100.dp).background(Color.Black.copy(alpha = 0.1f))) {
+                Box(Modifier.requiredSize(50.dp).clipToBounds()) {
+                    Box(
+                        Modifier.wrapContentSize(Alignment.TopStart, unbounded = true)
+                            .size(100.dp)
+                            .parameterizedGraphicsLayer(CutCornerShape(25.dp), clip = true)
+                            .background(Color.Blue)
+                            .testTag(testTag)
+                    )
+                }
+            }
+        }
+
+        val virtualViewId = rule.onNodeWithTag(testTag).semanticsId()
+        val info = rule.runOnIdle { androidComposeView.createAccessibilityNodeInfo(virtualViewId) }
+
+        // Act.
+        addExtraDataToAccessibilityNodeInfo(virtualViewId, info, ExtraDataShapeRegionKey)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(info.extras.containsKey(ExtraDataShapeRegionKey)).isTrue()
+            info.extras
+                .getRegionParcelable(ExtraDataShapeRegionKey)
+                .toScreenBounds(info.boundsInScreen)
+                .subtractRootViewOffset()
+                .assertBoundsEqualTo(left = 0.dp, top = 0.dp, right = 100.dp, bottom = 100.dp)
         }
     }
 

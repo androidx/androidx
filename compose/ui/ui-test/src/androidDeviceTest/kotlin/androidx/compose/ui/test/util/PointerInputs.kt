@@ -40,6 +40,7 @@ data class DataPoint(
     val timestamp: Long,
     val position: Offset,
     val scrollDelta: Offset,
+    val gesturePanOffset: Offset,
     val down: Boolean,
     val pointerType: PointerType,
     val eventType: PointerEventType,
@@ -48,7 +49,7 @@ data class DataPoint(
     val classification: Int,
     val axisGestureScrollXDistance: Float?,
     val axisGestureScrollYDistance: Float?,
-    val axisGesturePinchScaleFactor: Float?,
+    val axisGestureScaleFactor: Float?,
 ) {
     constructor(
         change: PointerInputChange,
@@ -58,6 +59,7 @@ data class DataPoint(
         change.uptimeMillis,
         change.position,
         change.scrollDelta,
+        change.panGestureOffset,
         change.pressed,
         change.type,
         event.type,

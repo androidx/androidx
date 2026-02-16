@@ -130,7 +130,7 @@ public class TouchDownModifierOperation extends ListActionsOperation implements 
         doc.operation("Modifier Operations", OP_CODE, name())
                 .description(
                         "Touch down modifier. This operation contains"
-                                + " a list of action executed on Touch down");
+                                + " a list of action operations executed on touch down");
     }
 
     @Override

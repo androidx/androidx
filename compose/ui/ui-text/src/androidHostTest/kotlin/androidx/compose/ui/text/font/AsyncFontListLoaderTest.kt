@@ -56,7 +56,7 @@ class AsyncFontListLoaderTest {
     @Test
     fun loadWithTimeoutOrNull_informsUncaughtExceptionHandler_OnException() {
         val expected = IllegalStateException("Thrown")
-        val lock = Object()
+        val lock = Any()
         var actualException: Throwable? = null
         val latch = CountDownLatch(1)
         val resourceLoader = makeResourceLoader { throw expected }

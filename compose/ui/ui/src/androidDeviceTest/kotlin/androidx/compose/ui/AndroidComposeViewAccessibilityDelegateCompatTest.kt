@@ -42,9 +42,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Switch
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
@@ -55,6 +57,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
+import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.CONTENT_CHANGE_TYPE_CHECKED
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRectCornersKey
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRectKey
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat.Companion.ExtraDataShapeRegionKey
@@ -63,6 +66,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testClipEntry
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -109,6 +113,7 @@ import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Density
@@ -117,6 +122,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION
+import androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_STATE_DESCRIPTION
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_CLICK
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_COLLAPSE
@@ -1824,6 +1830,73 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         eventType = TYPE_WINDOW_CONTENT_CHANGED
                         contentChangeTypes = CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION
                         contentDescription = "Hello"
+                    }
+                )
+        }
+    }
+
+    @Test
+    fun testStateDescriptionCastSuccess() {
+        // Arrange.
+        var checked by mutableStateOf(false)
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            Box(
+                Modifier.size(10.dp).semantics(mergeDescendants = true) {
+                    stateDescription =
+                        if (checked) {
+                            "state on"
+                        } else {
+                            "state off"
+                        }
+                }
+            )
+        }
+
+        // Act.
+        rule.runOnIdle { checked = true }
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .contains(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentChangeTypes = CONTENT_CHANGE_TYPE_STATE_DESCRIPTION
+                    }
+                )
+        }
+    }
+
+    @Test
+    fun testCheckedCastSuccess() {
+        // Arrange.
+        rule.mainClock.autoAdvance = false
+        rule.setContentWithAccessibilityEnabled {
+            val (checked, onChecked) = remember { mutableStateOf(false) }
+            Box {
+                Switch(
+                    modifier = Modifier.testTag(tag),
+                    checked = checked,
+                    onCheckedChange = onChecked,
+                )
+            }
+        }
+
+        // Act.
+        rule.onNodeWithTag(tag).performClick()
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(dispatchedAccessibilityEvents)
+                .comparingElementsUsing(AccessibilityEventComparator)
+                .contains(
+                    AccessibilityEvent().apply {
+                        eventType = TYPE_WINDOW_CONTENT_CHANGED
+                        contentChangeTypes = CONTENT_CHANGE_TYPE_CHECKED
                     }
                 )
         }

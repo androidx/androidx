@@ -301,4 +301,4 @@ fun genPath(
     return pid
 }
 
-@Preview @Composable fun FancyClock2Preview() = RemoteDocPreview(fancyClock2())
+@Preview @Composable private fun FancyClock2Preview() = RemoteDocPreview(fancyClock2())

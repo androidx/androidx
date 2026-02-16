@@ -308,8 +308,7 @@ interface RemoteDrawScope0 : Density, RemoteStateScope {
         get() = RemoteSize(remote.component.width, remote.component.height)
 
     /** The layout direction of the layout being drawn in. */
-    public val layoutDirection: LayoutDirection
-
+    public override val layoutDirection: LayoutDirection
     override val remoteDensity: RemoteDensity
         get() = canvas.remoteDensity
 

@@ -18,14 +18,17 @@
 
 package androidx.compose.remote.creation.compose.v2
 
+import android.content.Context
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.RemoteClock
-import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.creation.CreationDisplayInfo
 import androidx.compose.remote.creation.compose.capture.CapturedDocument
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
+import androidx.compose.remote.creation.compose.capture.RecordingCanvas
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.WriterEvents
+import androidx.compose.remote.creation.compose.layout.RemoteCanvas
+import androidx.compose.remote.creation.compose.widgets.toLayoutDirection
 import androidx.compose.remote.creation.profile.Profile
 import androidx.compose.remote.creation.profile.RcPlatformProfiles
 import androidx.compose.runtime.BroadcastFrameClock
@@ -34,8 +37,13 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.core.graphics.createBitmap
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -47,24 +55,29 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public suspend fun captureSingleRemoteDocumentV2(
     creationDisplayInfo: CreationDisplayInfo,
-    clock: RemoteClock = SystemClock(),
+    layoutDirection: LayoutDirection? = null,
+    context: Context,
+    clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    context: CoroutineContext = Dispatchers.Default,
+    writerEvents: WriterEvents = WriterEvents(),
+    coroutineContext: CoroutineContext = Dispatchers.Default,
     content: @Composable () -> Unit,
 ): CapturedDocument {
-    val writerEvents = WriterEvents()
     val document =
         captureRemoteDocumentV2(
                 creationDisplayInfo = creationDisplayInfo,
+                layoutDirection = layoutDirection,
                 clock = clock,
                 writerEvents = writerEvents,
                 profile = profile,
+                coroutineContext = coroutineContext,
                 context = context,
                 content = content,
             )
@@ -79,10 +92,12 @@ public suspend fun captureSingleRemoteDocumentV2(
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public fun captureRemoteDocumentV2(
     creationDisplayInfo: CreationDisplayInfo,
-    clock: RemoteClock = SystemClock(),
+    layoutDirection: LayoutDirection? = null,
     writerEvents: WriterEvents,
+    context: Context,
+    clock: RemoteClock = RemoteClock.SYSTEM,
     profile: Profile = RcPlatformProfiles.ANDROIDX,
-    context: CoroutineContext = Dispatchers.Default,
+    coroutineContext: CoroutineContext = Dispatchers.Default,
     content: @Composable () -> Unit,
 ): Flow<ByteArray> = flow {
     val rootNode = RemoteRootNodeV2()
@@ -92,12 +107,23 @@ public fun captureRemoteDocumentV2(
     val composition = Composition(applier, recomposer)
 
     try {
-        val creationState = RemoteComposeCreationState(creationDisplayInfo, profile, writerEvents)
+        val layoutDirection =
+            (layoutDirection ?: toLayoutDirection(context.resources.configuration.layoutDirection))
+        val creationState =
+            RemoteComposeCreationState(
+                creationDisplayInfo = creationDisplayInfo,
+                profile = profile,
+                writerEvents = writerEvents,
+                layoutDirection = layoutDirection,
+            )
 
         composition.setContent {
             CompositionLocalProvider(
                 LocalRemoteComposeCreationState provides creationState,
                 LocalDensity provides Density(creationDisplayInfo.density),
+                LocalContext provides context,
+                LocalConfiguration provides context.resources.configuration,
+                LocalLayoutDirection provides layoutDirection,
                 content = content,
             )
         }
@@ -116,16 +142,22 @@ public fun captureRemoteDocumentV2(
                     .filter { it == Recomposer.State.Idle }
                     .mapLatest {
                         Snapshot.withMutableSnapshot {
-                            // Create a fresh writer for each emission to ensure a complete document
-                            // is
-                            // captured
-                            val writer = profile.create(creationDisplayInfo, writerEvents)
-                            creationState.document = writer
+                            val recordingCanvas =
+                                RecordingCanvas(createBitmap(1, 1)).apply {
+                                    setRemoteComposeCreationState(creationState)
+                                }
 
-                            rootNode.render(creationState)
-                            writer.encodeToByteArray()
+                            val remoteCanvas = RemoteCanvas(recordingCanvas)
+
+                            rootNode.render(creationState, remoteCanvas)
+
+                            // This is only safe for the first document
+                            // since some ids might be generated early
+                            creationState.document.encodeToByteArray()
                         }
                     }
+                    // Avoid additional takes until id generation is cleaned up
+                    .take(1)
             emitAll(documentFlow)
         }
     } finally {

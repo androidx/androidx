@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow as Row
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.layout.StateLayout
-import androidx.compose.remote.creation.compose.layout.createIds
 import androidx.compose.remote.creation.compose.layout.rememberRemoteStringList
 import androidx.compose.remote.creation.compose.layout.rememberStateMachine
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier as Modifier
@@ -53,7 +52,6 @@ import androidx.compose.remote.creation.compose.state.rememberRemoteIntValue
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.tooling.preview.RemotePreview
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -78,12 +76,14 @@ fun SwitchWidgetOnState(modifier: RemoteModifier = RemoteModifier, id: Int = 0) 
     }
 }
 
-@Preview @Composable fun SwitchWidgetOnStatePreview() = RemotePreview { SwitchWidgetOnState() }
+@Preview
+@Composable
+private fun SwitchWidgetOnStatePreview() = RemotePreview { SwitchWidgetOnState() }
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
 @RemoteComposable
-fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier, id: Int = 0) {
+fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier) {
     RemoteBox(
         modifier =
             modifier
@@ -102,7 +102,9 @@ fun SwitchWidgetOffState(modifier: RemoteModifier = RemoteModifier, id: Int = 0)
     }
 }
 
-@Preview @Composable fun SwitchWidgetOffStatePreview() = RemotePreview { SwitchWidgetOffState() }
+@Preview
+@Composable
+private fun SwitchWidgetOffStatePreview() = RemotePreview { SwitchWidgetOffState() }
 
 @Suppress("RestrictedApiAndroidX")
 @Composable
@@ -125,10 +127,7 @@ fun SwitchComponent(value: MutableRemoteInt) {
 @Composable
 @RemoteComposable
 fun SwitchWidget(value: MutableRemoteInt) {
-    LogTodo("fix rememberStateMachine/createIds in Previews")
-    val off = remember { 0 }
-    val on = remember { 1 }
-    val (id1) = remember { createIds }
+    val (off, on) = listOf(0, 1)
     val fsm = rememberStateMachine(value, off, on)
 
     val captureMode = LocalRemoteComposeCreationState.current
@@ -157,11 +156,11 @@ fun SwitchWidget(value: MutableRemoteInt) {
             RemoteBox {
                 when (state) {
                     off -> {
-                        SwitchWidgetOffState(modifier = modifierSize, id = id1)
+                        SwitchWidgetOffState(modifier = modifierSize)
                     }
 
                     on -> {
-                        SwitchWidgetOnState(modifier = modifierSize, id = id1)
+                        SwitchWidgetOnState(modifier = modifierSize)
                     }
                 }
             }
@@ -236,4 +235,4 @@ fun SwitchWidgetDemo() {
     }
 }
 
-@Preview @Composable fun SwitchWidgetDemoPreview() = RemotePreview { SwitchWidgetDemo() }
+@Preview @Composable private fun SwitchWidgetDemoPreview() = RemotePreview { SwitchWidgetDemo() }

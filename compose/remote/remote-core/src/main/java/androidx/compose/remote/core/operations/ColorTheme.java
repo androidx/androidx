@@ -174,14 +174,16 @@ public class ColorTheme extends Operation implements Serializable, ComponentData
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, CLASS_NAME)
-                .description("Color Theme Objectn")
-                .field(DocumentedOperation.INT, "id", "Id of the color")
-                .field(INT, "group", "id of group name string")
-                .field(SHORT, "lightId", "id of color in that group")
-                .field(SHORT, "darkId", "id of color in that group")
-                .field(INT, "lightFallback", "32 bit ARGB fallback color")
-                .field(INT, "darkFallback", "32 bit ARGB fallback color");
+        doc.operation("Paint & Styles Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .experimental(true)
+                .description("Define a color that adapts to the current theme (light/dark)")
+                .field(DocumentedOperation.INT, "id", "The ID of the color")
+                .field(INT, "groupId", "The ID of the color group name string")
+                .field(SHORT, "lightModeIndex", "The ID of the color in the light group")
+                .field(SHORT, "darkModeIndex", "The ID of the color in the dark group")
+                .field(INT, "lightModeFallback", "32-bit ARGB fallback color for light mode")
+                .field(INT, "darkModeFallback", "32-bit ARGB fallback color for dark mode");
     }
 
     @NonNull

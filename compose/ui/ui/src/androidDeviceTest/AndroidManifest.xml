@@ -33,6 +33,9 @@
         <activity android:name="androidx.appcompat.app.AppCompatActivity"
             android:theme="@style/Theme.AppCompat"/>
         <activity android:name="androidx.activity.ComponentActivity" />
+        <activity android:name="androidx.compose.ui.graphics.vector.RotationActivity"
+            android:theme="@style/Theme.AppCompat.DayNight.NoActionBar"
+            android:configChanges="orientation|screenSize"/>
         <activity android:name="androidx.fragment.app.FragmentActivity"/>
         <activity android:name="androidx.compose.ui.window.ActivityWithFlagSecure"/>
         <activity android:name="androidx.compose.ui.RecyclerViewActivity" />

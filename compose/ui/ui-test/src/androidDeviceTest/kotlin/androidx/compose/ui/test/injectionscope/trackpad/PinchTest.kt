@@ -20,12 +20,16 @@ import android.os.Build
 import android.view.MotionEvent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Enter
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
+import androidx.compose.ui.input.pointer.PointerEventType.Companion.Scale
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.InputDispatcher
 import androidx.compose.ui.test.injectionscope.trackpad.Common.verifyTrackpadEvent
@@ -45,7 +49,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
 class PinchTest {
     companion object {
         private val T = InputDispatcher.eventPeriodMillis
@@ -86,8 +90,22 @@ class PinchTest {
                 events[1].let { event ->
                     assertThat(event.pointers.size).isEqualTo(1)
                     event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T, Press, true, Offset(50f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Press
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(50f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
 
                         assertThat(pointer.classification)
                             .isEqualTo(
@@ -99,34 +117,22 @@ class PinchTest {
                 events[2].let { event ->
                     assertThat(event.pointers.size).isEqualTo(2)
                     event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T, Press, true, Offset(50f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
-                        assertThat(pointer.classification)
-                            .isEqualTo(
-                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
-                                else MotionEvent.CLASSIFICATION_NONE
-                            )
-                    }
-                    event.getPointer(1).verifyTrackpadEvent(T, Press, true, Offset(250f, 150f))
-                }
-                events[3].let { event ->
-                    assertThat(event.pointers.size).isEqualTo(2)
-                    event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T * 2, Move, true, Offset(60f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(0.9f)
-                        assertThat(pointer.classification)
-                            .isEqualTo(
-                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
-                                else MotionEvent.CLASSIFICATION_NONE
-                            )
-                    }
-                    event.getPointer(1).verifyTrackpadEvent(T * 2, Move, true, Offset(240f, 150f))
-                }
-                events[4].let { event ->
-                    assertThat(event.pointers.size).isEqualTo(2)
-                    event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T * 3, Release, true, Offset(60f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Press
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(50f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
                         assertThat(pointer.classification)
                             .isEqualTo(
                                 if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
@@ -135,13 +141,127 @@ class PinchTest {
                     }
                     event
                         .getPointer(1)
-                        .verifyTrackpadEvent(T * 3, Release, false, Offset(240f, 150f))
+                        .verifyTrackpadEvent(
+                            expectedTimestamp = T,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Press
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(250f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                }
+                events[3].let { event ->
+                    assertThat(event.pointers.size).isEqualTo(2)
+                    event.getPointer(0).let { pointer ->
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T * 2,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Move
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(60f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(0.9f)
+                        assertThat(pointer.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                    }
+                    event
+                        .getPointer(1)
+                        .verifyTrackpadEvent(
+                            expectedTimestamp = T * 2,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Move
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(240f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                }
+                events[4].let { event ->
+                    assertThat(event.pointers.size).isEqualTo(2)
+                    event.getPointer(0).let { pointer ->
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T * 3,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Release
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(60f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
+                        assertThat(pointer.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                    }
+                    event
+                        .getPointer(1)
+                        .verifyTrackpadEvent(
+                            expectedTimestamp = T * 3,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Release
+                                },
+                            expectedDown = false,
+                            expectedPosition = Offset(240f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
                 }
                 events[5].let { event ->
                     assertThat(event.pointers.size).isEqualTo(1)
                     event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T * 3, Release, false, Offset(60f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T * 3,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Release
+                                },
+                            expectedDown = false,
+                            expectedPosition = Offset(60f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
                         assertThat(pointer.classification)
                             .isEqualTo(
                                 if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
@@ -191,8 +311,22 @@ class PinchTest {
                 events[1].let { event ->
                     assertThat(event.pointers.size).isEqualTo(1)
                     event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T, Press, true, Offset(50f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Press
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(50f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
                         assertThat(pointer.classification)
                             .isEqualTo(
                                 if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
@@ -203,34 +337,22 @@ class PinchTest {
                 events[2].let { event ->
                     assertThat(event.pointers.size).isEqualTo(2)
                     event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T, Press, true, Offset(50f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
-                        assertThat(pointer.classification)
-                            .isEqualTo(
-                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
-                                else MotionEvent.CLASSIFICATION_NONE
-                            )
-                    }
-                    event.getPointer(1).verifyTrackpadEvent(T, Press, true, Offset(250f, 150f))
-                }
-                events[3].let { event ->
-                    assertThat(event.pointers.size).isEqualTo(2)
-                    event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T * 2, Move, true, Offset(40f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1.1f)
-                        assertThat(pointer.classification)
-                            .isEqualTo(
-                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
-                                else MotionEvent.CLASSIFICATION_NONE
-                            )
-                    }
-                    event.getPointer(1).verifyTrackpadEvent(T * 2, Move, true, Offset(260f, 150f))
-                }
-                events[4].let { event ->
-                    assertThat(event.pointers.size).isEqualTo(2)
-                    event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T * 3, Release, true, Offset(40f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Press
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(50f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
                         assertThat(pointer.classification)
                             .isEqualTo(
                                 if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
@@ -239,13 +361,127 @@ class PinchTest {
                     }
                     event
                         .getPointer(1)
-                        .verifyTrackpadEvent(T * 3, Release, false, Offset(260f, 150f))
+                        .verifyTrackpadEvent(
+                            expectedTimestamp = T,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Press
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(250f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                }
+                events[3].let { event ->
+                    assertThat(event.pointers.size).isEqualTo(2)
+                    event.getPointer(0).let { pointer ->
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T * 2,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Move
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(40f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1.1f)
+                        assertThat(pointer.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                    }
+                    event
+                        .getPointer(1)
+                        .verifyTrackpadEvent(
+                            expectedTimestamp = T * 2,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Move
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(260f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                }
+                events[4].let { event ->
+                    assertThat(event.pointers.size).isEqualTo(2)
+                    event.getPointer(0).let { pointer ->
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T * 3,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Release
+                                },
+                            expectedDown = true,
+                            expectedPosition = Offset(40f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
+                        assertThat(pointer.classification)
+                            .isEqualTo(
+                                if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH
+                                else MotionEvent.CLASSIFICATION_NONE
+                            )
+                    }
+                    event
+                        .getPointer(1)
+                        .verifyTrackpadEvent(
+                            expectedTimestamp = T * 3,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Release
+                                },
+                            expectedDown = false,
+                            expectedPosition = Offset(260f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
                 }
                 events[5].let { event ->
                     assertThat(event.pointers.size).isEqualTo(1)
                     event.getPointer(0).let { pointer ->
-                        pointer.verifyTrackpadEvent(T * 3, Release, false, Offset(40f, 150f))
-                        assertThat(pointer.axisGesturePinchScaleFactor).isEqualTo(1f)
+                        pointer.verifyTrackpadEvent(
+                            expectedTimestamp = T * 3,
+                            expectedEventType =
+                                if (
+                                    ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                                        Build.VERSION.SDK_INT >= 34
+                                ) {
+                                    Scale
+                                } else {
+                                    Release
+                                },
+                            expectedDown = false,
+                            expectedPosition = Offset(40f, 150f),
+                            expectedPointerType = PointerType.Touch,
+                        )
+                        assertThat(pointer.axisGestureScaleFactor).isEqualTo(1f)
                         assertThat(pointer.classification)
                             .isEqualTo(
                                 if (Build.VERSION.SDK_INT >= 34) MotionEvent.CLASSIFICATION_PINCH

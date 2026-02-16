@@ -24,6 +24,7 @@ import android.graphics.Paint;
 import android.widget.EdgeEffect;
 
 import androidx.annotation.RestrictTo;
+import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.ScrollingEdgeEffect;
 import androidx.compose.remote.core.SystemClock;
@@ -60,17 +61,17 @@ public class AndroidRemoteContext extends RemoteContext {
     @NonNull
     private BitmapLoader mBitmapLoader = BitmapLoader.UNSUPPORTED;
 
-    /** Default constructor, uses a {@link SystemClock} as the clock. */
+    /** Default constructor, uses a {@link RemoteClock#SYSTEM} as the clock. */
     public AndroidRemoteContext() {
-        this(new SystemClock());
+        this(RemoteClock.SYSTEM);
     }
 
-    /**
-     * Context for the Android Implementation.
-     *
-     * @param clock The clock used for tracking time.
-     */
     public AndroidRemoteContext(@NonNull Clock clock) {
+        super(new SystemClock(clock));
+        setBitmapLoader(new AndroidBitmapLoader());
+    }
+
+    public AndroidRemoteContext(@NonNull RemoteClock clock) {
         super(clock);
         setBitmapLoader(new AndroidBitmapLoader());
     }

@@ -30,7 +30,6 @@ import androidx.compose.remote.creation.compose.modifier.padding
 import androidx.compose.remote.creation.compose.modifier.semantics
 import androidx.compose.remote.creation.compose.state.rf
 import androidx.compose.remote.creation.compose.state.rs
-import androidx.compose.remote.player.compose.test.utils.screenshot.TargetPlayer
 import androidx.compose.remote.player.compose.test.utils.screenshot.rule.RemoteComposeScreenshotTestRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -48,10 +47,7 @@ import org.junit.runner.RunWith
 class BasicA11yTest {
     @get:Rule
     val remoteComposeTestRule =
-        RemoteComposeScreenshotTestRule(
-            moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY,
-            targetPlayer = TargetPlayer.View,
-        )
+        RemoteComposeScreenshotTestRule(moduleDirectory = SCREENSHOT_GOLDEN_DIRECTORY)
 
     @Test
     fun textSemantics() {

@@ -103,4 +103,10 @@ fun LayoutModifierDemo2(): RemoteComposeContext {
     }
 }
 
-@Preview @Composable fun LayoutModifierDemo1Preview() = RemoteDocPreview(LayoutModifierDemo1())
+@Preview
+@Composable
+private fun LayoutModifierDemo1Preview() = RemoteDocPreview(LayoutModifierDemo1())
+
+@Preview
+@Composable
+private fun LayoutModifierDemo2Preview() = RemoteDocPreview(LayoutModifierDemo2())

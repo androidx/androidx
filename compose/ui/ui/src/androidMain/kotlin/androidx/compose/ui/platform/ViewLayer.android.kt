@@ -35,6 +35,7 @@ import androidx.compose.ui.graphics.RenderEffect
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.layer.GraphicsLayer
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
@@ -242,7 +243,7 @@ internal class ViewLayer(
                                         colorFilter = scope.colorFilter
                                         blendMode = scope.blendMode
                                     }
-                                    .asFrameworkPaint()
+                                    .nativePaint
                             } else {
                                 null
                             }

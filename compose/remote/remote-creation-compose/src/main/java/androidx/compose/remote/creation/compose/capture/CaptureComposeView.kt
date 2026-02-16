@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 @file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@file:OptIn(ExperimentalRemoteCreationComposeApi::class)
 
 package androidx.compose.remote.creation.compose.capture
 
@@ -23,6 +24,8 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.creation.RemoteComposeWriter
+import androidx.compose.remote.creation.compose.ExperimentalRemoteCreationComposeApi
+import androidx.compose.remote.creation.compose.RemoteComposeCreationComposeFlags
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.platform.AbstractComposeView
@@ -43,6 +46,12 @@ public constructor(
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0,
 ) : AbstractComposeView(context, attrs, defStyleAttr) {
+    init {
+        check(!RemoteComposeCreationComposeFlags.isRemoteApplierEnabled) {
+            "CaptureComposeView cannot be used with RemoteComposeApplier"
+        }
+    }
+
     public val initialImmediateCapture: Boolean = immediateCapture
     public val recordingCanvas: RecordingCanvas = RecordingCanvas(createBitmap(1, 1))
     private val content = mutableStateOf<(@Composable () -> Unit)?>(null)

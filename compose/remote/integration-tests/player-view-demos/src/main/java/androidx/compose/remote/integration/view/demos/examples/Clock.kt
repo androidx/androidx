@@ -332,4 +332,4 @@ fun RcSimpleClock1(
     }
 }
 
-@Preview @Composable fun RcSimpleClock1Preview() = RemotePreview { RcSimpleClock1() }
+@Preview @Composable private fun RcSimpleClock1Preview() = RemotePreview { RcSimpleClock1() }

@@ -21,4 +21,7 @@ public class Color {
     public static final int GREEN = 0xFF00FF00;
     public static final int RED = 0xFFFF0000;
     public static final int BLUE = 0xFF0000FF;
+    public static final int CYAN = 0xFF00FFFF;
+    public static final int LTGRAY = 0xFFAAAAAA;
+    public static final int MAGENTA = 0xFFFF00FF;
 }

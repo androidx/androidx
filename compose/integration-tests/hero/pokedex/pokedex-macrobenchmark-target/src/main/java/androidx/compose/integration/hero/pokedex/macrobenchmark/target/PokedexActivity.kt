@@ -20,6 +20,8 @@ import android.os.Bundle
 import android.os.Trace
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.ComposeToolingFlags
 import com.skydoves.pokedex.compose.core.PokedexFeatureFlags
 import com.skydoves.pokedex.compose.core.database.entitiy.mapper.getPokemonImageUrlByName
 import com.skydoves.pokedex.compose.core.model.Pokemon
@@ -37,6 +39,10 @@ class PokedexActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Trace.beginSection("PokedexActivity Setup")
+
+        @OptIn(ComposeToolingApi::class)
+        ComposeToolingFlags.isVerboseTracingEnabled = true
+
         if (BuildConfig.DEBUG) {
             throw IllegalStateException(
                 "pokedex-macrobenchmark-target was built in debug" +

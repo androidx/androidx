@@ -29,7 +29,6 @@ import androidx.compose.remote.core.CoreDocument
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import java.io.ByteArrayInputStream
-import java.util.List
 
 /** Widget implementation that takes a composable */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -106,7 +105,7 @@ public open class RCWidget(public val Content: @Composable (Context, Int) -> Uni
         val bytes = ByteArray(bufferSize)
         val b = ByteArrayInputStream(buffer.getBuffer(), 0, bufferSize)
         b.read(bytes)
-        val r = RemoteViews.DrawInstructions.Builder(List.of<ByteArray?>(bytes))
+        val r = RemoteViews.DrawInstructions.Builder(listOf<ByteArray>(bytes))
         val rv = RemoteViews(r.build())
         for (i in 0 until WidgetLambdaAction.counter) {
             val intentId = 1000 * widgetId + i

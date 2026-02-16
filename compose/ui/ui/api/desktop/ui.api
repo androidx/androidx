@@ -1776,12 +1776,21 @@ public final class androidx/compose/ui/input/key/Key$Companion {
 	public final fun getNumPad9-EK5gGoQ ()J
 	public final fun getNumPadAdd-EK5gGoQ ()J
 	public final fun getNumPadComma-EK5gGoQ ()J
+	public final fun getNumPadDirectionDown-EK5gGoQ ()J
+	public final fun getNumPadDirectionLeft-EK5gGoQ ()J
+	public final fun getNumPadDirectionRight-EK5gGoQ ()J
+	public final fun getNumPadDirectionUp-EK5gGoQ ()J
 	public final fun getNumPadDivide-EK5gGoQ ()J
 	public final fun getNumPadDot-EK5gGoQ ()J
 	public final fun getNumPadEnter-EK5gGoQ ()J
 	public final fun getNumPadEquals-EK5gGoQ ()J
+	public final fun getNumPadInsert-EK5gGoQ ()J
 	public final fun getNumPadLeftParenthesis-EK5gGoQ ()J
+	public final fun getNumPadMoveEnd-EK5gGoQ ()J
+	public final fun getNumPadMoveHome-EK5gGoQ ()J
 	public final fun getNumPadMultiply-EK5gGoQ ()J
+	public final fun getNumPadPageDown-EK5gGoQ ()J
+	public final fun getNumPadPageUp-EK5gGoQ ()J
 	public final fun getNumPadRightParenthesis-EK5gGoQ ()J
 	public final fun getNumPadSubtract-EK5gGoQ ()J
 	public final fun getNumber-EK5gGoQ ()J
@@ -2118,8 +2127,12 @@ public final class androidx/compose/ui/input/pointer/ConsumedData {
 
 public final class androidx/compose/ui/input/pointer/HistoricalChange {
 	public static final field $stable I
+	public synthetic fun <init> (JJFJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJFJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getPanGestureOffset-F1C5BW0 ()J
 	public final fun getPosition-F1C5BW0 ()J
+	public final fun getScaleGestureFactor ()F
 	public final fun getUptimeMillis ()J
 	public fun toString ()Ljava/lang/String;
 }
@@ -2241,8 +2254,10 @@ public final class androidx/compose/ui/input/pointer/PointerEventType$Companion 
 	public final fun getEnter-7fucELk ()I
 	public final fun getExit-7fucELk ()I
 	public final fun getMove-7fucELk ()I
+	public final fun getPan-7fucELk ()I
 	public final fun getPress-7fucELk ()I
 	public final fun getRelease-7fucELk ()I
+	public final fun getScale-7fucELk ()I
 	public final fun getScroll-7fucELk ()I
 	public final fun getUnknown-7fucELk ()I
 }
@@ -2311,10 +2326,14 @@ public final class androidx/compose/ui/input/pointer/PointerId {
 
 public final class androidx/compose/ui/input/pointer/PointerInputChange {
 	public static final field $stable I
+	public synthetic fun <init> (JJJZFJJZZIJFJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJJZFJJZZIJFJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJZFJJZZIJILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJZFJJZZIJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJZJJZLandroidx/compose/ui/input/pointer/ConsumedData;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJZJJZLandroidx/compose/ui/input/pointer/ConsumedData;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJJZJJZZIJFJILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (JJJZJJZZIJFJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJZJJZZIJILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public synthetic fun <init> (JJJZJJZZIJLkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public final fun consume ()V
@@ -2326,17 +2345,21 @@ public final class androidx/compose/ui/input/pointer/PointerInputChange {
 	public static synthetic fun copy-JKmWfYY$default (Landroidx/compose/ui/input/pointer/PointerInputChange;JJJZJJZIJILjava/lang/Object;)Landroidx/compose/ui/input/pointer/PointerInputChange;
 	public final fun copy-Tn9QgHE (JJJZFJJZIJ)Landroidx/compose/ui/input/pointer/PointerInputChange;
 	public static synthetic fun copy-Tn9QgHE$default (Landroidx/compose/ui/input/pointer/PointerInputChange;JJJZFJJZIJILjava/lang/Object;)Landroidx/compose/ui/input/pointer/PointerInputChange;
+	public final fun copy-lGhnTh8 (JJJZFJJZILjava/util/List;JFJ)Landroidx/compose/ui/input/pointer/PointerInputChange;
+	public static synthetic fun copy-lGhnTh8$default (Landroidx/compose/ui/input/pointer/PointerInputChange;JJJZFJJZILjava/util/List;JFJILjava/lang/Object;)Landroidx/compose/ui/input/pointer/PointerInputChange;
 	public final fun copy-wbzehF4 (JJJZFJJZILjava/util/List;J)Landroidx/compose/ui/input/pointer/PointerInputChange;
 	public static synthetic fun copy-wbzehF4$default (Landroidx/compose/ui/input/pointer/PointerInputChange;JJJZFJJZILjava/util/List;JILjava/lang/Object;)Landroidx/compose/ui/input/pointer/PointerInputChange;
 	public final fun getConsumed ()Landroidx/compose/ui/input/pointer/ConsumedData;
 	public final fun getHistorical ()Ljava/util/List;
 	public final fun getId-J3iCeTQ ()J
+	public final fun getPanGestureOffset-F1C5BW0 ()J
 	public final fun getPosition-F1C5BW0 ()J
 	public final fun getPressed ()Z
 	public final fun getPressure ()F
 	public final fun getPreviousPosition-F1C5BW0 ()J
 	public final fun getPreviousPressed ()Z
 	public final fun getPreviousUptimeMillis ()J
+	public final fun getScaleGestureFactor ()F
 	public final fun getScrollDelta-F1C5BW0 ()J
 	public final fun getType-T8wyACA ()I
 	public final fun getUptimeMillis ()J

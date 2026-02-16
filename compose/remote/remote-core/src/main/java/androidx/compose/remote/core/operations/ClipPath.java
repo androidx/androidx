@@ -124,8 +124,8 @@ public class ClipPath extends PaintOperation implements Serializable {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
-                .description("Intersect the current clip with the path")
-                .field(DocumentedOperation.INT, "id", "id of the path");
+                .description("Intersect the current clip with the specified path")
+                .field(DocumentedOperation.INT, "id", "The ID of the path to clip with");
     }
 
     @Override

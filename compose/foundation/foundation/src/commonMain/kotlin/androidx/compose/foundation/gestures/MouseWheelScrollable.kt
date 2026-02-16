@@ -22,6 +22,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.copy
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ComposeFoundationFlags
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.runtime.withFrameNanos
@@ -59,9 +60,14 @@ internal class MouseWheelScrollingLogic(
         this.density = density
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     fun onPointerEvent(pointerEvent: PointerEvent, pass: PointerEventPass, bounds: IntSize) {
-        if (pointerEvent.type != PointerEventType.Scroll) return
+        @OptIn(ExperimentalFoundationApi::class)
+        if (
+            pointerEvent.type != PointerEventType.Scroll &&
+                (!ComposeFoundationFlags.isTrackpadGestureHandlingEnabled ||
+                    pointerEvent.type != PointerEventType.Pan)
+        )
+            return
         if (pointerEvent.isConsumed) return
         /**
          * If this scrollable is already scrolling from a previous interaction, consume immediately

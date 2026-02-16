@@ -65,7 +65,8 @@ public class BitmapTextMeasureTest {
         when(mRemoteContext.getText(TEXT_ID)).thenReturn("AB");
 
         BitmapTextMeasure measureOp =
-                new BitmapTextMeasure(RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH);
+                new BitmapTextMeasure(
+                        RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH, 0f);
         measureOp.paint(mPaintContext);
 
         // Verify that the correct width is loaded into the context.
@@ -73,6 +74,27 @@ public class BitmapTextMeasureTest {
         verify(mRemoteContext).loadFloat(mIdCaptor.capture(), mValueCaptor.capture());
         assertEquals(RESULT_ID, mIdCaptor.getValue().intValue());
         assertEquals(28f, mValueCaptor.getValue(), DELTA);
+    }
+
+    @Test
+    public void testMeasureWidth_withGlyphSpacing() {
+        BitmapFontData.Glyph[] glyphs = {
+                createGlyph("A", 10, 10, 20, 1, 2, 1, 2), createGlyph("B", 11, 12, 20, 2, 2, 2, 2)
+        };
+        BitmapFontData font = new BitmapFontData(FONT_ID, glyphs);
+        when(mRemoteContext.getObject(FONT_ID)).thenReturn(font);
+        when(mRemoteContext.getText(TEXT_ID)).thenReturn("AB");
+
+        BitmapTextMeasure measureOp =
+                new BitmapTextMeasure(
+                        RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH, 10f);
+        measureOp.paint(mPaintContext);
+
+        // Verify that the correct width is loaded into the context.
+        // Total width = (1+10+1 for 'A') + 10 + (2+12+2 for 'B') = 12 + 16 = 38.
+        verify(mRemoteContext).loadFloat(mIdCaptor.capture(), mValueCaptor.capture());
+        assertEquals(RESULT_ID, mIdCaptor.getValue().intValue());
+        assertEquals(38f, mValueCaptor.getValue(), DELTA);
     }
 
     @Test
@@ -88,7 +110,8 @@ public class BitmapTextMeasureTest {
         when(mRemoteContext.getText(TEXT_ID)).thenReturn("AV");
 
         BitmapTextMeasure measureOp =
-                new BitmapTextMeasure(RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH);
+                new BitmapTextMeasure(
+                        RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH, 0f);
         measureOp.paint(mPaintContext);
 
         // Total width = (1+10+1) + (1+10+1) - 2 (kern) = 12 + 12 - 2 = 22.
@@ -109,7 +132,8 @@ public class BitmapTextMeasureTest {
         when(mRemoteContext.getText(TEXT_ID)).thenReturn("OK");
 
         BitmapTextMeasure measureOp =
-                new BitmapTextMeasure(RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH);
+                new BitmapTextMeasure(
+                        RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH, 0f);
         measureOp.paint(mPaintContext);
 
         // Width should be based on the single "OK" glyph (2+15+2 = 19).
@@ -131,7 +155,7 @@ public class BitmapTextMeasureTest {
 
         BitmapTextMeasure measureOp =
                 new BitmapTextMeasure(
-                        RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_HEIGHT);
+                        RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_HEIGHT, 0f);
         measureOp.paint(mPaintContext);
 
         // Height = overall_yMax - overall_yMin = max(30,30) - min(5,10) = 25.
@@ -150,7 +174,8 @@ public class BitmapTextMeasureTest {
         when(mRemoteContext.getText(TEXT_ID)).thenReturn("ABC"); // B is unknown.
 
         BitmapTextMeasure measureOp =
-                new BitmapTextMeasure(RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH);
+                new BitmapTextMeasure(
+                        RESULT_ID, TEXT_ID, FONT_ID, BitmapTextMeasure.MEASURE_WIDTH, 0f);
         measureOp.paint(mPaintContext);
 
         // Width for "A" (12) + width for "C" (20) = 32. 'B' is ignored.

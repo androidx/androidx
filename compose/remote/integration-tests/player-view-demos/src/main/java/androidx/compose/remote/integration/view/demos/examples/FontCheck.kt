@@ -27,6 +27,8 @@ import androidx.compose.remote.creation.RemoteComposeContextAndroid
 import androidx.compose.remote.creation.RemoteComposeWriter
 import androidx.compose.remote.creation.modifiers.RecordingModifier
 import androidx.compose.remote.creation.platform.AndroidxRcPlatformServices
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 
 @Suppress("RestrictedApiAndroidX")
 fun fontList(): RemoteComposeWriter {
@@ -123,3 +125,5 @@ private fun getAllFonts(): Array<Font> {
     fList.forEach { font -> println(font.file?.name) }
     return fList
 }
+
+@Preview @Composable private fun FontListPreview() = RemoteDocPreview(fontList())

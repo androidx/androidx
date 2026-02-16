@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // b/477633861
+
 package androidx.compose.runtime.platform
 
 import kotlin.contracts.ExperimentalContracts

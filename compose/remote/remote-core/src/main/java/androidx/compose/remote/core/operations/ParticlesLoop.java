@@ -242,17 +242,17 @@ public class ParticlesLoop extends PaintOperation implements VariableSupport, Co
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("This evolves the particles & recycles them")
-                .field(DocumentedOperation.INT, "id", "id of particle system")
+        doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .description("Update and recycle particles in a system")
+                .field(DocumentedOperation.INT, "id", "The ID of the particle system")
                 .field(
                         INT,
-                        "recycleLen",
-                        "the number of floats in restart equation if 0 no restart")
-                .field(FLOAT_ARRAY, "values", "recycleLen", "array of floats")
-                .field(INT, "varLen", "the number of equations to follow")
-                .field(INT, "equLen", "the number of equations to follow")
-                .field(FLOAT_ARRAY, "values", "equLen", "floats for the equation");
+                        "restartLen",
+                        "The length of the restart equation (recycles particle if > 0)")
+                .field(FLOAT_ARRAY, "restartEquation", "The restart equation (RPN)")
+                .field(INT, "varCount", "The number of update equations")
+                .field(INT, "equLen[0..n]", "The length of each update equation")
+                .field(FLOAT_ARRAY, "equations[0..n]", "The update equations (RPN)");
     }
 
     @NonNull

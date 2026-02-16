@@ -22,7 +22,6 @@ import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_HEIGHT
 import androidx.compose.remote.core.operations.ImageAttribute.IMAGE_WIDTH
 import androidx.compose.remote.creation.compose.capture.LocalRemoteComposeCreationState
 import androidx.compose.remote.creation.compose.capture.RemoteComposeCreationState
-import androidx.compose.remote.player.core.state.RemoteDomains
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -136,14 +135,14 @@ public class MutableRemoteBitmap(
  *
  * @param name The unique name for this remote bitmap, used for identification in the remote
  *   document.
- * @param domain The domain of the remote bitmap (defaults to [RemoteDomains.USER]).
+ * @param domain The domain of the remote bitmap (defaults to [RemoteState.Domain.User]).
  * @param value A lambda that provides the initial [Bitmap] value for this remote bitmap.
  * @return A [RemoteBitmap] instance, which initially evaluates to the return value of [value]
  */
 @Composable
 public fun rememberRemoteBitmapValue(
     name: String,
-    domain: RemoteDomains = RemoteDomains.USER,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
     value: () -> ImageBitmap,
 ): RemoteBitmap {
     val state = LocalRemoteComposeCreationState.current
@@ -158,7 +157,7 @@ public fun rememberRemoteBitmapValue(
 @Composable
 public fun rememberRemoteBitmap(
     name: String,
-    domain: RemoteDomains = RemoteDomains.USER,
+    domain: RemoteState.Domain = RemoteState.Domain.User,
     url: String,
     width: Int = 1,
     height: Int = 1,

@@ -62,7 +62,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
     /**
      * Serialize the string
      *
-     * @param indent padding to display
+     * @param indent     padding to display
      * @param serializer append the string
      */
     @Override
@@ -118,7 +118,7 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -134,8 +134,12 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("align by Modifier")
-                .field(DocumentedOperation.FLOAT, "line", "line value");
+                .addedVersion(7)
+                .experimental(true)
+                .description("Align a component based on a specific baseline or anchor")
+                .field(DocumentedOperation.FLOAT, "line",
+                        "The ID of the float variable or baseline ID to align by")
+                .field(DocumentedOperation.INT, "flags", "Alignment flags");
     }
 
     @Override
@@ -170,8 +174,6 @@ public class AlignByModifierOperation extends DecoratorModifierOperation {
 
     /**
      * Returns the offset
-     * @param context
-     * @return
      */
     public float getValue(@NonNull PaintContext context) {
         if (mParent == null) {

@@ -139,13 +139,21 @@ public class TextTransform extends Operation implements VariableSupport, Seriali
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("Merge two string into one")
-                .field(DocumentedOperation.INT, "textId", "id of the text")
-                .field(INT, "srcTextId1", "id of the path")
-                .field(FLOAT, "start", "start of the subrange")
-                .field(FLOAT, "end", "end of the subrange -1 for end of string")
-                .field(INT, "operation", "various text to text operations ");
+        doc.operation("Text Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .experimental(true)
+                .description("Transform a string (case conversion, trimming, etc.)")
+                .field(DocumentedOperation.INT, "textId",
+                        "The ID of the resulting transformed text")
+                .field(INT, "srcId1", "The ID of the source string")
+                .field(FLOAT, "start", "The start index of the transformation range")
+                .field(FLOAT, "len", "The length of the transformation range")
+                .field(INT, "operation", "The type of transformation to apply")
+                .possibleValues("TEXT_TO_LOWERCASE", TEXT_TO_LOWERCASE)
+                .possibleValues("TEXT_TO_UPPERCASE", TEXT_TO_UPPERCASE)
+                .possibleValues("TEXT_TRIM", TEXT_TRIM)
+                .possibleValues("TEXT_CAPITALIZE", TEXT_CAPITALIZE)
+                .possibleValues("TEXT_UPPERCASE_FIRST_CHAR", TEXT_UPPERCASE_FIRST_CHAR);
     }
 
     @Override

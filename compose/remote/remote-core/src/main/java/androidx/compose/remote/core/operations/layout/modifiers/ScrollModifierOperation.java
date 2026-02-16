@@ -15,6 +15,7 @@
  */
 package androidx.compose.remote.core.operations.layout.modifiers;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.FLOAT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
 
 import androidx.annotation.RestrictTo;
@@ -240,8 +241,12 @@ public class ScrollModifierOperation extends ListActionsOperation
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define a Scroll Modifier")
-                .field(INT, "direction", "");
+                .additionalDocumentation("modifier_scroll")
+                .description("Define a scrolling behavior for a component")
+                .field(INT, "direction", "Direction of the scroll (0=VERTICAL, 1=HORIZONTAL)")
+                .field(FLOAT, "position", "The current scroll position (expression)")
+                .field(FLOAT, "max", "The maximum scroll position")
+                .field(FLOAT, "notchMax", "The maximum notch position");
     }
 
     private float getMaxScrollPosition(@NonNull Component component, int direction) {

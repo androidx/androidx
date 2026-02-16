@@ -1402,6 +1402,37 @@ actual value class Key(val keyCode: Long) {
          * be consumed by system to set account globally.
          */
         actual val ProfileSwitch = Key(KeyEvent.KEYCODE_PROFILE_SWITCH)
+
+        // Keys that don't exist on Android.
+        // The values are just consecutive negative numbers which hopefully don't correspond to any
+        // real keycodes.
+
+        /** Numeric keypad Up Arrow Key. */
+        actual val NumPadDirectionUp = Key(-1000000001)
+
+        /** Numeric keypad Down Arrow Key. */
+        actual val NumPadDirectionDown = Key(-1000000002)
+
+        /** Numeric keypad Left Arrow Key. */
+        actual val NumPadDirectionLeft = Key(-1000000003)
+
+        /** Numeric keypad Right Arrow Key. */
+        actual val NumPadDirectionRight = Key(-1000000004)
+
+        /** Numeric keypad Home Key. */
+        actual val NumPadMoveHome = Key(-1000000005)
+
+        /** Numeric keypad End Key. */
+        actual val NumPadMoveEnd = Key(-1000000006)
+
+        /** Numeric keypad Page Up Key. */
+        actual val NumPadPageUp = Key(-1000000007)
+
+        /** Numeric keypad Page Down Key. */
+        actual val NumPadPageDown = Key(-1000000008)
+
+        /** Numeric keypad Insert Key. */
+        actual val NumPadInsert = Key(-1000000009)
     }
 
     actual override fun toString(): String = "Key code: $keyCode"

@@ -39,6 +39,7 @@ import androidx.compose.remote.core.operations.layout.LayoutComponent;
 import androidx.compose.remote.core.operations.layout.LoopOperation;
 import androidx.compose.remote.core.operations.layout.RootLayoutComponent;
 import androidx.compose.remote.core.operations.layout.TouchOperation;
+import androidx.compose.remote.core.operations.layout.managers.LayoutManager;
 import androidx.compose.remote.core.operations.layout.modifiers.ComponentModifiers;
 import androidx.compose.remote.core.operations.layout.modifiers.ModifierOperation;
 import androidx.compose.remote.core.operations.utilities.IntMap;
@@ -51,7 +52,6 @@ import androidx.compose.remote.core.types.LongConstant;
 import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -75,7 +75,7 @@ public class CoreDocument implements Serializable {
     public static final int PATCH_VERSION = 0;
 
     // Internal version level
-    public static final int DOCUMENT_API_LEVEL = 7;
+    public static final int DOCUMENT_API_LEVEL = 8;
 
     // We also keep a more fine-grained BUILD number, exposed as
     // ID_API_LEVEL = DOCUMENT_API_LEVEL + BUILD
@@ -88,6 +88,7 @@ public class CoreDocument implements Serializable {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     private static final int DEFAULT_FEATURE_PAINT_MEASURE = 1;
+    private static final int DEFAULT_FEATURE_MEASURE_VERSION = LayoutManager.DEFAULT_MEASURE_TYPE;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -101,14 +102,16 @@ public class CoreDocument implements Serializable {
     Header mHeader = null;
 
     boolean mUseFeaturePaintMeasure = false;
+    int mMeasureVersion = DEFAULT_FEATURE_MEASURE_VERSION;
 
     boolean mNeedsInitialMeasure = true;
 
     @NonNull
     RemoteComposeState mRemoteComposeState = new RemoteComposeState();
+
     @VisibleForTesting
     @NonNull
-    public TimeVariables mTimeVariables = new TimeVariables();
+    public TimeVariables mTimeVariables;
 
     // Semantic version of the document
     @NonNull
@@ -136,7 +139,7 @@ public class CoreDocument implements Serializable {
 
     private @Nullable ArrayList<ColorTheme> mThemeColors = null;
 
-    private final @NonNull Clock mClock;
+    private final @NonNull RemoteClock mClock;
 
     private final HashSet<Component> mAppliedTouchOperations = new HashSet<>();
 
@@ -160,15 +163,15 @@ public class CoreDocument implements Serializable {
     }
 
     public CoreDocument() {
-        this(new SystemClock());
+        this(RemoteClock.SYSTEM);
     }
 
-    public CoreDocument(@NonNull Clock clock) {
+    public CoreDocument(@NonNull RemoteClock clock) {
         this.mClock = clock;
         mTimeVariables = new TimeVariables(clock);
     }
 
-    public @NonNull Clock getClock() {
+    public @NonNull RemoteClock getClock() {
         return mClock;
     }
 
@@ -661,6 +664,22 @@ public class CoreDocument implements Serializable {
         return useFeature(featureId, 0);
     }
 
+    /**
+     * Returns the feature value
+     *
+     * @param featureId
+     * @return
+     */
+    public int featureIntValue(short featureId) {
+        if (mHeader == null) {
+            return -1;
+        }
+        if (featureId == Header.FEATURE_MEASURE_VERSION) {
+            return mHeader.getInt(featureId, DEFAULT_FEATURE_MEASURE_VERSION);
+        }
+        return mHeader.getInt(featureId, -1);
+    }
+
     private interface Visitor {
         void visit(Operation op);
     }
@@ -940,6 +959,7 @@ public class CoreDocument implements Serializable {
             }
         }
         mUseFeaturePaintMeasure = useFeature(Header.FEATURE_PAINT_MEASURE);
+        mMeasureVersion = featureIntValue(Header.FEATURE_MEASURE_VERSION);
         mBitmapMemory = 0;
         mOperations = inflateComponents(mOperations);
 
@@ -1134,7 +1154,7 @@ public class CoreDocument implements Serializable {
      * @param bitmapMap bitmap map
      */
     public void initializeContext(@NonNull RemoteContext context,
-                                  @Nullable Map<Integer, Object> bitmapMap) {
+            @Nullable Map<Integer, Object> bitmapMap) {
         mRemoteComposeState.reset();
         mRemoteComposeState.setContext(context);
         mClickAreas.clear();
@@ -1268,6 +1288,9 @@ public class CoreDocument implements Serializable {
      * listeners.
      */
     public void onClick(@NonNull RemoteContext context, float x, float y) {
+        if (context.isBasicDebug()) {
+            System.out.println("[RC] Click at " + x + ", " + y);
+        }
         for (ClickAreaRepresentation clickArea : mClickAreas) {
             if (clickArea.contains(x, y)) {
                 warnClickListeners(clickArea);
@@ -1286,6 +1309,9 @@ public class CoreDocument implements Serializable {
      * @param metadata the metadata of the click event
      */
     public void performClick(@NonNull RemoteContext context, int id, @NonNull String metadata) {
+        if (context.isBasicDebug()) {
+            System.out.println("[RC] performClick for " + id);
+        }
         for (ClickAreaRepresentation clickArea : mClickAreas) {
             if (clickArea.mId == id) {
                 warnClickListeners(clickArea);
@@ -1590,6 +1616,7 @@ public class CoreDocument implements Serializable {
         context.clearLastOpCount();
         assert context.getPaintContext() != null;
         context.getPaintContext().clearNeedsRepaint();
+        context.getPaintContext().setMeasureVersion(mMeasureVersion);
         context.mMode = RemoteContext.ContextMode.UNSET;
         // current theme starts as UNSPECIFIED, until a Theme setter
         // operation gets executed and modify it.

@@ -27,6 +27,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleColumn
 import androidx.compose.remote.creation.compose.layout.RemoteCollapsibleRow
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
+import androidx.compose.remote.creation.compose.layout.RemoteImage
 import androidx.compose.remote.creation.compose.layout.RemoteRow
 import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
@@ -49,7 +50,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalResources
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,7 +69,7 @@ fun WeatherDemo() {
             horizontalAlignment = RemoteAlignment.CenterHorizontally,
         ) {
             FitBox(RemoteModifier.fillMaxSize(), verticalArrangement = RemoteArrangement.Top) {
-                val res = LocalContext.current.resources
+                val res = LocalResources.current
                 val image = remember {
                     BitmapFactory.decodeResource(
                             res,
@@ -114,12 +115,12 @@ fun WeatherDemo() {
     }
 }
 
-@Preview @Composable fun WeatherDemoPreview() = RemotePreview { WeatherDemo() }
+@Preview @Composable private fun WeatherDemoPreview() = RemotePreview { WeatherDemo() }
 
 @RemoteComposable
 @Composable
 fun WeatherHeader() {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, R.drawable.mostly_cloudy, BitmapFactory.Options())
             .asImageBitmap()
@@ -138,7 +139,7 @@ fun WeatherHeader() {
     }
 }
 
-@Preview @Composable fun WeatherHeaderPreview() = RemotePreview { WeatherHeader() }
+@Preview @Composable private fun WeatherHeaderPreview() = RemotePreview { WeatherHeader() }
 
 val rowHeight = 90.rdp
 val rowHeightDp = 90.dp
@@ -157,12 +158,12 @@ fun WeatherBox() {
     }
 }
 
-@Preview @Composable fun WeatherBoxPreview() = RemotePreview { WeatherBox() }
+@Preview @Composable private fun WeatherBoxPreview() = RemotePreview { WeatherBox() }
 
 @RemoteComposable
 @Composable
 fun WeatherBox2() {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, R.drawable.mostly_cloudy, BitmapFactory.Options())
             .asImageBitmap()
@@ -182,7 +183,7 @@ fun WeatherBox2() {
     }
 }
 
-@Preview @Composable fun WeatherBox2Preview() = RemotePreview { WeatherBox2() }
+@Preview @Composable private fun WeatherBox2Preview() = RemotePreview { WeatherBox2() }
 
 @RemoteComposable
 @Composable
@@ -201,12 +202,12 @@ fun WeatherRow() {
     }
 }
 
-@Preview @Composable fun WeatherRowPreview() = RemotePreview { WeatherRow() }
+@Preview @Composable private fun WeatherRowPreview() = RemotePreview { WeatherRow() }
 
 @RemoteComposable
 @Composable
 fun Weather(temperature: String, hour: String, resource: Int) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, resource, BitmapFactory.Options()).asImageBitmap()
     }
@@ -244,12 +245,12 @@ fun WeatherDays() {
     }
 }
 
-@Preview @Composable fun WeatherDaysPreview() = RemotePreview { WeatherDays() }
+@Preview @Composable private fun WeatherDaysPreview() = RemotePreview { WeatherDays() }
 
 @RemoteComposable
 @Composable
 fun WeatherDay(day: String, precipitation: String, image: Int, temperature: String) {
-    val res = LocalContext.current.resources
+    val res = LocalResources.current
     val image = remember {
         BitmapFactory.decodeResource(res, image, BitmapFactory.Options()).asImageBitmap()
     }

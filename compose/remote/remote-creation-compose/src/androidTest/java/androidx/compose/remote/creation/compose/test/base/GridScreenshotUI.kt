@@ -22,6 +22,7 @@ import androidx.compose.remote.creation.compose.layout.RemoteBox
 import androidx.compose.remote.creation.compose.layout.RemoteColumn
 import androidx.compose.remote.creation.compose.layout.RemoteComposable
 import androidx.compose.remote.creation.compose.layout.RemoteRow
+import androidx.compose.remote.creation.compose.layout.RemoteText
 import androidx.compose.remote.creation.compose.modifier.RemoteModifier
 import androidx.compose.remote.creation.compose.modifier.background
 import androidx.compose.remote.creation.compose.modifier.height
@@ -31,6 +32,8 @@ import androidx.compose.remote.creation.compose.state.RemoteDp
 import androidx.compose.remote.creation.compose.state.rdp
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.sp
 
 /** Class to provide a single UI composed of many other smaller UIs, displayed on a grid. */
 class GridScreenshotUI(
@@ -44,13 +47,24 @@ class GridScreenshotUI(
 ) {
     @Composable
     @RemoteComposable
-    fun GridContent(innerContentList: List<@RemoteComposable @Composable () -> Unit>) {
+    fun GridContent(
+        innerContentList: List<Pair<String, @RemoteComposable @Composable () -> Unit>>
+    ) {
         val chunkedContents = innerContentList.chunked(itemsPerRow)
         RemoteColumn {
             for (row in chunkedContents) {
                 RemoteRow {
-                    for (content in row) {
-                        outerContainer(ContainerSize, RemoteModifier) { content() }
+                    for ((label, content) in row) {
+                        RemoteColumn(modifier = RemoteModifier.width(ContainerSize)) {
+                            RemoteText(
+                                label,
+                                modifier = RemoteModifier.width(ContainerSize).height(20.rdp),
+                                fontSize = 8.sp,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 2,
+                            )
+                            outerContainer(ContainerSize, RemoteModifier) { content() }
+                        }
                         RemoteBox(modifier = RemoteModifier.width(Padding))
                     }
                 }
@@ -61,6 +75,13 @@ class GridScreenshotUI(
 
     companion object {
         val DefaultContainerSize = 100.rdp
+
+        fun @RemoteComposable @Composable () -> Unit.toInput():
+            Pair<String, @RemoteComposable @Composable () -> Unit> =
+            Pair((this@toInput as? kotlin.reflect.KCallable<*>)?.name ?: "", this)
+
+        fun List<@RemoteComposable @Composable () -> Unit>.toInput():
+            List<Pair<String, @RemoteComposable @Composable () -> Unit>> = this.map { it.toInput() }
     }
 }
 

@@ -231,7 +231,9 @@ internal fun event(
             pointer.pressure,
             pointer.type,
             scrollDelta = Offset.Zero,
-            historical = emptyList()
+            historical = emptyList(),
+            scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+            panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
         )
     },
 )
@@ -256,7 +258,9 @@ internal fun mouseEvent(
             type = PointerType.Mouse,
             scrollDelta = Offset.Zero,
             activeHover = true,
-            historical = emptyList()
+            historical = emptyList(),
+            scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+            panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
         )
     ),
     buttons = PointerButtons(isPrimaryPressed = pressed)

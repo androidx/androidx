@@ -22,6 +22,7 @@ import androidx.compose.remote.core.PaintContext;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
 import androidx.compose.remote.core.documentation.DocumentationBuilder;
+import androidx.compose.remote.core.documentation.DocumentedOperation;
 import androidx.compose.remote.core.operations.layout.AnimatableValue;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
@@ -79,36 +80,34 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     private static final short DATA_TYPE_FLOAT = 1;
 
     AttributeValue[] mValues = {
-        new AttributeValue(SCALE_X, "SCALE_X", 1f),
-        new AttributeValue(SCALE_Y, "SCALE_Y", 1f),
-        new AttributeValue(ROTATION_X, "ROTATION_X", 0f),
-        new AttributeValue(ROTATION_Y, "ROTATION_Y", 0f),
-        new AttributeValue(ROTATION_Z, "ROTATION_Z", 0f),
-        new AttributeValue(TRANSFORM_ORIGIN_X, "TRANSFORM_ORIGIN_X", 0f),
-        new AttributeValue(TRANSFORM_ORIGIN_Y, "TRANSFORM_ORIGIN_Y", 0f),
-        new AttributeValue(TRANSLATION_X, "TRANSLATION_X", 0f),
-        new AttributeValue(TRANSLATION_Y, "TRANSLATION_Y", 0f),
-        new AttributeValue(TRANSLATION_Z, "TRANSLATION_Z", 0f),
-        new AttributeValue(SHADOW_ELEVATION, "SHADOW_ELEVATION", 0f),
-        new AttributeValue(ALPHA, "ALPHA", 1f),
-        new AttributeValue(CAMERA_DISTANCE, "CAMERA_DISTANCE", 8f),
-        new AttributeValue(COMPOSITING_STRATEGY, "COMPOSITING_STRATEGY", 0),
-        new AttributeValue(SPOT_SHADOW_COLOR, "SPOT_SHADOW_COLOR", 0),
-        new AttributeValue(AMBIENT_SHADOW_COLOR, "AMBIENT_SHADOW_COLOR", 0),
-        new AttributeValue(HAS_BLUR, "HAS_BLUR", 0),
-        new AttributeValue(BLUR_RADIUS_X, "BLUR_RADIUS_X", 0f),
-        new AttributeValue(BLUR_RADIUS_Y, "BLUR_RADIUS_Y", 0f),
-        new AttributeValue(BLUR_TILE_MODE, "BLUR_TILE_MODE", TILE_MODE_CLAMP),
-        new AttributeValue(SHAPE, "SHAPE", -1),
-        new AttributeValue(SHAPE_RADIUS, "SHAPE_RADIUS", 0f),
+            new AttributeValue(SCALE_X, "SCALE_X", 1f),
+            new AttributeValue(SCALE_Y, "SCALE_Y", 1f),
+            new AttributeValue(ROTATION_X, "ROTATION_X", 0f),
+            new AttributeValue(ROTATION_Y, "ROTATION_Y", 0f),
+            new AttributeValue(ROTATION_Z, "ROTATION_Z", 0f),
+            new AttributeValue(TRANSFORM_ORIGIN_X, "TRANSFORM_ORIGIN_X", 0f),
+            new AttributeValue(TRANSFORM_ORIGIN_Y, "TRANSFORM_ORIGIN_Y", 0f),
+            new AttributeValue(TRANSLATION_X, "TRANSLATION_X", 0f),
+            new AttributeValue(TRANSLATION_Y, "TRANSLATION_Y", 0f),
+            new AttributeValue(TRANSLATION_Z, "TRANSLATION_Z", 0f),
+            new AttributeValue(SHADOW_ELEVATION, "SHADOW_ELEVATION", 0f),
+            new AttributeValue(ALPHA, "ALPHA", 1f),
+            new AttributeValue(CAMERA_DISTANCE, "CAMERA_DISTANCE", 8f),
+            new AttributeValue(COMPOSITING_STRATEGY, "COMPOSITING_STRATEGY", 0),
+            new AttributeValue(SPOT_SHADOW_COLOR, "SPOT_SHADOW_COLOR", 0),
+            new AttributeValue(AMBIENT_SHADOW_COLOR, "AMBIENT_SHADOW_COLOR", 0),
+            new AttributeValue(HAS_BLUR, "HAS_BLUR", 0),
+            new AttributeValue(BLUR_RADIUS_X, "BLUR_RADIUS_X", 0f),
+            new AttributeValue(BLUR_RADIUS_Y, "BLUR_RADIUS_Y", 0f),
+            new AttributeValue(BLUR_TILE_MODE, "BLUR_TILE_MODE", TILE_MODE_CLAMP),
+            new AttributeValue(SHAPE, "SHAPE", -1),
+            new AttributeValue(SHAPE_RADIUS, "SHAPE_RADIUS", 0f),
     };
 
     boolean mHasBlurEffect = false;
 
     /**
      * Fill in the hashmap with the attributes values
-     *
-     * @param attributes
      */
     public void fillInAttributes(@NonNull HashMap<Integer, Object> attributes) {
         for (int i = 0; i < mValues.length; i++) {
@@ -248,6 +247,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     }
 
     @Override
+    @NonNull
     public String toString() {
         return "GraphicsLayerModifierOperation("
                 + mValues[SCALE_X].getValue()
@@ -297,10 +297,6 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
 
     /**
      * Utility to write an integer attribute
-     *
-     * @param buffer
-     * @param type
-     * @param value
      */
     private static void writeIntAttribute(@NonNull WireBuffer buffer, int type, int value) {
         int tag = type | (DATA_TYPE_INT << 10);
@@ -310,10 +306,6 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
 
     /**
      * Utility to write a float attribute
-     *
-     * @param buffer
-     * @param type
-     * @param value
      */
     private static void writeFloatAttribute(@NonNull WireBuffer buffer, int type, float value) {
         int tag = type | (DATA_TYPE_FLOAT << 10);
@@ -324,7 +316,7 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
     /**
      * Read the operation from the buffer
      *
-     * @param buffer a WireBuffer
+     * @param buffer     a WireBuffer
      * @param operations the list of operations read so far
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -338,8 +330,6 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
 
     /**
      * Read a single attribute value from the buffer
-     *
-     * @param buffer
      */
     private void readAttributeValue(@NonNull WireBuffer buffer) {
         int tag = buffer.readInt();
@@ -365,7 +355,19 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define the GraphicsLayer Modifier");
+                .additionalDocumentation("modifier_graphics_layer")
+                .description("Define transformations (scale, rotation, alpha) for a component")
+                .field(DocumentedOperation.INT, "length", "Number of attributes")
+                .startSubsection("REPEATED DATA")
+                .field(DocumentedOperation.INT, "attributeId", "The ID and type of the attribute")
+                .field(DocumentedOperation.FLOAT, "attributeValue",
+                        "The value of the attribute")
+                .endSubsection()
+                .startSubsection("REPEATED DATA")
+                .field(DocumentedOperation.INT, "attributeId", "The ID and type of the attribute")
+                .field(DocumentedOperation.INT, "attributeValue",
+                        "The value of the attribute")
+                .endSubsection();
     }
 
     @Override
@@ -373,7 +375,8 @@ public class GraphicsLayerModifierOperation extends DecoratorModifierOperation {
             @NonNull RemoteContext context,
             @NonNull Component component,
             float width,
-            float height) {}
+            float height) {
+    }
 
     @Override
     public void serialize(@NonNull MapSerializer serializer) {

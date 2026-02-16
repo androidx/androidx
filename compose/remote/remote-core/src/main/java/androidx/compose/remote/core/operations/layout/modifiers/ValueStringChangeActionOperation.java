@@ -38,6 +38,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class ValueStringChangeActionOperation extends Operation implements ActionOperation {
     private static final int OP_CODE = Operations.VALUE_STRING_CHANGE_ACTION;
+    private static final String CLASS_NAME = "ValueStringChangeActionOperation";
 
     int mTargetValueId = -1;
     int mValueId = -1;
@@ -125,16 +126,10 @@ public class ValueStringChangeActionOperation extends Operation implements Actio
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, "ValueStringChangeActionOperation")
-                .description(
-                        "ValueStrin gChange action. "
-                                + " This operation represents a String change (referenced by id) "
-                                + "for the given string id")
-                .field(INT, "TARGET_ID", "Target Value ID")
-                .field(
-                        INT,
-                        "VALUE_ID",
-                        "Value ID to be assigned to the target " + "value as a string");
+        doc.operation("Actions & Events Operations", OP_CODE, CLASS_NAME)
+                .description("Action that sets a new value for a string variable")
+                .field(INT, "targetValueId", "The ID of the string variable to update")
+                .field(INT, "valueId", "The ID of the new string value to assign");
     }
 
     @Override

@@ -31,6 +31,7 @@ import androidx.compose.remote.core.PaintContext
 import androidx.compose.remote.core.RcProfiles
 import androidx.compose.remote.core.RecordingRemoteComposeBuffer
 import androidx.compose.remote.core.RemoteContext
+import androidx.compose.remote.core.SystemClock
 import androidx.compose.remote.core.operations.Header
 import androidx.compose.remote.core.operations.PaintData
 import androidx.compose.remote.core.operations.paint.PaintBundle
@@ -112,9 +113,11 @@ class RecordingCanvasTest {
     private val remoteContext = AndroidRemoteContext()
     private val timeZone = ZoneId.of("America/New_York")
     private val clock =
-        Clock.fixed(
-            ZonedDateTime.of(LocalDateTime.of(2025, 11, 20, 10, 30, 25), timeZone).toInstant(),
-            timeZone,
+        SystemClock(
+            Clock.fixed(
+                ZonedDateTime.of(LocalDateTime.of(2025, 11, 20, 10, 30, 25), timeZone).toInstant(),
+                timeZone,
+            )
         )
 
     @Before

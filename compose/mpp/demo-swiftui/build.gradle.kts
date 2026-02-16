@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
+import org.jetbrains.androidx.build.JETBRAINS_COMPILE_KOTLIN_VERSION
 import org.jetbrains.kotlin.gradle.dsl.KotlinNativeBinaryContainer
-import org.jetbrains.androidx.build.JetBrainsAndroidXPlugin
+import org.jetbrains.kotlin.gradle.dsl.*
 
 plugins {
     id("AndroidXPlugin")
@@ -41,6 +41,10 @@ fun KotlinNativeBinaryContainer.configureFramework() {
 }
 
 kotlin {
+    compilerOptions {
+        languageVersion.set(JETBRAINS_COMPILE_KOTLIN_VERSION.apiVersion)
+        apiVersion.set(JETBRAINS_COMPILE_KOTLIN_VERSION.apiVersion)
+    }
     iosArm64 {
         binaries {
             configureFramework()

@@ -15,6 +15,8 @@
  */
 package androidx.compose.remote.core.operations;
 
+import static androidx.compose.remote.core.operations.Utils.floatToString;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
@@ -42,26 +44,35 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
     int mStart;
     int mEnd;
     float mYAdj;
+    float mGlyphSpacing;
     float mOutYAdj;
+    float mOutGlyphSpacing;
 
     public DrawBitmapFontTextOnPath(
-            int textID, int bitmapFontID, int pathID, int start, int end, float yAdj) {
+            int textID, int bitmapFontID, int pathID, int start, int end, float yAdj,
+            float glyphSpacing) {
+        if (textID < 0) {
+            throw new IllegalArgumentException("textID must not be negative");
+        }
         mTextID = textID;
         mBitmapFontID = bitmapFontID;
         mPathID = pathID;
         mStart = start;
         mEnd = end;
         mYAdj = yAdj;
+        mOutGlyphSpacing = mGlyphSpacing = glyphSpacing;
     }
 
     @Override
     public void write(@NonNull WireBuffer buffer) {
-        apply(buffer, mTextID, mBitmapFontID, mPathID, mStart, mEnd, mYAdj);
+        apply(buffer, mTextID, mBitmapFontID, mPathID, mStart, mEnd, mYAdj, mGlyphSpacing);
     }
 
     @Override
     public void updateVariables(@NonNull RemoteContext context) {
         mOutYAdj = Float.isNaN(mYAdj) ? context.getFloat(Utils.idFromNan(mYAdj)) : mYAdj;
+        mOutGlyphSpacing = Float.isNaN(mGlyphSpacing)
+                ? context.getFloat(Utils.idFromNan(mGlyphSpacing)) : mGlyphSpacing;
     }
 
     @Override
@@ -69,6 +80,9 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
         context.listensTo(mTextID, this);
         if (Float.isNaN(mYAdj)) {
             context.listensTo(Utils.idFromNan(mYAdj), this);
+        }
+        if (Float.isNaN(mGlyphSpacing)) {
+            context.listensTo(Utils.idFromNan(mGlyphSpacing), this);
         }
     }
 
@@ -86,7 +100,9 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                 + ", "
                 + mEnd
                 + ", "
-                + mYAdj;
+                + floatToString(mYAdj, mOutYAdj)
+                + ", "
+                + floatToString(mGlyphSpacing, mOutGlyphSpacing);
     }
 
     /**
@@ -97,13 +113,21 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         int text = buffer.readInt();
+        float glyphSpacing;
+        if ((text & 0x80000000) != 0) {
+            text = text & 0xFFFF;
+            glyphSpacing = buffer.readFloat();
+        } else {
+            glyphSpacing = 0f;
+        }
         int bitmapFont = buffer.readInt();
         int path = buffer.readInt();
         int start = buffer.readInt();
         int end = buffer.readInt();
         float yAdj = buffer.readFloat();
         DrawBitmapFontTextOnPath op =
-                new DrawBitmapFontTextOnPath(text, bitmapFont, path, start, end, yAdj);
+                new DrawBitmapFontTextOnPath(
+                        text, bitmapFont, path, start, end, yAdj, glyphSpacing);
 
         operations.add(op);
     }
@@ -137,6 +161,7 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
      * @param start Start position
      * @param end end position
      * @param yAdj position of where to draw
+     * @param glyphSpacing spacing between glyphs in pixels
      */
     public static void apply(
             @NonNull WireBuffer buffer,
@@ -145,9 +170,16 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
             int pathID,
             int start,
             int end,
-            float yAdj) {
+            float yAdj,
+            float glyphSpacing) {
         buffer.start(OP_CODE);
-        buffer.writeInt(textId);
+        // Negative textId is used to signal the presence of glyphSpacing in the wire format.
+        if (glyphSpacing == 0f) {
+            buffer.writeInt(textId);
+        } else {
+            buffer.writeInt(textId | 0x80000000);
+            buffer.writeFloat(glyphSpacing);
+        }
         buffer.writeInt(bitmapFontID);
         buffer.writeInt(pathID);
         buffer.writeInt(start);
@@ -161,28 +193,21 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Draw Operations", id(), CLASS_NAME)
-                .description("Draw a run of bitmap font text, all in a single direction")
-                .field(DocumentedOperation.INT, "textId", "id of bitmap")
-                .field(DocumentedOperation.INT, "bitmapFontId", "id of the bitmap font")
-                .field(DocumentedOperation.INT, "pathId", "id of the path")
+        doc.operation("Text Operations", id(), CLASS_NAME)
+                .addedVersion(7)
+                .description("Draw text using a bitmap font along a path")
+                .field(DocumentedOperation.INT, "textId", "The ID of the text to render")
+                .field(DocumentedOperation.INT, "bitmapFontId", "The ID of the bitmap font")
+                .field(DocumentedOperation.INT, "pathId", "The ID of the path to follow")
                 .field(
                         DocumentedOperation.INT,
                         "start",
-                        "The start of the text to render. -1=end of string")
-                .field(DocumentedOperation.INT, "end", "The end of the text to render")
-                .field(
-                        DocumentedOperation.INT,
-                        "contextStart",
-                        "the index of the start of the shaping context")
-                .field(
-                        DocumentedOperation.INT,
-                        "contextEnd",
-                        "the index of the end of the shaping context")
+                        "The start index of the text to render")
+                .field(DocumentedOperation.INT, "end", "The end index of the text to render")
                 .field(
                         DocumentedOperation.FLOAT,
                         "yAdj",
-                        "the index of the end of the shaping context");
+                        "Vertical adjustment relative to the path");
     }
 
     private int measureWidth(String text, BitmapFontData bitmapFont) {
@@ -276,7 +301,7 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                     mOutYAdj + glyph.mMarginTop,
                     halfGlyphWidth,
                     mOutYAdj + glyph.mBitmapHeight + glyph.mMarginTop);
-            progress += glyph.mBitmapWidth + glyph.mMarginRight;
+            progress += glyph.mBitmapWidth + glyph.mMarginRight + mOutGlyphSpacing;
             prevGlyph = glyph.mChars;
             context.restore();
         }
@@ -290,6 +315,7 @@ public class DrawBitmapFontTextOnPath extends PaintOperation implements Variable
                 .add("bitmapFontId", mBitmapFontID)
                 .add("path", mPathID)
                 .add("start", mStart)
-                .add("end", mEnd);
+                .add("end", mEnd)
+                .add("mGlyphSpacing", mGlyphSpacing);
     }
 }

@@ -70,28 +70,12 @@ object ComposeUiFlags {
     var isBypassUnfocusableComposeViewEnabled: Boolean = true
 
     /**
-     * This flag enables a fix for b/378570682. For API >=26. We attempt to manually find the next
-     * focusable item for 1-D focus search cases when Compose does not have any focusable content.
-     */
-    @field:Suppress("MutableBareField") @JvmField var isPre26FocusFinderFixEnabled: Boolean = false
-
-    /**
      * This flag enables a fix for b/388590015. The view system ignores an invalid prevFocusRect
      * when requestFocus is called, so we support this behavior in Compose too.
      */
     @field:Suppress("MutableBareField")
     @JvmField
     var isIgnoreInvalidPrevFocusRectEnabled: Boolean = true
-
-    /**
-     * When an embedded view that is focused is removed from the hierarchy, it triggers a
-     * requestFocus() which tries to re-assign focus before the previous composition is complete.
-     * This flag enables a fix for this issue.
-     */
-    @Deprecated("This flag is no longer needed.")
-    @field:Suppress("MutableBareField", "unused")
-    @JvmField
-    var isRemoveFocusedViewFixEnabled: Boolean = false
 
     /**
      * Enable WindowInsets rulers:
@@ -108,30 +92,18 @@ object ComposeUiFlags {
      * * `SafeContentRulers`
      */
     // off for b/410868572
-    @field:Suppress("MutableBareField") @JvmField var areWindowInsetsRulersEnabled = true
+    @Deprecated(
+        "Use ComposeView.disableWindowInsetsRulers()",
+        replaceWith = ReplaceWith("ComposeView.disableWindowInsetsRulers()"),
+    )
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var areWindowInsetsRulersEnabled = true
 
     /** Enable initial focus when a focusable is added to a screen with no focusable content. */
     @field:Suppress("MutableBareField")
     @JvmField
     var isInitialFocusOnFocusableAvailable: Boolean = false
-
-    /**
-     * With this flag on, requesting focus on a non-focusable focus target will request focus for
-     * one of its children, which makes
-     * [FocusTargetModifierNode.requestFocus][androidx.compose.ui.focus.FocusTargetModifierNode.requestFocus]
-     * consistent with
-     * [FocusRequester.requestFocus][androidx.compose.ui.focus.FocusRequester.requestFocus] and
-     * [FocusRequesterModifierNode.requestFocus][androidx.compose.ui.focus.requestFocus]
-     */
-    @field:Suppress("MutableBareField")
-    @JvmField
-    var isRequestFocusOnNonFocusableFocusTargetEnabled: Boolean = true
-
-    /**
-     * With this flag on, the adaptive refresh rate (ARR) feature will be enabled. A preferred frame
-     * rate can be set on a Composable through frame rate modifier: [Modifier.preferredFrameRate]
-     */
-    @field:Suppress("MutableBareField") @JvmField var isAdaptiveRefreshRateEnabled: Boolean = true
 
     /** Flag for enabling indirect pointer event navigation gestures in Compose. */
     @field:Suppress("MutableBareField")
@@ -182,4 +154,20 @@ object ComposeUiFlags {
     @field:Suppress("MutableBareField")
     @JvmField
     var isAccessibilityShowOnScreenNestedScrollingEnabled: Boolean = true
+
+    /**
+     * Enables support of trackpad gesture events.
+     *
+     * If enabled, [androidx.compose.ui.input.pointer.PointerEvent]s can have type of
+     * [androidx.compose.ui.input.pointer.PointerEventType.Pan] and
+     * [androidx.compose.ui.input.pointer.PointerEventType.Scale], corresponding to gestures on a
+     * trackpad.
+     *
+     * These trackpad gestures will also generally be treated as mouse, with the exact behavior
+     * depending on platform specifics.
+     */
+    // TODO: b/475634969 remove the temporary flag
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isTrackpadGestureHandlingEnabled: Boolean = true
 }

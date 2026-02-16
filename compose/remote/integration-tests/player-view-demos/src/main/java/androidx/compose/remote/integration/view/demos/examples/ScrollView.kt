@@ -270,6 +270,8 @@ fun ScrollViewDemo() {
     }
 }
 
-@Preview @Composable fun CanvasCalendarMonthPreview() = RemotePreview { CanvasCalendarMonth() }
+@Preview
+@Composable
+private fun CanvasCalendarMonthPreview() = RemotePreview { CanvasCalendarMonth() }
 
-@Preview @Composable fun ScrollViewDemoPreview() = RemotePreview { ScrollViewDemo() }
+@Preview @Composable private fun ScrollViewDemoPreview() = RemotePreview { ScrollViewDemo() }

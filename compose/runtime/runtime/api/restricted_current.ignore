@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ChangedAnnotationRetention: androidx.compose.runtime.internal.FunctionKeyMeta:
+    Class androidx.compose.runtime.internal.FunctionKeyMeta incompatibly changed its retention from RUNTIME to BINARY
+ChangedAnnotationRetention: androidx.compose.runtime.internal.FunctionKeyMeta.Container:
+    Class androidx.compose.runtime.internal.FunctionKeyMeta.Container incompatibly changed its retention from RUNTIME to BINARY
+AddedAbstractMethod: androidx.compose.runtime.RecomposerInfo#getErrorState():
+    Binary breaking change: Added method androidx.compose.runtime.RecomposerInfo.getErrorState()

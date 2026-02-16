@@ -168,16 +168,7 @@ fun configureDarwinFlags(project: Project) {
                 if (isIOS) addAll(iosFlags)
             }
 
-            // TODO: Remove when the issue is fixed in KGP
-            // https://youtrack.jetbrains.com/issue/KT-74564
-            // it.freeCompilerArgs += flags
-            //
-            // Fixes problem when instrumented tests compilation is not properly applied to
-            // the framework configuration.
-            it.linkTaskProvider.configure {
-                @Suppress("DEPRECATION")
-                it.kotlinOptions.freeCompilerArgs += flags
-            }
+             it.freeCompilerArgs += flags
         }
     }
     project.multiplatformExtension!!.run {

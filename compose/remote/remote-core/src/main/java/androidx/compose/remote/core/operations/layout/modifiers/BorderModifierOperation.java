@@ -303,18 +303,19 @@ public class BorderModifierOperation extends DecoratorModifierOperation implemen
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define the Border Modifier")
-                .field(INT, "flags", "")
-                .field(INT, "colorId", "")
-                .field(INT, "reserved", "")
-                .field(INT, "reserved", "")
-                .field(FLOAT, "borderWidth", "")
-                .field(FLOAT, "roundedCorner", "")
-                .field(FLOAT, "r", "")
-                .field(FLOAT, "g", "")
-                .field(FLOAT, "b", "")
-                .field(FLOAT, "a", "")
-                .field(FLOAT, "shapeType", "");
+                .additionalDocumentation("modifier_border")
+                .description("Define a border for a component")
+                .field(INT, "flags", "Behavior flags")
+                .field(INT, "colorId", "The ID of the color if flags include COLOR_REF")
+                .field(INT, "reserve1", "Reserved for future use")
+                .field(INT, "reserve2", "Reserved for future use")
+                .field(FLOAT, "borderWidth", "Width of the border")
+                .field(FLOAT, "roundedCorner", "Radius for rounded corners")
+                .field(FLOAT, "r", "Red component [0..1]")
+                .field(FLOAT, "g", "Green component [0..1]")
+                .field(FLOAT, "b", "Blue component [0..1]")
+                .field(FLOAT, "a", "Alpha component [0..1]")
+                .field(INT, "shapeType", "The shape type (0=RECTANGLE, 1=CIRCLE)");
     }
 
     @Override

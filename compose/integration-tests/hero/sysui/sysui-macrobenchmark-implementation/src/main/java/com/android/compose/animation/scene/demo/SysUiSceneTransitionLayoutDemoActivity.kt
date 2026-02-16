@@ -40,6 +40,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.tooling.ComposeToolingApi
+import androidx.compose.runtime.tooling.ComposeToolingFlags
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.node.DelegatableNode
@@ -67,6 +69,9 @@ class SysUiSceneTransitionLayoutDemoActivity : ComponentActivity() {
             @Suppress("DEPRECATION") // This code is copied from SysUi and should not diverge.
             window.setDecorFitsSystemWindows(false)
         }
+
+        @OptIn(ComposeToolingApi::class)
+        ComposeToolingFlags.isVerboseTracingEnabled = true
 
         val initialScene =
             intent.extras?.getString(INITIAL_SCENE_EXTRA)?.let { scene ->

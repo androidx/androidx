@@ -43,10 +43,10 @@ fun AdjacentScrollablesFocusDemo() {
     Column {
         Text(
             """
-        Use the dpad or arrow keys to move focus.
-        Every 3rd item in the list is focusable.
-        Notice how focus moves through all the items in List 1 before moving to List 2.
-        """
+            Use the dpad or arrow keys to move focus.
+            Every 3rd item in the list is focusable.
+            Notice how focus moves through all the items in List 1 before moving to List 2.
+            """
                 .trimIndent()
         )
         ScrollableList("List 1")

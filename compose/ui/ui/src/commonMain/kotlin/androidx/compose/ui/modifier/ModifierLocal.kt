@@ -55,8 +55,7 @@ import androidx.compose.runtime.Stable
  * @see modifierLocalProvider
  * @see modifierLocalConsumer
  */
-@Stable
-class ProvidableModifierLocal<T>(defaultFactory: () -> T) : ModifierLocal<T>(defaultFactory)
+@Stable class ProvidableModifierLocal<T>(defaultFactory: () -> T) : ModifierLocal<T>(defaultFactory)
 
 /**
  * Creates a [ProvidableModifierLocal] and specifies a default factory.

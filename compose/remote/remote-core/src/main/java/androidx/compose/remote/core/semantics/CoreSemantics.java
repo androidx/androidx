@@ -15,11 +15,16 @@
  */
 package androidx.compose.remote.core.semantics;
 
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BOOLEAN;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.BYTE;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.Operation;
 import androidx.compose.remote.core.Operations;
 import androidx.compose.remote.core.RemoteContext;
 import androidx.compose.remote.core.WireBuffer;
+import androidx.compose.remote.core.documentation.DocumentationBuilder;
 import androidx.compose.remote.core.operations.utilities.StringSerializer;
 import androidx.compose.remote.core.serialize.MapSerializer;
 import androidx.compose.remote.core.serialize.SerializeTags;
@@ -40,16 +45,11 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
     public @NonNull Mode mMode = Mode.SET;
     public boolean mClickable = false;
 
-    public CoreSemantics() {}
+    public CoreSemantics() {
+    }
 
-    public CoreSemantics(
-            int contentDescriptionId,
-            byte role,
-            int textId,
-            int stateDescriptionId,
-            int mode,
-            boolean enabled,
-            boolean clickable) {
+    public CoreSemantics(int contentDescriptionId, byte role, int textId, int stateDescriptionId,
+            int mode, boolean enabled, boolean clickable) {
         mContentDescriptionId = contentDescriptionId;
         mRole = Role.fromInt(role);
         mTextId = textId;
@@ -77,24 +77,18 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
 
     /**
      * Applies the semantics to a WireBuffer.
-     * @param buffer WireBuffer to apply the semantics to
+     *
+     * @param buffer               WireBuffer to apply the semantics to
      * @param contentDescriptionId content description id
-     * @param role role
-     * @param textId text id
-     * @param stateDescriptionId state description id
-     * @param mode mode
-     * @param enabled enabled
-     * @param clickable clickable
+     * @param role                 role
+     * @param textId               text id
+     * @param stateDescriptionId   state description id
+     * @param mode                 mode
+     * @param enabled              enabled
+     * @param clickable            clickable
      */
-    public static void apply(
-            @NonNull WireBuffer buffer,
-            int contentDescriptionId,
-            byte role,
-            int textId,
-            int stateDescriptionId,
-            int mode,
-            boolean enabled,
-            boolean clickable) {
+    public static void apply(@NonNull WireBuffer buffer, int contentDescriptionId, byte role,
+            int textId, int stateDescriptionId, int mode, boolean enabled, boolean clickable) {
 
         buffer.start(Operations.ACCESSIBILITY_SEMANTICS);
         buffer.writeInt(contentDescriptionId);
@@ -185,9 +179,9 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
      * WireBuffer. After reading and constructing the CoreSemantics object, it is added to the
      * provided list of operations.
      *
-     * @param buffer The WireBuffer to read data from.
+     * @param buffer     The WireBuffer to read data from.
      * @param operations The list of operations to which the read CoreSemantics object will be
-     *     added.
+     *                   added.
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
         CoreSemantics semantics = new CoreSemantics();
@@ -211,17 +205,30 @@ public final class CoreSemantics extends Operation implements AccessibilityModif
         return mTextId != 0 ? mTextId : null;
     }
 
+    /**
+     * Populate the documentation with a description of this operation
+     *
+     * @param doc to append the description to.
+     */
+    public static void documentation(
+            @NonNull DocumentationBuilder doc) {
+        doc.operation("Accessibility Operations", Operations.ACCESSIBILITY_SEMANTICS,
+                        "CoreSemantics")
+                .description("Define accessibility semantics for a component")
+                .field(INT, "contentDescriptionId", "ID of the content description string")
+                .field(BYTE, "role", "The accessibility role (BUTTON, CHECKBOX, etc.)")
+                .field(INT, "textId", "ID of the text string")
+                .field(INT, "stateDescriptionId", "ID of the state description string")
+                .field(BYTE, "mode", "Semantics merge mode (SET, MERGE)")
+                .field(BOOLEAN, "enabled", "Whether the component is enabled")
+                .field(BOOLEAN, "clickable", "Whether the component is clickable");
+    }
+
     @Override
     public void serialize(@NonNull MapSerializer serializer) {
-        serializer
-                .addTags(SerializeTags.MODIFIER, SerializeTags.A11Y)
-                .addType("CoreSemantics")
-                .add("contentDescriptionId", mContentDescriptionId)
-                .add("role", mRole)
-                .add("textId", mTextId)
-                .add("stateDescriptionId", mStateDescriptionId)
-                .add("enabled", mEnabled)
-                .add("mode", mMode)
-                .add("clickable", mClickable);
+        serializer.addTags(SerializeTags.MODIFIER, SerializeTags.A11Y).addType("CoreSemantics").add(
+                "contentDescriptionId", mContentDescriptionId).add("role", mRole).add("textId",
+                mTextId).add("stateDescriptionId", mStateDescriptionId).add("enabled",
+                mEnabled).add("mode", mMode).add("clickable", mClickable);
     }
 }

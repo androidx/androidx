@@ -205,7 +205,7 @@ abstract interface androidx.compose.ui.graphics/Paint { // androidx.compose.ui.g
         abstract fun <get-style>(): androidx.compose.ui.graphics/PaintingStyle // androidx.compose.ui.graphics/Paint.style.<get-style>|<get-style>(){}[0]
         abstract fun <set-style>(androidx.compose.ui.graphics/PaintingStyle) // androidx.compose.ui.graphics/Paint.style.<set-style>|<set-style>(androidx.compose.ui.graphics.PaintingStyle){}[0]
 
-    abstract fun asFrameworkPaint(): androidx.compose.ui.graphics/NativePaint // androidx.compose.ui.graphics/Paint.asFrameworkPaint|asFrameworkPaint(){}[0]
+    open fun asFrameworkPaint(): androidx.compose.ui.graphics/NativePaint // androidx.compose.ui.graphics/Paint.asFrameworkPaint|asFrameworkPaint(){}[0]
 }
 
 abstract interface androidx.compose.ui.graphics/Path { // androidx.compose.ui.graphics/Path|null[0]

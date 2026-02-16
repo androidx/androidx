@@ -568,14 +568,18 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
 
     @Override
     public void addDrawBitmapFontTextRun(
-            int textId, int bitmapFontId, int start, int end, float x, float y) {
-        addOperation(new DrawBitmapFontText(textId, bitmapFontId, start, end, x, y));
+            int textId, int bitmapFontId, int start, int end, float x, float y,
+            float glyphSpacing) {
+        addOperation(new DrawBitmapFontText(textId, bitmapFontId, start, end, x, y, glyphSpacing));
     }
 
     @Override
     public void addDrawBitmapFontTextRunOnPath(
-            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj) {
-        addOperation(new DrawBitmapFontTextOnPath(textId, bitmapFontId, pathId, start, end, yAdj));
+            int textId, int bitmapFontId, int pathId, int start, int end, float yAdj,
+            float glyphSpacing) {
+        addOperation(
+                new DrawBitmapFontTextOnPath(
+                        textId, bitmapFontId, pathId, start, end, yAdj, glyphSpacing));
     }
 
     @Override
@@ -587,9 +591,11 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
             float x,
             float y,
             float panX,
-            float panY) {
+            float panY,
+            float glyphSpacing) {
         addOperation(
-                new DrawBitmapTextAnchored(textId, bitmapFontId, start, end, x, y, panX, panY));
+                new DrawBitmapTextAnchored(
+                        textId, bitmapFontId, start, end, x, y, panX, panY, glyphSpacing));
     }
 
     @Override
@@ -1370,8 +1376,8 @@ public class RecordingRemoteComposeBuffer extends RemoteComposeBuffer {
     }
 
     @Override
-    public void bitmapTextMeasure(int id, int textId, int bmFontId, int type) {
-        addOperation(new BitmapTextMeasure(id, textId, bmFontId, type), id);
+    public void bitmapTextMeasure(int id, int textId, int bmFontId, int type, float glyphSpacing) {
+        addOperation(new BitmapTextMeasure(id, textId, bmFontId, type, glyphSpacing), id);
     }
 
     @Override

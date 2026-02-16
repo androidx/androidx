@@ -100,6 +100,7 @@ public class DrawSector extends DrawBase6 {
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Canvas Operations", OP_CODE, CLASS_NAME)
+                .additionalDocumentation("draw_sector")
                 .description(
                         "Draw the specified sector (pie shape)"
                                 + "which will be scaled to fit inside the specified oval")

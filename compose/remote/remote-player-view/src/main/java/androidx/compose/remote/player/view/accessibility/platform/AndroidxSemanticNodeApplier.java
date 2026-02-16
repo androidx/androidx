@@ -22,6 +22,7 @@ import android.view.View;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.operations.RootContentBehavior;
+import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.semantics.ScrollableComponent;
 import androidx.compose.remote.player.view.accessibility.BaseSemanticNodeApplier;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
@@ -99,12 +100,16 @@ public class AndroidxSemanticNodeApplier extends
 
     @SuppressWarnings("deprecation")
     @Override
-    protected void setBoundsInScreen(@NonNull AccessibilityNodeInfoCompat nodeInfo,
-            @NonNull Rect bounds) {
+    protected void setBoundsInParentOrScreen(@NonNull AccessibilityNodeInfoCompat nodeInfo,
+            @NonNull Component component,
+            @Nullable Integer parentId) {
+        int[] bounds = new int[4];
+
+        component.getBoundsInSemanticParent(bounds, parentId);
+
         // setBoundsInParent() is a deprecated method, however
         // ExploreByTouchHelper.createNodeForChild() relies on the bounds in parent being set.
-        nodeInfo.setBoundsInParent(new Rect(0, 0, 1, 1));
-        nodeInfo.setBoundsInScreen(bounds);
+        nodeInfo.setBoundsInParent(new Rect(bounds[0], bounds[1], bounds[2], bounds[3]));
     }
 
     @Override

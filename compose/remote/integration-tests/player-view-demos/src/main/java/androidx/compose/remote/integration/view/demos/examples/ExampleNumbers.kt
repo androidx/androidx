@@ -204,4 +204,4 @@ fun spreadSheet(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable fun SpreadSheetPreview() = RemoteDocPreview(spreadSheet())
+@Preview @Composable private fun SpreadSheetPreview() = RemoteDocPreview(spreadSheet())

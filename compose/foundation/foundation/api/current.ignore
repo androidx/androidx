@@ -15,3 +15,5 @@ RemovedMethod: androidx.compose.foundation.gestures.TransformableStateKt#animate
     Source breaking change: Removed method androidx.compose.foundation.gestures.TransformableStateKt.animatePanBy(androidx.compose.foundation.gestures.TransformableState,androidx.compose.ui.geometry.Offset,androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset>,kotlin.coroutines.Continuation<? super java.lang.Void>)
 RemovedMethod: androidx.compose.foundation.gestures.TransformableStateKt#panBy(androidx.compose.foundation.gestures.TransformableState, androidx.compose.ui.geometry.Offset, kotlin.coroutines.Continuation<? super java.lang.Void>):
     Source breaking change: Removed method androidx.compose.foundation.gestures.TransformableStateKt.panBy(androidx.compose.foundation.gestures.TransformableState,androidx.compose.ui.geometry.Offset,kotlin.coroutines.Continuation<? super java.lang.Void>)
+RemovedMethod: androidx.compose.foundation.text.KeyboardOptions#KeyboardOptions():
+    Binary breaking change: Removed constructor androidx.compose.foundation.text.KeyboardOptions()

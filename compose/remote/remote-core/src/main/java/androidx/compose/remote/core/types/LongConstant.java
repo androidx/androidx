@@ -130,9 +130,9 @@ public class LongConstant extends Operation implements Serializable {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Expressions Operations", OP_CODE, "LongConstant")
-                .description("A boolean and its associated id")
-                .field(DocumentedOperation.INT, "id", "id of Int")
+        doc.operation("Data Operations", OP_CODE, "LongConstant")
+                .description("A long and its associated id")
+                .field(DocumentedOperation.INT, "id", "id of the Long constant")
                 .field(LONG, "value", "The long Value");
     }
 

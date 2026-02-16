@@ -48,7 +48,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.GenericFontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -88,10 +87,10 @@ public fun RemoteText(
 /**
  * Remote composable that displays text.
  *
- * Note that density-dependent values like [fontSize], [style.letterSpacing], and [style.lineHeight]
- * are converted to pixels using [LocalDensity.current] from the environment where the [RemoteText]
- * is being *created*, not the remote environment where it will be displayed. This means these
- * values are fixed at creation time based on the local density.
+ * Note that density-dependent values like [fontSize], [style#letterSpacing], and [style#lineHeight]
+ * are converted to pixels using [LocalDensity] from the environment where the [RemoteText] is being
+ * *created*, not the remote environment where it will be displayed. This means these values are
+ * fixed at creation time based on the local density.
  *
  * @param text The text to be displayed.
  * @param modifier The [RemoteModifier] to be applied to this text.
@@ -264,50 +263,6 @@ public fun RemoteText(
         )
     }
 }
-
-@Composable
-private fun TextOverflow.encode(): Int =
-    when (this) {
-        TextOverflow.Clip -> TextLayout.OVERFLOW_CLIP
-        TextOverflow.Visible -> TextLayout.OVERFLOW_VISIBLE
-        TextOverflow.Ellipsis -> TextLayout.OVERFLOW_ELLIPSIS
-        TextOverflow.StartEllipsis -> TextLayout.OVERFLOW_START_ELLIPSIS
-        TextOverflow.MiddleEllipsis -> TextLayout.OVERFLOW_MIDDLE_ELLIPSIS
-        else -> -1
-    }
-
-@Composable
-private fun TextAlign.encode(): Int =
-    when (this) {
-        TextAlign.Left -> TextLayout.TEXT_ALIGN_LEFT
-        TextAlign.Right -> TextLayout.TEXT_ALIGN_RIGHT
-        TextAlign.Center -> TextLayout.TEXT_ALIGN_CENTER
-        TextAlign.Justify -> TextLayout.TEXT_ALIGN_JUSTIFY
-        TextAlign.Start -> TextLayout.TEXT_ALIGN_START
-        TextAlign.End -> TextLayout.TEXT_ALIGN_END
-        TextAlign.Unspecified -> Int.MIN_VALUE
-        else -> -1
-    }
-
-@Composable
-private fun FontStyle.encode(): Int =
-    when (this) {
-        FontStyle.Normal -> 0
-        FontStyle.Italic -> 1
-        else -> -1
-    }
-
-@Composable
-private fun FontFamily?.encode(): String? =
-    when (this) {
-        FontFamily.Default -> "default"
-        FontFamily.SansSerif -> "sans-serif"
-        FontFamily.Serif -> "serif"
-        FontFamily.Monospace -> "monospace"
-        FontFamily.Cursive -> "cursive"
-        is GenericFontFamily -> name
-        else -> null
-    }
 
 /** Utility modifier to record the layout information */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

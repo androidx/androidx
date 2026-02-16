@@ -72,5 +72,5 @@ androidx {
     legacyDisableKotlinStrictApiMode = true // Temporarily enabled to allow API tracking
     type = SoftwareType.SNAPSHOT_ONLY_TEST_LIBRARY_WITH_API_TASKS // Used to diff against Google Truth
     doNotDocumentReason = "Not shipped externally"
-    kotlinTarget = KotlinTarget.KOTLIN_2_2
+    kotlinTarget = KotlinTarget.KOTLIN_2_3
 }

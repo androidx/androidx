@@ -257,10 +257,10 @@ public class ClickModifierOperation extends PaintOperation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", OP_CODE, name())
+        doc.operation("Modifier Operations", OP_CODE, name())
                 .description(
                         "Click modifier. This operation contains"
-                                + " a list of action executed on click");
+                                + " a list of action operations executed on click");
     }
 
     @Override

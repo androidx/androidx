@@ -43,6 +43,7 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.clipPath
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.nativePaint
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -467,7 +468,7 @@ actual class GraphicsLayer internal constructor(internal val impl: GraphicsLayer
                     blendMode = layerBlendMode
                     colorFilter = layerColorFilter
                 }
-            androidCanvas.saveLayer(left, top, right, bottom, paint.asFrameworkPaint())
+            androidCanvas.saveLayer(left, top, right, bottom, paint.nativePaint)
         } else {
             androidCanvas.save()
         }

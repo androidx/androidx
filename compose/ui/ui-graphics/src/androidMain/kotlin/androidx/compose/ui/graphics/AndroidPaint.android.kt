@@ -16,16 +16,33 @@
 
 package androidx.compose.ui.graphics
 
+import android.graphics.Paint.Cap
+import android.graphics.Paint.Style
 import android.graphics.PorterDuffXfermode
 import android.os.Build
 import androidx.annotation.RequiresApi
 
+@Deprecated(
+    message = "Use android.graphics.Paint directly instead",
+    replaceWith = ReplaceWith("android.graphics.Paint"),
+)
 actual typealias NativePaint = android.graphics.Paint
 
 actual fun Paint(): Paint = AndroidPaint()
 
-/** Convert an [android.graphics.Paint] instance into a Compose-compatible Paint */
+/** Convert an [android.graphics.Paint] instance into a Compose-compatible [Paint] */
+// TODO: Multiple calls will NOT return the same instance,
+//  consider to replace to `fun Paint(androidPaint: android.graphics.Paint)`
 fun android.graphics.Paint.asComposePaint(): Paint = AndroidPaint(this)
+
+/** Convert a Compose [Paint] instance into an [android.graphics.Paint]. */
+val Paint.nativePaint: android.graphics.Paint
+    get() {
+        requirePrecondition(this is AndroidPaint) {
+            "Extracting native reference is only supported from androidx.compose.ui.graphics.AndroidPaint instances but received ${this::class.qualifiedName}"
+        }
+        return internalPaint
+    }
 
 /**
  * Create a Compose [Paint] instance backed by an [android.graphics.Paint] object to be consumed by
@@ -33,7 +50,12 @@ fun android.graphics.Paint.asComposePaint(): Paint = AndroidPaint(this)
  *
  * @param internalPaint [android.graphics.Paint] to be wrapped by the [AndroidPaint] instance
  */
-class AndroidPaint(private var internalPaint: android.graphics.Paint) : Paint {
+// TODO: This type was never supposed to be public and used directly, consider to deprecate
+// @Deprecated(
+//    message = "This type is not supposed to be used directly",
+//    replaceWith = ReplaceWith("androidx.compose.ui.graphics.Paint"),
+// )
+class AndroidPaint(internal var internalPaint: android.graphics.Paint) : Paint {
 
     /** Create a new [AndroidPaint] instance backed by a newly created [android.graphics.Paint] */
     constructor() : this(makeNativePaint())
@@ -42,7 +64,11 @@ class AndroidPaint(private var internalPaint: android.graphics.Paint) : Paint {
     private var internalShader: Shader? = null
     private var internalColorFilter: ColorFilter? = null
 
-    override fun asFrameworkPaint(): NativePaint = internalPaint
+    @Deprecated(
+        message = "Use [nativePaint] extension instead",
+        replaceWith = ReplaceWith("nativePaint"),
+    )
+    override fun asFrameworkPaint(): android.graphics.Paint = internalPaint
 
     override var alpha: Float
         get() = internalPaint.getNativeAlpha()
@@ -136,7 +162,7 @@ internal fun makeNativePaint() =
             android.graphics.Paint.FILTER_BITMAP_FLAG
     )
 
-internal fun NativePaint.setNativeBlendMode(mode: BlendMode) {
+internal fun android.graphics.Paint.setNativeBlendMode(mode: BlendMode) {
     if (Build.VERSION.SDK_INT >= 29) {
         // All blend modes supported in Q
         WrapperVerificationHelperMethods.setBlendMode(this, mode)
@@ -146,68 +172,68 @@ internal fun NativePaint.setNativeBlendMode(mode: BlendMode) {
     }
 }
 
-internal fun NativePaint.setNativeColorFilter(value: ColorFilter?) {
+internal fun android.graphics.Paint.setNativeColorFilter(value: ColorFilter?) {
     colorFilter = value?.asAndroidColorFilter()
 }
 
-internal fun NativePaint.getNativeAlpha() = this.alpha / 255f
+internal fun android.graphics.Paint.getNativeAlpha() = this.alpha / 255f
 
-internal fun NativePaint.setNativeAlpha(value: Float) {
+internal fun android.graphics.Paint.setNativeAlpha(value: Float) {
     this.alpha = kotlin.math.round(value * 255.0f).toInt()
 }
 
-internal fun NativePaint.getNativeAntiAlias(): Boolean = this.isAntiAlias
+internal fun android.graphics.Paint.getNativeAntiAlias(): Boolean = this.isAntiAlias
 
-internal fun NativePaint.setNativeAntiAlias(value: Boolean) {
+internal fun android.graphics.Paint.setNativeAntiAlias(value: Boolean) {
     this.isAntiAlias = value
 }
 
-internal fun NativePaint.getNativeColor(): Color = Color(this.color)
+internal fun android.graphics.Paint.getNativeColor(): Color = Color(this.color)
 
-internal fun NativePaint.setNativeColor(value: Color) {
+internal fun android.graphics.Paint.setNativeColor(value: Color) {
     this.color = value.toArgb()
 }
 
-internal fun NativePaint.setNativeStyle(value: PaintingStyle) {
+internal fun android.graphics.Paint.setNativeStyle(value: PaintingStyle) {
     // TODO(njawad): Platform also supports Paint.Style.FILL_AND_STROKE)
     this.style =
         when (value) {
-            PaintingStyle.Stroke -> android.graphics.Paint.Style.STROKE
-            else -> android.graphics.Paint.Style.FILL
+            PaintingStyle.Stroke -> Style.STROKE
+            else -> Style.FILL
         }
 }
 
-internal fun NativePaint.getNativeStyle() =
+internal fun android.graphics.Paint.getNativeStyle() =
     when (this.style) {
-        android.graphics.Paint.Style.STROKE -> PaintingStyle.Stroke
+        Style.STROKE -> PaintingStyle.Stroke
         else -> PaintingStyle.Fill
     }
 
-internal fun NativePaint.getNativeStrokeWidth(): Float = this.strokeWidth
+internal fun android.graphics.Paint.getNativeStrokeWidth(): Float = this.strokeWidth
 
-internal fun NativePaint.setNativeStrokeWidth(value: Float) {
+internal fun android.graphics.Paint.setNativeStrokeWidth(value: Float) {
     this.strokeWidth = value
 }
 
-internal fun NativePaint.getNativeStrokeCap(): StrokeCap =
+internal fun android.graphics.Paint.getNativeStrokeCap(): StrokeCap =
     when (this.strokeCap) {
-        android.graphics.Paint.Cap.BUTT -> StrokeCap.Butt
-        android.graphics.Paint.Cap.ROUND -> StrokeCap.Round
-        android.graphics.Paint.Cap.SQUARE -> StrokeCap.Square
+        Cap.BUTT -> StrokeCap.Butt
+        Cap.ROUND -> StrokeCap.Round
+        Cap.SQUARE -> StrokeCap.Square
         else -> StrokeCap.Butt
     }
 
-internal fun NativePaint.setNativeStrokeCap(value: StrokeCap) {
+internal fun android.graphics.Paint.setNativeStrokeCap(value: StrokeCap) {
     this.strokeCap =
         when (value) {
-            StrokeCap.Square -> android.graphics.Paint.Cap.SQUARE
-            StrokeCap.Round -> android.graphics.Paint.Cap.ROUND
-            StrokeCap.Butt -> android.graphics.Paint.Cap.BUTT
-            else -> android.graphics.Paint.Cap.BUTT
+            StrokeCap.Square -> Cap.SQUARE
+            StrokeCap.Round -> Cap.ROUND
+            StrokeCap.Butt -> Cap.BUTT
+            else -> Cap.BUTT
         }
 }
 
-internal fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
+internal fun android.graphics.Paint.getNativeStrokeJoin(): StrokeJoin =
     when (this.strokeJoin) {
         android.graphics.Paint.Join.MITER -> StrokeJoin.Miter
         android.graphics.Paint.Join.BEVEL -> StrokeJoin.Bevel
@@ -215,7 +241,7 @@ internal fun NativePaint.getNativeStrokeJoin(): StrokeJoin =
         else -> StrokeJoin.Miter
     }
 
-internal fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
+internal fun android.graphics.Paint.setNativeStrokeJoin(value: StrokeJoin) {
     this.strokeJoin =
         when (value) {
             StrokeJoin.Miter -> android.graphics.Paint.Join.MITER
@@ -225,13 +251,13 @@ internal fun NativePaint.setNativeStrokeJoin(value: StrokeJoin) {
         }
 }
 
-internal fun NativePaint.getNativeStrokeMiterLimit(): Float = this.strokeMiter
+internal fun android.graphics.Paint.getNativeStrokeMiterLimit(): Float = this.strokeMiter
 
-internal fun NativePaint.setNativeStrokeMiterLimit(value: Float) {
+internal fun android.graphics.Paint.setNativeStrokeMiterLimit(value: Float) {
     this.strokeMiter = value
 }
 
-internal fun NativePaint.getNativeFilterQuality(): FilterQuality =
+internal fun android.graphics.Paint.getNativeFilterQuality(): FilterQuality =
     if (!this.isFilterBitmap) {
         FilterQuality.None
     } else {
@@ -243,15 +269,15 @@ internal fun NativePaint.getNativeFilterQuality(): FilterQuality =
         FilterQuality.Low
     }
 
-internal fun NativePaint.setNativeFilterQuality(value: FilterQuality) {
+internal fun android.graphics.Paint.setNativeFilterQuality(value: FilterQuality) {
     this.isFilterBitmap = value != FilterQuality.None
 }
 
-internal fun NativePaint.setNativeShader(value: Shader?) {
+internal fun android.graphics.Paint.setNativeShader(value: Shader?) {
     this.shader = value
 }
 
-internal fun NativePaint.setNativePathEffect(value: PathEffect?) {
+internal fun android.graphics.Paint.setNativePathEffect(value: PathEffect?) {
     this.pathEffect = (value as AndroidPathEffect?)?.nativePathEffect
 }
 
@@ -262,7 +288,7 @@ internal fun NativePaint.setNativePathEffect(value: PathEffect?) {
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 internal object WrapperVerificationHelperMethods {
-    fun setBlendMode(paint: NativePaint, mode: BlendMode) {
+    fun setBlendMode(paint: android.graphics.Paint, mode: BlendMode) {
         paint.blendMode = mode.toAndroidBlendMode()
     }
 }

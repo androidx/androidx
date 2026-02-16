@@ -220,4 +220,4 @@ fun fireworksEngine(
     }
 }
 
-@Preview @Composable fun ShaderFireworksPreview() = RemoteDocPreview(shaderFireworks())
+@Preview @Composable private fun ShaderFireworksPreview() = RemoteDocPreview(shaderFireworks())

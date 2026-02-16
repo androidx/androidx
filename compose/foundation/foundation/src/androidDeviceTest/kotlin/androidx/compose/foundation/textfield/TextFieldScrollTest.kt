@@ -370,7 +370,7 @@ class TextFieldScrollTest : FocusedWindowTest {
             Second Line
             Third Line
             Fourth Line
-        """
+            """
                 .trimIndent()
 
         val textFieldScrollPosition = TextFieldScrollerPosition()

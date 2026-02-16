@@ -214,7 +214,7 @@ internal fun Project.originalToRedirectedDependency(
                 val redirecting = project.artifactRedirection() ?: return@flatMap emptyList()
                 redirecting.targetNames.filter { it.isNotEmpty() }.map {
                     val group = project.group.toString()
-                    val name = project.name.toString()
+                    val name = project.name
                     val target = it
                     val original = DefaultModuleIdentifier.newId(group, "$name-$target")
                     val redirected = DefaultModuleVersionIdentifier.newId(

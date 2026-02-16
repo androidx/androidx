@@ -128,6 +128,7 @@ import androidx.compose.remote.core.operations.layout.managers.CollapsibleRowLay
 import androidx.compose.remote.core.operations.layout.managers.ColumnLayout;
 import androidx.compose.remote.core.operations.layout.managers.CoreText;
 import androidx.compose.remote.core.operations.layout.managers.FitBoxLayout;
+import androidx.compose.remote.core.operations.layout.managers.FlowLayout;
 import androidx.compose.remote.core.operations.layout.managers.ImageLayout;
 import androidx.compose.remote.core.operations.layout.managers.RowLayout;
 import androidx.compose.remote.core.operations.layout.managers.StateLayout;
@@ -311,6 +312,7 @@ public class Operations {
     public static final int LAYOUT_FIT_BOX = 176;
     public static final int LAYOUT_ROW = 203;
     public static final int LAYOUT_COLLAPSIBLE_ROW = 230;
+    public static final int LAYOUT_FLOW = 240;
     public static final int LAYOUT_COLUMN = 204;
     public static final int LAYOUT_COLLAPSIBLE_COLUMN = 233;
     public static final int LAYOUT_CANVAS = 205;
@@ -471,7 +473,7 @@ public class Operations {
             sMapV7AndroidXExperimental.put(CORE_TEXT, CoreText::read);
             sMapV7AndroidXExperimental.put(TEXT_TRANSFORM, TextTransform::read);
             sMapV7AndroidXExperimental.put(COLOR_THEME, ColorTheme::read);
-
+            sMapV7AndroidXExperimental.put(LAYOUT_FLOW, FlowLayout::read);
         }
         return sMapV7AndroidXExperimental;
     }
@@ -513,7 +515,7 @@ public class Operations {
             sMapV7WidgetsExperimental.put(CORE_TEXT, CoreText::read);
             sMapV7WidgetsExperimental.put(TEXT_TRANSFORM, TextTransform::read);
             sMapV7WidgetsExperimental.put(COLOR_THEME, ColorTheme::read);
-
+            sMapV7WidgetsExperimental.put(LAYOUT_FLOW, FlowLayout::read);
         }
         return sMapV7WidgetsExperimental;
     }

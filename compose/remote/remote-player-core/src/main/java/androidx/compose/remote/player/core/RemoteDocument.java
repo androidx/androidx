@@ -19,9 +19,9 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
 
 import androidx.annotation.RestrictTo;
 import androidx.compose.remote.core.CoreDocument;
+import androidx.compose.remote.core.RemoteClock;
 import androidx.compose.remote.core.RemoteComposeBuffer;
 import androidx.compose.remote.core.RemoteContext;
-import androidx.compose.remote.core.SystemClock;
 import androidx.compose.remote.core.operations.ColorTheme;
 import androidx.compose.remote.core.operations.layout.Component;
 import androidx.compose.remote.core.serialize.MapSerializer;
@@ -31,7 +31,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -44,16 +43,16 @@ public class RemoteDocument {
     private @NonNull CoreDocument mDocument;
 
     public RemoteDocument(byte @NonNull [] inputStream) {
-        this(new ByteArrayInputStream(inputStream), new SystemClock());
+        this(new ByteArrayInputStream(inputStream), RemoteClock.SYSTEM);
     }
 
     @RestrictTo(LIBRARY_GROUP)
     public RemoteDocument(@NonNull InputStream inputStream) {
-        this(inputStream, new SystemClock());
+        this(inputStream, RemoteClock.SYSTEM);
     }
 
     @RestrictTo(LIBRARY_GROUP)
-    public RemoteDocument(@NonNull InputStream inputStream, @NonNull Clock clock) {
+    public RemoteDocument(@NonNull InputStream inputStream, @NonNull RemoteClock clock) {
         mDocument = new CoreDocument(clock);
         RemoteComposeBuffer buffer = RemoteComposeBuffer.fromInputStream(inputStream);
         mDocument.initFromBuffer(buffer);
@@ -240,7 +239,7 @@ public class RemoteDocument {
      *
      * @return
      */
-    public @NonNull Clock getClock() {
+    public @NonNull RemoteClock getClock() {
         return getDocument().getClock();
     }
 

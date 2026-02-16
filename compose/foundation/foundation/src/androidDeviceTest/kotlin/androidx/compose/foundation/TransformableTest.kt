@@ -36,6 +36,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
@@ -43,7 +45,6 @@ import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.ScrollWheel
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.v2.createComposeRule
@@ -51,6 +52,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.performMultiModalInput
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.performTrackpadInput
 import androidx.compose.ui.test.pinch
 import androidx.compose.ui.test.withKeysDown
 import androidx.compose.ui.unit.Density
@@ -58,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Fact
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
@@ -71,6 +74,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
+import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -235,6 +240,28 @@ class TransformableTest {
             assertWithMessage("Should have panned the amount equal to finger move")
                 .that(cumulativePan)
                 .isEqualTo(expected)
+        }
+    }
+
+    @Test
+    fun transformable_panTrackpad() {
+        var cumulativePan = Offset.Zero
+
+        setTransformableContent {
+            Modifier.transformable(
+                state = rememberTransformableState { _, _, pan, _ -> cumulativePan += pan }
+            )
+        }
+
+        val expected = Offset(40f, 50f)
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
+            moveTo(center)
+            scroll(expected)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have panned").that(cumulativePan).isEqualTo(expected)
         }
     }
 
@@ -437,6 +464,74 @@ class TransformableTest {
             assertWithMessage("Should have scaled down at least 4x")
                 .that(cumulativeScale)
                 .isAtMost(0.25f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(centerOffset))
+            }
+        }
+    }
+
+    @Test
+    fun transformable_zoomOut_trackpad() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        var centerOffset: Offset? = null
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
+            centerOffset = center
+            moveTo(center)
+            pinch(scaleFactor = 0.5f)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down by exactly 2x")
+                .that(cumulativeScale)
+                .isEqualTo(0.5f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(centerOffset))
+            }
+        }
+    }
+
+    @Test
+    fun transformable_zoomIn_trackpad() {
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        var centerOffset: Offset? = null
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput {
+            centerOffset = center
+            moveTo(center)
+            pinch(scaleFactor = 2f)
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled up by exactly 2x")
+                .that(cumulativeScale)
+                .isEqualTo(2f)
 
             centroids.forEach { centroid ->
                 assertThatOffset(centroid).equalsWithTolerance(assertNotNull(centerOffset))
@@ -650,7 +745,6 @@ class TransformableTest {
             }
         }
 
-    @OptIn(ExperimentalFoundationApi::class)
     @Test
     fun transformable_animateTo_all() =
         runBlocking(AutoTestFrameClock()) {
@@ -830,7 +924,6 @@ class TransformableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun transformable_ctrlAndMouseScrollUp_doesZoomIn() {
         var cumulativeScale = 1.0f
@@ -868,7 +961,6 @@ class TransformableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun transformable_ctrlAndMouseScrollDown_doesZoomOut() {
         var cumulativeScale = 1.0f
@@ -906,7 +998,96 @@ class TransformableTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    // Classification is only supported on API 34+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun transformable_ctrlAndTrackpadScrollUp_doesZoomIn() {
+        assumeTrue(
+            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                ComposeFoundationFlags.isTrackpadGestureHandlingEnabled
+        )
+
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    trackpad {
+                        moveTo(Offset(20f, 30f))
+                        scroll(Offset(0f, SCROLL_FACTOR * 1.dp.toPx()))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 2x")
+                .that(cumulativeScale)
+                .isAtLeast(2f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    // Classification is only supported on API 34+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun transformable_ctrlAndTrackpadScrollDown_doesZoomOut() {
+        assumeTrue(
+            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                ComposeFoundationFlags.isTrackpadGestureHandlingEnabled
+        )
+
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+
+        setTransformableContent {
+            Modifier.transformable(
+                state =
+                    rememberTransformableState { centroid, zoom, _, _ ->
+                        centroids.add(centroid)
+                        cumulativeScale *= zoom
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    trackpad {
+                        moveTo(Offset(20f, 30f))
+                        scroll(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
     @Test
     fun transformableInsideScroll_ctrlAndMouseScroll_doesZoomNoScroll() {
         var cumulativeScale = 1.0f
@@ -954,6 +1135,108 @@ class TransformableTest {
         }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    // Classification is only supported on API 34+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun transformableInsideScroll_ctrlAndTrackpadScroll_doesZoomNoScroll_withFlags() {
+        assumeTrue(
+            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                ComposeFoundationFlags.isTrackpadGestureHandlingEnabled
+        )
+
+        var cumulativeScale = 1.0f
+        val centroids = mutableListOf<Offset>()
+        val scrollState = ScrollState(0)
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { centroid, zoom, _, _ ->
+                                    centroids.add(centroid)
+                                    cumulativeScale *= zoom
+                                }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    trackpad {
+                        moveTo(Offset(20f, 30f))
+                        scroll(Offset(0f, -SCROLL_FACTOR * 1.dp.toPx()))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should have scaled down at least 0.5x")
+                .that(cumulativeScale)
+                .isAtMost(0.5f)
+
+            assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)
+
+            centroids.forEach { centroid ->
+                assertThatOffset(centroid).equalsWithTolerance(assertNotNull(Offset(20f, 30f)))
+            }
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class, ExperimentalFoundationApi::class)
+    @Test
+    fun transformableInsideScroll_ctrlAndTrackpadScroll_doesPanNoScroll_withoutFlags() {
+        assumeFalse(
+            ComposeUiFlags.isTrackpadGestureHandlingEnabled &&
+                ComposeFoundationFlags.isTrackpadGestureHandlingEnabled
+        )
+
+        var cumulativeScale = 1.0f
+        var cumulativePan = Offset.Zero
+        val scrollState = ScrollState(0)
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { _, zoom, pan, _ ->
+                                    cumulativeScale *= zoom
+                                    cumulativePan += pan
+                                }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performMultiModalInput {
+            key {
+                withKeysDown(listOf(Key.CtrlLeft)) {
+                    trackpad {
+                        moveTo(Offset(20f, 30f))
+                        scroll(Offset(0f, 100f))
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)
+            assertWithMessage("Should not have scaled").that(cumulativeScale).isEqualTo(1f)
+            assertWithMessage("Should have panned").that(cumulativePan).isEqualTo(Offset(0f, 100f))
+        }
+    }
+
     @Test
     fun transformableInsideScroll_mouseScrollOnly_doesScrollNoZoom() {
         var cumulativeScale = 1.0f
@@ -984,6 +1267,38 @@ class TransformableTest {
             assertWithMessage("Should not have scaled").that(cumulativeScale).isEqualTo(1f)
 
             assertWithMessage("Should have scrolled").that(scrollState.value).isGreaterThan(0)
+        }
+    }
+
+    @Test
+    fun transformableInsideScroll_trackpadScrollOnly_doesPanNoScroll() {
+        var cumulativeScale = 1.0f
+        var cumulativePan = Offset.Zero
+        val scrollState = ScrollState(0)
+
+        rule.setContentAndGetScope {
+            Column(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(
+                    Modifier.size(100.dp)
+                        .testTag(TEST_TAG)
+                        .transformable(
+                            state =
+                                rememberTransformableState { _, zoom, pan, _ ->
+                                    cumulativeScale *= zoom
+                                    cumulativePan += pan
+                                }
+                        )
+                )
+                Box(Modifier.size(100.dp))
+            }
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTrackpadInput { scroll(Offset(0f, 100f)) }
+
+        rule.runOnIdle {
+            assertWithMessage("Should not scroll").that(scrollState.value).isEqualTo(0)
+            assertWithMessage("Should not have scaled").that(cumulativeScale).isEqualTo(1f)
+            assertWithMessage("Should have panned").that(cumulativePan).isEqualTo(Offset(0f, 100f))
         }
     }
 

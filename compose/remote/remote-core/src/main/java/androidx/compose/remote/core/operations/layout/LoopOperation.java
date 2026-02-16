@@ -42,7 +42,8 @@ public class LoopOperation extends PaintOperation
 
     private static final int OP_CODE = Operations.LOOP_START;
 
-    @NonNull public ArrayList<Operation> mList = new ArrayList<>();
+    @NonNull
+    public ArrayList<Operation> mList = new ArrayList<>();
 
     int mIndexVariableId;
     float mUntil;
@@ -154,12 +155,6 @@ public class LoopOperation extends PaintOperation
 
     /**
      * Write the operation on the buffer
-     *
-     * @param buffer
-     * @param indexId
-     * @param from
-     * @param step
-     * @param until
      */
     public static void apply(
             @NonNull WireBuffer buffer, int indexId, float from, float step, float until) {
@@ -173,7 +168,7 @@ public class LoopOperation extends PaintOperation
     /**
      * Read this operation and add it to the list of operations
      *
-     * @param buffer the buffer to read
+     * @param buffer     the buffer to read
      * @param operations the list of operations that will be added to
      */
     public static void read(@NonNull WireBuffer buffer, @NonNull List<Operation> operations) {
@@ -190,12 +185,13 @@ public class LoopOperation extends PaintOperation
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Operations", OP_CODE, name())
-                .description("Loop. This operation execute" + " a list of action in a loop")
-                .field(DocumentedOperation.INT, "id", "if not 0 write value")
-                .field(DocumentedOperation.FLOAT, "from", "values starts at")
-                .field(DocumentedOperation.FLOAT, "step", "value step")
-                .field(DocumentedOperation.FLOAT, "until", "stops less than or equal");
+        doc.operation("Logic & Expressions Operations", OP_CODE, name())
+                .description("Execute a list of operations in a loop")
+                .field(DocumentedOperation.INT, "indexId",
+                        "The ID of the variable to store the loop index")
+                .field(DocumentedOperation.FLOAT, "from", "Starting value")
+                .field(DocumentedOperation.FLOAT, "step", "Increment value")
+                .field(DocumentedOperation.FLOAT, "until", "Stop value (exclusive)");
     }
 
     /**

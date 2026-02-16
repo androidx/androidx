@@ -29,7 +29,6 @@ import androidx.compose.remote.creation.compose.state.RemoteStateScope
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shader
 import androidx.compose.ui.graphics.TileMode as ComposeTileMode
 import androidx.compose.ui.graphics.toAndroidTileMode
 import androidx.compose.ui.graphics.toArgb
@@ -123,7 +122,7 @@ public data class RemoteRadialGradient(
     private val tileMode: ComposeTileMode = ComposeTileMode.Clamp,
 ) : RemoteBrush() {
 
-    override fun RemoteStateScope.createShader(size: RemoteSize): Shader {
+    override fun RemoteStateScope.createShader(size: RemoteSize): RemoteShader {
         val realCenter = center ?: size.center
         val realRadius = radius ?: (size.width.min(size.height) / 2f)
 

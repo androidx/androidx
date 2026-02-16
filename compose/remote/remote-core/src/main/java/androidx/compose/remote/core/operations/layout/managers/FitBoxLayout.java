@@ -88,7 +88,7 @@ public class FitBoxLayout extends LayoutManager {
     @NonNull
     @Override
     public String toString() {
-        return "BOX ["
+        return "FITBOX ["
                 + mComponentId
                 + ":"
                 + mAnimationId
@@ -251,7 +251,7 @@ public class FitBoxLayout extends LayoutManager {
      */
     @NonNull
     public static String name() {
-        return "BoxLayout";
+        return "FitBoxLayout";
     }
 
     /**
@@ -311,28 +311,25 @@ public class FitBoxLayout extends LayoutManager {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("fitbox")
                 .description(
                         "FitBox layout implementation.\n\n"
-                            + "Only display the first child component that fits in the available"
-                            + " space")
-                .examplesDimension(150, 100)
-                .exampleImage("Top", "layout-BoxLayout-start-top.png")
-                .exampleImage("Center", "layout-BoxLayout-center-center.png")
-                .exampleImage("Bottom", "layout-BoxLayout-end-bottom.png")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
+                            + "Only displays the first child component that fits in the available"
+                            + " space.")
+                .field(INT, "componentId", "Unique ID for this component")
                 .field(
                         INT,
-                        "ANIMATION_ID",
-                        "id used to match components," + " for animation purposes")
-                .field(INT, "HORIZONTAL_POSITIONING", "horizontal positioning value")
-                .possibleValues("START", FitBoxLayout.START)
-                .possibleValues("CENTER", FitBoxLayout.CENTER)
-                .possibleValues("END", FitBoxLayout.END)
-                .field(INT, "VERTICAL_POSITIONING", "vertical positioning value")
-                .possibleValues("TOP", FitBoxLayout.TOP)
-                .possibleValues("CENTER", FitBoxLayout.CENTER)
-                .possibleValues("BOTTOM", FitBoxLayout.BOTTOM);
+                        "animationId",
+                        "ID used to match components for animation purposes")
+                .field(INT, "horizontalPositioning", "Horizontal positioning value")
+                .possibleValues("START", START)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("END", END)
+                .field(INT, "verticalPositioning", "Vertical positioning value")
+                .possibleValues("TOP", TOP)
+                .possibleValues("CENTER", CENTER)
+                .possibleValues("BOTTOM", BOTTOM);
     }
 
     @Override

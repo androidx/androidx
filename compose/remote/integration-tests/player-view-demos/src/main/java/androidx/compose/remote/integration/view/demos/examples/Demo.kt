@@ -310,10 +310,10 @@ fun plot4(): RemoteComposeWriter {
     return rc.writer
 }
 
-@Preview @Composable fun Plot1Preview() = RemoteDocPreview(plot1())
+@Preview @Composable private fun Plot1Preview() = RemoteDocPreview(plot1())
 
-@Preview @Composable fun Plot2Preview() = RemoteDocPreview(plot2())
+@Preview @Composable private fun Plot2Preview() = RemoteDocPreview(plot2())
 
-@Preview @Composable fun Plot3Preview() = RemoteDocPreview(plot3())
+@Preview @Composable private fun Plot3Preview() = RemoteDocPreview(plot3())
 
-@Preview @Composable fun Plot4Preview() = RemoteDocPreview(plot4())
+@Preview @Composable private fun Plot4Preview() = RemoteDocPreview(plot4())

@@ -19,8 +19,6 @@ package androidx.compose.remote.player.compose
 
 import androidx.annotation.RestrictTo
 import androidx.compose.remote.core.CoreDocument
-import androidx.compose.remote.player.compose.RemoteComposePlayerFlags.isViewPlayerEnabled
-import androidx.compose.remote.player.compose.impl.RemoteDocumentComposePlayer
 import androidx.compose.remote.player.compose.impl.RemoteDocumentViewPlayer
 import androidx.compose.remote.player.core.platform.BitmapLoader
 import androidx.compose.remote.player.core.state.StateUpdater
@@ -29,7 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /** A player of a [CoreDocument] */
-@OptIn(ExperimentalRemotePlayerApi::class)
 @Composable
 public fun RemoteDocumentPlayer(
     document: CoreDocument,
@@ -43,28 +40,16 @@ public fun RemoteDocumentPlayer(
     onNamedAction: (name: String, value: Any?, stateUpdater: StateUpdater) -> Unit = { _, _, _ -> },
     bitmapLoader: BitmapLoader? = null,
 ) {
-    if (isViewPlayerEnabled) {
-        RemoteDocumentViewPlayer(
-            document = document,
-            documentWidth = documentWidth,
-            documentHeight = documentHeight,
-            modifier = modifier,
-            debugMode = debugMode,
-            init = init,
-            update = update,
-            onAction = onAction,
-            onNamedAction = onNamedAction,
-            bitmapLoader = bitmapLoader,
-        )
-    } else {
-        RemoteDocumentComposePlayer(
-            document = document,
-            documentWidth = documentWidth,
-            documentHeight = documentHeight,
-            modifier = modifier,
-            debugMode = debugMode,
-            onNamedAction = onNamedAction,
-            bitmapLoader = bitmapLoader,
-        )
-    }
+    RemoteDocumentViewPlayer(
+        document = document,
+        documentWidth = documentWidth,
+        documentHeight = documentHeight,
+        modifier = modifier,
+        debugMode = debugMode,
+        init = init,
+        update = update,
+        onAction = onAction,
+        onNamedAction = onNamedAction,
+        bitmapLoader = bitmapLoader,
+    )
 }

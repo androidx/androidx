@@ -592,6 +592,26 @@ actual value class Key(val keyCode: Long) {
         actual val ThumbsUp = Key(-1000000181)
         actual val ThumbsDown = Key(-1000000182)
         actual val ProfileSwitch = Key(-1000000183)
+
+        // TODO: https://youtrack.jetbrains.com/issue/CMP-9751/Implement-actuals-from-Add-NumPad-movement-keys-CL-in-CMP
+        actual val NumPadDirectionUp: Key
+            get() = Unknown
+        actual val NumPadDirectionDown: Key
+            get() = Unknown
+        actual val NumPadDirectionLeft: Key
+            get() = Unknown
+        actual val NumPadDirectionRight: Key
+            get() = Unknown
+        actual val NumPadMoveHome: Key
+            get() = Unknown
+        actual val NumPadMoveEnd: Key
+            get() = Unknown
+        actual val NumPadPageUp: Key
+            get() = Unknown
+        actual val NumPadPageDown: Key
+            get() = Unknown
+        actual val NumPadInsert: Key
+            get() = Unknown
     }
 
     actual override fun toString(): String {

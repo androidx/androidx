@@ -20,6 +20,8 @@ import org.jetbrains.skia.PaintMode as SkPaintMode
 import org.jetbrains.skia.PaintStrokeCap as SkPaintStrokeCap
 import org.jetbrains.skia.PaintStrokeJoin as SkPaintStrokeJoin
 
+// TODO: https://youtrack.jetbrains.com/issue/CMP-9776/Adapt-the-sources-for-expect-class-NativePaint-deprecation
+@Deprecated("Use direct reference to platform type instead of typealias")
 actual typealias NativePaint = org.jetbrains.skia.Paint
 
 actual fun Paint(): Paint = SkiaBackedPaint()
@@ -32,6 +34,7 @@ fun org.jetbrains.skia.Paint.asComposePaint(): Paint = SkiaBackedPaint(this)
 internal class SkiaBackedPaint(
     val skia: org.jetbrains.skia.Paint = org.jetbrains.skia.Paint()
 ) : Paint {
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-9776/Adapt-the-sources-for-expect-class-NativePaint-deprecation
     override fun asFrameworkPaint(): NativePaint = skia
 
     private var mAlphaMultiplier = 1.0f

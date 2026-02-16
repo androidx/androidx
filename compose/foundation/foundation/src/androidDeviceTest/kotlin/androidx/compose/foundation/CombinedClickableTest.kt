@@ -25,6 +25,7 @@ import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.CLASSIFICATION_DEEP_PRESS
 import android.view.MotionEvent.CLASSIFICATION_NONE
 import android.view.View
+import androidx.compose.foundation.ComposeFoundationFlags.isDelayPressesUsingGestureConsumptionEnabled
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
@@ -110,6 +111,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import org.junit.After
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -1170,8 +1172,56 @@ class CombinedClickableTest {
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
     @Test
-    fun interactionSource_immediateDrag_noScrollableContainer() {
+    fun interactionSource_immediateDrag_insideDraggable() {
+        Assume.assumeTrue(isDelayPressesUsingGestureConsumptionEnabled)
+        val interactionSource = MutableInteractionSource()
+
+        lateinit var scope: CoroutineScope
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            Box {
+                BasicText(
+                    "ClickableText",
+                    modifier =
+                        Modifier.testTag("myClickable")
+                            .draggable(
+                                state = rememberDraggableState {},
+                                orientation = Orientation.Horizontal,
+                            )
+                            .combinedClickable(
+                                interactionSource = interactionSource,
+                                indication = null,
+                            ) {},
+                )
+            }
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch { interactionSource.interactions.collect { interactions.add(it) } }
+
+        rule.runOnIdle { assertThat(interactions).isEmpty() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            down(centerLeft)
+            moveTo(centerRight)
+        }
+
+        rule.mainClock.advanceTimeBy(TapIndicationDelay)
+
+        // We started a drag before the timeout, so no press should be emitted
+        rule.runOnIdle { assertThat(interactions).isEmpty() }
+    }
+
+    @OptIn(ExperimentalFoundationApi::class)
+    @Test
+    fun interactionSource_immediateDrag_noScrollableContainer_doNotUseGestureNode() {
+        Assume.assumeFalse(isDelayPressesUsingGestureConsumptionEnabled)
         val interactionSource = MutableInteractionSource()
 
         lateinit var scope: CoroutineScope

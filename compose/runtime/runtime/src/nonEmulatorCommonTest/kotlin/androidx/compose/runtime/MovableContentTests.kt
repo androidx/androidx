@@ -1602,62 +1602,6 @@ class MovableContentTests {
         revalidate()
     }
 
-    @Test // 362539770
-    @OptIn(ExperimentalComposeApi::class)
-    fun movableContent_nestedMovableContent_disabled() = compositionTest {
-        var data = 0
-
-        var condition by mutableStateOf(true)
-
-        val common = movableContentOf {
-            val state = remember { data++ }
-            Text("Generated state: $state")
-        }
-
-        val wrapper = movableContentOf {
-            Text("Wrapper start")
-            common()
-            Text("Wrapper end")
-        }
-
-        compose {
-            Text("Outer")
-            if (condition) {
-                wrapper()
-            } else {
-                common()
-            }
-        }
-
-        var expectedState = 0
-        validate {
-            Text("Outer")
-            if (condition) {
-                Text("Wrapper start")
-            }
-            Text("Generated state: $expectedState")
-            if (condition) {
-                Text("Wrapper end")
-            }
-        }
-
-        ComposeRuntimeFlags.isMovingNestedMovableContentEnabled = false
-        try {
-            // With moving nested content disabled the call to common() will generate new
-            // state when it moves out of the containing movable content.
-            expectedState = 1
-            condition = false
-            expectChanges()
-            revalidate()
-
-            condition = true
-            expectChanges()
-            revalidate()
-        } finally {
-            ComposeRuntimeFlags.isMovingNestedMovableContentEnabled = true
-        }
-    }
-
     @Test
     fun movableContent_nestedMovableContent_simpleMove() = compositionTest {
         var data = 0

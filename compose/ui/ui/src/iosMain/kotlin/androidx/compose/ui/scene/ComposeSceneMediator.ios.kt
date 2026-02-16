@@ -90,6 +90,7 @@ import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.MetalRedrawer
 import androidx.compose.ui.window.OverlayInputView
 import androidx.compose.ui.window.TouchesEventKind
+import kotlin.Float
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.cinterop.CValue
@@ -823,7 +824,9 @@ private fun UIEvent.historicalChangesForTouch(
             HistoricalChange(
                 uptimeMillis = (historicalTouch.timestamp * 1e3).toLong(),
                 position = position,
-                originalEventPosition = position
+                originalEventPosition = position,
+                scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+                panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
             )
         }
     } else {

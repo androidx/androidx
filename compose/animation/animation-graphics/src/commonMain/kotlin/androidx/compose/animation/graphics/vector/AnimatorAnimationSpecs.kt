@@ -159,6 +159,5 @@ private fun <V : AnimationVector> V.reversed(): V {
         is AnimationVector2D -> AnimationVector2D(v1 * -1, v2 * -1) as V
         is AnimationVector3D -> AnimationVector3D(v1 * -1, v2 * -1, v3 * -1) as V
         is AnimationVector4D -> AnimationVector4D(v1 * -1, v2 * -1, v3 * -1, v4 * -1) as V
-        else -> throw RuntimeException("Unknown AnimationVector: $this")
     }
 }

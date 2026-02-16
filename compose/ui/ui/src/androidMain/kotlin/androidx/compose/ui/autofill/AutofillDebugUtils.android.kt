@@ -39,17 +39,17 @@ internal object AutofillSemanticCallback : AutofillManager.AutofillCallback() {
                 EVENT_INPUT_HIDDEN -> "Autofill popup was hidden."
                 EVENT_INPUT_UNAVAILABLE ->
                     """
-                        |Autofill popup isn't shown because autofill is not available.
-                        |
-                        |Did you set up autofill?
-                        |1. Go to Settings > System > Languages&input > Advanced > Autofill Service
-                        |2. Pick a service
-                        |
-                        |Did you add an account?
-                        |1. Go to Settings > System > Languages&input > Advanced
-                        |2. Click on the settings icon next to the Autofill Service
-                        |3. Add your account
-                        """
+                    |Autofill popup isn't shown because autofill is not available.
+                    |
+                    |Did you set up autofill?
+                    |1. Go to Settings > System > Languages&input > Advanced > Autofill Service
+                    |2. Pick a service
+                    |
+                    |Did you add an account?
+                    |1. Go to Settings > System > Languages&input > Advanced
+                    |2. Click on the settings icon next to the Autofill Service
+                    |3. Add your account
+                    """
                         .trimMargin()
                 else -> "Unknown status event."
             },

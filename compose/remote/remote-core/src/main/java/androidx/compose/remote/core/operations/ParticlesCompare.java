@@ -361,17 +361,19 @@ public class ParticlesCompare extends PaintOperation implements VariableSupport,
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Data Operations", OP_CODE, CLASS_NAME)
-                .description("This evolves the particles & recycles them")
-                .field(DocumentedOperation.INT, "id", "id of particle system")
-                .field(
-                        INT,
-                        "recycleLen",
-                        "the number of floats in restart equation if 0 no restart")
-                .field(FLOAT_ARRAY, "values", "recycleLen", "array of floats")
-                .field(INT, "varLen", "the number of equations to follow")
-                .field(INT, "equLen", "the number of equations to follow")
-                .field(FLOAT_ARRAY, "values", "equLen", "floats for the equation");
+        doc.operation("Animation & Particles Operations", OP_CODE, CLASS_NAME)
+                .addedVersion(7)
+                .description("Compare particles and execute conditional logic")
+                .field(DocumentedOperation.INT, "id", "The ID of the particle system")
+                .field(DocumentedOperation.SHORT, "flags", "Configuration flags")
+                .field(DocumentedOperation.FLOAT, "min", "The minimum index to process")
+                .field(DocumentedOperation.FLOAT, "max", "The maximum index to process")
+                .field(INT, "expLen", "The length of the comparison expression")
+                .field(FLOAT_ARRAY, "expression", "The comparison expression (RPN)")
+                .field(INT, "res1Count", "The number of equations in the first result block")
+                .field(FLOAT_ARRAY, "res1Equations", "The equations for the first result block")
+                .field(INT, "res2Count", "The number of equations in the second result block")
+                .field(FLOAT_ARRAY, "res2Equations", "The equations for the second result block");
     }
 
     @NonNull

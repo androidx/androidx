@@ -43,6 +43,8 @@ class TestPointerInputEventData(
             pressure = 1.0f,
             PointerType.Mouse,
             historical = listOf(),
-            originalEventPosition = position
+            originalEventPosition = position,
+            scaleGestureFactor = 1f, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
+            panGestureOffset = Offset.Zero, // TODO https://youtrack.jetbrains.com/issue/CMP-9506/Investigate-and-support-Trackpad-API
         )
 }

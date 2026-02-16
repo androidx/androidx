@@ -777,6 +777,33 @@ expect value class Key(val keyCode: Long) {
         /** Numeric keypad ')' key. */
         val NumPadRightParenthesis: Key
 
+        /** Numeric keypad Up Arrow Key. */
+        val NumPadDirectionUp: Key
+
+        /** Numeric keypad Down Arrow Key. */
+        val NumPadDirectionDown: Key
+
+        /** Numeric keypad Left Arrow Key. */
+        val NumPadDirectionLeft: Key
+
+        /** Numeric keypad Right Arrow Key. */
+        val NumPadDirectionRight: Key
+
+        /** Numeric keypad Home Key. */
+        val NumPadMoveHome: Key
+
+        /** Numeric keypad End Key. */
+        val NumPadMoveEnd: Key
+
+        /** Numeric keypad Page Up Key. */
+        val NumPadPageUp: Key
+
+        /** Numeric keypad Page Down Key. */
+        val NumPadPageDown: Key
+
+        /** Numeric keypad Insert Key. */
+        val NumPadInsert: Key
+
         /** Play media key. */
         val MediaPlay: Key
 

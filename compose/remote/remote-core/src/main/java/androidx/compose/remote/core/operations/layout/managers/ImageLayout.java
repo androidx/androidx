@@ -300,16 +300,17 @@ public class ImageLayout extends LayoutManager implements VariableSupport {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Layout Operations", id(), name())
-                .description("Image layout implementation.\n\n")
-                .field(INT, "COMPONENT_ID", "unique id for this component")
+        doc.operation("Layout Managers", id(), name())
+                .additionalDocumentation("image_layout")
+                .description("Image layout implementation")
+                .field(INT, "componentId", "Unique ID for this component")
                 .field(
                         INT,
-                        "ANIMATION_ID",
-                        "id used to match components," + " for animation purposes")
-                .field(INT, "BITMAP_ID", "bitmap id")
-                .field(INT, "SCALE_TYPE", "scale type")
-                .field(FLOAT, "ALPHA", "alpha");
+                        "animationId",
+                        "ID used to match components for animation purposes")
+                .field(INT, "bitmapId", "The ID of the bitmap to display")
+                .field(INT, "scaleType", "The scale type to apply")
+                .field(FLOAT, "alpha", "The alpha transparency [0..1]");
     }
 
     @Override

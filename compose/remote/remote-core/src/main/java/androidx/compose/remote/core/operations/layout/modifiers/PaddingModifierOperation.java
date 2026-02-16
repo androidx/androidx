@@ -189,11 +189,12 @@ public class PaddingModifierOperation extends Operation implements ModifierOpera
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
         doc.operation("Modifier Operations", OP_CODE, CLASS_NAME)
-                .description("define the Padding Modifier")
-                .field(FLOAT, "left", "")
-                .field(FLOAT, "top", "")
-                .field(FLOAT, "right", "")
-                .field(FLOAT, "bottom", "");
+                .additionalDocumentation("modifier_padding")
+                .description("Define padding around a component")
+                .field(FLOAT, "left", "Left padding")
+                .field(FLOAT, "top", "Top padding")
+                .field(FLOAT, "right", "Right padding")
+                .field(FLOAT, "bottom", "Bottom padding");
     }
 
     @Override

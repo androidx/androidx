@@ -71,7 +71,7 @@ class PrintToStringTest {
                 Text = '[Hello]'
                 Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
-            """
+                """
                     .trimIndent()
             )
     }
@@ -94,7 +94,7 @@ class PrintToStringTest {
                 Text = '[World]'
                 Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
-            """
+                """
                     .trimIndent()
             )
     }
@@ -141,7 +141,7 @@ class PrintToStringTest {
                     |-Node #X at (l=X, t=X, r=X, b=X)px
                       Text = '[Hello]'
                       Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
-            """
+                """
                     .trimIndent()
             )
     }
@@ -165,7 +165,7 @@ class PrintToStringTest {
                 2) Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'tag2'
                  |-Node #X at (l=X, t=X, r=X, b=X)px, Tag: 'tag22'
                    Has 1 child
-            """
+                """
                     .trimIndent()
             )
     }
@@ -188,7 +188,7 @@ class PrintToStringTest {
                 Node #X at (l=X, t=X, r=X, b=X)px
                 ContentDescription = '[first, second]'
                 MergeDescendants = 'true'
-            """
+                """
                     .trimIndent()
             )
     }
@@ -214,7 +214,7 @@ class PrintToStringTest {
                  | ContentDescription = '[first]'
                  |-Node #X at (l=X, t=X, r=X, b=X)px
                    ContentDescription = '[second]'
-            """
+                """
                     .trimIndent()
             )
     }
@@ -238,7 +238,7 @@ class PrintToStringTest {
                 Text = '[first, second]'
                 Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 MergeDescendants = 'true'
-            """
+                """
                     .trimIndent()
             )
     }
@@ -266,7 +266,7 @@ class PrintToStringTest {
                  |-Node #X at (l=X, t=X, r=X, b=X)px
                    Text = '[second]'
                    Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
-            """
+                """
                     .trimIndent()
             )
     }

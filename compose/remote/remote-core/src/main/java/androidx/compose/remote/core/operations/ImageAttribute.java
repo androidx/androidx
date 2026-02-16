@@ -16,6 +16,7 @@
 package androidx.compose.remote.core.operations;
 
 import static androidx.compose.remote.core.documentation.DocumentedOperation.INT;
+import static androidx.compose.remote.core.documentation.DocumentedOperation.REPEATED_INT;
 import static androidx.compose.remote.core.documentation.DocumentedOperation.SHORT;
 
 import androidx.annotation.RestrictTo;
@@ -138,13 +139,13 @@ public class ImageAttribute extends PaintOperation {
      * @param doc to append the description to.
      */
     public static void documentation(@NonNull DocumentationBuilder doc) {
-        doc.operation("Image Attributes", OP_CODE, CLASS_NAME)
-                .description("Measure text")
-                .field(INT, "id", "id of float result of the measure")
-                .field(INT, "ImageId", "id of the image")
-                .field(SHORT, "type", "type: measure 0=width,1=height")
-                .field(SHORT, "len", "number of additional arguments (currently 0)")
-                .field(INT, "a", "len", "number of arguments");
+        doc.operation("Logic & Expressions Operations", OP_CODE, CLASS_NAME)
+                .description("Extract image-related properties (width, height)")
+                .field(INT, "id", "The ID of the float variable to store the result")
+                .field(INT, "imageId", "The ID of the image variable to extract from")
+                .field(SHORT, "type", "The type of property to extract (0=WIDTH, 1=HEIGHT)")
+                .field(SHORT, "argsLength", "The number of additional arguments")
+                .field(REPEATED_INT, "args", "The additional arguments");
     }
 
     @NonNull
