@@ -19,6 +19,8 @@ package androidx.navigation3.scene
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavEntryDecorator
@@ -42,15 +44,22 @@ internal class SharedEntryInSceneNavEntryDecorator<T : Any>(
 ) :
     NavEntryDecorator<T>(
         decorate = { entry ->
-            with(sharedTransitionScope) {
-                Box(
-                    Modifier.sharedElement(
-                        rememberSharedContentState(entry.contentKey),
-                        animatedVisibilityScope = LocalNavAnimatedContentScope.current,
-                    )
-                ) {
-                    entry.Content()
+            val currentScene = LocalCurrentScene.current
+            if (currentScene != null && currentScene !is OverlayScene<*>) {
+                with(sharedTransitionScope) {
+                    Box(
+                        Modifier.sharedElement(
+                            rememberSharedContentState(entry.contentKey),
+                            animatedVisibilityScope = LocalNavAnimatedContentScope.current,
+                        )
+                    ) {
+                        entry.Content()
+                    }
                 }
+            } else {
+                entry.Content()
             }
         }
     )
+
+internal val LocalCurrentScene: ProvidableCompositionLocal<Scene<*>?> = compositionLocalOf { null }

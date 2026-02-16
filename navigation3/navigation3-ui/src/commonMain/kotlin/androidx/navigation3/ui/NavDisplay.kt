@@ -34,7 +34,9 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.fastForEach
@@ -42,12 +44,19 @@ import androidx.compose.ui.util.fastForEachReversed
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.rememberLifecycleOwner
+import androidx.navigation3.runtime.MetadataScope
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
+import androidx.navigation3.runtime.NavMetadataKey
+import androidx.navigation3.runtime.get
+import androidx.navigation3.runtime.metadata
 import androidx.navigation3.runtime.rememberDecoratedNavEntries
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
+import androidx.navigation3.scene.LocalCurrentScene
 import androidx.navigation3.scene.LocalEntriesToExcludeFromCurrentScene
+import androidx.navigation3.scene.OverlayScene
 import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneDecoratorStrategy
 import androidx.navigation3.scene.SceneInfo
 import androidx.navigation3.scene.SceneState
 import androidx.navigation3.scene.SceneStrategy
@@ -75,6 +84,66 @@ import kotlinx.coroutines.launch
 /** Object that indicates the features that can be handled by the [NavDisplay] */
 public object NavDisplay {
     /**
+     * The key for [NavEntry.metadata] or [Scene.metadata] to notify the [NavDisplay] of how the
+     * content should be animated when adding to the backstack.
+     *
+     * **IMPORTANT** [NavDisplay] only looks at the [Scene.metadata] to determine the final
+     * [ContentTransform]. It is the responsibility of the [Scene.metadata] to decide which
+     * [ContentTransform] to return, whether that be from the [NavEntry.metadata] or something
+     * custom.
+     *
+     * **HOW TO USE** Within the [metadata] DSL, invoke [MetadataScope.put] and pass [TransitionKey]
+     * as the key. The `value: AnimatedContentTransitionScope<Scene<*>>.() -> ContentTransform?`
+     * should be the [ContentTransform] to be used when adding to the backstack.
+     *
+     * @sample androidx.navigation3.ui.samples.SceneOverrideEntryTransitionsSample
+     */
+    public object TransitionKey :
+        NavMetadataKey<AnimatedContentTransitionScope<Scene<*>>.() -> ContentTransform>
+
+    /**
+     * The key for [NavEntry.metadata] or [Scene.metadata] to notify the [NavDisplay] of how the
+     * content should be animated when popping from backstack.
+     *
+     * **IMPORTANT** [NavDisplay] only looks at the [Scene.metadata] to determine the final
+     * [ContentTransform]. It is the responsibility of the [Scene.metadata] to decide which
+     * [ContentTransform] to return, whether that be from the [NavEntry.metadata] or something
+     * custom.
+     *
+     * **HOW TO USE** Within the [metadata] DSL, invoke [MetadataScope.put] and pass
+     * [PopTransitionKey] as the key. The `value: AnimatedContentTransitionScope<Scene<*>>.() ->
+     * ContentTransform?` should be the [ContentTransform] to be used when popping from the
+     * backstack.
+     *
+     * @sample androidx.navigation3.ui.samples.SceneOverrideEntryTransitionsSample
+     */
+    public object PopTransitionKey :
+        NavMetadataKey<AnimatedContentTransitionScope<Scene<*>>.() -> ContentTransform>
+
+    /**
+     * The key for [NavEntry.metadata] or [Scene.metadata] to notify the [NavDisplay] of how the
+     * content should be animated when popping from backstack using a Predictive back gesture.
+     *
+     * **IMPORTANT** [NavDisplay] only looks at the [Scene.metadata] to determine the final
+     * [ContentTransform]. It is the responsibility of the [Scene.metadata] to decide which
+     * [ContentTransform] to return, whether that be from the [NavEntry.metadata] or something
+     * custom.
+     *
+     * **HOW TO USE** Within the [metadata] DSL, invoke [MetadataScope.put] and pass
+     * [PredictivePopTransitionKey] as the key. The `value:
+     * AnimatedContentTransitionScope<Scene<*>>.(Int) -> ContentTransform?` should be the
+     * [ContentTransform] to be used when popping from backstack using a Predictive back gesture.
+     *
+     * @sample androidx.navigation3.ui.samples.SceneOverrideEntryTransitionsSample
+     */
+    public object PredictivePopTransitionKey :
+        NavMetadataKey<
+            AnimatedContentTransitionScope<Scene<*>>.(
+                @NavigationEvent.SwipeEdge Int
+            ) -> ContentTransform?
+        >
+
+    /**
      * Function to be called on the [NavEntry.metadata] or [Scene.metadata] to notify the
      * [NavDisplay] of how the content should be animated using the provided [ContentTransform].
      *
@@ -87,7 +156,7 @@ public object NavDisplay {
      */
     public fun transitionSpec(
         transitionSpec: AnimatedContentTransitionScope<Scene<*>>.() -> ContentTransform?
-    ): Map<String, Any> = mapOf(TRANSITION_SPEC to transitionSpec)
+    ): Map<String, Any> = mapOf(TRANSITION_SPEC.toString() to transitionSpec)
 
     /**
      * Function to be called on the [NavEntry.metadata] or [Scene.metadata] to notify the
@@ -104,7 +173,7 @@ public object NavDisplay {
      */
     public fun popTransitionSpec(
         popTransitionSpec: AnimatedContentTransitionScope<Scene<*>>.() -> ContentTransform?
-    ): Map<String, Any> = mapOf(POP_TRANSITION_SPEC to popTransitionSpec)
+    ): Map<String, Any> = mapOf(POP_TRANSITION_SPEC.toString() to popTransitionSpec)
 
     /**
      * Function to be called on the [NavEntry.metadata] or [Scene.metadata] to notify the
@@ -125,11 +194,12 @@ public object NavDisplay {
             AnimatedContentTransitionScope<Scene<*>>.(
                 @NavigationEvent.SwipeEdge Int
             ) -> ContentTransform?
-    ): Map<String, Any> = mapOf(PREDICTIVE_POP_TRANSITION_SPEC to predictivePopTransitionSpec)
+    ): Map<String, Any> =
+        mapOf(PREDICTIVE_POP_TRANSITION_SPEC.toString() to predictivePopTransitionSpec)
 
-    internal const val TRANSITION_SPEC = "transitionSpec"
-    internal const val POP_TRANSITION_SPEC = "popTransitionSpec"
-    internal const val PREDICTIVE_POP_TRANSITION_SPEC = "predictivePopTransitionSpec"
+    internal val TRANSITION_SPEC = TransitionKey
+    internal val POP_TRANSITION_SPEC = PopTransitionKey
+    internal val PREDICTIVE_POP_TRANSITION_SPEC = PredictivePopTransitionKey
 }
 
 /**
@@ -248,6 +318,7 @@ public fun <T : Any> NavDisplay(
  *   of the given back stack if it is a [MutableList], otherwise you should provide this parameter.
  * @param entryDecorators list of [NavEntryDecorator] to add information to the entry content
  * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
+ * @param sceneDecoratorStrategies list of [SceneDecoratorStrategy] to add content to the scene.
  * @param sharedTransitionScope the [SharedTransitionScope] to allow transitions between scenes.
  * @param sizeTransform the [SizeTransform] for the [AnimatedContent].
  * @param transitionSpec Default [ContentTransform] when navigating to [NavEntry]s.
@@ -272,6 +343,7 @@ public fun <T : Any> NavDisplay(
     entryDecorators: List<NavEntryDecorator<T>> =
         listOf(rememberSaveableStateHolderNavEntryDecorator()),
     sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
+    sceneDecoratorStrategies: List<SceneDecoratorStrategy<T>> = emptyList(),
     sharedTransitionScope: SharedTransitionScope? = null,
     sizeTransform: SizeTransform? = null,
     transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
@@ -297,6 +369,7 @@ public fun <T : Any> NavDisplay(
     NavDisplay(
         entries = entries,
         sceneStrategy = sceneStrategy,
+        sceneDecoratorStrategies = sceneDecoratorStrategies,
         sharedTransitionScope = sharedTransitionScope,
         modifier = modifier,
         contentAlignment = contentAlignment,
@@ -426,6 +499,7 @@ public fun <T : Any> NavDisplay(
  * @param modifier the modifier to be applied to the layout.
  * @param contentAlignment The [Alignment] of the [AnimatedContent]
  * @param sceneStrategy the [SceneStrategy] to determine which scene to render a list of entries.
+ * @param sceneDecoratorStrategies list of [SceneDecoratorStrategy] to add content to the scene.
  * @param sharedTransitionScope the [SharedTransitionScope] to allow transitions between scenes.
  * @param sizeTransform the [SizeTransform] for the [AnimatedContent].
  * @param transitionSpec Default [ContentTransform] when navigating to [NavEntry]s.
@@ -444,6 +518,7 @@ public fun <T : Any> NavDisplay(
     modifier: Modifier = Modifier,
     contentAlignment: Alignment = Alignment.TopStart,
     sceneStrategy: SceneStrategy<T> = SinglePaneSceneStrategy(),
+    sceneDecoratorStrategies: List<SceneDecoratorStrategy<T>> = emptyList(),
     sharedTransitionScope: SharedTransitionScope? = null,
     sizeTransform: SizeTransform? = null,
     transitionSpec: AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform =
@@ -459,7 +534,14 @@ public fun <T : Any> NavDisplay(
 ) {
     require(entries.isNotEmpty()) { "NavDisplay entries cannot be empty" }
 
-    val sceneState = rememberSceneState(entries, sceneStrategy, sharedTransitionScope, onBack)
+    val sceneState =
+        rememberSceneState(
+            entries,
+            sceneStrategy,
+            sceneDecoratorStrategies,
+            sharedTransitionScope,
+            onBack,
+        )
     val scene = sceneState.currentScene
 
     // Predictive Back Handling
@@ -575,10 +657,10 @@ public fun <T : Any> NavDisplay(
         )
 
     // Track currently rendered Scenes and their ZIndices
-    val sceneMap = remember { mutableStateMapOf<Pair<KClass<*>, Any>, Scene<T>>() }
-    val zIndices = remember { mutableObjectFloatMapOf<Pair<KClass<*>, Any>>() }
-    val initialKey = transition.currentState::class to transition.currentState.key
-    val targetKey = transition.targetState::class to transition.targetState.key
+    val sceneMap = remember { mutableStateMapOf<AnimatedSceneKey, Scene<T>>() }
+    val zIndices = remember { mutableObjectFloatMapOf<AnimatedSceneKey>() }
+    val initialKey = AnimatedSceneKey(transition.currentState)
+    val targetKey = AnimatedSceneKey(transition.targetState)
     val initialZIndex = zIndices.getOrPut(initialKey) { 0f }
     val targetZIndex =
         when {
@@ -589,13 +671,22 @@ public fun <T : Any> NavDisplay(
     sceneMap[targetKey] = transition.targetState
     zIndices[targetKey] = targetZIndex
 
+    // overlay scenes that are still on the backStack
     val overlayScenes = sceneState.overlayScenes
+    // includes overlay scenes that are already popped off backStack but still animating out
+    val currentOverlayScenes = remember { SnapshotStateList<OverlayScene<T>>() }
+    LaunchedEffect(overlayScenes) {
+        // we want a unique set of overlay scenes, but it needs to be ordered to preserve z-order
+        overlayScenes.fastForEach {
+            if (!currentOverlayScenes.contains(it)) currentOverlayScenes.add(it)
+        }
+    }
 
     // Determine which entries should be rendered within each currently rendered scene,
     // using the z-index of each screen to always show the entry on the topmost screen
-    // The map is Pair<KCLass<Scene<T>, Scene.key> to a Set of NavEntry.key values
+    // The map is AnimatedSceneKey to a Set of NavEntry.key values
     val sceneToExcludedEntryMap =
-        remember(sceneMap.entries.toList(), overlayScenes.toList(), zIndices.toString()) {
+        remember(sceneMap.entries.toList(), currentOverlayScenes.toList(), zIndices.toString()) {
             buildMap {
                 val scenes = mutableListOf<Scene<T>>()
                 // First sort the non-overlay scenes by z-order in descending order.
@@ -611,7 +702,7 @@ public fun <T : Any> NavDisplay(
                 // z-order
                 // overlayScenes is already in order of [top most overlay ---> lowest overlay],
                 // so we put overlayScenes in front, and then add the scenes after.
-                val scenesInZOrder = overlayScenes + scenes
+                val scenesInZOrder = currentOverlayScenes + scenes
                 // At this point we have a list of all scenes in this order
                 // [top most overlay ---> lowest overlay, other scenes zIndex larger --> zIndex
                 // smaller]
@@ -638,11 +729,11 @@ public fun <T : Any> NavDisplay(
                     // shared elements
                     if (shouldSwapExcludedScenesFromTarget && transition.targetState != scene) {
                         put(
-                            scene::class to scene.key,
+                            AnimatedSceneKey(scene),
                             transition.targetState.entries.map { it.contentKey }.toSet(),
                         )
                     } else {
-                        put(scene::class to scene.key, coveredEntryKeys.toMutableSet())
+                        put(AnimatedSceneKey(scene), coveredEntryKeys.toMutableSet())
                     }
                     coveredEntryKeys.addAll(newlyCoveredEntryKeys)
                 }
@@ -650,7 +741,7 @@ public fun <T : Any> NavDisplay(
                 // After we are done building the entire map, check if we should clear
                 // the target scene key
                 if (shouldSwapExcludedScenesFromTarget) {
-                    put(transition.targetState::class to transition.targetState.key, emptySet())
+                    put(AnimatedSceneKey(transition.targetState), emptySet())
                 }
             }
         }
@@ -723,18 +814,18 @@ public fun <T : Any> NavDisplay(
                     ?: predictivePopTransitionSpec(swipeEdge)
             }
             isPop -> {
-                transitionScene.contentTransform(POP_TRANSITION_SPEC)?.invoke(this)
+                transitionScene.contentTransform(NavDisplay.PopTransitionKey)?.invoke(this)
                     ?: popTransitionSpec(this)
             }
             else -> {
-                transitionScene.contentTransform(TRANSITION_SPEC)?.invoke(this)
+                transitionScene.contentTransform(NavDisplay.TransitionKey)?.invoke(this)
                     ?: transitionSpec(this)
             }
         }
     }
 
     transition.AnimatedContent(
-        contentKey = { scene -> scene::class to scene.key },
+        contentKey = { scene -> AnimatedSceneKey(scene) },
         contentAlignment = contentAlignment,
         modifier = modifier,
         transitionSpec = {
@@ -758,8 +849,9 @@ public fun <T : Any> NavDisplay(
         CompositionLocalProvider(
             LocalLifecycleOwner provides sceneLifecycleOwner,
             LocalNavAnimatedContentScope provides this,
+            LocalCurrentScene provides targetScene,
             LocalEntriesToExcludeFromCurrentScene provides
-                sceneToExcludedEntryMap.getValue(targetScene::class to targetScene.key),
+                sceneToExcludedEntryMap.getValue(AnimatedSceneKey(targetScene)),
         ) {
             targetScene.content()
         }
@@ -770,7 +862,7 @@ public fun <T : Any> NavDisplay(
         snapshotFlow { transition.isRunning }
             .filter { !it }
             .collect {
-                val targetKey = transition.targetState::class to transition.targetState.key
+                val targetKey = AnimatedSceneKey(transition.targetState)
                 // Creating a copy to avoid ConcurrentModificationException
                 @Suppress("ListIterator")
                 sceneMap.keys.toList().forEach { key ->
@@ -784,12 +876,22 @@ public fun <T : Any> NavDisplay(
     }
 
     // Show all OverlayScene instances above the AnimatedContent
-    overlayScenes.fastForEachReversed { overlayScene ->
+    currentOverlayScenes.fastForEachReversed { overlayScene ->
+        val scope = rememberCoroutineScope()
         CompositionLocalProvider(
             LocalEntriesToExcludeFromCurrentScene provides
-                sceneToExcludedEntryMap.getValue(overlayScene::class to overlayScene.key)
+                sceneToExcludedEntryMap.getValue(AnimatedSceneKey(overlayScene)),
+            LocalCurrentScene provides overlayScene,
         ) {
             overlayScene.content.invoke()
+        }
+        // if the overlay scene is popped, let onRemoved finish before
+        // removing from composition to ensure animations can complete
+        if (overlayScene !in overlayScenes) {
+            scope.launch {
+                overlayScene.onRemove()
+                currentOverlayScenes.remove(overlayScene)
+            }
         }
     }
 }
@@ -809,7 +911,7 @@ private fun <T : Any> isPop(oldBackStack: List<T>, newBackStack: List<T>): Boole
 
 @Suppress("UNCHECKED_CAST")
 private fun <T : Any> Scene<T>.contentTransform(
-    key: String
+    key: NavMetadataKey<AnimatedContentTransitionScope<Scene<*>>.() -> ContentTransform>
 ): (AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform)? {
     return metadata[key] as? AnimatedContentTransitionScope<Scene<T>>.() -> ContentTransform
 }
@@ -819,7 +921,7 @@ private fun <T : Any> Scene<T>.predictivePopSpec():
     (AnimatedContentTransitionScope<Scene<T>>.(
         @NavigationEvent.SwipeEdge Int
     ) -> ContentTransform)? {
-    return metadata[PREDICTIVE_POP_TRANSITION_SPEC]
+    return metadata[NavDisplay.PredictivePopTransitionKey]
         as?
         AnimatedContentTransitionScope<Scene<T>>.(
             @NavigationEvent.SwipeEdge Int
@@ -837,3 +939,7 @@ public expect fun <T : Any> defaultPopTransitionSpec():
 /** Default [transitionSpec] for predictive pop navigation to be used by [NavDisplay]. */
 public expect fun <T : Any> defaultPredictivePopTransitionSpec():
     AnimatedContentTransitionScope<Scene<T>>.(@NavigationEvent.SwipeEdge Int) -> ContentTransform
+
+internal data class AnimatedSceneKey(val clazz: KClass<*>, val key: Any) {
+    constructor(scene: Scene<*>) : this(scene::class, scene.key)
+}

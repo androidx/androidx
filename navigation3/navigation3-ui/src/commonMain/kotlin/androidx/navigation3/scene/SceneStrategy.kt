@@ -20,13 +20,12 @@ import androidx.compose.runtime.Immutable
 import androidx.navigation3.runtime.NavEntry
 
 /**
- * Scope used to create a [Scene] from a list of [NavEntry]s or another [Scene].
+ * Scope used to create a [Scene] from a list of [NavEntry]s.
  *
- * This Scope should be provided to the [SceneStrategy.calculateScene] and
- * [SceneStrategy.decorateScene] functions to create Scenes.
+ * This Scope should be provided to the [SceneStrategy.calculateScene] function to create Scenes.
  */
 @Immutable
-public class SceneStrategyScope<T : Any>
+public open class SceneStrategyScope<T : Any>
 internal constructor(
     /**
      * A callback that should be connected to any internal handling of system back done by the
@@ -52,7 +51,7 @@ internal constructor(
     public constructor() : this(onBack = {})
 }
 
-/** A strategy that tries to calculate a [Scene] given a list of [NavEntry]s or another [Scene]. */
+/** A strategy that tries to calculate a [Scene] given a list of [NavEntry]s. */
 @Immutable
 public fun interface SceneStrategy<T : Any> {
     /**
@@ -69,56 +68,21 @@ public fun interface SceneStrategy<T : Any> {
     public fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>?
 
     /**
-     * Decorates the given [Scene].
-     *
-     * The newly returned [Scene] may or may not include the content of the given [scene].
-     *
-     * This will always return a non-null [Scene] because a [Scene] returned by [calculateScene]
-     * passes through every [SceneStrategy] linked by [then]. So if a [SceneStrategy] does not want
-     * to decorate the scene, it should just return the passed in scene.
-     *
-     * @param scene The scene to be decorated
-     */
-    public fun SceneStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T> = scene
-
-    /**
      * Chains this [SceneStrategy] with another [sceneStrategy] to return a combined
      * [SceneStrategy]. For the returned [SceneStrategy], [calculateScene] will use the first
-     * non-null result from the calculation, while the [decorateScene] will be called for every
-     * [SceneStrategy] in the chain.
-     *
-     * For [SceneStrategy]s that wish to be calculated with another scene, the calling
-     * [SceneStrategy] is first and the given [SceneStrategy] receives the result of the
-     * calculation. This means that the result is cumulative, with each consecutive [SceneStrategy]
-     * using the result of the previous one.
+     * non-null result from the calculation.
      */
     public infix fun then(sceneStrategy: SceneStrategy<T>): SceneStrategy<T> {
         val firstStrategy = this
-        return object : SceneStrategy<T> {
-            override fun SceneStrategyScope<T>.calculateScene(
-                entries: List<NavEntry<T>>
-            ): Scene<T>? =
-                with(firstStrategy) {
-                    // with original scene strategy
+        return SceneStrategy { entries ->
+            with(firstStrategy) {
+                // with original scene strategy
+                calculateScene(entries)
+            }
+                ?: with(sceneStrategy) {
+                    // the chained scene strategy
                     calculateScene(entries)
                 }
-                    ?: with(sceneStrategy) {
-                        // the chained scene strategy
-                        calculateScene(entries)
-                    }
-
-            override fun SceneStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T> {
-                val newScene =
-                    with(firstStrategy) {
-                        // with original scene strategy
-                        decorateScene(scene)
-                    }
-
-                return with(sceneStrategy) {
-                    // the chained scene strategy
-                    decorateScene(newScene)
-                }
-            }
         }
     }
 }

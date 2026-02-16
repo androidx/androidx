@@ -45,14 +45,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.metadata
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.scene.Scene
 import androidx.navigation3.scene.SceneStrategy
 import androidx.navigation3.scene.SceneStrategyScope
 import androidx.navigation3.ui.NavDisplay
-import androidx.navigation3.ui.NavDisplay.popTransitionSpec
-import androidx.navigation3.ui.NavDisplay.predictivePopTransitionSpec
 import kotlinx.serialization.Serializable
 
 @Serializable private object A : NavKey
@@ -117,9 +116,11 @@ fun SceneOverrideEntryTransitionsSample() {
                 // the entry defines slide vertical transitions
                 entry<B>(
                     metadata =
-                        NavDisplay.transitionSpec({ slideVertical }) +
-                            popTransitionSpec({ slideVertical }) +
-                            predictivePopTransitionSpec({ slideVertical })
+                        metadata {
+                            put(NavDisplay.TransitionKey) { slideVertical }
+                            put(NavDisplay.PopTransitionKey) { slideVertical }
+                            put(NavDisplay.PredictivePopTransitionKey, { _: Int -> slideVertical })
+                        }
                 ) {
                     RedBox("B")
                 }
@@ -146,10 +147,11 @@ private class SceneOverrideEntryTransitionsScene<T : Any>(
     override val metadata: Map<String, Any> = super.metadata + sceneTransitions
 }
 
-private val sceneTransitions =
-    NavDisplay.transitionSpec({ slideHorizontal }) +
-        popTransitionSpec({ slideHorizontal }) +
-        predictivePopTransitionSpec({ slideHorizontal })
+private val sceneTransitions = metadata {
+    put(NavDisplay.TransitionKey) { slideHorizontal }
+    put(NavDisplay.PopTransitionKey) { slideHorizontal }
+    put(NavDisplay.PredictivePopTransitionKey) { slideHorizontal }
+}
 
 private val duration = 5000
 private val animSpec: FiniteAnimationSpec<IntOffset> =

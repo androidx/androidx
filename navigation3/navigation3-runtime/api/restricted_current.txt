@@ -41,6 +41,15 @@ package androidx.navigation3.runtime {
     method @BytecodeOnly public static void entry$default(androidx.navigation3.runtime.EntryProviderScope!, androidx.navigation3.runtime.EntryProviderScope!, Object!, Object!, kotlin.jvm.functions.Function1!, kotlin.jvm.functions.Function3!, int, Object!);
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @kotlin.DslMarker public @interface MetadataDsl {
+  }
+
+  @androidx.navigation3.runtime.MetadataDsl public final class MetadataScope {
+    ctor public MetadataScope();
+    method @kotlin.PublishedApi internal java.util.Map<java.lang.String,java.lang.Object> build();
+    method public <K extends androidx.navigation3.runtime.NavMetadataKey<T>, T> void put(K key, T value);
+  }
+
   @kotlinx.serialization.Serializable(with=NavBackStackSerializer::class) public final class NavBackStack<T extends androidx.navigation3.runtime.NavKey> implements kotlin.jvm.internal.markers.KMutableList java.util.List<T> java.util.RandomAccess androidx.compose.runtime.snapshots.StateObject {
     ctor public NavBackStack();
     ctor public NavBackStack(androidx.compose.runtime.snapshots.SnapshotStateList<T> base);
@@ -54,7 +63,7 @@ package androidx.navigation3.runtime {
     method public operator boolean contains(T element);
     method public boolean containsAll(java.util.Collection<T> elements);
     method public operator T get(int index);
-    method @BytecodeOnly public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
+    method public androidx.compose.runtime.snapshots.StateRecord getFirstStateRecord();
     method @BytecodeOnly public int getSize();
     method @BytecodeOnly public int indexOf(Object!);
     method public int indexOf(T element);
@@ -105,6 +114,14 @@ package androidx.navigation3.runtime {
   }
 
   public interface NavKey {
+  }
+
+  public interface NavMetadataKey<T> {
+  }
+
+  public final class NavMetadataKt {
+    method public static operator <T> T? get(java.util.Map<java.lang.String,?>, androidx.navigation3.runtime.NavMetadataKey<T> key);
+    method public static inline java.util.Map<java.lang.String,java.lang.Object> metadata(kotlin.jvm.functions.Function1<? super androidx.navigation3.runtime.MetadataScope,kotlin.Unit> builder);
   }
 
   public final class RememberNavBackStackKt {

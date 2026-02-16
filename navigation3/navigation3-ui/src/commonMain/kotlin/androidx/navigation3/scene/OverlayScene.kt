@@ -32,10 +32,21 @@ import androidx.navigation3.runtime.NavEntry
 public interface OverlayScene<T : Any> : Scene<T> {
 
     /**
-     * The [androidx.navigation3.runtime.NavEntry]s that should be handled by another [Scene] that
-     * sits below this Scene.
+     * The [NavEntry]s that should be handled by another [Scene] that sits below this Scene.
      *
      * This *must* always be a non-empty list to correctly display entries below the overlay.
      */
     public val overlaidEntries: List<NavEntry<T>>
+
+    /**
+     * Callback that is invoked after this [OverlayScene] is popped from the backStack, but before
+     * it leaves composition.
+     *
+     * Animations for exiting overlays should be implemented within [onRemove]. This ensures that
+     * any suspending animations or other suspending work completes before the overlay is removed
+     * from composition.
+     *
+     * @sample androidx.navigation3.ui.samples.AnimatedBottomSheetSample
+     */
+    public suspend fun onRemove() {}
 }

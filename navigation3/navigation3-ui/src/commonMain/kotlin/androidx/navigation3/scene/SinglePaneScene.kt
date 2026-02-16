@@ -71,9 +71,13 @@ internal fun <T : Any> SceneStrategy<T>.calculateSceneWithSinglePaneFallback(
     scope: SceneStrategyScope<T>,
     entries: List<NavEntry<T>>,
 ): Scene<T> {
-    val scene =
-        scope.calculateScene(entries)
-            ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }
+    return scope.calculateScene(entries)
+        ?: with(SinglePaneSceneStrategy<T>()) { scope.calculateScene(entries) }
+}
 
+internal fun <T : Any> SceneDecoratorStrategy<T>.decorateScene(
+    scope: SceneDecoratorStrategyScope<T>,
+    scene: Scene<T>,
+): Scene<T> {
     return scope.decorateScene(scene)
 }

@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.entryProvider
+import androidx.navigation3.runtime.metadata
 import androidx.navigation3.scene.usecases.ListDetailScene
 import androidx.navigation3.scene.usecases.rememberListDetailSceneStrategy
 import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
@@ -220,19 +221,26 @@ class NavDisplayScreenshotTest {
                 transitionSpec = {
                     slideInHorizontally { it / 2 } togetherWith slideOutHorizontally { -it / 2 }
                 },
-                predictivePopTransitionSpec = { swipeEdge ->
-                    if (swipeEdge == NavigationEvent.EDGE_LEFT) {
-                        EnterTransition.None togetherWith slideOutHorizontally { it / 2 }
-                    } else {
-                        EnterTransition.None togetherWith slideOutHorizontally { -it / 2 }
-                    }
-                },
                 modifier = Modifier.testTag(navHostTag),
             ) {
                 when (it) {
                     first -> NavEntry(first) { Text(first) }
                     second ->
-                        NavEntry(second) {
+                        NavEntry(
+                            second,
+                            metadata =
+                                metadata {
+                                    put(NavDisplay.PredictivePopTransitionKey) { swipeEdge: Int ->
+                                        if (swipeEdge == NavigationEvent.EDGE_LEFT) {
+                                            EnterTransition.None togetherWith
+                                                slideOutHorizontally { it / 2 }
+                                        } else {
+                                            EnterTransition.None togetherWith
+                                                slideOutHorizontally { -it / 2 }
+                                        }
+                                    }
+                                },
+                        ) {
                             Box(Modifier.fillMaxSize().background(Color.Blue)) {
                                 Text(second, Modifier.size(50.dp))
                             }
@@ -594,9 +602,11 @@ class NavDisplayScreenshotTest {
                             second,
                             // both screens slide right to left, exiting screen should be on top
                             metadata =
-                                NavDisplay.popTransitionSpec {
-                                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
-                                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                                metadata {
+                                    put(NavDisplay.PopTransitionKey) {
+                                        slideInHorizontally(tween(duration)) { it / 2 } togetherWith
+                                            slideOutHorizontally(tween(duration)) { -it / 2 }
+                                    }
                                 },
                         ) {
                             RedBox(second)
@@ -951,9 +961,11 @@ class NavDisplayScreenshotTest {
                             second,
                             // both screens slide right to left, exiting screen should be on top
                             metadata =
-                                NavDisplay.popTransitionSpec {
-                                    slideInHorizontally(tween(duration)) { it / 2 } togetherWith
-                                        slideOutHorizontally(tween(duration)) { -it / 2 }
+                                metadata {
+                                    put(NavDisplay.PopTransitionKey) {
+                                        slideInHorizontally(tween(duration)) { it / 2 } togetherWith
+                                            slideOutHorizontally(tween(duration)) { -it / 2 }
+                                    }
                                 },
                         ) {
                             RedBox(second)
@@ -1067,9 +1079,12 @@ class NavDisplayScreenshotTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    slideInVertically(animationSpec = tween(duration)) togetherWith
-                                        ExitTransition.KeepUntilTransitionsFinished
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        slideInVertically(
+                                            animationSpec = tween(duration)
+                                        ) togetherWith ExitTransition.KeepUntilTransitionsFinished
+                                    }
                                 },
                         ) {
                             GreenBox(third)
@@ -1121,9 +1136,12 @@ class NavDisplayScreenshotTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    slideInVertically(animationSpec = tween(duration)) togetherWith
-                                        ExitTransition.KeepUntilTransitionsFinished
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        slideInVertically(
+                                            animationSpec = tween(duration)
+                                        ) togetherWith ExitTransition.KeepUntilTransitionsFinished
+                                    }
                                 },
                         ) {
                             GreenBox(third)
@@ -1172,9 +1190,13 @@ class NavDisplayScreenshotTest {
                         NavEntry(
                             key = second,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    slideInHorizontally(tween(testDuration)) { it / 2 } togetherWith
-                                        slideOutHorizontally(tween(testDuration)) { -it / 2 }
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        slideInHorizontally(tween(testDuration)) {
+                                            it / 2
+                                        } togetherWith
+                                            slideOutHorizontally(tween(testDuration)) { -it / 2 }
+                                    }
                                 },
                         ) {
                             BlueBox(second)
