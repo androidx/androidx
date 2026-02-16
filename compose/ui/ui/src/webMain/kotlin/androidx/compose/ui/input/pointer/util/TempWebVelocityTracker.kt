@@ -390,7 +390,7 @@ private inline fun kineticEnergyToVelocity(kineticEnergy: Float): Float {
     return sign(kineticEnergy) * sqrt(2 * abs(kineticEnergy))
 }
 
-private typealias Vector = FloatArray
+private typealias TempVector = FloatArray
 
 private fun FloatArray.dot(a: FloatArray): Float {
     var result = 0.0f
@@ -402,15 +402,15 @@ private fun FloatArray.dot(a: FloatArray): Float {
 
 @Suppress("NOTHING_TO_INLINE") private inline fun FloatArray.norm(): Float = sqrt(this.dot(this))
 
-private typealias Matrix = Array<FloatArray>
+private typealias TempMatrix = Array<FloatArray>
 
 @Suppress("NOTHING_TO_INLINE")
-private inline fun Matrix(rows: Int, cols: Int) = Array(rows) { Vector(cols) }
+private inline fun Matrix(rows: Int, cols: Int) = Array(rows) { TempVector(cols) }
 
 @Suppress("NOTHING_TO_INLINE")
-private inline operator fun Matrix.get(row: Int, col: Int): Float = this[row][col]
+private inline operator fun TempMatrix.get(row: Int, col: Int): Float = this[row][col]
 
 @Suppress("NOTHING_TO_INLINE")
-private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
+private inline operator fun TempMatrix.set(row: Int, col: Int, value: Float) {
     this[row][col] = value
 }
