@@ -54,6 +54,7 @@ import kotlin.time.TimeSource
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.useContents
 import kotlinx.coroutines.Dispatchers
+import platform.CoreGraphics.CGSizeMake
 import platform.Foundation.NSDate
 import platform.Foundation.NSRunLoop
 import platform.Foundation.dateWithTimeIntervalSinceNow
@@ -61,6 +62,12 @@ import platform.Foundation.runUntilDate
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationDelegateProtocol
 import platform.UIKit.UIColor
+import platform.UIKit.UIGraphicsBeginImageContextWithOptions
+import platform.UIKit.UIGraphicsEndImageContext
+import platform.UIKit.UIGraphicsGetCurrentContext
+import platform.UIKit.UIGraphicsGetImageFromCurrentImageContext
+import platform.UIKit.UIGraphicsImageRenderer
+import platform.UIKit.UIImage
 import platform.UIKit.UIInterfaceOrientationLandscapeLeft
 import platform.UIKit.UIInterfaceOrientationLandscapeRight
 import platform.UIKit.UIInterfaceOrientationMask
@@ -553,4 +560,26 @@ internal fun ComposeHostingViewController.waitForIdle() {
 
 internal fun ComposeHostingView.waitForIdle() {
     UIKitInstrumentedTest.waitUntil { !this.hasInvalidations() }
+}
+
+@OptIn(ExperimentalForeignApi::class)
+internal fun UIKitInstrumentedTest.captureScreenshot(): UIImage? {
+    val scale = UIScreen.mainScreen.scale
+    val size = UIScreen.mainScreen.bounds.useContents { CGSizeMake(size.width, size.height) }
+
+    UIGraphicsBeginImageContextWithOptions(size, false, scale)
+    UIGraphicsGetCurrentContext() ?: return null
+
+    val scene = appDelegate.window()?.windowScene ?: return null
+    scene.windows.mapNotNull { it as? UIWindow }
+        .filter { !it.hidden && it.alpha > 0.0 }
+        .sortedBy { it.windowLevel }
+        .forEach { window ->
+            window.drawViewHierarchyInRect(window.bounds, afterScreenUpdates = true)
+        }
+
+    val screenshot = UIGraphicsGetImageFromCurrentImageContext()
+    UIGraphicsEndImageContext()
+
+    return screenshot
 }

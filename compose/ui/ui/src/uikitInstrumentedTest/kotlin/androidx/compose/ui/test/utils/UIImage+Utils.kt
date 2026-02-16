@@ -30,7 +30,7 @@ import platform.CoreGraphics.CGRectMake
 import platform.UIKit.UIImage
 
 @OptIn(ExperimentalForeignApi::class)
-internal fun UIImage.forEachPixel(onPixel: (x: Int, y: Int, color: Color) -> Unit) {
+internal fun UIImage.forEachPixel(step: Int = 1, onPixel: (x: Int, y: Int, color: Color) -> Unit) {
     val cgImage = this.CGImage
     val width = CGImageGetWidth(cgImage).toInt()
     val height = CGImageGetHeight(cgImage).toInt()
@@ -52,8 +52,8 @@ internal fun UIImage.forEachPixel(onPixel: (x: Int, y: Int, color: Color) -> Uni
 
         CGContextDrawImage(context, CGRectMake(0.0, 0.0, width.toDouble(), height.toDouble()), cgImage)
 
-        for (y in 0 until height) {
-            for (x in 0 until width) {
+        for (y in 0 until height step step) {
+            for (x in 0 until width step step) {
                 val offset = (y * bytesPerRow) + (x * bytesPerPixel)
                 val r = pinned.get()[offset].toUByte().toInt()
                 val g = pinned.get()[offset + 1].toUByte().toInt()

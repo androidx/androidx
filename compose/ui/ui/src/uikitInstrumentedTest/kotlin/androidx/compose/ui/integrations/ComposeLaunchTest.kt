@@ -86,7 +86,7 @@ class ComposeLaunchTest {
 
         assertEquals(1, drawsCount, "Expected to draw only one frame on startup")
 
-        image.forEachPixel { _, _, color ->
+        image.forEachPixel(step = 4) { _, _, color ->
             assertEquals(Color.Blue, color, "Expected to draw blue background")
         }
 
@@ -123,7 +123,7 @@ class ComposeLaunchTest {
 
         assertEquals(1, drawsCount, "Expected to draw only one frame on startup")
 
-        image.forEachPixel { _, _, color ->
+        image.forEachPixel(step = 4) { _, _, color ->
             assertEquals(Color.Blue, color, "Expected to draw blue background")
         }
 

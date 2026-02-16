@@ -115,6 +115,7 @@ internal class ComposeContainerView(
         onDidMoveToWindow(window)
 
         updateRedrawerState()
+        setNeedsSynchronousDraw()
 
         // To avoid a situation where a user decided to call [layoutIfNeeded] on the detached view
         // using a certain frame and it will be attached to the window later, so there is a chance
