@@ -54,7 +54,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -75,6 +74,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -469,7 +469,7 @@ fun AppBarWithSearch(
                                 horizontal = SearchBarAsTopBarPadding,
                                 vertical = AppBarWithSearchVerticalPadding,
                             )
-                            .width(IntrinsicSize.Max)
+                            .widthIn(min = SearchBarMinWidth, max = SearchBarMaxWidth)
                             .align(Alignment.Center),
                     shape = shape,
                     colors = searchBarColors,
@@ -3506,7 +3506,9 @@ private fun BackEventProgress.InProgress?.transform(): Float =
 @OptIn(ExperimentalMaterial3Api::class)
 private val SearchBarState.collapsedBounds: IntRect
     get() =
-        collapsedCoords?.let { IntRect(offset = it.positionInWindow().round(), size = it.size) }
+        collapsedCoords
+            ?.takeIf { it.isAttached }
+            ?.let { IntRect(offset = it.positionInWindow().round(), size = it.size) }
             ?: IntRect.Zero
 
 @Composable
@@ -3637,7 +3639,7 @@ private val FullScreenExpandedHorizontalPadding = 8.dp
 internal val DockedExpandedTableMinHeight: Dp = 240.dp
 private const val DockedExpandedTableMaxHeightScreenRatio: Float = 2f / 3f
 internal val SearchBarMinWidth: Dp = 360.dp
-private val SearchBarMaxWidth: Dp = 720.dp
+internal val SearchBarMaxWidth: Dp = 720.dp
 internal val SearchBarVerticalPadding: Dp = 8.dp
 
 // Search bar has 16dp padding between icons and start/end, while by default text field has 12dp.

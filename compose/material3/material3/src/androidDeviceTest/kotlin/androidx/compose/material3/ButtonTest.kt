@@ -263,6 +263,67 @@ class ButtonTest {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun text_button_isTextButtonContentPaddingFixEnabled_positioning() {
+        ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled = true
+        rule.setMaterialContent(lightColorScheme()) {
+            TextButton(
+                onClick = { /* Do something! */ },
+                modifier = Modifier.testTag(ButtonTestTag),
+            ) {
+                Text(
+                    "Label",
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                )
+            }
+        }
+
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+
+        (textBounds.left - buttonBounds.left).assertIsEqualTo(
+            24.dp,
+            "Padding between start of text button and start of icon.",
+        )
+
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            24.dp,
+            "padding between end of text and end of text button.",
+        )
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun text_button_shapesRequired_isTextButtonContentPaddingFixEnabled_positioning() {
+        ComposeMaterial3Flags.isTextButtonContentPaddingFixEnabled = true
+        rule.setMaterialContent(lightColorScheme()) {
+            TextButton(
+                onClick = { /* Do something! */ },
+                shapes = ButtonDefaults.shapes(),
+                modifier = Modifier.testTag(ButtonTestTag),
+            ) {
+                Text(
+                    "Label",
+                    modifier = Modifier.testTag(TextTestTag).semantics(mergeDescendants = true) {},
+                )
+            }
+        }
+
+        val textBounds = rule.onNodeWithTag(TextTestTag).getUnclippedBoundsInRoot()
+        val buttonBounds = rule.onNodeWithTag(ButtonTestTag).getUnclippedBoundsInRoot()
+
+        (textBounds.left - buttonBounds.left).assertIsEqualTo(
+            16.dp,
+            "Padding between start of text button and start of icon.",
+        )
+
+        (buttonBounds.right - textBounds.right).assertIsEqualTo(
+            16.dp,
+            "padding between end of text and end of text button.",
+        )
+    }
+
     @Test
     fun text_button_withIcon_positioning() {
         rule.setMaterialContent(lightColorScheme()) {

@@ -37,8 +37,10 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.SheetValue.Expanded
+import androidx.compose.material3.SheetValue.Hidden
+import androidx.compose.material3.SheetValue.PartiallyExpanded
 import androidx.compose.material3.internal.Strings
-import androidx.compose.material3.internal.Strings.Companion.BottomSheetDragHandleDescription
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.CompositionLocalProvider
@@ -1142,47 +1144,6 @@ class BottomSheetScaffoldTest {
     }
 
     @Test
-    fun bottomSheetScaffold_peekHeightZero_providesHiddenAnchor() {
-        val bottomSheetState =
-            SheetState(
-                skipPartiallyExpanded = false,
-                skipHiddenState = false,
-                initialValue = SheetValue.Expanded,
-                positionalThreshold = {
-                    with(rule.density) { BottomSheetDefaults.PositionalThreshold.toPx() }
-                },
-                velocityThreshold = {
-                    with(rule.density) { BottomSheetDefaults.VelocityThreshold.toPx() }
-                },
-            )
-        rule.setContent {
-            BottomSheetScaffold(
-                sheetContent = { Box(Modifier.fillMaxWidth().requiredHeight(sheetHeight)) },
-                sheetDragHandle = null,
-                sheetPeekHeight = 0.dp,
-                scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState),
-            ) {
-                Text("Content")
-            }
-        }
-        rule.runOnIdle {
-            assertThat(bottomSheetState.anchoredDraggableState.anchors.size).isEqualTo(2)
-            assertThat(
-                    bottomSheetState.anchoredDraggableState.anchors.hasPositionFor(
-                        SheetValue.Expanded
-                    )
-                )
-                .isTrue()
-            assertThat(
-                    bottomSheetState.anchoredDraggableState.anchors.hasPositionFor(
-                        SheetValue.Hidden
-                    )
-                )
-                .isTrue()
-        }
-    }
-
-    @Test
     fun bottomSheetScaffold_withDragHandle_confirmValueChange_invokedForSemanticsAction() {
         val dragHandleTag = "sheetDragHandle"
         val dismissSemanticsActionLabel =
@@ -1261,6 +1222,147 @@ class BottomSheetScaffoldTest {
         assertWithMessage("confirmValueChange should have been invoked for Dismiss action")
             .that(confirmValueChangeInvocations)
             .containsExactly(SheetValue.Hidden)
+    }
+
+    @Test
+    fun bottomSheetScaffold_peekHeightZero_initialStatePartiallyExpanded() {
+        val sheetState =
+            SheetState(
+                skipPartiallyExpanded = false,
+                initialValue = PartiallyExpanded,
+                skipHiddenState = false,
+                positionalThreshold = { 56f },
+                velocityThreshold = { 125f },
+            )
+
+        rule.setContent {
+            BottomSheetScaffold(
+                scaffoldState =
+                    BottomSheetScaffoldState(
+                        bottomSheetState = sheetState,
+                        snackbarHostState = SnackbarHostState(),
+                    ),
+                sheetPeekHeight = 0.dp, // Ambiguous Anchor Trigger
+                sheetContent = { Box(Modifier.fillMaxWidth().height(100.dp)) },
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
+        }
+
+        assertThat(sheetState.currentValue).isEqualTo(PartiallyExpanded)
+
+        // Verify we are visually hidden (offset = full height)
+        val layoutHeight = rule.activity.resources.displayMetrics.heightPixels
+        assertThat(sheetState.requireOffset()).isEqualTo(layoutHeight.toFloat())
+    }
+
+    @Test
+    fun bottomSheetScaffold_peekHeightZero_animateToPartiallyExpanded() {
+        lateinit var sheetState: SheetState
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            sheetState =
+                rememberStandardBottomSheetState(skipHiddenState = false, initialValue = Expanded)
+
+            BottomSheetScaffold(
+                scaffoldState =
+                    BottomSheetScaffoldState(
+                        bottomSheetState = sheetState,
+                        snackbarHostState = SnackbarHostState(),
+                    ),
+                sheetPeekHeight = 0.dp, // Ambiguous Anchor Trigger
+                sheetContent = { Box(Modifier.fillMaxWidth().height(100.dp)) },
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
+        }
+
+        assertThat(sheetState.currentValue).isEqualTo(Expanded)
+        scope.launch { sheetState.partialExpand() }
+        rule.waitForIdle()
+
+        assertThat(sheetState.currentValue).isEqualTo(PartiallyExpanded)
+        assertThat(sheetState.targetValue).isEqualTo(PartiallyExpanded)
+    }
+
+    @Test
+    fun bottomSheetScaffold_peekHeightZero_explicitHide() {
+        lateinit var sheetState: SheetState
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            sheetState =
+                rememberStandardBottomSheetState(
+                    skipHiddenState = false,
+                    initialValue = PartiallyExpanded,
+                )
+
+            BottomSheetScaffold(
+                scaffoldState =
+                    BottomSheetScaffoldState(
+                        bottomSheetState = sheetState,
+                        snackbarHostState = SnackbarHostState(),
+                    ),
+                sheetPeekHeight = 0.dp,
+                sheetContent = { Box(Modifier.fillMaxWidth().height(100.dp)) },
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
+        }
+
+        assertThat(sheetState.currentValue).isEqualTo(PartiallyExpanded)
+
+        scope.launch { sheetState.hide() }
+        rule.waitForIdle()
+
+        assertThat(sheetState.currentValue).isEqualTo(Hidden)
+        assertThat(sheetState.isVisible).isFalse()
+    }
+
+    @Test
+    fun bottomSheetScaffold_peekHeightZero_ambiguousAnchorRemovedAfterExpansion() {
+        lateinit var sheetState: SheetState
+        lateinit var scope: CoroutineScope
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            sheetState =
+                rememberStandardBottomSheetState(
+                    skipHiddenState = false,
+                    initialValue = PartiallyExpanded,
+                )
+
+            BottomSheetScaffold(
+                scaffoldState =
+                    BottomSheetScaffoldState(
+                        bottomSheetState = sheetState,
+                        snackbarHostState = SnackbarHostState(),
+                    ),
+                sheetPeekHeight = 0.dp,
+                sheetContent = { Box(Modifier.fillMaxWidth().height(100.dp)) },
+            ) {
+                Box(Modifier.fillMaxSize())
+            }
+        }
+
+        assertThat(sheetState.currentValue).isEqualTo(PartiallyExpanded)
+        assertThat(sheetState.hasPartiallyExpandedState).isTrue()
+
+        scope.launch { sheetState.expand() }
+        rule.waitForIdle()
+        assertThat(sheetState.currentValue).isEqualTo(Expanded)
+
+        // Once we left the state, the ambiguity allowance should be revoked.
+        // The PartiallyExpanded anchor should no longer exist.
+        assertThat(sheetState.hasPartiallyExpandedState).isFalse()
+
+        scope.launch { sheetState.hide() }
+        rule.waitForIdle()
+
+        assertThat(sheetState.currentValue).isEqualTo(Hidden)
     }
 
     @Test

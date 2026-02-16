@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -41,6 +42,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ButtonGroup
 import androidx.compose.material3.ButtonGroupDefaults
@@ -139,17 +141,9 @@ fun GroupedMenuSample() {
             listOf(Icons.Filled.Check, Icons.Filled.Info),
         )
     val groupItemTrailingIcons: List<List<ImageVector?>> =
-        listOf(
-            listOf(null, null),
-            listOf(
-                if (homeChecked) {
-                    Icons.Filled.Home
-                } else {
-                    Icons.Outlined.Home
-                },
-                Icons.Filled.MoreVert,
-            ),
-        )
+        listOf(listOf(null, null), listOf(Icons.Outlined.Home, Icons.Outlined.MoreVert))
+    val groupItemCheckedTrailingIcons: List<List<ImageVector?>> =
+        listOf(listOf(null, null), listOf(Icons.Filled.Home, Icons.Filled.MoreVert))
     val groupItemSupportingText: List<List<String?>> =
         listOf(listOf("Edit mode", null), listOf(null, "Opens menu"))
     val checked = remember {
@@ -177,39 +171,59 @@ fun GroupedMenuSample() {
                 ) {
                     MenuDefaults.Label { Text(label) }
                     HorizontalDivider(
-                        modifier =
-                            Modifier.padding(horizontal = MenuDefaults.HorizontalDividerPadding)
+                        modifier = Modifier.padding(MenuDefaults.HorizontalDividerPadding)
                     )
                     val groupItemCount = groupItemLabels[groupIndex].size
                     groupItemLabels[groupIndex].fastForEachIndexed { itemIndex, itemLabel ->
                         DropdownMenuItem(
-                            text = {
-                                val itemSupportingText =
-                                    groupItemSupportingText[groupIndex][itemIndex]
-                                if (itemSupportingText != null) {
-                                    MenuDefaults.LabelWithSupportingText(
-                                        supportingText = { Text(itemSupportingText) }
-                                    ) {
-                                        Text(itemLabel)
-                                    }
-                                } else {
-                                    Text(itemLabel)
-                                }
-                            },
+                            text = { Text(itemLabel) },
+                            supportingText =
+                                groupItemSupportingText[groupIndex][itemIndex]?.let { supportingText
+                                    ->
+                                    { Text(supportingText) }
+                                },
                             shapes = MenuDefaults.itemShape(itemIndex, groupItemCount),
                             leadingIcon =
                                 groupItemLeadingIcons[groupIndex][itemIndex]?.let { iconData ->
-                                    { Icon(iconData, contentDescription = null) }
+                                    {
+                                        Icon(
+                                            iconData,
+                                            modifier = Modifier.size(MenuDefaults.LeadingIconSize),
+                                            contentDescription = null,
+                                        )
+                                    }
                                 },
                             checkedLeadingIcon = {
                                 Icon(
                                     groupItemCheckedLeadingIcons[groupIndex][itemIndex],
+                                    modifier = Modifier.size(MenuDefaults.LeadingIconSize),
                                     contentDescription = null,
                                 )
                             },
                             trailingIcon =
-                                groupItemTrailingIcons[groupIndex][itemIndex]?.let { iconData ->
-                                    { Icon(iconData, contentDescription = null) }
+                                if (checked[groupIndex][itemIndex]) {
+                                    groupItemCheckedTrailingIcons[groupIndex][itemIndex]?.let {
+                                        iconData ->
+                                        {
+                                            Icon(
+                                                iconData,
+                                                modifier =
+                                                    Modifier.size(MenuDefaults.TrailingIconSize),
+                                                contentDescription = null,
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    groupItemTrailingIcons[groupIndex][itemIndex]?.let { iconData ->
+                                        {
+                                            Icon(
+                                                iconData,
+                                                modifier =
+                                                    Modifier.size(MenuDefaults.TrailingIconSize),
+                                                contentDescription = null,
+                                            )
+                                        }
+                                    }
                                 },
                             checked = checked[groupIndex][itemIndex],
                             onCheckedChange = { checked[groupIndex][itemIndex] = it },

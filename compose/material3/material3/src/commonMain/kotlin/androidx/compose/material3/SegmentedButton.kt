@@ -608,7 +608,13 @@ object SegmentedButtonDefaults {
     val IconSize = OutlinedSegmentedButtonTokens.IconSize
 
     /** The default content padding used by Segmented Buttons */
-    val ContentPadding = ButtonDefaults.TextButtonContentPadding
+    val ContentPadding =
+        PaddingValues(
+            start = 12.dp,
+            top = ButtonDefaults.ContentPadding.calculateTopPadding(),
+            end = 12.dp,
+            bottom = ButtonDefaults.ContentPadding.calculateBottomPadding(),
+        )
 
     /** And icon to indicate the segmented button is checked or selected */
     @Composable

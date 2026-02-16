@@ -79,7 +79,7 @@ fun collectFoldingFeaturesAsState(): State<List<FoldingFeature>> {
     val context = LocalContext.current
     return remember(context) {
             WindowInfoTracker.getOrCreate(context).windowLayoutInfo(context).map {
-                it.displayFeatures.filterIsInstance<FoldingFeature>()
+                @Suppress("ListIterator") it.displayFeatures.filterIsInstance<FoldingFeature>()
             }
         }
         .collectAsState(emptyList())

@@ -461,7 +461,7 @@ internal fun Modifier.splitPaneAndContentModifiers(): Pair<Modifier, Modifier> {
     return Pair(paneModifier, contentModifier)
 }
 
-// TODO: https://youtrack.jetbrains.com/issue/CMP-9538/Upstream-Material3-fun-Modifier.Element.isGraphicsLayerElement
+// K/Wasm doesn't support qualifiedName until Kotlin 2.3.0, so need target-specific implementations.
 // element::class.qualifiedName == "androidx.compose.ui.graphics.GraphicsLayerElement"
 internal expect inline fun Modifier.Element.isGraphicsLayerElement(): Boolean
 

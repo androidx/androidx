@@ -60,7 +60,6 @@ internal actual fun ModalBottomSheetDialog(
     onDismissRequest: () -> Unit,
     contentColor: Color, // TODO: https://youtrack.jetbrains.com/issue/CMP-7147
     properties: ModalBottomSheetProperties,
-    predictiveBackProgress: Animatable<Float, AnimationVector1D>,
     content: @Composable () -> Unit
 ) {
     Dialog(

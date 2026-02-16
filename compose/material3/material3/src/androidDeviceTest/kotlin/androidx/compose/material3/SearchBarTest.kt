@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.input.TextFieldState
@@ -64,15 +65,19 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.DeviceConfigurationOverride
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.WindowInsets
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -85,8 +90,10 @@ import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.width
 import androidx.core.graphics.Insets
 import androidx.core.view.WindowInsetsCompat
 import androidx.test.espresso.Espresso
@@ -1133,6 +1140,55 @@ class SearchBarTest {
             .assertTopPositionInRootIsEqualTo(
                 appBarContentPaddingTopDp + appBarHeightDp + statusBarHeightDp
             )
+    }
+
+    @Test
+    fun appBarWithSearch_minWidth() {
+        rule.setMaterialContent(lightColorScheme()) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(800.dp, 1800.dp))
+            ) {
+                val searchBarState = rememberSearchBarState()
+                AppBarWithSearch(
+                    state = searchBarState,
+                    inputField = {
+                        InputField(
+                            modifier =
+                                Modifier.testTag(CollapsedInputFieldTestTag)
+                                    .width(SearchBarMinWidth - 100.dp),
+                            searchBarState = searchBarState,
+                            textFieldState = rememberTextFieldState(),
+                        )
+                    },
+                )
+            }
+        }
+
+        rule.onNodeWithTag(CollapsedInputFieldTestTag).assertWidthIsAtLeast(SearchBarMinWidth)
+    }
+
+    @Test
+    fun appBarWithSearch_maxWidth() {
+        rule.setMaterialContent(lightColorScheme()) {
+            DeviceConfigurationOverride(
+                DeviceConfigurationOverride.ForcedSize(DpSize(800.dp, 1800.dp))
+            ) {
+                val searchBarState = rememberSearchBarState()
+                AppBarWithSearch(
+                    state = searchBarState,
+                    inputField = {
+                        InputField(
+                            modifier = Modifier.testTag(CollapsedInputFieldTestTag).fillMaxWidth(),
+                            searchBarState = searchBarState,
+                            textFieldState = rememberTextFieldState(),
+                        )
+                    },
+                )
+            }
+        }
+
+        val width = rule.onNodeWithTag(CollapsedInputFieldTestTag).getUnclippedBoundsInRoot().width
+        width.assertIsEqualTo(SearchBarMaxWidth, "search bar max width", tolerance = 1.dp)
     }
 
     @Composable

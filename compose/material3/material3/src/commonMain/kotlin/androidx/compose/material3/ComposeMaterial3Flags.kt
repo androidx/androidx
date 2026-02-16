@@ -46,9 +46,57 @@ object ComposeMaterial3Flags {
     @field:Suppress("MutableBareField") @JvmField var isCheckboxStylingFixEnabled: Boolean = false
 
     /**
+     * When this flag is `true`, the [Snackbar] component will use an updated layout implementation
+     * that correctly handles vertical alignment for multi-line text.
+     */
+    @field:Suppress("MutableBareField") @JvmField var isSnackbarStylingFixEnabled: Boolean = false
+
+    /**
      * When this flag is true and a precision pointer is present, components are resized accordingly
      */
     @field:Suppress("MutableBareField")
     @JvmField
     var isPrecisionPointerComponentSizingEnabled: Boolean = false
+
+    /**
+     * This flag affects Material3 components that use
+     * [androidx.compose.ui.Modifier.anchoredDraggable]. Those are: [BottomSheetScaffold],
+     * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
+     *
+     * When this flag is set to true, these components will require their internal offset to be
+     * initialized during measurement before they are placed, throwing an exception if the offset
+     * was not initialized in placement. When this flag is set to false, the component will not
+     * throw an exception and won't place the content while their internal offset is not
+     * initialized. The content will be placed as soon as the offset is initialized.
+     *
+     * This flag can be helpful if you are encountering a crash with an uninitialized offset (such
+     * as https://issuetracker.google.com/issues/477038695) and will be removed when the associated
+     * bugs are fixed.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAnchoredDraggableComponentsStrictOffsetCheckEnabled: Boolean = true
+
+    /**
+     * This flag affects Material3 components that use
+     * [androidx.compose.ui.Modifier.anchoredDraggable]. Those are: [BottomSheetScaffold],
+     * [ModalBottomSheet], [SwipeToDismissBox] and [WideNavigationRail].
+     *
+     * When this flag is set to true, these components will recalculate their anchor points when the
+     * instance of their respective state changes and remeasure. When this flag is set to false, no
+     * additional remeasure is performed when the state instance changes.
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isAnchoredDraggableComponentsInvalidationFixEnabled: Boolean = true
+
+    /**
+     * When the flag is `true`, the [TextButton] will use Material Design 3 paddings and sizings.
+     * When `false`, it uses older Material Design 2 styling. See
+     * [Material Design 2 Text Buttons Specs](https://m2.material.io/components/buttons#text-button)
+     * and [Material Design 3 Text Buttons Specs](https://m3.material.io/components/buttons/specs).
+     */
+    @field:Suppress("MutableBareField")
+    @JvmField
+    var isTextButtonContentPaddingFixEnabled: Boolean = false
 }

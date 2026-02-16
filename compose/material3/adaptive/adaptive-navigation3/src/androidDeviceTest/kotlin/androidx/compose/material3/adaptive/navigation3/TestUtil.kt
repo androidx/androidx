@@ -28,7 +28,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.PaneExpansionState
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
 import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.runtime.Composable
@@ -162,17 +164,26 @@ const val ExtraScreenTestTag = "ExtraScreen"
 
 const val NavDisplayTestTag = "NavDisplay"
 
+@Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
 @Composable
 fun NavScreen(
     backStack: List<TestKey>,
     backNavigationBehavior: BackNavigationBehavior =
         BackNavigationBehavior.PopUntilScaffoldValueChange,
     directive: PaneScaffoldDirective = calculatePaneScaffoldDirective(currentWindowAdaptiveInfo()),
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
+    paneExpansionState: PaneExpansionState? = null,
+    additionalListMetadata: Map<String, Any> = emptyMap(),
+    additionalDetailMetadata: Map<String, Any> = emptyMap(),
+    additionalExtraMetadata: Map<String, Any> = emptyMap(),
 ) {
     val listDetailSceneStrategy =
         rememberListDetailSceneStrategy<TestKey>(
             backNavigationBehavior = backNavigationBehavior,
             directive = directive,
+            paneExpansionDragHandle = paneExpansionDragHandle,
+            paneExpansionState = paneExpansionState,
         )
     NavDisplay(
         backStack = backStack,
@@ -189,16 +200,21 @@ fun NavScreen(
                                 "Placeholder",
                                 Modifier.testTag(DetailPlaceholderScreenTestTag),
                             )
-                        }
+                        } + additionalListMetadata
                 ) {
                     BlueBox("List", Modifier.testTag(ListScreenTestTag))
                 }
 
-                entry<DetailKey>(metadata = ListDetailSceneStrategy.detailPane(ListKey)) {
+                entry<DetailKey>(
+                    metadata =
+                        ListDetailSceneStrategy.detailPane(ListKey) + additionalDetailMetadata
+                ) {
                     GreenBox("Detail(${it.id})", Modifier.testTag(DetailScreenTestTag))
                 }
 
-                entry<ExtraKey>(metadata = ListDetailSceneStrategy.extraPane(ListKey)) {
+                entry<ExtraKey>(
+                    metadata = ListDetailSceneStrategy.extraPane(ListKey) + additionalExtraMetadata
+                ) {
                     OrangeBox("Extra", Modifier.testTag(ExtraScreenTestTag))
                 }
             },
