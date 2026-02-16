@@ -12,7 +12,7 @@ env:
   # To reduce the memory pressure, we change some defaults:
   GRADLE_WEB_TESTS_FLAGS: >-
     --no-daemon --stacktrace --no-parallel --no-configuration-cache
-    -Dorg.gradle.jvmargs="-Xmx8g -XX:+UseParallelGC"
+    -Dorg.gradle.jvmargs="-Xmx7g -XX:+UseParallelGC"
     -Porg.gradle.workers.max=1
 
 jobs:
@@ -238,8 +238,7 @@ jobs:
       - name: Run Web Chrome Tests
         run: |
           echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns && \
-          CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }} ./gradlew :mpp:testWeb${{ matrix.task }} \
-            --no-daemon --stacktrace --no-parallel \
+          CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }} ./gradlew :mpp:testWeb${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }} \
             -Pjetbrains.androidx.web.tests.enableFirefox=false \
             -Pjetbrains.androidx.web.tests.enableChrome=true
 
