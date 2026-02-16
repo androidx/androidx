@@ -184,12 +184,7 @@ private class TempWebVelocityTracker1D(
      */
     constructor(isDataDifferential: Boolean) : this(isDataDifferential, Strategy.Impulse)
 
-    private fun getStrategyForSampleSize(size: Int): Strategy? = when {
-        size > 4 -> strategy
-        //Lsq2 has downsides when the sample size is small, so we use Impulse for small samples.
-        size > 1 -> Strategy.Impulse
-        else -> null
-    }
+    private val minSampleSize: Int = 2
 
     /**
      * A strategy used for velocity calculation. Each strategy has a different philosophy that could
@@ -280,19 +275,31 @@ private class TempWebVelocityTracker1D(
             sampleCount += 1
         } while (sampleCount < HistorySize)
 
-        // Choose computation logic based on strategy and sample size.
-        return when (getStrategyForSampleSize(sampleCount)) {
-            Strategy.Impulse -> {
-                calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
-            }
+        if (sampleCount >= minSampleSize) {
+            // Choose computation logic based on strategy.
+            return when (strategy) {
+                Strategy.Impulse -> {
+                    calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
+                }
+                Strategy.Lsq2 -> {
+                    // in some cases, the LSQ2 velocity calculation
+                    // may not match the expected direction,
+                    // then we need to use a different strategy
+                    val expDirection = dataPoints[sampleCount - 1] > dataPoints[sampleCount - 2]
+                    val result = calculateLeastSquaresVelocity(dataPoints, time, sampleCount)
+                    val actDirection = result < 0
+                    if (expDirection == actDirection) {
+                        result
+                    } else {
+                        calculateImpulseVelocity(dataPoints, time, sampleCount, isDataDifferential)
+                    }
+                }
+            } * 1000 // Multiply by "1000" to convert from units/ms to units/s
+        }
 
-            Strategy.Lsq2 -> {
-                calculateLeastSquaresVelocity(dataPoints, time, sampleCount)
-            }
-            // We're unable to make a velocity estimate but we did have at least one
-            // valid pointer position.
-            null -> 0f
-        } * 1000 // Multiply by "1000" to convert from units/ms to units/s
+        // We're unable to make a velocity estimate but we did have at least one
+        // valid pointer position.
+        return 0f
     }
 
     /**
