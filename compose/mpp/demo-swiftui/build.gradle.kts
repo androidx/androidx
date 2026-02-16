@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import org.jetbrains.androidx.build.JETBRAINS_COMPILE_KOTLIN_VERSION
 import org.jetbrains.kotlin.gradle.dsl.KotlinNativeBinaryContainer
 import org.jetbrains.kotlin.gradle.dsl.*
 
@@ -41,8 +42,8 @@ fun KotlinNativeBinaryContainer.configureFramework() {
 
 kotlin {
     compilerOptions {
-        languageVersion.set(KotlinVersion.KOTLIN_2_1)
-        apiVersion.set(KotlinVersion.KOTLIN_2_1)
+        languageVersion.set(JETBRAINS_COMPILE_KOTLIN_VERSION.apiVersion)
+        apiVersion.set(JETBRAINS_COMPILE_KOTLIN_VERSION.apiVersion)
     }
     iosArm64 {
         binaries {
