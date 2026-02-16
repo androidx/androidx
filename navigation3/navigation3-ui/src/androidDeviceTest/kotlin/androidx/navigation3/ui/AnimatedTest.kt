@@ -55,6 +55,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.NavEntryDecorator
+import androidx.navigation3.runtime.metadata
 import androidx.navigation3.ui.CardStackSceneStrategy.Companion.CARD_KEY
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -488,9 +489,11 @@ class AnimatedTest {
                         NavEntry(
                             second,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    fadeIn(tween(customDuration)) togetherWith
-                                        fadeOut(tween(customDuration))
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        fadeIn(tween(customDuration)) togetherWith
+                                            fadeOut(tween(customDuration))
+                                    }
                                 },
                         ) {
                             Text(second)
@@ -538,9 +541,11 @@ class AnimatedTest {
                         NavEntry(
                             second,
                             metadata =
-                                NavDisplay.popTransitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.PopTransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(second)
@@ -630,9 +635,11 @@ class AnimatedTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.popTransitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.PopTransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(third)
@@ -678,9 +685,11 @@ class AnimatedTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(third)
@@ -725,9 +734,11 @@ class AnimatedTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(third)
@@ -769,9 +780,11 @@ class AnimatedTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(third)
@@ -813,9 +826,11 @@ class AnimatedTest {
                         NavEntry(
                             third,
                             third,
-                            NavDisplay.transitionSpec {
-                                fadeIn(tween(testDuration)) togetherWith
-                                    fadeOut(tween(testDuration))
+                            metadata {
+                                put(NavDisplay.TransitionKey) {
+                                    fadeIn(tween(testDuration)) togetherWith
+                                        fadeOut(tween(testDuration))
+                                }
                             },
                         ) {
                             Text(third)
@@ -863,9 +878,11 @@ class AnimatedTest {
                         NavEntry(
                             fourth,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(fourth)
@@ -910,9 +927,11 @@ class AnimatedTest {
                         NavEntry(
                             third,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(third)
@@ -959,9 +978,11 @@ class AnimatedTest {
                         NavEntry(
                             fourth,
                             fourth,
-                            NavDisplay.transitionSpec {
-                                fadeIn(tween(testDuration)) togetherWith
-                                    fadeOut(tween(testDuration))
+                            metadata {
+                                put(NavDisplay.TransitionKey) {
+                                    fadeIn(tween(testDuration)) togetherWith
+                                        fadeOut(tween(testDuration))
+                                }
                             },
                         ) {
                             Text(fourth)
@@ -1006,9 +1027,11 @@ class AnimatedTest {
                         NavEntry(
                             second,
                             second,
-                            NavDisplay.transitionSpec {
-                                fadeIn(tween(testDuration)) togetherWith
-                                    fadeOut(tween(testDuration))
+                            metadata {
+                                put(NavDisplay.TransitionKey) {
+                                    fadeIn(tween(testDuration)) togetherWith
+                                        fadeOut(tween(testDuration))
+                                }
                             },
                         ) {
                             Text(second)
@@ -1121,9 +1144,11 @@ class AnimatedTest {
                         NavEntry(
                             second,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    fadeIn(tween(testDuration)) togetherWith
-                                        fadeOut(tween(testDuration))
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        fadeIn(tween(testDuration)) togetherWith
+                                            fadeOut(tween(testDuration))
+                                    }
                                 },
                         ) {
                             Text(second)
@@ -1289,9 +1314,13 @@ class AnimatedTest {
                         NavEntry(
                             key = second,
                             metadata =
-                                NavDisplay.transitionSpec {
-                                    slideInHorizontally(tween(testDuration)) { it / 2 } togetherWith
-                                        slideOutHorizontally(tween(testDuration)) { -it / 2 }
+                                metadata {
+                                    put(NavDisplay.TransitionKey) {
+                                        slideInHorizontally(tween(testDuration)) {
+                                            it / 2
+                                        } togetherWith
+                                            slideOutHorizontally(tween(testDuration)) { -it / 2 }
+                                    }
                                 },
                         ) {
                             BlueBox(second)

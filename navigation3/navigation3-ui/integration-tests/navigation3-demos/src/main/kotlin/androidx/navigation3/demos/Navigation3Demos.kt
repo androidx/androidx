@@ -18,6 +18,7 @@ package androidx.navigation3.demos
 
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.navigation3.ui.samples.AnimatedBottomSheetSample
 import androidx.navigation3.ui.samples.ConcatenatedBackStackSample
 import androidx.navigation3.ui.samples.MultipleBackStackSample
 import androidx.navigation3.ui.samples.SceneDefaultTransitionsSample
@@ -38,5 +39,6 @@ val Navigation3Demos =
             ComposableDemo("Scene override Entry Transitions") {
                 SceneOverrideEntryTransitionsSample()
             },
+            ComposableDemo("Bottom Sheet Exit Animation") { AnimatedBottomSheetSample() },
         ),
     )

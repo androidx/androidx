@@ -33,9 +33,10 @@ import androidx.kruth.assertThat
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.scene.DialogSceneStrategy
 import androidx.navigation3.scene.Scene
+import androidx.navigation3.scene.SceneDecoratorStrategy
+import androidx.navigation3.scene.SceneDecoratorStrategyScope
 import androidx.navigation3.scene.SceneStrategy
-import androidx.navigation3.scene.SceneStrategyScope
-import androidx.navigation3.scene.usecases.BottomNavScene.Companion.NAV_BAR
+import androidx.navigation3.scene.usecases.BottomNavSceneDecorator.Companion.NAV_BAR
 import androidx.navigation3.ui.NavDisplay
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -45,7 +46,7 @@ import org.junit.Rule
 import org.junit.runner.RunWith
 
 /** A [Scene] that displays a list and a detail [NavEntry] side-by-side in a 40/60 split. */
-class BottomNavScene<T : Any>(scene: Scene<T>) : Scene<T> {
+class BottomNavSceneDecorator<T : Any>(scene: Scene<T>) : Scene<T> {
     override val key: Any = scene.key
     override val entries: List<NavEntry<T>> = scene.entries
     override val previousEntries: List<NavEntry<T>> = scene.previousEntries
@@ -67,39 +68,34 @@ class BottomNavScene<T : Any>(scene: Scene<T>) : Scene<T> {
 
         /**
          * Helper function to add metadata to a [Scene] indicating it should be displayed with
-         * [BottomNavScene]
+         * [BottomNavSceneDecorator]
          */
         fun showNavBar() = mapOf(NAV_BAR to true)
     }
 }
 
 /**
- * A [SceneStrategy] that returns a [BottomNavScene] if there is a scene that wants to display it
+ * A [SceneStrategy] that returns a [BottomNavSceneDecorator] if there is a scene that wants to
+ * display it
  */
-class BottomNavSceneStrategy<T : Any>() : SceneStrategy<T> {
-
-    override fun SceneStrategyScope<T>.calculateScene(entries: List<NavEntry<T>>): Scene<T>? {
-        // This scene does not want to stop the strategy look up
-        return null
-    }
-
-    override fun SceneStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T> {
+class BottomNavSceneDecoratorStrategy<T : Any> : SceneDecoratorStrategy<T> {
+    override fun SceneDecoratorStrategyScope<T>.decorateScene(scene: Scene<T>): Scene<T> {
         // If the scene provides metadata for a bottom nav display it.
         if (scene.metadata.containsKey(NAV_BAR)) {
-            return BottomNavScene(scene)
+            return BottomNavSceneDecorator(scene)
         }
         return scene
     }
 }
 
 @Composable
-fun <T : Any> rememberBottomNavSceneStrategy(): BottomNavSceneStrategy<T> {
-    return remember { BottomNavSceneStrategy() }
+fun <T : Any> rememberBottomNavSceneStrategy(): BottomNavSceneDecoratorStrategy<T> {
+    return remember { BottomNavSceneDecoratorStrategy() }
 }
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class BottomNavSceneTest {
+class BottomNavSceneDecoratorTest {
     @get:Rule val composeTestRule = createComposeRule(StandardTestDispatcher())
 
     @Test
@@ -110,13 +106,15 @@ class BottomNavSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberBottomNavSceneStrategy(),
+                sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
                     it == first ->
-                        NavEntry(first, metadata = BottomNavScene.showNavBar()) { Text(first) }
+                        NavEntry(first, metadata = BottomNavSceneDecorator.showNavBar()) {
+                            Text(first)
+                        }
                     it.startsWith(secondPrefix) ->
-                        NavEntry(it, metadata = BottomNavScene.showNavBar()) { Text(it) }
+                        NavEntry(it, metadata = BottomNavSceneDecorator.showNavBar()) { Text(it) }
                     it == third -> NavEntry(third) { Text(third) }
                     else -> error("Invalid key passed")
                 }
@@ -136,12 +134,12 @@ class BottomNavSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberBottomNavSceneStrategy(),
+                sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
                     it == first -> NavEntry(first) { Text(first) }
                     it.startsWith(secondPrefix) ->
-                        NavEntry(it, metadata = BottomNavScene.showNavBar()) { Text(it) }
+                        NavEntry(it, metadata = BottomNavSceneDecorator.showNavBar()) { Text(it) }
                     else -> error("Invalid key passed")
                 }
             }
@@ -166,12 +164,12 @@ class BottomNavSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberBottomNavSceneStrategy(),
+                sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
                     it == first -> NavEntry(first) { Text(first) }
                     it.startsWith(secondPrefix) ->
-                        NavEntry(it, metadata = BottomNavScene.showNavBar()) { Text(it) }
+                        NavEntry(it, metadata = BottomNavSceneDecorator.showNavBar()) { Text(it) }
                     else -> error("Invalid key passed")
                 }
             }
@@ -202,11 +200,14 @@ class BottomNavSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = rememberBottomNavSceneStrategy<String>().then(DialogSceneStrategy()),
+                sceneStrategy = DialogSceneStrategy(),
+                sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
                     it == first ->
-                        NavEntry(first, metadata = BottomNavScene.showNavBar()) { Text(first) }
+                        NavEntry(first, metadata = BottomNavSceneDecorator.showNavBar()) {
+                            Text(first)
+                        }
                     it.startsWith(secondPrefix) ->
                         NavEntry(it, metadata = DialogSceneStrategy.dialog()) { Text(it) }
                     else -> error("Invalid key passed")
@@ -219,6 +220,8 @@ class BottomNavSceneTest {
         assertThat(composeTestRule.onNodeWithText(bottom_nav_settings).isDisplayed()).isTrue()
 
         composeTestRule.runOnIdle { backStack.add("$secondPrefix:1") }
+
+        composeTestRule.waitForIdle()
 
         assertThat(composeTestRule.onNodeWithText(first).isDisplayed()).isTrue()
         assertThat(composeTestRule.onNodeWithText("$secondPrefix:1").isDisplayed()).isTrue()
@@ -234,11 +237,14 @@ class BottomNavSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = DialogSceneStrategy<String>().then(rememberBottomNavSceneStrategy()),
+                sceneStrategy = DialogSceneStrategy(),
+                sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
                     it == first ->
-                        NavEntry(first, metadata = BottomNavScene.showNavBar()) { Text(first) }
+                        NavEntry(first, metadata = BottomNavSceneDecorator.showNavBar()) {
+                            Text(first)
+                        }
                     it.startsWith(secondPrefix) ->
                         NavEntry(it, metadata = DialogSceneStrategy.dialog()) { Text(it) }
                     else -> error("Invalid key passed")
@@ -259,21 +265,23 @@ class BottomNavSceneTest {
     }
 
     @Test
-    fun testBottomNavInDialog() {
+    fun testBottomNavInDialogNotShown() {
         lateinit var backStack: MutableList<String>
         composeTestRule.setContent {
             backStack = remember { mutableStateListOf(first) }
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy = DialogSceneStrategy<String>().then(rememberBottomNavSceneStrategy()),
+                sceneStrategy = DialogSceneStrategy(),
+                sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
                     it == first -> NavEntry(first) { Text(first) }
                     it.startsWith(secondPrefix) ->
                         NavEntry(
                             it,
-                            metadata = DialogSceneStrategy.dialog() + BottomNavScene.showNavBar(),
+                            metadata =
+                                DialogSceneStrategy.dialog() + BottomNavSceneDecorator.showNavBar(),
                         ) {
                             Text(it)
                         }
@@ -288,11 +296,11 @@ class BottomNavSceneTest {
 
         composeTestRule.waitForIdle()
 
-        // this is not show because the bottomNavScene covers the entire screen
-        assertThat(composeTestRule.onNodeWithText(first).isDisplayed()).isFalse()
+        // this is show because we can't decorate overlays
+        assertThat(composeTestRule.onNodeWithText(first).isDisplayed()).isTrue()
         assertThat(composeTestRule.onNodeWithText("$secondPrefix:1").isDisplayed()).isTrue()
-        assertThat(composeTestRule.onNodeWithText(bottom_nav_home).isDisplayed()).isTrue()
-        assertThat(composeTestRule.onNodeWithText(bottom_nav_settings).isDisplayed()).isTrue()
+        assertThat(composeTestRule.onNodeWithText(bottom_nav_home).isDisplayed()).isFalse()
+        assertThat(composeTestRule.onNodeWithText(bottom_nav_settings).isDisplayed()).isFalse()
     }
 
     @Test
@@ -302,8 +310,8 @@ class BottomNavSceneTest {
             NavDisplay(
                 backStack = backStack,
                 onBack = { backStack.removeAt(backStack.lastIndex) },
-                sceneStrategy =
-                    rememberListDetailSceneStrategy<String>().then(rememberBottomNavSceneStrategy()),
+                sceneStrategy = rememberListDetailSceneStrategy(),
+                sceneDecoratorStrategies = listOf(rememberBottomNavSceneStrategy()),
             ) {
                 when {
                     it == first ->
@@ -311,7 +319,8 @@ class BottomNavSceneTest {
                     it.startsWith(secondPrefix) ->
                         NavEntry(
                             it,
-                            metadata = ListDetailScene.detailPane() + BottomNavScene.showNavBar(),
+                            metadata =
+                                ListDetailScene.detailPane() + BottomNavSceneDecorator.showNavBar(),
                         ) {
                             Text(it)
                         }
