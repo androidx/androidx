@@ -45,7 +45,7 @@ internal actual fun actualColorMatrixColorFilter(colorMatrix: ColorMatrix): Nati
     remappedValues[19] *= (1f / 255f)
 
     return SkiaColorFilter.makeMatrix(
-        org.jetbrains.skia.ColorMatrix(*remappedValues)
+        org.jetbrains.skia.ColorMatrix(remappedValues)
     )
 }
 
