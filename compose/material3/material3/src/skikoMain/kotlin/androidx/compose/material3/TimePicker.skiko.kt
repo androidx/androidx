@@ -18,7 +18,11 @@ package androidx.compose.material3
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalWindowInfo
 
 internal actual val defaultTimePickerLayoutType
@@ -36,7 +40,18 @@ internal actual val defaultTimePickerLayoutType
     }
 
 @Composable
-internal actual fun rememberTimeInputErrorHandler(isTouchExplorationEnabled: Boolean): TimeInputErrorHandler {
-    // TODO: https://youtrack.jetbrains.com/issue/CMP-9703
-    TODO("Not yet implemented")
+internal actual fun rememberTimeInputErrorHandler(
+    isTouchExplorationEnabled: Boolean
+): TimeInputErrorHandler {
+    val haptics = LocalHapticFeedback.current
+
+    return remember(haptics) { TimeInputErrorHandlerImpl(haptics = haptics) }
+}
+
+private class TimeInputErrorHandlerImpl(private val haptics: HapticFeedback) :
+    TimeInputErrorHandler {
+
+    override fun onError() {
+        haptics.performHapticFeedback(HapticFeedbackType.Reject)
+    }
 }
