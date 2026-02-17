@@ -12,7 +12,7 @@ env:
   # To reduce the memory pressure, we change some defaults:
   GRADLE_WEB_TESTS_FLAGS: >-
     --no-daemon --stacktrace --no-parallel --no-configuration-cache
-    -Dorg.gradle.jvmargs="-Xmx7g -XX:+UseParallelGC"
+    -Dorg.gradle.jvmargs="-Xmx6g -XX:+UseParallelGC"
     -Porg.gradle.workers.max=1
 
 jobs:
@@ -235,12 +235,44 @@ jobs:
           sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
           echo "DISPLAY=:1.0" >> $GITHUB_ENV
 
+      - name: Memory snapshot
+        run: |
+          echo "=== free -h ==="
+          free -h
+          echo "=== meminfo ==="
+          head -n 5 /proc/meminfo
+
+      - name: Top memory consumers
+        run: |
+          ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 15
+
       - name: Run Web Chrome Tests
         run: |
+          set -euo pipefail
+          (while true; do
+            echo "=== meminfo $(date -u +%H:%M:%S) ==="
+            head -n 5 /proc/meminfo
+            sleep 10
+          done) &
+          MEM_SAMPLER_PID=$!
+          trap "kill ${MEM_SAMPLER_PID} || true" EXIT
           echo 0 | sudo tee /proc/sys/kernel/apparmor_restrict_unprivileged_userns && \
-          CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }} ./gradlew :mpp:testWeb${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }} \
+          CHROME_BIN=${{ steps.setup-chrome.outputs.chrome-path }} /usr/bin/time -v ./gradlew :mpp:testWeb${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }} \
             -Pjetbrains.androidx.web.tests.enableFirefox=false \
             -Pjetbrains.androidx.web.tests.enableChrome=true
+
+      - name: Post-test memory snapshot
+        if: always()
+        run: |
+          echo "=== free -h ==="
+          free -h
+          echo "=== meminfo ==="
+          head -n 5 /proc/meminfo
+
+      - name: Post-test top memory consumers
+        if: always()
+        run: |
+          ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 15
 
       - name: Test Summary
         uses: test-summary/action@v2
