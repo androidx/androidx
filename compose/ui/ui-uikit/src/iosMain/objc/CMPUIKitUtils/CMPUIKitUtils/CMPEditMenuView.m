@@ -318,7 +318,7 @@ id _editInteraction;
             (self.cutBlock == nil) != (cutBlock == nil) ||
             (self.pasteBlock == nil) != (pasteBlock == nil) ||
             (self.selectAllBlock == nil) != (selectAllBlock == nil) ||
-            ([self.customActions isEqualToArray:customActions]));
+            (![self.customActions isEqualToArray:customActions]));
 }
 
 - (BOOL)canPerformAction:(SEL)action withSender:(id)sender {
@@ -405,7 +405,7 @@ const NSInteger customActionsMaxCount = 10;
 }
 
 - (void)performCustomActionAtIndex:(NSInteger)index {
-    if (self.customActions.count >= index) {
+    if (index >= self.customActions.count) {
         return;
     }
     self.customActions[index].actionBlock();
