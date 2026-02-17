@@ -74,6 +74,7 @@ fun registerCompileAidlApi(
     aidlVersion: Provider<String>,
     sourceDir: SourceDirectories.Flat,
     packagedDir: Provider<Directory>,
+    packagedList: Collection<String>?,
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
     outputDir: Provider<Directory>,
@@ -91,6 +92,7 @@ fun registerCompileAidlApi(
             task.sourceDirs.set(sourceDir.all)
             task.sourceOutputDir.set(outputDir)
             task.packagedDir.set(packagedDir)
+            task.packagedList.set(packagedList)
             task.importDirs.addAll(importsDir.all)
             task.shadowFrameworkDir.set(shadowFramework)
             depImports.forEach { task.dependencyImportDirs.addAll(it.elements) }

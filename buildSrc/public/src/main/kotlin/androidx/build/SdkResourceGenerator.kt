@@ -61,7 +61,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
 
     @get:Input
     val rootProjectRelativePath: String =
-        project.rootProject.rootDir.toRelativeString(project.projectDir)
+        project.rootProject.rootDir.relativeTo(project.projectDir).invariantSeparatorsPath
 
     @get:Input
     @get:Optional
@@ -69,7 +69,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
         if (ProjectLayoutType.isPlayground(project)) {
             null
         } else {
-            project.getPrebuiltsRoot().toRelativeString(project.projectDir)
+            project.getPrebuiltsRoot().relativeTo(project.projectDir).invariantSeparatorsPath
         }
 
     @get:Input
@@ -78,7 +78,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
         if (ProjectLayoutType.isPlayground(project)) {
             null
         } else {
-            project.getGradlePrebuiltsPath().toRelativeString(project.projectDir)
+            project.getGradlePrebuiltsPath().relativeTo(project.projectDir).invariantSeparatorsPath
         }
 
     private val projectDir: File = project.projectDir
@@ -94,7 +94,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
             writer.write("tipOfTreeMavenRepoRelativePath=$tipOfTreeMavenRepoRelativePath\n")
             writer.write(
                 "debugKeystoreRelativePath=${
-                    debugKeystore.get().asFile.toRelativeString(projectDir)
+                    debugKeystore.get().asFile.relativeTo(projectDir).invariantSeparatorsPath
                 }\n"
             )
             writer.write("rootProjectRelativePath=$rootProjectRelativePath\n")
@@ -109,7 +109,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
             writer.write("kgpVersion=${kgpVersion.get()}\n")
             writer.write("kspVersion=${kspVersion.get()}\n")
             if (prebuiltsRelativePath != null) {
-                writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
+                writer.write("prebuiltsRelativePath=${prebuiltsRelativePath.replace("""\""", """\\""")}\n")
             }
             if (gradlePrebuiltsRelativePath != null) {
                 writer.write("gradlePrebuiltsRelativePath=$gradlePrebuiltsRelativePath\n")
@@ -138,7 +138,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
             val generatedDirectory = project.layout.buildDirectory.dir("generated/resources")
             return project.tasks.register(TASK_NAME, SdkResourceGenerator::class.java) {
                 it.tipOfTreeMavenRepoRelativePath =
-                    project.getRepositoryDirectory().toRelativeString(project.projectDir)
+                    project.getRepositoryDirectory().relativeTo(project.projectDir).invariantSeparatorsPath
                 it.debugKeystore.set(project.getKeystore())
                 it.outputDir.set(generatedDirectory)
                 it.buildToolsVersion.set(
@@ -160,7 +160,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
                     project.repositories.filterIsInstance<MavenArtifactRepository>().map { repo ->
                         if (repo.url.scheme == "file") {
                             // Make file paths relative to projectDir
-                            File(repo.url.path).toRelativeString(project.projectDir)
+                            File(repo.url.path).relativeTo(project.projectDir).invariantSeparatorsPath
                         } else {
                             repo.url.toString()
                         }

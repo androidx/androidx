@@ -61,12 +61,17 @@ abstract class StableAidlCompile : DefaultTask() {
 
     @get:Internal abstract var variantName: String
 
+    @get:Input
+    @get:Optional
+    abstract val packagedList: SetProperty<String>
+
     /** List of directories containing AIDL sources to be compiled. */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val sourceDirs: ListProperty<Directory>
 
     /** List of directories containing AIDL sources available as imports. */
+    @get:Optional
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val importDirs: ListProperty<Directory>
@@ -134,8 +139,9 @@ abstract class StableAidlCompile : DefaultTask() {
             FileUtils.cleanOutputDir(parcelableDir.asFile)
         }
 
-        val projectImportList =
-            sourceDirs.get().plus(importDirs.get()).plusNotNull(shadowFrameworkDir.orNull)
+        val projectImportList = sourceDirs.get()
+            .plus(importDirs.getOrElse(mutableListOf()))
+            .plusNotNull(shadowFrameworkDir.orNull)
         val sourceDirsAsFiles = sourceDirs.get().map { it.asFile }
 
         // When using AIDL from build tools version 33 and later, pass the variant's minimum SDK
@@ -154,6 +160,7 @@ abstract class StableAidlCompile : DefaultTask() {
             aidlFrameworkProvider.orNull?.asFile,
             destinationDir,
             parcelableDir?.asFile,
+            packagedList.orNull,
             extraArgsWithSdk,
             sourceDirsAsFiles,
             projectImportList,
@@ -171,6 +178,7 @@ abstract class StableAidlCompile : DefaultTask() {
             abstract val importFolders: ConfigurableFileCollection
             abstract val sourceOutputDir: DirectoryProperty
             abstract val packagedOutputDir: DirectoryProperty
+            abstract val packagedList: SetProperty<String>
             abstract val dir: RegularFileProperty
             abstract val extraArgs: ListProperty<String>
         }
@@ -214,6 +222,7 @@ abstract class StableAidlCompile : DefaultTask() {
                     logger,
                     parameters.sourceOutputDir.get().asFile,
                     parameters.packagedOutputDir.orNull?.asFile,
+                    parameters.packagedList.orNull,
                     depFileProcessor,
                     request.root.toPath(),
                     request.file.toPath(),
@@ -230,6 +239,7 @@ abstract class StableAidlCompile : DefaultTask() {
             frameworkLocation: File?,
             destinationDir: File,
             parcelableDir: File?,
+            packagedList: Collection<String>?,
             extraArgs: List<String>,
             sourceFolders: Collection<File>,
             projectImportList: Collection<Directory>,
@@ -242,6 +252,7 @@ abstract class StableAidlCompile : DefaultTask() {
                     it.importFolders.from(projectImportList, dependencyImportList)
                     it.sourceOutputDir.set(destinationDir)
                     it.packagedOutputDir.set(parcelableDir)
+                    it.packagedList.set(packagedList)
                     it.extraArgs.set(extraArgs)
                     it.dir.set(dir)
                 }

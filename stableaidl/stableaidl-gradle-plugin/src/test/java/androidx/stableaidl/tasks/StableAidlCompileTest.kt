@@ -77,6 +77,7 @@ class StableAidlCompileTest {
             fakeFramework,
             outputDir,
             null,
+            null,
             listOf("-x"),
             listOf(sourceFolder),
             listOf(),
