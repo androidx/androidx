@@ -162,8 +162,8 @@ internal class UIKitComposeSceneLayer(
 
     fun render(canvas: Canvas, nanoTime: Long) {
         if (scrimColor != null) {
-            val density = layersViewController.metalView.density
-            val rect = layersViewController.metalView.bounds.asDpRect().toRect(density)
+            val density = layersViewController.metalView.view.density
+            val rect = layersViewController.metalView.view.bounds.asDpRect().toRect(density)
 
             canvas.drawRect(rect, scrimPaint)
         }

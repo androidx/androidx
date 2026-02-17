@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import androidx.compose.ui.util.fastForEach
 import platform.QuartzCore.CATransaction
 
 /**
@@ -32,6 +33,12 @@ internal typealias UIKitInteropAction = () -> Unit
 internal interface UIKitInteropTransaction {
     val actions: List<UIKitInteropAction>
     val isInteropActive: Boolean
+
+    fun performTransaction() {
+        actions.fastForEach {
+            it.invoke()
+        }
+    }
 
     companion object {
         /**

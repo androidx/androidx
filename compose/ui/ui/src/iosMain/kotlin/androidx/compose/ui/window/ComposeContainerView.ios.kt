@@ -49,7 +49,7 @@ internal class ComposeContainerView(
         updateBackgroundColor()
     }
 
-    private var metalView: MetalView? = null
+    private var metalView: MetalViewHolder? = null
     private var onDidMoveToWindow: (UIWindow?) -> Unit = {}
     private var onLayoutSubviews: () -> Unit = {}
     private var foregroundStateListener: SceneForegroundStateListener? = null
@@ -79,19 +79,19 @@ internal class ComposeContainerView(
     }
 
     fun updateMetalView(
-        metalView: MetalView?,
+        metalView: MetalViewHolder?,
         onDidMoveToWindow: (UIWindow?) -> Unit = {},
         onLayoutSubviews: () -> Unit = {}
     ) {
         this.metalView?.dispose()
-        this.metalView?.removeFromSuperview()
+        this.metalView?.view?.removeFromSuperview()
         this.metalView = metalView
 
         this.onDidMoveToWindow = onDidMoveToWindow
         this.onLayoutSubviews = onLayoutSubviews
 
         metalView?.let {
-            addSubview(metalView)
+            addSubview(metalView.view)
         }
         updateLayout()
         window?.let(onDidMoveToWindow)
@@ -182,7 +182,7 @@ internal class ComposeContainerView(
     private fun updateLayout() {
         val metalView = metalView ?: return
         if (isAnimating) {
-            val oldSize = metalView.frame.useContents { size.asDpSize() }
+            val oldSize = metalView.view.frame.useContents { size.asDpSize() }
             val newSize = bounds.useContents { size.asDpSize() }
             val targetRect = CGRectMake(
                 0.0,
@@ -190,17 +190,17 @@ internal class ComposeContainerView(
                 max(oldSize.width.value, newSize.width.value).toDouble(),
                 max(oldSize.height.value, newSize.height.value).toDouble()
             )
-            if (!CGRectEqualToRect(metalView.frame, targetRect)) {
+            if (!CGRectEqualToRect(metalView.view.frame, targetRect)) {
                 setNeedsSynchronousDraw()
                 performWithoutAnimation {
-                    metalView.setFrame(targetRect)
+                    metalView.view.setFrame(targetRect)
                 }
             }
         } else {
-            if (!CGRectEqualToRect(metalView.frame, bounds)) {
+            if (!CGRectEqualToRect(metalView.view.frame, bounds)) {
                 setNeedsSynchronousDraw()
                 performWithoutAnimation {
-                    metalView.setFrame(bounds)
+                    metalView.view.setFrame(bounds)
                 }
             }
         }
@@ -240,7 +240,7 @@ internal class ComposeContainerView(
             } finally {
                 isAnimating = false
                 updateLayout()
-                metalView.layoutIfNeeded()
+                metalView.view.layoutIfNeeded()
                 needsDisablePresentWithTransactionOnNextDraw = true
                 setNeedsSynchronousDraw()
             }

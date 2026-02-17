@@ -43,11 +43,7 @@ fun main(vararg args: String) {
 
     val arg = args.firstOrNull() ?: ""
     UIKitMain {
-        ComposeUIViewController(
-            configure = {
-                parallelRendering = true
-            }
-        ) {
+        ComposeUIViewController {
             IosDemo(arg)
         }
     }

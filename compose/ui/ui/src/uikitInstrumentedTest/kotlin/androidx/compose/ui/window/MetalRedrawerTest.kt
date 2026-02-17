@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.uikit.utils.CMPMetalLayer
 import androidx.compose.ui.viewinterop.UIKitInteropMutableTransaction
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -30,7 +31,6 @@ import platform.Foundation.NSRunLoopCommonModes
 import platform.Foundation.runUntilDate
 import platform.Foundation.timeIntervalSinceDate
 import platform.QuartzCore.CADisplayLink
-import platform.QuartzCore.CAMetalLayer
 import platform.darwin.NSObject
 import platform.darwin.sel_registerName
 
@@ -119,12 +119,11 @@ class MetalRedrawerTest {
     @OptIn(ExperimentalForeignApi::class)
     private fun makeMetalRedrawer(onRender: () -> Unit): MetalRedrawer {
         val transaction = UIKitInteropMutableTransaction(isInteropActive = false)
-        val metalLayer = CAMetalLayer()
+        val metalLayer = CMPMetalLayer()
         metalLayer.setDrawableSize(CGSizeMake(100.0, 100.0))
-        val metalRedrawer = MetalRedrawer(
+        val metalRedrawer = SurfaceMetalRedrawer(
             metalLayer = metalLayer,
             retrieveInteropTransaction = { transaction },
-            useSeparateRenderThreadWhenPossible = false,
             render = { _, _ -> onRender() }
         )
         return metalRedrawer

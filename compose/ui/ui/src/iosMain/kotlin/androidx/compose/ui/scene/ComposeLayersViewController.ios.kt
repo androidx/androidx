@@ -28,6 +28,7 @@ import androidx.compose.ui.viewinterop.UIKitInteropTransaction
 import androidx.compose.ui.window.ComposeContainerView
 import androidx.compose.ui.window.DisplayLinkListener
 import androidx.compose.ui.window.MetalView
+import androidx.compose.ui.window.MetalViewHolder
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
@@ -71,7 +72,7 @@ internal class ComposeLayersViewController(
     private val window = LayersWindow()
     private var hasViewAppeared = false
 
-    val metalView: MetalView = MetalView(
+    val metalView: MetalViewHolder = MetalView(
         retrieveInteropTransaction = ::retrieveAndMergeInteropTransactions,
         useSeparateRenderThreadWhenPossible = useSeparateRenderThreadWhenPossible,
         render = ::render
@@ -153,7 +154,7 @@ internal class ComposeLayersViewController(
     fun attach(layer: UIKitComposeSceneLayer) {
         val isFirstLayer = layers.isEmpty()
         layers.add(layer)
-        view.insertSubview(layer.interactionView, belowSubview = metalView)
+        view.insertSubview(layer.interactionView, belowSubview = metalView.view)
         layer.interactionView.addLayoutConstraintsToMatch(view)
         view.embedSubview(layer.overlayView)
 
@@ -221,7 +222,7 @@ internal class ComposeLayersViewController(
 
     /**
      * Iterate through existing layers and merge their interop transactions to be consumed by the
-     * [MetalView], also including transactions of the layers that were removed and are not
+     * [MetalViewHolder], also including transactions of the layers that were removed and are not
      * present in [layers] anymore.
      */
     private fun retrieveAndMergeInteropTransactions(): UIKitInteropTransaction {

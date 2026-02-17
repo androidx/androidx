@@ -45,15 +45,14 @@ sealed class ComposeContainerConfiguration {
 
     /**
      * If set to true, the Compose will encode the rendering commands on a dedicated render thread,
-     * when possible.
-     * This can improve the performance when no interop UIKit is used.
+     * when possible. This can improve the performance.
      *
-     * It's an experimental API, and the effects of enabling it are not considered stable.
+     * This API is intended as a backup solution in case there are issues with parallel rendering.
      *
      * Changing this setting outside of `configure` argument scope has no effect.
      */
     @ExperimentalComposeUiApi
-    var parallelRendering: Boolean = false
+    var parallelRendering: Boolean = true
 
     /**
      * Determines how the end edge pan gestures will be handled.

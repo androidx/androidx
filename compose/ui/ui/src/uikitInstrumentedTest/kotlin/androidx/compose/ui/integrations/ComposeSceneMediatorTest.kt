@@ -26,6 +26,7 @@ import androidx.compose.ui.test.runUIKitInstrumentedTest
 import androidx.compose.ui.uikit.EndEdgePanGestureBehavior
 import androidx.compose.ui.uikit.InterfaceOrientation
 import androidx.compose.ui.uikit.OnFocusBehavior
+import androidx.compose.ui.uikit.utils.CMPMetalLayer
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -33,7 +34,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.center
 import androidx.compose.ui.viewinterop.UIKitInteropAction
 import androidx.compose.ui.viewinterop.UIKitInteropTransaction
-import androidx.compose.ui.window.MetalRedrawer
+import androidx.compose.ui.window.SurfaceMetalRedrawer
 import kotlin.coroutines.CoroutineContext
 import kotlin.test.Test
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -42,7 +43,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import platform.CoreGraphics.CGRectMake
-import platform.QuartzCore.CAMetalLayer
 
 class ComposeSceneMediatorTest {
     @Test
@@ -95,15 +95,14 @@ class ComposeSceneMediatorTest {
             windowContext = PlatformWindowContext(),
             architectureComponentsOwner = DefaultArchitectureComponentsOwner(),
             coroutineContext = coroutineContext,
-            redrawer = MetalRedrawer(
-                metalLayer = CAMetalLayer(),
+            redrawer = SurfaceMetalRedrawer(
+                metalLayer = CMPMetalLayer(),
                 retrieveInteropTransaction = {
                     object : UIKitInteropTransaction {
                         override val actions: List<UIKitInteropAction> = emptyList()
                         override val isInteropActive: Boolean = false
                     }
                 },
-                useSeparateRenderThreadWhenPossible = false,
                 render = { _, _ -> }
             ),
             navigationEventInput = UIKitNavigationEventInput(
