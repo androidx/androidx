@@ -217,11 +217,6 @@ jobs:
       - name: Setup Prerequisites
         uses: ./.github/actions/setup-prerequisites
 
-      # Compile tests as a separate step to reduce memory usage and potential OOM during running tests.
-      - name: Compile ${{ matrix.task }} Tests
-        run: |
-          ./gradlew compileTestKotlin${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }}
-
       - name: Setup Google Chrome
         uses: browser-actions/setup-chrome@v2
         id: setup-chrome
@@ -229,6 +224,25 @@ jobs:
           chrome-version: ${{ matrix.chrome }}
           install-chromedriver: true
           install-dependencies: true
+
+      # Compile tests as a separate step to reduce memory usage and potential OOM during running tests.
+      # We want to compile only the tests to be run later, so we extract the test tasks from --dry-run output.
+      - name: Compile web test executables
+        run: |
+          set -euo pipefail
+          TASKS=$(
+            ./gradlew :mpp:testWeb${{ matrix.task }} -m --console=plain --no-configuration-cache \
+              --no-daemon -Pkotlin.compiler.execution.strategy=in-process \
+              | awk '/^:.*compileTestDevelopmentExecutable/ {print $1}' \
+              | tr '\n' ' '
+          )
+
+          if [ -n "$TASKS" ]; then
+            ./gradlew $TASKS \
+              --no-daemon --stacktrace --no-parallel --no-configuration-cache \
+              -Dorg.gradle.jvmargs="-Xmx12g -XX:+UseParallelGC" \
+              -Porg.gradle.workers.max=1 -Pkotlin.compiler.execution.strategy=in-process
+          fi
 
       - name: Start X Server
         run: |
@@ -297,9 +311,23 @@ jobs:
         uses: ./.github/actions/setup-prerequisites
 
       # Compile tests as a separate step to reduce memory usage and potential OOM during running tests.
-      - name: Compile ${{ matrix.task }} Tests
+      # We want to compile only the tests to be run later, so we extract the test tasks from --dry-run output.
+      - name: Compile web test executables
         run: |
-          ./gradlew compileTestKotlin${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }}
+          set -euo pipefail
+          TASKS=$(
+            ./gradlew :mpp:testWeb${{ matrix.task }} -m --console=plain --no-configuration-cache \
+              --no-daemon -Pkotlin.compiler.execution.strategy=in-process \
+              | awk '/^:.*compileTestDevelopmentExecutable/ {print $1}' \
+              | tr '\n' ' '
+          )
+
+          if [ -n "$TASKS" ]; then
+            ./gradlew $TASKS \
+              --no-daemon --stacktrace --no-parallel --no-configuration-cache \
+              -Dorg.gradle.jvmargs="-Xmx12g -XX:+UseParallelGC" \
+              -Porg.gradle.workers.max=1 -Pkotlin.compiler.execution.strategy=in-process
+          fi
 
       - name: Setup Missing Packages
         run: |
@@ -316,8 +344,27 @@ jobs:
           sudo Xvfb :1 -screen 0 1920x1080x24 -extension RANDR +extension GLX &
           echo "DISPLAY=:1.0" >> $GITHUB_ENV
 
+      - name: Memory snapshot
+        run: |
+          echo "=== free -h ==="
+          free -h
+          echo "=== meminfo ==="
+          head -n 5 /proc/meminfo
+
+      - name: Top memory consumers
+        run: |
+          ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%mem | head -n 15
+
       - name: Run Web Firefox Tests
         run: |
+          set -euo pipefail
+          (while true; do
+            echo "=== meminfo $(date -u +%H:%M:%S) ==="
+            head -n 5 /proc/meminfo
+            sleep 10
+          done) &
+          MEM_SAMPLER_PID=$!
+          trap "kill ${MEM_SAMPLER_PID} || true" EXIT
           ./gradlew :mpp:testWeb${{ matrix.task }} ${{ env.GRADLE_WEB_TESTS_FLAGS }} \
             -Pjetbrains.androidx.web.tests.enableFirefox=true \
             -Pjetbrains.androidx.web.tests.enableChrome=false
