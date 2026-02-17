@@ -2062,9 +2062,7 @@ final class androidx.compose.ui.platform/ClipEntry { // androidx.compose.ui.plat
     }
 }
 
-final class androidx.compose.ui.platform/ClipMetadata { // androidx.compose.ui.platform/ClipMetadata|null[0]
-    constructor <init>() // androidx.compose.ui.platform/ClipMetadata.<init>|<init>(){}[0]
-}
+final class androidx.compose.ui.platform/ClipMetadata // androidx.compose.ui.platform/ClipMetadata|null[0]
 
 final class androidx.compose.ui.platform/DefaultViewConfiguration : androidx.compose.ui.platform/ViewConfiguration { // androidx.compose.ui.platform/DefaultViewConfiguration|null[0]
     constructor <init>(androidx.compose.ui.unit/Density) // androidx.compose.ui.platform/DefaultViewConfiguration.<init>|<init>(androidx.compose.ui.unit.Density){}[0]

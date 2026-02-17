@@ -70,7 +70,6 @@ import androidx.compose.ui.platform.DelegatingSoftwareKeyboardController
 import androidx.compose.ui.platform.GraphicsLayerOwnerLayer
 import androidx.compose.ui.platform.LegacyRenderNodeLayer
 import androidx.compose.ui.platform.OwnedLayerManager
-import androidx.compose.ui.platform.PlatformClipboardManager
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformRootForTest
 import androidx.compose.ui.platform.PlatformTextInputMethodRequest
@@ -78,6 +77,7 @@ import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.PlatformWindowInsets
 import androidx.compose.ui.platform.PlatformWindowInsetsProviderNode
 import androidx.compose.ui.platform.createPlatformClipboard
+import androidx.compose.ui.platform.createPlatformClipboardManager
 import androidx.compose.ui.platform.setLightingInfo
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneInputHandler
@@ -433,7 +433,7 @@ internal class RootNodeOwner(
         override val rootForTest get() = this@RootNodeOwner.rootForTest
         override val hapticFeedBack = DefaultHapticFeedback()
         override val inputModeManager get() = platformContext.inputModeManager
-        override val clipboardManager = PlatformClipboardManager()
+        override val clipboardManager = createPlatformClipboardManager()
         override val clipboard = createPlatformClipboard()
         override val accessibilityManager = DefaultAccessibilityManager()
         override val graphicsContext get() = this@RootNodeOwner.graphicsContext

@@ -17,11 +17,12 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.text.AnnotatedString
 import platform.UIKit.UIPasteboard
 
 actual typealias NativeClipboard = UIPasteboard
 
-internal class UiKitPlatformClipboard internal constructor() : Clipboard {
+private class UIKitPlatformClipboard : Clipboard {
     override suspend fun getClipEntry(): ClipEntry? {
         if (nativeClipboard.numberOfItems() == 0L) return null
         return ClipEntry().apply {
@@ -47,9 +48,27 @@ internal class UiKitPlatformClipboard internal constructor() : Clipboard {
         get() = UIPasteboard.generalPasteboard
 }
 
-internal actual fun createPlatformClipboard(): Clipboard {
-    return UiKitPlatformClipboard()
+@Suppress("DEPRECATION")
+private class UIKitPlatformClipboardManager : ClipboardManager {
+    override fun getText(): AnnotatedString? =
+        UIPasteboard.generalPasteboard.string?.let { AnnotatedString(it) }
+
+    override fun setText(annotatedString: AnnotatedString) {
+        UIPasteboard.generalPasteboard.string = annotatedString.text
+    }
+
+    override fun hasText(): Boolean = !UIPasteboard.generalPasteboard.string.isNullOrEmpty()
+
+    override fun getClip(): ClipEntry? = null
+
+    @Suppress("GetterSetterNames")
+    override fun setClip(clipEntry: ClipEntry?) = Unit
 }
+
+@Suppress("DEPRECATION")
+internal actual fun createPlatformClipboardManager(): ClipboardManager = UIKitPlatformClipboardManager()
+
+internal actual fun createPlatformClipboard(): Clipboard = UIKitPlatformClipboard()
 
 /**
  * A wrapper for [UIPasteboard] items.
@@ -58,7 +77,7 @@ internal actual fun createPlatformClipboard(): Clipboard {
  */
 actual class ClipEntry internal constructor() {
 
-    // TODO https://youtrack.jetbrains.com/issue/CMP-1260/ClipboardManager.-Implement-getClip-getClipMetadata-setClip
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-1260
     actual val clipMetadata: ClipMetadata
         get() = TODO("ClipMetadata is not implemented. Consider using nativeClipboard")
 

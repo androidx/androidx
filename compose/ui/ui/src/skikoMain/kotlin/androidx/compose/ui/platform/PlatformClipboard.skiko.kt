@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,4 +16,10 @@
 
 package androidx.compose.ui.platform
 
-internal expect fun createPlatformUriHandler(): UriHandler
+// TODO: https://youtrack.jetbrains.com/issue/CMP-1260
+actual class ClipMetadata private constructor()
+
+@Suppress("DEPRECATION")
+internal expect fun createPlatformClipboardManager(): ClipboardManager
+
+internal expect fun createPlatformClipboard(): Clipboard

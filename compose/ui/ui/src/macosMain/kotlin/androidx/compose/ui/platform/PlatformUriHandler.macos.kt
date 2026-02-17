@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,4 +16,14 @@
 
 package androidx.compose.ui.platform
 
-internal expect fun createPlatformUriHandler(): UriHandler
+import platform.AppKit.NSWorkspace
+import platform.Foundation.NSURL
+
+private class MacosUriHandler : UriHandler {
+    override fun openUri(uri: String) {
+        val nsUrl = NSURL.URLWithString(uri) ?: return
+        NSWorkspace.sharedWorkspace.openURL(nsUrl)
+    }
+}
+
+internal actual fun createPlatformUriHandler(): UriHandler = MacosUriHandler()

@@ -18,11 +18,16 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.text.AnnotatedString
 import kotlin.js.Promise
 import kotlinx.coroutines.await
 import org.w3c.files.Blob
 
 actual typealias NativeClipboard = W3CTemporaryClipboard
+
+private val browserClipboard by lazy {
+    getW3CClipboard()
+}
 
 private val isSecureContext: Boolean by lazy {
     isSecureContext()
@@ -38,12 +43,27 @@ private val isFallbackWriteTextApiAvailable: Boolean by lazy {
     isSecureContext && isFallbackWriteTextApiAvailable()
 }
 
-private class JsPlatformClipboard : Clipboard {
+@Suppress("DEPRECATION")
+private class JsPlatformClipboardManager : ClipboardManager {
+    // Clipboard.readText() is async; no synchronous access on Web.
+    override fun getText(): AnnotatedString? = null
 
-    private val browserClipboard by lazy {
-        getW3CClipboard()
+    override fun setText(annotatedString: AnnotatedString) {
+        if (isFallbackWriteTextApiAvailable) {
+            browserClipboard.writeText(annotatedString.text)
+        }
     }
 
+    // Clipboard.readText() is async; no synchronous access on Web.
+    override fun hasText(): Boolean = false
+
+    override fun getClip(): ClipEntry? = null
+
+    @Suppress("GetterSetterNames")
+    override fun setClip(clipEntry: ClipEntry?) = Unit
+}
+
+private class JsPlatformClipboard : Clipboard {
     init {
         if (!isSecureContext) {
             console.warn("Clipboard API is not available in insecure contexts.")
@@ -90,9 +110,10 @@ private class JsPlatformClipboard : Clipboard {
         get() = browserClipboard
 }
 
-private val jsPlatformClipboard: JsPlatformClipboard by lazy { JsPlatformClipboard() }
+@Suppress("DEPRECATION")
+internal actual fun createPlatformClipboardManager(): ClipboardManager = JsPlatformClipboardManager()
 
-internal actual fun createPlatformClipboard(): Clipboard = jsPlatformClipboard
+internal actual fun createPlatformClipboard(): Clipboard = JsPlatformClipboard()
 
 actual class ClipEntry
 @ExperimentalComposeUiApi
@@ -101,7 +122,7 @@ constructor(
     val clipboardItems: Array<ClipboardItem>
 ) {
 
-    // TODO https://youtrack.jetbrains.com/issue/CMP-1260/ClipboardManager.-Implement-getClip-getClipMetadata-setClip
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-1260
     actual val clipMetadata: ClipMetadata
         get() = TODO("ClipMetadata is not implemented. Consider using nativeClipboard")
 

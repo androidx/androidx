@@ -39,7 +39,7 @@ internal fun RootNodeOwner.setContent(
         getCompositionLocalContext().provide {
             ProvideCommonCompositionLocals(
                 owner = owner,
-                uriHandler = remember { PlatformUriHandler() },
+                uriHandler = remember { createPlatformUriHandler() },
                 content = content
             )
         }

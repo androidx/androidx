@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2026 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,4 +16,18 @@
 
 package androidx.compose.ui.platform
 
-internal expect fun createPlatformUriHandler(): UriHandler
+import platform.Foundation.NSURL.Companion.URLWithString
+import platform.UIKit.UIApplication
+
+private class UIKitUriHandler : UriHandler {
+    override fun openUri(uri: String) {
+        val nsUrl = URLWithString(uri) ?: return
+        UIApplication.sharedApplication.openURL(
+            url = nsUrl,
+            options = emptyMap<Any?, Any>(),
+            completionHandler = null
+        )
+    }
+}
+
+internal actual fun createPlatformUriHandler(): UriHandler = UIKitUriHandler()

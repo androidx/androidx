@@ -3596,7 +3596,6 @@ public final class androidx/compose/ui/platform/ClipEntry {
 
 public final class androidx/compose/ui/platform/ClipMetadata {
 	public static final field $stable I
-	public fun <init> ()V
 }
 
 public abstract interface class androidx/compose/ui/platform/Clipboard {

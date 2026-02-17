@@ -17,15 +17,44 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.text.AnnotatedString
+import platform.AppKit.NSPasteboard
+import platform.AppKit.NSPasteboardTypeString
 
-actual typealias NativeClipboard = platform.AppKit.NSPasteboard
+actual typealias NativeClipboard = NSPasteboard
+
+@Suppress("DEPRECATION")
+private class NSPasteboardPlatformClipboardManager : ClipboardManager {
+    override fun getText(): AnnotatedString? =
+        getClipboardText()?.let { AnnotatedString(it) }
+
+    override fun setText(annotatedString: AnnotatedString) {
+        setClipboardText(annotatedString.text)
+    }
+
+    override fun hasText(): Boolean = !getClipboardText().isNullOrEmpty()
+
+    override fun getClip(): ClipEntry? = null
+
+    @Suppress("GetterSetterNames")
+    override fun setClip(clipEntry: ClipEntry?) = Unit
+
+    private fun setClipboardText(text: String) {
+        NSPasteboard.generalPasteboard.clearContents()
+        NSPasteboard.generalPasteboard.setString(string = text, forType = NSPasteboardTypeString)
+    }
+
+    private fun getClipboardText(): String? {
+        return NSPasteboard.generalPasteboard.stringForType(dataType = NSPasteboardTypeString)
+    }
+}
 
 internal class NSPasteboardPlatformClipboard : Clipboard {
     override suspend fun getClipEntry(): ClipEntry? {
         if (nativeClipboard.pasteboardItems == null) return null
         if (nativeClipboard.pasteboardItems!!.isEmpty()) return null
 
-        val str = nativeClipboard.stringForType(platform.AppKit.NSPasteboardTypeString)
+        val str = nativeClipboard.stringForType(NSPasteboardTypeString)
         if (str.isNullOrEmpty()) return null
 
         return ClipEntry.withPlainText(str)
@@ -36,18 +65,18 @@ internal class NSPasteboardPlatformClipboard : Clipboard {
             nativeClipboard.clearContents()
             return
         }
-        if (clipEntry.plainText == null) return
-
-        nativeClipboard.setString(clipEntry.plainText!!, platform.AppKit.NSPasteboardTypeString)
+        val plainText = clipEntry.plainText ?: return
+        nativeClipboard.setString(plainText, NSPasteboardTypeString)
     }
 
     override val nativeClipboard: NativeClipboard
-        get() = platform.AppKit.NSPasteboard.generalPasteboard
+        get() = NSPasteboard.generalPasteboard
 }
 
-internal actual fun createPlatformClipboard(): Clipboard {
-    return NSPasteboardPlatformClipboard()
-}
+@Suppress("DEPRECATION")
+internal actual fun createPlatformClipboardManager(): ClipboardManager = NSPasteboardPlatformClipboardManager()
+
+internal actual fun createPlatformClipboard(): Clipboard = NSPasteboardPlatformClipboard()
 
 /**
  * A wrapper for [platform.AppKit.NSPasteboard] items.
@@ -56,7 +85,7 @@ internal actual fun createPlatformClipboard(): Clipboard {
  */
 actual class ClipEntry internal constructor() {
 
-    // TODO https://youtrack.jetbrains.com/issue/CMP-1260/ClipboardManager.-Implement-getClip-getClipMetadata-setClip
+    // TODO: https://youtrack.jetbrains.com/issue/CMP-1260
     actual val clipMetadata: ClipMetadata
         get() = TODO("ClipMetadata is not implemented. Consider using nativeClipboard")
 
