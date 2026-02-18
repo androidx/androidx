@@ -42,7 +42,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api("org.jetbrains.androidx.navigation:navigation-compose:2.9.1")
+                api("org.jetbrains.androidx.navigation:navigation-compose:2.9.2")
                 implementation(project(":compose:material:material"))
                 implementation(libs.kotlinSerializationCore)
             }

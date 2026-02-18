@@ -122,7 +122,7 @@ androidXMultiplatform {
                 implementation(project(":compose:runtime:runtime"))
                 def navigationEventVersion = project.findProperty('artifactRedirection.version.androidx.navigationevent')
                 implementation("androidx.navigationevent:navigationevent-testing:$navigationEventVersion")
-                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0")
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
             }
         }
 

@@ -230,7 +230,7 @@ androidXMultiplatform {
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:ui:ui-test"))
-                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.0")
+                implementation("org.jetbrains.androidx.navigationevent:navigationevent-compose:1.0.1")
             }
         }
 
