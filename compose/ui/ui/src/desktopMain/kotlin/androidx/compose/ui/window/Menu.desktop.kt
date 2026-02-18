@@ -35,7 +35,6 @@ import androidx.compose.ui.input.key.toSwingKeyStroke
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.util.AddRemoveMutableList
 import java.awt.CheckboxMenuItem
 import java.awt.Menu
 import java.awt.MenuItem
@@ -68,9 +67,9 @@ private val DefaultIconSize = Size(16f, 16f)
  */
 fun JMenuBar.setContent(
     parentComposition: CompositionContext,
-    content: @Composable (MenuBarScope.() -> Unit)
+    content: @Composable @MenuComposable (MenuBarScope.() -> Unit)
 ): Composition {
-    val applier = MutableListApplier(asMutableList())
+    val applier = SwingApplier(this)
     val composition = Composition(applier, parentComposition)
     val scope = MenuBarScope()
     composition.setContent {
@@ -93,7 +92,7 @@ fun JMenuBar.setContent(
  */
 fun Menu.setContent(
     parentComposition: CompositionContext,
-    content: @Composable (MenuScope.() -> Unit)
+    content: @Composable @MenuComposable (MenuScope.() -> Unit)
 ): Composition {
     val applier = MenuItemApplier(this)
     val composition = Composition(applier, parentComposition)
@@ -118,7 +117,7 @@ fun Menu.setContent(
  */
 fun JMenu.setContent(
     parentComposition: CompositionContext,
-    content: @Composable (MenuScope.() -> Unit)
+    content: @Composable @MenuComposable (MenuScope.() -> Unit)
 ): Composition {
     val applier = JMenuItemApplier(this)
     val composition = Composition(applier, parentComposition)
@@ -129,8 +128,6 @@ fun JMenu.setContent(
     return composition
 }
 
-// TODO(demin): consider making MenuBarScope/MenuScope as an interface
-//  after b/165812010 will be fixed
 /**
  * Receiver scope which is used by [JMenuBar.setContent] and [FrameWindowScope.MenuBar].
  */
@@ -147,11 +144,12 @@ class MenuBarScope internal constructor() {
      * @param content content of the menu (sub menus, items, separators, etc)
      */
     @Composable
+    @MenuComposable
     fun Menu(
         text: String,
         mnemonic: Char? = null,
         enabled: Boolean = true,
-        content: @Composable MenuScope.() -> Unit
+        content: @Composable @MenuComposable MenuScope.() -> Unit
     ) {
         val menu = remember(::JMenu)
         val compositionContext = rememberCompositionContext()
@@ -163,7 +161,7 @@ class MenuBarScope internal constructor() {
             }
         }
 
-        ComposeNode<JMenu, MutableListApplier<JComponent>>(
+        ComposeNode<JMenu, SwingApplier>(
             factory = { menu },
             update = {
                 set(text, JMenu::setText)
@@ -176,17 +174,20 @@ class MenuBarScope internal constructor() {
 
 internal interface MenuScopeImpl {
     @Composable
+    @MenuComposable
     fun Menu(
         text: String,
         enabled: Boolean,
         mnemonic: Char?,
-        content: @Composable MenuScope.() -> Unit
+        content: @Composable @MenuComposable MenuScope.() -> Unit
     )
 
     @Composable
+    @MenuComposable
     fun Separator()
 
     @Composable
+    @MenuComposable
     fun Item(
         text: String,
         icon: Painter?,
@@ -197,6 +198,7 @@ internal interface MenuScopeImpl {
     )
 
     @Composable
+    @MenuComposable
     fun CheckboxItem(
         text: String,
         checked: Boolean,
@@ -208,6 +210,7 @@ internal interface MenuScopeImpl {
     )
 
     @Composable
+    @MenuComposable
     fun RadioButtonItem(
         text: String,
         selected: Boolean,
@@ -228,11 +231,12 @@ private class AwtMenuScope : MenuScopeImpl {
      * @param content content of the menu (sub menus, items, separators, etc)
      */
     @Composable
+    @MenuComposable
     override fun Menu(
         text: String,
         enabled: Boolean,
         mnemonic: Char?,
-        content: @Composable MenuScope.() -> Unit
+        content: @Composable @MenuComposable MenuScope.() -> Unit
     ) {
         if (mnemonic != null) {
             throw UnsupportedOperationException("java.awt.Menu doesn't support mnemonic")
@@ -252,6 +256,7 @@ private class AwtMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun Separator() {
         ComposeNode<MenuItem, MenuItemApplier>(
             // item with name "-" has different look
@@ -261,6 +266,7 @@ private class AwtMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun Item(
         text: String,
         icon: Painter?,
@@ -297,6 +303,7 @@ private class AwtMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun CheckboxItem(
         text: String,
         checked: Boolean,
@@ -340,6 +347,7 @@ private class AwtMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun RadioButtonItem(
         text: String,
         selected: Boolean,
@@ -362,11 +370,12 @@ private class SwingMenuScope : MenuScopeImpl {
      * @param content content of the menu (sub menus, items, separators, etc)
      */
     @Composable
+    @MenuComposable
     override fun Menu(
         text: String,
         enabled: Boolean,
         mnemonic: Char?,
-        content: @Composable MenuScope.() -> Unit
+        content: @Composable @MenuComposable MenuScope.() -> Unit
     ) {
         ComposeNode<JMenu, JMenuItemApplier>(
             factory = { JMenu() },
@@ -383,6 +392,7 @@ private class SwingMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun Separator() {
         ComposeNode<JPopupMenu.Separator, JMenuItemApplier>(
             // item with name "-" has different look
@@ -392,6 +402,7 @@ private class SwingMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun Item(
         text: String,
         icon: Painter?,
@@ -422,6 +433,7 @@ private class SwingMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun CheckboxItem(
         text: String,
         checked: Boolean,
@@ -459,6 +471,7 @@ private class SwingMenuScope : MenuScopeImpl {
     }
 
     @Composable
+    @MenuComposable
     override fun RadioButtonItem(
         text: String,
         selected: Boolean,
@@ -514,11 +527,12 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * @param content content of the menu (sub menus, items, separators, etc)
      */
     @Composable
+    @MenuComposable
     fun Menu(
         text: String,
         enabled: Boolean = true,
         mnemonic: Char? = null,
-        content: @Composable MenuScope.() -> Unit
+        content: @Composable @MenuComposable MenuScope.() -> Unit
     ): Unit = impl.Menu(
         text,
         enabled,
@@ -530,6 +544,7 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * Adds separator to the menu
      */
     @Composable
+    @MenuComposable
     fun Separator() = impl.Separator()
 
     /**
@@ -547,6 +562,7 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * @param onClick action that should be performed when the user clicks on the item
      */
     @Composable
+    @MenuComposable
     fun Item(
         text: String,
         icon: Painter? = null,
@@ -573,6 +589,7 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * therefore the change of checked state in requested
      */
     @Composable
+    @MenuComposable
     fun CheckboxItem(
         text: String,
         checked: Boolean,
@@ -601,6 +618,7 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
      * @param onClick callback to be invoked when the radio button is being clicked
      */
     @Composable
+    @MenuComposable
     fun RadioButtonItem(
         text: String,
         selected: Boolean,
@@ -612,33 +630,6 @@ class MenuScope internal constructor(private val impl: MenuScopeImpl) {
     ): Unit = impl.RadioButtonItem(
         text, selected, icon, enabled, mnemonic, shortcut, onClick
     )
-}
-
-private class MutableListApplier<T>(
-    private val list: MutableList<T>
-) : AbstractApplier<T?>(null) {
-    override fun insertTopDown(index: Int, instance: T?) {
-        list.add(index, instance!!)
-    }
-
-    override fun insertBottomUp(index: Int, instance: T?) {
-        // Ignore, we have plain list
-    }
-
-    override fun remove(index: Int, count: Int) {
-        for (i in index + count - 1 downTo index) {
-            list.removeAt(i)
-        }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    override fun move(from: Int, to: Int, count: Int) {
-        (list as MutableList<T?>).move(from, to, count)
-    }
-
-    override fun onClear() {
-        list.clear()
-    }
 }
 
 // Copied from androidx/compose/ui/graphics/vector/Vector.kt
@@ -667,7 +658,7 @@ private inline fun <T> performMove(
     }
 }
 
-internal abstract class JComponentApplier(root: JComponent) : AbstractApplier<JComponent>(root) {
+internal open class SwingApplier(root: JComponent) : AbstractApplier<JComponent>(root) {
     override fun onClear() {
         root.removeAll()
     }
@@ -699,7 +690,7 @@ internal abstract class JComponentApplier(root: JComponent) : AbstractApplier<JC
     }
 }
 
-internal class JMenuItemApplier(root: JMenu) : JComponentApplier(root) {
+internal class JMenuItemApplier(root: JMenu) : SwingApplier(root) {
     override fun onEndChanges() {
         // If the menu is changed while the popup is open, we need to ask the popup to remeasure
         // itself.
@@ -756,21 +747,6 @@ internal class MenuItemApplier(private val root: Menu) : Applier<MenuItem> {
         return when (this) {
             is Menu -> this
             else -> error("Can only insert MenuItem into Menu, not ${this::class}")
-        }
-    }
-}
-
-private fun JMenuBar.asMutableList(): MutableList<JComponent> {
-    return object : AddRemoveMutableList<JComponent>() {
-        override val size: Int get() = this@asMutableList.menuCount
-        override fun get(index: Int) = this@asMutableList.getMenu(index)
-
-        override fun performAdd(element: JComponent) {
-            this@asMutableList.add(element)
-        }
-
-        override fun performRemove(index: Int) {
-            this@asMutableList.remove(index)
         }
     }
 }

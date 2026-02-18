@@ -17,6 +17,7 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -93,6 +94,7 @@ import javax.swing.JFrame
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+@ComposableOpenTarget(-1)
 fun SwingWindow(
     visible: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
@@ -172,6 +174,7 @@ fun SwingWindow(
  */
 @ExperimentalComposeUiApi
 @Composable
+@ComposableOpenTarget(-1)
 fun SwingWindow(
     onCloseRequest: () -> Unit,
     state: WindowState = rememberWindowState(),
@@ -320,4 +323,3 @@ fun SwingWindow(
         content = content
     )
 }
-

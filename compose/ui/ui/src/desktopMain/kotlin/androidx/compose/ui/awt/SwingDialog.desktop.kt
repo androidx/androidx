@@ -17,6 +17,7 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -102,6 +103,7 @@ import javax.swing.JDialog
  */
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
+@ComposableOpenTarget(-1)
 fun SwingDialog(
     visible: Boolean = true,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
@@ -180,6 +182,7 @@ fun SwingDialog(
  */
 @ExperimentalComposeUiApi
 @Composable
+@ComposableOpenTarget(-1)
 fun SwingDialog(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),

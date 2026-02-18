@@ -17,6 +17,7 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.awt.ComposeDialog
@@ -33,6 +34,7 @@ import java.awt.Window
         "onPreviewKeyEvent, onKeyEvent, content)")
 )
 @Composable
+@ComposableOpenTarget(-1)
 fun Dialog(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),
@@ -70,6 +72,7 @@ fun Dialog(
     message = "Replaced by DialogWindow with alwaysOnTop parameter",
 )
 @Composable
+@ComposableOpenTarget(-1)
 fun DialogWindow(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),
@@ -164,6 +167,7 @@ fun DialogWindow(
  * @param content Composable content of the dialog.
  */
 @Composable
+@ComposableOpenTarget(-1)
 fun DialogWindow(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),
@@ -261,6 +265,7 @@ fun DialogWindow(
  */
 @ExperimentalComposeUiApi
 @Composable
+@ComposableOpenTarget(-1)
 fun DialogWindow(
     onCloseRequest: () -> Unit,
     state: DialogState = rememberDialogState(),
@@ -306,6 +311,7 @@ fun DialogWindow(
     )
 )
 @Composable
+@ComposableOpenTarget(-1)
 fun Dialog(
     visible: Boolean = true,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },
@@ -372,6 +378,7 @@ fun Dialog(
     )
 )
 @Composable
+@ComposableOpenTarget(-1)
 fun DialogWindow(
     visible: Boolean = true,
     onPreviewKeyEvent: ((KeyEvent) -> Boolean) = { false },

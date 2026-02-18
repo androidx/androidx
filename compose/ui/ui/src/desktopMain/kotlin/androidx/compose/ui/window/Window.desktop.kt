@@ -17,6 +17,7 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -102,6 +103,7 @@ import javax.swing.JMenuBar
  */
 @ExperimentalComposeUiApi
 @Composable
+@ComposableOpenTarget(-1)
 fun Window(
     onCloseRequest: () -> Unit,
     state: WindowState = rememberWindowState(),
@@ -207,6 +209,7 @@ fun Window(
  * @param content Composable content of the window.
  */
 @Composable
+@ComposableOpenTarget(-1)
 fun Window(
     onCloseRequest: () -> Unit,
     state: WindowState = rememberWindowState(),
@@ -552,6 +555,7 @@ fun singleWindowApplication(
     )
 )
 @Composable
+@ComposableOpenTarget(-1)
 fun Window(
     visible: Boolean = true,
     onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
@@ -607,7 +611,8 @@ private fun SingleWindowApplicationScope(
  * @param content content of the menu bar (list of menus)
  */
 @Composable
-fun FrameWindowScope.MenuBar(content: @Composable MenuBarScope.() -> Unit) {
+@ComposableOpenTarget(-1)
+fun FrameWindowScope.MenuBar(content: @Composable @MenuComposable MenuBarScope.() -> Unit) {
     val parentComposition = rememberCompositionContext()
 
     DisposableEffect(Unit) {

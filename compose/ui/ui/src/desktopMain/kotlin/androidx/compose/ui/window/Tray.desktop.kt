@@ -17,6 +17,7 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
@@ -77,12 +78,13 @@ val isTraySupported: Boolean get() = SystemTray.isSupported()
  */
 @Suppress("unused")
 @Composable
+@ComposableOpenTarget(-1)
 fun ApplicationScope.Tray(
     icon: Painter,
     state: TrayState = rememberTrayState(),
     tooltip: String? = null,
     onAction: () -> Unit = {},
-    menu: @Composable MenuScope.() -> Unit = {}
+    menu: @Composable @MenuComposable MenuScope.() -> Unit = {}
 ) {
     if (!isTraySupported) {
         DisposableEffect(Unit) {
@@ -136,9 +138,7 @@ fun ApplicationScope.Tray(
     DisposableEffect(Unit) {
         tray.popupMenu = popupMenu
 
-        val menuComposition = popupMenu.setContent(composition) {
-            currentMenu()
-        }
+        val menuComposition = popupMenu.setContent(composition, currentMenu)
 
         SystemTray.getSystemTray().add(tray)
 

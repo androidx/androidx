@@ -17,6 +17,7 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.node.Ref
@@ -56,6 +57,7 @@ import java.awt.Window
  */
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
+@ComposableOpenTarget(-1)
 fun <T : Window> AwtWindow(
     visible: Boolean = true,
     create: () -> T,

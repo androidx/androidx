@@ -17,6 +17,7 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ComposableOpenTarget
 import java.awt.Window
 
 /**
@@ -52,6 +53,7 @@ import java.awt.Window
     )
 )
 @Composable
+@ComposableOpenTarget(-1)
 fun <T : Window> AwtWindow(
     visible: Boolean = true,
     create: () -> T,

@@ -4440,6 +4440,9 @@ public final class androidx/compose/ui/window/MenuBarScope {
 	public final fun Menu (Ljava/lang/String;Ljava/lang/Character;ZLkotlin/jvm/functions/Function3;Landroidx/compose/runtime/Composer;II)V
 }
 
+public abstract interface annotation class androidx/compose/ui/window/MenuComposable : java/lang/annotation/Annotation {
+}
+
 public final class androidx/compose/ui/window/MenuScope {
 	public static final field $stable I
 	public final fun CheckboxItem (Ljava/lang/String;ZLandroidx/compose/ui/graphics/painter/Painter;ZLjava/lang/Character;Landroidx/compose/ui/input/key/KeyShortcut;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;II)V
