@@ -593,25 +593,32 @@ actual value class Key(val keyCode: Long) {
         actual val ThumbsDown = Key(-1000000182)
         actual val ProfileSwitch = Key(-1000000183)
 
-        // TODO: https://youtrack.jetbrains.com/issue/CMP-9751/Implement-actuals-from-Add-NumPad-movement-keys-CL-in-CMP
-        actual val NumPadDirectionUp: Key
-            get() = Unknown
-        actual val NumPadDirectionDown: Key
-            get() = Unknown
-        actual val NumPadDirectionLeft: Key
-            get() = Unknown
-        actual val NumPadDirectionRight: Key
-            get() = Unknown
-        actual val NumPadMoveHome: Key
-            get() = Unknown
-        actual val NumPadMoveEnd: Key
-            get() = Unknown
-        actual val NumPadPageUp: Key
-            get() = Unknown
-        actual val NumPadPageDown: Key
-            get() = Unknown
-        actual val NumPadInsert: Key
-            get() = Unknown
+        /** Numeric keypad Up Arrow Key. */
+        actual val NumPadDirectionUp = Key(KeyEvent.VK_UP, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Down Arrow Key. */
+        actual val NumPadDirectionDown = Key(KeyEvent.VK_DOWN, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Left Arrow Key. */
+        actual val NumPadDirectionLeft = Key(KeyEvent.VK_LEFT, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Right Arrow Key. */
+        actual val NumPadDirectionRight = Key(KeyEvent.VK_RIGHT, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Home Key. */
+        actual val NumPadMoveHome: Key = Key(KeyEvent.VK_HOME, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad End Key. */
+        actual val NumPadMoveEnd = Key(KeyEvent.VK_END, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Page Up Key. */
+        actual val NumPadPageUp = Key(KeyEvent.VK_PAGE_UP, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Page Down Key. */
+        actual val NumPadPageDown = Key(KeyEvent.VK_PAGE_DOWN, KEY_LOCATION_NUMPAD)
+
+        /** Numeric keypad Insert Key. */
+        actual val NumPadInsert = Key(KeyEvent.VK_INSERT, KEY_LOCATION_NUMPAD)
     }
 
     actual override fun toString(): String {
