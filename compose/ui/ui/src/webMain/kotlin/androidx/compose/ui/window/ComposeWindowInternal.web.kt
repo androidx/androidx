@@ -315,6 +315,9 @@ internal class ComposeWindow(
                         .startInputMethod(request)
                 }
             }
+
+            override val isClearFocusOnMouseDownEnabled: Boolean
+                get() = configuration.isClearFocusOnMouseDownEnabled
         }
 
     private val skiaLayer: SkiaLayer = SkiaLayer().apply {
