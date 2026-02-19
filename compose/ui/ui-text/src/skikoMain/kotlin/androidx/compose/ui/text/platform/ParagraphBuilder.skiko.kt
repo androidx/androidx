@@ -34,6 +34,7 @@ import androidx.compose.ui.text.FontRasterizationSettings
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.PlatformParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextDecorationLineStyle
 import androidx.compose.ui.text.TextStyle
@@ -52,7 +53,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextForegroundStyle
 import androidx.compose.ui.text.style.TextGeometricTransform
-import androidx.compose.ui.text.toSkFontRastrSettings
+import androidx.compose.ui.text.toSkFontEdging
+import androidx.compose.ui.text.toSkFontHinting
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.isSpecified
@@ -72,7 +74,6 @@ import org.jetbrains.skia.paragraph.BaselineMode
 import org.jetbrains.skia.paragraph.DecorationLineStyle as SkDecorationLineStyle
 import org.jetbrains.skia.paragraph.DecorationStyle as SkDecorationStyle
 import org.jetbrains.skia.paragraph.Direction as SkDirection
-import org.jetbrains.skia.paragraph.FontRastrSettings as SkFontRastrSettings
 import org.jetbrains.skia.paragraph.HeightMode
 import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.Paragraph as SkParagraph
@@ -99,6 +100,7 @@ private sealed interface ComputedStyle {
     val fontSynthesis: FontSynthesis?
     val fontFamily: FontFamily?
     val fontFeatureSettings: String?
+    val fontRasterizationSettings: FontRasterizationSettings
     val letterSpacing: Float?
     val baselineShift: BaselineShift?
     val textGeometricTransform: TextGeometricTransform?
@@ -122,6 +124,7 @@ private sealed interface ComputedStyle {
         override val fontSynthesis: FontSynthesis? = null,
         override val fontFamily: FontFamily? = null,
         override val fontFeatureSettings: String? = null,
+        override val fontRasterizationSettings: FontRasterizationSettings = FontRasterizationSettings.PlatformDefault,
         override val letterSpacing: Float? = null,
         override val baselineShift: BaselineShift? = null,
         override val textGeometricTransform: TextGeometricTransform? = null,
@@ -183,6 +186,9 @@ private sealed interface ComputedStyle {
             }
 
             res.addFontFeatures(FontFeature.parseW3(fontFeatureSettings.orEmpty()))
+            res.fontEdging = fontRasterizationSettings.smoothing.toSkFontEdging()
+            res.fontHinting = fontRasterizationSettings.hinting.toSkFontHinting()
+            res.subpixel = fontRasterizationSettings.subpixelPositioning
 
             res.fontSize = fontSize
             fontFamily?.let {
@@ -217,6 +223,7 @@ private sealed interface ComputedStyle {
             fontSynthesis = fontSynthesis,
             fontFamily = fontFamily,
             fontFeatureSettings = fontFeatureSettings,
+            fontRasterizationSettings = fontRasterizationSettings,
             letterSpacing = letterSpacing,
             baselineShift = baselineShift,
             textGeometricTransform = textGeometricTransform,
@@ -242,6 +249,7 @@ private sealed interface ComputedStyle {
         override var fontSynthesis: FontSynthesis?,
         override var fontFamily: FontFamily?,
         override var fontFeatureSettings: String?,
+        override var fontRasterizationSettings: FontRasterizationSettings = FontRasterizationSettings.PlatformDefault,
         override var letterSpacing: Float?,
         override var baselineShift: BaselineShift?,
         override var textGeometricTransform: TextGeometricTransform?,
@@ -292,6 +300,7 @@ private sealed interface ComputedStyle {
             fontSynthesis = fontSynthesis,
             fontFamily = fontFamily,
             fontFeatureSettings = fontFeatureSettings,
+            fontRasterizationSettings = fontRasterizationSettings,
             letterSpacing = letterSpacing,
             baselineShift = baselineShift,
             textGeometricTransform = textGeometricTransform,
@@ -311,6 +320,7 @@ private sealed interface ComputedStyle {
 private fun ComputedStyle(
     density: Density,
     spanStyle: SpanStyle,
+    platformParagraphStyle: PlatformParagraphStyle? = null,
     brushSize: Size = Size.Unspecified,
     blendMode: BlendMode = DrawScope.DefaultBlendMode,
     lineHeight: TextUnit,
@@ -324,6 +334,7 @@ private fun ComputedStyle(
     fontSynthesis = spanStyle.fontSynthesis,
     fontFamily = spanStyle.fontFamily,
     fontFeatureSettings = spanStyle.fontFeatureSettings,
+    fontRasterizationSettings = platformParagraphStyle?.fontRasterizationSettings ?: FontRasterizationSettings.PlatformDefault,
     letterSpacing = if (spanStyle.letterSpacing.isSpecified) {
         with(density) { spanStyle.letterSpacing.toPx() }
     } else null,
@@ -372,6 +383,7 @@ internal class ParagraphBuilder(
         defaultStyle = ComputedStyle(
             density = density,
             spanStyle = initialStyle,
+            platformParagraphStyle = textStyle.paragraphStyle.platformStyle,
             brushSize = brushSize,
             blendMode = blendMode,
             lineHeight = textStyle.lineHeight,
@@ -585,6 +597,7 @@ internal class ParagraphBuilder(
         val style = ComputedStyle(
             density = density,
             spanStyle = activeStyles[0],
+            platformParagraphStyle = textStyle.paragraphStyle.platformStyle,
             brushSize = brushSize,
             blendMode = blendMode,
             lineHeight = textStyle.lineHeight,
@@ -604,19 +617,12 @@ internal class ParagraphBuilder(
         return null
     }
 
-    private fun makeSkFontRasterizationSettings(style: TextStyle): SkFontRastrSettings {
-        val rasterizationSettings = style.paragraphStyle.platformStyle?.fontRasterizationSettings
-            ?: FontRasterizationSettings.PlatformDefault
-        return rasterizationSettings.toSkFontRastrSettings()
-    }
-
     private fun textStyleToParagraphStyle(
         style: TextStyle,
         computedStyle: ComputedStyle.Immutable
     ): ParagraphStyle {
         val pStyle = ParagraphStyle()
         pStyle.replaceTabCharacters = true // https://youtrack.jetbrains.com/issue/CMP-6589
-        pStyle.fontRastrSettings = makeSkFontRasterizationSettings(style)
         pStyle.textStyle = makeSkTextStyle(computedStyle)
         style.textAlign.let {
             pStyle.alignment = it.toSkAlignment()

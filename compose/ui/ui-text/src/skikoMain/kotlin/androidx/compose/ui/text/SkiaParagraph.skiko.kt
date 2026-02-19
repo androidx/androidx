@@ -26,6 +26,7 @@ import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.asSkiaPath
 import androidx.compose.ui.graphics.drawscope.DrawStyle
 import androidx.compose.ui.graphics.nativeCanvas
@@ -43,6 +44,7 @@ import androidx.compose.ui.unit.isUnspecified
 import kotlin.math.floor
 import org.jetbrains.skia.FontMetrics
 import org.jetbrains.skia.IRange
+import org.jetbrains.skia.PathBuilder
 import org.jetbrains.skia.paragraph.Direction
 import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.RectHeightMode
@@ -170,11 +172,11 @@ internal class SkiaParagraph(
             RectHeightMode.MAX,
             RectWidthMode.TIGHT
         )
-        val path = Path()
+        val pathBuilder = PathBuilder()
         for (b in boxes) {
-            path.asSkiaPath().addRect(b.rect.left, b.rect.top, b.rect.right, b.rect.bottom)
+            pathBuilder.addRect(b.rect.left, b.rect.top, b.rect.right, b.rect.bottom)
         }
-        return path
+        return pathBuilder.detach().asComposePath()
     }
 
     override fun getCursorRect(offset: Int): Rect {

@@ -18,7 +18,6 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.platform.Platform
 import androidx.compose.ui.text.platform.currentPlatform
-import org.jetbrains.skia.paragraph.FontRastrSettings
 
 /**
  * Whether edge pixels draw opaque or with partial transparency.
@@ -153,11 +152,3 @@ internal fun FontHinting.toSkFontHinting() = when (this) {
     FontHinting.Normal -> org.jetbrains.skia.FontHinting.NORMAL
     FontHinting.Full -> org.jetbrains.skia.FontHinting.FULL
 }
-
-@OptIn(ExperimentalTextApi::class)
-internal fun FontRasterizationSettings.toSkFontRastrSettings() = FontRastrSettings(
-    edging = smoothing.toSkFontEdging(),
-    hinting = hinting.toSkFontHinting(),
-    subpixel = subpixelPositioning
-    // rasterizationSettings.autoHintingForced is ignored here for now because it's not supported in skia
-)
