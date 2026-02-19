@@ -16,8 +16,11 @@
 
 package androidx.compose.material3.adaptive.layout
 
+import androidx.compose.ui.Modifier
+
 @Suppress("NOTHING_TO_INLINE")
-internal actual inline fun androidx.compose.ui.Modifier.Element.isGraphicsLayerElement(): Boolean {
-    // TODO: remove this after update to kotlin 2.3.0, where qualifiedName is available for k/wasm
+internal actual inline fun Modifier.Element.isGraphicsLayerElement(): Boolean {
+    // TODO: remove this when k/js supports qualifiedName - https://youtrack.jetbrains.com/issue/KT-34534/Kotlin-JS-Add-compiler-intrinsic-for-KClass.qualifiedName
+    // then all kotlin targets will rely on `qualifiedName` and there will be no need in expect/actual
     return this::class.simpleName == "GraphicsLayerElement"
 }

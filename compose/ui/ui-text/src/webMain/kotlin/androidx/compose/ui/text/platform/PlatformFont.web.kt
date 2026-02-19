@@ -22,9 +22,13 @@ actual sealed class PlatformFont : Font {
     actual abstract val identity: String
     actual abstract val variationSettings: FontVariation.Settings
     internal actual val cacheKey: String
-        // Unlike k/jvm and k/native, `this::class.qualifiedName` API is not available for k/js and k/wasm.
+        // Unlike k/jvm and k/native, `this::class.qualifiedName` API is not available in k/js.
+        // https://youtrack.jetbrains.com/issue/KT-34534
+        // `class.qualifiedName` is supported in k/wasm since 2.3.0 - https://youtrack.jetbrains.com/issue/KT-69621
+        // But for simplicity we keep using simpleName for now.
+        // Reasoning:
         // Example: given LoadedFont(identity="abc", ...), it will return "LoadedFont|abc"
-        // Such implementation is sufficient since PlatformFont is a sealed class, and
+        // Such implementation is enough since PlatformFont is a sealed class, and
         // we control all of its variants (subclasses).
         get() = "${this::class.simpleName}|$identity|weight=${weight.weight}|style=$style|variationSettings=${variationSettings.settings}"
 }
