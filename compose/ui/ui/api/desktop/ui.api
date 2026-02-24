@@ -1776,6 +1776,7 @@ public final class androidx/compose/ui/input/key/Key$Companion {
 	public final fun getNumPad9-EK5gGoQ ()J
 	public final fun getNumPadAdd-EK5gGoQ ()J
 	public final fun getNumPadComma-EK5gGoQ ()J
+	public final fun getNumPadDelete-EK5gGoQ ()J
 	public final fun getNumPadDirectionDown-EK5gGoQ ()J
 	public final fun getNumPadDirectionLeft-EK5gGoQ ()J
 	public final fun getNumPadDirectionRight-EK5gGoQ ()J
@@ -1840,6 +1841,7 @@ public final class androidx/compose/ui/input/key/Key$Companion {
 	public final fun getStemPrimary-EK5gGoQ ()J
 	public final fun getSwitchCharset-EK5gGoQ ()J
 	public final fun getSymbol-EK5gGoQ ()J
+	public final fun getSystemHome-EK5gGoQ ()J
 	public final fun getSystemNavigationDown-EK5gGoQ ()J
 	public final fun getSystemNavigationLeft-EK5gGoQ ()J
 	public final fun getSystemNavigationRight-EK5gGoQ ()J
