@@ -47,6 +47,13 @@ actual value class Key(val keyCode: Long) {
          */
         actual val Home = Key(KeyEvent.VK_HOME)
 
+        /**
+         * System Home key.
+         *
+         * This key is handled by the framework and is never delivered to applications.
+         */
+        actual val SystemHome: Key = Key(-1000000184)
+
         /** Help key. */
         actual val Help = Key(KeyEvent.VK_HELP)
 
@@ -619,10 +626,9 @@ actual value class Key(val keyCode: Long) {
 
         /** Numeric keypad Insert Key. */
         actual val NumPadInsert = Key(KeyEvent.VK_INSERT, KEY_LOCATION_NUMPAD)
-        actual val SystemHome: Key
-            get() = Unknown
-        actual val NumPadDelete: Key
-            get() = Unknown
+
+        /** Numeric keypad Delete Key. */
+        actual val NumPadDelete: Key = Key(KeyEvent.VK_DELETE, KEY_LOCATION_NUMPAD)
     }
 
     actual override fun toString(): String {
